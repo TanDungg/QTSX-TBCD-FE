@@ -101,11 +101,16 @@ const BoPhanForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
   /**
-   * Quay lại trang người dùng
+   * Quay lại trang bộ phận
    *
    */
   const goBack = () => {
-    history.push("/danh-muc-erp/bo-phan");
+    history.push(
+      `${match.url.replace(
+        type === "new" ? "/them-moi" : `/${match.params.id}/chinh-sua`,
+        ""
+      )}`
+    );
   };
 
   /**

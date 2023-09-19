@@ -74,11 +74,16 @@ const ChucVuForm = ({ history, match, permission }) => {
   };
 
   /**
-   * Quay lại trang người dùng
+   * Quay lại trang chức vụ
    *
    */
   const goBack = () => {
-    history.push("/danh-muc-erp/chuc-vu");
+    history.push(
+      `${match.url.replace(
+        type === "new" ? "/them-moi" : `/${match.params.id}/chinh-sua`,
+        ""
+      )}`
+    );
   };
 
   /**

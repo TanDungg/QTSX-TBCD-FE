@@ -326,10 +326,6 @@ function MauSac({ permission, history }) {
             total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,
-            showTotal: (total) =>
-              totalRow <= total
-                ? `Hiển thị ${dataList.length} trong tổng ${totalRow}`
-                : `Tổng ${totalPages}`,
           }}
           loading={loading}
         />

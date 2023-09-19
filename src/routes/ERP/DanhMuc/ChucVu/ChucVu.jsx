@@ -18,7 +18,7 @@ import { convertObjectToUrlParams } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ChucVu({ history, permission }) {
+function ChucVu({ match, history, permission }) {
   const dispatch = useDispatch();
   const { data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
@@ -117,7 +117,7 @@ function ChucVu({ history, permission }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-erp/chuc-vu/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -230,7 +230,7 @@ function ChucVu({ history, permission }) {
    */
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-erp/chuc-vu/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
   const handleClearSearch = () => {

@@ -207,12 +207,12 @@ export const logOut = async () => {
 /**
  * * lấy ngày tháng năm hiện tại DD/MM/YYYY
  */
-export const getDateNow = () => {
+export const getDateNow = (number) => {
   const date = new Date();
   const day =
     (date.getDate().toString().length === 1
-      ? "0" + date.getDate()
-      : date.getDate()) +
+      ? "0" + date.getDate() - (number ? number : 0)
+      : date.getDate() - (number ? number : 0)) +
     "/" +
     ((date.getMonth() + 1).toString().length === 1
       ? "0" + (date.getMonth() + 1)

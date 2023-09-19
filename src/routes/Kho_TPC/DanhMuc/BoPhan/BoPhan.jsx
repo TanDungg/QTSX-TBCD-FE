@@ -11,9 +11,13 @@ import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { getLocalStorage, treeToFlatlist } from "src/util/Common";
+import {
+  getLocalStorage,
+  reDataForTable,
+  treeToFlatlist,
+} from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { removeDuplicates, reDataSelectedTable } from "src/util/Common";
+import { removeDuplicates } from "src/util/Common";
 import {
   EditableTableRow,
   ModalDeleteConfirm,
@@ -26,7 +30,7 @@ import ImportBoPhan from "./ImportBoPhan";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function BoPhan({ permission, history }) {
+function BoPhan({ match, permission, history }) {
   const dispatch = useDispatch();
   const INFO = getLocalStorage("menu");
   const { data, loading } = useSelector(({ common }) => common).toJS();
@@ -118,7 +122,7 @@ function BoPhan({ permission, history }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-erp/bo-phan/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -182,13 +186,13 @@ function BoPhan({ permission, history }) {
     }
   };
   let dataList = treeToFlatlist(data);
-  dataList = reDataSelectedTable(dataList);
+  dataList = reDataForTable(dataList);
 
   let colValues = [
     {
       title: "STT",
-      dataIndex: "stt",
-      key: "stt",
+      dataIndex: "key",
+      key: "key",
       width: 45,
       align: "center",
     },
@@ -240,22 +244,7 @@ function BoPhan({ permission, history }) {
       onFilter: (value, record) => record.tenPhongBan.includes(value),
       filterSearch: true,
     },
-    {
-      title: "Đơn vị",
-      dataIndex: "tenDonVi",
-      key: "tenDonVi",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenDonVi,
-            value: d.tenDonVi,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenDonVi.includes(value),
-      filterSearch: true,
-    },
+
     {
       title: "Chức năng",
       key: "action",
@@ -295,18 +284,17 @@ function BoPhan({ permission, history }) {
    */
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-erp/bo-phan/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
   const handleImport = () => {
-    getListData("");
     setActiveModal(true);
   };
 
   const addButtonRender = () => {
     return (
       <>
-        <Button
+        {/* <Button
           icon={<UploadOutlined />}
           className="th-btn-margin-bottom-0"
           type="primary"
@@ -314,7 +302,7 @@ function BoPhan({ permission, history }) {
           disabled={permission && !permission.add}
         >
           Import
-        </Button>
+        </Button> */}
         <Button
           icon={<PlusOutlined />}
           className="th-btn-margin-bottom-0"

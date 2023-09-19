@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-
+import { includes } from "lodash";
 import { ModalDeleteConfirm, Table, Select } from "src/components/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import {
@@ -88,6 +88,10 @@ function VaiTro({ match, history, permission }) {
    * @returns View
    */
   const actionContent = (itemVal) => {
+    let check = true;
+    if (itemVal.name.toUpperCase().includes("ADMINISTRATOR")) {
+      check = false;
+    }
     const phanQuyenItem =
       permission && permission.edit ? (
         <Link
@@ -105,7 +109,7 @@ function VaiTro({ match, history, permission }) {
         </span>
       );
     const editItem =
-      permission && permission.edit ? (
+      permission && permission.edit && check ? (
         <Link
           to={{
             pathname: `${match.url}/${itemVal.id}/chinh-sua`,

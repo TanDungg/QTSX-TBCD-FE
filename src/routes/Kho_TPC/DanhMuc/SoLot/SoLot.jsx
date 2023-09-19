@@ -1,4 +1,9 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { Button, Card, Divider } from "antd";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
@@ -17,13 +22,15 @@ import {
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
+import ImportSoLot from "./ImportSoLot";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-function Lot({ permission, history }) {
+function Lot({ match, permission, history }) {
   const dispatch = useDispatch();
   const { data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
+  const [ActiveModal, setActiveModal] = useState(false);
   const { totalRow, totalPages, pageSize } = data;
   useEffect(() => {
     if (permission && permission.view) {
@@ -65,7 +72,7 @@ function Lot({ permission, history }) {
    * Tìm kiếm người dùng
    *
    */
-  const onSearchNguoiDung = () => {
+  const onSearchSoLot = () => {
     getListData(keyword, page);
   };
 
@@ -118,7 +125,7 @@ function Lot({ permission, history }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/so-lot/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -253,21 +260,37 @@ function Lot({ permission, history }) {
   };
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-kho-tpc/so-lot/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
-
+  const refeshData = () => {
+    getListData(keyword, page);
+  };
+  const handleImport = () => {
+    setActiveModal(true);
+  };
   const addButtonRender = () => {
     return (
-      <Button
-        icon={<PlusOutlined />}
-        className="th-btn-margin-bottom-0"
-        type="primary"
-        onClick={handleRedirect}
-        disabled={permission && !permission.add}
-      >
-        Thêm mới
-      </Button>
+      <>
+        <Button
+          icon={<UploadOutlined />}
+          className="th-btn-margin-bottom-0"
+          type="primary"
+          onClick={handleImport}
+          disabled={permission && !permission.add}
+        >
+          Import
+        </Button>
+        <Button
+          icon={<PlusOutlined />}
+          className="th-btn-margin-bottom-0"
+          type="primary"
+          onClick={handleRedirect}
+          disabled={permission && !permission.add}
+        >
+          Thêm mới
+        </Button>
+      </>
     );
   };
 
@@ -286,8 +309,8 @@ function Lot({ permission, history }) {
             loading,
             value: keyword,
             onChange: onChangeKeyword,
-            onPressEnter: onSearchNguoiDung,
-            onSearch: onSearchNguoiDung,
+            onPressEnter: onSearchSoLot,
+            onSearch: onSearchSoLot,
             placeholder: "Nhập từ khóa",
             allowClear: true,
             onClear: { handleClearSearch },
@@ -310,14 +333,15 @@ function Lot({ permission, history }) {
             total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,
-            showTotal: (total) =>
-              totalRow <= total
-                ? `Hiển thị ${dataList.length} trong tổng ${totalRow}`
-                : `Tổng ${totalPages}`,
           }}
           loading={loading}
         />
       </Card>
+      <ImportSoLot
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        refesh={refeshData}
+      />
     </div>
   );
 }

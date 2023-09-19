@@ -30,7 +30,7 @@ import ImportPhongBan from "./ImportPhongBan";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function PhongBan({ permission, history }) {
+function PhongBan({ match, permission, history }) {
   const dispatch = useDispatch();
   const { data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
@@ -120,7 +120,7 @@ function PhongBan({ permission, history }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-erp/ban-phong/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -279,7 +279,7 @@ function PhongBan({ permission, history }) {
 
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-erp/ban-phong/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
   const handleImport = () => {

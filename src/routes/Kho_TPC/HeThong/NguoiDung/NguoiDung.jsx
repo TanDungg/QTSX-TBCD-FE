@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Button, Tag, Avatar, Image, Divider } from "antd";
+import { Card, Button, Tag, Divider } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -22,14 +22,13 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 
 function NguoiDung({ match, history, permission }) {
-  const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const dispatch = useDispatch();
   const INFO = getLocalStorage("menu");
   const { data, loading, width } = useSelector(({ common }) => common).toJS();
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(keyword, page, INFO);
+      getListData(keyword, INFO);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -44,27 +43,13 @@ function NguoiDung({ match, history, permission }) {
    * @param keyword Từ khóa
    * @param page Trang
    */
-  const getListData = (keyword, page, INFO) => {
+  const getListData = (keyword, INFO) => {
     let param = convertObjectToUrlParams({
-      page,
       keyword,
-      phanMem_Id: INFO.phanMem_Id,
-      donviId: INFO.donVi_Id,
+      phanMem_id: INFO.phanMem_Id,
+      donVi_Id: INFO.donVi_Id,
     });
-    dispatch(
-      fetchStart(`Account/list-user-cbnv-role?${param}`, "GET", null, "LIST")
-    );
-  };
-
-  /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    getListData(keyword, pagination);
+    dispatch(fetchStart(`PhanMem/user-all-role?${param}`, "GET", null, "LIST"));
   };
 
   /**
@@ -106,13 +91,14 @@ function NguoiDung({ match, history, permission }) {
    */
   const callActiveNguoiDung = (record) => {
     const param = convertObjectToUrlParams({
-      user_Id: record.id,
-      role_Id: record.role_Id,
+      user_Id: record.user_Id,
+      donVi_Id: INFO.donVi_Id,
+      phanMem_id: INFO.phanMem_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhanMem/active-phan-mem-for-user?${param}`,
+          `PhanMem/active-all-pm-for-cbnv?${param}`,
           "POST",
           null,
           "EDIT",
@@ -124,7 +110,7 @@ function NguoiDung({ match, history, permission }) {
     })
       .then((res) => {
         if (res.status === 200) {
-          getListData(keyword, page, INFO);
+          getListData(keyword, INFO);
         }
       })
       .catch((err) => console.error(err));
@@ -156,7 +142,7 @@ function NguoiDung({ match, history, permission }) {
     })
       .then((res) => {
         if (res.status !== 409) {
-          getListData(keyword, page, INFO);
+          getListData(keyword, INFO);
         }
       })
       .catch((error) => console.error(error));
@@ -168,11 +154,17 @@ function NguoiDung({ match, history, permission }) {
    * @returns View
    */
   const actionContent = (item) => {
+    let check = true;
+    JSON.parse(item.chiTietRoles).forEach((r) => {
+      if (r.roleName.toUpperCase().includes("ADMINISTRATOR")) {
+        check = false;
+      }
+    });
     const editItem =
-      permission && permission.edit ? (
+      permission && permission.edit && check ? (
         <Link
           to={{
-            pathname: `${match.path}/${item.id}_${item.role_Id}/chinh-sua`,
+            pathname: `${match.path}/${item.user_Id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -185,7 +177,7 @@ function NguoiDung({ match, history, permission }) {
         </span>
       );
     const deleteItemVal =
-      permission && permission.del && !item.isUsed
+      permission && permission.del && check
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -204,7 +196,7 @@ function NguoiDung({ match, history, permission }) {
    *
    */
   const onSearchNguoiDung = () => {
-    getListData(keyword, page, INFO);
+    getListData(keyword, INFO);
   };
 
   /**
@@ -215,10 +207,29 @@ function NguoiDung({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, page);
+      getListData(val.target.value, INFO);
     }
   };
-
+  /**
+   * Hiển thị tag quyền
+   *
+   * @param {*} val
+   * @returns
+   */
+  const renderDisplayName = (val) => {
+    if (!isEmpty(val)) {
+      return map(val, (item, index) => {
+        let color = "green";
+        if (item.roleName.trim() === "Quản trị") color = "magenta";
+        return (
+          <Tag key={index} color={color}>
+            {item.roleName}
+          </Tag>
+        );
+      });
+    }
+    return null;
+  };
   /**
    * Hiển thị bảng
    *
@@ -235,10 +246,10 @@ function NguoiDung({ match, history, permission }) {
       },
       {
         title: "Quyền",
-        dataIndex: "roleName",
-        key: "roleName",
+        dataIndex: "chiTietRoles",
+        key: "chiTietRoles",
         align: "center",
-        render: (val) => renderDisplayName(val),
+        render: (val) => renderDisplayName(JSON.parse(val)),
       },
       {
         title: "Mã nhân viên",
@@ -280,8 +291,8 @@ function NguoiDung({ match, history, permission }) {
         ...renderHead,
         {
           title: "Trạng thái",
-          key: "isActive_Role",
-          dataIndex: "isActive_Role",
+          key: "IsActive_Role",
+          dataIndex: "IsActive_Role",
           align: "center",
           width: 80,
           render: (value, record) => activeNguoiDung(value, record),
@@ -302,24 +313,6 @@ function NguoiDung({ match, history, permission }) {
     return renderHead;
   };
 
-  /**
-   * Hiển thị tag quyền
-   *
-   * @param {*} val
-   * @returns
-   */
-  const renderDisplayName = (val) => {
-    if (!isEmpty(val)) {
-      let color = "green";
-      return (
-        <Tag key={val} color={color}>
-          {val}
-        </Tag>
-      );
-    }
-    return null;
-  };
-
   const addButtonRender = () => {
     return (
       <Button
@@ -334,11 +327,7 @@ function NguoiDung({ match, history, permission }) {
     );
   };
 
-  const { totalPages, totalRow, pageSize } = data;
-  const dataList = reDataForTable(
-    data.datalist,
-    page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  const dataList = reDataForTable(data);
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -370,15 +359,9 @@ function NguoiDung({ match, history, permission }) {
           dataSource={dataList}
           size="small"
           pagination={{
-            onChange: handleTableChange,
-            pageSize: pageSize,
-            total: totalRow,
+            pageSize: 20,
             showSizeChanger: false,
             showQuickJumper: true,
-            showTotal: (total) =>
-              totalRow <= total
-                ? `Hiển thị ${data.datalist.length} trong tổng ${totalRow}`
-                : `Tổng ${totalPages}`,
           }}
           loading={loading}
         />

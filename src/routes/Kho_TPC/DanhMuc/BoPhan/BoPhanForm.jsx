@@ -3,9 +3,10 @@ import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit, Select } from "src/components/Common";
+import { FormSubmit, TreeSelect } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { getLocalStorage } from "src/util/Common";
 
 const FormItem = Form.Item;
 
@@ -13,6 +14,7 @@ const initialState = {
   maBoPhan: "",
   tenBoPhan: "",
   phongBan_Id: "",
+  boPhan_Id: "root",
 };
 const BoPhanForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
@@ -20,9 +22,11 @@ const BoPhanForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { maBoPhan, tenBoPhan, phongBan_Id } = initialState;
+  const { maBoPhan, tenBoPhan, phongBan_Id, boPhan_Id } = initialState;
   const [phongBanSelect, setPhongBanSelect] = useState([]);
+  const [BoPhanSelect, setBoPhanSelect] = useState([]);
 
+  const INFO = getLocalStorage("menu");
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
@@ -54,7 +58,7 @@ const BoPhanForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Phongban?page=-1`,
+          `Phongban/phong-ban-tree?donviid=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -65,14 +69,31 @@ const BoPhanForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        const newData = [];
-        res.data.forEach((d) => {
-          newData.push({
-            id: d.id,
-            name: `${d.maPhongBan} - ${d.tenPhongBan} - ${d.tenDonVi}`,
-          });
-        });
-        setPhongBanSelect(newData);
+        setPhongBanSelect(res.data);
+      } else {
+        setPhongBanSelect([]);
+      }
+    });
+  };
+  const getBoPhan = (phongBan_Id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `BoPhan/bo-phan-tree?donviid=${INFO.donVi_Id}&&phongBan_Id=${phongBan_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        const newlist = { id: "root", tenBoPhan: "Root", children: [] };
+        setBoPhanSelect([newlist, ...res.data]);
+      } else {
+        setBoPhanSelect([]);
       }
     });
   };
@@ -91,21 +112,28 @@ const BoPhanForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          const data = res.data[0];
+          const data = res.data;
+          if (data.boPhan_Id === null) data.boPhan_Id = "root";
+          getBoPhan(data.phongBan_Id);
           setFieldsValue({
             bophan: data,
           });
-          setInfo(...res.data, res.data[0].phongBan);
+          setInfo(res.data);
         }
       })
       .catch((error) => console.error(error));
   };
   /**
-   * Quay lại trang người dùng
+   * Quay lại trang bộ phận
    *
    */
   const goBack = () => {
-    history.push("/danh-muc-erp/bo-phan");
+    history.push(
+      `${match.url.replace(
+        type === "new" ? "/them-moi" : `/${match.params.id}/chinh-sua`,
+        ""
+      )}`
+    );
   };
 
   /**
@@ -127,9 +155,11 @@ const BoPhanForm = ({ history, match, permission }) => {
       });
   };
 
-  const saveData = (user, saveQuit = false) => {
+  const saveData = (BoPhan, saveQuit = false) => {
     if (type === "new") {
-      const newData = user;
+      const newData = BoPhan;
+      newData.boPhan_Id =
+        newData.boPhan_Id === "root" ? null : newData.boPhan_Id;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(`BoPhan`, "POST", newData, "ADD", "", resolve, reject)
@@ -154,14 +184,17 @@ const BoPhanForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      delete info.phongban;
-      var newData = { ...info, ...user };
+      const editBoPhan = { ...info, ...BoPhan };
+      editBoPhan.boPhan_Id =
+        editBoPhan.boPhan_Id === "root"
+          ? (editBoPhan.boPhan_Id = null)
+          : editBoPhan.boPhan_Id;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
             `BoPhan/${id}`,
             "PUT",
-            newData,
+            editBoPhan,
             "EDIT",
             "",
             resolve,
@@ -179,6 +212,9 @@ const BoPhanForm = ({ history, match, permission }) => {
         })
         .catch((error) => console.error(error));
     }
+  };
+  const hanldeSelectPhongBan = (val) => {
+    getBoPhan(val);
   };
   const formTitle = type === "new" ? "Thêm mới bộ phận" : "Chỉnh sửa bộ phận";
   return (
@@ -235,18 +271,38 @@ const BoPhanForm = ({ history, match, permission }) => {
                 required: true,
               },
             ]}
-            initialValue={phongBan_Id}
           >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={phongBanSelect ? phongBanSelect : []}
-              placeholder="Chọn phòng ban"
-              optionsvalue={["id", "name"]}
+            <TreeSelect
+              className="tree-select-item"
+              datatreeselect={phongBanSelect}
+              name="PhongBan"
+              options={["id", "tenPhongBan", "children"]}
+              placeholder="Chọn Ban/Phòng"
               style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
+              onSelect={hanldeSelectPhongBan}
             />
           </FormItem>
+          <FormItem
+            label="Bộ phận cha"
+            name={["bophan", "boPhan_Id"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
+            initialValue={boPhan_Id}
+          >
+            <TreeSelect
+              className="tree-select-item"
+              datatreeselect={BoPhanSelect}
+              name="CauTrucKho"
+              options={["id", "tenBoPhan", "children"]}
+              placeholder="Chọn bộ phận cha"
+              style={{ width: "100%" }}
+            />
+          </FormItem>
+
           <FormSubmit
             goBack={goBack}
             saveAndClose={saveAndClose}

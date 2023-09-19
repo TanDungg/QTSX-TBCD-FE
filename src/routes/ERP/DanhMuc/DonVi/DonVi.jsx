@@ -26,7 +26,7 @@ import { convertObjectToUrlParams } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function DonVi({ permission, history }) {
+function DonVi({ match, permission, history }) {
   const dispatch = useDispatch();
   const { data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
@@ -108,7 +108,7 @@ function DonVi({ permission, history }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc/don-vi/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -281,7 +281,7 @@ function DonVi({ permission, history }) {
    */
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc/don-vi/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
 

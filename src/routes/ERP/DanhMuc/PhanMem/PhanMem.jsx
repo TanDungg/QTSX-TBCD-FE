@@ -19,7 +19,7 @@ import { convertObjectToUrlParams } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function PhanMem({ history, permission }) {
+function PhanMem({ match, history, permission }) {
   const dispatch = useDispatch();
   const { data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
@@ -118,7 +118,7 @@ function PhanMem({ history, permission }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-erp/phan-mem/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -247,7 +247,7 @@ function PhanMem({ history, permission }) {
    */
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-erp/phan-mem/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
   const handleClearSearch = () => {

@@ -287,7 +287,7 @@ function PhongBan({ permission, history }) {
   const addButtonRender = () => {
     return (
       <>
-        <Button
+        {/* <Button
           icon={<UploadOutlined />}
           className="th-btn-margin-bottom-0"
           type="primary"
@@ -295,7 +295,7 @@ function PhongBan({ permission, history }) {
           disabled={permission && !permission.add}
         >
           Import
-        </Button>
+        </Button> */}
         <Button
           icon={<PlusOutlined />}
           className="th-btn-margin-bottom-0"

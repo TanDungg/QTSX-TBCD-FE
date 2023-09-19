@@ -15,14 +15,14 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
-  reDataForTable,
+  reDataSelectedTable,
   treeToFlatlist,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function CauTrucKho({ history, permission }) {
+function CauTrucKho({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
@@ -94,7 +94,7 @@ function CauTrucKho({ history, permission }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/cau-truc-kho/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
           title="Sửa"
@@ -169,7 +169,7 @@ function CauTrucKho({ history, permission }) {
    */
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-kho-tpc/cau-truc-kho/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
 
@@ -193,7 +193,7 @@ function CauTrucKho({ history, permission }) {
       dataIndex: "stt",
       key: "stt",
       align: "center",
-      width: 45,
+      width: 70,
     },
     {
       title: "Mã cấu trúc kho",
@@ -214,9 +214,9 @@ function CauTrucKho({ history, permission }) {
       align: "center",
     },
     {
-      title: "Tên bộ phận",
-      dataIndex: "tenBoPhan",
-      key: "tenBoPhan",
+      title: "Tên Ban/Phòng",
+      dataIndex: "tenPhongBan",
+      key: "tenPhongBan",
       align: "center",
     },
     {
@@ -233,7 +233,8 @@ function CauTrucKho({ history, permission }) {
       render: (value) => actionContent(value),
     },
   ];
-  const dataList = reDataForTable(data.dataList);
+  let dataList = treeToFlatlist(data);
+  dataList = reDataSelectedTable(dataList);
 
   const components = {
     body: {
@@ -260,8 +261,8 @@ function CauTrucKho({ history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Kho"
-        description="Danh sách kho"
+        title="Cấu trúc kho"
+        description="Danh sách cấu trúc kho"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">

@@ -181,10 +181,10 @@ function CanBoNhanVien({ match, history, permission }) {
     return (
       <React.Fragment>
         {editItem}
-        <Divider type="vertical" />
+        {/* <Divider type="vertical" />
         <a {...nhanSuNghiItemVal} title="Nghỉ việc">
           <CloseCircleOutlined />
-        </a>
+        </a> */}
         <Divider type="vertical" />
         <a {...deleteItemVal} title="Xóa">
           <DeleteOutlined />
@@ -541,10 +541,6 @@ function CanBoNhanVien({ match, history, permission }) {
             total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,
-            showTotal: (total) =>
-              totalRow <= total
-                ? `Hiển thị ${dataList.length} trong tổng ${totalRow}`
-                : `Tổng ${totalPage}`,
           }}
           loading={loading}
         />

@@ -18,7 +18,7 @@ import { convertObjectToUrlParams } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function TapDoan({ history, permission }) {
+function TapDoan({ match, history, permission }) {
   const dispatch = useDispatch();
   const { data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
@@ -117,7 +117,7 @@ function TapDoan({ history, permission }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-erp/tap-doan/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -232,7 +232,7 @@ function TapDoan({ history, permission }) {
   };
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-erp/tap-doan/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
 

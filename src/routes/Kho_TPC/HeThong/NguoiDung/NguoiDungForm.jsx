@@ -23,7 +23,7 @@ function NguoiDungForm({ match, permission, history }) {
   const [roleSelect, setRoleSelect] = useState([]);
   const [UserSelect, setUserSelect] = useState();
   const { resetFields, setFieldsValue, validateFields } = form;
-  const [info, setInfo] = useState();
+  const [id, setId] = useState();
   const [Role_Id, setRole_Id] = useState();
 
   const [type, setType] = useState("new");
@@ -42,12 +42,11 @@ function NguoiDungForm({ match, permission, history }) {
         if (permission && permission.edit) {
           setType("edit");
           // Get info
-          const params = match.params.id.split("_");
-          setInfo(params);
-          getUserInfo(params[0]);
+          const { id } = match.params;
+          setId(id);
+          getUserInfo(id);
           getRole(INFO);
-          setRole_Id(params[1]);
-          getInfo(params[0], params[1]);
+          getInfo(id, INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -135,16 +134,28 @@ function NguoiDungForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setRoleSelect(res.data);
+          const newData = [];
+          res.data.forEach((r) => {
+            if (r.name.toUpperCase().includes("ADMINISTRATOR")) {
+            } else {
+              newData.push(r);
+            }
+          });
+          setRoleSelect(newData);
         }
       })
       .catch((error) => console.error(error));
   };
-  const getInfo = (id, role_Id) => {
+  const getInfo = (id, info) => {
+    const params = convertObjectToUrlParams({
+      user_Id: id,
+      donVi_Id: info.donVi_Id,
+      phanMem_id: info.phanMem_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-administrator?id=${id}&&role_Id=${role_Id}`,
+          `PhanMem/user-cbnv-role-by-id?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -156,10 +167,14 @@ function NguoiDungForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
+          const listRole = JSON.parse(res.data[0].chiTietRoles).map((ct) =>
+            ct.role_Id.toLowerCase()
+          );
+          setRole_Id(listRole);
           const newData = {
-            id: res.data.id,
-            roleNames: res.data.role_Id,
-            isActive: res.data.isActive_Role,
+            id: res.data[0].user_Id,
+            roleNames: listRole,
+            isActive: res.data[0].isActive_Role,
           };
           setFieldsValue({ user: newData });
         }
@@ -173,7 +188,7 @@ function NguoiDungForm({ match, permission, history }) {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.user, true);
+    saveData(values.user);
   };
   const saveAndClose = () => {
     validateFields()
@@ -209,13 +224,9 @@ function NguoiDungForm({ match, permission, history }) {
         );
       })
         .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) goBack();
-          } else {
-            if (res.status !== 409) {
-              resetFields();
-              setFieldTouch(false);
-            }
+          if (res.status !== 409) {
+            resetFields();
+            setFieldTouch(false);
           }
         })
         .catch((error) => console.error(error));
@@ -225,16 +236,12 @@ function NguoiDungForm({ match, permission, history }) {
         isActive: user.isActive,
         donVi_Id: INFO.donVi_Id,
         phanMem_Id: INFO.phanMem_Id,
-        chiTietRoles: [
-          {
-            role_Id: user.roleNames[0],
-          },
-        ],
-        chiTietRolesOld: [
-          {
-            roleold_Id: info[1],
-          },
-        ],
+        chiTietRoles: user.roleNames.map((r) => {
+          return { role_Id: r };
+        }),
+        chiTietRolesOld: Role_Id.map((r) => {
+          return { roleold_Id: r };
+        }),
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -254,7 +261,7 @@ function NguoiDungForm({ match, permission, history }) {
             if (res.status !== 409) goBack();
           } else {
             if (res.status !== 409) {
-              getInfo(info[0], Role_Id);
+              getInfo(id, INFO);
             }
           }
         })
@@ -332,7 +339,7 @@ function NguoiDungForm({ match, permission, history }) {
               placeholder="Chọn vai trò"
               optionsvalue={["id", "name"]}
               style={{ width: "100%" }}
-              mode={type === "edit" ? "none" : "multiple"}
+              mode={"multiple"}
             />
           </FormItem>
 
@@ -346,7 +353,7 @@ function NguoiDungForm({ match, permission, history }) {
           </FormItem>
           <FormSubmit
             goBack={goBack}
-            // saveAndClose={saveAndClose}
+            saveAndClose={saveAndClose}
             disabled={fieldTouch}
           />
         </Form>

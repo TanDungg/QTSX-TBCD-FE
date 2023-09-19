@@ -7,6 +7,7 @@ import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit, Select, TreeSelect } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { getLocalStorage } from "src/util/Common";
 
 const FormItem = Form.Item;
 
@@ -25,7 +26,7 @@ const PhongBanForm = ({ history, match, permission }) => {
   const { maPhongBan, tenPhongBan, donVi_Id, phongBan_Id } = initialState;
   const [donViSelect, setDonViSelect] = useState([]);
   const [PhongBanTree, setPhongBanTree] = useState([]);
-
+  const INFO = getLocalStorage("menu");
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
@@ -57,7 +58,7 @@ const PhongBanForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `DonVi/don-vi-tree`,
+          `DonVi/don-vi-tree?donviid=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -76,7 +77,7 @@ const PhongBanForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhongBan/phong-ban-tree`,
+          `PhongBan/phong-ban-tree?donviid=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -88,7 +89,10 @@ const PhongBanForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setPhongBanTree(res.data);
+          const root = { id: "root", tenPhongBan: "Root", children: [] };
+          setPhongBanTree([root, ...res.data]);
+        } else {
+          setPhongBanTree([]);
         }
       })
       .catch((error) => console.error(error));
@@ -108,11 +112,11 @@ const PhongBanForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          const data = res.data[0];
+          const data = res.data;
           setFieldsValue({
             phongban: data,
           });
-          setInfo(...res.data, res.data[0].donVi);
+          setInfo(res.data);
         }
       })
       .catch((error) => console.error(error));
@@ -259,7 +263,7 @@ const PhongBanForm = ({ history, match, permission }) => {
               className="tree-select-item"
               datatreeselect={PhongBanTree ? PhongBanTree : []}
               name="menu"
-              options={["id", "tenDonVi", "children"]}
+              options={["id", "tenPhongBan", "children"]}
               placeholder="Ban/Phòng cha"
               style={{ width: "100%" }}
             />

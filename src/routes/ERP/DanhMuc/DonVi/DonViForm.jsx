@@ -119,11 +119,16 @@ const DonViForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
   /**
-   * Quay lại trang người dùng
+   * Quay lại trang đơn vị
    *
    */
   const goBack = () => {
-    history.push("/danh-muc/don-vi");
+    history.push(
+      `${match.url.replace(
+        type === "new" ? "/them-moi" : `/${match.params.id}/chinh-sua`,
+        ""
+      )}`
+    );
   };
 
   /**

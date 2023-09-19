@@ -103,26 +103,27 @@ function DonVi({ match, permission, history }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const editItem =
-      permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item, permission },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
+    const editItem = (
+      // permission && permission.edit ? (
+      //   <Link
+      //     to={{
+      //       pathname: `${match.url}/${item.id}/chinh-sua`,
+      //       state: { itemData: item, permission },
+      //     }}
+      //     title="Sửa"
+      //   >
+      //     <EditOutlined />
+      //   </Link>
+      // ) :
+      <span disabled title="Sửa">
+        <EditOutlined />
+      </span>
+    );
     const deleteItemVal =
-      permission && permission.del && !item.isUsed
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
+      // permission && permission.del && !item.isUsed
+      //   ? { onClick: () => deleteItemFunc(item) }
+      //   :
+      { disabled: true };
     return (
       <div>
         <React.Fragment>
@@ -251,30 +252,28 @@ function DonVi({ match, permission, history }) {
   const handleClearSearch = () => {
     getListData(null, 1);
   };
-  const refeshData = () => {
-    getListData(keyword);
-  };
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<PlusOutlined />}
-          className="th-btn-margin-bottom-0"
-          type="primary"
-          onClick={handleRedirect}
-          disabled={permission && !permission.add}
-        >
-          Thêm mới
-        </Button>
-      </>
-    );
-  };
+
+  // const addButtonRender = () => {
+  //   return (
+  //     <>
+  //       <Button
+  //         icon={<PlusOutlined />}
+  //         className="th-btn-margin-bottom-0"
+  //         type="primary"
+  //         onClick={handleRedirect}
+  //         disabled={permission && !permission.add}
+  //       >
+  //         Thêm mới
+  //       </Button>
+  //     </>
+  //   );
+  // };
   return (
     <div className="gx-main-content">
       <ContainerHeader
         title={"Đơn vị"}
         description="Danh sách đơn vị"
-        buttons={addButtonRender()}
+        // buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
         <Toolbar

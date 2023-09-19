@@ -12,6 +12,7 @@ const DanhMuc_ERP = asyncComponent(() => import("./ERP/DanhMuc"));
 //KHO_NHUA
 const DanhMuc_KHO_TPC = asyncComponent(() => import("./Kho_TPC/DanhMuc"));
 const HeThong_KHO_TPC = asyncComponent(() => import("./Kho_TPC/HeThong"));
+const SanXuat_KHO_TPC = asyncComponent(() => import("./Kho_TPC/SanXuat"));
 
 const App = ({ match, menus, location }) => {
   const { pathname } = location;
@@ -34,14 +35,18 @@ const App = ({ match, menus, location }) => {
           path={`${match.url}danh-muc-erp`}
           component={Auth(DanhMuc_ERP, menus, pathname)}
         />
-        <Route
-          path={`${match.url}he-thong-kho-tpc`}
-          component={Auth(HeThong_KHO_TPC, menus, pathname)}
-        />
         {/* KHO_TPC */}
         <Route
           path={`${match.url}danh-muc-kho-tpc`}
           component={Auth(DanhMuc_KHO_TPC, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}he-thong-kho-tpc`}
+          component={Auth(HeThong_KHO_TPC, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}san-xuat-kho-tpc`}
+          component={Auth(SanXuat_KHO_TPC, menus, pathname)}
         />
         <Route path="*" component={Auth(Home_ERP, menus, pathname)} />
       </Switch>
