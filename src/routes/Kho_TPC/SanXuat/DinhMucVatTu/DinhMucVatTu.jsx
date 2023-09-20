@@ -155,8 +155,8 @@ function DinhMucVatTu({ permission, history, match }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "bộ phận";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenBoPhan, title);
+    const title = "phiếu định mức vật tư";
+    ModalDeleteConfirm(deleteItemAction, item, item.maDinhMucVatTu, title);
   };
 
   /**
@@ -183,7 +183,7 @@ function DinhMucVatTu({ permission, history, match }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.id}/chi-tiet`,
+            pathname: `${match.url}/${item.id}/xac-nhan`,
             state: { itemData: item, permission },
           }}
           title="Chi tiết"
@@ -196,7 +196,7 @@ function DinhMucVatTu({ permission, history, match }) {
         </span>
       );
     const editItem =
-      permission && permission.edit ? (
+      permission && permission.cof ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -212,7 +212,7 @@ function DinhMucVatTu({ permission, history, match }) {
         </span>
       );
     const deleteItemVal =
-      permission && permission.del && !item.isUsed
+      permission && permission.cof
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -229,6 +229,22 @@ function DinhMucVatTu({ permission, history, match }) {
       </div>
     );
   };
+  const renderDetail = (val) => {
+    const detail =
+      permission && permission.view ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${val.id}/chi-tiet`,
+            state: { itemData: val, permission },
+          }}
+        >
+          {val.maDinhMucVatTu}
+        </Link>
+      ) : (
+        <span disabled>{val.maDinhMucVatTu}</span>
+      );
+    return <div>{detail}</div>;
+  };
   //tạo bảng
   let colValues = [
     {
@@ -240,9 +256,10 @@ function DinhMucVatTu({ permission, history, match }) {
     },
     {
       title: "Mã phiếu định mức",
-      dataIndex: "maDinhMucVatTu",
       key: "maDinhMucVatTu",
       align: "center",
+      render: (val) => renderDetail(val),
+
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -330,31 +347,11 @@ function DinhMucVatTu({ permission, history, match }) {
    * @memberof ChucNang
    */
   const handleInPhieu = () => {
-    history.push({
-      pathname:
-        selectedDevice.length > 0
-          ? `/quan-ly-thiet-bi/dieu-chuyen-thiet-bi/them-moi`
-          : `/quan-ly-thiet-bi/dieu-chuyen-thiet-bi`,
-      state: {
-        ThietBi: selectedDevice,
-        DinhMucVatTu,
-        user_Id: user_Id,
-      },
-    });
+    history.push();
   };
 
   const handleTaoPhieu = () => {
-    history.push({
-      pathname:
-        selectedDevice.length > 0
-          ? `/quan-ly-thiet-bi/ban-giao-thiet-bi/them-moi`
-          : `/quan-ly-thiet-bi/ban-giao-thiet-bi`,
-      state: {
-        ThietBi: selectedDevice,
-        DinhMucVatTu,
-        user_Id: user_Id,
-      },
-    });
+    history.push(`${match.url}/them-moi`);
   };
   const addButtonRender = () => {
     return (

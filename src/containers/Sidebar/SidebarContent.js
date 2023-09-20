@@ -137,6 +137,8 @@ function SidebarContent(props) {
       "chi-tiet",
       "phan-quyen",
       "lap-yeu-cau",
+      "import",
+      "xac-nhan",
     ];
     let selectedKeysTmp = selectedKeys.split("/");
     map(listToRemove, (val) => remove(selectedKeysTmp, (item) => item === val));

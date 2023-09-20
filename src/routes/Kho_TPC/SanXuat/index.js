@@ -10,8 +10,8 @@ const DinhMucVatTuForm = asyncComponent(() =>
   import("./DinhMucVatTu/DinhMucVatTuForm")
 );
 
-// const DonVi = asyncComponent(() => import("./DonVi/DonVi"));
-// const DonViForm = asyncComponent(() => import("./DonVi/DonViForm"));
+const KeHoach = asyncComponent(() => import("./KeHoach/KeHoach"));
+const ImportKeHoach = asyncComponent(() => import("./KeHoach/ImportKeHoach"));
 
 // const BoPhan = asyncComponent(() => import("./BoPhan/BoPhan"));
 // const BoPhanForm = asyncComponent(() => import("./BoPhan/BoPhanForm"));
@@ -34,6 +34,26 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/dinh-muc-vat-tu/:id/chinh-sua`}
         exact
         component={Auth(DinhMucVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/dinh-muc-vat-tu/:id/chi-tiet`}
+        exact
+        component={Auth(DinhMucVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/dinh-muc-vat-tu/:id/xac-nhan`}
+        exact
+        component={Auth(DinhMucVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/ke-hoach`}
+        exact
+        component={Auth(KeHoach, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/ke-hoach/import`}
+        exact
+        component={Auth(ImportKeHoach, menus, pathname, permission)}
       />
     </Switch>
   );
