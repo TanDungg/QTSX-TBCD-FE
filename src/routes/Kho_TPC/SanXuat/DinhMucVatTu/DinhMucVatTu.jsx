@@ -1,14 +1,13 @@
 import {
-  RetweetOutlined,
-  SolutionOutlined,
+  PrinterOutlined,
   EditOutlined,
   DeleteOutlined,
   EyeOutlined,
   EyeInvisibleOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import { Button, Card, Row, Col, DatePicker, Divider } from "antd";
-import isEmpty from "lodash/isEmpty";
-import { map, remove } from "lodash";
+import { map, remove, find, isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
@@ -38,7 +37,7 @@ function DinhMucVatTu({ permission, history, match }) {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [ListUser, setListUser] = useState([]);
-  const [user_Id, setUser_Id] = useState(INFO.user_Id);
+  const [user_Id, setUser_Id] = useState("");
   const [DinhMucVatTu, setDinhMucVatTu] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
@@ -49,7 +48,8 @@ function DinhMucVatTu({ permission, history, match }) {
 
   useEffect(() => {
     if (permission && permission.view) {
-      getDinhMucVatTu(keyword, "", FromDate, ToDate, page);
+      getListUser();
+      getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -64,6 +64,7 @@ function DinhMucVatTu({ permission, history, match }) {
       userid,
       tungay,
       denngay,
+      checkQL: INFO.user_Id,
     });
 
     new Promise((resolve, reject) => {
@@ -94,8 +95,43 @@ function DinhMucVatTu({ permission, history, match }) {
    * @param pageSize
    */
   const getListUser = () => {
-    let param = convertObjectToUrlParams({});
-    dispatch(fetchStart(`get?${param}`, "GET", null, "LIST"));
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_DinhMucVatTu/list-user-lap-dinh-muc`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          if (permission && permission.cof) {
+            setListUser(res.data);
+          } else {
+            res.data.forEach((us) => {
+              if (us.nguoiLap_Id === INFO.user_Id) {
+                setListUser([us]);
+                setUser_Id(us.nguoiLap_Id);
+                getDinhMucVatTu(
+                  keyword,
+                  us.nguoiLap_Id,
+                  FromDate,
+                  ToDate,
+                  page
+                );
+              }
+            });
+          }
+        } else {
+          setListUser([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   /**
@@ -180,23 +216,29 @@ function DinhMucVatTu({ permission, history, match }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      permission && permission.edit ? (
+      permission &&
+      permission.cof &&
+      item.nguoiKy_Id === INFO.user_Id &&
+      item.xacNhan === null ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
             state: { itemData: item, permission },
           }}
-          title="Chi tiết"
+          title="Xác nhận"
         >
           <EyeOutlined />
         </Link>
       ) : (
-        <span disabled title="Chi tiết">
+        <span disabled title="Xác nhận">
           <EyeInvisibleOutlined />
         </span>
       );
     const editItem =
-      permission && permission.cof ? (
+      permission &&
+      permission.edit &&
+      item.nguoiLap_Id === INFO.user_Id &&
+      item.xacNhan === null ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -212,7 +254,10 @@ function DinhMucVatTu({ permission, history, match }) {
         </span>
       );
     const deleteItemVal =
-      permission && permission.cof
+      permission &&
+      permission.del &&
+      item.nguoiLap_Id === INFO.user_Id &&
+      item.xacNhan === null
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -304,11 +349,26 @@ function DinhMucVatTu({ permission, history, match }) {
       filterSearch: true,
     },
     {
-      title: "Trạng thái",
-      dataIndex: "xacNhan",
-      key: "xacNhan",
+      title: "Người ký",
+      dataIndex: "tenNguoiKy",
+      key: "tenNguoiKy",
       align: "center",
-      render: (value) => <span>{value ? "Đã xác nhận" : "Chưa xác nhận"}</span>,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiKy,
+            value: d.tenNguoiKy,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNguoiKy.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "xacNhanDinhMuc",
+      key: "xacNhanDinhMuc",
+      align: "center",
     },
     {
       title: "Chức năng",
@@ -357,20 +417,22 @@ function DinhMucVatTu({ permission, history, match }) {
     return (
       <>
         <Button
-          icon={<SolutionOutlined />}
+          icon={<PlusOutlined />}
           className="th-btn-margin-bottom-0"
           type="primary"
           onClick={handleTaoPhieu}
-          disabled={permission && !permission.add}
+          disabled={(permission && !permission.add) || selectedKeys.length > 0}
         >
           Tạo phiếu
         </Button>
         <Button
-          icon={<RetweetOutlined />}
+          icon={<PrinterOutlined />}
           className="th-btn-margin-bottom-0"
           type="primary"
           onClick={handleInPhieu}
-          disabled={permission && !permission.print}
+          disabled={
+            permission && !permission.print && selectedKeys.length === 0
+          }
         >
           In phiếu
         </Button>
@@ -380,6 +442,8 @@ function DinhMucVatTu({ permission, history, match }) {
 
   const handleOnSelectUser_Id = (value) => {
     setUser_Id(value);
+    setPage(1);
+    getDinhMucVatTu(keyword, value, FromDate, ToDate, 1);
   };
 
   const handleOnSelectDinhMucVatTu = (value) => {};
@@ -388,6 +452,7 @@ function DinhMucVatTu({ permission, history, match }) {
     setUser_Id(null);
     setSelectedDevice([]);
     setSelectedKeys([]);
+    getDinhMucVatTu(keyword, "", FromDate, ToDate, 1);
   };
 
   const handleClearDinhMucVatTu = () => {
@@ -447,7 +512,7 @@ function DinhMucVatTu({ permission, history, match }) {
               className="heading-select slt-search th-select-heading"
               data={ListUser ? ListUser : []}
               placeholder="Chọn người lập"
-              optionsvalue={["user_Id_Id", "tenuser_Id"]}
+              optionsvalue={["nguoiLap_Id", "tennguoiLap"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
@@ -503,20 +568,22 @@ function DinhMucVatTu({ permission, history, match }) {
             preserveSelectedRowKeys: true,
             selectedRowKeys: selectedKeys,
             getCheckboxProps: (record) => ({
-              disabled: true,
+              // disabled: true,
             }),
           }}
-          // onRow={(record, rowIndex) => {
-          //   onClick: (e) => {
-          //     const found = find(selectedKeys, (k) => k === record.key);
-          //     if (found === undefined) {
-          //       setSelectedDevice([...selectedDevice, record]);
-          //       setSelectedKeys([...selectedKeys, record.key]);
-          //     } else {
-          //       hanldeRemoveSelected(record);
-          //     }
-          //   };
-          // }}
+          onRow={(record, rowIndex) =>
+            record.xacNhan === true && {
+              onClick: (e) => {
+                const found = find(selectedKeys, (k) => k === record.key);
+                if (found === undefined) {
+                  setSelectedDevice([record]);
+                  setSelectedKeys([record.key]);
+                } else {
+                  hanldeRemoveSelected(record);
+                }
+              },
+            }
+          }
           bordered
           columns={columns}
           scroll={{ x: 1300, y: "55vh" }}

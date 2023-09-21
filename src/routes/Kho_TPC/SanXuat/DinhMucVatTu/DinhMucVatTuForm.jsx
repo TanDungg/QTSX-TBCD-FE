@@ -1,5 +1,15 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, DatePicker, Button, Divider } from "antd";
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Col,
+  DatePicker,
+  Button,
+  Divider,
+  Tag,
+} from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -520,14 +530,55 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
   const modalXK = () => {
     Modal(prop);
   };
-  const hanldeTuChoi = () => {};
+  const hanldeTuChoi = () => {
+    setActiveModalTuChoi(true);
+  };
+  const saveTuChoi = (val) => {
+    const newData = {
+      id: id,
+      xacNhan: false,
+      lyDoTuChoi: val,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_DinhMucVatTu/xac-nhan/${id}`,
+          "PUT",
+          newData,
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) goBack();
+      })
+      .catch((error) => console.error(error));
+  };
 
   const formTitle =
-    type === "new"
-      ? "Tạo định mức vật tư "
-      : type === "edit"
-      ? "Chỉnh sửa định mức vật tư"
-      : "Chi tiết định mức vật tư";
+    type === "new" ? (
+      "Tạo định mức vật tư "
+    ) : type === "edit" ? (
+      "Chỉnh sửa định mức vật tư"
+    ) : (
+      <span>
+        Chi tiết định mức vật tư -{" "}
+        <Tag
+          color={
+            info.xacNhan === null
+              ? "processing"
+              : info.xacNhan
+              ? "success"
+              : "error"
+          }
+        >
+          {info.xacNhanDinhMuc}
+        </Tag>
+      </span>
+    );
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -671,18 +722,20 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
             disabled={fieldTouch}
           />
         ) : null}
-        <Row justify={"end"} style={{ marginTop: 15 }}>
-          <Col style={{ marginRight: 15 }}>
-            <Button type="primary" onClick={modalXK}>
-              Xác nhận
-            </Button>
-          </Col>
-          <Col style={{ marginRight: 15 }}>
-            <Button type="primary" onClick={hanldeTuChoi}>
-              Từ chối
-            </Button>
-          </Col>
-        </Row>
+        {type === "xacnhan" && (
+          <Row justify={"end"} style={{ marginTop: 15 }}>
+            <Col style={{ marginRight: 15 }}>
+              <Button type="primary" onClick={modalXK}>
+                Xác nhận
+              </Button>
+            </Col>
+            <Col style={{ marginRight: 15 }}>
+              <Button danger onClick={hanldeTuChoi}>
+                Từ chối
+              </Button>
+            </Col>
+          </Row>
+        )}
       </Card>
       <AddVatTuModal
         openModal={ActiveModal}
@@ -692,6 +745,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       <ModalTuChoi
         openModal={ActiveModalTuChoi}
         openModalFS={setActiveModalTuChoi}
+        saveTuChoi={saveTuChoi}
       />
     </div>
   );

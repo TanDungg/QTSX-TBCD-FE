@@ -72,7 +72,14 @@ function SanPhamForm({ match, permission, history }) {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            SanPham: res.data,
+            SanPham: {
+              ...res.data,
+              mauSac_Id:
+                res.data.mauSac &&
+                JSON.parse(res.data.mauSac).map((ms) =>
+                  ms.mauSac_Id.toLowerCase()
+                ),
+            },
           });
         }
       })
@@ -183,6 +190,10 @@ function SanPhamForm({ match, permission, history }) {
   };
 
   const saveData = (SanPham, saveQuit = false) => {
+    const newData = SanPham;
+    newData.chiTietMauSacs = SanPham.mauSac_Id.map((ms) => {
+      return { mauSac_Id: ms };
+    });
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
@@ -321,7 +332,7 @@ function SanPhamForm({ match, permission, history }) {
               name={["SanPham", "mauSac_Id"]}
               rules={[
                 {
-                  type: "string",
+                  type: "array",
                 },
               ]}
             >
@@ -333,6 +344,7 @@ function SanPhamForm({ match, permission, history }) {
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp="name"
+                mode={"multiple"}
               />
             </FormItem>
             <FormItem

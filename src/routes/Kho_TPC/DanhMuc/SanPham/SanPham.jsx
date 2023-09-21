@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Card, Button, Divider, Tag } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -14,7 +19,8 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-
+import ImportSanPham from "./ImportSanPham";
+import { set } from "immutable";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function SanPham({ history, permission }) {
@@ -22,6 +28,7 @@ function SanPham({ history, permission }) {
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
+  const [ActiveModal, setActiveModal] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -150,18 +157,31 @@ function SanPham({ history, permission }) {
       pathname: "/danh-muc-kho-tpc/san-pham/them-moi",
     });
   };
-
+  const handleImport = () => {
+    setActiveModal(true);
+  };
   const addButtonRender = () => {
     return (
-      <Button
-        icon={<PlusOutlined />}
-        className="th-margin-bottom-0"
-        type="primary"
-        onClick={handleRedirect}
-        disabled={permission && !permission.add}
-      >
-        Thêm mới
-      </Button>
+      <>
+        <Button
+          icon={<UploadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleImport}
+          disabled={permission && !permission.add}
+        >
+          Import
+        </Button>
+        <Button
+          icon={<PlusOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleRedirect}
+          disabled={permission && !permission.add}
+        >
+          Thêm mới
+        </Button>
+      </>
     );
   };
   const { totalRow, totalPage, pageSize } = data;
@@ -170,6 +190,26 @@ function SanPham({ history, permission }) {
     data.datalist
     // page === 1 ? page : pageSize * (page - 1) + 2
   );
+  /**
+   * Hiển thị tag quyền
+   *
+   * @param {*} val
+   * @returns
+   */
+  const renderMauSac = (val) => {
+    const mauSac = JSON.parse(val);
+    if (!isEmpty(mauSac)) {
+      return map(mauSac, (item, index) => {
+        let color = "green";
+        return (
+          <Tag key={index} color={color}>
+            {item.tenMauSac}
+          </Tag>
+        );
+      });
+    }
+    return null;
+  };
 
   let renderHead = [
     {
@@ -192,6 +232,12 @@ function SanPham({ history, permission }) {
       align: "center",
     },
     {
+      title: "Loại sản phẩm",
+      dataIndex: "tenLoaiSanPham",
+      key: "tenLoaiSanPham",
+      align: "center",
+    },
+    {
       title: "Kích thước",
       dataIndex: "kichThuoc",
       key: "kichThuoc",
@@ -199,9 +245,10 @@ function SanPham({ history, permission }) {
     },
     {
       title: "Màu sắc",
-      dataIndex: "tenMauSac",
-      key: "tenMauSac",
+      dataIndex: "mauSac",
+      key: "mauSac",
       align: "center",
+      render: (val) => renderMauSac(val),
     },
     {
       title: "Đơn vị tính",
@@ -239,7 +286,9 @@ function SanPham({ history, permission }) {
       }),
     };
   });
-
+  const refeshData = () => {
+    loadData(keyword, page);
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -284,6 +333,11 @@ function SanPham({ history, permission }) {
           loading={loading}
         />
       </Card>
+      <ImportSanPham
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        refesh={refeshData}
+      />
     </div>
   );
 }

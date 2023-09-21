@@ -1,28 +1,12 @@
-import {
-  Modal as AntModal,
-  Form,
-  Card,
-  Input,
-  Row,
-  Col,
-  DatePicker,
-} from "antd";
+import { Modal as AntModal, Form, Input, Row, Button } from "antd";
 import React, { useState } from "react";
-import { FormSubmit } from "src/components/Common";
-import { useDispatch } from "react-redux";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import { fetchStart } from "src/appRedux/actions/Common";
-import moment from "moment";
+import { Modal } from "src/components/Common";
 const FormItem = Form.Item;
-const initialState = {
-  ngayNghiViec: "",
-  ghiChu: "",
-};
-function ModalTuChoi({ openModalFS, openModal, data }) {
-  const dispatch = useDispatch();
+
+function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { ngayNghiViec, ghiChu } = initialState;
   const { resetFields } = form;
 
   /**
@@ -31,37 +15,13 @@ function ModalTuChoi({ openModalFS, openModal, data }) {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.nghiViec);
+    saveData(values.tuChoi);
   };
 
-  const saveData = (user) => {
-    const newData = user;
-    newData.ngayNghiViec = moment(newData.ngayNghiViec._d.toString()).format(
-      "MM-DD-YYYY"
-    );
-    newData.id = data.id;
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `Account/nghi-viec/${data.id}`,
-          "PUT",
-          newData,
-          "EDIT",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status === 409) {
-        } else {
-          resetFields();
-          setFieldTouch(false);
-          openModalFS(false);
-        }
-      })
-      .catch((error) => console.error(error));
+  const saveData = (tc) => {
+    saveTuChoi(tc.lyDoTuChoi);
+    openModalFS(false);
+    resetFields();
   };
   const handleCancel = () => {
     openModalFS(false);
@@ -69,7 +29,7 @@ function ModalTuChoi({ openModalFS, openModal, data }) {
 
   return (
     <AntModal
-      title="Cán bộ nhân viên nghỉ việc"
+      title="Từ chối phiếu phiếu định mức vật tư"
       open={openModal}
       width={`50%`}
       closable={true}
@@ -77,50 +37,31 @@ function ModalTuChoi({ openModalFS, openModal, data }) {
       footer={null}
     >
       <div className="gx-main-content">
-        <Card className="th-card-margin-bottom">
-          <Row style={{ marginBottom: 8 }}>
-            <Col span={24} align="center">
-              {data && (
-                <h4>
-                  CBNV: {data.maNhanVien} - {data.fullName}
-                </h4>
-              )}
-            </Col>
-          </Row>
-          <Form
-            {...DEFAULT_FORM_CUSTOM}
-            form={form}
-            name="nguoi-dung-control"
-            onFinish={onFinish}
-            onFieldsChange={() => setFieldTouch(true)}
+        <Form
+          {...DEFAULT_FORM_CUSTOM}
+          form={form}
+          name="nguoi-dung-control"
+          onFinish={onFinish}
+          onFieldsChange={() => setFieldTouch(true)}
+        >
+          <FormItem
+            label="Lý do"
+            name={["tuChoi", "lyDoTuChoi"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
           >
-            <FormItem
-              label="Ngày nghỉ việc"
-              name={["nghiViec", "ngayNghiViec"]}
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-              initialValue={ngayNghiViec}
-            >
-              <DatePicker style={{ width: "100%" }} format={"DD/MM/YYYY"} />
-            </FormItem>
-            <FormItem
-              label="Ghi chú"
-              name={["nghiViec", "ghiChu"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-              initialValue={ghiChu}
-            >
-              <Input className="input-item" placeholder="Ghi chú" />
-            </FormItem>
-            <FormSubmit disabled={fieldTouch} />
-          </Form>
-        </Card>
+            <Input className="input-item" placeholder="Lý do từ chối" />
+          </FormItem>
+          <Row justify={"center"}>
+            <Button danger htmlType={"submit"} disabled={!fieldTouch}>
+              Từ chối
+            </Button>
+          </Row>
+        </Form>
       </div>
     </AntModal>
   );
