@@ -441,6 +441,7 @@ function NangLucSanXuat({ permission, history, match }) {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
+    getNangLucSanXuat(SanPham, user_Id, dateString[0], dateString[1], 1);
   };
 
   return (

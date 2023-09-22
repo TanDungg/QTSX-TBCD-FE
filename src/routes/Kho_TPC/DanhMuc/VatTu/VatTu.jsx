@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Card, Button, Divider, Popover } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  ImportOutlined,
+  PrinterOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, repeat } from "lodash";
-
+import { map, find, isEmpty, remove } from "lodash";
+import QRCode from "qrcode.react";
+import ImportVatTu from "./ImportVatTu";
 import {
   ModalDeleteConfirm,
   Table,
@@ -12,21 +19,19 @@ import {
   Toolbar,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import {
-  convertObjectToUrlParams,
-  reDataForTable,
-  treeToFlatlist,
-} from "src/util/Common";
+import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function VatTu({ history, permission }) {
+function VatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-
+  const [ActiveModal, setActiveModal] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState([]);
+  const [selectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     if (permission && permission.view) {
       loadData(keyword, page);
@@ -154,53 +159,49 @@ function VatTu({ history, permission }) {
       pathname: "/danh-muc-kho-tpc/vat-tu/them-moi",
     });
   };
-
-  /**
-   * Lưu thứ tự từ bảng
-   * @param {object} row dữ liệu một hàng
-   * @memberof ChucNang
-   */
-  const handleSave = async (row) => {
-    const dataValue = treeToFlatlist(data);
-    // Check data not change
-    const item = find(dataValue, (item) => item.id === row.id);
-    if (!isEmpty(item)) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `Menu/ThuTu/${item.id}`,
-            "PUT",
-            {
-              ...item,
-              thuTu: row.thuTu,
-            },
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.status === 204) {
-            loadData();
-          }
-        })
-        .catch((error) => console.error(error));
-    }
+  const handleImport = () => {
+    setActiveModal(true);
   };
-
+  const refeshData = () => {
+    loadData(keyword, page);
+  };
+  const handlePrint = () => {
+    history.push({
+      pathname: `${match.url}/inMa`,
+      state: { VatTu: selectedDevice },
+    });
+  };
   const addButtonRender = () => {
     return (
-      <Button
-        icon={<PlusOutlined />}
-        className="th-margin-bottom-0"
-        type="primary"
-        onClick={handleRedirect}
-        disabled={permission && !permission.add}
-      >
-        Thêm mới
-      </Button>
+      <>
+        <Button
+          icon={<ImportOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleImport}
+          disabled={permission && !permission.add}
+        >
+          Import
+        </Button>
+        <Button
+          icon={<PrinterOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handlePrint}
+          disabled={permission && !permission.print}
+        >
+          In Barcode
+        </Button>
+        <Button
+          icon={<PlusOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleRedirect}
+          disabled={permission && !permission.add}
+        >
+          Thêm mới
+        </Button>
+      </>
     );
   };
   const { totalRow, totalPage, pageSize } = data;
@@ -268,9 +269,20 @@ function VatTu({ history, permission }) {
     },
     {
       title: "Mã Barcode",
-      dataIndex: "maBarcode",
-      key: "maBarcode",
+      dataIndex: "id",
+      key: "id",
       align: "center",
+      render: (value) => (
+        <div id="myqrcode">
+          <Popover content={value}>
+            <QRCode
+              value={value}
+              bordered={false}
+              style={{ width: 50, height: 50 }}
+            />
+          </Popover>
+        </div>
+      ),
     },
     {
       title: "Chức năng",
@@ -299,11 +311,31 @@ function VatTu({ history, permission }) {
         dataIndex: col.dataIndex,
         title: col.title,
         info: col.info,
-        handleSave: handleSave,
       }),
     };
   });
 
+  function hanldeRemoveSelected(device) {
+    const newDevice = remove(selectedDevice, (d) => {
+      return d.key !== device.key;
+    });
+    const newKeys = remove(selectedKeys, (d) => {
+      return d !== device.key;
+    });
+    setSelectedDevice(newDevice);
+    setSelectedKeys(newKeys);
+  }
+
+  const rowSelection = {
+    selectedRowKeys: selectedKeys,
+    selectedRows: selectedDevice,
+    onChange: (selectedRowKeys, selectedRows) => {
+      const newSelectedDevice = [...selectedRows];
+      const newSelectedKey = [...selectedRowKeys];
+      setSelectedDevice(newSelectedDevice);
+      setSelectedKeys(newSelectedKey);
+    },
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -328,6 +360,26 @@ function VatTu({ history, permission }) {
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            preserveSelectedRowKeys: true,
+            selectedRowKeys: selectedKeys,
+            getCheckboxProps: (record) => ({}),
+          }}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (e) => {
+                const found = find(selectedKeys, (k) => k === record.key);
+                if (found === undefined) {
+                  setSelectedDevice([...selectedDevice, record]);
+                  setSelectedKeys([...selectedKeys, record.key]);
+                } else {
+                  hanldeRemoveSelected(record);
+                }
+              },
+            };
+          }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}
@@ -348,6 +400,11 @@ function VatTu({ history, permission }) {
           loading={loading}
         />
       </Card>
+      <ImportVatTu
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        refesh={refeshData}
+      />
     </div>
   );
 }

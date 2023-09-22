@@ -19,9 +19,6 @@ const NangLucSanXuatForm = asyncComponent(() =>
 const KeHoach = asyncComponent(() => import("./KeHoach/KeHoach"));
 const ImportKeHoach = asyncComponent(() => import("./KeHoach/ImportKeHoach"));
 
-// const BoPhan = asyncComponent(() => import("./BoPhan/BoPhan"));
-// const BoPhanForm = asyncComponent(() => import("./BoPhan/BoPhanForm"));
-
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (

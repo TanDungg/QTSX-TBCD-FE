@@ -2,35 +2,25 @@ import React, { useState, useEffect } from "react";
 import { Card, Form, Spin } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
-
 import { Input, Select, FormSubmit } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
-import tree from "src/components/Common/Tree_Old";
-
 const FormItem = Form.Item;
-
 const initialState = {
-  maSP: "",
-  tenSP: "",
-  loaiSanPham_Id: "",
+  maNhaCungCap: "",
+  tenNhaCungCap: "",
+  loaiNhaCungCap_Id: "",
 };
 
-function SanPhamForm({ match, permission, history }) {
+function NhaCungCapForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-  const { loading, item } = useSelector(({ common }) => common).toJS();
-
+  const { loading } = useSelector(({ common }) => common).toJS();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
-  const [listMenu, setListMenu] = useState([]);
-  const [LoaiSanPhamSelect, setLoaiSanPhamSelect] = useState([]);
-  const [MauSacSelect, setMauSacSelect] = useState([]);
-  const [DonViTinhSelect, setDonViTinhSelect] = useState([]);
-
+  const [LoaiNhaCungCapSelect, setLoaiNhaCungCapSelect] = useState([]);
   const [fieldTouch, setFieldTouch] = useState(false);
-
   const { setFieldsValue, validateFields, resetFields } = form;
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
@@ -38,7 +28,7 @@ function SanPhamForm({ match, permission, history }) {
         history.push("/home");
       } else {
         setType("new");
-        getData();
+        getLoaiNhaCungCap();
       }
     } else {
       if (permission && !permission.edit) {
@@ -48,7 +38,7 @@ function SanPhamForm({ match, permission, history }) {
           setType("edit");
           setId(match.params.id);
           getInfo(match.params.id);
-          getData();
+          getLoaiNhaCungCap();
         }
       }
     }
@@ -66,41 +56,36 @@ function SanPhamForm({ match, permission, history }) {
   const getInfo = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(`SanPham/${id}`, "GET", null, "DETAIL", "", resolve, reject)
+        fetchStart(
+          `NhaCungCap/${id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
       );
     })
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            SanPham: {
-              ...res.data,
-              mauSac_Id:
-                res.data.mauSac &&
-                JSON.parse(res.data.mauSac).map((ms) =>
-                  ms.mauSac_Id.toLowerCase()
-                ),
-            },
+            NhaCungCap: res.data,
           });
         }
       })
       .catch((error) => console.error(error));
   };
 
-  const getData = () => {
-    getDonViTinh();
-    getLoaiSanPham();
-    getMauSac();
-  };
-
   /**
    * Lấy danh sách menu
    *
    */
-  const getLoaiSanPham = async () => {
+  const getLoaiNhaCungCap = async () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          "LoaiSanPham?page=-1",
+          "LoaiNhaCungCap?page=-1",
           "GET",
           null,
           "LIST",
@@ -112,68 +97,22 @@ function SanPhamForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setLoaiSanPhamSelect(res.data);
+          setLoaiNhaCungCapSelect(res.data);
         } else {
-          setLoaiSanPhamSelect([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  /**
-   * Lấy danh sách menu
-   *
-   */
-  const getMauSac = async () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart("MauSac?page=-1", "GET", null, "LIST", "", resolve, reject)
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setMauSacSelect(res.data);
-        } else {
-          setMauSacSelect([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  /**
-   * Lấy danh sách menu
-   *
-   */
-  const getDonViTinh = async () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          "DonViTinh?page=-1",
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDonViTinhSelect(res.data);
-        } else {
-          setDonViTinhSelect([]);
+          setLoaiNhaCungCapSelect([]);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  const { maSP, tenSP, loaiSanPham_Id } = initialState;
+  const { maNhaCungCap, tenNhaCungCap, loaiNhaCungCap_Id } = initialState;
   /**
    * Khi submit
    *
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.SanPham);
+    saveData(values.NhaCungCap);
   };
   /**
    * Lưu và thoát
@@ -182,21 +121,26 @@ function SanPhamForm({ match, permission, history }) {
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.SanPham, true);
+        saveData(values.NhaCungCap, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (SanPham, saveQuit = false) => {
-    SanPham.chiTietMauSacs = SanPham.mauSac_Id.map((ms) => {
-      return { mauSac_Id: ms };
-    });
+  const saveData = (NhaCungCap, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`SanPham`, "POST", SanPham, "ADD", "", resolve, reject)
+          fetchStart(
+            `NhaCungCap`,
+            "POST",
+            NhaCungCap,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
         );
       })
         .then((res) => {
@@ -212,13 +156,13 @@ function SanPhamForm({ match, permission, history }) {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      SanPham.id = id;
+      NhaCungCap.id = id;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `SanPham/${id}`,
+            `NhaCungCap/${id}`,
             "PUT",
-            SanPham,
+            NhaCungCap,
             "EDIT",
             "",
             resolve,
@@ -241,7 +185,7 @@ function SanPhamForm({ match, permission, history }) {
   };
 
   /**
-   * Quay lại trang sản phẩm
+   * Quay lại trang nhà cung cấp
    *
    */
   const goBack = () => {
@@ -253,7 +197,8 @@ function SanPhamForm({ match, permission, history }) {
     );
   };
 
-  const formTitle = type === "new" ? "Thêm mới sản phẩm" : "Chỉnh sửa sản phẩm";
+  const formTitle =
+    type === "new" ? "Thêm mới nhà cung cấp" : "Chỉnh sửa nhà cung cấp";
 
   return (
     <div className="gx-main-content">
@@ -268,8 +213,28 @@ function SanPhamForm({ match, permission, history }) {
             onFieldsChange={() => setFieldTouch(true)}
           >
             <FormItem
-              label="Mã sản phẩm"
-              name={["SanPham", "maSanPham"]}
+              label="Mã nhà cung cấp"
+              name={["NhaCungCap", "maNhaCungCap"]}
+              rules={[
+                {
+                  type: "string",
+                  required: true,
+                },
+                {
+                  max: 50,
+                  message: "Mã nhà cung cấp tối đa 50 ký tự",
+                },
+              ]}
+              initialValue={maNhaCungCap}
+            >
+              <Input
+                className="input-item"
+                placeholder="Nhập mã nhà cung cấp"
+              />
+            </FormItem>
+            <FormItem
+              label="Tên nhà cung cấp"
+              name={["NhaCungCap", "tenNhaCungCap"]}
               rules={[
                 {
                   type: "string",
@@ -277,83 +242,40 @@ function SanPhamForm({ match, permission, history }) {
                 },
                 {
                   max: 250,
+                  message: "Tên nhà cung cấp tối đa 250 ký tự",
                 },
               ]}
-              initialValue={maSP}
+              initialValue={tenNhaCungCap}
             >
-              <Input className="input-item" placeholder="Nhập mã sản phẩm" />
+              <Input
+                className="input-item"
+                placeholder="Nhập tên nhà cung cấp"
+              />
             </FormItem>
             <FormItem
-              label="Tên sản phẩm"
-              name={["SanPham", "tenSanPham"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-                {
-                  max: 250,
-                },
-              ]}
-              initialValue={tenSP}
-            >
-              <Input className="input-item" placeholder="Nhập tên sản phẩm" />
-            </FormItem>
-            <FormItem
-              label="Loại sản phẩm"
-              name={["SanPham", "loaiSanPham_Id"]}
+              label="Loại nhà cung cấp"
+              name={["NhaCungCap", "loaiNhaCungCap_Id"]}
               rules={[
                 {
                   type: "string",
                   required: true,
                 },
               ]}
-              initialValue={loaiSanPham_Id}
+              initialValue={loaiNhaCungCap_Id}
             >
               <Select
                 className="heading-select slt-search th-select-heading"
-                data={LoaiSanPhamSelect ? LoaiSanPhamSelect : []}
-                placeholder="Chọn loại sản phẩm"
-                optionsvalue={["id", "tenLoaiSanPham"]}
+                data={LoaiNhaCungCapSelect ? LoaiNhaCungCapSelect : []}
+                placeholder="Chọn loại nhà cung cấp"
+                optionsvalue={["id", "tenLoaiNhaCungCap"]}
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp="name"
               />
             </FormItem>
             <FormItem
-              label="Kích thước"
-              name={["SanPham", "kichThuoc"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-            >
-              <Input placeholder="Nhập kích thước"></Input>
-            </FormItem>
-            <FormItem
-              label="Màu sắc"
-              name={["SanPham", "mauSac_Id"]}
-              rules={[
-                {
-                  type: "array",
-                },
-              ]}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={MauSacSelect ? MauSacSelect : []}
-                placeholder="Chọn màu sắc"
-                optionsvalue={["id", "tenMauSac"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp="name"
-                mode={"multiple"}
-              />
-            </FormItem>
-            <FormItem
-              label="Đơn vị tính"
-              name={["SanPham", "donViTinh_Id"]}
+              label="Người liên hệ"
+              name={["NhaCungCap", "nguoiLienHe"]}
               rules={[
                 {
                   type: "string",
@@ -361,16 +283,53 @@ function SanPhamForm({ match, permission, history }) {
                 },
               ]}
             >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={DonViTinhSelect ? DonViTinhSelect : []}
-                placeholder="Chọn đơn vị tính"
-                optionsvalue={["id", "tenDonViTinh"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp="name"
-              />
+              <Input placeholder="Nhập Người liên hệ"></Input>
             </FormItem>
+            <FormItem
+              label="Email"
+              name={["NhaCungCap", "email"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+            >
+              <Input placeholder="Nhập Email"></Input>
+            </FormItem>
+            <FormItem
+              label="Số điện thoại"
+              name={["NhaCungCap", "soDienThoai"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+            >
+              <Input placeholder="Nhập só điện thoại"></Input>
+            </FormItem>
+            <FormItem
+              label="Địa chỉ"
+              name={["NhaCungCap", "diaChi"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+            >
+              <Input placeholder="Nhập địa chỉ"></Input>
+            </FormItem>
+            <FormItem
+              label="Mã số thuế"
+              name={["NhaCungCap", "maSoThue"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+            >
+              <Input placeholder="Nhập mã số thuế"></Input>
+            </FormItem>
+
             <FormSubmit
               goBack={goBack}
               saveAndClose={saveAndClose}
@@ -383,4 +342,4 @@ function SanPhamForm({ match, permission, history }) {
   );
 }
 
-export default SanPhamForm;
+export default NhaCungCapForm;

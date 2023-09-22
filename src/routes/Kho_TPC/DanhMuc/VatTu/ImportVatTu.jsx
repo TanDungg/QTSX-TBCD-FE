@@ -45,28 +45,52 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
     },
 
     {
-      title: "Mã bộ phận",
-      dataIndex: "maBoPhan",
-      key: "maBoPhan",
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
       align: "center",
     },
     {
-      title: "Tên bộ phận",
-      dataIndex: "tenBoPhan",
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
       align: "center",
-      key: "tenBoPhan",
+      key: "tenVatTu",
     },
     {
-      title: "Mã Ban/Phòng",
-      dataIndex: "maPhongBan",
+      title: "Mã nhóm vật tư",
+      dataIndex: "maNhomVatTu",
       align: "center",
-      key: "maPhongBan",
+      key: "maNhomVatTu",
     },
     {
-      title: "Mã bộ phận cha",
-      dataIndex: "maBoPhanCha",
+      title: "Thông số",
+      dataIndex: "quyCach",
       align: "center",
-      key: "maBoPhanCha",
+      key: "quyCach",
+    },
+    {
+      title: "Mã màu sắc",
+      dataIndex: "maMauSac",
+      align: "center",
+      key: "maMauSac",
+    },
+    {
+      title: "Mã đơn vị tính",
+      dataIndex: "maDonViTinh",
+      align: "center",
+      key: "maDonViTinh",
+    },
+    {
+      title: "Đơn vị quy đổi",
+      dataIndex: "donViQuyDoi",
+      align: "center",
+      key: "donViQuyDoi",
+    },
+    {
+      title: "Tỉ lệ quy đổi",
+      dataIndex: "tiLeQuyDoi",
+      align: "center",
+      key: "tiLeQuyDoi",
     },
   ];
   const components = {
@@ -97,7 +121,7 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `BoPhan/ExportFileExcel`,
+          `VatTu/ExportFileExcel`,
           "POST",
           null,
           "DOWLOAD",
@@ -107,7 +131,7 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
         )
       );
     }).then((res) => {
-      exportExcel("File_Mau_Bo_Phan", res.data.dataexcel);
+      exportExcel("File_Mau_Vat_Tu", res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {
@@ -116,7 +140,7 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
       const workbook = XLSX.read(event.target.result, {
         type: "binary",
       });
-      const worksheet = workbook.Sheets["Bộ phận"];
+      const worksheet = workbook.Sheets["Vật tư"];
 
       const checkMau =
         XLSX.utils
@@ -132,74 +156,127 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã bộ phận" &&
+          .trim() === "Mã vật tư" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Tên bộ phận" &&
+          .trim() === "Tên vật tư" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã Ban/Phòng" &&
+          .trim() === "Mã nhóm vật tư" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã bộ phận cha";
+          .trim() === "Thông số" &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
+          })[0]
+          .toString()
+          .trim() === "Mã màu sắc" &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
+          })[0]
+          .toString()
+          .trim() === "Mã đơn vị tính" &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 7, r: 2 }, e: { c: 7, r: 2 } },
+          })[0]
+          .toString()
+          .trim() === "Đơn vị quy đổi" &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 8, r: 2 }, e: { c: 8, r: 2 } },
+          })[0]
+          .toString()
+          .trim() === "Tỉ lệ quy đổi";
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
           range: 2,
         });
-        const MBP = "Mã bộ phận";
-        const TBP = "Tên bộ phận";
-        const MPB = "Mã Ban/Phòng";
-        const MBPC = "Mã bộ phận cha";
+        const MVT = "Mã vật tư";
+        const TVT = "Tên vật tư";
+        const MNVT = "Mã nhóm vật tư";
+        const TS = "Thông số";
+        const MDVT = "Mã đơn vị tính";
+        const MMS = "Mã màu sắc";
+        const DVQD = "Đơn vị quy đổi";
+        const TLQD = "Tỉ lệ quy đổi";
+
         const Data = [];
         const NewData = [];
         data.forEach((d, index) => {
           if (
-            data[index][MBP] &&
-            data[index][MBP].toString().trim() === "" &&
-            data[index][TBP] &&
-            data[index][TBP].toString().trim() === "" &&
-            data[index][MPB] &&
-            data[index][MPB].toString().trim() === "" &&
-            data[index][MBPC] &&
-            data[index][MBPC].toString().trim() === ""
+            data[index][MVT] &&
+            data[index][MVT].toString().trim() === "" &&
+            data[index][TVT] &&
+            data[index][TVT].toString().trim() === "" &&
+            data[index][MNVT] &&
+            data[index][MNVT].toString().trim() === "" &&
+            data[index][MDVT] &&
+            data[index][MDVT].toString().trim() === ""
           ) {
           } else {
             NewData.push({
-              maBoPhan: data[index][MBP]
-                ? data[index][MBP].toString().trim() !== ""
-                  ? data[index][MBP].toString().trim()
+              maVatTu: data[index][MVT]
+                ? data[index][MVT].toString().trim() !== ""
+                  ? data[index][MVT].toString().trim()
                   : undefined
                 : undefined,
-              tenBoPhan: data[index][TBP]
-                ? data[index][TBP].toString().trim() !== ""
-                  ? data[index][TBP].toString().trim()
+              tenVatTu: data[index][TVT]
+                ? data[index][TVT].toString().trim() !== ""
+                  ? data[index][TVT].toString().trim()
                   : undefined
                 : undefined,
-              maPhongBan: data[index][MPB]
-                ? data[index][MPB].toString().trim() !== ""
-                  ? data[index][MPB].toString().trim()
+              maNhomVatTu: data[index][MNVT]
+                ? data[index][MNVT].toString().trim() !== ""
+                  ? data[index][MNVT].toString().trim()
                   : undefined
                 : undefined,
-              maBoPhanCha: data[index][MBPC]
-                ? data[index][MBPC].toString().trim() !== ""
-                  ? data[index][MBPC].toString().trim()
+              quyCach: data[index][TS]
+                ? data[index][TS].toString().trim() !== ""
+                  ? data[index][TS].toString().trim()
+                  : undefined
+                : undefined,
+              maMauSac: data[index][MMS]
+                ? data[index][MMS].toString().trim() !== ""
+                  ? data[index][MMS].toString().trim()
+                  : undefined
+                : undefined,
+              maDonViTinh: data[index][MDVT]
+                ? data[index][MDVT].toString().trim() !== ""
+                  ? data[index][MDVT].toString().trim()
+                  : undefined
+                : undefined,
+              donViQuyDoi: data[index][DVQD]
+                ? data[index][DVQD].toString().trim() !== ""
+                  ? data[index][DVQD].toString().trim()
+                  : undefined
+                : undefined,
+              tiLeQuyDoi: data[index][TLQD]
+                ? data[index][TLQD].toString().trim() !== ""
+                  ? data[index][TLQD].toString().trim()
                   : undefined
                 : undefined,
             });
           }
-          Data.push(data[index][MBP]);
+          Data.push(data[index][MVT]);
         });
         if (NewData.length === 0) {
           setFileName(file.name);
@@ -227,10 +304,8 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
           setFileName(file.name);
           setDataLoi();
           if (indices.length > 0) {
-            setMessageError(`Hàng ${row.join(", ")} có mã bộ phận trùng nhau`);
-            Helper.alertError(
-              `Hàng ${row.join(", ")} có mã bộ phận trùng nhau`
-            );
+            setMessageError(`Hàng ${row.join(", ")} có mã vật tư trùng nhau`);
+            Helper.alertError(`Hàng ${row.join(", ")} có mã vật tư trùng nhau`);
             setHangTrung(indices);
             setCheckDanger(true);
           } else {
@@ -271,7 +346,7 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `BoPhan/ImportExel`,
+          `VatTu/ImportExel`,
           "POST",
           dataView,
           "IMPORT",
@@ -296,7 +371,7 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận import bộ phận",
+    title: "Xác nhận import vật tư",
     onOk: handleSubmit,
   };
   const modalXK = () => {
@@ -305,26 +380,30 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
 
   const RowStyle = (current, index) => {
     if (HangTrung.length > 0) {
-      HangTrung.forEach((maBoPhan) => {
-        if (current.maBoPhan === maBoPhan) {
+      HangTrung.forEach((maVatTu) => {
+        if (current.maVatTu === maVatTu) {
           setCheckDanger(true);
           return "red-row";
         }
       });
-    } else if (current.maBoPhan === undefined) {
+    } else if (current.maVatTu === undefined) {
       setCheckDanger(true);
-      setMessageError("Mã bộ phận không được rỗng");
+      setMessageError("Mã vật tư không được rỗng");
       return "red-row";
-    } else if (current.tenBoPhan === undefined) {
+    } else if (current.tenVatTu === undefined) {
       setCheckDanger(true);
-      setMessageError("Tên bộ phận không được rỗng");
+      setMessageError("Tên vật tư không được rỗng");
       return "red-row";
-    } else if (current.maPhongBan === undefined) {
+    } else if (current.maNhomVatTu === undefined) {
       setCheckDanger(true);
-      setMessageError("Mã Ban/Phòng không được rỗng");
+      setMessageError("Mã nhóm vật tư không được rỗng");
+      return "red-row";
+    } else if (current.maDonViTinh === undefined) {
+      setCheckDanger(true);
+      setMessageError("Mã đơn vị tính không được rỗng");
       return "red-row";
     } else if (DataLoi) {
-      if (current.maBoPhan.toString() === DataLoi.maBoPhan) {
+      if (current.maVatTu.toString() === DataLoi.maVatTu) {
         setCheckDanger(true);
         return "red-row";
       }
@@ -345,7 +424,7 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
 
   return (
     <AntModal
-      title="Import bộ phận"
+      title="Import vật tư"
       open={openModal}
       width={`80%`}
       closable={true}
@@ -423,6 +502,7 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
             size="small"
             loading={loading}
             rowClassName={RowStyle}
+            pagination={{ pageSize: 20 }}
           />
           <Button
             className="th-btn-margin-bottom-0"

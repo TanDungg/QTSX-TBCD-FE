@@ -17,7 +17,7 @@ import "moment/locale/vi";
 import AppLocale from "src/lngProvider";
 import MainApp from "./MainApp";
 import SignIn from "../SignIn";
-import Helpers from "src/helpers";
+import InMaQrVatTu from "src/routes/Kho_TPC/DanhMuc/VatTu/InMaQr";
 import { setInitUrl } from "src/appRedux/actions/Auth";
 import {
   onLayoutTypeChange,
@@ -273,6 +273,12 @@ const App = () => {
       >
         <Switch>
           <Route exact path="/signin" component={SignIn} />
+          <Route
+            exact
+            path="/danh-muc-kho-tpc/vat-tu/inMa"
+            component={InMaQrVatTu}
+          />
+
           <RestrictedRoute
             path={`${match.url}`}
             token={info ? info.token : null}

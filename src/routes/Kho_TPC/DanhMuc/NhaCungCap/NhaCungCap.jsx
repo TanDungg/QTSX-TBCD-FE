@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Tag } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  ImportOutlined,
-} from "@ant-design/icons";
+import { Card, Button, Divider } from "antd";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
-
 import {
   ModalDeleteConfirm,
   Table,
@@ -19,16 +13,13 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import ImportSanPham from "./ImportSanPham";
-import { set } from "immutable";
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function SanPham({ history, permission }) {
+function NhaCungCap({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [ActiveModal, setActiveModal] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -47,14 +38,14 @@ function SanPham({ history, permission }) {
    */
   const loadData = (keyword, page) => {
     const param = convertObjectToUrlParams({ keyword, page });
-    dispatch(fetchStart(`SanPham?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`NhaCungCap?${param}`, "GET", null, "LIST"));
   };
 
   /**
    * Tìm kiếm người dùng
    *
    */
-  const onSearchSanPham = () => {
+  const onSearchNhaCungCap = () => {
     loadData(keyword, page);
   };
 
@@ -80,7 +71,7 @@ function SanPham({ history, permission }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/san-pham/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
           title="Sửa"
@@ -114,7 +105,12 @@ function SanPham({ history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maSanPham, "sản phẩm");
+    ModalDeleteConfirm(
+      deleteItemAction,
+      item,
+      item.maNhaCungCap,
+      "nhà cung cấp"
+    );
   };
 
   /**
@@ -123,7 +119,7 @@ function SanPham({ history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `SanPham/${item.id}`;
+    let url = `NhaCungCap/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -154,24 +150,13 @@ function SanPham({ history, permission }) {
    */
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-kho-tpc/san-pham/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
-  const handleImport = () => {
-    setActiveModal(true);
-  };
+
   const addButtonRender = () => {
     return (
       <>
-        <Button
-          icon={<ImportOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleImport}
-          disabled={permission && !permission.add}
-        >
-          Import
-        </Button>
         <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
@@ -190,26 +175,6 @@ function SanPham({ history, permission }) {
     data.datalist
     // page === 1 ? page : pageSize * (page - 1) + 2
   );
-  /**
-   * Hiển thị tag quyền
-   *
-   * @param {*} val
-   * @returns
-   */
-  const renderMauSac = (val) => {
-    const mauSac = JSON.parse(val);
-    if (!isEmpty(mauSac)) {
-      return map(mauSac, (item, index) => {
-        let color = "green";
-        return (
-          <Tag key={index} color={color}>
-            {item.tenMauSac}
-          </Tag>
-        );
-      });
-    }
-    return null;
-  };
 
   let renderHead = [
     {
@@ -220,40 +185,51 @@ function SanPham({ history, permission }) {
       width: 45,
     },
     {
-      title: "Mã sản phẩm",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
+      title: "Mã nhà cung cấp",
+      dataIndex: "maNhaCungCap",
+      key: "maNhaCungCap",
       align: "center",
     },
     {
-      title: "Tên sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
+      title: "Tên nhà cung cấp",
+      dataIndex: "tenNhaCungCap",
+      key: "tenNhaCungCap",
       align: "center",
     },
     {
-      title: "Loại sản phẩm",
-      dataIndex: "tenLoaiSanPham",
-      key: "tenLoaiSanPham",
+      title: "Loại nhà cung cấp",
+      dataIndex: "tenLoaiNhaCungCap",
+      key: "tenLoaiNhaCungCap",
       align: "center",
     },
     {
-      title: "Kích thước",
-      dataIndex: "kichThuoc",
-      key: "kichThuoc",
+      title: "Người liên hệ",
+      dataIndex: "nguoiLienHe	",
+      key: "nguoiLienHe",
       align: "center",
     },
     {
-      title: "Màu sắc",
-      dataIndex: "mauSac",
-      key: "mauSac",
+      title: "Email",
+      dataIndex: "email	",
+      key: "email",
       align: "center",
-      render: (val) => renderMauSac(val),
     },
     {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
+      title: "Số điện thoại",
+      dataIndex: "soDienThoai",
+      key: "soDienThoai",
+      align: "center",
+    },
+    {
+      title: "Địa chỉ",
+      dataIndex: "diaChi",
+      key: "diaChi",
+      align: "center",
+    },
+    {
+      title: "Mã số thuế",
+      dataIndex: "maSoThue",
+      key: "maSoThue",
       align: "center",
     },
     {
@@ -286,14 +262,12 @@ function SanPham({ history, permission }) {
       }),
     };
   });
-  const refeshData = () => {
-    loadData(keyword, page);
-  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Sản phẩm"
-        description="Danh sách sản phẩm"
+        title="Nhà cung cấp"
+        description="Danh sách nhà cung cấp"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom">
@@ -304,8 +278,8 @@ function SanPham({ history, permission }) {
             loading,
             value: keyword,
             onChange: onChangeKeyword,
-            onPressEnter: onSearchSanPham,
-            onSearch: onSearchSanPham,
+            onPressEnter: onSearchNhaCungCap,
+            onSearch: onSearchNhaCungCap,
             placeholder: "Nhập từ khóa",
             allowClear: true,
           }}
@@ -333,13 +307,8 @@ function SanPham({ history, permission }) {
           loading={loading}
         />
       </Card>
-      <ImportSanPham
-        openModal={ActiveModal}
-        openModalFS={setActiveModal}
-        refesh={refeshData}
-      />
     </div>
   );
 }
 
-export default SanPham;
+export default NhaCungCap;
