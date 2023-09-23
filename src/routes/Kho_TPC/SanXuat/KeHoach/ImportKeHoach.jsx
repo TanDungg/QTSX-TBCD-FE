@@ -50,6 +50,9 @@ function ImportKeHoach({ match, permission, history }) {
   const [listKeHoach, setListKeHoach] = useState([]);
   const [listXuong, setListXuong] = useState([]);
   const [KeHoach, setKeHoach] = useState();
+  const [TenKeHoach, setTenKeHoach] = useState();
+  const [TenXuong, setTenXuong] = useState();
+
   const [Xuong, setXuong] = useState();
   const [Thang, setThang] = useState(getThangNow());
   const [Nam, setNam] = useState(getNamNow());
@@ -86,6 +89,7 @@ function ImportKeHoach({ match, permission, history }) {
         if (res && res.data) {
           setListKeHoach(res.data);
           setKeHoach(res.data[1].id);
+          setTenKeHoach(res.data[1].tenLoaiKeHoach);
         } else {
           setListKeHoach([]);
         }
@@ -121,7 +125,7 @@ function ImportKeHoach({ match, permission, history }) {
   };
 
   const render = (val) => {
-    if (val == 0) {
+    if (val === undefined) {
       return (
         <div
           style={{
@@ -170,18 +174,21 @@ function ImportKeHoach({ match, permission, history }) {
       dataIndex: "maSanPham",
       key: "maSanPham",
       align: "center",
+      width: 120,
     },
     {
       title: "Tên sản phẩm",
       dataIndex: "tenSanPham",
       align: "center",
       key: "tenSanPham",
+      width: 120,
     },
     {
       title: "Mã màu sắc",
       dataIndex: "maMauSac",
       align: "center",
       key: "maMauSac",
+      width: 100,
     },
     {
       title: `Tháng ${Thang} năm ${Nam}`,
@@ -244,7 +251,7 @@ function ImportKeHoach({ match, permission, history }) {
         )
       );
     }).then((res) => {
-      exportExcel("File_Mau_Ke_Hoach", res.data.dataexcel);
+      exportExcel(`File_Mau_${TenKeHoach}`, res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {
@@ -254,133 +261,250 @@ function ImportKeHoach({ match, permission, history }) {
         type: "binary",
       });
       const worksheet = workbook.Sheets["Kế hoạch"];
-
-      let checkMau =
+      const checkKeHoach =
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 0, r: 3 }, e: { c: 0, r: 3 } },
+            range: { s: { c: 1, r: 1 }, e: { c: 1, r: 1 } },
           })[0]
           .toString()
-          .trim() === "STT" &&
+          .trim() === "Kế hoạch:" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 1, r: 3 }, e: { c: 1, r: 3 } },
+            range: { s: { c: 2, r: 1 }, e: { c: 2, r: 1 } },
           })[0]
           .toString()
-          .trim() === "Mã sản phẩm" &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
-          })[0]
-          .toString()
-          .trim() === "Tên sản phẩm" &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
-          })[0]
-          .toString()
-          .trim() === "Mã màu sắc";
-      if (checkMau) {
-        for (let index = 1; index <= getNumberDayOfMonth(Thang, Nam); index++) {
-          if (
-            XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: 3 + index, r: 3 }, e: { c: 3 + index, r: 3 } },
-              })[0]
-              .toString()
-              .trim() !== index.toString()
-          ) {
-            checkMau = false;
-          }
-        }
-      }
-      if (checkMau) {
-        const data = XLSX.utils.sheet_to_json(worksheet, {
-          range: 3,
-        });
-        const MSP = "Mã sản phẩm";
-        const TSP = "Tên sản phẩm";
-        const MMS = "Mã màu sắc";
-        const Data = [];
-        const NewData = [];
-        data.forEach((d, index) => {
-          if (
-            d[MSP] &&
-            d[MSP].toString().trim() === "" &&
-            d[TSP] &&
-            d[TSP].toString().trim() === "" &&
-            d[MMS] &&
-            d[MMS].toString().trim() === ""
-          ) {
-          } else {
-            NewData.push({
-              maSanPham: d[MSP]
-                ? d[MSP].toString().trim() !== ""
-                  ? d[MSP].toString().trim()
-                  : undefined
-                : undefined,
-              tenSanPham: d[TSP]
-                ? d[TSP].toString().trim() !== ""
-                  ? d[TSP].toString().trim()
-                  : undefined
-                : undefined,
-              maMauSac: d[MMS]
-                ? d[MMS].toString().trim() !== ""
-                  ? d[MMS].toString().trim()
-                  : undefined
-                : undefined,
-            });
-          }
-          Data.push(data[index][MSP]);
-        });
-        if (NewData.length === 0) {
-          setFileName(file.name);
-          setDataView([]);
-          setCheckDanger(true);
-          setMessageError("Dữ liệu import không được rỗng");
-          Helper.alertError("Dữ liệu import không được rỗng");
-        } else {
-          const indices = [];
-          const row = [];
-          for (let i = 0; i < Data.length; i++) {
-            for (let j = i + 1; j < Data.length; j++) {
-              if (
-                Data[i] === Data[j] &&
-                Data[j] !== undefined &&
-                Data[i] !== undefined
-              ) {
-                indices.push(Data[i]);
-                row.push(i + 1);
-                row.push(j + 1);
-              }
-            }
-          }
-          setDataView(NewData);
-          setFileName(file.name);
-          setDataLoi();
-          if (indices.length > 0) {
-            setMessageError(`Hàng ${row.join(", ")} có mã sản phẩm trùng nhau`);
-            Helper.alertError(
-              `Hàng ${row.join(", ")} có mã sản phẩm trùng nhau`
-            );
-            setHangTrung(indices);
-            setCheckDanger(true);
-          } else {
-            setHangTrung([]);
-            setCheckDanger(false);
-          }
-        }
-      } else {
+          .trim() === TenKeHoach;
+      if (!checkKeHoach) {
         setFileName(file.name);
         setDataView([]);
         setCheckDanger(true);
-        setMessageError("Mẫu import không hợp lệ");
-        Helper.alertError("Mẫu file import không hợp lệ");
+        setMessageError("Kế hoạch không hợp lệ");
+        Helper.alertError("Kế hoạch không hợp lệ");
+      } else {
+        const checkXuong =
+          XLSX.utils
+            .sheet_to_json(worksheet, {
+              header: 1,
+              range: { s: { c: 4, r: 1 }, e: { c: 4, r: 1 } },
+            })[0]
+            .toString()
+            .trim() === "Xưởng:" &&
+          XLSX.utils
+            .sheet_to_json(worksheet, {
+              header: 1,
+              range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
+            })[0]
+            .toString()
+            .trim() === TenXuong;
+        if (!checkXuong) {
+          setFileName(file.name);
+          setDataView([]);
+          setCheckDanger(true);
+          setMessageError("Xưởng không hợp lệ");
+          Helper.alertError("Xưởng không hợp lệ");
+        } else {
+          const checkThangNam =
+            XLSX.utils
+              .sheet_to_json(worksheet, {
+                header: 1,
+                range: { s: { c: 11, r: 1 }, e: { c: 11, r: 1 } },
+              })[0]
+              .toString()
+              .trim() === "Tháng:" &&
+            XLSX.utils
+              .sheet_to_json(worksheet, {
+                header: 1,
+                range: { s: { c: 13, r: 1 }, e: { c: 13, r: 1 } },
+              })[0]
+              .toString()
+              .trim().length === 1
+              ? "0" +
+                XLSX.utils
+                  .sheet_to_json(worksheet, {
+                    header: 1,
+                    range: { s: { c: 13, r: 1 }, e: { c: 13, r: 1 } },
+                  })[0]
+                  .toString()
+                  .trim()
+              : XLSX.utils
+                  .sheet_to_json(worksheet, {
+                    header: 1,
+                    range: { s: { c: 13, r: 1 }, e: { c: 13, r: 1 } },
+                  })[0]
+                  .toString()
+                  .trim() === Thang.toString() &&
+                XLSX.utils
+                  .sheet_to_json(worksheet, {
+                    header: 1,
+                    range: { s: { c: 15, r: 1 }, e: { c: 15, r: 1 } },
+                  })[0]
+                  .toString()
+                  .trim() === "Năm:" &&
+                XLSX.utils
+                  .sheet_to_json(worksheet, {
+                    header: 1,
+                    range: { s: { c: 16, r: 1 }, e: { c: 16, r: 1 } },
+                  })[0]
+                  .toString()
+                  .trim() === Nam.toString();
+          if (!checkThangNam) {
+            setFileName(file.name);
+            setDataView([]);
+            setCheckDanger(true);
+            setMessageError("Tháng Năm không hợp lệ");
+            Helper.alertError("Tháng Năm không hợp lệ");
+          } else {
+            let checkMau =
+              XLSX.utils
+                .sheet_to_json(worksheet, {
+                  header: 1,
+                  range: { s: { c: 0, r: 3 }, e: { c: 0, r: 3 } },
+                })[0]
+                .toString()
+                .trim() === "STT" &&
+              XLSX.utils
+                .sheet_to_json(worksheet, {
+                  header: 1,
+                  range: { s: { c: 1, r: 3 }, e: { c: 1, r: 3 } },
+                })[0]
+                .toString()
+                .trim() === "Mã sản phẩm" &&
+              XLSX.utils
+                .sheet_to_json(worksheet, {
+                  header: 1,
+                  range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
+                })[0]
+                .toString()
+                .trim() === "Tên sản phẩm" &&
+              XLSX.utils
+                .sheet_to_json(worksheet, {
+                  header: 1,
+                  range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
+                })[0]
+                .toString()
+                .trim() === "Mã màu sắc";
+            if (checkMau) {
+              for (
+                let index = 1;
+                index <= getNumberDayOfMonth(Thang, Nam);
+                index++
+              ) {
+                if (
+                  XLSX.utils
+                    .sheet_to_json(worksheet, {
+                      header: 1,
+                      range: {
+                        s: { c: 3 + index, r: 3 },
+                        e: { c: 3 + index, r: 3 },
+                      },
+                    })[0]
+                    .toString()
+                    .trim() !== index.toString()
+                ) {
+                  checkMau = false;
+                }
+              }
+            }
+            if (checkMau) {
+              const data = XLSX.utils.sheet_to_json(worksheet, {
+                range: 3,
+              });
+              const MSP = "Mã sản phẩm";
+              const TSP = "Tên sản phẩm";
+              const MMS = "Mã màu sắc";
+              // const Data = [];
+              const NewData = [];
+              data.forEach((d, index) => {
+                if (
+                  d[MSP] &&
+                  d[MSP].toString().trim() === "" &&
+                  d[TSP] &&
+                  d[TSP].toString().trim() === "" &&
+                  d[MMS] &&
+                  d[MMS].toString().trim() === ""
+                ) {
+                } else {
+                  const slNgay = {};
+                  for (
+                    let index = 1;
+                    index <= getNumberDayOfMonth(Thang, Nam);
+                    index++
+                  ) {
+                    if (d[index]) {
+                      slNgay[index] = d[index];
+                    }
+                  }
+                  NewData.push({
+                    maSanPham: d[MSP]
+                      ? d[MSP].toString().trim() !== ""
+                        ? d[MSP].toString().trim()
+                        : undefined
+                      : undefined,
+                    tenSanPham: d[TSP]
+                      ? d[TSP].toString().trim() !== ""
+                        ? d[TSP].toString().trim()
+                        : undefined
+                      : undefined,
+                    maMauSac: d[MMS]
+                      ? d[MMS].toString().trim() !== ""
+                        ? d[MMS].toString().trim()
+                        : undefined
+                      : undefined,
+                    ...slNgay,
+                  });
+                }
+                // Data.push(data[index][MSP]);
+              });
+              if (NewData.length === 0) {
+                setFileName(file.name);
+                setDataView([]);
+                setCheckDanger(true);
+                setMessageError("Dữ liệu import không được rỗng");
+                Helper.alertError("Dữ liệu import không được rỗng");
+              } else {
+                // const indices = [];
+                // const row = [];
+                // for (let i = 0; i < Data.length; i++) {
+                //   for (let j = i + 1; j < Data.length; j++) {
+                //     if (
+                //       Data[i] === Data[j] &&
+                //       Data[j] !== undefined &&
+                //       Data[i] !== undefined
+                //     ) {
+                //       indices.push(Data[i]);
+                //       row.push(i + 1);
+                //       row.push(j + 1);
+                //     }
+                //   }
+                // }
+                setDataView(NewData);
+                setFileName(file.name);
+                setDataLoi();
+                // if (indices.length > 0) {
+                //   setMessageError(
+                //     `Hàng ${row.join(", ")} có mã sản phẩm trùng nhau`
+                //   );
+                //   Helper.alertError(
+                //     `Hàng ${row.join(", ")} có mã sản phẩm trùng nhau`
+                //   );
+                //   setHangTrung(indices);
+                //   setCheckDanger(true);
+                // } else {
+                //   setHangTrung([]);
+                //   setCheckDanger(false);
+                // }
+              }
+            } else {
+              setFileName(file.name);
+              setDataView([]);
+              setCheckDanger(true);
+              setMessageError("Mẫu import không hợp lệ");
+              Helper.alertError("Mẫu file import không hợp lệ");
+            }
+          }
+        }
       }
     };
     reader.readAsBinaryString(file);
@@ -405,12 +529,30 @@ function ImportKeHoach({ match, permission, history }) {
   };
 
   const handleSubmit = () => {
+    const newData = [];
+    dataView.forEach((dt) => {
+      for (let index = 1; index <= getNumberDayOfMonth(Thang, Nam); index++) {
+        if (dt[index]) {
+          newData.push({
+            loaiKeHoach_Id: KeHoach,
+            phongban_Id: Xuong,
+            nam: Nam,
+            thang: Thang,
+            ngay: index,
+            soLuong: dt[index],
+            maMauSac: dt.maMauSac,
+            maSanPham: dt.maSanPham,
+          });
+        }
+      }
+    });
+
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `SanPham/ImportExel`,
+          `lkn_KeHoach/import-excel`,
           "POST",
-          dataView,
+          newData,
           "IMPORT",
           "",
           resolve,
@@ -422,7 +564,7 @@ function ImportKeHoach({ match, permission, history }) {
         setDataLoi(res.data);
         setMessageError(res.data.ghiChuImport);
       } else {
-        setFileName(null);
+        setFileName("");
         setDataView([]);
       }
     });
@@ -463,7 +605,32 @@ function ImportKeHoach({ match, permission, history }) {
         setCheckDanger(true);
         return "red-row";
       }
+    } else {
+      let check = false;
+      for (let index = 1; index <= getNumberDayOfMonth(Thang, Nam); index++) {
+        if (current[index]) {
+          check = true;
+        }
+      }
+      if (!check) {
+        setCheckDanger(true);
+        setMessageError(`Số lượng kế hoạch không được rỗng`);
+        return "red-row";
+      }
     }
+  };
+  const hanldeSelectKeHoach = (val) => {
+    setKeHoach(val);
+    listKeHoach.forEach((kh) => {
+      kh.id === val && setTenKeHoach(kh.tenLoaiKeHoach);
+    });
+  };
+  const hanldeSelectXuong = (val) => {
+    setDisableTaiFile(true);
+    setXuong(val);
+    listXuong.forEach((x) => {
+      x.id === val && setTenXuong(x.tenPhongBan);
+    });
   };
   /**
    * Quay lại trang kế hoạch
@@ -496,8 +663,9 @@ function ImportKeHoach({ match, permission, history }) {
               placeholder="Chọn kế hoạch"
               optionsvalue={["id", "tenLoaiKeHoach"]}
               style={{ width: "100%" }}
-              onChange={(value) => setKeHoach(value)}
+              onSelect={hanldeSelectKeHoach}
               value={KeHoach}
+              disabled={fileName !== ""}
             />
           </Col>
 
@@ -517,11 +685,9 @@ function ImportKeHoach({ match, permission, history }) {
               placeholder="Chọn xưởng"
               optionsvalue={["id", "tenPhongBan"]}
               style={{ width: "100%" }}
-              onChange={(value) => {
-                setXuong(value);
-                setDisableTaiFile(true);
-              }}
+              onSelect={hanldeSelectXuong}
               value={Xuong}
+              disabled={fileName !== ""}
             />
           </Col>
           <Col
@@ -545,6 +711,7 @@ function ImportKeHoach({ match, permission, history }) {
                 setThang(dateString.split("/")[0]);
                 setNam(dateString.split("/")[1]);
               }}
+              disabled={fileName !== ""}
             />
           </Col>
         </Row>
@@ -590,7 +757,7 @@ function ImportKeHoach({ match, permission, history }) {
                       style={{ cursor: "pointer" }}
                       onClick={() => {
                         setDataView([]);
-                        setFileName(null);
+                        setFileName("");
                         setCheckDanger(false);
                       }}
                     />
@@ -614,7 +781,7 @@ function ImportKeHoach({ match, permission, history }) {
         <Table
           style={{ marginTop: 10 }}
           bordered
-          scroll={{ x: "100%", y: "60vh" }}
+          scroll={{ x: 1500, y: "60vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

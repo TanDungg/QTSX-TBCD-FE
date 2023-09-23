@@ -1,13 +1,13 @@
 import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
-import { Card, Row, Col, DatePicker, Form, Input, Button } from "antd";
+import { Card, Row, Col, DatePicker, Form, Input, Button, Popover } from "antd";
 
 import map from "lodash/map";
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Select } from "src/components/Common";
-import { getNumberDayOfMonth } from "src/util/Common";
+import { getNamNow, getNumberDayOfMonth, getThangNow } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { reDataForTable } from "src/util/Common";
+import { reDataForTable, getLocalStorage } from "src/util/Common";
 
 import { ModalDeleteConfirm, Table } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -75,7 +75,7 @@ const EditableCell = ({
         style={{
           margin: 0,
         }}
-        name={dataIndex}
+        Name={dataIndex}
         rules={[{ validator: validateNumber }]}
       >
         <Input
@@ -105,69 +105,90 @@ const EditableCell = ({
 };
 function KeHoach({ match, history, permission }) {
   const dispatch = useDispatch();
-  const { data, loading, width } = useSelector(({ common }) => common).toJS();
-  const [keHoachSelect, setKeHoachSelect] = useState([
-    { id: "khsx", keHoach: "Kế hoạch sản xuất" },
-    { id: "khgh", keHoach: "Kế hoạch giao hàng" },
-  ]);
-  const [keHoach, setKeHoach] = useState("khsx");
+  const { loading } = useSelector(({ common }) => common).toJS();
+  const INFO = getLocalStorage("menu");
+  const [listKeHoach, setListKeHoach] = useState([]);
+  const [KeHoach, setKeHoach] = useState("");
+  const [Xuong, setXuong] = useState("");
+  const [data, setData] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
   const [VersionSelect, setVersionSelect] = useState([]);
+  const [Thang, setThang] = useState(getThangNow());
+  const [Nam, setNam] = useState(getNamNow());
 
-  const [thang, setThang] = useState(
-    (new Date().getMonth() + 1).toString().length == 1
-      ? "0" + (new Date().getMonth() + 1).toString()
-      : (new Date().getMonth() + 1).toString()
-  );
-  const [nam, setNam] = useState(new Date().getFullYear());
   const [loaiXe, setLoaiXe] = useState("");
   const [Version, setVersion] = useState("");
 
   useEffect(() => {
     if (permission && permission.view) {
-      // getLoaiXe();
-      // getVersion(keHoach, thang, nam);
-      // getListData(keHoach, loaiXe, thang, nam);
+      getXuong();
+      getLoaiKeHoach();
     } else if (permission && !permission.view) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  useEffect(() => {
+    if (KeHoach !== "" && Xuong !== "") {
+      getVersion(KeHoach, Xuong, Thang, Nam);
+    }
+  }, [KeHoach, Xuong]);
   /**
    * Load danh sách người dùng
-   * @param kehoach Từ khóa
-   * @param loaixe_id loại xe id
-   * @param thangnam tháng năm
+   * @param KeHoach Từ khóa
+   * @param phongBan_Id loại xe id
+   * @param thangNam tháng năm
    */
-  const getListData = (loai_kh, loaixe_id, thang, nam, lsid) => {
+  const getListData = (loaiKeHoach_Id, phongBan_Id, thang, nam, version_Id) => {
     let param = convertObjectToUrlParams({
       thang,
       nam,
-      loaixe_id,
-      loai_kh,
-      lsid,
+      phongBan_Id,
+      loaiKeHoach_Id,
+      version_Id,
     });
-    dispatch(fetchStart(`Xe/xem-ke-hoach?${param}`, "GET", null, "LIST"));
-  };
-  const getLoaiXe = () => {
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(`LoaiXe`, "GET", null, "DETAIL", "", resolve, reject)
+        fetchStart(
+          `lkn_KeHoach?${param}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
       );
     })
       .then((res) => {
         if (res && res.data) {
-          // setListXuong(res.data);
+          const newData = res.data.map((dt) => {
+            const ctkh = {};
+            JSON.parse(dt.chiTietKeHoach).forEach((ct) => {
+              ctkh[`ngay${ct.thoiGian}`] = {
+                soLuong: ct.soLuong,
+                mauSac: ct.tenMauSac,
+              };
+            });
+            return {
+              maSanPham: dt.maSanPham,
+              tenSanPham: dt.tenSanPham,
+              ...ctkh,
+            };
+          });
+          setData(newData);
+        } else {
+          setData([]);
         }
       })
       .catch((error) => console.error(error));
   };
-  const getVersion = (kh, t, n) => {
+  const getLoaiKeHoach = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Xe/xem-lichsu-kh?loai_kh=${kh}&thang=${t}&nam=${n}`,
+          `lkn_LoaiKeHoach?page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -179,9 +200,73 @@ function KeHoach({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          // setVersionSelect(res.data);
+          setListKeHoach(res.data);
+          setKeHoach(res.data[1].id);
         } else {
-          // setVersionSelect([]);
+          setListKeHoach([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const getXuong = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const xuong = [];
+          res.data.forEach((x) => {
+            if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+              xuong.push(x);
+            }
+          });
+          setListXuong(xuong);
+          setXuong(xuong[0].id);
+        } else {
+          setListXuong([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const getVersion = (kh, pb, t, n) => {
+    const params = convertObjectToUrlParams({
+      loaiKeHoach_Id: kh,
+      phongBan_Id: pb,
+      thang: t,
+      nam: n,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_KeHoach/list-version-ke-hoach?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data.length > 0) {
+          setVersionSelect(res.data);
+          setVersion(res.data[0].version_Id);
+          getListData(kh, pb, t, n, res.data[0].version_Id);
+        } else {
+          getListData(kh, pb, t, n);
+          setVersion("");
+          setVersionSelect([]);
         }
       })
       .catch((error) => console.error(error));
@@ -198,12 +283,12 @@ function KeHoach({ match, history, permission }) {
         new Promise((resolve, reject) => {
           dispatch(
             fetchStart(
-              `Xe/sua-ke-hoach/${keHoach}`,
+              `Xe/sua-ke-hoach/${KeHoach}`,
               "POST",
               {
                 ngay: i,
                 thang: row.thang,
-                nam: row.nam,
+                Nam: row.Nam,
                 xe_Id: row.xe_id,
                 soLuong: Number(row[i]),
               },
@@ -216,7 +301,7 @@ function KeHoach({ match, history, permission }) {
         })
           .then((res) => {
             if (res && res.status === 200) {
-              getListData(keHoach, loaiXe, thang, nam);
+              getListData(KeHoach, loaiXe, Thang, Nam);
             }
           })
           .catch((error) => console.error(error));
@@ -239,9 +324,9 @@ function KeHoach({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const loaikh = keHoach;
+    const loaikh = KeHoach;
     const xe_id = item.xe_id;
-    let param = convertObjectToUrlParams({ loaikh, thang, nam, xe_id });
+    let param = convertObjectToUrlParams({ loaikh, Thang, Nam, xe_id });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -257,7 +342,7 @@ function KeHoach({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.status === 200) {
-          getListData(keHoach, loaiXe, thang, nam);
+          getListData(KeHoach, loaiXe, Thang, Nam);
         }
       })
       .catch((error) => console.error(error));
@@ -283,18 +368,50 @@ function KeHoach({ match, history, permission }) {
       </div>
     );
   };
-  const column = new Array(getNumberDayOfMonth(thang, nam))
-    .fill(null)
-    .map((_, i) => {
-      const id = String(i + 1);
-      return {
-        title: id,
-        width: width > 450 ? 50 : 55,
-        align: "center",
-        dataIndex: id,
-        key: "key",
-      };
-    });
+  const render = (val, record) => {
+    if (val === undefined) {
+      return (
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          -
+        </div>
+      );
+    } else {
+      const content = (
+        <span style={{ padding: 5 }}>
+          Màu {val.mauSac} : {val.soLuong}
+        </span>
+      );
+      return (
+        <Popover content={content} placement="rightBottom">
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              width: "100%",
+              height: "100%",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {val.soLuong}
+          </div>
+        </Popover>
+      );
+    }
+  };
   let colValues = [
     {
       title: "STT",
@@ -302,33 +419,36 @@ function KeHoach({ match, history, permission }) {
       key: "key",
       width: 50,
       align: "center",
-      fixed: width > 550 ? "left" : "none",
     },
-
     {
       title: "Mã sản phẩm",
-      dataIndex: "maxe",
-      key: "maxe",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
       align: "center",
       width: 120,
-      fixed: width > 550 ? "left" : "none",
     },
     {
       title: "Tên sản phẩm",
-      dataIndex: "tenxe",
-      key: "tenxe",
+      dataIndex: "tenSanPham",
       align: "center",
+      key: "tenSanPham",
       width: 120,
-      fixed: width > 550 ? "left" : "none",
     },
-    ...column,
-
     {
-      title: "Xóa",
-      key: "action",
-      align: "center",
-      width: 50,
-      render: (value) => actionContent(value),
+      title: `Tháng ${Thang} năm ${Nam}`,
+      children: new Array(getNumberDayOfMonth(Thang, Nam))
+        .fill(null)
+        .map((_, i) => {
+          const id = String(i + 1);
+          return {
+            title: id,
+            dataIndex: `ngay${id}`,
+            key: `ngay${id}`,
+            align: "center",
+            width: 40,
+            render: (val, record) => render(val, record),
+          };
+        }),
     },
   ];
   const components = {
@@ -355,47 +475,31 @@ function KeHoach({ match, history, permission }) {
     };
   });
   const handleOnSelectKeHoach = (value) => {
-    setVersion(null);
-    getListData(value, loaiXe, thang, nam);
-    getVersion(value, thang, nam);
+    getVersion(value, Xuong, Thang, Nam);
   };
-  const handleOnSelectLoaiXe = (value) => {
-    getListData(keHoach, value, thang, nam, Version);
+  const handleOnSelectXuong = (value) => {
+    setXuong(value);
+    getVersion(KeHoach, value, Thang, Nam);
   };
   const handleOnSelectVersion = (value) => {
-    getListData(keHoach, loaiXe, thang, nam, value);
+    getListData(KeHoach, Xuong, Thang, Nam, value);
+    setVersion(value);
   };
   const handleOnChangeDate = (dateString) => {
-    const thang = dateString.slice(0, 2);
-    const nam = dateString.slice(-4);
-    setThang(thang);
-    setNam(nam);
-    setVersion(null);
-    getListData(keHoach, loaiXe, thang, nam);
-    getVersion(keHoach, thang, nam);
+    const Thang = dateString.slice(0, 2);
+    const Nam = dateString.slice(-4);
+    setThang(Thang);
+    setNam(Nam);
+    getVersion(KeHoach, Xuong, Thang, Nam);
   };
   const { totalPages, totalRow } = data;
-  map(data, (data) => {
-    map(data.chiTietKH, (d) => {
-      const key = d.ngay;
-      data[key] = d.soLuong;
-    });
-  });
-
-  for (let i = 1; i <= getNumberDayOfMonth(); i++) {
-    map(data, (d) => {
-      if (d[i] == undefined || d[i] == 0) {
-        d[i] = "-";
-      }
-    });
-  }
 
   const handleClearLoaiXe = (value) => {
-    getListData(keHoach, "", thang, nam);
+    getListData(KeHoach, "", Thang, Nam);
     setLoaiXe(null);
   };
   const handleClearVersion = (value) => {
-    getListData(keHoach, loaiXe, thang, nam);
+    getListData(KeHoach, loaiXe, Thang, Nam);
     setVersion(null);
   };
   const handleImport = () => {
@@ -439,13 +543,13 @@ function KeHoach({ match, history, permission }) {
             <h5>Kế hoạch:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={keHoachSelect ? keHoachSelect : []}
+              data={listKeHoach ? listKeHoach : []}
               placeholder="Chọn kế hoạch"
-              optionsvalue={["id", "keHoach"]}
+              optionsvalue={["id", "tenLoaiKeHoach"]}
               style={{ width: "100%" }}
               onSelect={handleOnSelectKeHoach}
               onChange={(value) => setKeHoach(value)}
-              value={keHoach}
+              value={KeHoach}
             />
           </Col>
 
@@ -463,13 +567,10 @@ function KeHoach({ match, history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListXuong ? ListXuong : []}
               placeholder="Chọn xưởng"
-              optionsvalue={["id", "tenLoaiXe"]}
+              optionsvalue={["id", "tenPhongBan"]}
               style={{ width: "100%" }}
-              onSelect={handleOnSelectLoaiXe}
-              onChange={(value) => setLoaiXe(value)}
-              value={loaiXe}
-              allowClear
-              onClear={handleClearLoaiXe}
+              onSelect={handleOnSelectXuong}
+              value={Xuong}
             />
           </Col>
           <Col
@@ -488,7 +589,7 @@ function KeHoach({ match, history, permission }) {
               style={{ width: "100%" }}
               placeholder="Chọn tháng"
               picker="month"
-              value={moment(thang + "/" + nam, "MM/YYYY")}
+              value={moment(Thang + "/" + Nam, "MM/YYYY")}
               onChange={(date, dateString) => handleOnChangeDate(dateString)}
             />
           </Col>
@@ -507,7 +608,7 @@ function KeHoach({ match, history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={VersionSelect ? VersionSelect : []}
               placeholder={"Version hiện hành"}
-              optionsvalue={["id", "tenVersion"]}
+              optionsvalue={["version_Id", "version"]}
               style={{ width: "100%" }}
               onSelect={handleOnSelectVersion}
               onChange={(value) => setVersion(value)}

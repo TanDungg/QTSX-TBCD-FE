@@ -214,7 +214,7 @@ function CanBoNhanVien({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `Account/${item.id}`;
+    let url = `Account/user-cbnv?$`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })

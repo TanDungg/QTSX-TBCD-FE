@@ -431,7 +431,7 @@ function DinhMucVatTu({ permission, history, match }) {
           type="primary"
           onClick={handleInPhieu}
           disabled={
-            permission && !permission.print && selectedKeys.length === 0
+            (permission && !permission.print) || selectedKeys.length === 0
           }
         >
           In phiếu
@@ -463,6 +463,7 @@ function DinhMucVatTu({ permission, history, match }) {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
+    getDinhMucVatTu(keyword, user_Id, dateString[0], dateString[1], 1);
   };
 
   function hanldeRemoveSelected(device) {
