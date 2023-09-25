@@ -9,100 +9,18 @@ import { getNamNow, getNumberDayOfMonth, getThangNow } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { reDataForTable, getLocalStorage } from "src/util/Common";
 
-import { ModalDeleteConfirm, Table } from "src/components/Common";
+import {
+  ModalDeleteConfirm,
+  Table,
+  EditableTableRow,
+} from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-
+import EditKeHoach from "./EditKeHoach";
 import { convertObjectToUrlParams } from "src/util/Common";
 import moment from "moment";
 
-const validateNumber = (_, value) => {
-  if (!Number.isNaN(parseFloat(value))) {
-    return Promise.resolve();
-  }
-  return Promise.reject("Vui lòng nhập số hợp lệ");
-};
+const { EditableRow, EditableCell } = EditableTableRow;
 
-const EditableContext = React.createContext(null);
-const EditableRow = ({ index, ...props }) => {
-  const [form] = Form.useForm();
-  return (
-    <Form form={form} component={false}>
-      <EditableContext.Provider value={form}>
-        <tr {...props} />
-      </EditableContext.Provider>
-    </Form>
-  );
-};
-const EditableCell = ({
-  title,
-  editable,
-  children,
-  dataIndex,
-  record,
-  handleSave,
-  ...restProps
-}) => {
-  const [editing, setEditing] = useState(false);
-  const inputRef = useRef(null);
-  const form = useContext(EditableContext);
-  useEffect(() => {
-    if (editing) {
-      inputRef.current.focus();
-    }
-  }, [editing]);
-  const toggleEdit = () => {
-    setEditing(!editing);
-    form.setFieldsValue({
-      [dataIndex]: record[dataIndex],
-    });
-  };
-  const save = async () => {
-    try {
-      const values = await form.validateFields();
-      toggleEdit();
-      handleSave({
-        ...record,
-        ...values,
-      });
-    } catch (errInfo) {
-      console.log("Save failed:", errInfo);
-    }
-  };
-  let childNode = children;
-  if (editable) {
-    childNode = editing ? (
-      <Form.Item
-        style={{
-          margin: 0,
-        }}
-        Name={dataIndex}
-        rules={[{ validator: validateNumber }]}
-      >
-        <Input
-          style={{
-            margin: 0,
-            width: "100%",
-          }}
-          ref={inputRef}
-          onPressEnter={save}
-          onBlur={save}
-        />
-      </Form.Item>
-    ) : (
-      <div
-        className="editable-cell-value-wrap"
-        style={{
-          border: "none",
-        }}
-        align={"center"}
-        onClick={toggleEdit}
-      >
-        {children}
-      </div>
-    );
-  }
-  return <td {...restProps}>{childNode}</td>;
-};
 function KeHoach({ match, history, permission }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
@@ -115,10 +33,10 @@ function KeHoach({ match, history, permission }) {
   const [VersionSelect, setVersionSelect] = useState([]);
   const [Thang, setThang] = useState(getThangNow());
   const [Nam, setNam] = useState(getNamNow());
-
+  const [ActiveEditKeHoach, setActiveEditKeHoach] = useState(false);
   const [loaiXe, setLoaiXe] = useState("");
   const [Version, setVersion] = useState("");
-
+  const [dataEdit, setDataEdit] = useState({});
   useEffect(() => {
     if (permission && permission.view) {
       getXuong();
@@ -134,6 +52,9 @@ function KeHoach({ match, history, permission }) {
       getVersion(KeHoach, Xuong, Thang, Nam);
     }
   }, [KeHoach, Xuong]);
+  const refeshData = () => {
+    getVersion(KeHoach, Xuong, Thang, Nam);
+  };
   /**
    * Load danh sách người dùng
    * @param KeHoach Từ khóa
@@ -165,15 +86,34 @@ function KeHoach({ match, history, permission }) {
         if (res && res.data) {
           const newData = res.data.map((dt) => {
             const ctkh = {};
+            let t = 0;
             JSON.parse(dt.chiTietKeHoach).forEach((ct) => {
-              ctkh[`ngay${ct.thoiGian}`] = {
-                soLuong: ct.soLuong,
-                mauSac: ct.tenMauSac,
+              let chiTietMS = [];
+              JSON.parse(dt.chiTietMauSac).forEach((ms) => {
+                if (ms.keHoach_Id === ct.KeHoach_Id) {
+                  chiTietMS.push({
+                    mauSac_Id: ms.mauSac_Id,
+                    tenMauSac: ms.tenMauSac,
+                    soLuong: ms.soLuong,
+                  });
+                }
+              });
+              ctkh[`ngay${ct.ngay}`] = {
+                soLuong: ct.tongSoLuong,
+                mauSac: chiTietMS,
+                keHoach_Id: ct.KeHoach_Id,
+                ngay: ct.ngay,
+                sanPham_Id: dt.sanPham_Id,
+                thang: Thang,
+                nam: Nam,
+                tenSanPham: dt.tenSanPham,
               };
+              t = t + ct.tongSoLuong;
             });
             return {
               maSanPham: dt.maSanPham,
               tenSanPham: dt.tenSanPham,
+              tong: t > 0 ? t : 0,
               ...ctkh,
             };
           });
@@ -273,41 +213,6 @@ function KeHoach({ match, history, permission }) {
   };
 
   /**
-   * Save item from table
-   * @param {object} row
-   * @memberof ChucNang
-   */
-  const handleSave = async (row) => {
-    for (let i = 1; i <= getNumberDayOfMonth(); i++) {
-      if (typeof row[i] == "string") {
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `Xe/sua-ke-hoach/${KeHoach}`,
-              "POST",
-              {
-                ngay: i,
-                thang: row.thang,
-                Nam: row.Nam,
-                xe_Id: row.xe_id,
-                soLuong: Number(row[i]),
-              },
-              "EDIT",
-              "",
-              resolve,
-              reject
-            )
-          );
-        })
-          .then((res) => {
-            if (res && res.status === 200) {
-              getListData(KeHoach, loaiXe, Thang, Nam);
-            }
-          })
-          .catch((error) => console.error(error));
-      }
-    }
-  };
   /**
    * deleteItemFunc: Remove item from list
    * @param {object} item
@@ -315,7 +220,12 @@ function KeHoach({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item);
+    ModalDeleteConfirm(
+      deleteItemAction,
+      item,
+      `của sản phẩm ${item.tenSanPham} tháng ${Thang}/${Nam}`,
+      "kế hoạch"
+    );
   };
 
   /**
@@ -324,13 +234,10 @@ function KeHoach({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const loaikh = KeHoach;
-    const xe_id = item.xe_id;
-    let param = convertObjectToUrlParams({ loaikh, Thang, Nam, xe_id });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Xe/xoa-ke-hoach?${param}`,
+          `lkn_KeHoach/${item.id}`,
           "POST",
           "",
           "EDIT",
@@ -341,7 +248,7 @@ function KeHoach({ match, history, permission }) {
       );
     })
       .then((res) => {
-        if (res && res.status === 200) {
+        if (res && res.status !== 409) {
           getListData(KeHoach, loaiXe, Thang, Nam);
         }
       })
@@ -355,7 +262,7 @@ function KeHoach({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const deleteItemVal =
-      permission.del && !item.isUsed
+      permission && permission.del && Number(Thang) >= new Date().getMonth() + 1
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -387,11 +294,13 @@ function KeHoach({ match, history, permission }) {
         </div>
       );
     } else {
-      const content = (
-        <span style={{ padding: 5 }}>
-          Màu {val.mauSac} : {val.soLuong}
-        </span>
-      );
+      const content = val.mauSac.map((ms) => {
+        return (
+          <p style={{ padding: "0 5px", margin: 0 }}>
+            {ms.tenMauSac} : {ms.soLuong}
+          </p>
+        );
+      });
       return (
         <Popover content={content} placement="rightBottom">
           <div
@@ -406,7 +315,18 @@ function KeHoach({ match, history, permission }) {
               alignItems: "center",
             }}
           >
-            {val.soLuong}
+            {val.ngay >= new Date().getDate() - 1 ? (
+              <a
+                onClick={() => {
+                  setDataEdit(val);
+                  setActiveEditKeHoach(true);
+                }}
+              >
+                {val.soLuong}
+              </a>
+            ) : (
+              <span>{val.soLuong}</span>
+            )}
           </div>
         </Popover>
       );
@@ -417,7 +337,7 @@ function KeHoach({ match, history, permission }) {
       title: "STT",
       dataIndex: "key",
       key: "key",
-      width: 50,
+      width: 45,
       align: "center",
     },
     {
@@ -450,6 +370,20 @@ function KeHoach({ match, history, permission }) {
           };
         }),
     },
+    {
+      title: "Tổng",
+      dataIndex: "tong",
+      align: "center",
+      key: "tong",
+      width: 50,
+    },
+    {
+      title: "Chức năng",
+      align: "center",
+      key: "action",
+      width: 80,
+      render: (item) => actionContent(item),
+    },
   ];
   const components = {
     body: {
@@ -470,7 +404,6 @@ function KeHoach({ match, history, permission }) {
         dataIndex: col.dataIndex,
         title: col.title,
         info: col.info,
-        handleSave: handleSave,
       }),
     };
   });
@@ -630,12 +563,19 @@ function KeHoach({ match, history, permission }) {
           rowClassName={"editable-row"}
           pagination={{
             total: totalRow,
+            pageSize: 20,
             showSizeChanger: false,
             showQuickJumper: true,
           }}
           loading={loading}
         />
       </Card>
+      <EditKeHoach
+        openModal={ActiveEditKeHoach}
+        openModalFS={setActiveEditKeHoach}
+        data={dataEdit}
+        refesh={refeshData}
+      />
     </div>
   );
 }

@@ -14,6 +14,7 @@ const DanhMuc_KHO_TPC = asyncComponent(() => import("./Kho_TPC/DanhMuc"));
 const HeThong_KHO_TPC = asyncComponent(() => import("./Kho_TPC/HeThong"));
 const SanXuat_KHO_TPC = asyncComponent(() => import("./Kho_TPC/SanXuat"));
 const MuaHang_KHO_TPC = asyncComponent(() => import("./Kho_TPC/MuaHang"));
+const BaoCao_KHO_TPC = asyncComponent(() => import("./Kho_TPC/BaoCao"));
 
 const App = ({ match, menus, location }) => {
   const { pathname } = location;
@@ -52,6 +53,10 @@ const App = ({ match, menus, location }) => {
         <Route
           path={`${match.url}mua-hang-kho-tpc`}
           component={Auth(MuaHang_KHO_TPC, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}bao-cao-kho-tpc`}
+          component={Auth(BaoCao_KHO_TPC, menus, pathname)}
         />
         <Route path="*" component={Auth(Home_ERP, menus, pathname)} />
       </Switch>

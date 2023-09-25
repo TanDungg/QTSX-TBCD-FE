@@ -759,6 +759,7 @@ function ImportKeHoach({ match, permission, history }) {
                         setDataView([]);
                         setFileName("");
                         setCheckDanger(false);
+                        setDataLoi([]);
                       }}
                     />
                   </p>
