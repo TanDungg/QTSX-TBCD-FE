@@ -18805,6 +18805,7 @@ span.ant-radio + * {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  /* direction: rtl; */
 }
 @media all and (-ms-high-contrast: none) {
   .ant-select-selection-item *::-ms-backdrop,
@@ -18980,6 +18981,7 @@ span.ant-radio + * {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  /* direction: rtl; */
 }
 .ant-select-item-option-state {
   flex: none;

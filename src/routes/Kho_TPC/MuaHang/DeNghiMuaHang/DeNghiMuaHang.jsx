@@ -7,6 +7,7 @@ import {
   EyeOutlined,
   EyeInvisibleOutlined,
   PrinterOutlined,
+  RetweetOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -66,6 +67,7 @@ function DeNghiMuaHang({ match, history, permission }) {
       denNgay,
       keyword,
       page,
+      donVi_Id: INFO.donVi_Id,
     });
     dispatch(
       fetchStart(`lkn_PhieuDeNghiMuaHang?${param}`, "GET", null, "LIST")
@@ -121,7 +123,18 @@ function DeNghiMuaHang({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      permission && permission.cof ? (
+      (permission &&
+        permission.cof &&
+        item.userKiemTra_Id === INFO.user_Id &&
+        item.tinhTrang === "Chưa xác nhận") ||
+      (permission &&
+        permission.cof &&
+        item.userKeToan_Id === INFO.user_Id &&
+        item.tinhTrang === "Đã xác Nhận bởi kiểm tra") ||
+      (permission &&
+        permission.cof &&
+        item.userDuyet_Id === INFO.user_Id &&
+        item.tinhTrang === "Đã xác Nhận bởi kiểm tra, kế toán") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -136,8 +149,24 @@ function DeNghiMuaHang({ match, history, permission }) {
           <EyeInvisibleOutlined />
         </span>
       );
-    const editItem =
+    const kyItem =
       permission && permission.edit ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/quy-trinh`,
+            state: { itemData: item },
+          }}
+          title="Quy trình"
+        >
+          <RetweetOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Quy trình">
+          <RetweetOutlined />
+        </span>
+      );
+    const editItem =
+      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -153,12 +182,14 @@ function DeNghiMuaHang({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && !item.isUsed
+      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
         {detailItem}
+        <Divider type="vertical" />
+        {kyItem}
         <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
@@ -190,7 +221,7 @@ function DeNghiMuaHang({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDeNghiMuaHang/${item.id}`;
+    let url = `lkn_PhieuDeNghiMuaHang?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -255,7 +286,22 @@ function DeNghiMuaHang({ match, history, permission }) {
     data.datalist
     // page === 1 ? page : pageSize * (page - 1) + 2
   );
-
+  const renderDetail = (val) => {
+    const detail =
+      permission && permission.view ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${val.id}/chi-tiet`,
+            state: { itemData: val, permission },
+          }}
+        >
+          {val.maPhieuYeuCau}
+        </Link>
+      ) : (
+        <span disabled>{val.maPhieuYeuCau}</span>
+      );
+    return <div>{detail}</div>;
+  };
   let renderHead = [
     {
       title: "STT",
@@ -266,9 +312,9 @@ function DeNghiMuaHang({ match, history, permission }) {
     },
     {
       title: "Mã phiếu yêu cầu",
-      dataIndex: "maPhieuYeuCau",
       key: "maPhieuYeuCau",
       align: "center",
+      render: (val) => renderDetail(val),
     },
     {
       title: "Ngày yêu cầu",
@@ -305,7 +351,7 @@ function DeNghiMuaHang({ match, history, permission }) {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 110,
+      width: 120,
       render: (value) => actionContent(value),
     },
   ];

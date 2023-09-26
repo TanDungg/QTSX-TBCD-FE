@@ -9,8 +9,14 @@ const DeNghiMuaHang = asyncComponent(() =>
 const DeNghiMuaHangForm = asyncComponent(() =>
   import("./DeNghiMuaHang/DeNghiMuaHangForm")
 );
+const QuyTrinhDeNghiMuaHang = asyncComponent(() =>
+  import("./DeNghiMuaHang/QuyTrinhDeNghiMuaHang")
+);
 const DatHangNoiBo = asyncComponent(() =>
   import("./DatHangNoiBo/DatHangNoiBo")
+);
+const DatHangNoiBoForm = asyncComponent(() =>
+  import("./DatHangNoiBo/DatHangNoiBoForm")
 );
 const TraNhaCungCap = asyncComponent(() =>
   import("./TraNhaCungCap/TraNhaCungCap")
@@ -54,7 +60,22 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(DeNghiMuaHangForm, menus, pathname, permission)}
       />
       <Route
+        path={`${match.url}/phieu-de-nghi-mua-hang/:id/quy-trinh`}
+        exact
+        component={Auth(QuyTrinhDeNghiMuaHang, menus, pathname, permission)}
+      />
+      <Route
         path={`${match.url}/phieu-dat-hang-noi-bo`}
+        exact
+        component={Auth(DatHangNoiBo, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-dat-hang-noi-bo/them-moi`}
+        exact
+        component={Auth(DatHangNoiBoForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-dat-hang-noi-bo/:id/chinh-sua`}
         exact
         component={Auth(DatHangNoiBo, menus, pathname, permission)}
       />
