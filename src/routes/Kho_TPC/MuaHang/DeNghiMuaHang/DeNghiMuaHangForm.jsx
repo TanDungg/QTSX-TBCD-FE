@@ -151,6 +151,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           getUserLap(INFO);
           setType("new");
           getSanPham();
+          getUserKy(INFO);
           setFieldsValue({
             dinhmucvattu: {
               ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
@@ -166,6 +167,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getInfo(id);
+          getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -175,6 +177,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getInfo(id);
+          getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -184,6 +187,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getInfo(id);
+          getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -224,7 +228,30 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       }
     });
   };
-
+  const getUserKy = (info) => {
+    const params = convertObjectToUrlParams({
+      donviId: info.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Account/get-cbnv?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListUserKy(res.data.datalist);
+      } else {
+        setListUserKy([]);
+      }
+    });
+  };
   const getSanPham = (id) => {
     if (id) {
       new Promise((resolve, reject) => {
@@ -454,7 +481,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   };
   const handleSave = (row) => {
     const newData = [...listVatTu];
-    const index = newData.findIndex((item) => row.tenVatTu === item.tenVatTu);
+    const index = newData.findIndex((item) => row.vatTu_Id === item.vatTu_Id);
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,

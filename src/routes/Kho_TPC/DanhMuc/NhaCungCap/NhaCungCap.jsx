@@ -204,13 +204,13 @@ function NhaCungCap({ match, history, permission }) {
     },
     {
       title: "Người liên hệ",
-      dataIndex: "nguoiLienHe	",
+      dataIndex: "nguoiLienHe",
       key: "nguoiLienHe",
       align: "center",
     },
     {
       title: "Email",
-      dataIndex: "email	",
+      dataIndex: "email",
       key: "email",
       align: "center",
     },

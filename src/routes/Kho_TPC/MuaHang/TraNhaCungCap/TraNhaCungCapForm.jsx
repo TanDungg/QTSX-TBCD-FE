@@ -14,7 +14,7 @@ import {
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_TWO_COL } from "src/constants/Config";
+import { DEFAULT_FORM } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -22,7 +22,7 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
-import AddVatTuModal from "./AddVatTuModal";
+// import AddVatTuModal from "./AddVatTuModal";
 import ModalTuChoi from "./ModalTuChoi";
 
 const EditableContext = React.createContext(null);
@@ -119,7 +119,7 @@ const EditableCell = ({
 
 const FormItem = Form.Item;
 
-const DatHangNoiBoForm = ({ history, match, permission }) => {
+const TraNhaCungCapForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [type, setType] = useState("new");
@@ -145,7 +145,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
           setType("new");
           getNhaCungCap();
           setFieldsValue({
-            dathangnoibo: {
+            dathangnoiboi: {
               ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
               ngayHoanThanhDukien: moment(getDateNow(), "DD/MM/YYYY"),
             },
@@ -158,7 +158,6 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
           setType("edit");
           const { id } = match.params;
           setId(id);
-          getUserKy(INFO);
           getInfo(id);
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -211,8 +210,9 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       if (res && res.data) {
         setListUser([res.data]);
         setFieldsValue({
-          dathangnoibo: {
+          dathangnoiboi: {
             userYeuCau_Id: res.data.Id,
+            tenPhongBan: res.data.tenPhongBan,
           },
         });
       } else {
@@ -294,7 +294,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_phieudathangnoibo/${id}?donVi_Id=${INFO.donVi_Id}`,
+          `lkn_phieudathangnoiboi/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -307,16 +307,12 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           const data = res.data;
-          setListVatTu(
-            JSON.parse(res.data.chiTietVatTu)
-              ? JSON.parse(res.data.chiTietVatTu)
-              : []
-          );
+          setListVatTu(JSON.parse(res.data.chiTiet_DatHangNoiBos));
           getUserLap(INFO, res.data.userYeuCau_Id);
           setInfo(res.data);
           getNhaCungCap(res.data.userNhan_Id);
           setFieldsValue({
-            dathangnoibo: {
+            dathangnoiboi: {
               ...res.data,
               ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               ngayHoanThanhDukien: moment(
@@ -485,7 +481,6 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       ...row,
     });
     // setDisableSave(true);
-    setFieldTouch(true);
     setListVatTu(newData);
   };
   const columns = map(colValues, (col) => {
@@ -510,7 +505,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.dathangnoibo);
+    saveData(values.dathangnoiboi);
   };
 
   const saveAndClose = (val) => {
@@ -519,7 +514,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
         if (listVatTu.length === 0) {
           Helpers.alertError("Danh sách vật tư rỗng");
         } else {
-          saveData(values.dathangnoibo, val);
+          saveData(values.dathangnoiboi, val);
         }
       })
       .catch((error) => {
@@ -527,14 +522,14 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       });
   };
 
-  const saveData = (dathangnoibo, saveQuit = false) => {
+  const saveData = (dathangnoiboi, saveQuit = false) => {
+    const newData = {
+      ...dathangnoiboi,
+      ngayYeuCau: dathangnoiboi.ngayYeuCau._i,
+      ngayHoanThanhDukien: dathangnoiboi.ngayHoanThanhDukien._i,
+      chiTiet_DatHangNoiBos: listVatTu,
+    };
     if (type === "new") {
-      const newData = {
-        ...dathangnoibo,
-        ngayYeuCau: dathangnoibo.ngayYeuCau._i,
-        ngayHoanThanhDukien: dathangnoibo.ngayHoanThanhDukien._i,
-        chiTiet_DatHangNoiBos: listVatTu,
-      };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -564,21 +559,12 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      listVatTu.forEach((vt, index) => {
-        listVatTu[index].lkn_PhieuMuaHang_Id = id;
-      });
-      const newData = {
-        ...dathangnoibo,
-        ngayYeuCau: dathangnoibo.ngayYeuCau._i,
-        ngayHoanThanhDukien: dathangnoibo.ngayHoanThanhDukien._i,
-        chiTiet_DatHangNoiBos: listVatTu,
-        id: id,
-        maDonHang: info.maPhieuYeuCau,
-      };
+      newData.id = id;
+      newData.maDonHang = info.maDonHang;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuDatHangNoiBo/${id}`,
+            `lkn_PhieuDatHangNoiBo?id=${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -610,7 +596,6 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
     });
     !check && listVatTu.length > 0 && setListVatTu([...listVatTu, data]);
     !check && listVatTu.length === 0 && setListVatTu([data]);
-    !check && setFieldTouch(true);
   };
   const hanldeXacNhan = () => {
     const newData = {
@@ -620,7 +605,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_phieudathangnoibo/xac-nhan/${id}`,
+          `lkn_dathangnoiboi/xac-nhan/${id}`,
           "PUT",
           newData,
           "EDIT",
@@ -639,7 +624,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận phiếu đặt hàng nội bộ",
+    title: "Xác nhận phiếu đề nghị mua hàng",
     onOk: hanldeXacNhan,
   };
   const modalXK = () => {
@@ -657,7 +642,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_phieudathangnoibo/xac-nhan/${id}`,
+          `lkn_dathangnoiboi/xac-nhan/${id}`,
           "PUT",
           newData,
           "EDIT",
@@ -675,41 +660,42 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
 
   const formTitle =
     type === "new" ? (
-      "Tạo phiếu đặt hàng nội bộ "
+      "Tạo phiếu trả nhà cung cấp "
     ) : type === "edit" ? (
-      "Chỉnh sửa phiếu đặt hàng nội bộ"
+      "Chỉnh sửa phiếu trả nhà cung cấp"
     ) : (
       <span>
-        Chi tiết phiếu đặt hàng nội bộ -{" "}
+        Chi tiết phiếu trả nhà cung cấp -{" "}
         <Tag
           color={
-            info.isXacNhan === null
+            info.xacNhan === null
               ? "processing"
-              : info.isXacNhan
+              : info.xacNhan
               ? "success"
               : "error"
           }
         >
-          {info.maPhieuYeuCau}
+          {info.xacNhanDinhMuc}
         </Tag>
       </span>
     );
+  const hanldeThem = () => {};
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
       <Card className="th-card-margin-bottom">
         <Form
-          {...DEFAULT_FORM_TWO_COL}
+          {...DEFAULT_FORM}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
           <Row>
-            <Col span={12}>
+            <Col span={16}>
               <FormItem
-                label="Người gửi"
-                name={["dathangnoibo", "userYeuCau_Id"]}
+                label="A Bên giao"
+                name={["dathangnoiboi", "userYeuCau_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -732,7 +718,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
             <Col span={12}>
               <FormItem
                 label="Nơi gửi"
-                name={["dathangnoibo", "userYeuCau_Id"]}
+                name={["dathangnoiboi", "userYeuCau_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -754,7 +740,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
             <Col span={12}>
               <FormItem
                 label="Nhà cung cấp"
-                name={["dathangnoibo", "userNhan_Id"]}
+                name={["dathangnoiboi", "userNhan_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -777,7 +763,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
             <Col span={12}>
               <FormItem
                 label="Người liên hệ:"
-                name={["dathangnoibo", "userNhan_Id"]}
+                name={["dathangnoiboi", "userNhan_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -799,7 +785,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
             <Col span={12}>
               <FormItem
                 label="Địa chỉ"
-                name={["dathangnoibo", "userNhan_Id"]}
+                name={["dathangnoiboi", "userNhan_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -821,7 +807,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
             <Col span={12}>
               <FormItem
                 label="Điện thoại"
-                name={["dathangnoibo", "userNhan_Id"]}
+                name={["dathangnoiboi", "userNhan_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -844,7 +830,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
             <Col span={12}>
               <FormItem
                 label="Người nhận"
-                name={["dathangnoibo", "nguoiNhan_DHNB"]}
+                name={["dathangnoiboi", "nguoiNhan_DHNB"]}
                 rules={[
                   {
                     type: "string",
@@ -854,14 +840,13 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 <Input
                   className="input-item"
                   placeholder="Nhập tên người nhận"
-                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
             <Col span={12}>
               <FormItem
                 label="Email"
-                name={["dathangnoibo", "emailNguoiNhan_DHNB"]}
+                name={["dathangnoiboi", "emailNguoiNhan_DHNB"]}
                 rules={[
                   {
                     type: "email",
@@ -871,48 +856,39 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 <Input
                   className="input-item"
                   placeholder="Nhập email người nhận"
-                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
             <Col span={12}>
               <FormItem
                 label="Dự kiến hoàn thành"
-                name={["dathangnoibo", "ngayHoanThanhDukien"]}
+                name={["dathangnoiboi", "ngayHoanThanhDukien"]}
                 rules={[
                   {
                     required: true,
                   },
                 ]}
               >
-                <DatePicker
-                  format={"DD/MM/YYYY"}
-                  allowClear={false}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
+                <DatePicker format={"DD/MM/YYYY"} allowClear={false} />
               </FormItem>
             </Col>
             <Col span={12}>
               <FormItem
                 label="Ngày yêu cầu"
-                name={["dathangnoibo", "ngayYeuCau"]}
+                name={["dathangnoiboi", "ngayYeuCau"]}
                 rules={[
                   {
                     required: true,
                   },
                 ]}
               >
-                <DatePicker
-                  format={"DD/MM/YYYY"}
-                  allowClear={false}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
+                <DatePicker format={"DD/MM/YYYY"} allowClear={false} />
               </FormItem>
             </Col>
             <Col span={12}>
               <FormItem
                 label="CV thu mua"
-                name={["dathangnoibo", "userThuMua_Id"]}
+                name={["dathangnoiboi", "userThuMua_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -935,24 +911,20 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
             <Col span={12}>
               <FormItem
                 label="Yêu cầu"
-                name={["dathangnoibo", "yeuCau"]}
+                name={["dathangnoiboi", "yeuCau"]}
                 rules={[
                   {
                     type: "string",
                   },
                 ]}
               >
-                <Input
-                  className="input-item"
-                  placeholder="Nhập yêu cầu"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
+                <Input className="input-item" placeholder="Nhập yêu cầu" />
               </FormItem>
             </Col>
             <Col span={12}>
               <FormItem
                 label="Địa điểm giao hàng"
-                name={["dathangnoibo", "diaDiemGiaoHang"]}
+                name={["dathangnoiboi", "diaDiemGiaoHang"]}
                 rules={[
                   {
                     type: "string",
@@ -962,26 +934,23 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 <Input
                   className="input-item"
                   placeholder="Nhập địa điểm giao hàng"
-                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
           </Row>
         </Form>
-        {(type === "new" || type === "edit") && (
-          <Row>
-            <Col span={12}></Col>
-            <Col span={12} align="center">
-              <Button
-                icon={<PlusOutlined />}
-                type="primary"
-                onClick={() => setActiveModal(true)}
-              >
-                Thêm vật tư
-              </Button>
-            </Col>
-          </Row>
-        )}
+        <Row>
+          <Col span={12}></Col>
+          <Col span={12} align="center">
+            <Button
+              icon={<PlusOutlined />}
+              type="primary"
+              onClick={() => setActiveModal(true)}
+            >
+              Thêm vật tư
+            </Button>
+          </Col>
+        </Row>
         <Table
           bordered
           columns={columns}
@@ -1017,11 +986,11 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
           </Row>
         )}
       </Card>
-      <AddVatTuModal
+      {/* <AddVatTuModal
         openModal={ActiveModal}
         openModalFS={setActiveModal}
         addVatTu={addVatTu}
-      />
+      /> */}
       <ModalTuChoi
         openModal={ActiveModalTuChoi}
         openModalFS={setActiveModalTuChoi}
@@ -1031,4 +1000,4 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
   );
 };
 
-export default DatHangNoiBoForm;
+export default TraNhaCungCapForm;

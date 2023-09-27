@@ -12,11 +12,7 @@ import {
   Toolbar,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import {
-  convertObjectToUrlParams,
-  reDataSelectedTable,
-  treeToFlatlist,
-} from "src/util/Common";
+import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -25,9 +21,11 @@ function LoaiNhaCungCap({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [keyword, setKeyword] = useState("");
+  const [page, setPage] = useState(1);
+
   useEffect(() => {
     if (permission && permission.view) {
-      loadData(keyword);
+      loadData(keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -41,17 +39,20 @@ function LoaiNhaCungCap({ match, history, permission }) {
    *
    */
   const loadData = (keyword) => {
-    const param = convertObjectToUrlParams({ keyword });
-    dispatch(
-      fetchStart(
-        `LoaiNhaCungCap/loai-nha-cung-cap-tree?${param}`,
-        "GET",
-        null,
-        "LIST"
-      )
-    );
+    const param = convertObjectToUrlParams({ keyword, page });
+    dispatch(fetchStart(`lkn_LoaiNhaCungCap?${param}`, "GET", null, "LIST"));
   };
+  /**
+   * handleTableChange
+   *
+   * Fetch dữ liệu dựa theo thay đổi trang
+   * @param {number} pagination
+   */
 
+  const handleTableChange = (pagination) => {
+    setPage(pagination);
+    loadData(keyword, pagination);
+  };
   /**
    * Thêm dấu để phân cấp tiêu đề dựa theo tree (flatlist)
    *
@@ -111,7 +112,12 @@ function LoaiNhaCungCap({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item);
+    ModalDeleteConfirm(
+      deleteItemAction,
+      item,
+      item.tenLoaiNhaCungCap,
+      "nhà cung cấp"
+    );
   };
 
   /**
@@ -120,13 +126,13 @@ function LoaiNhaCungCap({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `LoaiNhaCungCap/${item.id}`;
+    let url = `lkn_LoaiNhaCungCap/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
-        loadData();
+        loadData(keyword, page);
       })
       .catch((error) => console.error(error));
   };
@@ -159,19 +165,19 @@ function LoaiNhaCungCap({ match, history, permission }) {
   let renderHead = [
     {
       title: "STT",
-      dataIndex: "stt",
-      key: "stt",
+      dataIndex: "key",
+      key: "key",
       align: "center",
       width: 45,
     },
     {
-      title: "Mã loại sản phẩm",
+      title: "Mã loại nhà cung cấp",
       dataIndex: "maLoaiNhaCungCap",
       key: "maLoaiNhaCungCap",
-      render: (value, record) => renderTenLoaiNhaCungCap(value, record),
+      align: "center",
     },
     {
-      title: "Tên loại sản phẩm",
+      title: "Tên loại nhà cung cấp",
       dataIndex: "tenLoaiNhaCungCap",
       key: "tenLoaiNhaCungCap",
       align: "center",
@@ -184,14 +190,14 @@ function LoaiNhaCungCap({ match, history, permission }) {
       render: (value) => actionContent(value),
     },
   ];
-  let dataList = treeToFlatlist(data);
-  dataList = reDataSelectedTable(dataList);
+  const dataList = reDataForTable(data.datalist);
   /**
    * Tìm kiếm người dùng
    *
    */
   const onSearchLoaiNhaCungCap = () => {
-    loadData(keyword);
+    setPage(1);
+    loadData(keyword, 1);
   };
 
   /**
@@ -230,8 +236,8 @@ function LoaiNhaCungCap({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Loại sản phẩm"
-        description="Danh sách Loại sản phẩm"
+        title="Loại nhà cung cấp"
+        description="Danh sách Loại nhà cung cấp"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
@@ -262,6 +268,7 @@ function LoaiNhaCungCap({ match, history, permission }) {
             return record.isParent ? "editable-row" : "editable-row";
           }}
           pagination={{
+            onChange: handleTableChange,
             pageSize: 20,
             showSizeChanger: false,
             showQuickJumper: true,

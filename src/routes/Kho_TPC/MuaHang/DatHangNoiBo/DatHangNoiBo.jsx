@@ -66,6 +66,7 @@ function DatHangNoiBo({ match, history, permission }) {
       denNgay,
       keyword,
       page,
+      donVi_Id: INFO.donVi_Id,
     });
     dispatch(fetchStart(`lkn_PhieuDatHangNoiBo?${param}`, "GET", null, "LIST"));
   };
@@ -253,7 +254,22 @@ function DatHangNoiBo({ match, history, permission }) {
     data.datalist
     // page === 1 ? page : pageSize * (page - 1) + 2
   );
-
+  const renderDetail = (val) => {
+    const detail =
+      permission && permission.view ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${val.id}/chi-tiet`,
+            state: { itemData: val, permission },
+          }}
+        >
+          {val.maPhieuYeuCau}
+        </Link>
+      ) : (
+        <span disabled>{val.maPhieuYeuCau}</span>
+      );
+    return <div>{detail}</div>;
+  };
   let renderHead = [
     {
       title: "STT",
@@ -264,9 +280,9 @@ function DatHangNoiBo({ match, history, permission }) {
     },
     {
       title: "Mã đơn hàng",
-      dataIndex: "maPhieuYeuCau",
       key: "maPhieuYeuCau",
       align: "center",
+      render: (val) => renderDetail(val),
     },
     {
       title: "Ngày yêu cầu",

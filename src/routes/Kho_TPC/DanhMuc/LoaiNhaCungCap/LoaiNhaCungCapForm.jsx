@@ -51,10 +51,6 @@ function LoaiNhaCungCapForm({ match, permission, history }) {
         }
       }
     }
-    if (permission && (permission.add || permission.edit)) {
-      // Lấy danh sách menu
-      getListLoaiNhaCungCap();
-    }
 
     return () => {
       dispatch(fetchReset());
@@ -71,7 +67,7 @@ function LoaiNhaCungCapForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `LoaiNhaCungCap/${id}`,
+          `lkn_LoaiNhaCungCap/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -82,38 +78,7 @@ function LoaiNhaCungCapForm({ match, permission, history }) {
       );
     })
       .then((res) => {
-        const newData = res.data;
-        if (newData.LoaiNhaCungCap_Id === null)
-          newData.LoaiNhaCungCap_Id = "root";
-        setFieldsValue({
-          LoaiNhaCungCap: newData,
-        });
-      })
-      .catch((error) => console.error(error));
-  };
-
-  /**
-   * Lấy danh sách menu
-   *
-   */
-  const getListLoaiNhaCungCap = async () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          "LoaiNhaCungCap/loai-nha-cung-cap-tree",
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        setListLoaiNhaCungCap([]);
-        const newList = { id: "root", tenLoaiNhaCungCap: "Root", children: [] };
-        setListLoaiNhaCungCap([newList, ...res.data]);
+        setFieldsValue({ LoaiNhaCungCap: res.data });
       })
       .catch((error) => console.error(error));
   };
@@ -143,12 +108,10 @@ function LoaiNhaCungCapForm({ match, permission, history }) {
   const saveData = (LoaiNhaCungCap, saveQuit = false) => {
     if (type === "new") {
       const newUser = LoaiNhaCungCap;
-      newUser.LoaiNhaCungCap_Id =
-        newUser.LoaiNhaCungCap_Id === "root" ? null : newUser.LoaiNhaCungCap_Id;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `LoaiNhaCungCap`,
+            `lkn_LoaiNhaCungCap`,
             "POST",
             newUser,
             "ADD",
@@ -164,21 +127,17 @@ function LoaiNhaCungCapForm({ match, permission, history }) {
           } else {
             resetFields();
             setFieldTouch(false);
-            getListLoaiNhaCungCap();
           }
         })
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
       const editUser = { ...item, ...LoaiNhaCungCap };
-      editUser.LoaiNhaCungCap_Id =
-        editUser.LoaiNhaCungCap_Id === "root"
-          ? (editUser.LoaiNhaCungCap_Id = null)
-          : editUser.LoaiNhaCungCap_Id;
+
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `LoaiNhaCungCap/${id}`,
+            `lkn_LoaiNhaCungCap/${id}`,
             "PUT",
             editUser,
             "EDIT",
@@ -267,25 +226,7 @@ function LoaiNhaCungCapForm({ match, permission, history }) {
                 placeholder="Nhập tên nhà cung cấp"
               />
             </FormItem>
-            <FormItem
-              label="Chọn loại nhà cung cấp cha"
-              name={["LoaiNhaCungCap", "LoaiNhaCungCap_Id"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-              initialValue={LoaiNhaCungCap_Id}
-            >
-              <TreeSelect
-                className="tree-select-item"
-                datatreeselect={ListLoaiNhaCungCap}
-                name="menu"
-                options={["id", "tenLoaiNhaCungCap", "children"]}
-                placeholder="Chọn menu cha"
-                style={{ width: "100%" }}
-              />
-            </FormItem>
+
             <FormSubmit
               goBack={goBack}
               saveAndClose={saveAndClose}

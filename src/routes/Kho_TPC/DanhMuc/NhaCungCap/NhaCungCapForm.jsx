@@ -85,7 +85,7 @@ function NhaCungCapForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          "LoaiNhaCungCap?page=-1",
+          "lkn_LoaiNhaCungCap?page=-1",
           "GET",
           null,
           "LIST",

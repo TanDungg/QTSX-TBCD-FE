@@ -21,6 +21,9 @@ const DatHangNoiBoForm = asyncComponent(() =>
 const TraNhaCungCap = asyncComponent(() =>
   import("./TraNhaCungCap/TraNhaCungCap")
 );
+const TraNhaCungCapForm = asyncComponent(() =>
+  import("./TraNhaCungCap/TraNhaCungCapForm")
+);
 const TheoDoiDonHang = asyncComponent(() =>
   import("./TheoDoiDonHang/TheoDoiDonHang")
 );
@@ -77,12 +80,42 @@ const App = ({ match, location, menus, permission }) => {
       <Route
         path={`${match.url}/phieu-dat-hang-noi-bo/:id/chinh-sua`}
         exact
-        component={Auth(DatHangNoiBo, menus, pathname, permission)}
+        component={Auth(DatHangNoiBoForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-dat-hang-noi-bo/:id/chi-tiet`}
+        exact
+        component={Auth(DatHangNoiBoForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-dat-hang-noi-bo/:id/xac-nhan`}
+        exact
+        component={Auth(DatHangNoiBoForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/phieu-tra-nha-cung-cap`}
         exact
         component={Auth(TraNhaCungCap, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-tra-nha-cung-cap/them-moi`}
+        exact
+        component={Auth(TraNhaCungCapForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-tra-nha-cung-cap/:id/chinh-sua`}
+        exact
+        component={Auth(TraNhaCungCapForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-tra-nha-cung-cap/:id/chi-tiet`}
+        exact
+        component={Auth(TraNhaCungCapForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-tra-nha-cung-cap/:id/xac-nhan`}
+        exact
+        component={Auth(TraNhaCungCapForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/theo-doi-don-hang`}

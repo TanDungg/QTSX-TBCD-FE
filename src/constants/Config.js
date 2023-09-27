@@ -25,6 +25,15 @@ export const DEFAULT_FORM_CUSTOM = {
     span: 12,
   },
 };
+export const DEFAULT_FORM_TWO_COL = {
+  labelCol: {
+    span: 8,
+    style: { fontWeight: "bold" },
+  },
+  wrapperCol: {
+    span: 16,
+  },
+};
 export const DEFAULT_FORM_NGAY = {
   labelCol: {
     span: 6,
@@ -45,7 +54,7 @@ export const DEFAULT_FORM_XUATKHO = {
 export const DEFAULT_FORM = {
   labelCol: {
     span: 6,
-    style: { fontWeight: "bold", textAlign: "left" },
+    style: { fontWeight: "bold" },
   },
   wrapperCol: {
     span: 18,
