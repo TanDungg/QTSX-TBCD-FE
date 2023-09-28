@@ -66,6 +66,7 @@
     csstype "^3.0.10"
     rc-util "^5.27.0"
     stylis "^4.0.13"
+
 "@ant-design/flowchart@^1.0.2":
   version "1.2.2"
   resolved "https://registry.npmjs.org/@ant-design/flowchart/-/flowchart-1.2.2.tgz"
