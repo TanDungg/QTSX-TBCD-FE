@@ -345,7 +345,7 @@ function NguoiDungForm({ match, permission, history }) {
 
           <FormItem
             label="Hoạt động"
-            name={["user", "isActive"]}
+            name={["user", "IsActive_Role"]}
             valuePropName="checked"
             initialValue={isActive}
           >

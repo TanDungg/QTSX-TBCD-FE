@@ -33,6 +33,9 @@ const TheoDoiHangVe = asyncComponent(() =>
 const PhieuNhanHang = asyncComponent(() =>
   import("./PhieuNhanHang/PhieuNhanHang")
 );
+const PhieuNhanHangForm = asyncComponent(() =>
+  import("./PhieuNhanHang/PhieuNhanHangForm")
+);
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -131,6 +134,21 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/phieu-nhan-hang`}
         exact
         component={Auth(PhieuNhanHang, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-nhan-hang/them-moi`}
+        exact
+        component={Auth(PhieuNhanHangForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-nhan-hang/:id/chinh-sua`}
+        exact
+        component={Auth(PhieuNhanHangForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-nhan-hang/:id/chi-tiet`}
+        exact
+        component={Auth(PhieuNhanHangForm, menus, pathname, permission)}
       />
     </Switch>
   );

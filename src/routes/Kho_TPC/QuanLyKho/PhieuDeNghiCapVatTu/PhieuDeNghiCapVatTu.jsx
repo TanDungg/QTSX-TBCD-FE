@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
 import {
+  PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   EyeOutlined,
   EyeInvisibleOutlined,
   PrinterOutlined,
+  RetweetOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -30,7 +32,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function TheoDoiDonHang({ match, history, permission }) {
+function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -41,8 +43,6 @@ function TheoDoiDonHang({ match, history, permission }) {
   const [ToDate, setToDate] = useState(getDateNow());
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListBanPhong, setListBanPhong] = useState([]);
-  const [LoaiDonHang, setLoaiDonHang] = useState("");
-
   const [BanPhong, setBanPhong] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
@@ -60,14 +60,7 @@ function TheoDoiDonHang({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (
-    keyword,
-    phongBanId,
-    tuNgay,
-    denNgay,
-    page,
-    isLoaiPhieu
-  ) => {
+  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
       phongBanId,
       tuNgay,
@@ -75,15 +68,9 @@ function TheoDoiDonHang({ match, history, permission }) {
       keyword,
       page,
       donVi_Id: INFO.donVi_Id,
-      isLoaiPhieu: isLoaiPhieu ? isLoaiPhieu === "true" : null,
     });
     dispatch(
-      fetchStart(
-        `lkn_PhieuNhanHang/theo-doi-don-hang?${param}`,
-        "GET",
-        null,
-        "LIST"
-      )
+      fetchStart(`lkn_PhieuDeNghiMuaHang?${param}`, "GET", null, "LIST")
     );
   };
   const getBanPhong = () => {
@@ -109,7 +96,6 @@ function TheoDoiDonHang({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
-
   /**
    * Tìm kiếm sản phẩm
    *
@@ -137,7 +123,18 @@ function TheoDoiDonHang({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      permission && permission.cof ? (
+      (permission &&
+        permission.cof &&
+        item.userKiemTra_Id === INFO.user_Id &&
+        item.tinhTrang === "Chưa xác nhận") ||
+      (permission &&
+        permission.cof &&
+        item.userKeToan_Id === INFO.user_Id &&
+        item.tinhTrang === "Đã xác Nhận bởi kiểm tra") ||
+      (permission &&
+        permission.cof &&
+        item.userDuyet_Id === INFO.user_Id &&
+        item.tinhTrang === "Đã xác Nhận bởi kiểm tra, kế toán") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -153,7 +150,7 @@ function TheoDoiDonHang({ match, history, permission }) {
         </span>
       );
     const editItem =
-      permission && permission.edit ? (
+      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -169,7 +166,7 @@ function TheoDoiDonHang({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && !item.isUsed
+      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -196,7 +193,7 @@ function TheoDoiDonHang({ match, history, permission }) {
       deleteItemAction,
       item,
       item.maPhieuYeuCau,
-      "phiếu trả hàng nhà cung cấp"
+      "phiếu đề nghị mua hàng"
     );
   };
 
@@ -206,7 +203,7 @@ function TheoDoiDonHang({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuTraHangNCC/${item.id}`;
+    let url = `lkn_PhieuDeNghiMuaHang?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -244,7 +241,7 @@ function TheoDoiDonHang({ match, history, permission }) {
   const addButtonRender = () => {
     return (
       <>
-        {/* <Button
+        <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -252,7 +249,7 @@ function TheoDoiDonHang({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
-        </Button> */}
+        </Button>
         <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
@@ -260,7 +257,7 @@ function TheoDoiDonHang({ match, history, permission }) {
           onClick={handlePrint}
           disabled={permission && !permission.print}
         >
-          Xuất Excel
+          In phiếu
         </Button>
       </>
     );
@@ -296,58 +293,34 @@ function TheoDoiDonHang({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã đơn hàng",
-
+      title: "Mã phiếu đề nghị",
       key: "maPhieuYeuCau",
       align: "center",
       render: (val) => renderDetail(val),
     },
     {
-      title: "Ngày yêu cầu",
+      title: "Xưởng sản xuất",
+      dataIndex: "tenPhongBan",
+      key: "tenPhongBan",
+      align: "center",
+    },
+    {
+      title: "Ngày sản xuất",
       dataIndex: "ngayYeuCau",
       key: "ngayYeuCau",
       align: "center",
     },
+
     {
-      title: "Ngày xác nhận hàng về",
+      title: "Ngày yêu cầu",
+      dataIndex: "tenNguoiYeuCau",
+      key: "tenNguoiYeuCau",
+      align: "center",
+    },
+    {
+      title: "Người lập",
       dataIndex: "ngayHoanThanhDukien",
       key: "ngayHoanThanhDukien",
-      align: "center",
-    },
-    {
-      title: "Ngày hàng về",
-      dataIndex: "ngayHangVe",
-      key: "ngayHangVe",
-      align: "center",
-    },
-    {
-      title: "Người đặt hàng",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
-      align: "center",
-    },
-    {
-      title: "CV Thu mua",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
-      align: "center",
-    },
-    {
-      title: "Số lượng mua",
-      dataIndex: "soLuongMua",
-      key: "soLuongMua",
-      align: "center",
-    },
-    {
-      title: "Số lượng nhận",
-      dataIndex: "soLuongNhan",
-      key: "soLuongNhan",
-      align: "center",
-    },
-    {
-      title: "Số lượng còn thiếu",
-      dataIndex: "soLuongConThieu",
-      key: "soLuongConThieu",
       align: "center",
     },
     {
@@ -355,6 +328,13 @@ function TheoDoiDonHang({ match, history, permission }) {
       dataIndex: "tinhTrang",
       key: "tinhTrang",
       align: "center",
+    },
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 120,
+      render: (value) => actionContent(value),
     },
   ];
 
@@ -411,16 +391,6 @@ function TheoDoiDonHang({ match, history, permission }) {
     setPage(1);
     loadData(keyword, "", FromDate, ToDate, 1);
   };
-  const handleOnSelectLoaiDonHang = (val) => {
-    setLoaiDonHang(val);
-    setPage(1);
-    loadData(keyword, BanPhong, FromDate, ToDate, 1, val);
-  };
-  const handleClearLoaiDonHang = (val) => {
-    setLoaiDonHang("");
-    setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
-  };
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
@@ -430,35 +400,15 @@ function TheoDoiDonHang({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Theo dõi đơn hàng"
-        description="Theo dõi đơn hàng"
+        title="Phiếu đề nghị cấp vật tư"
+        description="Danh sách phiếu đề nghị cấp vật tư"
         buttons={addButtonRender()}
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Loại đơn hàng:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={[
-                { id: "true", name: "Phiếu đề nghị mua hàng" },
-                { id: "false", name: "Phiếu đặt hàng nội bộ" },
-              ]}
-              placeholder="Chọn loại đơn hàng"
-              optionsvalue={["id", "name"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectLoaiDonHang}
-              value={LoaiDonHang}
-              onChange={(value) => setLoaiDonHang(value)}
-              allowClear
-              onClear={handleClearLoaiDonHang}
-            />
-          </Col>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Xưởng:</h5>
+            <h5>Xưởng sản xuất:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListBanPhong ? ListBanPhong : []}
@@ -474,6 +424,7 @@ function TheoDoiDonHang({ match, history, permission }) {
               onClear={handleClearBanPhong}
             />
           </Col>
+
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
             <h5>Ngày:</h5>
             <RangePicker
@@ -487,7 +438,7 @@ function TheoDoiDonHang({ match, history, permission }) {
             />
           </Col>
           <Col xl={6} lg={24} md={24} xs={24}>
-            <h5>Tìm kiếm mã đơn hàng:</h5>
+            <h5>Tìm kiếm:</h5>
             <Toolbar
               count={1}
               search={{
@@ -503,26 +454,26 @@ function TheoDoiDonHang({ match, history, permission }) {
           </Col>
         </Row>
         <Table
-          // rowSelection={{
-          //   type: "checkbox",
-          //   ...rowSelection,
-          //   preserveSelectedRowKeys: true,
-          //   selectedRowKeys: selectedKeys,
-          //   getCheckboxProps: (record) => ({}),
-          // }}
-          // onRow={(record, rowIndex) => {
-          //   return {
-          //     onClick: (e) => {
-          //       const found = find(selectedKeys, (k) => k === record.key);
-          //       if (found === undefined) {
-          //         setSelectedDevice([record]);
-          //         setSelectedKeys([record.key]);
-          //       } else {
-          //         hanldeRemoveSelected(record);
-          //       }
-          //     },
-          //   };
-          // }}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            preserveSelectedRowKeys: true,
+            selectedRowKeys: selectedKeys,
+            getCheckboxProps: (record) => ({}),
+          }}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (e) => {
+                const found = find(selectedKeys, (k) => k === record.key);
+                if (found === undefined) {
+                  setSelectedDevice([record]);
+                  setSelectedKeys([record.key]);
+                } else {
+                  hanldeRemoveSelected(record);
+                }
+              },
+            };
+          }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}
@@ -547,4 +498,4 @@ function TheoDoiDonHang({ match, history, permission }) {
   );
 }
 
-export default TheoDoiDonHang;
+export default PhieuDeNghiCapVatTu;

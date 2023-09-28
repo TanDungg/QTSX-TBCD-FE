@@ -710,44 +710,48 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          const newData = JSON.parse(res.data.chiTietBOM).map((ct) => {
-            return {
-              id: ct.vatTu_Id + "_" + res.data.id,
-              vatTu_Id: ct.vatTu_Id,
-              tenVatTu: ct.tenVatTu,
-              dinhMuc: ct.dinhMuc,
-              soLuongTheoDinhMuc: ct.dinhMuc * SoLuong,
-              ghiChu: "",
-              hangMucSuDung: "",
-              soLuong: SoLuong,
-              tenDonViTinh: ct.tenDonViTinh,
-              tenNhomVatTu: ct.tenNhomVatTu,
-              tenSanPham: res.data.tenSanPham,
-              bom_Id: res.data.id,
-            };
-          });
-
-          if (listVatTu !== null) {
-            listVatTu.forEach((vt) => {
-              newData.forEach((ct, index) => {
-                if (vt.id === ct.id) {
-                  newData.splice(index, 1);
-                }
-              });
+          const newData =
+            res.data.chiTietBOM &&
+            JSON.parse(res.data.chiTietBOM).map((ct) => {
+              return {
+                id: ct.vatTu_Id + "_" + res.data.id,
+                vatTu_Id: ct.vatTu_Id,
+                tenVatTu: ct.tenVatTu,
+                dinhMuc: ct.dinhMuc,
+                soLuongTheoDinhMuc: ct.dinhMuc * SoLuong,
+                ghiChu: "",
+                hangMucSuDung: "",
+                soLuong: SoLuong,
+                tenDonViTinh: ct.tenDonViTinh,
+                tenNhomVatTu: ct.tenNhomVatTu,
+                tenSanPham: res.data.tenSanPham,
+                bom_Id: res.data.id,
+              };
             });
-            setListVatTu([...listVatTu, ...newData]);
+          if (newData) {
+            if (listVatTu !== null) {
+              listVatTu.forEach((vt) => {
+                newData.forEach((ct, index) => {
+                  if (vt.id === ct.id) {
+                    newData.splice(index, 1);
+                  }
+                });
+              });
+              setListVatTu([...listVatTu, ...newData]);
+            } else {
+              setListVatTu(newData);
+            }
+            setFieldsValue({
+              sanPham: {
+                sanPham_Id: "",
+                soLuong: "",
+              },
+            });
+            setSanPham_Id();
+            setSoLuong();
           } else {
-            setListVatTu(newData);
+            Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
           }
-
-          setFieldsValue({
-            sanPham: {
-              sanPham_Id: "",
-              soLuong: "",
-            },
-          });
-          setSanPham_Id();
-          setSoLuong();
         }
       })
       .catch((error) => console.error(error));

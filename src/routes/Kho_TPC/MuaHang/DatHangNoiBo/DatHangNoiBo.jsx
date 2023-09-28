@@ -120,7 +120,7 @@ function DatHangNoiBo({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      permission && permission.cof ? (
+      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -136,7 +136,7 @@ function DatHangNoiBo({ match, history, permission }) {
         </span>
       );
     const editItem =
-      permission && permission.edit ? (
+      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -152,7 +152,7 @@ function DatHangNoiBo({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && !item.isUsed
+      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (

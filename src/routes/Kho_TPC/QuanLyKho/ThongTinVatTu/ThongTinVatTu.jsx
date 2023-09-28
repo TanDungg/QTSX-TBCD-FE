@@ -1,16 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
+import { Card, Button, Divider, Popover, Row, Col } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
+  ImportOutlined,
   PrinterOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, find, isEmpty, remove } from "lodash";
+import QRCode from "qrcode.react";
+import ImportThongTinVatTu from "./ImportThongTinVatTu";
 import {
   ModalDeleteConfirm,
   Table,
@@ -19,38 +20,29 @@ import {
   Select,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import {
-  convertObjectToUrlParams,
-  reDataForTable,
-  getDateNow,
-  getLocalStorage,
-  getTokenInfo,
-} from "src/util/Common";
+import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-const { RangePicker } = DatePicker;
-function PhieuNhanHang({ match, history, permission }) {
+
+function ThongTinVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
+  const [NhomVatTu, setNhomVatTu] = useState("");
+  const [ListNhomVatTu, setListNhomVatTu] = useState([]);
+
+  const [ActiveModal, setActiveModal] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState([]);
-  const [FromDate, setFromDate] = useState(getDateNow(7));
-  const [ToDate, setToDate] = useState(getDateNow());
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [ListBanPhong, setListBanPhong] = useState([]);
-  const [BanPhong, setBanPhong] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
-      getBanPhong();
-      loadData(keyword, BanPhong, FromDate, ToDate, page);
+      loadData(keyword, page, NhomVatTu);
+      getListNhomVatTu();
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
-
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -59,22 +51,17 @@ function PhieuNhanHang({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
-    const param = convertObjectToUrlParams({
-      phongBanId,
-      donVi_Id: INFO.donVi_Id,
-      tuNgay,
-      denNgay,
-      keyword,
-      page,
-    });
-    dispatch(fetchStart(`lkn_PhieuNhanHang?${param}`, "GET", null, "LIST"));
+  const loadData = (keyword, page, nhomVatTu_Id) => {
+    const param = convertObjectToUrlParams({ keyword, page, nhomVatTu_Id });
+    dispatch(
+      fetchStart(`lkn_ThongTinVatTu_SanPham?${param}`, "GET", null, "LIST")
+    );
   };
-  const getBanPhong = () => {
+  const getListNhomVatTu = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          `NhomVatTu?page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -86,9 +73,9 @@ function PhieuNhanHang({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListBanPhong(res.data);
+          setListNhomVatTu(res.data);
         } else {
-          setListBanPhong([]);
+          setListNhomVatTu([]);
         }
       })
       .catch((error) => console.error(error));
@@ -97,8 +84,8 @@ function PhieuNhanHang({ match, history, permission }) {
    * Tìm kiếm sản phẩm
    *
    */
-  const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, BanPhong, FromDate, ToDate, page);
+  const onSearchThongTinVatTu = () => {
+    loadData(keyword, page, NhomVatTu);
   };
 
   /**
@@ -109,7 +96,7 @@ function PhieuNhanHang({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, BanPhong, FromDate, ToDate, page);
+      loadData(val.target.value, page, NhomVatTu);
     }
   };
   /**
@@ -119,27 +106,11 @@ function PhieuNhanHang({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    // const detailItem =
-    //   permission && permission.cof ? (
-    //     <Link
-    //       to={{
-    //         pathname: `${match.url}/${item.id}/xac-nhan`,
-    //         state: { itemData: item, permission },
-    //       }}
-    //       title="Xác nhận"
-    //     >
-    //       <EyeOutlined />
-    //     </Link>
-    //   ) : (
-    //     <span disabled title="Xác nhận">
-    //       <EyeInvisibleOutlined />
-    //     </span>
-    //   );
     const editItem =
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.thongTinVatTu_Id}/chinh-sua`,
             state: { itemData: item },
           }}
           title="Sửa"
@@ -157,8 +128,6 @@ function PhieuNhanHang({ match, history, permission }) {
         : { disabled: true };
     return (
       <div>
-        {/* {detailItem}
-        <Divider type="vertical" /> */}
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -178,8 +147,8 @@ function PhieuNhanHang({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuNhanHang,
-      "phiếu nhận hàng"
+      item.maVatTu,
+      "thông tin vât tư"
     );
   };
 
@@ -189,14 +158,14 @@ function PhieuNhanHang({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuNhanHang?id=${item.id}`;
+    let url = `lkn_ThongTinVatTu_SanPham/${item.thongTinVatTu_Id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, BanPhong, FromDate, ToDate, page);
+          loadData(keyword, page, NhomVatTu);
         }
       })
       .catch((error) => console.error(error));
@@ -210,7 +179,7 @@ function PhieuNhanHang({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, BanPhong, FromDate, ToDate, pagination);
+    loadData(keyword, pagination, NhomVatTu);
   };
 
   /**
@@ -223,9 +192,39 @@ function PhieuNhanHang({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
+  const handleImport = () => {
+    setActiveModal(true);
+  };
+  const refeshData = () => {
+    loadData(keyword, page, NhomVatTu);
+  };
+  const handlePrint = () => {
+    history.push({
+      pathname: `${match.url}/inMa`,
+      state: { thongTinVatTu: selectedDevice },
+    });
+  };
   const addButtonRender = () => {
     return (
       <>
+        <Button
+          icon={<ImportOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleImport}
+          disabled={permission && !permission.add}
+        >
+          Import
+        </Button>
+        <Button
+          icon={<PrinterOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handlePrint}
+          disabled={permission && !permission.print}
+        >
+          In Barcode
+        </Button>
         <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
@@ -233,7 +232,7 @@ function PhieuNhanHang({ match, history, permission }) {
           onClick={handleRedirect}
           disabled={permission && !permission.add}
         >
-          Nhập kho
+          Thêm mới
         </Button>
       </>
     );
@@ -244,22 +243,7 @@ function PhieuNhanHang({ match, history, permission }) {
     data.datalist
     // page === 1 ? page : pageSize * (page - 1) + 2
   );
-  const renderDetail = (val) => {
-    const detail =
-      permission && permission.view ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${val.id}/chi-tiet`,
-            state: { itemData: val, permission },
-          }}
-        >
-          {val.maPhieuNhanHang}
-        </Link>
-      ) : (
-        <span disabled>{val.maPhieuNhanHang}</span>
-      );
-    return <div>{detail}</div>;
-  };
+
   let renderHead = [
     {
       title: "STT",
@@ -269,48 +253,63 @@ function PhieuNhanHang({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu mua hàng",
-      key: "maPhieuNhanHang",
-      align: "center",
-      render: (val) => renderDetail(val),
-    },
-    {
-      title: "Mã phiếu yêu cầu",
-      dataIndex: "maPhieuYeuCau",
-      key: "maPhieuYeuCau",
-      align: "center",
-    },
-
-    {
-      title: "Ngày hàng về",
-      dataIndex: "ngayHangVe",
-      key: "ngayHangVe",
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
       align: "center",
     },
     {
-      title: "CV Thu mua",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
       align: "center",
     },
     {
-      title: "Người yêu cầu",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
+      title: "Nhà cung cấp",
+      dataIndex: "tenNhaCungCap",
+      key: "tenNhaCungCap",
       align: "center",
     },
     {
-      title: "File đính kèm",
-      dataIndex: "fileDinhKem",
-      key: "fileDinhKem",
+      title: "Ngày nhận hàng",
+      dataIndex: "ngayNhapVT_SP",
+      key: "ngayNhapVT_SP",
       align: "center",
     },
-
+    {
+      title: "Thời gian sử dụng",
+      dataIndex: "thoiGianSuDung",
+      key: "thoiGianSuDung",
+      align: "center",
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "ghiChu",
+      key: "ghiChu",
+      align: "center",
+    },
+    {
+      title: "Mã Barcode",
+      dataIndex: "thongTinVatTu_Id",
+      key: "thongTinVatTu_Id",
+      align: "center",
+      render: (value) => (
+        <div id="myqrcode">
+          <Popover content={value}>
+            <QRCode
+              value={value}
+              bordered={false}
+              style={{ width: 50, height: 50 }}
+            />
+          </Popover>
+        </div>
+      ),
+    },
     {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 110,
+      width: 80,
       render: (value) => actionContent(value),
     },
   ];
@@ -337,6 +336,16 @@ function PhieuNhanHang({ match, history, permission }) {
     };
   });
 
+  const hanldeNhomVatTu = (val) => {
+    setNhomVatTu(val);
+    setPage(1);
+    loadData(keyword, 1, val);
+  };
+  const handleClearNhomVatTu = () => {
+    setNhomVatTu("");
+    setPage(1);
+    loadData(keyword, 1, "");
+  };
   function hanldeRemoveSelected(device) {
     const newDevice = remove(selectedDevice, (d) => {
       return d.key !== device.key;
@@ -358,99 +367,69 @@ function PhieuNhanHang({ match, history, permission }) {
       setSelectedKeys(newSelectedKey);
     },
   };
-  const handleOnSelectBanPhong = (val) => {
-    setBanPhong(val);
-    setPage(1);
-    loadData(keyword, val, FromDate, ToDate, 1);
-  };
-  const handleClearBanPhong = (val) => {
-    setBanPhong("");
-    setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
-  };
-  const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
-    setPage(1);
-    loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
-  };
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phiếu nhận hàng"
-        description="Phiếu nhận hàng"
+        title="Thông tin vật tư"
+        description="Danh sách thông tin vật tư"
         buttons={addButtonRender()}
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Người yêu cầu:</h5>
+        <Row style={{ marginBottom: 15 }}>
+          <Col span={12}>
+            <h5>Nhóm vật tư:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListBanPhong ? ListBanPhong : []}
-              placeholder="Chọn người yêu cầu"
-              optionsvalue={["id", "tenPhongBan"]}
+              data={ListNhomVatTu ? ListNhomVatTu : []}
+              placeholder="Nhóm vật tư"
+              optionsvalue={["id", "tenNhomVatTu"]}
               style={{ width: "100%" }}
               showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectBanPhong}
-              value={BanPhong}
-              onChange={(value) => setBanPhong(value)}
+              optionFilterProp="name"
+              onSelect={hanldeNhomVatTu}
               allowClear
-              onClear={handleClearBanPhong}
+              onClear={handleClearNhomVatTu}
             />
           </Col>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Ngày:</h5>
-            <RangePicker
-              format={"DD/MM/YYYY"}
-              onChange={(date, dateString) => handleChangeNgay(dateString)}
-              defaultValue={[
-                moment(FromDate, "DD/MM/YYYY"),
-                moment(ToDate, "DD/MM/YYYY"),
-              ]}
-              allowClear={false}
-            />
-          </Col>
-
-          <Col xl={6} lg={24} md={24} xs={24}>
+          <Col span={12}>
             <h5>Tìm kiếm:</h5>
             <Toolbar
               count={1}
               search={{
+                title: "Tìm kiếm",
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchDeNghiMuaHang,
-                onSearch: onSearchDeNghiMuaHang,
+                onPressEnter: onSearchThongTinVatTu,
+                onSearch: onSearchThongTinVatTu,
+                placeholder: "Nhập từ khóa",
                 allowClear: true,
-                placeholder: "Tìm kiếm",
               }}
             />
           </Col>
         </Row>
         <Table
-          // rowSelection={{
-          //   type: "checkbox",
-          //   ...rowSelection,
-          //   preserveSelectedRowKeys: true,
-          //   selectedRowKeys: selectedKeys,
-          //   getCheckboxProps: (record) => ({}),
-          // }}
-          // onRow={(record, rowIndex) => {
-          //   return {
-          //     onClick: (e) => {
-          //       const found = find(selectedKeys, (k) => k === record.key);
-          //       if (found === undefined) {
-          //         setSelectedDevice([record]);
-          //         setSelectedKeys([record.key]);
-          //       } else {
-          //         hanldeRemoveSelected(record);
-          //       }
-          //     },
-          //   };
-          // }}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            preserveSelectedRowKeys: true,
+            selectedRowKeys: selectedKeys,
+            getCheckboxProps: (record) => ({}),
+          }}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (e) => {
+                const found = find(selectedKeys, (k) => k === record.key);
+                if (found === undefined) {
+                  setSelectedDevice([...selectedDevice, record]);
+                  setSelectedKeys([...selectedKeys, record.key]);
+                } else {
+                  hanldeRemoveSelected(record);
+                }
+              },
+            };
+          }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}
@@ -471,8 +450,13 @@ function PhieuNhanHang({ match, history, permission }) {
           loading={loading}
         />
       </Card>
+      <ImportThongTinVatTu
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        refesh={refeshData}
+      />
     </div>
   );
 }
 
-export default PhieuNhanHang;
+export default ThongTinVatTu;

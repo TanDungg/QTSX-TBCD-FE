@@ -615,7 +615,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
   const hanldeXacNhan = () => {
     const newData = {
       id: id,
-      xacNhan: true,
+      isXacNhan: true,
     };
     new Promise((resolve, reject) => {
       dispatch(
@@ -651,7 +651,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
   const saveTuChoi = (val) => {
     const newData = {
       id: id,
-      xacNhan: false,
+      isXacNhan: false,
       lyDoTuChoi: val,
     };
     new Promise((resolve, reject) => {
@@ -889,6 +889,13 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                   format={"DD/MM/YYYY"}
                   allowClear={false}
                   disabled={type === "new" || type === "edit" ? false : true}
+                  onChange={(date, dateString) => {
+                    setFieldsValue({
+                      dathangnoibo: {
+                        ngayHoanThanhDukien: moment(dateString, "DD/MM/YYYY"),
+                      },
+                    });
+                  }}
                 />
               </FormItem>
             </Col>
@@ -906,6 +913,13 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                   format={"DD/MM/YYYY"}
                   allowClear={false}
                   disabled={type === "new" || type === "edit" ? false : true}
+                  onChange={(date, dateString) => {
+                    setFieldsValue({
+                      dathangnoibo: {
+                        ngayYeuCau: moment(dateString, "DD/MM/YYYY"),
+                      },
+                    });
+                  }}
                 />
               </FormItem>
             </Col>
