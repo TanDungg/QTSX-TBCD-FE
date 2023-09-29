@@ -167,14 +167,16 @@ function NguoiDungForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const listRole = JSON.parse(res.data[0].chiTietRoles).map((ct) =>
-            ct.role_Id.toLowerCase()
-          );
+          let active;
+          const listRole = JSON.parse(res.data[0].chiTietRoles).map((ct) => {
+            active = ct.isActive_Role;
+            return ct.role_Id.toLowerCase();
+          });
           setRole_Id(listRole);
           const newData = {
             id: res.data[0].user_Id,
             roleNames: listRole,
-            isActive: res.data[0].isActive_Role,
+            IsActive_Role: active,
           };
           setFieldsValue({ user: newData });
         }
@@ -203,7 +205,7 @@ function NguoiDungForm({ match, permission, history }) {
     if (type === "new") {
       const newData = {
         id: user.id,
-        isActive: user.isActive,
+        isActive: user.IsActive_Role,
         donVi_Id: INFO.donVi_Id,
         phanMem_Id: INFO.phanMem_Id,
         chiTietRoles: user.roleNames.map((r) => {
@@ -233,7 +235,7 @@ function NguoiDungForm({ match, permission, history }) {
     } else {
       const newData = {
         id: user.id,
-        isActive: user.isActive,
+        isActive: user.IsActive_Role,
         donVi_Id: INFO.donVi_Id,
         phanMem_Id: INFO.phanMem_Id,
         chiTietRoles: user.roleNames.map((r) => {

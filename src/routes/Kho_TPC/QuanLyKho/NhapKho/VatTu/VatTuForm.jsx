@@ -32,7 +32,8 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
-import ModalTuChoi from "./ModalTuChoi";
+// import Modal from "./Modal";
+import AddVatTuModal from "./AddVatTuModal";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -127,7 +128,7 @@ const EditableCell = ({
 
 const FormItem = Form.Item;
 
-const DeNghiMuaHangForm = ({ history, match, permission }) => {
+const VatTuForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [type, setType] = useState("new");
@@ -140,7 +141,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const [ListUser, setListUser] = useState([]);
   const [SanPham_Id, setSanPham_Id] = useState();
   const [SoLuong, setSoLuong] = useState();
-  const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
+  const [ActiveModal, setActiveModal] = useState(false);
 
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
@@ -410,9 +411,9 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
       align: "center",
     },
     {
@@ -422,40 +423,15 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Nhóm vật tư",
-      dataIndex: "tenNhomVatTu",
-      key: "tenNhomVatTu",
-      align: "center",
-    },
-    {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
       align: "center",
     },
     {
-      title: "Số lượng theo định mức",
-      dataIndex: "soLuongTheoDinhMuc",
-      key: "soLuongTheoDinhMuc",
-      align: "center",
-    },
-    {
-      title: "Tồn kho",
-      dataIndex: "soLuongTonKho",
-      key: "soLuongTonKho",
-      align: "center",
-    },
-    {
-      title: "SL cần mua",
+      title: "Số lượng",
       dataIndex: "soLuong",
       key: "soLuong",
-      align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
-    },
-    {
-      title: "Hạng mục sử dụng",
-      dataIndex: "hangMucSuDung",
-      key: "hangMucSuDung",
       align: "center",
       editable: type === "new" || type === "edit" ? true : false,
     },
@@ -645,14 +621,14 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const modalXK = () => {
     Modal(prop);
   };
-  const hanldeTuChoi = () => {
-    setActiveModalTuChoi(true);
+  const hanlde = () => {
+    setActiveModal(true);
   };
-  const saveTuChoi = (val) => {
+  const save = (val) => {
     const newData = {
       id: id,
       isXacNhan: false,
-      lyDoTuChoi: val,
+      lyDo: val,
     };
     new Promise((resolve, reject) => {
       dispatch(
@@ -675,12 +651,12 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
 
   const formTitle =
     type === "new" ? (
-      "Tạo đề nghị mua hàng "
+      "Tạo phiếu nhập kho vật tư "
     ) : type === "edit" ? (
-      "Chỉnh sửa đề nghị mua hàng"
+      "Chỉnh sửa phiếu nhập kho vật tư"
     ) : (
       <span>
-        Chi tiết đề nghị mua hàng -{" "}
+        Chi tiết phiếu nhập kho vật tư -{" "}
         <Tag
           color={
             info.isKiemTraXacNhan === null
@@ -773,7 +749,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           <Row>
             <Col span={12}>
               <FormItem
-                label="Người đề nghị"
+                label="Người nhập"
                 name={["dinhmucvattu", "userYeuCau_Id"]}
                 rules={[
                   {
@@ -791,7 +767,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-
             <Col span={12}>
               <FormItem
                 label="Ban/Phòng"
@@ -808,7 +783,31 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             </Col>
             <Col span={12}>
               <FormItem
-                label="Phiếu mua hàng"
+                label="Ngày nhập"
+                name={["dinhmucvattu", "ngayYeuCau"]}
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <DatePicker
+                  format={"DD/MM/YYYY"}
+                  allowClear={false}
+                  onChange={(date, dateString) => {
+                    setFieldsValue({
+                      dinhmucvattu: {
+                        ngayYeuCau: moment(dateString, "DD/MM/YYYY"),
+                      },
+                    });
+                  }}
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col span={12}>
+              <FormItem
+                label="Phiếu nhận hàng"
                 name={["dinhmucvattu", "isCKD"]}
                 rules={[
                   {
@@ -835,13 +834,22 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             </Col>
             <Col span={12}>
               <FormItem
-                label="Dự kiến hoàn thành"
-                name={["dinhmucvattu", "ngayHoanThanhDukien"]}
+                label="Số hóa đơn"
+                name={["dinhmucvattu", "userKiemTra_Id"]}
                 rules={[
                   {
-                    required: true,
+                    type: "string",
                   },
                 ]}
+              >
+                <Input placeholder="Số hóa đơn" />
+              </FormItem>
+            </Col>
+            <Col span={12}>
+              <FormItem
+                label="Ngày hóa đơn"
+                name={["dinhmucvattu", "ngayHoanThanhDukien"]}
+                rules={[]}
               >
                 <DatePicker
                   disabled={type === "new" || type === "edit" ? false : true}
@@ -859,31 +867,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             </Col>
             <Col span={12}>
               <FormItem
-                label="Ngày yêu câù"
-                name={["dinhmucvattu", "ngayYeuCau"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <DatePicker
-                  format={"DD/MM/YYYY"}
-                  allowClear={false}
-                  onChange={(date, dateString) => {
-                    setFieldsValue({
-                      dinhmucvattu: {
-                        ngayYeuCau: moment(dateString, "DD/MM/YYYY"),
-                      },
-                    });
-                  }}
-                  disabled={true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Người kiểm tra"
+                label="Nhà cung cấp"
                 name={["dinhmucvattu", "userKiemTra_Id"]}
                 rules={[
                   {
@@ -906,7 +890,20 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             </Col>
             <Col span={12}>
               <FormItem
-                label="Kế toán duyệt"
+                label="Nội dung nhập"
+                name={["dinhmucvattu", "userKiemTra_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input placeholder="Nội dụng nhập vật tư" />
+              </FormItem>
+            </Col>
+            <Col span={12}>
+              <FormItem
+                label="Kho nhập"
                 name={["dinhmucvattu", "userKeToan_Id"]}
                 rules={[
                   {
@@ -927,76 +924,14 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
-              <FormItem
-                label="Duyệt"
-                name={["dinhmucvattu", "userDuyet_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn người duỵet"
-                  optionsvalue={["user_Id", "fullName"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-          </Row>
-          <Divider />
-          <Row style={{ marginTop: 15 }}>
-            <Col span={12}>
-              <FormItem
-                label="Sản phẩm"
-                name={["sanPham", "sanPham_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListSanPham ? ListSanPham : []}
-                  placeholder="Chọn sản phẩm"
-                  optionsvalue={["id", "tenSanPham"]}
-                  style={{ width: "100%" }}
-                  onChange={(val) => setSanPham_Id(val)}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem label="SL cần mua" name={["sanPham", "soLuong"]}>
-                <Input
-                  className="input-item"
-                  placeholder="Nhập số lượng cần mua"
-                  type="number"
-                  onChange={(e) => setSoLuong(e.target.value)}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}></Col>
             {type === "new" || type === "edit" ? (
               <Col span={12} align="center">
                 <Button
                   icon={<PlusOutlined />}
                   type="primary"
-                  onClick={hanldeThem}
-                  disabled={!SanPham_Id || !SoLuong}
+                  onClick={() => setActiveModal(true)}
                 >
-                  Thêm
+                  Nhập vật tư
                 </Button>
               </Col>
             ) : null}
@@ -1030,20 +965,21 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
               </Button>
             </Col>
             <Col style={{ marginRight: 15 }}>
-              <Button danger onClick={hanldeTuChoi}>
+              <Button danger onClick={hanlde}>
                 Từ chối
               </Button>
             </Col>
           </Row>
         )}
       </Card>
-      <ModalTuChoi
-        openModal={ActiveModalTuChoi}
-        openModalFS={setActiveModalTuChoi}
-        saveTuChoi={saveTuChoi}
-      />
+      {/* <Modal
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        save={save}
+      /> */}
+      <AddVatTuModal openModal={ActiveModal} openModalFS={setActiveModal} />
     </div>
   );
 };
 
-export default DeNghiMuaHangForm;
+export default VatTuForm;

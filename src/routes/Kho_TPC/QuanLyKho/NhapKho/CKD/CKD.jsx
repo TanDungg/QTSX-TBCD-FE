@@ -7,7 +7,6 @@ import {
   EyeOutlined,
   EyeInvisibleOutlined,
   PrinterOutlined,
-  RetweetOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -32,7 +31,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function DeNghiMuaHang({ match, history, permission }) {
+function CKD({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -69,9 +68,7 @@ function DeNghiMuaHang({ match, history, permission }) {
       page,
       donVi_Id: INFO.donVi_Id,
     });
-    dispatch(
-      fetchStart(`lkn_PhieuDeNghiMuaHang?${param}`, "GET", null, "LIST")
-    );
+    dispatch(fetchStart(`lkn_PhieuDatHangNoiBo?${param}`, "GET", null, "LIST"));
   };
   const getBanPhong = () => {
     new Promise((resolve, reject) => {
@@ -123,18 +120,7 @@ function DeNghiMuaHang({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      (permission &&
-        permission.cof &&
-        item.userKiemTra_Id === INFO.user_Id &&
-        item.tinhTrang === "Chưa xác nhận") ||
-      (permission &&
-        permission.cof &&
-        item.userKeToan_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác Nhận bởi kiểm tra") ||
-      (permission &&
-        permission.cof &&
-        item.userDuyet_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác Nhận bởi kiểm tra, kế toán") ? (
+      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -147,22 +133,6 @@ function DeNghiMuaHang({ match, history, permission }) {
       ) : (
         <span disabled title="Xác nhận">
           <EyeInvisibleOutlined />
-        </span>
-      );
-    const kyItem =
-      permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/quy-trinh`,
-            state: { itemData: item },
-          }}
-          title="Quy trình"
-        >
-          <RetweetOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Quy trình">
-          <RetweetOutlined />
         </span>
       );
     const editItem =
@@ -189,8 +159,6 @@ function DeNghiMuaHang({ match, history, permission }) {
       <div>
         {detailItem}
         <Divider type="vertical" />
-        {/* {kyItem}
-        <Divider type="vertical" /> */}
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -211,7 +179,7 @@ function DeNghiMuaHang({ match, history, permission }) {
       deleteItemAction,
       item,
       item.maPhieuYeuCau,
-      "phiếu đề nghị mua hàng"
+      "phiếu đặt hàng nội bộ"
     );
   };
 
@@ -221,7 +189,7 @@ function DeNghiMuaHang({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDeNghiMuaHang?id=${item.id}`;
+    let url = `lkn_PhieuDatHangNoiBo/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -317,41 +285,34 @@ function DeNghiMuaHang({ match, history, permission }) {
       render: (val) => renderDetail(val),
     },
     {
-      title: "Ngày yêu cầu",
-      dataIndex: "ngayYeuCau",
-      key: "ngayYeuCau",
+      title: "Ngày xuất",
+      dataIndex: "ngayXuat",
+      key: "ngayXuat",
       align: "center",
     },
     {
-      title: "Ban/Phòng",
+      title: "Xưởng sản xuất",
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
       align: "center",
     },
     {
-      title: "Người đặt hàng",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
+      title: "Người lập",
+      dataIndex: "tenNguoiLap",
+      key: "tenNguoiLap",
       align: "center",
     },
     {
-      title: "Dự kiến hoàn thành",
-      dataIndex: "ngayHoanThanhDukien",
-      key: "ngayHoanThanhDukien",
+      title: "Kho",
+      dataIndex: "kho",
+      key: "kho",
       align: "center",
     },
-    {
-      title: "Tình trạng",
-      dataIndex: "tinhTrang",
-      key: "tinhTrang",
-      align: "center",
-    },
-
     {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 120,
+      width: 110,
       render: (value) => actionContent(value),
     },
   ];
@@ -418,19 +379,19 @@ function DeNghiMuaHang({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phiếu đề nghị mua hàng"
-        description="Danh sách phiếu đề nghị mua hàng"
+        title="Nhập kho CKD"
+        description="Nhập kho CKD"
         buttons={addButtonRender()}
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Ban/Phòng:</h5>
+            <h5>Kho nhập:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListBanPhong ? ListBanPhong : []}
-              placeholder="Chọn Ban/Phòng"
+              placeholder="Chọn kho nhập"
               optionsvalue={["id", "tenPhongBan"]}
               style={{ width: "100%" }}
               showSearch
@@ -442,7 +403,6 @@ function DeNghiMuaHang({ match, history, permission }) {
               onClear={handleClearBanPhong}
             />
           </Col>
-
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
             <h5>Ngày:</h5>
             <RangePicker
@@ -479,8 +439,8 @@ function DeNghiMuaHang({ match, history, permission }) {
             selectedRowKeys: selectedKeys,
             getCheckboxProps: (record) => ({}),
           }}
-          onRow={(record, rowIndex) =>
-            record.tinhTrang === "Đã hoàn tất xác Nhận" && {
+          onRow={(record, rowIndex) => {
+            return {
               onClick: (e) => {
                 const found = find(selectedKeys, (k) => k === record.key);
                 if (found === undefined) {
@@ -490,8 +450,8 @@ function DeNghiMuaHang({ match, history, permission }) {
                   hanldeRemoveSelected(record);
                 }
               },
-            }
-          }
+            };
+          }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}
@@ -516,4 +476,4 @@ function DeNghiMuaHang({ match, history, permission }) {
   );
 }
 
-export default DeNghiMuaHang;
+export default CKD;

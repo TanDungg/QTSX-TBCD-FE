@@ -1,7 +1,18 @@
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
+import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Col,
+  DatePicker,
+  Button,
+  Tag,
+  Upload,
+  Image,
+} from "antd";
 import { includes, map, set } from "lodash";
-import Helpers from "src/helpers";
+import Helper from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { useDispatch } from "react-redux";
@@ -14,13 +25,14 @@ import {
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
   reDataForTable,
+  renderPDF,
 } from "src/util/Common";
 // import AddVatTuModal from "./AddVatTuModal";
 // import ModalTuChoi from "./ModalTuChoi";
@@ -121,7 +133,11 @@ const FormItem = Form.Item;
 
 const PhieuNhanHangForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
@@ -131,6 +147,10 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
   const [ListPhieuMuaHang, setListPhieuMuaHang] = useState([]);
   const [ListBanPhong, setListBanPhong] = useState([]);
   const [ListCVThuMua, setListCVThuMua] = useState([]);
+  const [File, setFile] = useState("");
+  const [disableUpload, setDisableUpload] = useState(false);
+  const [FileChat, setFileChat] = useState("");
+  const [openImage, setOpenImage] = useState(false);
 
   const [ActiveModal, setActiveModal] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
@@ -169,6 +189,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getCVThuMua(INFO);
+          getBanPhong(INFO);
           getInfo(id);
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -332,12 +353,18 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           setListVatTu(
             JSON.parse(data.chiTietVatTu) ? JSON.parse(data.chiTietVatTu) : []
           );
-          getPhieuMuaHang(
-            INFO,
-            data.phongBan_Id,
-            data.loaiPhieu,
-            data.phieuMuaHang_Id
-          );
+          setListPhieuMuaHang([
+            {
+              id: res.data.phieuMuaHang_Id,
+              maPhieuYeuCau: res.data.maPhieuYeuCau,
+            },
+          ]);
+          setListUserYeuCau([
+            {
+              id: res.data.userYeuCau_Id,
+              fullName: res.data.tenNguoiYeuCau,
+            },
+          ]);
           setInfo(data);
           setFieldsValue({
             phieunhanhang: {
@@ -543,21 +570,46 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.phieunhanhang);
+    uploadFile(values.phieunhanhang);
   };
 
   const saveAndClose = (val) => {
     validateFields()
       .then((values) => {
         if (listVatTu.length === 0) {
-          Helpers.alertError("Danh sách vật tư rỗng");
+          Helper.alertError("Danh sách vật tư rỗng");
         } else {
-          saveData(values.phieunhanhang, val);
+          uploadFile(values.phieunhanhang, val);
         }
       })
       .catch((error) => {
         console.log("error", error);
       });
+  };
+  const uploadFile = (phieunhanhang, saveQuit) => {
+    if (type === "new" && phieunhanhang.fileDinhKem) {
+      const formData = new FormData();
+      formData.append("file", phieunhanhang.fileDinhKem.file);
+      fetch(`${BASE_URL_API}/api/Upload`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: "Bearer ".concat(INFO.token),
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          console.log(data);
+          phieunhanhang.fileDinhKem = data.path;
+          saveData(phieunhanhang, saveQuit);
+        })
+        .catch(() => {
+          console.log("upload failed.");
+        });
+    } else if (type === "edit" && phieunhanhang.fileDinhKem) {
+    } else {
+      saveData(phieunhanhang, saveQuit);
+    }
   };
 
   const saveData = (phieunhanhang, saveQuit = false) => {
@@ -597,20 +649,20 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     }
     if (type === "edit") {
       listVatTu.forEach((vt, index) => {
-        listVatTu[index].lkn_PhieuMuaHang_Id = id;
+        listVatTu[index].lkn_PhieuNhanHang_Id = id;
       });
       const newData = {
         ...phieunhanhang,
-        ngayYeuCau: phieunhanhang.ngayYeuCau._i,
-        ngayHoanThanhDukien: phieunhanhang.ngayHoanThanhDukien._i,
-        chiTiet_phieunhanhangs: listVatTu,
+        ngayHangVe: phieunhanhang.ngayHangVe._i,
+        phieuMuaHang_Id: id,
+        chiTiet_phieunhanhang: listVatTu,
         id: id,
-        maDonHang: info.maPhieuYeuCau,
+        maPhieuNhanHang: info.maPhieuNhanHang,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_Phieuphieunhanhang/${id}`,
+            `lkn_PhieuNhanHang/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -637,7 +689,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     listVatTu.forEach((dl) => {
       if (dl.vatTu_Id.toLowerCase() === data.vatTu_Id) {
         check = true;
-        Helpers.alertError(`Vật tư đã được thêm`);
+        Helper.alertError(`Vật tư đã được thêm`);
       }
     });
     !check && listVatTu.length > 0 && setListVatTu([...listVatTu, data]);
@@ -734,6 +786,13 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
         record.phongBanId,
         record.loaiPhieu.toLowerCase() === "true"
       );
+      setListVatTu([]);
+      setFieldsValue({
+        phieunhanhang: {
+          phieuMuaHang_Id: undefined,
+          userYeuCau_Id: undefined,
+        },
+      });
     }
   };
   const hanldeSelectPhieu = (val) => {
@@ -753,6 +812,33 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
         });
       }
     });
+  };
+  const props = {
+    beforeUpload: (file) => {
+      const isPNG =
+        file.type === "image/png" ||
+        file.type === "image/jpeg" ||
+        file.type === "application/pdf";
+      if (!isPNG) {
+        Helper.alertError(`${file.name} không phải hình ảnh hoặc file pdf`);
+      } else {
+        setFile(file);
+        setDisableUpload(true);
+        const reader = new FileReader();
+        reader.onload = (e) => setFileChat(e.target.result);
+        reader.readAsDataURL(file);
+        return false;
+      }
+    },
+    showUploadList: false,
+    maxCount: 1,
+  };
+  const handleViewFile = (file) => {
+    if (file.type === "application/pdf") {
+      renderPDF(file);
+    } else {
+      setOpenImage(true);
+    }
   };
   return (
     <div className="gx-main-content">
@@ -784,7 +870,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
               showSearch
               optionFilterProp="name"
               onSelect={handleGetListPhieu}
-              disabled={type === "new" || type === "edit" ? false : true}
+              disabled={type === "new" ? false : true}
             />
           </FormItem>
 
@@ -810,7 +896,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
               showSearch
               optionFilterProp="name"
               onSelect={handleGetListPhieu}
-              disabled={type === "new" || type === "edit" ? false : true}
+              disabled={type === "new" ? false : true}
             />
           </FormItem>
           <FormItem
@@ -832,7 +918,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
               showSearch
               onSelect={hanldeSelectPhieu}
               optionFilterProp="name"
-              disabled={type === "new" || type === "edit" ? false : true}
+              disabled={type === "new" ? false : true}
             />
           </FormItem>
           <FormItem
@@ -904,10 +990,65 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
             name={["phieunhanhang", "fileDinhKem"]}
             rules={[
               {
-                type: "string",
+                type: "file",
               },
             ]}
-          ></FormItem>
+          >
+            {!disableUpload ? (
+              <Upload {...props}>
+                <Button
+                  style={{
+                    marginBottom: 0,
+                    height: 25,
+                    lineHeight: "25px",
+                  }}
+                  icon={<UploadOutlined />}
+                >
+                  Tải file
+                </Button>
+              </Upload>
+            ) : (
+              <span>
+                <span
+                  style={{ color: "#0469B9", cursor: "pointer" }}
+                  onClick={() => handleViewFile(File)}
+                >
+                  {File.name.length > 20
+                    ? File.name.substring(0, 20) + "..."
+                    : File.name}{" "}
+                </span>
+                <DeleteOutlined
+                  style={{ cursor: "pointer", color: "red" }}
+                  disabled={type === "new" || type === "edit" ? false : true}
+                  onClick={() => {
+                    setFile();
+                    setDisableUpload(false);
+                    setFieldsValue({
+                      phieunhanhang: {
+                        fileDinhKem: undefined,
+                      },
+                    });
+                  }}
+                />
+                <Image
+                  width={100}
+                  src={FileChat}
+                  alt="preview"
+                  style={{
+                    display: "none",
+                  }}
+                  preview={{
+                    visible: openImage,
+                    scaleStep: 0.5,
+                    src: FileChat,
+                    onVisibleChange: (value) => {
+                      setOpenImage(value);
+                    },
+                  }}
+                />
+              </span>
+            )}
+          </FormItem>
         </Form>
         <Table
           bordered
