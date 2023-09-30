@@ -106,6 +106,7 @@ function VaiTroForm({ history, match, permission }) {
   const saveData = (vaiTro, saveQuit = false) => {
     vaiTro.phanMem_Id = INFO.phanMem_Id;
     vaiTro.donVi_Id = INFO.donVi_Id;
+    vaiTro.tapDoan_Id = INFO.tapDoan_Id;
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(

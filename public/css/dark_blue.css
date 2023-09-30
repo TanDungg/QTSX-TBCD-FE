@@ -74,6 +74,15 @@ Version        : 1.0
         09. Algolia Styles
 
   =============================================================*/
+  @media print {
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+  }
 .ant-modal,
 .ant-image-preview {
   pointer-events: none;

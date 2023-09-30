@@ -53,6 +53,7 @@ const SignIn = ({ history }) => {
               phanMem_Id: res.data[0].phanMem_Id,
               donVi_Id: res.data[0].donVi_Id.toUpperCase(),
               tenPhanMem: res.data[0].tenPhanMem,
+              tapDoan_Id: res.data[0].tapDoan_Id,
             };
             setLocalStorage("menu", menu);
             dispatch(donViLoad());

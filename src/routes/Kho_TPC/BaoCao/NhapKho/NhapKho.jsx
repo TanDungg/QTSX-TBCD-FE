@@ -31,7 +31,7 @@ const { RangePicker } = DatePicker;
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function BCNhapKho({ permission, history, match }) {
+function NhapKho({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -43,6 +43,7 @@ function BCNhapKho({ permission, history, match }) {
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
   const [data, setData] = useState([]);
+  const [loai, setLoai] = useState(true);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -457,14 +458,18 @@ function BCNhapKho({ permission, history, match }) {
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row>
+        <Row style={{ marginBottom: 10 }}>
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
             <h5>Loại nhập kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListUser ? ListUser : []}
-              placeholder="Chọn người lập"
-              optionsvalue={["nguoiLap_Id", "tennguoiLap"]}
+              data={[
+                { id: "ckd", name: "Nhập kho CKD" },
+                { id: "true", name: "Nhập kho vật tư" },
+                { id: "false", name: "Nhập kho thành phẩm" },
+              ]}
+              placeholder="Chọn loại nhập kho"
+              optionsvalue={["id", "name"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
@@ -476,11 +481,11 @@ function BCNhapKho({ permission, history, match }) {
             />
           </Col>
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Loại xe:</h5>
+            <h5>Loại sản phẩm:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListUser ? ListUser : []}
-              placeholder="Chọn người lập"
+              placeholder="Chọn loại sản phẩm"
               optionsvalue={["nguoiLap_Id", "tennguoiLap"]}
               style={{ width: "100%" }}
               showSearch
@@ -497,7 +502,7 @@ function BCNhapKho({ permission, history, match }) {
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListUser ? ListUser : []}
-              placeholder="Chọn người lập"
+              placeholder="Chọn sản phẩm"
               optionsvalue={["nguoiLap_Id", "tennguoiLap"]}
               style={{ width: "100%" }}
               showSearch
@@ -509,23 +514,7 @@ function BCNhapKho({ permission, history, match }) {
               onClear={handleClearUser_Id}
             />
           </Col>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Chi tiết:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListUser ? ListUser : []}
-              placeholder="Chọn người lập"
-              optionsvalue={["nguoiLap_Id", "tennguoiLap"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectUser_Id}
-              value={user_Id}
-              onChange={(value) => setUser_Id(value)}
-              allowClear
-              onClear={handleClearUser_Id}
-            />
-          </Col>
+
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
             <h5>Thời gian:</h5>
             <RangePicker
@@ -577,4 +566,4 @@ function BCNhapKho({ permission, history, match }) {
   );
 }
 
-export default BCNhapKho;
+export default NhapKho;

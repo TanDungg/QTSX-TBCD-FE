@@ -28,6 +28,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -310,6 +311,11 @@ function PhieuNhanHang({ match, history, permission }) {
       dataIndex: "fileDinhKem",
       key: "fileDinhKem",
       align: "center",
+      render: (val) => (
+        <a href={BASE_URL_API + val} target="_blank">
+          {val && val.split("/")[5]}
+        </a>
+      ),
     },
 
     {

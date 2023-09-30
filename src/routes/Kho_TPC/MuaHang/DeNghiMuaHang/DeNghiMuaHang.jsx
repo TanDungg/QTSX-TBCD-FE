@@ -44,10 +44,12 @@ function DeNghiMuaHang({ match, history, permission }) {
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListBanPhong, setListBanPhong] = useState([]);
   const [BanPhong, setBanPhong] = useState("");
+  const [LoaiPhieu, setLoaiPhieu] = useState("true");
+
   useEffect(() => {
     if (permission && permission.view) {
       getBanPhong();
-      loadData(keyword, BanPhong, FromDate, ToDate, page);
+      loadData(keyword, BanPhong, FromDate, ToDate, page, LoaiPhieu);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -60,7 +62,7 @@ function DeNghiMuaHang({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const loadData = (keyword, phongBanId, tuNgay, denNgay, page, isCKD) => {
     const param = convertObjectToUrlParams({
       phongBanId,
       tuNgay,
@@ -68,6 +70,7 @@ function DeNghiMuaHang({ match, history, permission }) {
       keyword,
       page,
       donVi_Id: INFO.donVi_Id,
+      isCKD: isCKD === "true",
     });
     dispatch(
       fetchStart(`lkn_PhieuDeNghiMuaHang?${param}`, "GET", null, "LIST")
@@ -101,7 +104,7 @@ function DeNghiMuaHang({ match, history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, BanPhong, FromDate, ToDate, page);
+    loadData(keyword, BanPhong, FromDate, ToDate, page, LoaiPhieu);
   };
 
   /**
@@ -112,7 +115,7 @@ function DeNghiMuaHang({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, BanPhong, FromDate, ToDate, page);
+      loadData(val.target.value, BanPhong, FromDate, ToDate, page, LoaiPhieu);
     }
   };
   /**
@@ -228,7 +231,7 @@ function DeNghiMuaHang({ match, history, permission }) {
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, BanPhong, FromDate, ToDate, page);
+          loadData(keyword, BanPhong, FromDate, ToDate, page, LoaiPhieu);
         }
       })
       .catch((error) => console.error(error));
@@ -242,7 +245,7 @@ function DeNghiMuaHang({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, BanPhong, FromDate, ToDate, pagination);
+    loadData(keyword, BanPhong, FromDate, ToDate, pagination, LoaiPhieu);
   };
 
   /**
@@ -402,18 +405,23 @@ function DeNghiMuaHang({ match, history, permission }) {
   const handleOnSelectBanPhong = (val) => {
     setBanPhong(val);
     setPage(1);
-    loadData(keyword, val, FromDate, ToDate, 1);
+    loadData(keyword, val, FromDate, ToDate, 1, LoaiPhieu);
   };
   const handleClearBanPhong = (val) => {
     setBanPhong("");
     setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
+    loadData(keyword, "", FromDate, ToDate, 1, LoaiPhieu);
+  };
+  const handleOnSelectLoaiPhieu = (val) => {
+    setLoaiPhieu(val);
+    setPage(1);
+    loadData(keyword, BanPhong, FromDate, ToDate, 1, val);
   };
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    loadData(keyword, BanPhong, dateString[0], dateString[1], 1, LoaiPhieu);
   };
   return (
     <div className="gx-main-content">
@@ -426,6 +434,29 @@ function DeNghiMuaHang({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
+            <h5>Loại phiếu:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={[
+                {
+                  id: "true",
+                  name: "Phiếu đề nghị mua hàng CKD",
+                },
+                {
+                  id: "false",
+                  name: "Phiếu đề nghị mua hàng",
+                },
+              ]}
+              placeholder="Chọn Loại phiếu"
+              optionsvalue={["id", "name"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp={"name"}
+              onSelect={handleOnSelectLoaiPhieu}
+              value={LoaiPhieu}
+            />
+          </Col>
+          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
             <h5>Ban/Phòng:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
@@ -437,7 +468,6 @@ function DeNghiMuaHang({ match, history, permission }) {
               optionFilterProp={"name"}
               onSelect={handleOnSelectBanPhong}
               value={BanPhong}
-              onChange={(value) => setBanPhong(value)}
               allowClear
               onClear={handleClearBanPhong}
             />

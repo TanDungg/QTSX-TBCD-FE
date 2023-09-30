@@ -92,6 +92,8 @@ function CanBoNhanVien({ match, history, permission }) {
               tenTapDoan: dl.tenTapDoan,
               tenDonViTraLuong: dl.tenDonViTraLuong,
               chiTiet_Id: dl.chiTiet_Id,
+              tapDoan_Id: dl.tapDoan_Id,
+              donVi_Id: dl.donVi_Id,
             };
           });
           setData(newData);
@@ -214,7 +216,13 @@ function CanBoNhanVien({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `Account/user-cbnv?$`;
+    const params = convertObjectToUrlParams({
+      chiTiet_Id: item.chiTiet_Id,
+      user_Id: item.id,
+      tapDoan_Id: item.tapDoan_Id,
+      donVi_Id: item.donVi_Id,
+    });
+    let url = `Account/delete-don-vi-cbnv?${params}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })

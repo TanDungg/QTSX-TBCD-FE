@@ -152,6 +152,17 @@ export default (state = INIT_STATE, action) => {
             .set("loadingSave", false)
             .set("reset", false);
         }
+        if (apiType === "TUCHOI") {
+          // Message thêm mới
+          if (customMessage) Helper.alertSuccessMessage(customMessage);
+          else Helper.alertSuccessMessage(messages.TU_CHOI_THANH_CONG);
+          return state
+            .set("message", messages.TU_CHOI_THANH_CONG)
+            .set("customMessage", customMessage)
+            .set("loading", false)
+            .set("loadingSave", false)
+            .set("reset", false);
+        }
         if (apiType === "CANCEL") {
           // Message thêm mới
           if (customMessage) Helper.alertSuccessMessage(customMessage);

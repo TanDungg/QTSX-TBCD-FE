@@ -37,6 +37,8 @@ function Home({ permission, history }) {
     const menuInfo = getLocalStorage("menu");
     menuInfo.phanMem_Id = dt.phanMem_Id;
     menuInfo.tenPhanMem = dt.tenPhanMem;
+    menuInfo.tapDoan_Id = dt.TapDoan_Id;
+
     setLocalStorage("menu", menuInfo);
     dispatch(loadMenu());
   };

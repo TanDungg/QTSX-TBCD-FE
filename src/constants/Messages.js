@@ -71,5 +71,6 @@ export const messages = {
   GUI_YEU_CAU_THANH_CONG: "Gửi yêu cầu thành công",
   HUY_THANH_CONG: "Hủy thành công",
   XAC_NHAN_THANH_CONG: "Xác nhận thành công",
+  TU_CHOI_THANH_CONG: "Từ chối thành công",
   NHAN_HANG_THANH_CONG: "Lập phiếu nhận hàng thành công",
 };

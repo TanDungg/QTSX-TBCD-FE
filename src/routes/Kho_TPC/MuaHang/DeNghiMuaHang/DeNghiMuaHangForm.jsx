@@ -623,7 +623,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           `lkn_PhieuDeNghiMuaHang/xac-nhan/${id}`,
           "PUT",
           newData,
-          "EDIT",
+          "XACNHAN",
           "",
           resolve,
           reject
@@ -660,7 +660,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           `lkn_PhieuDeNghiMuaHang/xac-nhan/${id}`,
           "PUT",
           newData,
-          "EDIT",
+          "TUCHOI",
           "",
           resolve,
           reject

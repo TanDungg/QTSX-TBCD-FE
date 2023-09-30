@@ -28,17 +28,19 @@ import {
   exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-
-function CanBoNhanVien({ history, permission }) {
+import AddDonViCBNV from "./AddDonViCBNV";
+function CanBoNhanVien({ match, history, permission }) {
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const [ActiveModal, setActiveModal] = useState(false);
+  const [ActiveModalAddDonVi, setActiveModalAddDonVi] = useState(false);
+
   const [donViSelect, setDonViSelect] = useState([]);
   const [donVi, setDonVi] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [NhanSuNghi, setNhanSuNghi] = useState();
+  const [NhanSu, setNhanSu] = useState();
   const [data, setData] = useState([]);
   const { totalRow, totalPage, pageSize } = data;
 
@@ -91,6 +93,8 @@ function CanBoNhanVien({ history, permission }) {
               tenTapDoan: dl.tenTapDoan,
               tenDonViTraLuong: dl.tenDonViTraLuong,
               chiTiet_Id: dl.chiTiet_Id,
+              tapDoan_Id: dl.tapDoan_Id,
+              donVi_Id: dl.donVi_Id,
             };
           });
           setData(newData);
@@ -146,11 +150,20 @@ function CanBoNhanVien({ history, permission }) {
    * @returns View
    */
   const actionContent = (item) => {
+    const addItem =
+      permission && permission.add
+        ? {
+            onClick: () => {
+              setActiveModalAddDonVi(true);
+              setNhanSu(item);
+            },
+          }
+        : { disabled: true };
     const editItem =
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/he-thong-erp/can-bo-nhan-vien/${item.id}_${item.chiTiet_Id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}_${item.chiTiet_Id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -167,7 +180,7 @@ function CanBoNhanVien({ history, permission }) {
         ? {
             onClick: () => {
               setIsModalOpen(true);
-              setNhanSuNghi(item);
+              setNhanSu(item);
             },
           }
         : { disabled: true };
@@ -177,6 +190,10 @@ function CanBoNhanVien({ history, permission }) {
         : { disabled: true };
     return (
       <React.Fragment>
+        <a {...addItem} title="Xóa">
+          <PlusOutlined />
+        </a>
+        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...nhanSuNghiItemVal} title="Nghỉ việc">
@@ -211,7 +228,14 @@ function CanBoNhanVien({ history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `Account/${item.id}`;
+    console.log(item);
+    const params = convertObjectToUrlParams({
+      chiTiet_Id: item.chiTiet_Id,
+      user_Id: item.id,
+      tapDoan_Id: item.tapDoan_Id,
+      donVi_Id: item.donVi_Id,
+    });
+    let url = `Account/delete-don-vi-cbnv?${params}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -380,7 +404,7 @@ function CanBoNhanVien({ history, permission }) {
         title: "Chức năng",
         key: "action",
         align: "center",
-        width: 100,
+        width: 120,
         render: (value) => actionContent(value),
         fixed: width > 700 && "right",
       },
@@ -561,8 +585,13 @@ function CanBoNhanVien({ history, permission }) {
         <ModalNghiViec
           openModal={isModalOpen}
           openModalFS={setIsModalOpen}
-          data={NhanSuNghi}
+          data={NhanSu}
           refesh={refeshData}
+        />
+        <AddDonViCBNV
+          openModal={ActiveModalAddDonVi}
+          openModalFS={setActiveModalAddDonVi}
+          data={NhanSu}
         />
       </Card>
     </div>

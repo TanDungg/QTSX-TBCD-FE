@@ -353,6 +353,10 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           setListVatTu(
             JSON.parse(data.chiTietVatTu) ? JSON.parse(data.chiTietVatTu) : []
           );
+          if (res.data.fileDinhKem) {
+            setDisableUpload(true);
+            setFile(res.data.fileDinhKem);
+          }
           setListPhieuMuaHang([
             {
               id: res.data.phieuMuaHang_Id,
@@ -396,30 +400,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       )}`
     );
   };
-  const getDetailVatTu = (data) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `VatTu/${data.vatTu_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          res.data.ghiChu = data.ghiChu;
-          res.data.dinhMuc = data.dinhMuc;
-          res.data.vatTu_Id = res.data.id;
-          setListVatTu([...listVatTu, res.data]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
+
   /**
    * deleteItemFunc: Remove item from list
    * @param {object} item
@@ -599,7 +580,6 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       })
         .then((res) => res.json())
         .then((data) => {
-          console.log(data);
           phieunhanhang.fileDinhKem = data.path;
           saveData(phieunhanhang, saveQuit);
         })
@@ -607,6 +587,23 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           console.log("upload failed.");
         });
     } else if (type === "edit" && phieunhanhang.fileDinhKem) {
+      const formData = new FormData();
+      formData.append("file", phieunhanhang.fileDinhKem.file);
+      fetch(`${BASE_URL_API}/api/Upload?stringPath=${info.fileDinhKem}`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: "Bearer ".concat(INFO.token),
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          phieunhanhang.fileDinhKem = data.path;
+          saveData(phieunhanhang, saveQuit);
+        })
+        .catch(() => {
+          console.log("upload failed.");
+        });
     } else {
       saveData(phieunhanhang, saveQuit);
     }
@@ -682,19 +679,6 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
         })
         .catch((error) => console.error(error));
     }
-  };
-
-  const addVatTu = (data) => {
-    let check = false;
-    listVatTu.forEach((dl) => {
-      if (dl.vatTu_Id.toLowerCase() === data.vatTu_Id) {
-        check = true;
-        Helper.alertError(`Vật tư đã được thêm`);
-      }
-    });
-    !check && listVatTu.length > 0 && setListVatTu([...listVatTu, data]);
-    !check && listVatTu.length === 0 && setListVatTu([data]);
-    !check && setFieldTouch(true);
   };
   const hanldeXacNhan = () => {
     const newData = {
@@ -1007,7 +991,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
                   Tải file
                 </Button>
               </Upload>
-            ) : (
+            ) : File.name ? (
               <span>
                 <span
                   style={{ color: "#0469B9", cursor: "pointer" }}
@@ -1044,6 +1028,25 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
                     onVisibleChange: (value) => {
                       setOpenImage(value);
                     },
+                  }}
+                />
+              </span>
+            ) : (
+              <span>
+                <a target="_blank" href={BASE_URL_API + File}>
+                  {File.split("/")[5]}{" "}
+                </a>
+                <DeleteOutlined
+                  style={{ cursor: "pointer", color: "red" }}
+                  disabled={type === "new" || type === "edit" ? false : true}
+                  onClick={() => {
+                    setFile();
+                    setDisableUpload(false);
+                    setFieldsValue({
+                      phieunhanhang: {
+                        fileDinhKem: undefined,
+                      },
+                    });
                   }}
                 />
               </span>
