@@ -9,6 +9,7 @@ import {
   Button,
   Divider,
   Tag,
+  Radio,
 } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
@@ -318,7 +319,12 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListVatTu(JSON.parse(res.data.chiTietVatTu));
+          const chiTiet = JSON.parse(res.data.chiTietVatTu);
+          chiTiet &&
+            chiTiet.forEach((ct, index) => {
+              chiTiet[index].id = ct.vatTu_Id + "_" + ct.sanPham_Id;
+            });
+          setListVatTu(chiTiet ? chiTiet : []);
           getUserLap(INFO, res.data.userYeuCau_Id);
           setInfo(res.data);
           getSanPham(res.data.sanPham_Id);
@@ -714,7 +720,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
             res.data.chiTietBOM &&
             JSON.parse(res.data.chiTietBOM).map((ct) => {
               return {
-                id: ct.vatTu_Id + "_" + res.data.id,
+                id: ct.vatTu_Id + "_" + SanPham_Id,
                 vatTu_Id: ct.vatTu_Id,
                 tenVatTu: ct.tenVatTu,
                 dinhMuc: ct.dinhMuc,
@@ -756,6 +762,11 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
+  const [value, setValue] = useState(1);
+  const onChange = (e) => {
+    console.log("radio checked", e.target.value);
+    setValue(e.target.value);
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -767,6 +778,17 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
+          <Radio.Group onChange={onChange} value={value}>
+            <Row style={{ marginBottom: 15 }} justify={"center"}>
+              <Col span={12} align="center">
+                <Radio value={1}>Phiếu đề nghị cấp vật tư sản xuất</Radio>
+              </Col>
+              <Col span={12} align="center">
+                <Radio value={2}>Yêu cầu cấp vật tư khác</Radio>
+              </Col>
+            </Row>
+          </Radio.Group>
+          <Divider />
           <Row>
             <Col span={12}>
               <FormItem

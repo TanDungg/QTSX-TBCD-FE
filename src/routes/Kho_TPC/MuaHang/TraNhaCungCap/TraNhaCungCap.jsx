@@ -423,6 +423,7 @@ function TraNhaCungCap({ match, history, permission }) {
             type: "checkbox",
             ...rowSelection,
             preserveSelectedRowKeys: true,
+            hideSelectAll: true,
             selectedRowKeys: selectedKeys,
             getCheckboxProps: (record) => ({}),
           }}

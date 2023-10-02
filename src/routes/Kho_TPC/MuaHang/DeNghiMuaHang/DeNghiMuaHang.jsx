@@ -507,6 +507,7 @@ function DeNghiMuaHang({ match, history, permission }) {
             ...rowSelection,
             preserveSelectedRowKeys: true,
             selectedRowKeys: selectedKeys,
+            hideSelectAll: true,
             getCheckboxProps: (record) => ({}),
           }}
           onRow={(record, rowIndex) =>

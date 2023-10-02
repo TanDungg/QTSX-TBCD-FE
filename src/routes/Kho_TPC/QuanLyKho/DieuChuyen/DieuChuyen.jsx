@@ -295,7 +295,8 @@ function DieuChuyen({ match, history, permission }) {
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
       align: "center",
-    },{
+    },
+    {
       title: "Ngày điều chuyển",
       dataIndex: "kho",
       key: "kho",
@@ -307,7 +308,7 @@ function DieuChuyen({ match, history, permission }) {
       key: "tenNguoiLap",
       align: "center",
     },
-    
+
     {
       title: "Chức năng",
       key: "action",

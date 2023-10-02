@@ -27,6 +27,9 @@ const TraNhaCungCapForm = asyncComponent(() =>
 const TheoDoiDonHang = asyncComponent(() =>
   import("./TheoDoiDonHang/TheoDoiDonHang")
 );
+const TheoDoiDonHangForm = asyncComponent(() =>
+  import("./TheoDoiDonHang/TheoDoiDonHangForm")
+);
 const TheoDoiHangVe = asyncComponent(() =>
   import("./TheoDoiHangVe/TheoDoiHangVe")
 );
@@ -124,6 +127,11 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/theo-doi-don-hang`}
         exact
         component={Auth(TheoDoiDonHang, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/theo-doi-don-hang/:id/chi-tiet`}
+        exact
+        component={Auth(TheoDoiDonHangForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/theo-doi-hang-ve`}

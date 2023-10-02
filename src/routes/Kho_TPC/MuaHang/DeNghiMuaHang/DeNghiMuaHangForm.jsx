@@ -318,7 +318,11 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListVatTu(JSON.parse(res.data.chiTietVatTu));
+          const chiTiet = JSON.parse(res.data.chiTietVatTu);
+          chiTiet.forEach((ct, index) => {
+            chiTiet[index].id = ct.vatTu_Id + "_" + ct.sanPham_Id;
+          });
+          setListVatTu(chiTiet);
           getUserLap(INFO, res.data.userYeuCau_Id);
           setInfo(res.data);
           getSanPham(res.data.sanPham_Id);

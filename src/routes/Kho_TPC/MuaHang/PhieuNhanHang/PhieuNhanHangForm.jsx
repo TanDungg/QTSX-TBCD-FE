@@ -350,9 +350,12 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           const data = res.data;
-          setListVatTu(
-            JSON.parse(data.chiTietVatTu) ? JSON.parse(data.chiTietVatTu) : []
-          );
+          const chiTiet = JSON.parse(res.data.chiTietVatTu);
+          chiTiet &&
+            chiTiet.forEach((ct, index) => {
+              chiTiet[index].id = ct.vatTu_Id + "_" + ct.sanPham_Id;
+            });
+          setListVatTu(chiTiet ? chiTiet : []);
           if (res.data.fileDinhKem) {
             setDisableUpload(true);
             setFile(res.data.fileDinhKem);
@@ -418,7 +421,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter((d) => d.vatTu_Id !== item.vatTu_Id);
+    const newData = listVatTu.filter((d) => d.id !== item.id);
     setListVatTu(newData);
   };
 
@@ -1036,19 +1039,21 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
                 <a target="_blank" href={BASE_URL_API + File}>
                   {File.split("/")[5]}{" "}
                 </a>
-                <DeleteOutlined
-                  style={{ cursor: "pointer", color: "red" }}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                  onClick={() => {
-                    setFile();
-                    setDisableUpload(false);
-                    setFieldsValue({
-                      phieunhanhang: {
-                        fileDinhKem: undefined,
-                      },
-                    });
-                  }}
-                />
+                {(type === "new" || type === "edit") && (
+                  <DeleteOutlined
+                    style={{ cursor: "pointer", color: "red" }}
+                    disabled={type === "new" || type === "edit" ? false : true}
+                    onClick={() => {
+                      setFile();
+                      setDisableUpload(false);
+                      setFieldsValue({
+                        phieunhanhang: {
+                          fileDinhKem: undefined,
+                        },
+                      });
+                    }}
+                  />
+                )}
               </span>
             )}
           </FormItem>

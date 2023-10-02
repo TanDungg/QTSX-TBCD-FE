@@ -41,12 +41,12 @@ function TheoDoiHangVe({ match, history, permission }) {
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [ListBanPhong, setListBanPhong] = useState([]);
-  const [BanPhong, setBanPhong] = useState("");
+  const [ListNhomVatTu, setListNhomVatTu] = useState([]);
+  const [NhomVatTu, setNhomVatTu] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
-      getBanPhong();
-      loadData(keyword, BanPhong, FromDate, ToDate, page);
+      getNhomVatTu();
+      loadData(keyword, NhomVatTu, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -59,21 +59,29 @@ function TheoDoiHangVe({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const loadData = (keyword, nhomVatTu_Id, tuNgay, denNgay, page, vatTu_Id) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
+      vatTu_Id,
       tuNgay,
       denNgay,
       keyword,
+      nhomVatTu_Id,
       page,
     });
-    dispatch(fetchStart(`lkn_PhieuTraHangNCC?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(
+        `lkn_PhieuNhanHang/list-thong-tin-hang-ve?${param}`,
+        "GET",
+        null,
+        "LIST"
+      )
+    );
   };
-  const getBanPhong = () => {
+  const getNhomVatTu = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          `NhomVatTu?page=-1&&donviid=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -85,9 +93,9 @@ function TheoDoiHangVe({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListBanPhong(res.data);
+          setListNhomVatTu(res.data);
         } else {
-          setListBanPhong([]);
+          setListNhomVatTu([]);
         }
       })
       .catch((error) => console.error(error));
@@ -97,7 +105,7 @@ function TheoDoiHangVe({ match, history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, BanPhong, FromDate, ToDate, page);
+    loadData(keyword, NhomVatTu, FromDate, ToDate, page);
   };
 
   /**
@@ -108,7 +116,7 @@ function TheoDoiHangVe({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, BanPhong, FromDate, ToDate, page);
+      loadData(val.target.value, NhomVatTu, FromDate, ToDate, page);
     }
   };
   /**
@@ -195,7 +203,7 @@ function TheoDoiHangVe({ match, history, permission }) {
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, BanPhong, FromDate, ToDate, page);
+          loadData(keyword, NhomVatTu, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -209,7 +217,7 @@ function TheoDoiHangVe({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, BanPhong, FromDate, ToDate, pagination);
+    loadData(keyword, NhomVatTu, FromDate, ToDate, pagination);
   };
 
   /**
@@ -240,7 +248,7 @@ function TheoDoiHangVe({ match, history, permission }) {
   const { totalRow, totalPage, pageSize } = data;
 
   let dataList = reDataForTable(
-    data.datalist
+    data
     // page === 1 ? page : pageSize * (page - 1) + 2
   );
 
@@ -253,33 +261,39 @@ function TheoDoiHangVe({ match, history, permission }) {
       width: 45,
     },
     {
+      title: "Sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
+      align: "center",
+    },
+    {
       title: "Tên vật tư",
-      dataIndex: "maPhieuYeuCau",
-      key: "maPhieuYeuCau",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
       align: "center",
     },
     {
       title: "Nhóm vật tư",
-      dataIndex: "ngayYeuCau",
-      key: "ngayYeuCau",
+      dataIndex: "tenNhomVatTu",
+      key: "tenNhomVatTu",
       align: "center",
     },
     {
       title: "Đơn vị tính",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
       align: "center",
     },
     {
       title: "Số lượng mua",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
+      dataIndex: "soLuongMua",
+      key: "soLuongMua",
       align: "center",
     },
     {
       title: "Hạng mục sử dụng",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
+      dataIndex: "hangMucSuDung",
+      key: "hangMucSuDung",
       align: "center",
     },
     {
@@ -302,32 +316,32 @@ function TheoDoiHangVe({ match, history, permission }) {
     },
     {
       title: "SL hàng nhận",
-      dataIndex: "tinhTrang",
-      key: "tinhTrang",
+      dataIndex: "soLuongNhan",
+      key: "soLuongNhan",
       align: "center",
     },
     {
       title: "SL còn thiếu",
-      dataIndex: "tinhTrang",
-      key: "tinhTrang",
+      dataIndex: "soLuongConThieu",
+      key: "soLuongConThieu",
       align: "center",
     },
     {
       title: "SL dư",
-      dataIndex: "tinhTrang",
-      key: "tinhTrang",
+      dataIndex: "soLuongDu",
+      key: "soLuongDu",
       align: "center",
     },
     {
       title: "Kết quả",
-      dataIndex: "tinhTrang",
-      key: "tinhTrang",
+      dataIndex: "ketQua",
+      key: "ketQua",
       align: "center",
     },
     {
       title: "Ghi chú",
-      dataIndex: "tinhTrang",
-      key: "tinhTrang",
+      dataIndex: "ghiChu",
+      key: "ghiChu",
       align: "center",
     },
   ];
@@ -375,13 +389,13 @@ function TheoDoiHangVe({ match, history, permission }) {
       setSelectedKeys(newSelectedKey);
     },
   };
-  const handleOnSelectBanPhong = (val) => {
-    setBanPhong(val);
+  const handleOnSelectNhomVatTu = (val) => {
+    setNhomVatTu(val);
     setPage(1);
     loadData(keyword, val, FromDate, ToDate, 1);
   };
-  const handleClearBanPhong = (val) => {
-    setBanPhong("");
+  const handleClearNhomVatTu = (val) => {
+    setNhomVatTu("");
     setPage(1);
     loadData(keyword, "", FromDate, ToDate, 1);
   };
@@ -389,7 +403,7 @@ function TheoDoiHangVe({ match, history, permission }) {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    loadData(keyword, NhomVatTu, dateString[0], dateString[1], 1);
   };
   return (
     <div className="gx-main-content">
@@ -405,36 +419,20 @@ function TheoDoiHangVe({ match, history, permission }) {
             <h5>Nhóm vật tư:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListBanPhong ? ListBanPhong : []}
+              data={ListNhomVatTu ? ListNhomVatTu : []}
               placeholder="Chọn nhóm vật tư"
-              optionsvalue={["id", "tenPhongBan"]}
+              optionsvalue={["id", "tenNhomVatTu"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectBanPhong}
-              value={BanPhong}
-              onChange={(value) => setBanPhong(value)}
+              onSelect={handleOnSelectNhomVatTu}
+              value={NhomVatTu}
+              onChange={(value) => setNhomVatTu(value)}
               allowClear
-              onClear={handleClearBanPhong}
+              onClear={handleClearNhomVatTu}
             />
           </Col>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Vật tư:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListBanPhong ? ListBanPhong : []}
-              placeholder="Chọn vật tư"
-              optionsvalue={["id", "tenPhongBan"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectBanPhong}
-              value={BanPhong}
-              onChange={(value) => setBanPhong(value)}
-              allowClear
-              onClear={handleClearBanPhong}
-            />
-          </Col>
+
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
             <h5>Ngày:</h5>
             <RangePicker

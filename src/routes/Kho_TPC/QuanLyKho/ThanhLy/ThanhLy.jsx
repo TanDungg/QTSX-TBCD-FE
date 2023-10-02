@@ -290,7 +290,7 @@ function ThanhLy({ match, history, permission }) {
       key: "ngayXuat",
       align: "center",
     },
-  {
+    {
       title: "Ngày thanh lý",
       dataIndex: "kho",
       key: "kho",
@@ -302,7 +302,7 @@ function ThanhLy({ match, history, permission }) {
       key: "tenNguoiLap",
       align: "center",
     },
-    
+
     {
       title: "Chức năng",
       key: "action",

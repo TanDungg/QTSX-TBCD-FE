@@ -207,18 +207,32 @@ export const logOut = async () => {
 /**
  * * lấy ngày tháng năm hiện tại DD/MM/YYYY
  */
-export const getDateNow = (number) => {
+export const getDateNow = (number, check = false) => {
   const date = new Date();
-  const day =
-    (date.getDate().toString().length === 1
-      ? "0" + date.getDate() - (number ? number : 0)
-      : date.getDate() - (number ? number : 0)) +
-    "/" +
-    ((date.getMonth() + 1).toString().length === 1
-      ? "0" + (date.getMonth() + 1)
-      : date.getMonth() + 1) +
-    "/" +
-    date.getFullYear();
+  let day;
+  if (number <= 7 && check === false) {
+    day =
+      date.getDate() +
+      getNumberDayOfMonth(date.getMonth() + 1, date.getFullYear()) -
+      (number ? number : 0) +
+      "/" +
+      ((date.getMonth() + 1).toString().length === 1
+        ? "0" + date.getMonth()
+        : date.getMonth()) +
+      "/" +
+      date.getFullYear();
+  } else {
+    day =
+      (date.getDate().toString().length === 1
+        ? "0" + (date.getDate() - (number ? number : 0))
+        : date.getDate() - (number ? number : 0)) +
+      "/" +
+      ((date.getMonth() + 1).toString().length === 1
+        ? "0" + (date.getMonth() + 1)
+        : date.getMonth() + 1) +
+      "/" +
+      date.getFullYear();
+  }
   return day.toString();
 };
 

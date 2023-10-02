@@ -113,6 +113,7 @@ function KeHoach({ match, history, permission }) {
             return {
               maSanPham: dt.maSanPham,
               tenSanPham: dt.tenSanPham,
+              sanPham_Id: dt.sanPham_Id,
               tong: t > 0 ? t : 0,
               ...ctkh,
             };
@@ -234,13 +235,20 @@ function KeHoach({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
+    const params = convertObjectToUrlParams({
+      loaiKeHoach_Id: KeHoach,
+      phongban_Id: Xuong,
+      sanPham_Id: item.sanPham_Id,
+      nam: Nam,
+      thang: Thang,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_KeHoach/${item.id}`,
-          "POST",
+          `lkn_KeHoach?${params}`,
+          "DELETE",
           "",
-          "EDIT",
+          "DELETE",
           "",
           resolve,
           reject
@@ -249,7 +257,7 @@ function KeHoach({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.status !== 409) {
-          getListData(KeHoach, loaiXe, Thang, Nam);
+          getVersion(KeHoach, Xuong, Thang, Nam);
         }
       })
       .catch((error) => console.error(error));
@@ -262,7 +270,7 @@ function KeHoach({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const deleteItemVal =
-      permission && permission.del && Number(Thang) >= new Date().getMonth() + 1
+      permission && permission.del && Version === VersionSelect[0].version_Id
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -276,7 +284,7 @@ function KeHoach({ match, history, permission }) {
     );
   };
   const render = (val, record) => {
-    if (val === undefined) {
+    if (val === undefined || val.soLuong === 0) {
       return (
         <div
           style={{
@@ -315,7 +323,8 @@ function KeHoach({ match, history, permission }) {
               alignItems: "center",
             }}
           >
-            {val.ngay >= new Date().getDate() - 1 ? (
+            {val.ngay >= new Date().getDate() - 1 &&
+            Version === VersionSelect[0].version_Id ? (
               <a
                 onClick={() => {
                   setDataEdit(val);

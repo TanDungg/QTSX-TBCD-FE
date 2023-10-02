@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, find, isEmpty, remove } from "lodash";
@@ -140,7 +133,7 @@ function PhieuNhanHang({ match, history, permission }) {
       permission &&
       permission.edit &&
       moment(item.ngayTaoPhieu, "DD/MM/YYYY") >=
-        moment(getDateNow(1), "DD/MM/YYYY") ? (
+        moment(getDateNow(1, true), "DD/MM/YYYY") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -159,7 +152,7 @@ function PhieuNhanHang({ match, history, permission }) {
       permission &&
       permission.del &&
       moment(item.ngayTaoPhieu, "DD/MM/YYYY") >=
-        moment(getDateNow(1), "DD/MM/YYYY")
+        moment(getDateNow(1, true), "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
