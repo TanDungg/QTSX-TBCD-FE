@@ -1,45 +1,23 @@
-import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
-import {
-  Card,
-  Form,
-  Input,
-  Row,
-  Col,
-  DatePicker,
-  Button,
-  Tag,
-  Upload,
-  Image,
-} from "antd";
-import { includes, map, set } from "lodash";
-import Helper from "src/helpers";
-import moment from "moment";
-import React, { useEffect, useState, useRef, useContext } from "react";
-import { useDispatch } from "react-redux";
+import { DeleteOutlined } from "@ant-design/icons";
+import { Card, Row, Col, Tag } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { includes, map } from "lodash";
+
+import React, { useEffect, useState } from "react";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import {
-  FormSubmit,
-  Select,
   Table,
   ModalDeleteConfirm,
   EditableTableRow,
-  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import {
-  convertObjectToUrlParams,
-  getDateNow,
-  getLocalStorage,
-  getTokenInfo,
-  reDataForTable,
-  renderPDF,
-} from "src/util/Common";
+import { getLocalStorage, getTokenInfo, reDataForTable } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
 const TheoDoiDonHangForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = {
     ...getLocalStorage("menu"),
     user_Id: getTokenInfo().id,
@@ -277,13 +255,17 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
     };
   });
 
-  const formTitle = "Chi tiết đơn hàng";
+  const formTitle = (
+    <span>
+      Chi tiết theo dõi đơn hàng - <Tag color="green">{info.tinhTrang}</Tag>
+    </span>
+  );
 
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
       <Card className="th-card-margin-bottom">
-        <Row style={{ marginLeft: 10 }}>
+        <Row style={{ marginLeft: 2 }}>
           <Col>
             <img
               src={require("assets/images/usercall.png")}
@@ -307,18 +289,34 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
             </h5>
           </h4>
         </Row>
-        <Table
-          bordered
-          columns={columns}
-          scroll={{ x: 900, y: "55vh" }}
-          components={components}
-          className="gx-table-responsive"
-          dataSource={reDataForTable(listVatTu)}
-          size="small"
-          rowClassName={"editable-row"}
-          pagination={false}
-          // loading={loading}
-        />
+        <Row>
+          <Col span={12}>
+            <h5>Bộ phận yêu cầu: {info.tenPhongBan}</h5>
+          </Col>
+          <Col span={12}>
+            <h5>Ngày hoàn thành: {info.ngayHoanThanhDukien}</h5>
+          </Col>
+          <Col span={12}>
+            <h5>File đính kèm: </h5>
+          </Col>
+        </Row>
+        <Row>
+          <Col span={24}>
+            <h5>Thông tin vật tư:</h5>
+          </Col>
+          <Table
+            bordered
+            columns={columns}
+            scroll={{ x: 900, y: "55vh" }}
+            components={components}
+            className="gx-table-responsive"
+            dataSource={reDataForTable(listVatTu)}
+            size="small"
+            rowClassName={"editable-row"}
+            pagination={false}
+            loading={loading}
+          />
+        </Row>
       </Card>
     </div>
   );

@@ -35,6 +35,7 @@ const TheKho = asyncComponent(() => import("./TheKho/TheKho"));
 const TheKhoForm = asyncComponent(() => import("./TheKho/TheKhoForm"));
 const SoDuDauKy = asyncComponent(() => import("./SoDuDauKy/SoDuDauKy"));
 const SoDuDauKyForm = asyncComponent(() => import("./SoDuDauKy/SoDuDauKyForm"));
+const LayoutKho = asyncComponent(() => import("./LayoutKho/LayoutKho"));
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -82,6 +83,11 @@ const App = ({ match, location, menus, permission }) => {
       />
       <Route
         path={`${match.url}/nhap-kho/vat-tu/:id/chinh-sua`}
+        exact
+        component={Auth(NhapKhoVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nhap-kho/vat-tu/:id/chi-tiet`}
         exact
         component={Auth(NhapKhoVatTuForm, menus, pathname, permission)}
       />
@@ -144,6 +150,11 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/so-du-dau-ky/:id/chinh-sua`}
         exact
         component={Auth(SoDuDauKyForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/layout-kho`}
+        exact
+        component={Auth(LayoutKho, menus, pathname, permission)}
       />
     </Switch>
   );

@@ -47,7 +47,7 @@ function TheoDoiDonHang({ match, history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       getBanPhong();
-      loadData(keyword, BanPhong, FromDate, ToDate, page);
+      loadData(keyword, BanPhong, FromDate, ToDate, page, LoaiDonHang);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -115,7 +115,7 @@ function TheoDoiDonHang({ match, history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, BanPhong, FromDate, ToDate, page);
+    loadData(keyword, BanPhong, FromDate, ToDate, page, LoaiDonHang);
   };
 
   /**
@@ -126,7 +126,7 @@ function TheoDoiDonHang({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, BanPhong, FromDate, ToDate, page);
+      loadData(val.target.value, BanPhong, FromDate, ToDate, page, LoaiDonHang);
     }
   };
   /**
@@ -213,7 +213,7 @@ function TheoDoiDonHang({ match, history, permission }) {
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, BanPhong, FromDate, ToDate, page);
+          loadData(keyword, BanPhong, FromDate, ToDate, page, LoaiDonHang);
         }
       })
       .catch((error) => console.error(error));
@@ -227,7 +227,7 @@ function TheoDoiDonHang({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, BanPhong, FromDate, ToDate, pagination);
+    loadData(keyword, BanPhong, FromDate, ToDate, pagination, LoaiDonHang);
   };
 
   /**
@@ -404,12 +404,12 @@ function TheoDoiDonHang({ match, history, permission }) {
   const handleOnSelectBanPhong = (val) => {
     setBanPhong(val);
     setPage(1);
-    loadData(keyword, val, FromDate, ToDate, 1);
+    loadData(keyword, val, FromDate, ToDate, 1, LoaiDonHang);
   };
   const handleClearBanPhong = (val) => {
     setBanPhong("");
     setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
+    loadData(keyword, "", FromDate, ToDate, 1, LoaiDonHang);
   };
   const handleOnSelectLoaiDonHang = (val) => {
     setLoaiDonHang(val);
@@ -419,13 +419,13 @@ function TheoDoiDonHang({ match, history, permission }) {
   const handleClearLoaiDonHang = (val) => {
     setLoaiDonHang("");
     setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
+    loadData(keyword, "", FromDate, ToDate, 1, LoaiDonHang);
   };
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    loadData(keyword, BanPhong, dateString[0], dateString[1], 1, LoaiDonHang);
   };
   return (
     <div className="gx-main-content">
@@ -452,7 +452,6 @@ function TheoDoiDonHang({ match, history, permission }) {
               optionFilterProp={"name"}
               onSelect={handleOnSelectLoaiDonHang}
               value={LoaiDonHang}
-              onChange={(value) => setLoaiDonHang(value)}
               allowClear
               onClear={handleClearLoaiDonHang}
             />
@@ -469,7 +468,6 @@ function TheoDoiDonHang({ match, history, permission }) {
               optionFilterProp={"name"}
               onSelect={handleOnSelectBanPhong}
               value={BanPhong}
-              onChange={(value) => setBanPhong(value)}
               allowClear
               onClear={handleClearBanPhong}
             />

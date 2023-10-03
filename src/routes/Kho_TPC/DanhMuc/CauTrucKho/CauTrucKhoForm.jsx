@@ -82,7 +82,7 @@ function CauTrucKhoForm({ match, permission, history }) {
         const newData = res.data;
         if (newData.cauTrucKho_Id === null) newData.cauTrucKho_Id = "root";
         setFieldsValue({
-          CauTrucKho: newData,
+          CauTrucKho: { ...newData, sucChua: newData.sucChua.toString() },
         });
         getListCauTrucKho(newData.phongBan_Id);
       })

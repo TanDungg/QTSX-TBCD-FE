@@ -104,8 +104,8 @@ function KeHoach({ match, history, permission }) {
                 keHoach_Id: ct.KeHoach_Id,
                 ngay: ct.ngay,
                 sanPham_Id: dt.sanPham_Id,
-                thang: Thang,
-                nam: Nam,
+                thang: thang,
+                nam: nam,
                 tenSanPham: dt.tenSanPham,
               };
               t = t + ct.tongSoLuong;
@@ -270,7 +270,10 @@ function KeHoach({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const deleteItemVal =
-      permission && permission.del && Version === VersionSelect[0].version_Id
+      permission &&
+      permission.del &&
+      VersionSelect.length > 0 &&
+      Version === VersionSelect[0].version_Id
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -323,8 +326,11 @@ function KeHoach({ match, history, permission }) {
               alignItems: "center",
             }}
           >
-            {val.ngay >= new Date().getDate() - 1 &&
-            Version === VersionSelect[0].version_Id ? (
+            {(val.ngay >= new Date().getDate() - 1 &&
+              Number(val.thang) >= new Date().getMonth() + 1 &&
+              VersionSelect.length > 0 &&
+              Version === VersionSelect[0].version_Id) ||
+            Number(val.thang) > new Date().getMonth() + 1 ? (
               <a
                 onClick={() => {
                   setDataEdit(val);

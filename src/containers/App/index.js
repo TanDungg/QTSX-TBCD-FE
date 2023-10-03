@@ -18,7 +18,8 @@ import AppLocale from "src/lngProvider";
 import MainApp from "./MainApp";
 import SignIn from "../SignIn";
 import InMaQrVatTu from "src/routes/Kho_TPC/DanhMuc/VatTu/InMaQr";
-import InMaQrThongTinVatTu from "src/routes/Kho_TPC/QuanLyKho/ThongTinVatTu/InMaQr";
+import InMaQrTTVatTu from "src/routes/Kho_TPC/QuanLyKho/ThongTinVatTu/InMaQr";
+import InMaQrThongTinVatTu from "src/routes/Kho_TPC/QuanLyKho/NhapKho/VatTu/InMaQr";
 
 import { setInitUrl } from "src/appRedux/actions/Auth";
 import {
@@ -283,6 +284,11 @@ const App = () => {
           <Route
             exact
             path="/quan-ly-kho-tpc/thong-tin-vat-tu/inMa"
+            component={InMaQrTTVatTu}
+          />
+          <Route
+            exact
+            path="/quan-ly-kho-tpc/thong-tin-vat-tu/nhap-kho/inMa"
             component={InMaQrThongTinVatTu}
           />
           <RestrictedRoute

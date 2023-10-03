@@ -119,24 +119,11 @@ function VatTu({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const detailItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <EyeOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
-        </span>
-      );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
+      permission &&
+      permission.edit &&
+      moment(getDateNow(1, true), "DD/MM/YYYY") <=
+        moment(item.ngayNhan, "DD/MM/YYYY") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -152,13 +139,14 @@ function VatTu({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
+      permission &&
+      permission.del &&
+      moment(getDateNow(1, true), "DD/MM/YYYY") <=
+        moment(item.ngayNhan, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {detailItem}
-        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -263,10 +251,10 @@ function VatTu({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuYeuCau}
+          {val.maPhieuNhapKhoVatTu}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuYeuCau}</span>
+        <span disabled>{val.maPhieuNhapKhoVatTu}</span>
       );
     return <div>{detail}</div>;
   };
@@ -280,14 +268,14 @@ function VatTu({ match, history, permission }) {
     },
     {
       title: "Mã phiếu yêu cầu",
-      key: "maPhieuYeuCau",
+      key: "maPhieuNhapKhoVatTu",
       align: "center",
       render: (val) => renderDetail(val),
     },
     {
-      title: "Ngày xuất",
-      dataIndex: "ngayXuat",
-      key: "ngayXuat",
+      title: "Ngày nhập",
+      dataIndex: "ngayNhan",
+      key: "ngayNhan",
       align: "center",
     },
     {
@@ -298,14 +286,14 @@ function VatTu({ match, history, permission }) {
     },
     {
       title: "Người lập",
-      dataIndex: "tenNguoiLap",
-      key: "tenNguoiLap",
+      dataIndex: "tenNguoiYeuCau",
+      key: "tenNguoiYeuCau",
       align: "center",
     },
     {
       title: "Kho",
-      dataIndex: "kho",
-      key: "kho",
+      dataIndex: "tenCauTrucKho",
+      key: "tenCauTrucKho",
       align: "center",
     },
     {
