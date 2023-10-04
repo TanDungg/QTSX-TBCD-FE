@@ -233,7 +233,7 @@ function PhieuNhanHang({ match, history, permission }) {
           onClick={handleRedirect}
           disabled={permission && !permission.add}
         >
-          Tạo phiếu nhận
+          Tạo phiếu nhậnâ
         </Button>
       </>
     );

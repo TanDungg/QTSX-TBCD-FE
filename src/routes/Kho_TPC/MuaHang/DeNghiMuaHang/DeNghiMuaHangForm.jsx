@@ -1,4 +1,9 @@
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -9,6 +14,8 @@ import {
   Button,
   Divider,
   Tag,
+  Upload,
+  Image,
 } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
@@ -16,6 +23,7 @@ import moment from "moment";
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
+import { BASE_URL_API } from "src/constants/Config";
 import {
   FormSubmit,
   Select,
@@ -31,8 +39,10 @@ import {
   getLocalStorage,
   getTokenInfo,
   reDataForTable,
+  renderPDF,
 } from "src/util/Common";
 import ModalTuChoi from "./ModalTuChoi";
+import Helper from "src/helpers";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -141,7 +151,10 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const [SanPham_Id, setSanPham_Id] = useState();
   const [SoLuong, setSoLuong] = useState();
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
-
+  const [File, setFile] = useState("");
+  const [disableUpload, setDisableUpload] = useState(false);
+  const [FileChat, setFileChat] = useState("");
+  const [openImage, setOpenImage] = useState(false);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
@@ -763,6 +776,33 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
+  const props = {
+    beforeUpload: (file) => {
+      const isPNG =
+        file.type === "image/png" ||
+        file.type === "image/jpeg" ||
+        file.type === "application/pdf";
+      if (!isPNG) {
+        Helper.alertError(`${file.name} không phải hình ảnh hoặc file pdf`);
+      } else {
+        setFile(file);
+        setDisableUpload(true);
+        const reader = new FileReader();
+        reader.onload = (e) => setFileChat(e.target.result);
+        reader.readAsDataURL(file);
+        return false;
+      }
+    },
+    showUploadList: false,
+    maxCount: 1,
+  };
+  const handleViewFile = (file) => {
+    if (file.type === "application/pdf") {
+      renderPDF(file);
+    } else {
+      setOpenImage(true);
+    }
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -956,55 +996,147 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             </Col>
           </Row>
           <Divider />
-          <Row style={{ marginTop: 15 }}>
-            <Col span={12}>
-              <FormItem
-                label="Sản phẩm"
-                name={["sanPham", "sanPham_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListSanPham ? ListSanPham : []}
-                  placeholder="Chọn sản phẩm"
-                  optionsvalue={["id", "tenSanPham"]}
-                  style={{ width: "100%" }}
-                  onChange={(val) => setSanPham_Id(val)}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem label="SL cần mua" name={["sanPham", "soLuong"]}>
-                <Input
-                  className="input-item"
-                  placeholder="Nhập số lượng cần mua"
-                  type="number"
-                  onChange={(e) => setSoLuong(e.target.value)}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}></Col>
-            {type === "new" || type === "edit" ? (
-              <Col span={12} align="center">
-                <Button
-                  icon={<PlusOutlined />}
-                  type="primary"
-                  onClick={hanldeThem}
-                  disabled={!SanPham_Id || !SoLuong}
+          {type === "xacnhan" && (
+            <Row>
+              <Col span={12}>
+                <FormItem
+                  label="Tải file đã ký"
+                  name={["dinhmucvattu", "userDuyet_Id"]}
                 >
-                  Thêm
-                </Button>
+                  {!disableUpload ? (
+                    <Upload {...props}>
+                      <Button
+                        style={{
+                          marginBottom: 0,
+                          height: 25,
+                          lineHeight: "25px",
+                        }}
+                        icon={<UploadOutlined />}
+                      >
+                        Tải file
+                      </Button>
+                    </Upload>
+                  ) : File.name ? (
+                    <span>
+                      <span
+                        style={{ color: "#0469B9", cursor: "pointer" }}
+                        onClick={() => handleViewFile(File)}
+                      >
+                        {File.name.length > 20
+                          ? File.name.substring(0, 20) + "..."
+                          : File.name}{" "}
+                      </span>
+                      <DeleteOutlined
+                        style={{ cursor: "pointer", color: "red" }}
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                        onClick={() => {
+                          setFile();
+                          setDisableUpload(false);
+                          setFieldsValue({
+                            phieunhanhang: {
+                              fileDinhKem: undefined,
+                            },
+                          });
+                        }}
+                      />
+                      <Image
+                        width={100}
+                        src={FileChat}
+                        alt="preview"
+                        style={{
+                          display: "none",
+                        }}
+                        preview={{
+                          visible: openImage,
+                          scaleStep: 0.5,
+                          src: FileChat,
+                          onVisibleChange: (value) => {
+                            setOpenImage(value);
+                          },
+                        }}
+                      />
+                    </span>
+                  ) : (
+                    <span>
+                      <a target="_blank" href={BASE_URL_API + File}>
+                        {File.split("/")[5]}{" "}
+                      </a>
+                      {(type === "new" || type === "edit") && (
+                        <DeleteOutlined
+                          style={{ cursor: "pointer", color: "red" }}
+                          disabled={
+                            type === "new" || type === "edit" ? false : true
+                          }
+                          onClick={() => {
+                            setFile();
+                            setDisableUpload(false);
+                            setFieldsValue({
+                              phieunhanhang: {
+                                fileDinhKem: undefined,
+                              },
+                            });
+                          }}
+                        />
+                      )}
+                    </span>
+                  )}
+                </FormItem>
               </Col>
-            ) : null}
-          </Row>
+            </Row>
+          )}
+          {(type === "new" || type === "edit") && (
+            <Row style={{ marginTop: 15 }}>
+              <Col span={12}>
+                <FormItem
+                  label="Sản phẩm"
+                  name={["sanPham", "sanPham_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListSanPham ? ListSanPham : []}
+                    placeholder="Chọn sản phẩm"
+                    optionsvalue={["id", "tenSanPham"]}
+                    style={{ width: "100%" }}
+                    onChange={(val) => setSanPham_Id(val)}
+                    showSearch
+                    optionFilterProp="name"
+                    disabled={type === "new" || type === "edit" ? false : true}
+                  />
+                </FormItem>
+              </Col>
+              <Col span={12}>
+                <FormItem label="SL cần mua" name={["sanPham", "soLuong"]}>
+                  <Input
+                    className="input-item"
+                    placeholder="Nhập số lượng cần mua"
+                    type="number"
+                    onChange={(e) => setSoLuong(e.target.value)}
+                    disabled={type === "new" || type === "edit" ? false : true}
+                  />
+                </FormItem>
+              </Col>
+              <Col span={12}></Col>
+              {type === "new" || type === "edit" ? (
+                <Col span={12} align="center">
+                  <Button
+                    icon={<PlusOutlined />}
+                    type="primary"
+                    onClick={hanldeThem}
+                    disabled={!SanPham_Id || !SoLuong}
+                  >
+                    Thêm
+                  </Button>
+                </Col>
+              ) : null}
+            </Row>
+          )}
         </Form>
         <Table
           bordered

@@ -26,7 +26,7 @@ function CauTrucKhoForm({ match, permission, history }) {
   const [id, setId] = useState(undefined);
   const [listCauTrucKho, setListCauTrucKho] = useState([]);
   const [listPhongBan, setListPhongBan] = useState([]);
-
+  const [disableViTri, setDisableViTri] = useState(true);
   const [fieldTouch, setFieldTouch] = useState(false);
 
   const { setFieldsValue, validateFields, resetFields } = form;
@@ -80,7 +80,11 @@ function CauTrucKhoForm({ match, permission, history }) {
     })
       .then((res) => {
         const newData = res.data;
-        if (newData.cauTrucKho_Id === null) newData.cauTrucKho_Id = "root";
+        if (newData.cauTrucKho_Id === null) {
+          newData.cauTrucKho_Id = "root";
+        } else {
+          setDisableViTri(false);
+        }
         setFieldsValue({
           CauTrucKho: { ...newData, sucChua: newData.sucChua.toString() },
         });
@@ -340,9 +344,26 @@ function CauTrucKhoForm({ match, permission, history }) {
                 options={["id", "tenCauTrucKho", "children"]}
                 placeholder="Chọn cấu trúc kho cha"
                 style={{ width: "100%" }}
+                onSelect={(val) => {
+                  if (val !== "root") setDisableViTri(false);
+                }}
               />
             </FormItem>
-
+            <FormItem
+              label="Vị trí"
+              name={["CauTrucKho", "viTri"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+            >
+              <Input
+                className="input-item"
+                placeholder="Nhập vị trí"
+                disabled={disableViTri}
+              />
+            </FormItem>
             <FormSubmit
               goBack={goBack}
               saveAndClose={saveAndClose}

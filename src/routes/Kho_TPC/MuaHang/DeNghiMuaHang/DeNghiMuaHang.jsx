@@ -126,18 +126,7 @@ function DeNghiMuaHang({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      (permission &&
-        permission.cof &&
-        item.userKiemTra_Id === INFO.user_Id &&
-        item.tinhTrang === "Chưa xác nhận") ||
-      (permission &&
-        permission.cof &&
-        item.userKeToan_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác Nhận bởi kiểm tra") ||
-      (permission &&
-        permission.cof &&
-        item.userDuyet_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác Nhận bởi kiểm tra, kế toán") ? (
+      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -511,7 +500,7 @@ function DeNghiMuaHang({ match, history, permission }) {
             getCheckboxProps: (record) => ({}),
           }}
           onRow={(record, rowIndex) =>
-            record.tinhTrang === "Đã hoàn tất xác Nhận" && {
+            record.tinhTrang === "Đã xác Nhận" && {
               onClick: (e) => {
                 const found = find(selectedKeys, (k) => k === record.key);
                 if (found === undefined) {
