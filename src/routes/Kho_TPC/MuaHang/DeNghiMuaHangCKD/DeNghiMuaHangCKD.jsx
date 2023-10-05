@@ -32,7 +32,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function DeNghiMuaHang({ match, history, permission }) {
+function DeNghiMuaHangCKD({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -412,8 +412,8 @@ function DeNghiMuaHang({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phiếu đề nghị mua hàng"
-        description="Danh sách phiếu đề nghị mua hàng"
+        title="Phiếu đề nghị mua hàng CKD"
+        description="Danh sách phiếu đề nghị mua hàng CKD"
         buttons={addButtonRender()}
       />
 
@@ -510,4 +510,4 @@ function DeNghiMuaHang({ match, history, permission }) {
   );
 }
 
-export default DeNghiMuaHang;
+export default DeNghiMuaHangCKD;

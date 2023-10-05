@@ -231,12 +231,7 @@ function VatTu({ match, history, permission }) {
       key: "tenVatTu",
       align: "center",
     },
-    {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
-      align: "center",
-    },
+
     {
       title: "Thông số",
       dataIndex: "quyCach",

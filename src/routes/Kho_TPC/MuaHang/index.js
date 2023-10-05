@@ -9,6 +9,12 @@ const DeNghiMuaHang = asyncComponent(() =>
 const DeNghiMuaHangForm = asyncComponent(() =>
   import("./DeNghiMuaHang/DeNghiMuaHangForm")
 );
+const DeNghiMuaHangCKD = asyncComponent(() =>
+  import("./DeNghiMuaHangCKD/DeNghiMuaHangCKD")
+);
+const DeNghiMuaHangCKDForm = asyncComponent(() =>
+  import("./DeNghiMuaHangCKD/DeNghiMuaHangCKDForm")
+);
 const QuyTrinhDeNghiMuaHang = asyncComponent(() =>
   import("./DeNghiMuaHang/QuyTrinhDeNghiMuaHang")
 );
@@ -44,32 +50,62 @@ const App = ({ match, location, menus, permission }) => {
   return (
     <Switch>
       <Route
-        path={`${match.url}/phieu-de-nghi-mua-hang`}
+        path={`${match.url}/phieu-mua-hang`}
         exact
         component={Auth(DeNghiMuaHang, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/phieu-de-nghi-mua-hang/them-moi`}
+        path={`${match.url}/phieu-mua-hang/them-moi`}
         exact
         component={Auth(DeNghiMuaHangForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/phieu-de-nghi-mua-hang/:id/chinh-sua`}
+        path={`${match.url}/phieu-mua-hang/:id/chinh-sua`}
         exact
         component={Auth(DeNghiMuaHangForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/phieu-de-nghi-mua-hang/:id/chi-tiet`}
+        path={`${match.url}/phieu-mua-hang/:id/chi-tiet`}
         exact
         component={Auth(DeNghiMuaHangForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/phieu-de-nghi-mua-hang/:id/xac-nhan`}
+        path={`${match.url}/phieu-mua-hang/:id/xac-nhan`}
         exact
         component={Auth(DeNghiMuaHangForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/phieu-de-nghi-mua-hang/:id/quy-trinh`}
+        path={`${match.url}/phieu-mua-hang/:id/quy-trinh`}
+        exact
+        component={Auth(QuyTrinhDeNghiMuaHang, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-mua-hang-ckd`}
+        exact
+        component={Auth(DeNghiMuaHangCKD, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-mua-hang-ckd/them-moi`}
+        exact
+        component={Auth(DeNghiMuaHangCKDForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-mua-hang-ckd/:id/chinh-sua`}
+        exact
+        component={Auth(DeNghiMuaHangCKDForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-mua-hang-ckd/:id/chi-tiet`}
+        exact
+        component={Auth(DeNghiMuaHangCKDForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-mua-hang-ckd/:id/xac-nhan`}
+        exact
+        component={Auth(DeNghiMuaHangCKDForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-mua-hang-ckd/:id/quy-trinh`}
         exact
         component={Auth(QuyTrinhDeNghiMuaHang, menus, pathname, permission)}
       />

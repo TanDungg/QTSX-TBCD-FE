@@ -68,7 +68,7 @@ function CKD({ match, history, permission }) {
       page,
       donVi_Id: INFO.donVi_Id,
     });
-    dispatch(fetchStart(`lkn_PhieuDatHangNoiBo?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`lkn_PhieuNhapKhoCKD?${param}`, "GET", null, "LIST"));
   };
   const getBanPhong = () => {
     new Promise((resolve, reject) => {
@@ -119,24 +119,11 @@ function CKD({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const detailItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <EyeOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
-        </span>
-      );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
+      permission &&
+      permission.edit &&
+      moment(getDateNow(1, true), "DD/MM/YYYY") <=
+        moment(item.ngayNhan, "DD/MM/YYYY") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -152,13 +139,14 @@ function CKD({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
+      permission &&
+      permission.del &&
+      moment(getDateNow(1, true), "DD/MM/YYYY") <=
+        moment(item.ngayNhan, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {detailItem}
-        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -263,10 +251,10 @@ function CKD({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuYeuCau}
+          {val.maPhieuNhapKhoVatTu}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuYeuCau}</span>
+        <span disabled>{val.maPhieuNhapKhoVatTu}</span>
       );
     return <div>{detail}</div>;
   };
@@ -279,33 +267,45 @@ function CKD({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu yêu cầu",
-      key: "maPhieuYeuCau",
+      title: "Mã phiếu nhập",
+      key: "maPhieuNhapKhoVatTu",
       align: "center",
       render: (val) => renderDetail(val),
     },
     {
-      title: "Ngày xuất",
-      dataIndex: "ngayXuat",
-      key: "ngayXuat",
+      title: "Ngày nhập",
+      dataIndex: "ngayNhan",
+      key: "ngayNhan",
       align: "center",
     },
     {
-      title: "Xưởng sản xuất",
-      dataIndex: "tenPhongBan",
-      key: "tenPhongBan",
+      title: "Nhà cung cấp",
+      dataIndex: "tenNhaCungCap",
+      key: "tenNhaCungCap",
       align: "center",
     },
     {
-      title: "Người lập",
-      dataIndex: "tenNguoiLap",
-      key: "tenNguoiLap",
+      title: "Số hóa đơn",
+      dataIndex: "soHoaDon",
+      key: "soHoaDon",
+      align: "center",
+    },
+    {
+      title: "Người nhận",
+      dataIndex: "tenNguoiYeuCau",
+      key: "tenNguoiYeuCau",
       align: "center",
     },
     {
       title: "Kho",
-      dataIndex: "kho",
-      key: "kho",
+      dataIndex: "tenCauTrucKho",
+      key: "tenCauTrucKho",
+      align: "center",
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "ghiChu",
+      key: "ghiChu",
       align: "center",
     },
     {
@@ -387,11 +387,11 @@ function CKD({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Kho nhập:</h5>
+            <h5>Ban/Phòng:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListBanPhong ? ListBanPhong : []}
-              placeholder="Chọn kho nhập"
+              placeholder="Chọn Ban/Phòng"
               optionsvalue={["id", "tenPhongBan"]}
               style={{ width: "100%" }}
               showSearch
@@ -403,6 +403,7 @@ function CKD({ match, history, permission }) {
               onClear={handleClearBanPhong}
             />
           </Col>
+
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
             <h5>Ngày:</h5>
             <RangePicker

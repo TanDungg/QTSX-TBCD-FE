@@ -267,7 +267,7 @@ function VatTu({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu yêu cầu",
+      title: "Mã phiếu nhập",
       key: "maPhieuNhapKhoVatTu",
       align: "center",
       render: (val) => renderDetail(val),
@@ -279,13 +279,19 @@ function VatTu({ match, history, permission }) {
       align: "center",
     },
     {
-      title: "Xưởng sản xuất",
-      dataIndex: "tenPhongBan",
-      key: "tenPhongBan",
+      title: "Nhà cung cấp",
+      dataIndex: "tenNhaCungCap",
+      key: "tenNhaCungCap",
       align: "center",
     },
     {
-      title: "Người lập",
+      title: "Số hóa đơn",
+      dataIndex: "soHoaDon",
+      key: "soHoaDon",
+      align: "center",
+    },
+    {
+      title: "Người nhận",
       dataIndex: "tenNguoiYeuCau",
       key: "tenNguoiYeuCau",
       align: "center",
@@ -294,6 +300,12 @@ function VatTu({ match, history, permission }) {
       title: "Kho",
       dataIndex: "tenCauTrucKho",
       key: "tenCauTrucKho",
+      align: "center",
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "ghiChu",
+      key: "ghiChu",
       align: "center",
     },
     {

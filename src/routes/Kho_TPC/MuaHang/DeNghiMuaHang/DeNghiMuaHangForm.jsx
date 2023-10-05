@@ -1,6 +1,6 @@
 import {
   DeleteOutlined,
-  DownloadOutlined,
+  PrinterOutlined,
   PlusOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
@@ -139,7 +139,11 @@ const FormItem = Form.Item;
 
 const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
@@ -189,7 +193,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           setType("detail");
           const { id } = match.params;
           setId(id);
-          getInfo(id);
+          getInfo(id, true);
           getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -312,7 +316,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
    * Lấy thông tin
    *
    */
-  const getInfo = (id) => {
+  const getInfo = (id, check) => {
     const params = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id,
     });
@@ -337,6 +341,13 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           });
           setListVatTu(chiTiet);
           getUserLap(INFO, res.data.userYeuCau_Id);
+          res.data.userYeuCau_Id === INFO.user_Id &&
+            check &&
+            setType("UploadFile");
+          if (res.data.fileXacNhan) {
+            setFile(res.data.fileXacNhan);
+            setDisableUpload(true);
+          }
           setInfo(res.data);
           getSanPham(res.data.sanPham_Id);
           setFieldsValue({
@@ -368,7 +379,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           ? "/them-moi"
           : type === "edit"
           ? `/${id}/chinh-sua`
-          : type === "detail"
+          : type === "detail" || type === "UploadFile"
           ? `/${id}/chi-tiet`
           : `/${id}/xac-nhan`,
         ""
@@ -467,21 +478,24 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       dataIndex: "soLuong",
       key: "soLuong",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      editable:
+        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
     },
     {
       title: "Hạng mục sử dụng",
       dataIndex: "hangMucSuDung",
       key: "hangMucSuDung",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      editable:
+        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
     },
     {
       title: "Ghi chú",
       dataIndex: "ghiChu",
       key: "ghiChu",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      editable:
+        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
     },
     {
       title: "Chức năng",
@@ -633,6 +647,12 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     const newData = {
       id: id,
       isXacNhan: true,
+      chiTiet_phieumuahangs: listVatTu.map((vt) => {
+        return {
+          ...vt,
+          lkn_PhieuMuaHang_Id: id,
+        };
+      }),
     };
     new Promise((resolve, reject) => {
       dispatch(
@@ -661,6 +681,53 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   };
   const modalXK = () => {
     Modal(prop);
+  };
+  const hanldeXacNhanTaiFile = () => {
+    const formData = new FormData();
+    formData.append("file", File);
+    const url = info.fileXacNhan
+      ? `${BASE_URL_API}/api/Upload?stringPath=${info.fileXacNhan}`
+      : `${BASE_URL_API}/api/Upload`;
+    fetch(url, {
+      method: "POST",
+      body: formData,
+      headers: {
+        Authorization: "Bearer ".concat(INFO.token),
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `lkn_PhieuDeNghiMuaHang/tai-file-phieu-de-nghi/${id}`,
+              "PUT",
+              { id: id, file: data.path },
+              "GUIPHIEU",
+              "",
+              resolve,
+              reject
+            )
+          );
+        })
+          .then((res) => {
+            if (res.status !== 409) getInfo(id, true);
+          })
+          .catch((error) => console.error(error));
+      })
+      .catch(() => {
+        console.log("upload failed.");
+      });
+  };
+  const prop1 = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận tải file đã ký",
+    onOk: hanldeXacNhanTaiFile,
+  };
+  const modalUploadFile = () => {
+    Modal(prop1);
   };
   const hanldeTuChoi = () => {
     setActiveModalTuChoi(true);
@@ -692,23 +759,13 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
 
   const formTitle =
     type === "new" ? (
-      "Tạo đề nghị mua hàng "
+      "Tạo phiếu đề nghị mua hàng "
     ) : type === "edit" ? (
-      "Chỉnh sửa đề nghị mua hàng"
+      "Chỉnh sửa phiếu đề nghị mua hàng"
     ) : (
       <span>
-        Chi tiết đề nghị mua hàng -{" "}
-        <Tag
-          color={
-            info.isKiemTraXacNhan === null
-              ? "processing"
-              : info.isKeToanXacNhan === null
-              ? "volcano"
-              : info.isXacNhan === null
-              ? "success"
-              : "error"
-          }
-        >
+        Chi tiết phiếu đề nghị mua hàng -{" "}
+        <Tag color={info.isXacNhan === true ? "success" : "blue"}>
           {info.maPhieuYeuCau}
         </Tag>
       </span>
@@ -803,9 +860,30 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       setOpenImage(true);
     }
   };
+  const handlePrint = () => {};
+
+  const addButtonRender = () => {
+    return (
+      <>
+        <Button
+          icon={<PrinterOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handlePrint}
+          disabled={permission && !permission.print}
+        >
+          In phiếu
+        </Button>
+      </>
+    );
+  };
   return (
     <div className="gx-main-content">
-      <ContainerHeader title={formTitle} back={goBack} />
+      <ContainerHeader
+        title={formTitle}
+        back={goBack}
+        buttons={addButtonRender()}
+      />
       <Card className="th-card-margin-bottom">
         <Form
           {...DEFAULT_FORM_CUSTOM}
@@ -848,33 +926,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 ]}
               >
                 <Input className="input-item" disabled={true} />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Phiếu mua hàng"
-                name={["dinhmucvattu", "isCKD"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-                initialValue={"true"}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={[
-                    { id: "true", name: "Phiếu đề nghị mua hàng CKD" },
-                    { id: "false", name: "Phiếu đề nghị mua hàng" },
-                  ]}
-                  placeholder="Chọn phiếu mua hàng"
-                  optionsvalue={["id", "name"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" ? false : true}
-                />
               </FormItem>
             </Col>
             <Col span={12}>
@@ -985,7 +1036,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
-                  placeholder="Chọn người duỵet"
+                  placeholder="Chọn người duyệt"
                   optionsvalue={["user_Id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
@@ -996,11 +1047,13 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             </Col>
           </Row>
           <Divider />
-          {type === "xacnhan" && (
+          {(type === "UploadFile" ||
+            type === "xacnhan" ||
+            type === "detail") && (
             <Row>
               <Col span={12}>
                 <FormItem
-                  label="Tải file đã ký"
+                  label="File đã ký"
                   name={["dinhmucvattu", "userDuyet_Id"]}
                 >
                   {!disableUpload ? (
@@ -1012,6 +1065,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                           lineHeight: "25px",
                         }}
                         icon={<UploadOutlined />}
+                        disabled={type === "xacnhan" || type === "detail"}
                       >
                         Tải file
                       </Button>
@@ -1063,23 +1117,16 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                       <a target="_blank" href={BASE_URL_API + File}>
                         {File.split("/")[5]}{" "}
                       </a>
-                      {(type === "new" || type === "edit") && (
-                        <DeleteOutlined
-                          style={{ cursor: "pointer", color: "red" }}
-                          disabled={
-                            type === "new" || type === "edit" ? false : true
-                          }
-                          onClick={() => {
-                            setFile();
-                            setDisableUpload(false);
-                            setFieldsValue({
-                              phieunhanhang: {
-                                fileDinhKem: undefined,
-                              },
-                            });
-                          }}
-                        />
-                      )}
+                      {type === "UploadFile" &&
+                        (!info.isXacNhan || info.isXacNhan !== true) && (
+                          <DeleteOutlined
+                            style={{ cursor: "pointer", color: "red" }}
+                            onClick={() => {
+                              setFile();
+                              setDisableUpload(false);
+                            }}
+                          />
+                        )}
                     </span>
                   )}
                 </FormItem>
@@ -1172,6 +1219,20 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             </Col>
           </Row>
         )}
+        {type === "UploadFile" &&
+          (!info.isXacNhan || info.isXacNhan !== true) && (
+            <Row justify={"end"} style={{ marginTop: 15 }}>
+              <Col style={{ marginRight: 15 }}>
+                <Button
+                  type="primary"
+                  onClick={modalUploadFile}
+                  disabled={!disableUpload || !File.name}
+                >
+                  Hoàn thành
+                </Button>
+              </Col>
+            </Row>
+          )}
       </Card>
       <ModalTuChoi
         openModal={ActiveModalTuChoi}

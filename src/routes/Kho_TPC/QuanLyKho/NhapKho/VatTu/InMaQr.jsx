@@ -29,7 +29,7 @@ function InMaQr() {
                 textAlign: "center",
               }}
             >
-              <p style={{ fontSize: 5, margin: "3px 0", color: "red" }}>
+              <p style={{ fontSize: 8, margin: "3px 0", color: "red" }}>
                 {d && d.maVatTu}
               </p>
               <QRCode

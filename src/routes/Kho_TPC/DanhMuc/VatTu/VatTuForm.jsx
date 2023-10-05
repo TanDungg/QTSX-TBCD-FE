@@ -333,6 +333,7 @@ function VatTuForm({ match, permission, history }) {
               rules={[
                 {
                   type: "string",
+                  required: true,
                 },
               ]}
             >

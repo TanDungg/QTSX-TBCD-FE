@@ -3,7 +3,17 @@ import {
   PlusOutlined,
   PrinterOutlined,
 } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Col,
+  DatePicker,
+  Button,
+  Tag,
+  Divider,
+} from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -26,7 +36,6 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
-import AddVatTuModal from "./AddVatTuModal";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -121,7 +130,7 @@ const EditableCell = ({
 
 const FormItem = Form.Item;
 
-const VatTuForm = ({ history, match, permission }) => {
+const CKDForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [type, setType] = useState("new");
@@ -133,8 +142,9 @@ const VatTuForm = ({ history, match, permission }) => {
   const [ListUser, setListUser] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [ListMaPhieu, setListMaPhieu] = useState([]);
-  const [ActiveModal, setActiveModal] = useState(false);
-  const [ListUserKy, setListUserKy] = useState([]);
+  const [SanPham_Id, setSanPham_Id] = useState();
+  const [ListSanPham, setListSanPham] = useState([]);
+  const [SoLuong, setSoLuong] = useState();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
@@ -144,8 +154,7 @@ const VatTuForm = ({ history, match, permission }) => {
           getUserLap(INFO);
           setType("new");
           getNhaCungCap();
-          getUserKy(INFO);
-
+          getSanPham();
           getKho();
           getMaPhieu();
           setFieldsValue({
@@ -190,30 +199,7 @@ const VatTuForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const getUserKy = (info) => {
-    const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `Account/get-cbnv?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        setListUserKy(res.data.datalist);
-      } else {
-        setListUserKy([]);
-      }
-    });
-  };
+
   const getUserLap = (info, nguoiLap_Id) => {
     const params = convertObjectToUrlParams({
       id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
@@ -244,7 +230,27 @@ const VatTuForm = ({ history, match, permission }) => {
       }
     });
   };
-
+  const getSanPham = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `SanPham?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListSanPham(res.data);
+      } else {
+        setListSanPham([]);
+      }
+    });
+  };
   const getNhaCungCap = (id) => {
     if (id) {
       new Promise((resolve, reject) => {
@@ -417,8 +423,8 @@ const VatTuForm = ({ history, match, permission }) => {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "vật tư";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
+    const title = "sản phẩm";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenSanPham, title);
   };
 
   /**
@@ -427,8 +433,11 @@ const VatTuForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter((d) => d.id !== item.id);
+    const newData = listVatTu.filter((d) => d.sanPham_Id !== item.sanPham_Id);
     setListVatTu(newData);
+    const newListSanPham = [...ListSanPham];
+    newListSanPham.push(item);
+    setListSanPham(newListSanPham);
   };
 
   /**
@@ -452,26 +461,7 @@ const VatTuForm = ({ history, match, permission }) => {
       </div>
     );
   };
-  const renderDatePicker = (val, record) => {
-    return (
-      <DatePicker
-        format={"DD/MM/YYYY"}
-        disabled={type === "new" || type === "edit" ? false : true}
-        value={moment(val, "DD/MM/YYYY")}
-        allowClear={false}
-        onChange={(date, dateString) => {
-          const newVatTu = [...listVatTu];
-          newVatTu.forEach((vt, index) => {
-            if (vt.vatTu_Id === record.vatTu_Id) {
-              newVatTu[index].thoiGianSuDung = dateString;
-            }
-          });
-          setListVatTu(newVatTu);
-          setFieldTouch(true);
-        }}
-      />
-    );
-  };
+
   let colValues = [
     {
       title: "STT",
@@ -481,15 +471,15 @@ const VatTuForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      title: "Mã sản phẩm",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
       align: "center",
     },
     {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      title: "Tên sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       align: "center",
     },
     {
@@ -498,26 +488,22 @@ const VatTuForm = ({ history, match, permission }) => {
       key: "tenDonViTinh",
       align: "center",
     },
+
     {
       title: "Số lượng",
-      dataIndex: "soLuongNhap",
-      key: "soLuongNhap",
+      dataIndex: "soLuong",
+      key: "soLuong",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
-    },
-    {
-      title: "Thời gian sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
-      align: "center",
-      render: (val, record) => renderDatePicker(val, record),
+      editable:
+        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
     },
     {
       title: "Ghi chú",
       dataIndex: "ghiChu",
       key: "ghiChu",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      editable:
+        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
     },
     {
       title: "Chức năng",
@@ -700,9 +686,6 @@ const VatTuForm = ({ history, match, permission }) => {
   const modalXK = () => {
     Modal(prop);
   };
-  const hanlde = () => {
-    setActiveModal(true);
-  };
   const save = (val) => {
     const newData = {
       id: id,
@@ -730,12 +713,12 @@ const VatTuForm = ({ history, match, permission }) => {
 
   const formTitle =
     type === "new" ? (
-      "Tạo phiếu nhập kho vật tư "
+      "Tạo phiếu nhập kho CKD "
     ) : type === "edit" ? (
-      "Chỉnh sửa phiếu nhập kho vật tư"
+      "Chỉnh sửa phiếu nhập kho CKD"
     ) : (
       <span>
-        Chi tiết phiếu nhập kho vật tư -{" "}
+        Chi tiết phiếu nhập kho CKD -{" "}
         <Tag color={"success"}>{info.maPhieuNhapKhoVatTu}</Tag>
       </span>
     );
@@ -776,35 +759,44 @@ const VatTuForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
-  const handlePrint = () => {
-    history.push({
-      pathname: `/quan-ly-kho-tpc/thong-tin-vat-tu/nhap-kho/inMa`,
-      state: { thongTinVatTu: listVatTu, info: info },
-    });
-  };
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={(permission && !permission.print) || listVatTu.length === 0}
-        >
-          In mã QrCode
-        </Button>
-      </>
-    );
+
+  const hanldeThem = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `SanPham/${SanPham_Id}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          res.data.soLuong = SoLuong;
+          res.data.sanPham_Id = res.data.id;
+          const newData = ListSanPham.filter((d) => d.id !== SanPham_Id);
+          setListSanPham(newData);
+          setListVatTu([...listVatTu, res.data]);
+          setFieldsValue({
+            sanPham: {
+              sanPham_Id: "",
+              soLuong: "",
+            },
+          });
+          setSanPham_Id();
+          setSoLuong();
+        }
+      })
+      .catch((error) => console.error(error));
   };
   const dataList = reDataForTable(listVatTu);
   return (
     <div className="gx-main-content">
-      <ContainerHeader
-        title={formTitle}
-        back={goBack}
-        buttons={addButtonRender()}
-      />
+      <ContainerHeader title={formTitle} back={goBack} />
       <Card className="th-card-margin-bottom">
         <Form
           {...DEFAULT_FORM_CUSTOM}
@@ -994,87 +986,59 @@ const VatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
-              <FormItem
-                label="BP.QC"
-                name={["phieunhapkho", "userQC_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn BP.QC"
-                  optionsvalue={["user_Id", "fullName"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Thống kê"
-                name={["phieunhapkho", "userThongKe_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn thống kê"
-                  optionsvalue={["user_Id", "fullName"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Phụ trách bộ phận"
-                name={["phieunhapkho", "userPhuTrach_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn phụ trách bộ phận"
-                  optionsvalue={["user_Id", "fullName"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            {/* {type === "new" || type === "edit" ? (
-              <Col span={12} align="center">
-                <Button
-                  icon={<PlusOutlined />}
-                  type="primary"
-                  onClick={() => setActiveModal(true)}
-                >
-                  Nhập vật tư
-                </Button>
-              </Col>
-            ) : null} */}
           </Row>
+          <Divider />
+          {(type === "new" || type === "edit") && (
+            <Row style={{ marginTop: 15 }}>
+              <Col span={12}>
+                <FormItem
+                  label="Sản phẩm"
+                  name={["sanPham", "sanPham_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListSanPham ? ListSanPham : []}
+                    placeholder="Chọn sản phẩm"
+                    optionsvalue={["id", "tenSanPham"]}
+                    style={{ width: "100%" }}
+                    onChange={(val) => setSanPham_Id(val)}
+                    showSearch
+                    optionFilterProp="name"
+                    disabled={type === "new" || type === "edit" ? false : true}
+                  />
+                </FormItem>
+              </Col>
+              <Col span={12}>
+                <FormItem label="Số lượng" name={["sanPham", "soLuong"]}>
+                  <Input
+                    className="input-item"
+                    placeholder="Nhập số lượng nhập"
+                    type="number"
+                    onChange={(e) => setSoLuong(e.target.value)}
+                    disabled={type === "new" || type === "edit" ? false : true}
+                  />
+                </FormItem>
+              </Col>
+              <Col span={12}></Col>
+              {type === "new" || type === "edit" ? (
+                <Col span={12} align="center">
+                  <Button
+                    icon={<PlusOutlined />}
+                    type="primary"
+                    onClick={hanldeThem}
+                    disabled={!SanPham_Id || !SoLuong}
+                  >
+                    Thêm
+                  </Button>
+                </Col>
+              ) : null}
+            </Row>
+          )}
         </Form>
         <Table
           bordered
@@ -1121,4 +1085,4 @@ const VatTuForm = ({ history, match, permission }) => {
   );
 };
 
-export default VatTuForm;
+export default CKDForm;
