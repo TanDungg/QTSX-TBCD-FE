@@ -68,7 +68,9 @@ function ThanhPham({ match, history, permission }) {
       page,
       donVi_Id: INFO.donVi_Id,
     });
-    dispatch(fetchStart(`lkn_PhieuDatHangNoiBo?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(`lkn_PhieuNhapKhoThanhPham?${param}`, "GET", null, "LIST")
+    );
   };
   const getBanPhong = () => {
     new Promise((resolve, reject) => {
@@ -86,7 +88,13 @@ function ThanhPham({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListBanPhong(res.data);
+          const xuong = [];
+          res.data.forEach((x) => {
+            if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+              xuong.push(x);
+            }
+          });
+          setListBanPhong(xuong);
         } else {
           setListBanPhong([]);
         }
@@ -119,24 +127,8 @@ function ThanhPham({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const detailItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <EyeOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
-        </span>
-      );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
+      permission && permission.edit ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -152,13 +144,11 @@ function ThanhPham({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {detailItem}
-        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -179,7 +169,7 @@ function ThanhPham({ match, history, permission }) {
       deleteItemAction,
       item,
       item.maPhieuYeuCau,
-      "phiếu đặt hàng nội bộ"
+      "phiếu nhập kho thành phẩm"
     );
   };
 
@@ -189,7 +179,7 @@ function ThanhPham({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDatHangNoiBo/${item.id}`;
+    let url = `lkn_PhieuNhapKhoThanhPham/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -263,10 +253,10 @@ function ThanhPham({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuYeuCau}
+          {val.maPhieuNhapKhoThanhPham}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuYeuCau}</span>
+        <span disabled>{val.maPhieuNhapKhoThanhPham}</span>
       );
     return <div>{detail}</div>;
   };
@@ -279,21 +269,21 @@ function ThanhPham({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu yêu cầu",
-      key: "maPhieuYeuCau",
+      title: "Mã phiếu nhập kho",
+      key: "maPhieuNhapKhoThanhPham",
       align: "center",
       render: (val) => renderDetail(val),
-    },
-    {
-      title: "Ngày xuất",
-      dataIndex: "ngayXuat",
-      key: "ngayXuat",
-      align: "center",
     },
     {
       title: "Xưởng sản xuất",
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
+      align: "center",
+    },
+    {
+      title: "Ngày nhập",
+      dataIndex: "ngayNhap",
+      key: "ngayNhap",
       align: "center",
     },
     {
@@ -304,8 +294,8 @@ function ThanhPham({ match, history, permission }) {
     },
     {
       title: "Kho",
-      dataIndex: "kho",
-      key: "kho",
+      dataIndex: "tenCauTrucKho",
+      key: "tenCauTrucKho",
       align: "center",
     },
     {
@@ -387,11 +377,11 @@ function ThanhPham({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Ban/Phòng:</h5>
+            <h5>Xưởng sản xuất:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListBanPhong ? ListBanPhong : []}
-              placeholder="Chọn Ban/Phòng"
+              placeholder="Chọn Xưởng sản xuất"
               optionsvalue={["id", "tenPhongBan"]}
               style={{ width: "100%" }}
               showSearch

@@ -462,6 +462,12 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
+      title: "Số lượng sản phẩm",
+      dataIndex: "soLuongSanPham",
+      key: "soLuongSanPham",
+      align: "center",
+    },
+    {
       title: "Số lượng theo định mức",
       dataIndex: "soLuongTheoDinhMuc",
       key: "soLuongTheoDinhMuc",
@@ -518,7 +524,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     newData.splice(index, 1, {
       ...item,
       ...row,
-      soLuongTheoDinhMuc: row.soLuong * row.dinhMuc,
     });
     // setDisableSave(true);
     setListVatTu(newData);
@@ -668,7 +673,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       );
     })
       .then((res) => {
-        if (res.status !== 409) goBack();
+        if (res.status !== 409) getInfo(id);
       })
       .catch((error) => console.error(error));
   };
@@ -752,7 +757,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       );
     })
       .then((res) => {
-        if (res.status !== 409) goBack();
+        if (res.status !== 409) getInfo(id);
       })
       .catch((error) => console.error(error));
   };
@@ -798,11 +803,12 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 soLuongTheoDinhMuc: ct.dinhMuc * SoLuong,
                 ghiChu: "",
                 hangMucSuDung: "",
-                soLuong: SoLuong,
+                soLuong: ct.dinhMuc * SoLuong,
                 tenDonViTinh: ct.tenDonViTinh,
                 tenNhomVatTu: ct.tenNhomVatTu,
                 tenSanPham: res.data.tenSanPham,
                 bom_Id: res.data.id,
+                soLuongSanPham: SoLuong,
               };
             });
           if (newData) {
@@ -1159,10 +1165,13 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col span={12}>
-                <FormItem label="SL cần mua" name={["sanPham", "soLuong"]}>
+                <FormItem
+                  label="Số lượng sản phẩm"
+                  name={["sanPham", "soLuong"]}
+                >
                   <Input
                     className="input-item"
-                    placeholder="Nhập số lượng cần mua"
+                    placeholder="Nhập số lượng sản phẩm"
                     type="number"
                     onChange={(e) => setSoLuong(e.target.value)}
                     disabled={type === "new" || type === "edit" ? false : true}

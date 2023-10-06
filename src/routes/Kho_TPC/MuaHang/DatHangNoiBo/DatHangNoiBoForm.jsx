@@ -1,5 +1,21 @@
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
+import {
+  DeleteOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Col,
+  DatePicker,
+  Button,
+  Tag,
+  Upload,
+  Image,
+  Divider,
+} from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -21,10 +37,12 @@ import {
   getLocalStorage,
   getTokenInfo,
   reDataForTable,
+  renderPDF,
 } from "src/util/Common";
 import AddVatTuModal from "./AddVatTuModal";
 import ModalTuChoi from "./ModalTuChoi";
-
+import { BASE_URL_API } from "src/constants/Config";
+import Helper from "src/helpers";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -121,7 +139,11 @@ const FormItem = Form.Item;
 
 const DatHangNoiBoForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
@@ -130,7 +152,10 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
   const [ListNhaCungCap, setListNhaCungCap] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
-
+  const [disableUpload, setDisableUpload] = useState(false);
+  const [FileChat, setFileChat] = useState("");
+  const [File, setFile] = useState("");
+  const [openImage, setOpenImage] = useState(false);
   const [ActiveModal, setActiveModal] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
 
@@ -168,7 +193,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
           setType("detail");
           const { id } = match.params;
           setId(id);
-          getInfo(id);
+          getInfo(id, true);
           getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -290,7 +315,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
    * Lấy thông tin
    *
    */
-  const getInfo = (id) => {
+  const getInfo = (id, check) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -313,6 +338,13 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
               : []
           );
           getUserLap(INFO, res.data.userYeuCau_Id);
+          res.data.userYeuCau_Id === INFO.user_Id &&
+            check &&
+            setType("UploadFile");
+          if (res.data.fileXacNhan) {
+            setFile(res.data.fileXacNhan);
+            setDisableUpload(true);
+          }
           setInfo(res.data);
           getNhaCungCap(res.data.userNhan_Id);
           setFieldsValue({
@@ -340,7 +372,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
           ? "/them-moi"
           : type === "edit"
           ? `/${id}/chinh-sua`
-          : type === "detail"
+          : type === "detail" || type === "UploadFile"
           ? `/${id}/chi-tiet`
           : `/${id}/xac-nhan`,
         ""
@@ -446,21 +478,24 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       dataIndex: "soLuong",
       key: "soLuong",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      editable:
+        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
     },
     {
       title: "Hạng mục sử dụng",
       dataIndex: "hangMucSuDung",
       key: "hangMucSuDung",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      editable:
+        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
     },
     {
       title: "Ghi chú",
       dataIndex: "ghiChu",
       key: "ghiChu",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      editable:
+        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
     },
     {
       title: "Chức năng",
@@ -616,6 +651,12 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
     const newData = {
       id: id,
       isXacNhan: true,
+      chiTiet_phieumuahangs: listVatTu.map((vt) => {
+        return {
+          ...vt,
+          lkn_PhieuMuaHang_Id: id,
+        };
+      }),
     };
     new Promise((resolve, reject) => {
       dispatch(
@@ -631,7 +672,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       );
     })
       .then((res) => {
-        if (res.status !== 409) goBack();
+        if (res.status !== 409) getInfo(id);
       })
       .catch((error) => console.error(error));
   };
@@ -644,6 +685,53 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
   };
   const modalXK = () => {
     Modal(prop);
+  };
+  const hanldeXacNhanTaiFile = () => {
+    const formData = new FormData();
+    formData.append("file", File);
+    const url = info.fileXacNhan
+      ? `${BASE_URL_API}/api/Upload?stringPath=${info.fileXacNhan}`
+      : `${BASE_URL_API}/api/Upload`;
+    fetch(url, {
+      method: "POST",
+      body: formData,
+      headers: {
+        Authorization: "Bearer ".concat(INFO.token),
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `lkn_PhieuDatHangNoiBo/tai-file-dat-hang-noi-bo/${id}`,
+              "PUT",
+              { id: id, file: data.path },
+              "GUIPHIEU",
+              "",
+              resolve,
+              reject
+            )
+          );
+        })
+          .then((res) => {
+            if (res.status !== 409) getInfo(id, true);
+          })
+          .catch((error) => console.error(error));
+      })
+      .catch(() => {
+        console.log("upload failed.");
+      });
+  };
+  const prop1 = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận tải file đã ký",
+    onOk: hanldeXacNhanTaiFile,
+  };
+  const modalUploadFile = () => {
+    Modal(prop1);
   };
   const hanldeTuChoi = () => {
     setActiveModalTuChoi(true);
@@ -668,11 +756,37 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       );
     })
       .then((res) => {
-        if (res.status !== 409) goBack();
+        if (res.status !== 409) getInfo(id);
       })
       .catch((error) => console.error(error));
   };
-
+  const props = {
+    beforeUpload: (file) => {
+      const isPNG =
+        file.type === "image/png" ||
+        file.type === "image/jpeg" ||
+        file.type === "application/pdf";
+      if (!isPNG) {
+        Helper.alertError(`${file.name} không phải hình ảnh hoặc file pdf`);
+      } else {
+        setFile(file);
+        setDisableUpload(true);
+        const reader = new FileReader();
+        reader.onload = (e) => setFileChat(e.target.result);
+        reader.readAsDataURL(file);
+        return false;
+      }
+    },
+    showUploadList: false,
+    maxCount: 1,
+  };
+  const handleViewFile = (file) => {
+    if (file.type === "application/pdf") {
+      renderPDF(file);
+    } else {
+      setOpenImage(true);
+    }
+  };
   const formTitle =
     type === "new" ? (
       "Tạo phiếu đặt hàng nội bộ "
@@ -1050,6 +1164,95 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
               </FormItem>
             </Col>
           </Row>
+          {(type === "UploadFile" ||
+            type === "xacnhan" ||
+            type === "detail") && (
+            <>
+              <Divider />
+              <Row>
+                <Col span={12}>
+                  <FormItem
+                    label="File đã ký"
+                    name={["dinhmucvattu", "userDuyet_Id"]}
+                  >
+                    {!disableUpload ? (
+                      <Upload {...props}>
+                        <Button
+                          style={{
+                            marginBottom: 0,
+                            height: 25,
+                            lineHeight: "25px",
+                          }}
+                          icon={<UploadOutlined />}
+                          disabled={type === "xacnhan" || type === "detail"}
+                        >
+                          Tải file
+                        </Button>
+                      </Upload>
+                    ) : File.name ? (
+                      <span>
+                        <span
+                          style={{ color: "#0469B9", cursor: "pointer" }}
+                          onClick={() => handleViewFile(File)}
+                        >
+                          {File.name.length > 20
+                            ? File.name.substring(0, 20) + "..."
+                            : File.name}{" "}
+                        </span>
+                        <DeleteOutlined
+                          style={{ cursor: "pointer", color: "red" }}
+                          disabled={
+                            type === "new" || type === "edit" ? false : true
+                          }
+                          onClick={() => {
+                            setFile();
+                            setDisableUpload(false);
+                            setFieldsValue({
+                              phieunhanhang: {
+                                fileDinhKem: undefined,
+                              },
+                            });
+                          }}
+                        />
+                        <Image
+                          width={100}
+                          src={FileChat}
+                          alt="preview"
+                          style={{
+                            display: "none",
+                          }}
+                          preview={{
+                            visible: openImage,
+                            scaleStep: 0.5,
+                            src: FileChat,
+                            onVisibleChange: (value) => {
+                              setOpenImage(value);
+                            },
+                          }}
+                        />
+                      </span>
+                    ) : (
+                      <span>
+                        <a target="_blank" href={BASE_URL_API + File}>
+                          {File.split("/")[5]}{" "}
+                        </a>
+                        {type === "UploadFile" &&
+                          (!info.isXacNhan || info.isXacNhan !== true) && (
+                            <DeleteOutlined
+                              style={{ cursor: "pointer", color: "red" }}
+                              onClick={() => {
+                                setFile();
+                                setDisableUpload(false);
+                              }}
+                            />
+                          )}
+                      </span>
+                    )}
+                  </FormItem>
+                </Col>
+              </Row>
+            </>
+          )}
         </Form>
         {(type === "new" || type === "edit") && (
           <Row>
@@ -1099,6 +1302,20 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
             </Col>
           </Row>
         )}
+        {type === "UploadFile" &&
+          (!info.isXacNhan || info.isXacNhan !== true) && (
+            <Row justify={"end"} style={{ marginTop: 15 }}>
+              <Col style={{ marginRight: 15 }}>
+                <Button
+                  type="primary"
+                  onClick={modalUploadFile}
+                  disabled={!disableUpload || !File.name}
+                >
+                  Hoàn thành
+                </Button>
+              </Col>
+            </Row>
+          )}
       </Card>
       <AddVatTuModal
         openModal={ActiveModal}

@@ -9,7 +9,7 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty, remove } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -230,29 +230,10 @@ function TheoDoiDonHang({ match, history, permission }) {
     loadData(keyword, BanPhong, FromDate, ToDate, pagination, LoaiDonHang);
   };
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
-  };
   const handlePrint = () => {};
   const addButtonRender = () => {
     return (
       <>
-        {/* <Button
-          icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleRedirect}
-          disabled={permission && !permission.add}
-        >
-          Tạo phiếu
-        </Button> */}
         <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
@@ -391,16 +372,6 @@ function TheoDoiDonHang({ match, history, permission }) {
     setSelectedKeys(newKeys);
   }
 
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
   const handleOnSelectBanPhong = (val) => {
     setBanPhong(val);
     setPage(1);
@@ -419,7 +390,7 @@ function TheoDoiDonHang({ match, history, permission }) {
   const handleClearLoaiDonHang = (val) => {
     setLoaiDonHang("");
     setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1, LoaiDonHang);
+    loadData(keyword, BanPhong, FromDate, ToDate, 1, "");
   };
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
@@ -501,26 +472,6 @@ function TheoDoiDonHang({ match, history, permission }) {
           </Col>
         </Row>
         <Table
-          // rowSelection={{
-          //   type: "checkbox",
-          //   ...rowSelection,
-          //   preserveSelectedRowKeys: true,
-          //   selectedRowKeys: selectedKeys,
-          //   getCheckboxProps: (record) => ({}),
-          // }}
-          // onRow={(record, rowIndex) => {
-          //   return {
-          //     onClick: (e) => {
-          //       const found = find(selectedKeys, (k) => k === record.key);
-          //       if (found === undefined) {
-          //         setSelectedDevice([record]);
-          //         setSelectedKeys([record.key]);
-          //       } else {
-          //         hanldeRemoveSelected(record);
-          //       }
-          //     },
-          //   };
-          // }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}

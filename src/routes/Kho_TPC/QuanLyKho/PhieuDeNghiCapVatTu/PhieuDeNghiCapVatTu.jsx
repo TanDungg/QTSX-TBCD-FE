@@ -60,17 +60,27 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const loadData = (
+    keyword,
+    userid,
+    XuongSanXuat_Id,
+    tuNgay,
+    denNgay,
+    page,
+    checkQL
+  ) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
+      userid,
+      XuongSanXuat_Id,
       tuNgay,
       denNgay,
       keyword,
       page,
-      donVi_Id: INFO.donVi_Id,
+      checkQL,
+      // donVi_Id: INFO.donVi_Id,
     });
     dispatch(
-      fetchStart(`lkn_PhieuDeNghiMuaHang?${param}`, "GET", null, "LIST")
+      fetchStart(`lkn_PhieuDeNghiCapVatTu?${param}`, "GET", null, "LIST")
     );
   };
   const getBanPhong = () => {
@@ -89,7 +99,13 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListBanPhong(res.data);
+          const xuong = [];
+          res.data.forEach((x) => {
+            if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+              xuong.push(x);
+            }
+          });
+          setListBanPhong(xuong);
         } else {
           setListBanPhong([]);
         }

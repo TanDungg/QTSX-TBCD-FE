@@ -224,8 +224,17 @@ export const getDateNow = (number, check = false) => {
   } else {
     day =
       (date.getDate().toString().length === 1
-        ? "0" + (date.getDate() - (number ? number : 0))
-        : date.getDate() - (number ? number : 0)) +
+        ? "0" +
+          (number
+            ? number > 0
+              ? date.getDate() - number
+              : date.getDate() + Math.abs(number)
+            : date.getDate())
+        : number
+        ? number > 0
+          ? date.getDate() - number
+          : date.getDate() + Math.abs(number)
+        : date.getDate()) +
       "/" +
       ((date.getMonth() + 1).toString().length === 1
         ? "0" + (date.getMonth() + 1)

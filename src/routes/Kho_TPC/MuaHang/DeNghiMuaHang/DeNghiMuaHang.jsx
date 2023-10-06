@@ -159,7 +159,7 @@ function DeNghiMuaHang({ match, history, permission }) {
         </span>
       );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
+      permission && permission.edit && !item.fileXacNhan ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -175,7 +175,7 @@ function DeNghiMuaHang({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
+      permission && permission.del && !item.fileXacNhan
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (

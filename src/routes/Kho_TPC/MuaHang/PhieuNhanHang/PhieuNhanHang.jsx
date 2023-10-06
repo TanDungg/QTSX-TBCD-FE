@@ -3,7 +3,7 @@ import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty, remove } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -35,11 +35,11 @@ function PhieuNhanHang({ match, history, permission }) {
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [ListBanPhong, setListBanPhong] = useState([]);
+  const [ListUserYeuCau, setListUserYeuCau] = useState([]);
   const [BanPhong, setBanPhong] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
-      getBanPhong();
+      getUserYeuCau();
       loadData(keyword, BanPhong, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
@@ -64,11 +64,11 @@ function PhieuNhanHang({ match, history, permission }) {
     });
     dispatch(fetchStart(`lkn_PhieuNhanHang?${param}`, "GET", null, "LIST"));
   };
-  const getBanPhong = () => {
+  const getUserYeuCau = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          `lkn_PhieuNhanHang/list-user-lap-phieu-nhan-hang`,
           "GET",
           null,
           "DETAIL",
@@ -80,9 +80,9 @@ function PhieuNhanHang({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListBanPhong(res.data);
+          setListUserYeuCau(res.data);
         } else {
-          setListBanPhong([]);
+          setListUserYeuCau([]);
         }
       })
       .catch((error) => console.error(error));
@@ -269,13 +269,13 @@ function PhieuNhanHang({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu mua hàng",
+      title: "Mã phiếu nhận hàng",
       key: "maPhieuNhanHang",
       align: "center",
       render: (val) => renderDetail(val),
     },
     {
-      title: "Mã phiếu yêu cầu",
+      title: "Mã phiếu mua hàng",
       dataIndex: "maPhieuYeuCau",
       key: "maPhieuYeuCau",
       align: "center",
@@ -393,15 +393,14 @@ function PhieuNhanHang({ match, history, permission }) {
             <h5>Người yêu cầu:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListBanPhong ? ListBanPhong : []}
+              data={ListUserYeuCau ? ListUserYeuCau : []}
               placeholder="Chọn người yêu cầu"
-              optionsvalue={["id", "tenPhongBan"]}
+              optionsvalue={["nguoiLap_Id", "tennguoiLap"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
               onSelect={handleOnSelectBanPhong}
               value={BanPhong}
-              onChange={(value) => setBanPhong(value)}
               allowClear
               onClear={handleClearBanPhong}
             />

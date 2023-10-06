@@ -71,6 +71,8 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
           const chiTiet = JSON.parse(res.data.chiTietTheoDoiDonHang);
           chiTiet.forEach((ct, index) => {
             chiTiet[index].ngayHoanThanhDukien = data.ngayHoanThanhDukien;
+            chiTiet[index].ngayHangVe = data.ngayHangVe;
+            chiTiet[index].tenThuMua = data.tenThuMua;
           });
           setListVatTu(chiTiet);
           setInfo(data);
@@ -137,12 +139,6 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
       width: 45,
     },
     {
-      title: "Sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
-      align: "center",
-    },
-    {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
@@ -180,14 +176,14 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
     },
     {
       title: "CV Thu mua",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
+      dataIndex: "tenThuMua",
+      key: "tenThuMua",
       align: "center",
     },
     {
       title: "Ngày nhận hàng",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
+      dataIndex: "ngayHangVe",
+      key: "ngayHangVe",
       align: "center",
     },
     {
@@ -257,7 +253,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
 
   const formTitle = (
     <span>
-      Chi tiết theo dõi đơn hàng - <Tag color="green">{info.tinhTrang}</Tag>
+      Chi tiết theo dõi đơn hàng - <Tag color="green">{info.maPhieuYeuCau}</Tag>
     </span>
   );
 

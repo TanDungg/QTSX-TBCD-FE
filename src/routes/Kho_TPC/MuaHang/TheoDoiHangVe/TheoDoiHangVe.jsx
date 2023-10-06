@@ -261,12 +261,6 @@ function TheoDoiHangVe({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
-      align: "center",
-    },
-    {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
@@ -284,12 +278,7 @@ function TheoDoiHangVe({ match, history, permission }) {
       key: "tenDonViTinh",
       align: "center",
     },
-    {
-      title: "Số lượng mua",
-      dataIndex: "soLuongMua",
-      key: "soLuongMua",
-      align: "center",
-    },
+
     {
       title: "Hạng mục sử dụng",
       dataIndex: "hangMucSuDung",
@@ -312,6 +301,12 @@ function TheoDoiHangVe({ match, history, permission }) {
       title: "Ngày nhận hàng",
       dataIndex: "tenNguoiYeuCau",
       key: "tenNguoiYeuCau",
+      align: "center",
+    },
+    {
+      title: "Số lượng mua",
+      dataIndex: "soLuongMua",
+      key: "soLuongMua",
       align: "center",
     },
     {

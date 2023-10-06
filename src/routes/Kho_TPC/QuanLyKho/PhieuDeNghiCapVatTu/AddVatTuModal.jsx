@@ -47,6 +47,14 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
   const handleSubmit = () => {
     validateFields()
       .then((values) => {
+        listVatTu.forEach((vt) => {
+          if (vt.id === values.vatTu.vatTu_Id) {
+            values.vatTu.tenNhomVatTu = vt.tenNhomVatTu;
+            values.vatTu.tenDonViTinh = vt.tenDonViTinh;
+            values.vatTu.tenVatTu = vt.tenVatTu;
+          }
+        });
+        console.log(values.vatTu);
         addVatTu(values.vatTu);
         openModalFS(false);
         resetFields();
@@ -85,7 +93,7 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã vật tư"
+            label="Vật tư"
             name={["vatTu", "vatTu_Id"]}
             rules={[
               {
@@ -105,7 +113,7 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
             />
           </FormItem>
           <FormItem
-            label="Tên vật tư"
+            label="Nhóm vật tư"
             name={["vatTu", "vatTu_Id"]}
             rules={[
               {
@@ -117,8 +125,8 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
             <Select
               className="heading-select slt-search th-select-heading"
               data={listVatTu ? listVatTu : []}
-              placeholder="Chọn vật tư"
-              optionsvalue={["id", "tenVatTu"]}
+              placeholder="Nhóm vật tư"
+              optionsvalue={["id", "tenNhomVatTu"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
@@ -138,8 +146,8 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
             <Select
               className="heading-select slt-search th-select-heading"
               data={listVatTu ? listVatTu : []}
-              placeholder="Chọn vật tư"
-              optionsvalue={["id", "tenVatTu"]}
+              placeholder="Đơn vị tính"
+              optionsvalue={["id", "tenDonViTinh"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
@@ -148,9 +156,10 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
           </FormItem>
           <FormItem
             label="Số lượng"
-            name={["vatTu", "dinhMuc"]}
+            name={["vatTu", "soLuong"]}
             rules={[
               {
+                type: "string",
                 required: true,
               },
               {
@@ -159,7 +168,18 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
               },
             ]}
           >
-            <Input placeholder="Định mức"></Input>
+            <Input placeholder="Số lượng" type="number"></Input>
+          </FormItem>
+          <FormItem
+            label="Hạng mục sử dụng"
+            name={["vatTu", "hangMucSuDung"]}
+            rules={[
+              {
+                type: "string",
+              },
+            ]}
+          >
+            <Input placeholder="Hạng mục sử dụng"></Input>
           </FormItem>
 
           <FormItem

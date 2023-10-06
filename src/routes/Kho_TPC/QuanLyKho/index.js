@@ -26,6 +26,9 @@ const NhapKhoCKDForm = asyncComponent(() => import("./NhapKho/CKD/CKDForm"));
 const NhapKhoThanhPham = asyncComponent(() =>
   import("./NhapKho/ThanhPham/ThanhPham")
 );
+const NhapKhoThanhPhamForm = asyncComponent(() =>
+  import("./NhapKho/ThanhPham/ThanhPhamForm")
+);
 const XuatKhoVatTu = asyncComponent(() => import("./XuatKho/VatTu/VatTu"));
 const XuatKhoThanhPham = asyncComponent(() =>
   import("./XuatKho/ThanhPham/ThanhPham")
@@ -97,6 +100,21 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/nhap-kho/thanh-pham`}
         exact
         component={Auth(NhapKhoThanhPham, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nhap-kho/thanh-pham/them-moi`}
+        exact
+        component={Auth(NhapKhoThanhPhamForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nhap-kho/thanh-pham/:id/chinh-sua`}
+        exact
+        component={Auth(NhapKhoThanhPhamForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nhap-kho/thanh-pham/:id/chi-tiet`}
+        exact
+        component={Auth(NhapKhoThanhPhamForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/nhap-kho/ckd`}

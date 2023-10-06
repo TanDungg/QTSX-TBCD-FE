@@ -33,7 +33,8 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
-// import ModalTuChoi from "./ModalTuChoi";
+import AddVatTuModal from "./AddVatTuModal";
+
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -141,24 +142,25 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   const [ListSoLot, setListSoLot] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
+  const [value, setValue] = useState(1);
 
   const [SanPham_Id, setSanPham_Id] = useState();
   const [SoLuong, setSoLuong] = useState();
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
+  const [ActiveModal, setActiveModal] = useState(false);
 
-  const { validateFields, resetFields, setFieldsValue } = form;
+  const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
           setType("new");
-
           getData();
           setFieldsValue({
-            dinhmucvattu: {
+            capvattusanxuat: {
               ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
-              ngaySanXuat: moment(getDateNow(), "DD/MM/YYYY"),
+              ngaySanXuat: moment(getDateNow(-1, true), "DD/MM/YYYY"),
             },
           });
         } else if (permission && !permission.add) {
@@ -244,7 +246,13 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListXuong(res.data);
+        const xuong = [];
+        res.data.forEach((x) => {
+          if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+            xuong.push(x);
+          }
+        });
+        setListXuong(xuong);
       } else {
         setListXuong([]);
       }
@@ -271,7 +279,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       if (res && res.data) {
         setListUser([res.data]);
         setFieldsValue({
-          dinhmucvattu: {
+          capvattusanxuat: {
             userYeuCau_Id: res.data.Id,
             tenPhongBan: res.data.tenPhongBan,
           },
@@ -380,7 +388,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
           setInfo(res.data);
           getSanPham(res.data.sanPham_Id);
           setFieldsValue({
-            dinhmucvattu: {
+            capvattusanxuat: {
               sanPham_Id: res.data.sanPham_Id,
               ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               ngaySanXuat: moment(res.data.ngaySanXuat, "DD/MM/YYYY"),
@@ -475,15 +483,15 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Nhóm vật tư",
-      dataIndex: "tenNhomVatTu",
-      key: "tenNhomVatTu",
-      align: "center",
-    },
-    {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
+      align: "center",
+    },
+    {
+      title: "Số lượng sản phẩm",
+      dataIndex: "soLuongSanPham",
+      key: "soLuongSanPham",
       align: "center",
     },
     {
@@ -499,7 +507,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "SL yêu cầu",
+      title: "Số lượng yêu cầu",
       dataIndex: "soLuong",
       key: "soLuong",
       align: "center",
@@ -527,6 +535,66 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       render: (value) => actionContent(value),
     },
   ];
+  let colValuesCapVatTuKhac = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      width: 45,
+      align: "center",
+    },
+
+    {
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
+      align: "center",
+    },
+    {
+      title: "Nhóm vật tư",
+      dataIndex: "tenNhomVatTu",
+      key: "tenNhomVatTu",
+      align: "center",
+    },
+    {
+      title: "Đơn vị tính",
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
+      align: "center",
+    },
+
+    {
+      title: "Số lượng",
+      dataIndex: "soLuong",
+      key: "soLuong",
+      align: "center",
+      editable:
+        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+    },
+    {
+      title: "Hạng mục sử dụng",
+      dataIndex: "hangMucSuDung",
+      key: "hangMucSuDung",
+      align: "center",
+      editable:
+        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "ghiChu",
+      key: "ghiChu",
+      align: "center",
+      editable:
+        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+    },
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+  ];
   const components = {
     body: {
       row: EditableRow,
@@ -540,34 +608,35 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     newData.splice(index, 1, {
       ...item,
       ...row,
-      soLuongTheoDinhMuc: row.soLuong * row.dinhMuc,
     });
-    // setDisableSave(true);
     setListVatTu(newData);
   };
-  const columns = map(colValues, (col) => {
-    if (!col.editable) {
-      return col;
+  const columns = map(
+    value === 1 ? colValues : colValuesCapVatTuKhac,
+    (col) => {
+      if (!col.editable) {
+        return col;
+      }
+      return {
+        ...col,
+        onCell: (record) => ({
+          record,
+          editable: col.editable,
+          dataIndex: col.dataIndex,
+          title: col.title,
+          info: col.info,
+          handleSave: handleSave,
+        }),
+      };
     }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-        handleSave: handleSave,
-      }),
-    };
-  });
+  );
   /**
    * Khi submit
    *
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.dinhmucvattu);
+    saveData(values.capvattusanxuat);
   };
 
   const saveAndClose = (val) => {
@@ -576,7 +645,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
         if (listVatTu.length === 0) {
           Helpers.alertError("Danh sách vật tư rỗng");
         } else {
-          saveData(values.dinhmucvattu, val);
+          saveData(values.capvattusanxuat, val);
         }
       })
       .catch((error) => {
@@ -584,13 +653,13 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       });
   };
 
-  const saveData = (DinhMucVatTu, saveQuit = false) => {
+  const saveData = (capvattusanxuat, saveQuit = false) => {
     if (type === "new") {
       const newData = {
-        ...DinhMucVatTu,
+        ...capvattusanxuat,
         chiTiet_phieumuahangs: listVatTu,
-        ngaySanXuat: DinhMucVatTu.ngaySanXuat._i,
-        ngayYeuCau: DinhMucVatTu.ngayYeuCau._i,
+        ngaySanXuat: capvattusanxuat.ngaySanXuat._i,
+        ngayYeuCau: capvattusanxuat.ngayYeuCau._i,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -623,7 +692,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     if (type === "edit") {
       const newData = {
         id: id,
-        ...DinhMucVatTu,
+        ...capvattusanxuat,
         chiTiet_phieumuahangs: listVatTu.map((vt) => {
           return {
             vatTu_Id: vt.vatTu_Id,
@@ -635,8 +704,8 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
             hangMucSuDung: vt.hangMucSuDung,
           };
         }),
-        ngaySanXuat: DinhMucVatTu.ngaySanXuat._i,
-        ngayYeuCau: DinhMucVatTu.ngayYeuCau._i,
+        ngaySanXuat: capvattusanxuat.ngaySanXuat._i,
+        ngayYeuCau: capvattusanxuat.ngayYeuCau._i,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -747,72 +816,29 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
         </Tag>
       </span>
     );
-  const hanldeThem = () => {
-    const params = convertObjectToUrlParams({ sanPham_Id: SanPham_Id });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_DinhMucVatTu/bom-by-sanpham?${params}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const newData =
-            res.data.chiTietBOM &&
-            JSON.parse(res.data.chiTietBOM).map((ct) => {
-              return {
-                id: ct.vatTu_Id + "_" + SanPham_Id,
-                vatTu_Id: ct.vatTu_Id,
-                tenVatTu: ct.tenVatTu,
-                dinhMuc: ct.dinhMuc,
-                soLuongTheoDinhMuc: ct.dinhMuc * SoLuong,
-                ghiChu: "",
-                hangMucSuDung: "",
-                soLuong: SoLuong,
-                tenDonViTinh: ct.tenDonViTinh,
-                tenNhomVatTu: ct.tenNhomVatTu,
-                tenSanPham: res.data.tenSanPham,
-                bom_Id: res.data.id,
-              };
-            });
-          if (newData) {
-            if (listVatTu !== null) {
-              listVatTu.forEach((vt) => {
-                newData.forEach((ct, index) => {
-                  if (vt.id === ct.id) {
-                    newData.splice(index, 1);
-                  }
-                });
-              });
-              setListVatTu([...listVatTu, ...newData]);
-            } else {
-              setListVatTu(newData);
-            }
-            setFieldsValue({
-              sanPham: {
-                sanPham_Id: "",
-                soLuong: "",
-              },
-            });
-            setSanPham_Id();
-            setSoLuong();
-          } else {
-            Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
-          }
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  const [value, setValue] = useState(1);
+
   const onChange = (e) => {
     setValue(e.target.value);
+    const data = getFieldValue("capvattusanxuat");
+    setFieldsValue({
+      capvattukhac: {
+        ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
+        userYeuCau_Id: data.userYeuCau_Id,
+        tenPhongBan: data.tenPhongBan,
+      },
+    });
+  };
+  const addVatTu = (data) => {
+    let check = false;
+    listVatTu.forEach((dl) => {
+      if (dl.vatTu_Id.toLowerCase() === data.vatTu_Id) {
+        check = true;
+        Helpers.alertError(`Vật tư đã được thêm`);
+      }
+    });
+    !check && listVatTu.length > 0 && setListVatTu([...listVatTu, data]);
+    !check && listVatTu.length === 0 && setListVatTu([data]);
+    !check && setFieldTouch(true);
   };
   return (
     <div className="gx-main-content">
@@ -833,274 +859,428 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
           </Radio.Group>
         </Row>
         <Divider style={{ marginBottom: 10 }} />
-        <Form
-          {...DEFAULT_FORM_CUSTOM}
-          form={form}
-          name="nguoi-dung-control"
-          onFinish={onFinish}
-          onFieldsChange={() => setFieldTouch(true)}
-        >
-          <Row>
-            <Col span={12}>
-              <FormItem
-                label="Người lập"
-                name={["dinhmucvattu", "userYeuCau_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUser ? ListUser : []}
-                  optionsvalue={["Id", "fullName"]}
-                  style={{ width: "100%" }}
-                  disabled={true}
-                />
-              </FormItem>
-            </Col>
-
-            <Col span={12}>
-              <FormItem
-                label="Ban/Phòng"
-                name={["dinhmucvattu", "tenPhongBan"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Input className="input-item" disabled={true} />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Xưởng sản xuất"
-                name={["dinhmucvattu", "xuong_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  placeholder="Xưởng sản xuất"
-                  className="heading-select slt-search th-select-heading"
-                  data={ListXuong ? ListXuong : []}
-                  optionsvalue={["id", "tenPhongBan"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp={"name"}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Ngày yêu cầu"
-                name={["dinhmucvattu", "ngaySanXuat"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <DatePicker
-                  disabled={type === "new" || type === "edit" ? false : true}
-                  format={"DD/MM/YYYY"}
-                  allowClear={false}
-                  onChange={(date, dateString) => {
-                    setFieldsValue({
-                      dinhmucvattu: {
-                        ngaySanXuat: moment(dateString, "DD/MM/YYYY"),
+        {value === 1 ? (
+          <>
+            <Form
+              {...DEFAULT_FORM_CUSTOM}
+              form={form}
+              name="nguoi-dung-control"
+              onFinish={onFinish}
+              onFieldsChange={() => setFieldTouch(true)}
+            >
+              <Row>
+                <Col span={12}>
+                  <FormItem
+                    label="Người lập"
+                    name={["capvattusanxuat", "userYeuCau_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
                       },
-                    });
-                  }}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Số Lot"
-                name={["dinhmucvattu", "soLot_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListSoLot ? ListSoLot : []}
-                  optionsvalue={["id", "soLot"]}
-                  style={{ width: "100%" }}
-                  placeholder="Nhập số Lot"
-                  showSearch
-                  optionFilterProp={"name"}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Ngày sản xuất"
-                name={["dinhmucvattu", "ngayYeuCau"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <DatePicker
-                  format={"DD/MM/YYYY"}
-                  allowClear={false}
-                  onChange={(date, dateString) => {
-                    setFieldsValue({
-                      dinhmucvattu: {
-                        ngayYeuCau: moment(dateString, "DD/MM/YYYY"),
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUser ? ListUser : []}
+                      optionsvalue={["Id", "fullName"]}
+                      style={{ width: "100%" }}
+                      disabled={true}
+                    />
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem
+                    label="Ban/Phòng"
+                    name={["capvattusanxuat", "tenPhongBan"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
                       },
-                    });
-                  }}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Bộ phận duyệt"
-                name={["dinhmucvattu", "userKiemTra_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn kiểm tra"
-                  optionsvalue={["user_Id", "fullName"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Kế toán duyệt"
-                name={["dinhmucvattu", "userKeToan_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn kế toán duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Duyệt"
-                name={["dinhmucvattu", "userDuyet_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn người duỵet"
-                  optionsvalue={["user_Id", "fullName"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-          </Row>
-          <Divider />
-          <Row style={{ marginTop: 15 }}>
-            <Col span={12}>
-              <FormItem
-                label="Sản phẩm"
-                name={["sanPham", "sanPham_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListSanPham ? ListSanPham : []}
-                  placeholder="Chọn sản phẩm"
-                  optionsvalue={["id", "tenSanPham"]}
-                  style={{ width: "100%" }}
-                  onChange={(val) => setSanPham_Id(val)}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem label="SL cần mua" name={["sanPham", "soLuong"]}>
-                <Input
-                  className="input-item"
-                  placeholder="Nhập số lượng cần mua"
-                  type="number"
-                  onChange={(e) => setSoLuong(e.target.value)}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}></Col>
-            {type === "new" || type === "edit" ? (
-              <Col span={12} align="center">
-                <Button
-                  icon={<PlusOutlined />}
-                  type="primary"
-                  onClick={hanldeThem}
-                  disabled={!SanPham_Id || !SoLuong}
-                >
-                  Thêm
-                </Button>
-              </Col>
-            ) : null}
-          </Row>
-        </Form>
-        <Table
-          bordered
-          columns={columns}
-          scroll={{ x: 900, y: "55vh" }}
-          components={components}
-          className="gx-table-responsive"
-          dataSource={reDataForTable(listVatTu)}
-          size="small"
-          rowClassName={"editable-row"}
-          pagination={false}
-          // loading={loading}
-        />
+                    ]}
+                  >
+                    <Input className="input-item" disabled={true} />
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem
+                    label="Xưởng sản xuất"
+                    name={["capvattusanxuat", "xuong_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      placeholder="Xưởng sản xuất"
+                      className="heading-select slt-search th-select-heading"
+                      data={ListXuong ? ListXuong : []}
+                      optionsvalue={["id", "tenPhongBan"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem
+                    label="Ngày yêu cầu"
+                    name={["capvattusanxuat", "ngayYeuCau"]}
+                    rules={[
+                      {
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <DatePicker
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                      format={"DD/MM/YYYY"}
+                      allowClear={false}
+                      onChange={(date, dateString) => {
+                        setFieldsValue({
+                          capvattusanxuat: {
+                            ngayYeuCau: moment(dateString, "DD/MM/YYYY"),
+                          },
+                        });
+                      }}
+                    />
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem
+                    label="Số Lot"
+                    name={["capvattusanxuat", "soLot_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListSoLot ? ListSoLot : []}
+                      optionsvalue={["id", "soLot"]}
+                      style={{ width: "100%" }}
+                      placeholder="Nhập số Lot"
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem
+                    label="Ngày sản xuất"
+                    name={["capvattusanxuat", "ngaySanXuat"]}
+                    rules={[
+                      {
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <DatePicker
+                      format={"DD/MM/YYYY"}
+                      allowClear={false}
+                      onChange={(date, dateString) => {
+                        setFieldsValue({
+                          capvattusanxuat: {
+                            ngaySanXuat: moment(dateString, "DD/MM/YYYY"),
+                          },
+                        });
+                      }}
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem
+                    label="Bộ phận duyệt"
+                    name={["capvattusanxuat", "userKiemTra_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUserKy}
+                      placeholder="Chọn kiểm tra"
+                      optionsvalue={["user_Id", "fullName"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp="name"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem
+                    label="Kế toán duyệt"
+                    name={["capvattusanxuat", "userKeToan_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUserKy}
+                      placeholder="Chọn kế toán duyệt"
+                      optionsvalue={["user_Id", "fullName"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp="name"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem
+                    label="Duyệt"
+                    name={["capvattusanxuat", "userDuyet_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUserKy}
+                      placeholder="Chọn người duỵet"
+                      optionsvalue={["user_Id", "fullName"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp="name"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+              </Row>
+            </Form>
+            <Table
+              bordered
+              columns={columns}
+              scroll={{ x: 900, y: "55vh" }}
+              components={components}
+              className="gx-table-responsive"
+              dataSource={reDataForTable(listVatTu)}
+              size="small"
+              rowClassName={"editable-row"}
+              pagination={false}
+              // loading={loading}
+            />
+          </>
+        ) : (
+          <>
+            <Form
+              {...DEFAULT_FORM_CUSTOM}
+              form={form}
+              name="nguoi-dung-control"
+              onFinish={onFinish}
+              onFieldsChange={() => setFieldTouch(true)}
+            >
+              <Row>
+                <Col span={12}>
+                  <FormItem
+                    label="Người lập"
+                    name={["capvattukhac", "userYeuCau_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUser ? ListUser : []}
+                      optionsvalue={["Id", "fullName"]}
+                      style={{ width: "100%" }}
+                      disabled={true}
+                    />
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem
+                    label="Ban/Phòng"
+                    name={["capvattukhac", "tenPhongBan"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Input className="input-item" disabled={true} />
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem
+                    label="Xưởng sản xuất"
+                    name={["capvattukhac", "xuong_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      placeholder="Xưởng sản xuất"
+                      className="heading-select slt-search th-select-heading"
+                      data={ListXuong ? ListXuong : []}
+                      optionsvalue={["id", "tenPhongBan"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem
+                    label="Ngày yêu cầu"
+                    name={["capvattukhac", "ngayYeuCau"]}
+                    rules={[
+                      {
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <DatePicker
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                      format={"DD/MM/YYYY"}
+                      allowClear={false}
+                      onChange={(date, dateString) => {
+                        setFieldsValue({
+                          capvattukhac: {
+                            ngayYeuCau: moment(dateString, "DD/MM/YYYY"),
+                          },
+                        });
+                      }}
+                    />
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem
+                    label="Bộ phận duyệt"
+                    name={["capvattukhac", "userKiemTra_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUserKy}
+                      placeholder="Chọn kiểm tra"
+                      optionsvalue={["user_Id", "fullName"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp="name"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem
+                    label="Kế toán duyệt"
+                    name={["capvattukhac", "userKeToan_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUserKy}
+                      placeholder="Chọn kế toán duyệt"
+                      optionsvalue={["user_Id", "fullName"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp="name"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col span={12}>
+                  <FormItem
+                    label="Duyệt"
+                    name={["capvattukhac", "userDuyet_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUserKy}
+                      placeholder="Chọn người duỵet"
+                      optionsvalue={["user_Id", "fullName"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp="name"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col span={12} align="center">
+                  <Button
+                    icon={<PlusOutlined />}
+                    type="primary"
+                    onClick={() => setActiveModal(true)}
+                  >
+                    Thêm vật tư
+                  </Button>
+                </Col>
+              </Row>
+            </Form>
+            <Table
+              bordered
+              columns={columns}
+              scroll={{ x: 900, y: "55vh" }}
+              components={components}
+              className="gx-table-responsive"
+              dataSource={reDataForTable(listVatTu)}
+              size="small"
+              rowClassName={"editable-row"}
+              pagination={false}
+              // loading={loading}
+            />
+          </>
+        )}
         {type === "new" || type === "edit" ? (
           <FormSubmit
             goBack={goBack}
@@ -1124,11 +1304,11 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
           </Row>
         )}
       </Card>
-      {/* <ModalTuChoi
-        openModal={ActiveModalTuChoi}
-        openModalFS={setActiveModalTuChoi}
-        saveTuChoi={saveTuChoi}
-      /> */}
+      <AddVatTuModal
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        addVatTu={addVatTu}
+      />
     </div>
   );
 };

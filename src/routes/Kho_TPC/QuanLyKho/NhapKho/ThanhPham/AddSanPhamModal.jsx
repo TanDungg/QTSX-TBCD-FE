@@ -9,24 +9,27 @@ import { Select } from "src/components/Common";
 
 const FormItem = Form.Item;
 
-function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
+function AddSanPhamModal({ openModalFS, openModal, loading, addSanPham }) {
   const dispatch = useDispatch();
-  const [listVatTu, setListVatTu] = useState([]);
+  const [ListMauSac, setListMauSac] = useState([]);
+  const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
+  const [ListSanPham, setListSanPham] = useState([]);
+
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
 
   useEffect(() => {
     if (openModal) {
-      getVatTu();
+      getLoaiSanPham();
     }
   }, [openModal]);
-  const getVatTu = () => {
+  const getLoaiSanPham = () => {
     const params = convertObjectToUrlParams({ page: -1 });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `VatTu?${params}`,
+          `LoaiSanPham?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -38,16 +41,54 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListVatTu(res.data);
+          setListLoaiSanPham(res.data);
         }
       })
       .catch((error) => console.error(error));
   };
-
+  const getSanPham = (id) => {
+    const params = convertObjectToUrlParams({ loaiSanPham_Id: id, page: -1 });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `SanPham?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListSanPham(res.data);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   const handleSubmit = () => {
     validateFields()
       .then((values) => {
-        addVatTu(values.vatTu);
+        const newData = values.sanpham;
+        ListSanPham.forEach((lsp) => {
+          if (lsp.id === newData.sanPham_Id) {
+            newData.tenLoaiSanPham = lsp.tenLoaiSanPham;
+            newData.tenSanPham = lsp.tenSanPham;
+            newData.maSanPham = lsp.maSanPham;
+            newData.tenDonViTinh = lsp.tenDonViTinh;
+            if (newData.mauSac_Id) {
+              JSON.parse(lsp.mauSac).forEach((ms) => {
+                if (ms.id === newData.mauSac_Id) {
+                  newData.tenMauSac = ms.tenMauSac;
+                }
+              });
+            }
+          }
+        });
+
+        addSanPham(newData);
         openModalFS(false);
         resetFields();
       })
@@ -59,6 +100,16 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
   const handleCancel = () => {
     openModalFS(false);
   };
+  const handleSelectLoaiSanPham = (val) => {
+    getSanPham(val);
+  };
+  const handleSelectSanPham = (val) => {
+    ListSanPham.forEach((sp) => {
+      if (sp.id === val) {
+        setListMauSac(JSON.parse(sp.mauSac));
+      }
+    });
+  };
   /**
    * Khi submit
    *
@@ -69,7 +120,7 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
   };
   return (
     <AntModal
-      title="Thêm vật tư"
+      title="Chọn sản phẩm nhập kho"
       open={openModal}
       width={`80%`}
       closable={true}
@@ -85,8 +136,8 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã vật tư"
-            name={["vatTu", "vatTu_Id"]}
+            label="Loại sản phẩm"
+            name={["sanpham", "loaiSanPham_Id"]}
             rules={[
               {
                 type: "string",
@@ -96,17 +147,18 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
           >
             <Select
               className="heading-select slt-search th-select-heading"
-              data={listVatTu ? listVatTu : []}
-              placeholder="Chọn vật tư"
-              optionsvalue={["id", "tenVatTu"]}
+              data={ListLoaiSanPham ? ListLoaiSanPham : []}
+              placeholder="Chọn loại sản phẩm"
+              optionsvalue={["id", "tenLoaiSanPham"]}
+              onSelect={handleSelectLoaiSanPham}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
             />
           </FormItem>
           <FormItem
-            label="Tên vật tư"
-            name={["vatTu", "vatTu_Id"]}
+            label="Sản phẩm"
+            name={["sanpham", "sanPham_Id"]}
             rules={[
               {
                 type: "string",
@@ -116,18 +168,18 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
           >
             <Select
               className="heading-select slt-search th-select-heading"
-              data={listVatTu ? listVatTu : []}
-              placeholder="Chọn vật tư"
-              optionsvalue={["id", "tenVatTu"]}
+              data={ListSanPham ? ListSanPham : []}
+              placeholder="Chọn sản phẩm"
+              optionsvalue={["id", "tenSanPham"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
-              disabled={true}
+              onSelect={handleSelectSanPham}
             />
           </FormItem>
           <FormItem
             label="Đơn vị tính"
-            name={["vatTu", "vatTu_Id"]}
+            name={["sanpham", "sanPham_Id"]}
             rules={[
               {
                 type: "string",
@@ -137,9 +189,9 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
           >
             <Select
               className="heading-select slt-search th-select-heading"
-              data={listVatTu ? listVatTu : []}
-              placeholder="Chọn vật tư"
-              optionsvalue={["id", "tenVatTu"]}
+              data={ListSanPham ? ListSanPham : []}
+              placeholder="Đơn vị tính"
+              optionsvalue={["id", "tenDonViTinh"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
@@ -147,8 +199,28 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
             />
           </FormItem>
           <FormItem
+            label="Màu sắc"
+            name={["sanpham", "mauSac_Id"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
+          >
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListMauSac ? ListMauSac : []}
+              placeholder="Chọn màu sắc"
+              optionsvalue={["mauSac_Id", "tenMauSac"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+            />
+          </FormItem>
+          <FormItem
             label="Số lượng"
-            name={["vatTu", "dinhMuc"]}
+            name={["sanpham", "soLuongNhap"]}
             rules={[
               {
                 required: true,
@@ -159,12 +231,12 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
               },
             ]}
           >
-            <Input placeholder="Định mức"></Input>
+            <Input placeholder="Số lượng"></Input>
           </FormItem>
 
           <FormItem
             label="Ghi chú"
-            name={["vatTu", "ghiChu"]}
+            name={["sanpham", "ghiChu"]}
             rules={[
               {
                 type: "string",
@@ -190,4 +262,4 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
   );
 }
 
-export default AddVatTuModal;
+export default AddSanPhamModal;

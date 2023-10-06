@@ -86,7 +86,11 @@ function CauTrucKhoForm({ match, permission, history }) {
           setDisableViTri(false);
         }
         setFieldsValue({
-          CauTrucKho: { ...newData, sucChua: newData.sucChua.toString() },
+          CauTrucKho: {
+            ...newData,
+            sucChua: newData.sucChua.toString(),
+            viTri: newData.viTri.toString(),
+          },
         });
         getListCauTrucKho(newData.phongBan_Id);
       })
