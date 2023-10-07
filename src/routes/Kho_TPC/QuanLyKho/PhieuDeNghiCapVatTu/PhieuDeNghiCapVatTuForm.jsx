@@ -143,9 +143,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   const [ListUser, setListUser] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
   const [value, setValue] = useState(1);
-
-  const [SanPham_Id, setSanPham_Id] = useState();
-  const [SoLuong, setSoLuong] = useState();
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [ActiveModal, setActiveModal] = useState(false);
 
@@ -282,7 +279,22 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data.length > 0) {
-        console.log(res.data[0]);
+        const newData = [];
+        res.data.forEach((vt) => {
+          JSON.parse(vt.chiTietBOM).forEach((ct) => {
+            newData.push({
+              tenSanPham: vt.tenSanPham,
+              sanPham_Id: vt.sanPham_Id,
+              keHoach: vt.SoLuongKH,
+              vatTu_Id: ct.vatTu_Id,
+              tenVatTu: ct.tenVatTu,
+              maVatTu: ct.maVatTu,
+              dinhMuc: ct.dinhMuc,
+              tenDonViTinh: ct.tenDonViTinh,
+              tonKho: ct.soLuongTonKho,
+            });
+          });
+        });
       } else {
         setListVatTu([]);
       }
