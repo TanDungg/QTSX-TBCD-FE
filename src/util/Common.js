@@ -213,7 +213,7 @@ export const getDateNow = (number, check = false) => {
   if (number <= 7 && check === false) {
     day =
       date.getDate() +
-      getNumberDayOfMonth(date.getMonth() + 1, date.getFullYear()) -
+      getNumberDayOfMonth(date.getMonth(), date.getFullYear()) -
       (number ? number : 0) +
       "/" +
       ((date.getMonth() + 1).toString().length === 1

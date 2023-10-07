@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
 import { Icon } from "@ant-design/compatible";
 
-import { Input, TreeSelect, FormSubmit, Select } from "src/components/Common";
+import { Input, TreeSelect, FormSubmit } from "src/components/Common";
 import {
   fetchStart,
   fetchReset,
@@ -28,7 +28,6 @@ function ChucNangForm({ match, permission, history }) {
   const [id, setId] = useState(undefined);
   const [icon, setIcon] = useState("file-unknown");
   const [listMenu, setListMenu] = useState([]);
-  const [PhanMemSelect, setPhanMemSelect] = useState([]);
   const [fieldTouch, setFieldTouch] = useState(false);
 
   const { setFieldsValue, validateFields, resetFields, getFieldsValue } = form;

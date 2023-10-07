@@ -508,7 +508,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
           `lkn_DinhMucVatTu/xac-nhan/${id}`,
           "PUT",
           newData,
-          "EDIT",
+          "XACNHAN",
           "",
           resolve,
           reject

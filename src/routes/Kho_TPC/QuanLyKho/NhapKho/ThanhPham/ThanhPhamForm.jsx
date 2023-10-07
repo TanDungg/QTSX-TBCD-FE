@@ -632,43 +632,43 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         <Tag color={"success"}>{info.maPhieuNhapKhoThanhPham}</Tag>
       </span>
     );
-  const hanldeSelectMaPhieu = (vaL) => {
-    const params = convertObjectToUrlParams({ donVi_Id: INFO.donVi_Id });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuNhanHang/${vaL}?${params}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const newVatTu = [];
-          res.data.chiTietVatTu &&
-            JSON.parse(res.data.chiTietVatTu).forEach((ct) => {
-              if (Number(ct.soLuongNhan) > 0) {
-                newVatTu.push({
-                  id: ct.vatTu_Id + "_" + ct.sanPham_Id,
-                  maVatTu: ct.maVatTu,
-                  tenVatTu: ct.tenVatTu,
-                  tenDonViTinh: ct.tenDonViTinh,
-                  soLuongNhap: ct.soLuongNhan,
-                  vatTu_Id: ct.vatTu_Id,
-                  thoiGianSuDung: getDateNow(),
-                });
-              }
-            });
-          setListSanPham(newVatTu);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
+  // const hanldeSelectMaPhieu = (vaL) => {
+  //   const params = convertObjectToUrlParams({ donVi_Id: INFO.donVi_Id });
+  //   new Promise((resolve, reject) => {
+  //     dispatch(
+  //       fetchStart(
+  //         `lkn_PhieuNhanHang/${vaL}?${params}`,
+  //         "GET",
+  //         null,
+  //         "LIST",
+  //         "",
+  //         resolve,
+  //         reject
+  //       )
+  //     );
+  //   })
+  //     .then((res) => {
+  //       if (res && res.data) {
+  //         const newVatTu = [];
+  //         res.data.chiTietVatTu &&
+  //           JSON.parse(res.data.chiTietVatTu).forEach((ct) => {
+  //             if (Number(ct.soLuongNhan) > 0) {
+  //               newVatTu.push({
+  //                 id: ct.vatTu_Id + "_" + ct.sanPham_Id,
+  //                 maVatTu: ct.maVatTu,
+  //                 tenVatTu: ct.tenVatTu,
+  //                 tenDonViTinh: ct.tenDonViTinh,
+  //                 soLuongNhap: ct.soLuongNhan,
+  //                 vatTu_Id: ct.vatTu_Id,
+  //                 thoiGianSuDung: getDateNow(),
+  //               });
+  //             }
+  //           });
+  //         setListSanPham(newVatTu);
+  //       }
+  //     })
+  //     .catch((error) => console.error(error));
+  // };
 
   const addSanPham = (data) => {
     let check = false;
@@ -775,7 +775,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp="name"
                   disabled={type === "new" || type === "edit" ? false : true}
-                  onSelect={hanldeSelectMaPhieu}
+                  // onSelect={hanldeSelectMaPhieu}
                 />
               </FormItem>
             </Col>

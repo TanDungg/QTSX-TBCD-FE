@@ -72,6 +72,7 @@ function AddSanPhamModal({ openModalFS, openModal, loading, addSanPham }) {
     validateFields()
       .then((values) => {
         const newData = values.sanpham;
+        console.log(newData);
         ListSanPham.forEach((lsp) => {
           if (lsp.id === newData.sanPham_Id) {
             newData.tenLoaiSanPham = lsp.tenLoaiSanPham;

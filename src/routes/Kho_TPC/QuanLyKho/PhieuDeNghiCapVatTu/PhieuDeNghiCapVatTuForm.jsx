@@ -258,6 +258,36 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       }
     });
   };
+  const getVatTuSanXuat = (phongBan_Id) => {
+    const dataForm = getFieldValue("capvattusanxuat").ngaySanXuat._i.split("/");
+    const params = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+      phongBan_Id,
+      ngay: dataForm[0],
+      thang: dataForm[1],
+      nam: dataForm[2],
+      loaiKeHoach_Id: "27267ddf-652a-49a8-9570-73bb176d2e65",
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_DinhMucVatTu/list-san-pham-kh-theo-bom?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data.length > 0) {
+        console.log(res.data[0]);
+      } else {
+        setListVatTu([]);
+      }
+    });
+  };
   const getUserLap = (info, nguoiLap_Id) => {
     const params = convertObjectToUrlParams({
       id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
@@ -840,6 +870,9 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     !check && listVatTu.length === 0 && setListVatTu([data]);
     !check && setFieldTouch(true);
   };
+  const handleSelectXuong = (val) => {
+    getVatTuSanXuat(val);
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -922,6 +955,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                       style={{ width: "100%" }}
                       showSearch
                       optionFilterProp={"name"}
+                      onSelect={handleSelectXuong}
                     />
                   </FormItem>
                 </Col>

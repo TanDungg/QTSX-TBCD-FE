@@ -4,8 +4,6 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
   PrinterOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -168,7 +166,7 @@ function ThanhPham({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuYeuCau,
+      item.maPhieuNhapKhoThanhPham,
       "phiếu nhập kho thành phẩm"
     );
   };
@@ -179,7 +177,7 @@ function ThanhPham({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuNhapKhoThanhPham/${item.id}`;
+    let url = `lkn_PhieuNhapKhoThanhPham?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -238,6 +236,7 @@ function ThanhPham({ match, history, permission }) {
       </>
     );
   };
+
   const { totalRow, totalPage, pageSize } = data;
 
   let dataList = reDataForTable(

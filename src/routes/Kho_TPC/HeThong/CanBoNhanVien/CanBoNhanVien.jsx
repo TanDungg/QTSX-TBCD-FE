@@ -4,8 +4,6 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  CloseCircleOutlined,
-  UploadOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";

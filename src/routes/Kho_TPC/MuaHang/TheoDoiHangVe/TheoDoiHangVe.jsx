@@ -6,7 +6,6 @@ import {
   DeleteOutlined,
   EyeOutlined,
   EyeInvisibleOutlined,
-  PrinterOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -299,8 +298,8 @@ function TheoDoiHangVe({ match, history, permission }) {
     },
     {
       title: "Ngày nhận hàng",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
+      dataIndex: "ngayHangVe",
+      key: "ngayHangVe",
       align: "center",
     },
     {
