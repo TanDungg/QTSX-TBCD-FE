@@ -1,6 +1,6 @@
 import { DownloadOutlined } from "@ant-design/icons";
 import { Button, Card, Row, Col, DatePicker, Divider } from "antd";
-import { map, remove, find, isEmpty } from "lodash";
+import { map, isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
@@ -11,7 +11,6 @@ import {
   Table,
   Select,
   Toolbar,
-  ModalDeleteConfirm,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import {
@@ -24,7 +23,7 @@ const { RangePicker } = DatePicker;
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function NhapKho({ permission, history, match }) {
+function XuatKho({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -36,7 +35,6 @@ function NhapKho({ permission, history, match }) {
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
   const [data, setData] = useState([]);
-  const [loai, setLoai] = useState(true);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -172,7 +170,6 @@ function NhapKho({ permission, history, match }) {
   }
   const { totalRow, pageSize } = data;
 
-  //Lấy thông tin thiết bị
   const dataList = reDataForTable(
     DinhMucVatTu.datalist,
     page === 1 ? page : pageSize * (page - 1) + 2
@@ -342,22 +339,22 @@ function NhapKho({ permission, history, match }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Báo cáo nhập kho"}
-        description="Báo cáo nhập kho"
+        title={"Báo cáo xuất kho"}
+        description="Báo cáo xuất kho"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ marginBottom: 10 }}>
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Loại nhập kho:</h5>
+            <h5>Loại xuất kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={[
-                { id: "ckd", name: "Nhập kho CKD" },
-                { id: "true", name: "Nhập kho vật tư" },
-                { id: "false", name: "Nhập kho thành phẩm" },
+                { id: "ckd", name: "Xuất kho CKD" },
+                { id: "true", name: "Xuất kho vật tư" },
+                { id: "false", name: "Xuất kho thành phẩm" },
               ]}
-              placeholder="Chọn loại nhập kho"
+              placeholder="Chọn loại xuất kho"
               optionsvalue={["id", "name"]}
               style={{ width: "100%" }}
               showSearch
@@ -455,4 +452,4 @@ function NhapKho({ permission, history, match }) {
   );
 }
 
-export default NhapKho;
+export default XuatKho;

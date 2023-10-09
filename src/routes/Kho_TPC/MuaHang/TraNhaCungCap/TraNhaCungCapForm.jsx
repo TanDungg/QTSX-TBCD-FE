@@ -14,7 +14,7 @@ import {
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM } from "src/constants/Config";
+import { DEFAULT_FORM_TRA_NCC } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -685,14 +685,22 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
       <ContainerHeader title={formTitle} back={goBack} />
       <Card className="th-card-margin-bottom">
         <Form
-          {...DEFAULT_FORM}
+          {...DEFAULT_FORM_TRA_NCC}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
           <Row>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="A Bên giao"
                 name={["tranhacungcap", "benGiao_Id"]}
@@ -715,7 +723,15 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Địa chỉ"
                 name={["tranhacungcap", "benGiao_Id"]}
@@ -737,7 +753,15 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Người đại diện"
                 name={["tranhacungcap", "benGiao_Id"]}
@@ -759,7 +783,15 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Số điện thoại:"
                 name={["tranhacungcap", "benGiao_Id"]}
@@ -782,7 +814,15 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
               </FormItem>
             </Col>
             <Divider style={{ marginBottom: 20 }} />
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="B Bên nhận"
                 name={["tranhacungcap", "benNhan_Id"]}
@@ -805,7 +845,15 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Địa chỉ"
                 name={["tranhacungcap", "benNhan_Id"]}
@@ -827,7 +875,15 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Người đại diện"
                 name={["tranhacungcap", "benNhan_Id"]}
@@ -849,7 +905,15 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Số điện thoại:"
                 name={["tranhacungcap", "benNhan_Id"]}
@@ -872,7 +936,15 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
               </FormItem>
             </Col>
             <Divider style={{ marginBottom: 20 }} />
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="C Bên vận chuyển"
                 name={["tranhacungcap", "benVanChuyen_Id"]}
@@ -895,7 +967,15 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Địa chỉ"
                 name={["tranhacungcap", "benVanChuyen_Id"]}
@@ -917,7 +997,15 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Người đại diện"
                 name={["tranhacungcap", "benVanChuyen_Id"]}
@@ -939,7 +1027,15 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Số điện thoại:"
                 name={["tranhacungcap", "benVanChuyen_Id"]}
@@ -963,18 +1059,16 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
             </Col>
           </Row>
         </Form>
-        <Row>
-          <Col span={12}></Col>
-          <Col span={12} align="center">
-            <Button
-              icon={<PlusOutlined />}
-              type="primary"
-              onClick={() => setActiveModal(true)}
-            >
-              Thêm vật tư
-            </Button>
-          </Col>
-        </Row>
+
+        <Col span={24} style={{ marginBottom: 8 }} align="center">
+          <Button
+            icon={<PlusOutlined />}
+            type="primary"
+            onClick={() => setActiveModal(true)}
+          >
+            Thêm vật tư
+          </Button>
+        </Col>
         <Table
           bordered
           columns={columns}

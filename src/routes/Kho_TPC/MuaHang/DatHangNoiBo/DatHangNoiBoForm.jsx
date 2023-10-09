@@ -820,7 +820,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <Row>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Người gửi"
                 name={["dathangnoibo", "userYeuCau_Id"]}
@@ -843,7 +851,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Nơi gửi"
                 name={["dathangnoibo", "userYeuCau_Id"]}
@@ -865,7 +881,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Nhà cung cấp"
                 name={["dathangnoibo", "userNhan_Id"]}
@@ -888,7 +912,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Người liên hệ:"
                 name={["dathangnoibo", "userNhan_Id"]}
@@ -910,7 +942,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Địa chỉ"
                 name={["dathangnoibo", "userNhan_Id"]}
@@ -932,7 +972,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Điện thoại"
                 name={["dathangnoibo", "userNhan_Id"]}
@@ -955,7 +1003,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
               </FormItem>
             </Col>
 
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Người nhận"
                 name={["dathangnoibo", "nguoiNhan_DHNB"]}
@@ -972,7 +1028,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Email"
                 name={["dathangnoibo", "emailNguoiNhan_DHNB"]}
@@ -989,7 +1053,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Dự kiến hoàn thành"
                 name={["dathangnoibo", "ngayHoanThanhDukien"]}
@@ -1013,7 +1085,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Ngày yêu cầu"
                 name={["dathangnoibo", "ngayYeuCau"]}
@@ -1037,7 +1117,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="CV thu mua"
                 name={["dathangnoibo", "userThuMua_Id"]}
@@ -1060,7 +1148,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Yêu cầu"
                 name={["dathangnoibo", "yeuCau"]}
@@ -1077,7 +1173,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Địa điểm giao hàng"
                 name={["dathangnoibo", "diaDiemGiaoHang"]}
@@ -1094,7 +1198,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Người kiểm tra"
                 name={["dathangnoibo", "userKiemTra_Id"]}
@@ -1117,7 +1229,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Kế toán duyệt"
                 name={["dathangnoibo", "userKeToan_Id"]}
@@ -1140,7 +1260,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Duyệt"
                 name={["dathangnoibo", "userDuyet_Id"]}
@@ -1170,7 +1298,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
             <>
               <Divider />
               <Row>
-                <Col span={12}>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
                   <FormItem
                     label="File đã ký"
                     name={["dinhmucvattu", "userDuyet_Id"]}
@@ -1255,18 +1391,24 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
           )}
         </Form>
         {(type === "new" || type === "edit") && (
-          <Row>
-            <Col span={12}></Col>
-            <Col span={12} align="center">
-              <Button
-                icon={<PlusOutlined />}
-                type="primary"
-                onClick={() => setActiveModal(true)}
-              >
-                Thêm vật tư
-              </Button>
-            </Col>
-          </Row>
+          <Col
+            xxl={24}
+            xl={24}
+            lg={24}
+            md={24}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+            align="center"
+          >
+            <Button
+              icon={<PlusOutlined />}
+              type="primary"
+              onClick={() => setActiveModal(true)}
+            >
+              Thêm vật tư
+            </Button>
+          </Col>
         )}
         <Table
           bordered

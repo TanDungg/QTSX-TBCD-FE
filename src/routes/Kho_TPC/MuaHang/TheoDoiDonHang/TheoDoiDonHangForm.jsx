@@ -11,7 +11,13 @@ import {
   EditableTableRow,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { getLocalStorage, getTokenInfo, reDataForTable } from "src/util/Common";
+import {
+  FileName,
+  getLocalStorage,
+  getTokenInfo,
+  reDataForTable,
+} from "src/util/Common";
+import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -25,10 +31,10 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
   };
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
-
   const [listVatTu, setListVatTu] = useState([]);
-
+  const [FileNhanHang, setFileNhanHang] = useState([]);
   const [info, setInfo] = useState({});
+
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "chi-tiet")) {
@@ -75,6 +81,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
             chiTiet[index].tenThuMua = data.tenThuMua;
           });
           setListVatTu(chiTiet);
+          data.fileNhanHang && setFileNhanHang(JSON.parse(data.fileNhanHang));
           setInfo(data);
         }
       })
@@ -260,7 +267,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
+      <Card className="th-card-margin-bottom" style={{ padding: "0px 10px" }}>
         <Row style={{ marginLeft: 2 }}>
           <Col>
             <img
@@ -286,24 +293,105 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
           </h4>
         </Row>
         <Row>
-          <Col span={12}>
-            <h5>Bộ phận yêu cầu: {info.tenPhongBan}</h5>
+          <Col
+            xxl={12}
+            xl={12}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{
+              marginBottom: 10,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <span
+              style={{
+                width: "140px",
+                fontWeight: "bold",
+              }}
+            >
+              Bộ phận yêu cầu:
+            </span>
+            {info.tenPhongBan}
           </Col>
-          <Col span={12}>
-            <h5>Ngày hoàn thành: {info.ngayHoanThanhDukien}</h5>
+          <Col
+            xxl={12}
+            xl={12}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{
+              marginBottom: 10,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <span
+              style={{
+                width: "140px",
+                fontWeight: "bold",
+              }}
+            >
+              Ngày hoàn thành:
+            </span>
+            {info.ngayHoanThanhDukien}
           </Col>
-          <Col span={12}>
-            <h5>File đính kèm: </h5>
+          <Col
+            span={24}
+            style={{
+              marginBottom: 10,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <span
+              style={{
+                width: "140px",
+                fontWeight: "bold",
+              }}
+            >
+              File đính kèm:
+            </span>
+            {FileNhanHang.length !== 0 &&
+              FileNhanHang.map((file, index) => (
+                <a
+                  key={index}
+                  href={`${BASE_URL_API}${file.fileDinhKem}`}
+                  title={`${BASE_URL_API}${file.fileDinhKem}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ marginRight: 5 }}
+                >
+                  {file && FileName(file.fileDinhKem)},
+                </a>
+              ))}
           </Col>
         </Row>
         <Row>
-          <Col span={24}>
-            <h5>Thông tin vật tư:</h5>
+          <Col
+            span={24}
+            style={{
+              marginBottom: 10,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <span
+              style={{
+                width: "140px",
+                fontWeight: "bold",
+              }}
+            >
+              Thông tin vật tư:
+            </span>
           </Col>
           <Table
             bordered
             columns={columns}
-            scroll={{ x: 900, y: "55vh" }}
+            scroll={{ x: 1500, y: "55vh" }}
             components={components}
             className="gx-table-responsive"
             dataSource={reDataForTable(listVatTu)}

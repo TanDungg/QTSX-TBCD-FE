@@ -25,7 +25,7 @@ import {
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { BASE_URL_API, DEFAULT_FORM_TWO_COL } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -832,231 +832,304 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       <ContainerHeader title={formTitle} back={goBack} />
       <Card className="th-card-margin-bottom">
         <Form
-          {...DEFAULT_FORM_CUSTOM}
+          {...DEFAULT_FORM_TWO_COL}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
-          <FormItem
-            label="Ban/Phòng"
-            name={["phieunhanhang", "phongBanId"]}
-            rules={[
-              {
-                type: "string",
-                required: true,
-              },
-            ]}
-          >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListBanPhong}
-              placeholder="Chọn Ban/Phòng"
-              optionsvalue={["id", "tenPhongBan"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleGetListPhieu}
-              disabled={type === "new" ? false : true}
-            />
-          </FormItem>
-
-          <FormItem
-            label="Loại phiếu"
-            name={["phieunhanhang", "loaiPhieu"]}
-            rules={[
-              {
-                type: "string",
-                required: true,
-              },
-            ]}
-          >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={[
-                { id: "true", name: "Phiếu đề nghị mua hàng" },
-                { id: "false", name: "Phiếu đặt hàng nội bộ" },
-              ]}
-              placeholder="Chọn loại phiếu"
-              optionsvalue={["id", "name"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleGetListPhieu}
-              disabled={type === "new" ? false : true}
-            />
-          </FormItem>
-          <FormItem
-            label="Mã phiếu mua hàng"
-            name={["phieunhanhang", "phieuMuaHang_Id"]}
-            rules={[
-              {
-                type: "string",
-                required: true,
-              },
-            ]}
-          >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListPhieuMuaHang}
-              placeholder="Chọn mã phiếu mua hàng"
-              optionsvalue={["id", "maPhieuYeuCau"]}
-              style={{ width: "100%" }}
-              showSearch
-              onSelect={hanldeSelectPhieu}
-              optionFilterProp="name"
-              disabled={type === "new" ? false : true}
-            />
-          </FormItem>
-          <FormItem
-            label="Người yêu cầu"
-            name={["phieunhanhang", "userYeuCau_Id"]}
-            rules={[
-              {
-                type: "string",
-              },
-            ]}
-          >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListUserYeuCau}
-              placeholder="Người yêu cầu"
-              optionsvalue={["id", "fullName"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              disabled={true}
-            />
-          </FormItem>
-          <FormItem
-            label="Ngày hàng về"
-            name={["phieunhanhang", "ngayHangVe"]}
-            rules={[
-              {
-                required: true,
-              },
-            ]}
-          >
-            <DatePicker
-              format={"DD/MM/YYYY"}
-              style={{ width: "100%" }}
-              allowClear={false}
-              disabled={type === "new" || type === "edit" ? false : true}
-              onChange={(date, dateString) => {
-                setFieldsValue({
-                  phieunhanhang: {
-                    ngayHangVe: moment(dateString, "DD/MM/YYYY"),
+          <Row>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Ban/Phòng"
+                name={["phieunhanhang", "phongBanId"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
                   },
-                });
-              }}
-            />
-          </FormItem>
-          <FormItem
-            label="CV thu mua"
-            name={["phieunhanhang", "userThuMua_Id"]}
-            rules={[
-              {
-                type: "string",
-                required: true,
-              },
-            ]}
-          >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListCVThuMua}
-              placeholder="Chọn cv thu mua"
-              optionsvalue={["user_Id", "fullName"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              disabled={type === "new" || type === "edit" ? false : true}
-            />
-          </FormItem>
-          <FormItem
-            label="File đính kèm"
-            name={["phieunhanhang", "fileDinhKem"]}
-            rules={[
-              {
-                type: "file",
-              },
-            ]}
-          >
-            {!disableUpload ? (
-              <Upload {...props}>
-                <Button
-                  style={{
-                    marginBottom: 0,
-                    height: 25,
-                    lineHeight: "25px",
-                  }}
-                  icon={<UploadOutlined />}
-                >
-                  Tải file
-                </Button>
-              </Upload>
-            ) : File.name ? (
-              <span>
-                <span
-                  style={{ color: "#0469B9", cursor: "pointer" }}
-                  onClick={() => handleViewFile(File)}
-                >
-                  {File.name.length > 20
-                    ? File.name.substring(0, 20) + "..."
-                    : File.name}{" "}
-                </span>
-                <DeleteOutlined
-                  style={{ cursor: "pointer", color: "red" }}
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListBanPhong}
+                  placeholder="Chọn Ban/Phòng"
+                  optionsvalue={["id", "tenPhongBan"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  onSelect={handleGetListPhieu}
+                  disabled={type === "new" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Loại phiếu"
+                name={["phieunhanhang", "loaiPhieu"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={[
+                    { id: "true", name: "Phiếu đề nghị mua hàng" },
+                    { id: "false", name: "Phiếu đặt hàng nội bộ" },
+                  ]}
+                  placeholder="Chọn loại phiếu"
+                  optionsvalue={["id", "name"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  onSelect={handleGetListPhieu}
+                  disabled={type === "new" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Mã phiếu mua hàng"
+                name={["phieunhanhang", "phieuMuaHang_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListPhieuMuaHang}
+                  placeholder="Chọn mã phiếu mua hàng"
+                  optionsvalue={["id", "maPhieuYeuCau"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  onSelect={hanldeSelectPhieu}
+                  optionFilterProp="name"
+                  disabled={type === "new" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Người yêu cầu"
+                name={["phieunhanhang", "userYeuCau_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListUserYeuCau}
+                  placeholder="Người yêu cầu"
+                  optionsvalue={["id", "fullName"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Ngày hàng về"
+                name={["phieunhanhang", "ngayHangVe"]}
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <DatePicker
+                  format={"DD/MM/YYYY"}
+                  style={{ width: "100%" }}
+                  allowClear={false}
                   disabled={type === "new" || type === "edit" ? false : true}
-                  onClick={() => {
-                    setFile();
-                    setDisableUpload(false);
+                  onChange={(date, dateString) => {
                     setFieldsValue({
                       phieunhanhang: {
-                        fileDinhKem: undefined,
+                        ngayHangVe: moment(dateString, "DD/MM/YYYY"),
                       },
                     });
                   }}
                 />
-                <Image
-                  width={100}
-                  src={FileChat}
-                  alt="preview"
-                  style={{
-                    display: "none",
-                  }}
-                  preview={{
-                    visible: openImage,
-                    scaleStep: 0.5,
-                    src: FileChat,
-                    onVisibleChange: (value) => {
-                      setOpenImage(value);
-                    },
-                  }}
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="CV thu mua"
+                name={["phieunhanhang", "userThuMua_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListCVThuMua}
+                  placeholder="Chọn cv thu mua"
+                  optionsvalue={["user_Id", "fullName"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
                 />
-              </span>
-            ) : (
-              <span>
-                <a target="_blank" href={BASE_URL_API + File}>
-                  {File.split("/")[5]}{" "}
-                </a>
-                {(type === "new" || type === "edit") && (
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    disabled={type === "new" || type === "edit" ? false : true}
-                    onClick={() => {
-                      setFile();
-                      setDisableUpload(false);
-                      setFieldsValue({
-                        phieunhanhang: {
-                          fileDinhKem: undefined,
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="File đính kèm"
+                name={["phieunhanhang", "fileDinhKem"]}
+                rules={[
+                  {
+                    type: "file",
+                  },
+                ]}
+              >
+                {!disableUpload ? (
+                  <Upload {...props}>
+                    <Button
+                      style={{
+                        marginBottom: 0,
+                      }}
+                      icon={<UploadOutlined />}
+                    >
+                      Tải file
+                    </Button>
+                  </Upload>
+                ) : File.name ? (
+                  <span>
+                    <span
+                      style={{ color: "#0469B9", cursor: "pointer" }}
+                      onClick={() => handleViewFile(File)}
+                    >
+                      {File.name.length > 20
+                        ? File.name.substring(0, 20) + "..."
+                        : File.name}{" "}
+                    </span>
+                    <DeleteOutlined
+                      style={{ cursor: "pointer", color: "red" }}
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                      onClick={() => {
+                        setFile();
+                        setDisableUpload(false);
+                        setFieldsValue({
+                          phieunhanhang: {
+                            fileDinhKem: undefined,
+                          },
+                        });
+                      }}
+                    />
+                    <Image
+                      width={100}
+                      src={FileChat}
+                      alt="preview"
+                      style={{
+                        display: "none",
+                      }}
+                      preview={{
+                        visible: openImage,
+                        scaleStep: 0.5,
+                        src: FileChat,
+                        onVisibleChange: (value) => {
+                          setOpenImage(value);
                         },
-                      });
-                    }}
-                  />
+                      }}
+                    />
+                  </span>
+                ) : (
+                  <span>
+                    <a target="_blank" href={BASE_URL_API + File}>
+                      {File.split("/")[5]}{" "}
+                    </a>
+                    {(type === "new" || type === "edit") && (
+                      <DeleteOutlined
+                        style={{ cursor: "pointer", color: "red" }}
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                        onClick={() => {
+                          setFile();
+                          setDisableUpload(false);
+                          setFieldsValue({
+                            phieunhanhang: {
+                              fileDinhKem: undefined,
+                            },
+                          });
+                        }}
+                      />
+                    )}
+                  </span>
                 )}
-              </span>
-            )}
-          </FormItem>
+              </FormItem>
+            </Col>
+          </Row>
         </Form>
         <Table
           bordered

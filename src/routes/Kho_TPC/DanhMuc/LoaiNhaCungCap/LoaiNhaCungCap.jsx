@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider } from "antd";
+import { Card, Button, Divider, Col } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -18,7 +18,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function LoaiNhaCungCap({ match, history, permission }) {
-  const { loading, data } = useSelector(({ common }) => common).toJS();
+  const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
@@ -241,19 +241,47 @@ function LoaiNhaCungCap({ match, history, permission }) {
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Toolbar
-          count={1}
-          search={{
-            title: "Tìm kiếm",
-            loading,
-            value: keyword,
-            onChange: onChangeKeyword,
-            onPressEnter: onSearchLoaiNhaCungCap,
-            onSearch: onSearchLoaiNhaCungCap,
-            placeholder: "Nhập từ khóa",
-            allowClear: true,
+        <Col
+          xxl={8}
+          xl={12}
+          lg={16}
+          md={16}
+          sm={20}
+          xs={24}
+          style={{
+            display: "flex",
+            alignItems: "center",
           }}
-        />
+        >
+          <span
+            style={{
+              width: "80px",
+            }}
+          >
+            Tìm kiếm:
+          </span>
+          <div
+            style={{
+              flex: 1,
+              alignItems: "center",
+              marginTop: width < 576 ? 10 : 0,
+            }}
+          >
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchLoaiNhaCungCap,
+                onSearch: onSearchLoaiNhaCungCap,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
+              }}
+            />
+          </div>
+        </Col>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
