@@ -43,11 +43,22 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
       width: 50,
       align: "center",
     },
-
     {
       title: "Số Lot",
       dataIndex: "soLot",
       key: "soLot",
+      align: "center",
+    },
+    {
+      title: "Mã sản phẩm",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
+      align: "center",
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "soLuong",
+      key: "soLuong",
       align: "center",
     },
   ];
@@ -114,21 +125,52 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 1, r: 3 }, e: { c: 1, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Số Lot";
+          .trim() === "Số Lot" &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
+          })[0]
+          .toString()
+          .trim() === "Mã sản phẩm" &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
+          })[0]
+          .toString()
+          .trim() === "Số lượng";
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
           range: 3,
         });
         const SL = "Số Lot";
+        const MSP = "Mã sản phẩm";
+        const SLuong = "Số lượng";
         const Data = [];
         const NewData = [];
         data.forEach((d, index) => {
-          if (data[index][SL] && data[index][SL].toString().trim() === "") {
+          if (
+            data[index][SL] &&
+            data[index][SL].toString().trim() === "" &&
+            data[index][MSP] &&
+            data[index][MSP].toString().trim() === ""
+          ) {
           } else {
             NewData.push({
               soLot: data[index][SL]
                 ? data[index][SL].toString().trim() !== ""
                   ? data[index][SL].toString().trim()
+                  : undefined
+                : undefined,
+              maSanPham: data[index][MSP]
+                ? data[index][MSP].toString().trim() !== ""
+                  ? data[index][MSP].toString().trim()
+                  : undefined
+                : undefined,
+              soLuong: data[index][SLuong]
+                ? data[index][SLuong].toString().trim() !== ""
+                  ? data[index][SLuong].toString().trim()
                   : undefined
                 : undefined,
             });
@@ -246,6 +288,10 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
     } else if (current.soLot === undefined) {
       setCheckDanger(true);
       setMessageError("Số Lot không được rỗng");
+      return "red-row";
+    } else if (current.maSanPham === undefined) {
+      setCheckDanger(true);
+      setMessageError("Mã sản phẩm không được rỗng");
       return "red-row";
     } else if (DataLoi) {
       if (current.soLot.toString() === DataLoi.soLot) {

@@ -4,9 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit } from "src/components/Common";
+import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { convertObjectToUrlParams } from "src/util/Common";
 
 const FormItem = Form.Item;
 
@@ -19,6 +20,7 @@ const LotForm = ({ history, match, permission }) => {
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
+  const [ListSanPham, setListSanPham] = useState([]);
   const [form] = Form.useForm();
   const { maLot, tenLot } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
@@ -29,6 +31,7 @@ const LotForm = ({ history, match, permission }) => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
           setType("new");
+          getSanPham();
         } else if (permission && !permission.add) {
           history.push("/home");
         }
@@ -38,6 +41,7 @@ const LotForm = ({ history, match, permission }) => {
           // Get info
           const { id } = match.params;
           setId(id);
+          getSanPham();
           getInfo();
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -48,7 +52,28 @@ const LotForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  const getSanPham = () => {
+    const params = convertObjectToUrlParams({ page: -1 });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `SanPham?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListSanPham(res.data);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   /**
    * Lấy thông tin
    *
@@ -73,11 +98,16 @@ const LotForm = ({ history, match, permission }) => {
   };
 
   /**
-   * Quay lại trang người dùng
+   * Quay lại trang lot
    *
    */
   const goBack = () => {
-    history.push("/danh-muc-kho-tpc/so-lot");
+    history.push(
+      `${match.url.replace(
+        type === "new" ? "/them-moi" : `/${match.params.id}/chinh-sua`,
+        ""
+      )}`
+    );
   };
 
   /**
@@ -172,6 +202,43 @@ const LotForm = ({ history, match, permission }) => {
             initialValue={tenLot}
           >
             <Input className="input-item" placeholder="Nhập số lot" />
+          </FormItem>
+          <FormItem
+            label="Sản phẩm"
+            name={["Lot", "sanPham_Id"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
+          >
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListSanPham ? ListSanPham : []}
+              placeholder="Chọn sản phẩm"
+              optionsvalue={["id", "tenSanPham"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+            />
+          </FormItem>
+          <FormItem
+            label="Số lượng"
+            name={["Lot", "soLuong"]}
+            rules={[
+              {
+                pattern: /^[1-9]\d*$/,
+                message: "Số lượng phải lớn hơn 0!",
+              },
+            ]}
+            initialValue={tenLot}
+          >
+            <Input
+              className="input-item"
+              type="number"
+              placeholder="Nhập số lượng"
+            />
           </FormItem>
           <FormSubmit
             goBack={goBack}

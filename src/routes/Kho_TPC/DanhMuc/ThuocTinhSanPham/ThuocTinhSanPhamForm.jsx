@@ -85,7 +85,12 @@ const ThuocTinhSanPhamForm = ({ history, match, permission }) => {
    *
    */
   const goBack = () => {
-    history.push("/danh-muc/thuoc-tinh-san-pham");
+    history.push(
+      `${match.url.replace(
+        type === "new" ? "/them-moi" : `/${match.params.id}/chinh-sua`,
+        ""
+      )}`
+    );
   };
 
   /**

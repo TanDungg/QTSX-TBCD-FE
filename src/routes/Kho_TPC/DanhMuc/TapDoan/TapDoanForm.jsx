@@ -79,7 +79,12 @@ const TapDoanForm = ({ history, match, permission }) => {
    *
    */
   const goBack = () => {
-    history.push("/danh-muc-erp/tap-doan");
+    history.push(
+      `${match.url.replace(
+        type === "new" ? "/them-moi" : `/${match.params.id}/chinh-sua`,
+        ""
+      )}`
+    );
   };
 
   /**

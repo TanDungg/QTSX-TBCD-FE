@@ -126,7 +126,12 @@ const PhongBanForm = ({ history, match, permission }) => {
    *
    */
   const goBack = () => {
-    history.push("/danh-muc-kho-tpc/ban-phong");
+    history.push(
+      `${match.url.replace(
+        type === "new" ? "/them-moi" : `/${match.params.id}/chinh-sua`,
+        ""
+      )}`
+    );
   };
 
   /**

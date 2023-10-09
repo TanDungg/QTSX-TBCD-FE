@@ -192,7 +192,12 @@ function KhachHangForm({ match, permission, history }) {
    *
    */
   const goBack = () => {
-    history.push("/danh-muc-kho-tpc/khach-hang");
+    history.push(
+      `${match.url.replace(
+        type === "new" ? "/them-moi" : `/${match.params.id}/chinh-sua`,
+        ""
+      )}`
+    );
   };
 
   const formTitle =

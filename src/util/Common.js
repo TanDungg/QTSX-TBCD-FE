@@ -207,33 +207,56 @@ export const logOut = async () => {
 /**
  * * lấy ngày tháng năm hiện tại DD/MM/YYYY
  */
-export const getDateNow = (number, check = false) => {
+export const getDateNow = (number) => {
   const date = new Date();
   let day;
-  if (number <= 7 && check === false) {
+  if (number && number > 0) {
     day =
-      date.getDate() +
-      getNumberDayOfMonth(date.getMonth(), date.getFullYear()) -
-      (number ? number : 0) +
+      (date.getDate() <= number
+        ? date.getDate() +
+          getNumberDayOfMonth(date.getMonth(), date.getFullYear()) -
+          (number ? number : 0) +
+          "/" +
+          (date.getMonth().toString().length === 1
+            ? "0" + date.getMonth()
+            : date.getMonth())
+        : date.getDate() -
+          (number ? number : 0) +
+          "/" +
+          ((date.getMonth() + 1).toString().length === 1
+            ? "0" + date.getMonth() + 1
+            : date.getMonth() + 1)) +
       "/" +
-      ((date.getMonth() + 1).toString().length === 1
-        ? "0" + date.getMonth()
-        : date.getMonth()) +
+      date.getFullYear();
+  } else if (number && number < 0) {
+    day =
+      (date.getDate().toString().length === 1 && date.getDate() !== 9
+        ? "0" +
+          date.getDate() +
+          Math.abs(number) +
+          "/" +
+          ((date.getMonth() + 1).toString().length === 1
+            ? "0" + (date.getMonth() + 1)
+            : date.getMonth() + 1)
+        : getNumberDayOfMonth(date.getMonth(), date.getFullYear()) ===
+          date.getDate()
+        ? "01/" +
+          ((date.getMonth() + 2).toString().length === 1
+            ? "0" + (date.getMonth() + 2)
+            : date.getMonth() + 2)
+        : date.getDate() === 9 &&
+          date.getDate() +
+            Math.abs(number) +
+            "/" +
+            ((date.getMonth() + 1).toString().length === 1
+              ? "0" + (date.getMonth() + 1)
+              : date.getMonth() + 1)) +
       "/" +
       date.getFullYear();
   } else {
     day =
       (date.getDate().toString().length === 1
-        ? "0" +
-          (number
-            ? number > 0
-              ? date.getDate() - number
-              : date.getDate() + Math.abs(number)
-            : date.getDate())
-        : number
-        ? number > 0
-          ? date.getDate() - number
-          : date.getDate() + Math.abs(number)
+        ? "0" + date.getDate()
         : date.getDate()) +
       "/" +
       ((date.getMonth() + 1).toString().length === 1

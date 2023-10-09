@@ -227,7 +227,12 @@ function VatTuForm({ match, permission, history }) {
    *
    */
   const goBack = () => {
-    history.push("/danh-muc-kho-tpc/vat-tu");
+    history.push(
+      `${match.url.replace(
+        type === "new" ? "/them-moi" : `/${match.params.id}/chinh-sua`,
+        ""
+      )}`
+    );
   };
 
   const formTitle = type === "new" ? "Thêm mới vật tư" : "Chỉnh sửa vật tư";

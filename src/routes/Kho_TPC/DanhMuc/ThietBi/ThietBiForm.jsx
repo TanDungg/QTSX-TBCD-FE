@@ -77,7 +77,12 @@ const ThietBiForm = ({ history, match, permission }) => {
    *
    */
   const goBack = () => {
-    history.push("/danh-muc-kho-tpc/thiet-bi");
+    history.push(
+      `${match.url.replace(
+        type === "new" ? "/them-moi" : `/${match.params.id}/chinh-sua`,
+        ""
+      )}`
+    );
   };
 
   /**

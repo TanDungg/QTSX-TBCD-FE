@@ -195,7 +195,12 @@ function LoaiSanPhamForm({ match, permission, history }) {
    *
    */
   const goBack = () => {
-    history.push("/danh-muc-kho-tpc/loai-san-pham");
+    history.push(
+      `${match.url.replace(
+        type === "new" ? "/them-moi" : `/${match.params.id}/chinh-sua`,
+        ""
+      )}`
+    );
   };
 
   const formTitle =
