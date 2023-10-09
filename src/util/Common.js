@@ -212,15 +212,18 @@ export const getDateNow = (number, check = false) => {
   let day;
   if (number <= 7 && check === false) {
     day =
-      date.getDate() +
-      getNumberDayOfMonth(date.getMonth(), date.getFullYear()) -
-      (number ? number : 0) +
-      "/" +
-      ((date.getMonth() + 1).toString().length === 1
-        ? "0" + date.getMonth()
-        : date.getMonth()) +
-      "/" +
-      date.getFullYear();
+      date.getDate() <= number
+        ? date.getDate() +
+          getNumberDayOfMonth(date.getMonth(), date.getFullYear()) -
+          (number ? number : 0)
+        : date.getDate() +
+          -(number ? number : 0) +
+          "/" +
+          ((date.getMonth() + 1).toString().length === 1
+            ? "0" + date.getMonth()
+            : date.getMonth()) +
+          "/" +
+          date.getFullYear();
   } else {
     day =
       (date.getDate().toString().length === 1
