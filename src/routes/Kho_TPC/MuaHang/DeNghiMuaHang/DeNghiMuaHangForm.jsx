@@ -32,7 +32,7 @@ import {
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { DEFAULT_FORM_TWO_COL } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -892,14 +892,22 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       />
       <Card className="th-card-margin-bottom">
         <Form
-          {...DEFAULT_FORM_CUSTOM}
+          {...DEFAULT_FORM_TWO_COL}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
           <Row>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Người đề nghị"
                 name={["dinhmucvattu", "userYeuCau_Id"]}
@@ -919,8 +927,15 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Ban/Phòng"
                 name={["dinhmucvattu", "tenPhongBan"]}
@@ -934,7 +949,15 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 <Input className="input-item" disabled={true} />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Dự kiến hoàn thành"
                 name={["dinhmucvattu", "ngayHoanThanhDukien"]}
@@ -958,9 +981,17 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
-                label="Ngày yêu câù"
+                label="Ngày yêu cầu"
                 name={["dinhmucvattu", "ngayYeuCau"]}
                 rules={[
                   {
@@ -982,7 +1013,15 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Người kiểm tra"
                 name={["dinhmucvattu", "userKiemTra_Id"]}
@@ -1005,7 +1044,15 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Kế toán duyệt"
                 name={["dinhmucvattu", "userKeToan_Id"]}
@@ -1028,7 +1075,15 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Duyệt"
                 name={["dinhmucvattu", "userDuyet_Id"]}
@@ -1057,7 +1112,15 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             type === "xacnhan" ||
             type === "detail") && (
             <Row>
-              <Col span={12}>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
                 <FormItem
                   label="File đã ký"
                   name={["dinhmucvattu", "userDuyet_Id"]}
@@ -1141,7 +1204,15 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           )}
           {(type === "new" || type === "edit") && (
             <Row style={{ marginTop: 15 }}>
-              <Col span={12}>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
                 <FormItem
                   label="Sản phẩm"
                   name={["sanPham", "sanPham_Id"]}
@@ -1164,7 +1235,15 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                   />
                 </FormItem>
               </Col>
-              <Col span={12}>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
                 <FormItem
                   label="Số lượng sản phẩm"
                   name={["sanPham", "soLuong"]}
@@ -1178,9 +1257,16 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                   />
                 </FormItem>
               </Col>
-              <Col span={12}></Col>
               {type === "new" || type === "edit" ? (
-                <Col span={12} align="center">
+                <Col
+                  xxl={24}
+                  xl={24}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  align="center"
+                >
                   <Button
                     icon={<PlusOutlined />}
                     type="primary"
@@ -1197,7 +1283,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 900, y: "55vh" }}
+          scroll={{ x: 1300, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={reDataForTable(listVatTu)}

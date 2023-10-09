@@ -17,6 +17,7 @@ export const DEFAULT_FORM_STYLE = {
     span: 18,
   },
 };
+
 export const DEFAULT_FORM_CUSTOM = {
   labelCol: {
     span: 6,
@@ -26,32 +27,7 @@ export const DEFAULT_FORM_CUSTOM = {
     span: 12,
   },
 };
-export const DEFAULT_FORM_TWO_COL = {
-  labelCol: {
-    span: 8,
-    style: { fontWeight: "bold" },
-  },
-  wrapperCol: {
-    span: 16,
-  },
-};
-export const DEFAULT_FORM_NGAY = {
-  labelCol: {
-    span: 6,
-    style: { fontWeight: "bold" },
-  },
-  wrapperCol: {
-    span: 17,
-  },
-};
-export const DEFAULT_FORM_XUATKHO = {
-  labelCol: {
-    span: 8,
-  },
-  wrapperCol: {
-    span: 16,
-  },
-};
+
 export const DEFAULT_FORM = {
   labelCol: {
     span: 6,
@@ -61,58 +37,65 @@ export const DEFAULT_FORM = {
     span: 18,
   },
 };
-export const DEFAULT_FORM_DEXUAT = {
+
+export const DEFAULT_FORM_TWO_COL = {
   labelCol: {
-    span: 5,
-    style: { fontWeight: "bold", textAlign: "left" },
+    span:
+      window.innerWidth >= 1600
+        ? 8
+        : window.innerWidth >= 1200
+        ? 11
+        : window.innerWidth >= 768
+        ? 8
+        : window.innerWidth >= 576
+        ? 10
+        : 7,
+    style: {
+      fontWeight: "bold",
+      marginLeft: window.innerWidth >= 1600 ? -15 : 0,
+    },
   },
   wrapperCol: {
-    span: 19,
-  },
-};
-export const DEFAULT_FORM_YEUCAUHOTRO = {
-  labelCol: {
-    span: 6,
-    style: { fontWeight: "bold", textAlign: "left" },
-  },
-  wrapperCol: {
-    span: 18,
-  },
-};
-export const DEFAULT_FORM_YEUCAU = {
-  labelCol: {
-    span: 5,
-    style: { fontWeight: "bold", textAlign: "left" },
-  },
-  wrapperCol: {
-    span: 19,
+    span:
+      window.innerWidth >= 1600
+        ? 16
+        : window.innerWidth >= 1200
+        ? 13
+        : window.innerWidth >= 768
+        ? 16
+        : window.innerWidth >= 576
+        ? 14
+        : 17,
   },
 };
 
-export const DEFAULT_FORM_CHITIETMUAHANG = {
+export const DEFAULT_FORM_TRA_NCC = {
   labelCol: {
-    span: 8,
-    style: { fontWeight: "bold", textAlign: "left" },
+    span:
+      window.innerWidth >= 1600
+        ? 7
+        : window.innerWidth >= 1200
+        ? 10
+        : window.innerWidth >= 768
+        ? 6
+        : window.innerWidth >= 576
+        ? 9
+        : 7,
+    style: {
+      fontWeight: "bold",
+      marginLeft: window.innerWidth >= 1600 ? -15 : 0,
+    },
   },
   wrapperCol: {
-    span: 17,
-  },
-};
-export const DEFAULT_FORM_HOANTHANH = {
-  labelCol: {
-    span: 10,
-    style: { fontWeight: "bold", textAlign: "left", marginLeft: 10 },
-  },
-  wrapperCol: {
-    span: 12,
-  },
-};
-export const DEFAULT_FORM_HUY = {
-  labelCol: {
-    span: 7,
-    style: { fontWeight: "bold", textAlign: "left" },
-  },
-  wrapperCol: {
-    span: 10,
+    span:
+      window.innerWidth >= 1600
+        ? 16
+        : window.innerWidth >= 1200
+        ? 14
+        : window.innerWidth >= 768
+        ? 17
+        : window.innerWidth >= 576
+        ? 15
+        : 17,
   },
 };

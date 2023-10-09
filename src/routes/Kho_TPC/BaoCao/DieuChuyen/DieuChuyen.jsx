@@ -1,6 +1,6 @@
 import { DownloadOutlined } from "@ant-design/icons";
-import { Button, Card, Row, Col, DatePicker, Divider } from "antd";
-import { map, remove, find, isEmpty } from "lodash";
+import { Button, Card, Row, Col } from "antd";
+import { map, isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
@@ -11,7 +11,6 @@ import {
   Table,
   Select,
   Toolbar,
-  ModalDeleteConfirm,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import {
@@ -19,12 +18,10 @@ import {
   getTokenInfo,
   getLocalStorage,
 } from "src/util/Common";
-import moment from "moment";
-const { RangePicker } = DatePicker;
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function NhapKho({ permission, history, match }) {
+function DieuChuyen({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -36,7 +33,6 @@ function NhapKho({ permission, history, match }) {
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
   const [data, setData] = useState([]);
-  const [loai, setLoai] = useState(true);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -204,7 +200,7 @@ function NhapKho({ permission, history, match }) {
       align: "center",
     },
     {
-      title: "Loại sản phẩm",
+      title: "Kho điều chuyển",
       key: "maDinhMucVatTu",
       align: "center",
       render: (val) => renderDetail(val),
@@ -221,7 +217,7 @@ function NhapKho({ permission, history, match }) {
       filterSearch: true,
     },
     {
-      title: "Mã sản phẩm",
+      title: "Kho nhận",
       dataIndex: "ngayYeuCau",
       key: "ngayYeuCau",
       align: "center",
@@ -237,7 +233,23 @@ function NhapKho({ permission, history, match }) {
       filterSearch: true,
     },
     {
-      title: "Tên sản phẩm",
+      title: "Mã vật tư",
+      dataIndex: "tennguoiLap",
+      key: "tennguoiLap",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tennguoiLap,
+            value: d.tennguoiLap,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tennguoiLap.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Tên vật tư",
       dataIndex: "tennguoiLap",
       key: "tennguoiLap",
       align: "center",
@@ -323,15 +335,12 @@ function NhapKho({ permission, history, match }) {
     getDinhMucVatTu(keyword, value, FromDate, ToDate, 1);
   };
 
-  const handleOnSelectDinhMucVatTu = (value) => {};
-
   const handleClearUser_Id = () => {
     setUser_Id(null);
 
     getDinhMucVatTu(keyword, "", FromDate, ToDate, 1);
   };
 
-  const handleClearDinhMucVatTu = () => {};
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
@@ -342,39 +351,18 @@ function NhapKho({ permission, history, match }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Báo cáo nhập kho"}
-        description="Báo cáo nhập kho"
+        title={"Báo cáo điều chuyển"}
+        description="Báo cáo điều chuyển"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ marginBottom: 10 }}>
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Loại nhập kho:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={[
-                { id: "ckd", name: "Nhập kho CKD" },
-                { id: "true", name: "Nhập kho vật tư" },
-                { id: "false", name: "Nhập kho thành phẩm" },
-              ]}
-              placeholder="Chọn loại nhập kho"
-              optionsvalue={["id", "name"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectUser_Id}
-              value={user_Id}
-              onChange={(value) => setUser_Id(value)}
-              allowClear
-              onClear={handleClearUser_Id}
-            />
-          </Col>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Loại sản phẩm:</h5>
+            <h5>Kho điều chuyển:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListUser ? ListUser : []}
-              placeholder="Chọn loại sản phẩm"
+              placeholder="Chọn kho điều chuyển"
               optionsvalue={["nguoiLap_Id", "tennguoiLap"]}
               style={{ width: "100%" }}
               showSearch
@@ -387,11 +375,11 @@ function NhapKho({ permission, history, match }) {
             />
           </Col>
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Sản phẩm:</h5>
+            <h5>Kho nhận:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListUser ? ListUser : []}
-              placeholder="Chọn sản phẩm"
+              placeholder="Chọn kho nhận"
               optionsvalue={["nguoiLap_Id", "tennguoiLap"]}
               style={{ width: "100%" }}
               showSearch
@@ -401,19 +389,6 @@ function NhapKho({ permission, history, match }) {
               onChange={(value) => setUser_Id(value)}
               allowClear
               onClear={handleClearUser_Id}
-            />
-          </Col>
-
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Thời gian:</h5>
-            <RangePicker
-              format={"DD/MM/YYYY"}
-              onChange={(date, dateString) => handleChangeNgay(dateString)}
-              defaultValue={[
-                moment(FromDate, "DD/MM/YYYY"),
-                moment(ToDate, "DD/MM/YYYY"),
-              ]}
-              allowClear={false}
             />
           </Col>
           <Col xl={6} lg={24} md={24} xs={24}>
@@ -455,4 +430,4 @@ function NhapKho({ permission, history, match }) {
   );
 }
 
-export default NhapKho;
+export default DieuChuyen;

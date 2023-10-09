@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { Card, Divider } from "antd";
+import { Card, Col, Divider } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
@@ -21,7 +21,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function DonVi({ match, permission, history }) {
   const dispatch = useDispatch();
   const INFO = getLocalStorage("menu");
-  const { data, loading } = useSelector(({ common }) => common).toJS();
+  const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const { totalRow, totalPage, pageSize } = data;
@@ -269,20 +269,48 @@ function DonVi({ match, permission, history }) {
         // buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
-        <Toolbar
-          count={1}
-          search={{
-            title: "Tìm kiếm",
-            loading,
-            value: keyword,
-            onChange: onChangeKeyword,
-            onPressEnter: onSearchDonVi,
-            onSearch: onSearchDonVi,
-            placeholder: "Nhập từ khóa",
-            allowClear: true,
-            onClear: { handleClearSearch },
+        <Col
+          xxl={8}
+          xl={12}
+          lg={16}
+          md={16}
+          sm={20}
+          xs={24}
+          style={{
+            display: "flex",
+            alignItems: "center",
           }}
-        />
+        >
+          <span
+            style={{
+              width: "80px",
+            }}
+          >
+            Tìm kiếm:
+          </span>
+          <div
+            style={{
+              flex: 1,
+              alignItems: "center",
+              marginTop: width < 576 ? 10 : 0,
+            }}
+          >
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchDonVi,
+                onSearch: onSearchDonVi,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
+                onClear: { handleClearSearch },
+              }}
+            />
+          </div>
+        </Col>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table

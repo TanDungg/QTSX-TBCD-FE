@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Divider } from "antd";
+import { Button, Card, Col, Divider } from "antd";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
@@ -21,7 +21,7 @@ import { convertObjectToUrlParams } from "src/util/Common";
 const { EditableRow, EditableCell } = EditableTableRow;
 function ThietBi({ permission, history }) {
   const dispatch = useDispatch();
-  const { data, loading } = useSelector(({ common }) => common).toJS();
+  const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const { totalRow, totalPages, pageSize } = data;
@@ -295,20 +295,48 @@ function ThietBi({ permission, history }) {
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
-        <Toolbar
-          count={1}
-          search={{
-            title: "Tìm kiếm",
-            loading,
-            value: keyword,
-            onChange: onChangeKeyword,
-            onPressEnter: onSearchNguoiDung,
-            onSearch: onSearchNguoiDung,
-            placeholder: "Nhập từ khóa",
-            allowClear: true,
-            onClear: { handleClearSearch },
+        <Col
+          xxl={8}
+          xl={12}
+          lg={16}
+          md={16}
+          sm={20}
+          xs={24}
+          style={{
+            display: "flex",
+            alignItems: "center",
           }}
-        />
+        >
+          <span
+            style={{
+              width: "80px",
+            }}
+          >
+            Tìm kiếm:
+          </span>
+          <div
+            style={{
+              flex: 1,
+              alignItems: "center",
+              marginTop: width < 576 ? 10 : 0,
+            }}
+          >
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchNguoiDung,
+                onSearch: onSearchNguoiDung,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
+                onClear: { handleClearSearch },
+              }}
+            />
+          </div>
+        </Col>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table

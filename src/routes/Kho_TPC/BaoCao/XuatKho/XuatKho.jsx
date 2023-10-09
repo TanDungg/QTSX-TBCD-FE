@@ -1,13 +1,6 @@
-import {
-  PrinterOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { DownloadOutlined } from "@ant-design/icons";
 import { Button, Card, Row, Col, DatePicker, Divider } from "antd";
-import { map, remove, find, isEmpty } from "lodash";
+import { map, isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
@@ -18,7 +11,6 @@ import {
   Table,
   Select,
   Toolbar,
-  ModalDeleteConfirm,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import {
@@ -43,7 +35,6 @@ function XuatKho({ permission, history, match }) {
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
   const [data, setData] = useState([]);
-  const [loai, setLoai] = useState(true);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -178,101 +169,12 @@ function XuatKho({ permission, history, match }) {
     return uniqueObjects;
   }
   const { totalRow, pageSize } = data;
-  //Lấy thông tin thiết bị
+
   const dataList = reDataForTable(
     DinhMucVatTu.datalist,
     page === 1 ? page : pageSize * (page - 1) + 2
   );
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    const title = "phiếu định mức vật tư";
-    ModalDeleteConfirm(deleteItemAction, item, item.maDinhMucVatTu, title);
-  };
 
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    let url = `lkn_DinhMucVatTu/${item.id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {})
-      .catch((error) => console.error(error));
-  };
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const detailItem =
-      permission &&
-      permission.cof &&
-      item.nguoiKy_Id === INFO.user_Id &&
-      item.xacNhan === null ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <EyeOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
-        </span>
-      );
-    const editItem =
-      permission &&
-      permission.edit &&
-      item.nguoiLap_Id === INFO.user_Id &&
-      item.xacNhan === null ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item, permission },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
-    const deleteItemVal =
-      permission &&
-      permission.del &&
-      item.nguoiLap_Id === INFO.user_Id &&
-      item.xacNhan === null
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        <React.Fragment>
-          {detailItem}
-          <Divider type="vertical" />
-          {editItem}
-          <Divider type="vertical" />
-          <a {...deleteItemVal} title="Xóa">
-            <DeleteOutlined />
-          </a>
-        </React.Fragment>
-      </div>
-    );
-  };
   const renderDetail = (val) => {
     const detail =
       permission && permission.view ? (
@@ -289,7 +191,7 @@ function XuatKho({ permission, history, match }) {
       );
     return <div>{detail}</div>;
   };
-  //tạo bảng
+
   let colValues = [
     {
       title: "STT",
@@ -369,13 +271,6 @@ function XuatKho({ permission, history, match }) {
       key: "xacNhanDinhMuc",
       align: "center",
     },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
-    },
   ];
   const components = {
     body: {
@@ -400,15 +295,6 @@ function XuatKho({ permission, history, match }) {
     };
   });
 
-  /**
-   * Redirect to create new organization
-   *
-   * @memberof ChucNang
-   */
-  const handleInPhieu = () => {
-    history.push();
-  };
-
   const handleTaoPhieu = () => {
     history.push(`${match.url}/them-moi`);
   };
@@ -416,7 +302,7 @@ function XuatKho({ permission, history, match }) {
     return (
       <>
         <Button
-          icon={<PlusOutlined />}
+          icon={<DownloadOutlined />}
           className="th-btn-margin-bottom-0"
           type="primary"
           onClick={handleTaoPhieu}

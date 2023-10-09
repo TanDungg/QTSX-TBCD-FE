@@ -210,20 +210,17 @@ export const logOut = async () => {
 export const getDateNow = (number, check = false) => {
   const date = new Date();
   let day;
-  if (number <= 7 && check === false) {
+  if (date.getDate() <= number && check === false) {
     day =
-      date.getDate() <= number
-        ? date.getDate() +
-          getNumberDayOfMonth(date.getMonth(), date.getFullYear()) -
-          (number ? number : 0)
-        : date.getDate() +
-          -(number ? number : 0) +
-          "/" +
-          ((date.getMonth() + 1).toString().length === 1
-            ? "0" + date.getMonth()
-            : date.getMonth()) +
-          "/" +
-          date.getFullYear();
+      date.getDate() +
+      getNumberDayOfMonth(date.getMonth(), date.getFullYear()) -
+      (number ? number : 0) +
+      "/" +
+      ((date.getMonth() + 1).toString().length === 1
+        ? "0" + date.getMonth()
+        : date.getMonth()) +
+      "/" +
+      date.getFullYear();
   } else {
     day =
       (date.getDate().toString().length === 1
