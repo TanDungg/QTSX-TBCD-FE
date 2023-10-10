@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Col } from "antd";
-import { Icon } from "@ant-design/compatible";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, repeat } from "lodash";
+import { map, isEmpty, repeat } from "lodash";
 
 import {
   ModalDeleteConfirm,
@@ -150,19 +149,6 @@ function CauTrucKho({ match, history, permission }) {
   };
 
   /**
-   * Render Icon trên bảng
-   *
-   * @param {*} icon
-   * @param {*} record
-   * @returns
-   * @memberof ChucNang
-   */
-  const renderIcon = (icon, record) => {
-    if (record.isParent) return null;
-    return <Icon type={icon} />;
-  };
-
-  /**
    * Chuyển tới trang thêm mới chức năng
    *
    * @memberof ChucNang
@@ -223,6 +209,12 @@ function CauTrucKho({ match, history, permission }) {
       title: "Mã Barcode",
       dataIndex: "maBarcode",
       key: "maBarcode",
+      align: "center",
+    },
+    {
+      title: "Vị trí",
+      dataIndex: "viTri",
+      key: "viTri",
       align: "center",
     },
     {

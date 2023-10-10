@@ -7,7 +7,6 @@ import { Input, Select, FormSubmit } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
-import tree from "src/components/Common/Tree_Old";
 
 const FormItem = Form.Item;
 
@@ -278,7 +277,7 @@ function TheKhoForm({ match, permission, history }) {
               ]}
               initialValue={tenVatTu}
             >
-             <Select
+              <Select
                 className="heading-select slt-search th-select-heading"
                 data={NhomVatTuSelect ? NhomVatTuSelect : []}
                 placeholder="Chọn tên vật tư"
@@ -310,51 +309,51 @@ function TheKhoForm({ match, permission, history }) {
               />
             </FormItem>
             <FormItem
-                label="Ngày nhập/xuất"
-                name={["dathangnoibo", "ngayYeuCau"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <DatePicker
-                style={{width: "100%"}}
-                  format={"DD/MM/YYYY"}
-                  allowClear={false}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                  onChange={(date, dateString) => {
-                    setFieldsValue({
-                      dathangnoibo: {
-                        ngayYeuCau: moment(dateString, "DD/MM/YYYY"),
-                      },
-                    });
-                  }}
-                />
-              </FormItem>
-              <FormItem
-                label="Ngày tạo"
-                name={["dathangnoibo", "ngayYeuCau"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <DatePicker
-                  format={"DD/MM/YYYY"}
-                style={{width: "100%"}}
+              label="Ngày nhập/xuất"
+              name={["dathangnoibo", "ngayYeuCau"]}
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              <DatePicker
+                style={{ width: "100%" }}
+                format={"DD/MM/YYYY"}
                 allowClear={false}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                  onChange={(date, dateString) => {
-                    setFieldsValue({
-                      dathangnoibo: {
-                        ngayYeuCau: moment(dateString, "DD/MM/YYYY"),
-                      },
-                    });
-                  }}
-                />
-              </FormItem>
+                disabled={type === "new" || type === "edit" ? false : true}
+                onChange={(date, dateString) => {
+                  setFieldsValue({
+                    dathangnoibo: {
+                      ngayYeuCau: moment(dateString, "DD/MM/YYYY"),
+                    },
+                  });
+                }}
+              />
+            </FormItem>
+            <FormItem
+              label="Ngày tạo"
+              name={["dathangnoibo", "ngayYeuCau"]}
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              <DatePicker
+                format={"DD/MM/YYYY"}
+                style={{ width: "100%" }}
+                allowClear={false}
+                disabled={type === "new" || type === "edit" ? false : true}
+                onChange={(date, dateString) => {
+                  setFieldsValue({
+                    dathangnoibo: {
+                      ngayYeuCau: moment(dateString, "DD/MM/YYYY"),
+                    },
+                  });
+                }}
+              />
+            </FormItem>
             <FormItem
               label="Nội dung"
               name={["VatTu", "quyCach"]}
@@ -367,7 +366,7 @@ function TheKhoForm({ match, permission, history }) {
             >
               <Input placeholder="Nhập nội dung"></Input>
             </FormItem>
-       
+
             <FormItem
               label="Số lượng"
               name={["VatTu", "donViQuyDoi"]}
@@ -398,7 +397,6 @@ function TheKhoForm({ match, permission, history }) {
               rules={[
                 {
                   type: "string",
-           
                 },
               ]}
             >

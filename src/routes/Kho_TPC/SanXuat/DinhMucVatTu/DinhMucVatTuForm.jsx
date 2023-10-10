@@ -48,6 +48,8 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
+  const [listChiTiet, setListChiTiet] = useState([]);
+
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
@@ -233,6 +235,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
           getUserLap(INFO, res.data.nguoiLap_Id);
           setInfo(res.data);
           getSanPham(res.data.sanPham_Id);
+          handleSelectSanPham(res.data.sanPham_Id);
           setFieldsValue({
             dinhmucvattu: {
               sanPham_Id: res.data.sanPham_Id,
@@ -579,6 +582,17 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
         </Tag>
       </span>
     );
+  const handleSelectSanPham = (val) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(`SanPham/${val}`, "GET", null, "LIST", "", resolve, reject)
+      );
+    })
+      .then((res) => {
+        if (res && res.data) setListChiTiet(JSON.parse(res.data.chiTiet));
+      })
+      .catch((error) => console.error(error));
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -641,6 +655,29 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                   data={ListSanPham ? ListSanPham : []}
                   placeholder="Chọn sản phẩm"
                   optionsvalue={["id", "tenSanPham"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  onSelect={handleSelectSanPham}
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col span={12}>
+              <FormItem
+                label="Chi tiết"
+                name={["dinhmucvattu", "chiTiet_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={listChiTiet ? listChiTiet : []}
+                  placeholder="Chọn chi tiết"
+                  optionsvalue={["chiTiet_Id", "tenChiTiet"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
