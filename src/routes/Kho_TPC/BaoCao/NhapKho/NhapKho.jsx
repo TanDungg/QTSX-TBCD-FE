@@ -348,7 +348,15 @@ function NhapKho({ permission, history, match }) {
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ marginBottom: 10 }}>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Loại nhập kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
@@ -369,7 +377,15 @@ function NhapKho({ permission, history, match }) {
               onClear={handleClearUser_Id}
             />
           </Col>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Loại sản phẩm:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
@@ -386,7 +402,15 @@ function NhapKho({ permission, history, match }) {
               onClear={handleClearUser_Id}
             />
           </Col>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Sản phẩm:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
@@ -404,7 +428,15 @@ function NhapKho({ permission, history, match }) {
             />
           </Col>
 
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Thời gian:</h5>
             <RangePicker
               format={"DD/MM/YYYY"}
@@ -416,7 +448,15 @@ function NhapKho({ permission, history, match }) {
               allowClear={false}
             />
           </Col>
-          <Col xl={6} lg={24} md={24} xs={24}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Tìm kiếm:</h5>
             <Toolbar
               count={1}
@@ -435,7 +475,7 @@ function NhapKho({ permission, history, match }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1300, y: "55vh" }}
+          scroll={{ x: 900, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}

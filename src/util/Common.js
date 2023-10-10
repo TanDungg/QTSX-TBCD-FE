@@ -244,13 +244,12 @@ export const getDateNow = (number) => {
           ((date.getMonth() + 2).toString().length === 1
             ? "0" + (date.getMonth() + 2)
             : date.getMonth() + 2)
-        : date.getDate() === 9 &&
-          date.getDate() +
-            Math.abs(number) +
-            "/" +
-            ((date.getMonth() + 1).toString().length === 1
-              ? "0" + (date.getMonth() + 1)
-              : date.getMonth() + 1)) +
+        : date.getDate() +
+          Math.abs(number) +
+          "/" +
+          ((date.getMonth() + 1).toString().length === 1
+            ? "0" + (date.getMonth() + 1)
+            : date.getMonth() + 1)) +
       "/" +
       date.getFullYear();
   } else {

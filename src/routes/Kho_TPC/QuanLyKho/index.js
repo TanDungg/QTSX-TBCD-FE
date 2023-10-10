@@ -33,6 +33,14 @@ const XuatKhoVatTu = asyncComponent(() => import("./XuatKho/VatTu/VatTu"));
 const XuatKhoThanhPham = asyncComponent(() =>
   import("./XuatKho/ThanhPham/ThanhPham")
 );
+
+const DinhMucTonKho = asyncComponent(() =>
+  import("./DinhMucTonKho/DinhMucTonKho")
+);
+const DinhMucTonKhoForm = asyncComponent(() =>
+  import("./DinhMucTonKho/DinhMucTonKhoForm")
+);
+
 const DieuChuyen = asyncComponent(() => import("./DieuChuyen/DieuChuyen"));
 const ThanhLy = asyncComponent(() => import("./ThanhLy/ThanhLy"));
 const TheKho = asyncComponent(() => import("./TheKho/TheKho"));
@@ -195,6 +203,16 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/vi-tri-luu`}
         exact
         component={Auth(ViTriLuu, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/dinh-muc-ton-kho`}
+        exact
+        component={Auth(DinhMucTonKho, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/dinh-muc-ton-kho/them-moi`}
+        exact
+        component={Auth(DinhMucTonKhoForm, menus, pathname, permission)}
       />
     </Switch>
   );

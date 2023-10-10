@@ -41,8 +41,8 @@ function DinhMucVatTu({ permission, history, match }) {
   const [DinhMucVatTu, setDinhMucVatTu] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
-  const [selectedDevice, setSelectedDevice] = useState([]);
-  const [selectedKeys, setSelectedKeys] = useState([]);
+  const [SelectedDinhMucVatTu, setSelectedDinhMucVatTu] = useState(null);
+  const [selectedKeys, setSelectedKeys] = useState(null);
   const [keyword, setKeyword] = useState("");
   const [data, setData] = useState([]);
 
@@ -421,7 +421,7 @@ function DinhMucVatTu({ permission, history, match }) {
           className="th-btn-margin-bottom-0"
           type="primary"
           onClick={handleTaoPhieu}
-          disabled={(permission && !permission.add) || selectedKeys.length > 0}
+          disabled={(permission && !permission.add) || selectedKeys !== null}
         >
           Tạo phiếu
         </Button>
@@ -430,9 +430,7 @@ function DinhMucVatTu({ permission, history, match }) {
           className="th-btn-margin-bottom-0"
           type="primary"
           onClick={handleInPhieu}
-          disabled={
-            (permission && !permission.print) || selectedKeys.length === 0
-          }
+          disabled={(permission && !permission.print) || selectedKeys === null}
         >
           In phiếu
         </Button>
@@ -446,45 +444,18 @@ function DinhMucVatTu({ permission, history, match }) {
     getDinhMucVatTu(keyword, value, FromDate, ToDate, 1);
   };
 
-  const handleOnSelectDinhMucVatTu = (value) => {};
-
   const handleClearUser_Id = () => {
     setUser_Id(null);
-    setSelectedDevice([]);
-    setSelectedKeys([]);
+    setSelectedDinhMucVatTu(null);
+    setSelectedKeys(null);
     getDinhMucVatTu(keyword, "", FromDate, ToDate, 1);
   };
 
-  const handleClearDinhMucVatTu = () => {
-    setSelectedDevice([]);
-    setSelectedKeys([]);
-  };
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
     getDinhMucVatTu(keyword, user_Id, dateString[0], dateString[1], 1);
-  };
-
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
   };
 
   return (
@@ -563,29 +534,6 @@ function DinhMucVatTu({ permission, history, match }) {
           </Col>
         </Row>
         <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            preserveSelectedRowKeys: true,
-            hideSelectAll: true,
-            selectedRowKeys: selectedKeys,
-            getCheckboxProps: (record) => ({
-              // disabled: true,
-            }),
-          }}
-          onRow={(record, rowIndex) =>
-            record.xacNhan === true && {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setSelectedDevice([record]);
-                  setSelectedKeys([record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            }
-          }
           bordered
           columns={columns}
           scroll={{ x: 1300, y: "55vh" }}
@@ -601,6 +549,39 @@ function DinhMucVatTu({ permission, history, match }) {
             total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,
+          }}
+          rowSelection={{
+            type: "radio",
+            selectedRowKeys: selectedKeys ? [selectedKeys] : [],
+            onChange: (selectedRowKeys, selectedRows) => {
+              console.log(selectedRows);
+              if (
+                selectedRows.length > 0 &&
+                selectedRows[0].xacNhanDinhMuc === "Xác nhận"
+              ) {
+                setSelectedDinhMucVatTu(selectedRows[0]);
+                setSelectedKeys(selectedRows[0].key);
+              } else {
+                setSelectedDinhMucVatTu(null);
+                setSelectedKeys(null);
+              }
+            },
+          }}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (e) => {
+                if (
+                  selectedKeys === record.key ||
+                  record.xacNhanDinhMuc !== "Xác nhận"
+                ) {
+                  setSelectedDinhMucVatTu(null);
+                  setSelectedKeys(null);
+                } else {
+                  setSelectedDinhMucVatTu(record);
+                  setSelectedKeys(record.key);
+                }
+              },
+            };
           }}
         />
       </Card>
