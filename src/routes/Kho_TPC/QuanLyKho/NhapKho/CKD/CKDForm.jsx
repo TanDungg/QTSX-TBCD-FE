@@ -138,10 +138,10 @@ const CKDForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
-  const [ListNhaCungCap, setListNhaCungCap] = useState([]);
+  const [ListXuong, setListXuong] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ListKho, setListKho] = useState([]);
-  const [ListMaPhieu, setListMaPhieu] = useState([]);
+  const [ListSoLot, setListSoLot] = useState([]);
   const [SanPham_Id, setSanPham_Id] = useState();
   const [ListSanPham, setListSanPham] = useState([]);
   const [SoLuong, setSoLuong] = useState();
@@ -153,10 +153,8 @@ const CKDForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           getUserLap(INFO);
           setType("new");
-          getNhaCungCap();
-          getSanPham();
-          getKho();
-          getMaPhieu();
+          getXuong();
+          getLot();
           setFieldsValue({
             phieunhapkho: {
               ngayNhan: moment(getDateNow(), "DD/MM/YYYY"),
@@ -230,75 +228,24 @@ const CKDForm = ({ history, match, permission }) => {
       }
     });
   };
-  const getSanPham = () => {
+  const getSanPham = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(
-          `SanPham?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
+        fetchStart(`SanPham/${id}`, "GET", null, "DETAIL", "", resolve, reject)
       );
     }).then((res) => {
       if (res && res.data) {
-        setListSanPham(res.data);
+        setListSanPham(JSON.parse(res.data.chiTiet));
       } else {
         setListSanPham([]);
       }
     });
   };
-  const getNhaCungCap = (id) => {
-    if (id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `NhaCungCap/${id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListNhaCungCap([res.data]);
-        } else {
-          setListNhaCungCap([]);
-        }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `NhaCungCap?page=-1`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListNhaCungCap(res.data);
-        } else {
-          setListNhaCungCap([]);
-        }
-      });
-    }
-  };
-  const getMaPhieu = () => {
+  const getXuong = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuNhanHang/get-phieu-nhan-ma-phieu`,
+          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -309,54 +256,51 @@ const CKDForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListMaPhieu(res.data);
+        const xuong = [];
+        res.data.forEach((x) => {
+          if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+            xuong.push(x);
+          }
+        });
+        setListXuong(xuong);
       } else {
-        setListMaPhieu([]);
+        setListXuong([]);
       }
     });
   };
-  const getKho = (id) => {
-    if (id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `CauTrucKho/${id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListKho([res.data]);
-        } else {
-          setListKho([]);
-        }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListKho(res.data);
-        } else {
-          setListKho([]);
-        }
-      });
-    }
+  const getLot = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(`Lot?page=-1`, "GET", null, "DETAIL", "", resolve, reject)
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListSoLot(res.data);
+      } else {
+        setListSoLot([]);
+      }
+    });
+  };
+  const getKho = (phongBan_Id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `CauTrucKho/cau-truc-kho-by-phong-ban?thuTu=1&&phongBan_Id=${phongBan_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListKho(res.data);
+      } else {
+        setListKho([]);
+      }
+    });
   };
   /**
    * Lấy thông tin
@@ -384,9 +328,9 @@ const CKDForm = ({ history, match, permission }) => {
           setListVatTu(JSON.parse(res.data.chiTietVatTu));
           getUserLap(INFO, res.data.userNhan_Id);
           setInfo(res.data);
-          getMaPhieu();
+          getLot();
           getKho();
-          getNhaCungCap();
+          getXuong();
           setFieldsValue({
             phieunhapkho: {
               ...res.data,
@@ -471,15 +415,15 @@ const CKDForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Mã sản phẩm",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
+      title: "Sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       align: "center",
     },
     {
-      title: "Tên sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
+      title: "Chi tiết",
+      dataIndex: "tenChiTiet",
+      key: "tenChiTiet",
       align: "center",
     },
     {
@@ -793,7 +737,23 @@ const CKDForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
-  const dataList = reDataForTable(listVatTu);
+  const dataList = reDataForTable(ListSanPham);
+  const handleSelectXuong = (val) => {
+    getKho(val);
+  };
+  const handleSelectSoLot = (val) => {
+    ListSoLot.forEach((sl) => {
+      if (sl.id === val) {
+        getSanPham(sl.sanPham_Id);
+        setFieldsValue({
+          phieunhapkho: {
+            tenSanPham: sl.tenSanPham,
+            soLuong: "1",
+          },
+        });
+      }
+    });
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -844,7 +804,7 @@ const CKDForm = ({ history, match, permission }) => {
             <Col span={12}>
               <FormItem
                 label="Xưởng"
-                name={["phieunhapkho", "cauTrucKho_Id"]}
+                name={["phieunhapkho", "phongBan_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -854,13 +814,14 @@ const CKDForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListKho}
+                  data={ListXuong}
                   placeholder="Chọn xưởng"
-                  optionsvalue={["id", "tenCTKho"]}
+                  optionsvalue={["id", "tenPhongBan"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
                   disabled={type === "new" || type === "edit" ? false : true}
+                  onSelect={handleSelectXuong}
                 />
               </FormItem>
             </Col>
@@ -915,7 +876,7 @@ const CKDForm = ({ history, match, permission }) => {
             <Col span={12}>
               <FormItem
                 label="Số Lot"
-                name={["phieunhapkho", "cauTrucKho_Id"]}
+                name={["phieunhapkho", "lot_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -925,13 +886,14 @@ const CKDForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListKho}
+                  data={ListSoLot}
                   placeholder="Chọn số Lot"
                   optionsvalue={["id", "soLot"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
                   disabled={type === "new" || type === "edit" ? false : true}
+                  onSelect={handleSelectSoLot}
                 />
               </FormItem>
             </Col>

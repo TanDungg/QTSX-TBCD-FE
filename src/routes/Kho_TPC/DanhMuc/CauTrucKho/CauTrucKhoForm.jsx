@@ -200,7 +200,7 @@ function CauTrucKhoForm({ match, permission, history }) {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const editUser = { ...item, ...CauTrucKho };
+      const editUser = { id: id, ...item, ...CauTrucKho };
       editUser.cauTrucKho_Id =
         editUser.cauTrucKho_Id === "root"
           ? (editUser.cauTrucKho_Id = null)

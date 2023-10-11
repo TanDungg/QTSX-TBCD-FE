@@ -138,7 +138,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const [ListNhaCungCap, setListNhaCungCap] = useState([]);
+  const [ListMauSac, setListMauSac] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
@@ -156,8 +156,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           getUserLap(INFO);
           setType("new");
           getSoLot();
-          getKho();
-          getMaPhieu();
+          getXuong();
           setFieldsValue({
             phieunhapkho: {
               ngayNhap: moment(getDateNow(), "DD/MM/YYYY"),
@@ -250,7 +249,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       });
     }
   };
-  const getMaPhieu = () => {
+  const getXuong = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -277,48 +276,49 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       }
     });
   };
-  const getKho = (id) => {
-    if (id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `CauTrucKho/${id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
+  const getKho = (phongBan_Id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `CauTrucKho/cau-truc-kho-by-phong-ban?thuTu=1&&phongBan_Id=${phongBan_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListKho(res.data);
+      } else {
+        setListKho([]);
+      }
+    });
+  };
+  const getMauSac = (sanPham_Id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `SanPham/${sanPham_Id}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
         if (res && res.data) {
-          setListKho([res.data]);
+          setListMauSac(JSON.parse(res.data.mauSac));
         } else {
-          setListKho([]);
+          setListMauSac([]);
         }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListKho(res.data);
-        } else {
-          setListKho([]);
-        }
-      });
-    }
+      })
+      .catch((error) => console.error(error));
   };
   /**
    * Lấy thông tin
@@ -346,9 +346,10 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           setListSanPham(JSON.parse(res.data.chiTietThanhPham));
           getUserLap(INFO, res.data.userNhan_Id);
           setInfo(res.data);
-          getMaPhieu();
-          getKho();
+          getXuong();
+          getKho(res.data.phongBan_Id);
           getSoLot();
+          getMauSac(JSON.parse(res.data.chiTietThanhPham)[0].sanPham_Id);
           setFieldsValue({
             phieunhapkho: {
               ...res.data,
@@ -395,11 +396,12 @@ const ThanhPhamForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = ListSanPham.filter((d) => d.sanPham_Id !== item.sanPham_Id);
-    setListSanPham(newData);
-    const newListSanPham = [...ListSanPham];
-    newListSanPham.push(item);
-    setListSanPham(newListSanPham);
+    setListSanPham([]);
+    setFieldsValue({
+      phieunhapkho: {
+        lot_Id: null,
+      },
+    });
   };
 
   /**
@@ -423,7 +425,28 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       </div>
     );
   };
-
+  const hanldeSelectMauSac = (val) => {
+    const newData = [...ListSanPham];
+    newData[0].mauSac_Id = val;
+    setListSanPham(newData);
+    setFieldTouch(true);
+  };
+  const renderMauSac = (item, record) => {
+    return (
+      <Select
+        className="heading-select slt-search th-select-heading"
+        data={ListMauSac}
+        value={record.mauSac_Id}
+        placeholder="Chọn màu sắc"
+        optionsvalue={["mauSac_Id", "tenMauSac"]}
+        style={{ width: "100%" }}
+        showSearch
+        optionFilterProp="name"
+        disabled={type === "new" || type === "edit" ? false : true}
+        onSelect={hanldeSelectMauSac}
+      />
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -456,7 +479,13 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       key: "tenDonViTinh",
       align: "center",
     },
-
+    {
+      title: "Màu sắc",
+      dataIndex: "mauSac",
+      key: "mauSac",
+      align: "center",
+      render: (val, record) => renderMauSac(val, record),
+    },
     {
       title: "Số lượng",
       dataIndex: "soLuongNhap",
@@ -563,13 +592,9 @@ const ThanhPhamForm = ({ history, match, permission }) => {
             if (saveQuit) {
               goBack();
             } else {
+              resetFields();
               setFieldsValue({
                 phieunhapkho: {
-                  phieuNhanHang_Id: null,
-                  soHoaDon: null,
-                  nhaCungCap_Id: null,
-                  noiDungNhanVatTu: null,
-                  cauTrucKho_Id: null,
                   ngayNhan: moment(getDateNow(), "DD/MM/YYYY"),
                   ngayHoaDon: moment(getDateNow(), "DD/MM/YYYY"),
                 },
@@ -586,6 +611,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     if (type === "edit") {
       const newData = {
         id: id,
+        ...info,
         ...nhapkho,
         chiTiet_PhieuNhapKhoThanhPhams: ListSanPham.map((vt) => {
           return {
@@ -650,7 +676,17 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         })
           .then((res) => {
             if (res && res.data) {
-              setListSanPham([res.data]);
+              setListMauSac(JSON.parse(res.data.mauSac));
+              setListSanPham([
+                {
+                  ...res.data,
+                  sanPham_Id: JSON.parse(res.data.mauSac)[0].sanPham_Id,
+                  mauSac_Id: JSON.parse(res.data.mauSac)[0].mauSac_Id,
+                  soLuongNhap: "1",
+                },
+              ]);
+            } else {
+              setListMauSac([]);
             }
           })
           .catch((error) => console.error(error));
@@ -674,6 +710,9 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     !check && setFieldTouch(true);
   };
   const dataList = reDataForTable(ListSanPham);
+  const hanldeSelectXuong = (val) => {
+    getKho(val);
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -740,7 +779,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp="name"
                   disabled={type === "new" || type === "edit" ? false : true}
-                  // onSelect={hanldeSelectMaPhieu}
+                  onSelect={hanldeSelectXuong}
                 />
               </FormItem>
             </Col>
@@ -837,28 +876,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                   optionFilterProp="name"
                   disabled={type === "new" || type === "edit" ? false : true}
                   onSelect={handleSoLot}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Hạng mục"
-                name={["phieunhapkho", "hangMuc"]}
-                rules={[
-                  {
-                    type: "string",
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListNhaCungCap}
-                  placeholder="Chọn hạng mục"
-                  optionsvalue={["id", "tenLot"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>

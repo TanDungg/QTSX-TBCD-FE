@@ -66,7 +66,14 @@ function CKD({ match, history, permission }) {
       page,
       donVi_Id: INFO.donVi_Id,
     });
-    dispatch(fetchStart(`lkn_PhieuNhapKhoCKD?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(
+        `lkn_PhieuNhapKhoVatTu/nhap-kho-ckd?${param}`,
+        "GET",
+        null,
+        "LIST"
+      )
+    );
   };
   const getBanPhong = () => {
     new Promise((resolve, reject) => {

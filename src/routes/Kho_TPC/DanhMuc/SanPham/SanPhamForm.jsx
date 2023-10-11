@@ -337,6 +337,7 @@ function SanPhamForm({ match, permission, history }) {
               rules={[
                 {
                   type: "array",
+                  required: true,
                 },
               ]}
             >

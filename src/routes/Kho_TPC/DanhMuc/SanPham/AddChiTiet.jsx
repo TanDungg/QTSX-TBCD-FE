@@ -209,6 +209,22 @@ function AddChiTiet({ openModalFS, openModal, refesh, sanPham, type }) {
             />
           </FormItem>
           <FormItem
+            label="Số lượng"
+            name={["chitiet", "soLuongChiTiet"]}
+            rules={[
+              {
+                required: true,
+              },
+              {
+                pattern: /^[1-9]\d*$/,
+                message: "Số lượng không hợp lệ!",
+              },
+            ]}
+            initialValue={1}
+          >
+            <Input placeholder="Số lượng"></Input>
+          </FormItem>
+          <FormItem
             label="Kích thước"
             name={["chitiet", "kichThuoc"]}
             rules={[

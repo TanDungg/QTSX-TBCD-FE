@@ -378,6 +378,12 @@ function SanPham({ match, history, permission }) {
       align: "center",
     },
     {
+      title: "Số lượng",
+      dataIndex: "soLuongChiTiet",
+      key: "soLuongChiTiet",
+      align: "center",
+    },
+    {
       title: "Kích thước",
       dataIndex: "kichThuoc",
       key: "kichThuoc",
