@@ -14,6 +14,7 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
+  reDataForTable,
   reDataSelectedTable,
   treeToFlatlist,
 } from "src/util/Common";
@@ -21,7 +22,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function CauTrucKho({ match, history, permission }) {
+function Ke({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
@@ -45,7 +46,7 @@ function CauTrucKho({ match, history, permission }) {
   const loadData = (keyword, page) => {
     const param = convertObjectToUrlParams({ keyword, page });
     dispatch(
-      fetchStart(`CauTrucKho/cau-truc-kho-tree?${param}`, "GET", null, "LIST")
+      fetchStart(`CauTrucKho/ke-thanh-pham?${param}`, "GET", null, "LIST")
     );
   };
 
@@ -127,12 +128,7 @@ function CauTrucKho({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maCauTrucKho,
-      "cấu trúc kho"
-    );
+    ModalDeleteConfirm(deleteItemAction, item, item.maCauTrucKho, "kệ");
   };
 
   /**
@@ -141,8 +137,7 @@ function CauTrucKho({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `CauTrucKho/${item.id}`;
-    if (item.isRemove) url = `CauTrucKho/${item.id}`;
+    let url = `CauTrucKho/ke-thanh-pham/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -187,13 +182,13 @@ function CauTrucKho({ match, history, permission }) {
       width: 70,
     },
     {
-      title: "Mã cấu trúc kho",
+      title: "Mã kệ",
       dataIndex: "maCauTrucKho",
       key: "maCauTrucKho",
       render: (value, record) => renderTenMenu(value, record),
     },
     {
-      title: "Tên cấu trúc kho",
+      title: "Tên kệ",
       dataIndex: "tenCauTrucKho",
       key: "tenCauTrucKho",
       align: "center",
@@ -216,12 +211,7 @@ function CauTrucKho({ match, history, permission }) {
       key: "maBarcode",
       align: "center",
     },
-    {
-      title: "Vị trí",
-      dataIndex: "viTri",
-      key: "viTri",
-      align: "center",
-    },
+
     {
       title: "Chức năng",
       key: "action",
@@ -230,8 +220,7 @@ function CauTrucKho({ match, history, permission }) {
       render: (value) => actionContent(value),
     },
   ];
-  let dataList = treeToFlatlist(data);
-  dataList = reDataSelectedTable(dataList);
+  let dataList = reDataForTable(data.datalist);
 
   const components = {
     body: {
@@ -258,8 +247,8 @@ function CauTrucKho({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Cấu trúc kho"
-        description="Danh sách cấu trúc kho"
+        title="Kệ"
+        description="Danh sách kệ"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -325,4 +314,4 @@ function CauTrucKho({ match, history, permission }) {
   );
 }
 
-export default CauTrucKho;
+export default Ke;

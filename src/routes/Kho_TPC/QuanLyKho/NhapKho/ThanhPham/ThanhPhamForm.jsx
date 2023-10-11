@@ -214,7 +214,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           phieunhapkho: {
-            userNhan_Id: res.data.Id,
+            userLap_Id: res.data.Id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -632,43 +632,31 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         <Tag color={"success"}>{info.maPhieuNhapKhoThanhPham}</Tag>
       </span>
     );
-  // const hanldeSelectMaPhieu = (vaL) => {
-  //   const params = convertObjectToUrlParams({ donVi_Id: INFO.donVi_Id });
-  //   new Promise((resolve, reject) => {
-  //     dispatch(
-  //       fetchStart(
-  //         `lkn_PhieuNhanHang/${vaL}?${params}`,
-  //         "GET",
-  //         null,
-  //         "LIST",
-  //         "",
-  //         resolve,
-  //         reject
-  //       )
-  //     );
-  //   })
-  //     .then((res) => {
-  //       if (res && res.data) {
-  //         const newVatTu = [];
-  //         res.data.chiTietVatTu &&
-  //           JSON.parse(res.data.chiTietVatTu).forEach((ct) => {
-  //             if (Number(ct.soLuongNhan) > 0) {
-  //               newVatTu.push({
-  //                 id: ct.vatTu_Id + "_" + ct.sanPham_Id,
-  //                 maVatTu: ct.maVatTu,
-  //                 tenVatTu: ct.tenVatTu,
-  //                 tenDonViTinh: ct.tenDonViTinh,
-  //                 soLuongNhap: ct.soLuongNhan,
-  //                 vatTu_Id: ct.vatTu_Id,
-  //                 thoiGianSuDung: getDateNow(),
-  //               });
-  //             }
-  //           });
-  //         setListSanPham(newVatTu);
-  //       }
-  //     })
-  //     .catch((error) => console.error(error));
-  // };
+  const handleSoLot = (vaL) => {
+    ListSoLot.forEach((solot) => {
+      if (solot.id === vaL) {
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `SanPham/${solot.sanPham_Id}`,
+              "GET",
+              null,
+              "LIST",
+              "",
+              resolve,
+              reject
+            )
+          );
+        })
+          .then((res) => {
+            if (res && res.data) {
+              setListSanPham([res.data]);
+            }
+          })
+          .catch((error) => console.error(error));
+      }
+    });
+  };
 
   const addSanPham = (data) => {
     let check = false;
@@ -734,29 +722,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
             </Col>
             <Col span={12}>
               <FormItem
-                label="Kho"
-                name={["phieunhapkho", "cauTrucKho_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListKho}
-                  placeholder="Chọn kho"
-                  optionsvalue={["id", "tenCTKho"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
                 label="Xưởng sản xuất"
                 name={["phieunhapkho", "phongBan_Id"]}
                 rules={[
@@ -779,6 +744,30 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
+            <Col span={12}>
+              <FormItem
+                label="Kho"
+                name={["phieunhapkho", "cauTrucKho_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListKho}
+                  placeholder="Chọn kho"
+                  optionsvalue={["id", "tenCTKho"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+
             <Col span={12}>
               <FormItem
                 label="Ngày sản xuất"
@@ -815,7 +804,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
               >
                 <DatePicker
                   format={"DD/MM/YYYY"}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={true}
                   allowClear={false}
                   onChange={(date, dateString) => {
                     setFieldsValue({
@@ -847,6 +836,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp="name"
                   disabled={type === "new" || type === "edit" ? false : true}
+                  onSelect={handleSoLot}
                 />
               </FormItem>
             </Col>
@@ -872,15 +862,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12} align="center">
-              <Button
-                icon={<PlusOutlined />}
-                type="primary"
-                onClick={() => setActiveModal(true)}
-              >
-                Chọn sản phẩm
-              </Button>
-            </Col>
           </Row>
           <Divider />
         </Form>
@@ -894,7 +875,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
-          // loading={loading}
         />
         {type === "new" || type === "edit" ? (
           <FormSubmit

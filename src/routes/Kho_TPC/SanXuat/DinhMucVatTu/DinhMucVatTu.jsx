@@ -201,11 +201,14 @@ function DinhMucVatTu({ permission, history, match }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_DinhMucVatTu/${item.id}`;
+    let url = `lkn_DinhMucVatTu?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
-      .then((res) => {})
+      .then((res) => {
+        if (res.status !== 409)
+          getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, page);
+      })
       .catch((error) => console.error(error));
   };
   /**

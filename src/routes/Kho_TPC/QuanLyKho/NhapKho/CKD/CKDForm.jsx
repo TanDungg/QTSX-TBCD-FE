@@ -840,34 +840,11 @@ const CKDForm = ({ history, match, permission }) => {
                 <Input className="input-item" disabled={true} />
               </FormItem>
             </Col>
+
             <Col span={12}>
               <FormItem
-                label="Ngày nhập"
-                name={["phieunhapkho", "ngayNhan"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <DatePicker
-                  format={"DD/MM/YYYY"}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                  allowClear={false}
-                  onChange={(date, dateString) => {
-                    setFieldsValue({
-                      phieunhapkho: {
-                        ngayNhan: moment(dateString, "DD/MM/YYYY"),
-                      },
-                    });
-                  }}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Số đơn hàng"
-                name={["phieunhapkho", "phieuNhanHang_Id"]}
+                label="Xưởng"
+                name={["phieunhapkho", "cauTrucKho_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -877,88 +854,12 @@ const CKDForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListMaPhieu}
-                  placeholder="Chọn phiếu mua hàng"
-                  optionsvalue={["id", "maPhieuNhanHang"]}
+                  data={ListKho}
+                  placeholder="Chọn xưởng"
+                  optionsvalue={["id", "tenCTKho"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                  onSelect={hanldeSelectMaPhieu}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Số hóa đơn"
-                name={["phieunhapkho", "soHoaDon"]}
-                rules={[
-                  {
-                    type: "string",
-                  },
-                ]}
-              >
-                <Input
-                  placeholder="Số hóa đơn"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Ngày hóa đơn"
-                name={["phieunhapkho", "ngayHoaDon"]}
-                rules={[]}
-              >
-                <DatePicker
-                  disabled={type === "new" || type === "edit" ? false : true}
-                  format={"DD/MM/YYYY"}
-                  allowClear={false}
-                  onChange={(date, dateString) => {
-                    setFieldsValue({
-                      phieunhapkho: {
-                        ngayHoaDon: moment(dateString, "DD/MM/YYYY"),
-                      },
-                    });
-                  }}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Nhà cung cấp"
-                name={["phieunhapkho", "nhaCungCap_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListNhaCungCap}
-                  placeholder="Chọn nhà cung cấp"
-                  optionsvalue={["id", "tenNhaCungCap"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Nội dung nhập"
-                name={["phieunhapkho", "noiDungNhanVatTu"]}
-                rules={[
-                  {
-                    type: "string",
-                  },
-                ]}
-              >
-                <Input
-                  placeholder="Nội dụng nhập vật tư"
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
@@ -986,59 +887,102 @@ const CKDForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
+            <Col span={12}>
+              <FormItem
+                label="Ngày nhập"
+                name={["phieunhapkho", "ngayNhan"]}
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <DatePicker
+                  format={"DD/MM/YYYY"}
+                  disabled={true}
+                  allowClear={false}
+                  onChange={(date, dateString) => {
+                    setFieldsValue({
+                      phieunhapkho: {
+                        ngayNhan: moment(dateString, "DD/MM/YYYY"),
+                      },
+                    });
+                  }}
+                />
+              </FormItem>
+            </Col>
+
+            <Col span={12}>
+              <FormItem
+                label="Số Lot"
+                name={["phieunhapkho", "cauTrucKho_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListKho}
+                  placeholder="Chọn số Lot"
+                  optionsvalue={["id", "soLot"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col span={12}>
+              <FormItem
+                label="Sản phẩm"
+                name={["phieunhapkho", "tenSanPham"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Input disabled={true} />
+              </FormItem>
+            </Col>
+            <Col span={12}>
+              <FormItem
+                label="Số lượng"
+                name={["phieunhapkho", "soLuong"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Input
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col span={12}>
+              <FormItem
+                label="Nội dung nhập"
+                name={["phieunhapkho", "noiDungNhanVatTu"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nội dụng nhập vật tư"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
           </Row>
           <Divider />
-          {(type === "new" || type === "edit") && (
-            <Row style={{ marginTop: 15 }}>
-              <Col span={12}>
-                <FormItem
-                  label="Sản phẩm"
-                  name={["sanPham", "sanPham_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListSanPham ? ListSanPham : []}
-                    placeholder="Chọn sản phẩm"
-                    optionsvalue={["id", "tenSanPham"]}
-                    style={{ width: "100%" }}
-                    onChange={(val) => setSanPham_Id(val)}
-                    showSearch
-                    optionFilterProp="name"
-                    disabled={type === "new" || type === "edit" ? false : true}
-                  />
-                </FormItem>
-              </Col>
-              <Col span={12}>
-                <FormItem label="Số lượng" name={["sanPham", "soLuong"]}>
-                  <Input
-                    className="input-item"
-                    placeholder="Nhập số lượng nhập"
-                    type="number"
-                    onChange={(e) => setSoLuong(e.target.value)}
-                    disabled={type === "new" || type === "edit" ? false : true}
-                  />
-                </FormItem>
-              </Col>
-              <Col span={12}></Col>
-              {type === "new" || type === "edit" ? (
-                <Col span={12} align="center">
-                  <Button
-                    icon={<PlusOutlined />}
-                    type="primary"
-                    onClick={hanldeThem}
-                    disabled={!SanPham_Id || !SoLuong}
-                  >
-                    Thêm
-                  </Button>
-                </Col>
-              ) : null}
-            </Row>
-          )}
         </Form>
         <Table
           bordered

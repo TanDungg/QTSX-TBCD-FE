@@ -5,6 +5,8 @@ import {
   EditOutlined,
   DeleteOutlined,
   ImportOutlined,
+  GatewayOutlined,
+  PlusCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -20,16 +22,18 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import ImportSanPham from "./ImportSanPham";
-import { set } from "immutable";
+import AddChiTiet from "./AddChiTiet";
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function SanPham({ history, permission }) {
+function SanPham({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [ActiveModal, setActiveModal] = useState(false);
-
+  const [ActiveModalAddChiTiet, setActiveModalAddChiTiet] = useState(false);
+  const [infoSanPham, setInfoSanPham] = useState({});
+  const [type, setType] = useState("add");
   useEffect(() => {
     if (permission && permission.view) {
       loadData(keyword, page);
@@ -76,45 +80,110 @@ function SanPham({ history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
+    const phanQuyenItem =
+      permission && permission.edit ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/quy-trinh`,
+            state: { itemData: item },
+          }}
+          title="Quy trình"
+        >
+          <GatewayOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Quy trình">
+          <GatewayOutlined />
+        </span>
+      );
+    const addItem =
+      permission && permission.add
+        ? {
+            onClick: () => {
+              setActiveModalAddChiTiet(true);
+              setInfoSanPham({ ...item, sanPham_Id: item.id });
+              setType("add");
+            },
+          }
+        : { disabled: true };
+
     const editItem =
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/san-pham/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
-          title="Sửa"
+          title="Sửa sản phẩm"
         >
           <EditOutlined />
         </Link>
       ) : (
-        <span disabled title="Sửa">
+        <span disabled title="Sửa sản phẩm">
           <EditOutlined />
         </span>
       );
     const deleteVal =
       permission && permission.del && !item.isUsed
-        ? { onClick: () => deleteItemFunc(item) }
+        ? { onClick: () => deleteItemFunc(item, "sản phẩm") }
         : { disabled: true };
     return (
       <div>
+        {phanQuyenItem}
+        <Divider type="vertical" />
+        <a {...addItem} title="Thêm chi tiết">
+          <PlusCircleOutlined />
+        </a>
+        <Divider type="vertical" />
+
         {editItem}
         <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa">
+        <a {...deleteVal} title="Xóa sản phẩm">
           <DeleteOutlined />
         </a>
       </div>
     );
   };
-
+  const actionContentChiTiet = (item) => {
+    const editItem =
+      permission && permission.edit
+        ? {
+            onClick: () => {
+              setActiveModalAddChiTiet(true);
+              setInfoSanPham(item);
+              setType("edit");
+            },
+          }
+        : { disabled: true };
+    const deleteVal =
+      permission && permission.del
+        ? { onClick: () => deleteItemFunc(item, "chi tiết") }
+        : { disabled: true };
+    return (
+      <div>
+        <a {...editItem} title="Sửa chi tiết">
+          <EditOutlined />
+        </a>
+        <Divider type="vertical" />
+        <a {...deleteVal} title="Xóa chi tiết">
+          <DeleteOutlined />
+        </a>
+      </div>
+    );
+  };
   /**
    * deleteItemFunc: Xoá item theo item
    * @param {object} item
    * @returns
    * @memberof VaiTro
    */
-  const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maSanPham, "sản phẩm");
+  const deleteItemFunc = (item, title) => {
+    ModalDeleteConfirm(
+      deleteItemAction,
+      item,
+      item.maChiTiet ? item.maChiTiet : item.maSanPham,
+      title
+    );
   };
 
   /**
@@ -123,7 +192,9 @@ function SanPham({ history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `SanPham/${item.id}`;
+    let url = item.maChiTiet
+      ? `lkn_ChiTiet/${item.chiTiet_Id}`
+      : `SanPham/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -154,7 +225,7 @@ function SanPham({ history, permission }) {
    */
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-kho-tpc/san-pham/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
   const handleImport = () => {
@@ -260,17 +331,11 @@ function SanPham({ history, permission }) {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 80,
+      width: 120,
       render: (value) => actionContent(value),
     },
   ];
 
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
@@ -286,6 +351,68 @@ function SanPham({ history, permission }) {
       }),
     };
   });
+  let renderChiTiet = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 45,
+    },
+    {
+      title: "Mã chi tiết",
+      dataIndex: "maChiTiet",
+      key: "maChiTiet",
+      align: "center",
+    },
+    {
+      title: "Tên chi tiết",
+      dataIndex: "tenChiTiet",
+      key: "tenChiTiet",
+      align: "center",
+    },
+    {
+      title: "Đơn vị tính",
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
+      align: "center",
+    },
+    {
+      title: "Kích thước",
+      dataIndex: "kichThuoc",
+      key: "kichThuoc",
+      align: "center",
+    },
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 100,
+      render: (value) => actionContentChiTiet(value),
+    },
+  ];
+
+  const columnChilden = map(renderChiTiet, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
   const refeshData = () => {
     loadData(keyword, page);
   };
@@ -359,12 +486,37 @@ function SanPham({ history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          expandable={{
+            expandedRowRender: (record) => (
+              <Table
+                style={{ marginLeft: "80px", width: "80%" }}
+                bordered
+                columns={columnChilden}
+                scroll={{ x: 500 }}
+                components={components}
+                className="gx-table-responsive th-F1D065-head"
+                dataSource={reDataForTable(JSON.parse(record.chiTiet))}
+                size="small"
+                rowClassName={"editable-row"}
+                loading={loading}
+                pagination={false}
+              />
+            ),
+            rowExpandable: (record) => record.name !== "Not Expandable",
+          }}
         />
       </Card>
       <ImportSanPham
         openModal={ActiveModal}
         openModalFS={setActiveModal}
         refesh={refeshData}
+      />
+      <AddChiTiet
+        openModal={ActiveModalAddChiTiet}
+        openModalFS={setActiveModalAddChiTiet}
+        sanPham={infoSanPham}
+        type={type}
+        refesh={() => loadData(keyword, page)}
       />
     </div>
   );
