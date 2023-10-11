@@ -286,21 +286,21 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     },
     {
       title: "Xưởng sản xuất",
-      dataIndex: "tenXuongSanXuat",
-      key: "tenXuongSanXuat",
+      dataIndex: "TenPhongBan",
+      key: "TenPhongBan",
       align: "center",
     },
     {
       title: "Ngày sản xuất",
-      dataIndex: "ngayYeuCau",
-      key: "ngayYeuCau",
+      dataIndex: "ngaySanXuat",
+      key: "ngaySanXuat",
       align: "center",
     },
 
     {
       title: "Ngày yêu cầu",
-      dataIndex: "ngaySanXuat",
-      key: "ngaySanXuat",
+      dataIndex: "ngayYeuCau",
+      key: "ngayYeuCau",
       align: "center",
     },
     {

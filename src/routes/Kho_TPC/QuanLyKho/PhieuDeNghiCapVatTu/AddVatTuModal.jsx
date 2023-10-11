@@ -54,7 +54,6 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
             values.vatTu.tenVatTu = vt.tenVatTu;
           }
         });
-        console.log(values.vatTu);
         addVatTu(values.vatTu);
         openModalFS(false);
         resetFields();
@@ -67,6 +66,7 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
   const handleCancel = () => {
     openModalFS(false);
   };
+  
   /**
    * Khi submit
    *
@@ -79,7 +79,7 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
     <AntModal
       title="Thêm vật tư"
       open={openModal}
-      width={`80%`}
+      width={`70%`}
       closable={true}
       onCancel={handleCancel}
       footer={null}
