@@ -66,6 +66,7 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
   const handleCancel = () => {
     openModalFS(false);
   };
+  
   /**
    * Khi submit
    *

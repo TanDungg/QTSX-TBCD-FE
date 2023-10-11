@@ -140,7 +140,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   const [Xuong, setXuong] = useState([]);
   const [ListSoLot, setListSoLot] = useState([]);
   const [listVatTu, setListVatTu] = useState([]);
-  const [ListSanPham, setListSanPham] = useState([]);
+  const [ListVatTuKhac, setListVatTuKhac] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [value, setValue] = useState(1);
@@ -202,7 +202,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   }, []);
 
   const getData = () => {
-    getSanPham();
     getUserKy(INFO);
     getUserLap(INFO);
     getXuong();
@@ -300,16 +299,20 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
         const newData = [];
         data &&
           data.map((dt) => {
+            console.log(dt);
             dt.chiTietBOM &&
               dt.chiTietBOM.map((bom) => {
                 newData.push({
                   lkn_DinhMucVatTu_Id: dt.id,
+                  tenSanPham: dt.tenSanPham,
                   lkn_ChiTiet_Id: dt.chiTiet_Id,
                   tenChiTiet: dt.tenChiTiet,
                   soLuongKH: dt.soLuongKH,
+                  soLuongChiTiet: dt.soLuongChiTiet,
                   vatTu_Id: bom.vatTu_Id,
                   maVatTu: bom.maVatTu,
                   tenVatTu: bom.tenVatTu,
+                  soLuong: dt.soLuongKH * dt.soLuongChiTiet * bom.dinhMuc,
                   dinhMuc: bom.dinhMuc,
                   tenDonViTinh: bom.tenDonViTinh,
                   tenNhomVatTu: bom.tenNhomVatTu,
@@ -380,49 +383,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  const getSanPham = (id) => {
-    if (id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `SanPham/${id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListSanPham([res.data]);
-        } else {
-          setListSanPham([]);
-        }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `SanPham?page=-1`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListSanPham(res.data);
-        } else {
-          setListSanPham([]);
-        }
-      });
-    }
-  };
   /**
    * Lấy thông tin
    *
@@ -434,7 +394,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuDeNghiMuaHang/${id}?${params}`,
+          `lkn_PhieuDeNghiCapVatTu/${id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -446,15 +406,12 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          const chiTiet = JSON.parse(res.data.chiTietVatTu);
-          chiTiet &&
-            chiTiet.forEach((ct, index) => {
-              chiTiet[index].id = ct.vatTu_Id + "_" + ct.sanPham_Id;
-            });
-          setListVatTu(chiTiet ? chiTiet : []);
           getUserLap(INFO, res.data.userLapPhieu_Id);
           setInfo(res.data);
-          getSanPham(res.data.sanPham_Id);
+          const chiTiet =
+            res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
+            JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu);
+          setListVatTu(chiTiet ? chiTiet : []);
           setFieldsValue({
             capvattusanxuat: {
               sanPham_Id: res.data.sanPham_Id,
@@ -504,7 +461,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter((d) => d.id !== item.id);
+    const newData = listVatTu.filter((d) => d.vatTu_Id !== item.vatTu_Id);
     setListVatTu(newData);
   };
 
@@ -539,6 +496,12 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
+      title: "Sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
+      align: "center",
+    },
+    {
       title: "Chi tiết",
       dataIndex: "tenChiTiet",
       key: "tenChiTiet",
@@ -566,6 +529,24 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       title: "Số lượng kế hoạch",
       dataIndex: "soLuongKH",
       key: "soLuongKH",
+      align: "center",
+    },
+    {
+      title: "Số lượng chi tiết",
+      dataIndex: "soLuongChiTiet",
+      key: "soLuongChiTiet",
+      align: "center",
+    },
+    {
+      title: "Định mức",
+      dataIndex: "dinhMuc",
+      key: "dinhMuc",
+      align: "center",
+    },
+    {
+      title: "Số lượng vật tư",
+      dataIndex: "soLuong",
+      key: "soLuong",
       align: "center",
     },
     {
@@ -686,16 +667,30 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.capvattusanxuat);
+    if (value === 1) {
+      saveData(values.capvattusanxuat);
+    }
+    if (value === 2) {
+      saveData(values.capvattukhac);
+    }
   };
 
-  const saveAndClose = (val) => {
+  const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        if (listVatTu.length === 0) {
-          Helpers.alertError("Danh sách vật tư rỗng");
-        } else {
-          saveData(values.capvattusanxuat, val);
+        if (value === 1) {
+          if (listVatTu.length === 0) {
+            Helpers.alertError("Danh sách vật tư rỗng");
+          } else {
+            saveData(values.capvattusanxuat, true);
+          }
+        }
+        if (value === 2) {
+          if (ListVatTuKhac.length === 0) {
+            Helpers.alertError("Danh sách vật tư rỗng");
+          } else {
+            saveData(values.capvattukhac, true);
+          }
         }
       })
       .catch((error) => {
@@ -703,15 +698,23 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       });
   };
 
-  const saveData = (capvattusanxuat, saveQuit = false) => {
+  const saveData = (data, saveQuit = false) => {
     if (type === "new") {
-      const newData = {
-        ...capvattusanxuat,
-        ngaySanXuat: capvattusanxuat.ngaySanXuat._i,
-        ngayYeuCau: capvattusanxuat.ngayYeuCau._i,
-        isLoaiPhieu: value === 1 ? true : false,
-        chiTiet_PhieuDeNghiCapVatTus: listVatTu,
-      };
+      const newData =
+        value === 1
+          ? {
+              ...data,
+              ngaySanXuat: data.ngaySanXuat._i,
+              ngayYeuCau: data.ngayYeuCau._i,
+              isLoaiPhieu: true,
+              chiTiet_PhieuDeNghiCapVatTus: listVatTu,
+            }
+          : {
+              ...data,
+              ngayYeuCau: data.ngayYeuCau._i,
+              isLoaiPhieu: false,
+              chiTiet_PhieuDeNghiCapVatTus: ListVatTuKhac,
+            };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -743,7 +746,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     if (type === "edit") {
       const newData = {
         id: id,
-        ...capvattusanxuat,
+        ...data,
         chiTiet_phieumuahangs: listVatTu.map((vt) => {
           return {
             vatTu_Id: vt.vatTu_Id,
@@ -755,8 +758,8 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
             hangMucSuDung: vt.hangMucSuDung,
           };
         }),
-        ngaySanXuat: capvattusanxuat.ngaySanXuat._i,
-        ngayYeuCau: capvattusanxuat.ngayYeuCau._i,
+        ngaySanXuat: data.ngaySanXuat._i,
+        ngayYeuCau: data.ngayYeuCau._i,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -806,6 +809,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
+
   const prop = {
     type: "confirm",
     okText: "Xác nhận",
@@ -813,12 +817,15 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     title: "Xác nhận phiếu đề nghị mua hàng",
     onOk: hanldeXacNhan,
   };
+
   const modalXK = () => {
     Modal(prop);
   };
+
   const hanldeTuChoi = () => {
     setActiveModalTuChoi(true);
   };
+
   const saveTuChoi = (val) => {
     const newData = {
       id: id,
@@ -882,14 +889,16 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
 
   const addVatTu = (data) => {
     let check = false;
-    listVatTu.forEach((dl) => {
-      if (dl.vatTu_Id.toLowerCase() === data.vatTu_Id) {
+    ListVatTuKhac.forEach((listvattukhac) => {
+      if (listvattukhac.vatTu_Id.toLowerCase() === data.vatTu_Id) {
         check = true;
         Helpers.alertError(`Vật tư đã được thêm`);
       }
     });
-    !check && listVatTu.length > 0 && setListVatTu([...listVatTu, data]);
-    !check && listVatTu.length === 0 && setListVatTu([data]);
+    !check &&
+      ListVatTuKhac.length > 0 &&
+      setListVatTuKhac([...ListVatTuKhac, data]);
+    !check && ListVatTuKhac.length === 0 && setListVatTuKhac([data]);
     !check && setFieldTouch(true);
   };
 
@@ -912,10 +921,14 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
             style={{ width: "100%", display: "flex" }}
           >
             <Col span={12} align="center">
-              <Radio value={1}>Phiếu đề nghị cấp vật tư sản xuất</Radio>
+              <Radio value={1} disabled={value === 2 && type !== "new"}>
+                Phiếu đề nghị cấp vật tư sản xuất
+              </Radio>
             </Col>
             <Col span={12} align="center">
-              <Radio value={2}>Yêu cầu cấp vật tư khác</Radio>
+              <Radio value={2} disabled={value === 1 && type !== "new"}>
+                Yêu cầu cấp vật tư khác
+              </Radio>
             </Col>
           </Radio.Group>
         </Row>
@@ -1473,7 +1486,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
               scroll={{ x: 1200, y: "55vh" }}
               components={components}
               className="gx-table-responsive"
-              dataSource={reDataForTable(listVatTu)}
+              dataSource={reDataForTable(ListVatTuKhac)}
               size="small"
               rowClassName={"editable-row"}
               pagination={false}
