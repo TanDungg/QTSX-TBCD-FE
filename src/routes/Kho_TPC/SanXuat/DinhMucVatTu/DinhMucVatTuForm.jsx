@@ -1,15 +1,5 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import {
-  Card,
-  Form,
-  Input,
-  Row,
-  Col,
-  DatePicker,
-  Button,
-  Divider,
-  Tag,
-} from "antd";
+import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -49,11 +39,9 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
   const [listChiTiet, setListChiTiet] = useState([]);
-
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
-
   const [ActiveModal, setActiveModal] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
 
@@ -166,48 +154,26 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       }
     });
   };
-  const getSanPham = (id) => {
-    if (id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `SanPham/${id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListSanPham([res.data]);
-        } else {
-          setListSanPham([]);
-        }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `SanPham?page=-1`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListSanPham(res.data);
-        } else {
-          setListSanPham([]);
-        }
-      });
-    }
+  const getSanPham = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `SanPham?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListSanPham(res.data);
+      } else {
+        setListSanPham([]);
+      }
+    });
   };
   /**
    * Lấy thông tin
@@ -229,15 +195,15 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          const data = res.data;
           setListVatTu(JSON.parse(res.data.chiTietBOM));
           getUserKy(INFO);
           getUserLap(INFO, res.data.nguoiLap_Id);
           setInfo(res.data);
-          getSanPham(res.data.sanPham_Id);
+          getSanPham();
           handleSelectSanPham(res.data.sanPham_Id);
           setFieldsValue({
             dinhmucvattu: {
+              chiTiet_Id: res.data.chiTiet_Id.toUpperCase(),
               sanPham_Id: res.data.sanPham_Id,
               ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               nguoiKy_Id: res.data.nguoiKy_Id,
