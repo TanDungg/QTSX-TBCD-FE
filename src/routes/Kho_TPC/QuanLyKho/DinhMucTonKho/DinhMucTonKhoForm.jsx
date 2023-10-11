@@ -41,7 +41,6 @@ import {
   reDataForTable,
   renderPDF,
 } from "src/util/Common";
-import ModalTuChoi from "./ModalTuChoi";
 import Helper from "src/helpers";
 const EditableContext = React.createContext(null);
 
@@ -137,7 +136,7 @@ const EditableCell = ({
 
 const FormItem = Form.Item;
 
-const DeNghiMuaHangForm = ({ history, match, permission }) => {
+const DinhMucTonKhoForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = {
     ...getLocalStorage("menu"),
@@ -170,9 +169,8 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           getSanPham();
           getUserKy(INFO);
           setFieldsValue({
-            dinhmucvattu: {
-              ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
-              ngayHoanThanhDukien: moment(getDateNow(), "DD/MM/YYYY"),
+            dinhmuctonkho: {
+              ngayLap: moment(getDateNow(), "DD/MM/YYYY"),
             },
           });
         } else if (permission && !permission.add) {
@@ -236,7 +234,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       if (res && res.data) {
         setListUser([res.data]);
         setFieldsValue({
-          dinhmucvattu: {
+          dinhmuctonkho: {
             userYeuCau_Id: res.data.Id,
             tenPhongBan: res.data.tenPhongBan,
           },
@@ -353,7 +351,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           setInfo(res.data);
           getSanPham(res.data.sanPham_Id);
           setFieldsValue({
-            dinhmucvattu: {
+            dinhmuctonkho: {
               sanPham_Id: res.data.sanPham_Id,
               ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               ngayHoanThanhDukien: moment(
@@ -440,9 +438,15 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
+      title: "Mã định mức",
+      dataIndex: "maDinhMuc",
+      key: "maDinhMuc",
+      align: "center",
+    },
+    {
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
       align: "center",
     },
     {
@@ -452,58 +456,46 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Nhóm vật tư",
-      dataIndex: "tenNhomVatTu",
-      key: "tenNhomVatTu",
+      title: "Kho",
+      dataIndex: "tenKho",
+      key: "tenKho",
       align: "center",
     },
     {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
+      title: "SL tồn kho tối thiểu",
+      dataIndex: "slTonKhoToiThieu",
+      key: "slTonKhoToiThieu",
       align: "center",
     },
     {
-      title: "Số lượng sản phẩm",
-      dataIndex: "soLuongSanPham",
-      key: "soLuongSanPham",
+      title: "SL tồn kho tối đa",
+      dataIndex: "slTonKhoToiDa",
+      key: "slTonKhoToiDa",
       align: "center",
-    },
-    {
-      title: "Số lượng theo định mức",
-      dataIndex: "soLuongTheoDinhMuc",
-      key: "soLuongTheoDinhMuc",
-      align: "center",
-    },
-    {
-      title: "Tồn kho",
-      dataIndex: "soLuongTonKho",
-      key: "soLuongTonKho",
-      align: "center",
-    },
-    {
-      title: "SL cần mua",
-      dataIndex: "soLuong",
-      key: "soLuong",
-      align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
-    },
-    {
-      title: "Hạng mục sử dụng",
-      dataIndex: "hangMucSuDung",
-      key: "hangMucSuDung",
-      align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
     },
     {
       title: "Ghi chú",
       dataIndex: "ghiChu",
       key: "ghiChu",
       align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+    },
+    {
+      title: "Người lập",
+      dataIndex: "user_Id",
+      key: "user_Id",
+      align: "center",
+    },
+    {
+      title: "Bộ phận",
+      dataIndex: "tenBoPhan",
+      key: "tenBoPhan",
+      align: "center",
+    },
+    {
+      title: "Ngày lập",
+      dataIndex: "ngayLap",
+      key: "ngayLap",
+      align: "center",
     },
     {
       title: "Chức năng",
@@ -519,17 +511,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       cell: EditableCell,
     },
   };
-  const handleSave = (row) => {
-    const newData = [...listVatTu];
-    const index = newData.findIndex((item) => row.vatTu_Id === item.vatTu_Id);
-    const item = newData[index];
-    newData.splice(index, 1, {
-      ...item,
-      ...row,
-    });
-    // setDisableSave(true);
-    setListVatTu(newData);
-  };
+
   const columns = map(colValues, (col) => {
     if (!col.editable) {
       return col;
@@ -542,17 +524,17 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         dataIndex: col.dataIndex,
         title: col.title,
         info: col.info,
-        handleSave: handleSave,
       }),
     };
   });
+
   /**
    * Khi submit
    *
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.dinhmucvattu);
+    saveData(values.dinhmuctonkho);
   };
 
   const saveAndClose = (val) => {
@@ -561,7 +543,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         if (listVatTu.length === 0) {
           Helpers.alertError("Danh sách vật tư rỗng");
         } else {
-          saveData(values.dinhmucvattu, val);
+          saveData(values.dinhmuctonkho, val);
         }
       })
       .catch((error) => {
@@ -764,25 +746,12 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const formTitle =
-    type === "new" ? (
-      "Tạo phiếu đề nghị mua hàng "
-    ) : type === "edit" ? (
-      "Chỉnh sửa phiếu đề nghị mua hàng"
-    ) : (
-      <span>
-        Chi tiết phiếu đề nghị mua hàng -{" "}
-        <Tag color={info.isXacNhan === true ? "success" : "blue"}>
-          {info.maPhieuYeuCau}
-        </Tag>
-      </span>
-    );
   const hanldeThem = () => {
     const params = convertObjectToUrlParams({ sanPham_Id: SanPham_Id });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_DinhMucVatTu/bom-by-sanpham?${params}`,
+          `lkn_dinhmuctonkho/bom-by-sanpham?${params}`,
           "GET",
           null,
           "LIST",
@@ -841,57 +810,24 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
-  const props = {
-    beforeUpload: (file) => {
-      const isPNG =
-        file.type === "image/png" ||
-        file.type === "image/jpeg" ||
-        file.type === "application/pdf";
-      if (!isPNG) {
-        Helper.alertError(`${file.name} không phải hình ảnh hoặc file pdf`);
-      } else {
-        setFile(file);
-        setDisableUpload(true);
-        const reader = new FileReader();
-        reader.onload = (e) => setFileChat(e.target.result);
-        reader.readAsDataURL(file);
-        return false;
-      }
-    },
-    showUploadList: false,
-    maxCount: 1,
-  };
-  const handleViewFile = (file) => {
-    if (file.type === "application/pdf") {
-      renderPDF(file);
-    } else {
-      setOpenImage(true);
-    }
-  };
-  const handlePrint = () => {};
 
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
-        >
-          In phiếu
-        </Button>
-      </>
+  const formTitle =
+    type === "new" ? (
+      "Thêm mới định mức tồn kho "
+    ) : type === "edit" ? (
+      "Chỉnh sửa định mức tồn kho"
+    ) : (
+      <span>
+        Chi tiết định mức tồn kho -{" "}
+        <Tag color={info.isXacNhan === true ? "success" : "blue"}>
+          {info.maPhieuYeuCau}
+        </Tag>
+      </span>
     );
-  };
+
   return (
     <div className="gx-main-content">
-      <ContainerHeader
-        title={formTitle}
-        back={goBack}
-        buttons={addButtonRender()}
-      />
+      <ContainerHeader title={formTitle} back={goBack} />
       <Card className="th-card-margin-bottom">
         <Form
           {...DEFAULT_FORM_TWO_COL}
@@ -912,7 +848,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người đề nghị"
-                name={["dinhmucvattu", "userYeuCau_Id"]}
+                name={["dinhmuctonkho", "userYeuCau_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -940,7 +876,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Ban/Phòng"
-                name={["dinhmucvattu", "tenPhongBan"]}
+                name={["dinhmuctonkho", "tenPhongBan"]}
                 rules={[
                   {
                     type: "string",
@@ -961,8 +897,164 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Dự kiến hoàn thành"
-                name={["dinhmucvattu", "ngayHoanThanhDukien"]}
+                label="Mã định mức"
+                name={["dinhmuctonkho", "maDinhMuc"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Input
+                  className="input-item"
+                  placeholder="Nhập mã định mức"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Kho"
+                name={["dinhmuctonkho", "kho_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListUserKy}
+                  placeholder="Chọn kho"
+                  optionsvalue={["user_Id", "tenKho"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Vật tư"
+                name={["dinhmuctonkho", "vatTu_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListUserKy}
+                  placeholder="Chọn vật tư"
+                  optionsvalue={["vatTuId_Id", "tenVatTu"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="SL tồn kho tối thiểu"
+                name={["dinhmuctonkho", "slTonKhoToiThieu"]}
+              >
+                <Input
+                  className="input-item"
+                  placeholder="Nhập số lượng tồn kho tối thiểu"
+                  type="number"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="SL tồn kho tối đa"
+                name={["dinhmuctonkho", "slTonKhoToiDa"]}
+              >
+                <Input
+                  className="input-item"
+                  placeholder="Nhập số lượng tồn kho tối đa"
+                  type="number"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Ghi chú"
+                name={["dinhmuctonkho", "ghiChu"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Input
+                  className="input-item"
+                  placeholder="Nhập ghi chú"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Ngày lập"
+                name={["dinhmuctonkho", "ngayLap"]}
                 rules={[
                   {
                     required: true,
@@ -970,319 +1062,45 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 ]}
               >
                 <DatePicker
-                  disabled={type === "new" || type === "edit" ? false : true}
                   format={"DD/MM/YYYY"}
                   allowClear={false}
                   onChange={(date, dateString) => {
                     setFieldsValue({
-                      dinhmucvattu: {
-                        ngayHoanThanhDukien: moment(dateString, "DD/MM/YYYY"),
+                      dinhmuctonkho: {
+                        ngayLap: moment(dateString, "DD/MM/YYYY"),
                       },
                     });
                   }}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Ngày yêu cầu"
-                name={["dinhmucvattu", "ngayYeuCau"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <DatePicker
-                  format={"DD/MM/YYYY"}
-                  allowClear={false}
-                  onChange={(date, dateString) => {
-                    setFieldsValue({
-                      dinhmucvattu: {
-                        ngayYeuCau: moment(dateString, "DD/MM/YYYY"),
-                      },
-                    });
-                  }}
-                  disabled={true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Người kiểm tra"
-                name={["dinhmucvattu", "userKiemTra_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn kiểm tra"
-                  optionsvalue={["user_Id", "fullName"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Kế toán duyệt"
-                name={["dinhmucvattu", "userKeToan_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
+            {type === "new" || type === "edit" ? (
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+                align="center"
               >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn kế toán duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Duyệt"
-                name={["dinhmucvattu", "userDuyet_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn người duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
+                <Button
+                  icon={<PlusOutlined />}
+                  type="primary"
+                  onClick={hanldeThem}
+                  disabled={!SanPham_Id || !SoLuong}
+                >
+                  Thêm
+                </Button>
+              </Col>
+            ) : null}
           </Row>
           <Divider />
-          {(type === "UploadFile" ||
-            type === "xacnhan" ||
-            type === "detail") && (
-            <Row>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="File đã ký"
-                  name={["dinhmucvattu", "userDuyet_Id"]}
-                >
-                  {!disableUpload ? (
-                    <Upload {...props}>
-                      <Button
-                        style={{
-                          marginBottom: 0,
-                          height: 25,
-                          lineHeight: "25px",
-                        }}
-                        icon={<UploadOutlined />}
-                        disabled={type === "xacnhan" || type === "detail"}
-                      >
-                        Tải file
-                      </Button>
-                    </Upload>
-                  ) : File.name ? (
-                    <span>
-                      <span
-                        style={{ color: "#0469B9", cursor: "pointer" }}
-                        onClick={() => handleViewFile(File)}
-                      >
-                        {File.name.length > 20
-                          ? File.name.substring(0, 20) + "..."
-                          : File.name}{" "}
-                      </span>
-                      <DeleteOutlined
-                        style={{ cursor: "pointer", color: "red" }}
-                        disabled={
-                          type === "new" || type === "edit" ? false : true
-                        }
-                        onClick={() => {
-                          setFile();
-                          setDisableUpload(false);
-                          setFieldsValue({
-                            phieunhanhang: {
-                              fileDinhKem: undefined,
-                            },
-                          });
-                        }}
-                      />
-                      <Image
-                        width={100}
-                        src={FileChat}
-                        alt="preview"
-                        style={{
-                          display: "none",
-                        }}
-                        preview={{
-                          visible: openImage,
-                          scaleStep: 0.5,
-                          src: FileChat,
-                          onVisibleChange: (value) => {
-                            setOpenImage(value);
-                          },
-                        }}
-                      />
-                    </span>
-                  ) : (
-                    <span>
-                      <a target="_blank" href={BASE_URL_API + File}>
-                        {File.split("/")[5]}{" "}
-                      </a>
-                      {type === "UploadFile" &&
-                        (!info.isXacNhan || info.isXacNhan !== true) && (
-                          <DeleteOutlined
-                            style={{ cursor: "pointer", color: "red" }}
-                            onClick={() => {
-                              setFile();
-                              setDisableUpload(false);
-                            }}
-                          />
-                        )}
-                    </span>
-                  )}
-                </FormItem>
-              </Col>
-            </Row>
-          )}
-          {(type === "new" || type === "edit") && (
-            <Row style={{ marginTop: 15 }}>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Sản phẩm"
-                  name={["sanPham", "sanPham_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListSanPham ? ListSanPham : []}
-                    placeholder="Chọn sản phẩm"
-                    optionsvalue={["id", "tenSanPham"]}
-                    style={{ width: "100%" }}
-                    onChange={(val) => setSanPham_Id(val)}
-                    showSearch
-                    optionFilterProp="name"
-                    disabled={type === "new" || type === "edit" ? false : true}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Số lượng sản phẩm"
-                  name={["sanPham", "soLuong"]}
-                >
-                  <Input
-                    className="input-item"
-                    placeholder="Nhập số lượng sản phẩm"
-                    type="number"
-                    onChange={(e) => setSoLuong(e.target.value)}
-                    disabled={type === "new" || type === "edit" ? false : true}
-                  />
-                </FormItem>
-              </Col>
-              {type === "new" || type === "edit" ? (
-                <Col
-                  xxl={24}
-                  xl={24}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  align="center"
-                >
-                  <Button
-                    icon={<PlusOutlined />}
-                    type="primary"
-                    onClick={hanldeThem}
-                    disabled={!SanPham_Id || !SoLuong}
-                  >
-                    Thêm
-                  </Button>
-                </Col>
-              ) : null}
-            </Row>
-          )}
         </Form>
         <Table
+          style={{ margin: "20px 0px" }}
           bordered
           columns={columns}
           scroll={{ x: 1300, y: "55vh" }}
@@ -1331,13 +1149,8 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             </Row>
           )}
       </Card>
-      <ModalTuChoi
-        openModal={ActiveModalTuChoi}
-        openModalFS={setActiveModalTuChoi}
-        saveTuChoi={saveTuChoi}
-      />
     </div>
   );
 };
 
-export default DeNghiMuaHangForm;
+export default DinhMucTonKhoForm;

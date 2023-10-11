@@ -268,7 +268,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_DinhMucVatTu/list-san-pham-kh-theo-bom?${params}`,
+          `lkn_DinhMucVatTu/list-san-pham-by-lot-in-ke-hoach?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -279,27 +279,13 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data.length > 0) {
-        const newData = [];
-        res.data.forEach((vt) => {
-          JSON.parse(vt.chiTietBOM).forEach((ct) => {
-            newData.push({
-              tenSanPham: vt.tenSanPham,
-              sanPham_Id: vt.sanPham_Id,
-              keHoach: vt.SoLuongKH,
-              vatTu_Id: ct.vatTu_Id,
-              tenVatTu: ct.tenVatTu,
-              maVatTu: ct.maVatTu,
-              dinhMuc: ct.dinhMuc,
-              tenDonViTinh: ct.tenDonViTinh,
-              tonKho: ct.soLuongTonKho,
-            });
-          });
-        });
+        setListSoLot(res.data);
       } else {
-        setListVatTu([]);
+        setListSoLot([]);
       }
     });
   };
+
   const getUserLap = (info, nguoiLap_Id) => {
     const params = convertObjectToUrlParams({
       id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
@@ -330,6 +316,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       }
     });
   };
+
   const getUserKy = (info) => {
     const params = convertObjectToUrlParams({
       donviId: info.donVi_Id,
@@ -354,6 +341,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       }
     });
   };
+
   const getSanPham = (id) => {
     if (id) {
       new Promise((resolve, reject) => {
@@ -643,6 +631,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       cell: EditableCell,
     },
   };
+
   const handleSave = (row) => {
     const newData = [...listVatTu];
     const index = newData.findIndex((item) => row.vatTu_Id === item.vatTu_Id);
@@ -653,6 +642,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     });
     setListVatTu(newData);
   };
+
   const columns = map(
     value === 1 ? colValues : colValuesCapVatTuKhac,
     (col) => {
@@ -672,6 +662,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       };
     }
   );
+
   /**
    * Khi submit
    *
@@ -696,41 +687,41 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   };
 
   const saveData = (capvattusanxuat, saveQuit = false) => {
-    if (type === "new") {
-      const newData = {
-        ...capvattusanxuat,
-        chiTiet_phieumuahangs: listVatTu,
-        ngaySanXuat: capvattusanxuat.ngaySanXuat._i,
-        ngayYeuCau: capvattusanxuat.ngayYeuCau._i,
-      };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `lkn_PhieuDeNghiMuaHang`,
-            "POST",
-            newData,
-            "ADD",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res.status !== 409) {
-            if (saveQuit) {
-              goBack();
-            } else {
-              resetFields();
-              setFieldTouch(false);
-              setListVatTu([]);
-            }
-          } else {
-            setFieldTouch(false);
-          }
-        })
-        .catch((error) => console.error(error));
-    }
+    // if (type === "new") {
+    //   const newData = {
+    //     ...capvattusanxuat,
+    //     chiTiet_phieumuahangs: listVatTu,
+    //     ngaySanXuat: capvattusanxuat.ngaySanXuat._i,
+    //     ngayYeuCau: capvattusanxuat.ngayYeuCau._i,
+    //   };
+    //   new Promise((resolve, reject) => {
+    //     dispatch(
+    //       fetchStart(
+    //         `lkn_PhieuDeNghiMuaHang`,
+    //         "POST",
+    //         newData,
+    //         "ADD",
+    //         "",
+    //         resolve,
+    //         reject
+    //       )
+    //     );
+    //   })
+    //     .then((res) => {
+    //       if (res.status !== 409) {
+    //         if (saveQuit) {
+    //           goBack();
+    //         } else {
+    //           resetFields();
+    //           setFieldTouch(false);
+    //           setListVatTu([]);
+    //         }
+    //       } else {
+    //         setFieldTouch(false);
+    //       }
+    //     })
+    //     .catch((error) => console.error(error));
+    // }
     if (type === "edit") {
       const newData = {
         id: id,
@@ -870,6 +861,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       },
     });
   };
+
   const addVatTu = (data) => {
     let check = false;
     listVatTu.forEach((dl) => {
@@ -882,9 +874,11 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     !check && listVatTu.length === 0 && setListVatTu([data]);
     !check && setFieldTouch(true);
   };
+
   const handleSelectXuong = (val) => {
     getVatTuSanXuat(val);
   };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -1109,7 +1103,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                     <Select
                       className="heading-select slt-search th-select-heading"
                       data={ListUserKy}
-                      placeholder="Chọn người duỵet"
+                      placeholder="Chọn người duyệt"
                       optionsvalue={["user_Id", "fullName"]}
                       style={{ width: "100%" }}
                       showSearch
@@ -1316,7 +1310,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
             <Table
               bordered
               columns={columns}
-              scroll={{ x: 900, y: "55vh" }}
+              scroll={{ x: 1200, y: "55vh" }}
               components={components}
               className="gx-table-responsive"
               dataSource={reDataForTable(listVatTu)}

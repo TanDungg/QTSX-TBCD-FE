@@ -37,10 +37,10 @@ function DatHangNoiBo({ match, history, permission }) {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [selectedDevice, setSelectedDevice] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
-  const [selectedKeys, setSelectedKeys] = useState([]);
+  const [SelectedDatHang, setSelectedDatHang] = useState(null);
+  const [selectedKeys, setSelectedKeys] = useState(null);
   const [ListBanPhong, setListBanPhong] = useState([]);
   const [BanPhong, setBanPhong] = useState("");
   useEffect(() => {
@@ -355,43 +355,25 @@ function DatHangNoiBo({ match, history, permission }) {
     };
   });
 
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
-
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
   const handleOnSelectBanPhong = (val) => {
     setBanPhong(val);
     setPage(1);
     loadData(keyword, val, FromDate, ToDate, 1);
   };
+
   const handleClearBanPhong = (val) => {
     setBanPhong("");
     setPage(1);
     loadData(keyword, "", FromDate, ToDate, 1);
   };
+
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
     loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
   };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -472,27 +454,6 @@ function DatHangNoiBo({ match, history, permission }) {
           </Col>
         </Row>
         <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            preserveSelectedRowKeys: true,
-            hideSelectAll: true,
-            selectedRowKeys: selectedKeys,
-            getCheckboxProps: (record) => ({}),
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setSelectedDevice([record]);
-                  setSelectedKeys([record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            };
-          }}
           bordered
           scroll={{ x: 1000, y: "70vh" }}
           columns={columns}
@@ -511,6 +472,38 @@ function DatHangNoiBo({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "radio",
+            selectedRowKeys: selectedKeys ? [selectedKeys] : [],
+            onChange: (selectedRowKeys, selectedRows) => {
+              if (
+                selectedRows.length > 0 &&
+                selectedRows[0].tinhTrang === "Đã hoàn tất xác nhận"
+              ) {
+                setSelectedDatHang(selectedRows[0]);
+                setSelectedKeys(selectedRows[0].key);
+              } else {
+                setSelectedDatHang(null);
+                setSelectedKeys(null);
+              }
+            },
+          }}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (e) => {
+                if (
+                  selectedKeys === record.key ||
+                  record.tinhTrang !== "Đã hoàn tất xác nhận"
+                ) {
+                  setSelectedDatHang(null);
+                  setSelectedKeys(null);
+                } else {
+                  setSelectedDatHang(record);
+                  setSelectedKeys(record.key);
+                }
+              },
+            };
+          }}
         />
       </Card>
     </div>

@@ -7,7 +7,6 @@ import {
   EyeOutlined,
   EyeInvisibleOutlined,
   PrinterOutlined,
-  RetweetOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -32,22 +31,22 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function PhieuDeNghiCapVatTu({ match, history, permission }) {
+function DinhMucTonKho({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
-  const [ListXuongSanXuat, setListXuongSanXuat] = useState([]);
-  const [XuongSanXuat, setXuongSanXuat] = useState(null);
-  const [TuNgay, setTuNgay] = useState(getDateNow(7));
-  const [DenNgay, setDenNgay] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
-  const [SelectedDNCVT, setSelectedDNCVT] = useState(null);
-  const [selectedKeys, setSelectedKeys] = useState(null);
+  const [selectedDevice, setSelectedDevice] = useState([]);
+  const [FromDate, setFromDate] = useState(getDateNow(7));
+  const [ToDate, setToDate] = useState(getDateNow());
+  const [selectedKeys, setSelectedKeys] = useState([]);
+  const [ListBanPhong, setListBanPhong] = useState([]);
+  const [BanPhong, setBanPhong] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
-      getXuongSanXuat();
-      getListData(XuongSanXuat, TuNgay, DenNgay, page);
+      getBanPhong();
+      loadData(keyword, BanPhong, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -60,19 +59,18 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (XuongSanXuat_Id, tuNgay, denNgay, page) => {
+  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      XuongSanXuat_Id,
+      phongBanId,
       tuNgay,
       denNgay,
+      keyword,
       page,
+      donVi_Id: INFO.donVi_Id,
     });
-    dispatch(
-      fetchStart(`lkn_PhieuDeNghiCapVatTu?${param}`, "GET", null, "LIST")
-    );
+    dispatch(fetchStart(`lkn_PhieuDatHangNoiBo?${param}`, "GET", null, "LIST"));
   };
-
-  const getXuongSanXuat = () => {
+  const getBanPhong = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -88,20 +86,32 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const xuongsx = [];
-          res.data.forEach((x) => {
-            if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
-              xuongsx.push(x);
-            }
-          });
-          setListXuongSanXuat(xuongsx);
+          setListBanPhong(res.data);
         } else {
-          setListXuongSanXuat([]);
+          setListBanPhong([]);
         }
       })
       .catch((error) => console.error(error));
   };
+  /**
+   * Tìm kiếm sản phẩm
+   *
+   */
+  const onSearchDeNghiMuaHang = () => {
+    loadData(keyword, BanPhong, FromDate, ToDate, page);
+  };
 
+  /**
+   * Thay đổi keyword
+   *
+   * @param {*} val
+   */
+  const onChangeKeyword = (val) => {
+    setKeyword(val.target.value);
+    if (isEmpty(val.target.value)) {
+      loadData(val.target.value, BanPhong, FromDate, ToDate, page);
+    }
+  };
   /**
    * ActionContent: Hành động trên bảng
    * @param {*} item
@@ -110,18 +120,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      (permission &&
-        permission.cof &&
-        item.userKiemTra_Id === INFO.user_Id &&
-        item.tinhTrang === "Chưa duyệt") ||
-      (permission &&
-        permission.cof &&
-        item.userKeToan_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác Nhận bởi kiểm tra") ||
-      (permission &&
-        permission.cof &&
-        item.userDuyet_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác Nhận bởi kiểm tra, kế toán") ? (
+      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -137,7 +136,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
         </span>
       );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa duyệt" ? (
+      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -153,7 +152,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa duyệt"
+      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -179,8 +178,8 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieu,
-      "phiếu đề nghị mua hàng"
+      item.maPhieuYeuCau,
+      "phiếu đặt hàng nội bộ"
     );
   };
 
@@ -190,13 +189,14 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDeNghiCapVatTu?id=${item.id}`;
+    let url = `lkn_PhieuDatHangNoiBo/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
+        // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(XuongSanXuat, TuNgay, DenNgay, page);
+          loadData(keyword, BanPhong, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -210,7 +210,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(keyword, XuongSanXuat, TuNgay, DenNgay, pagination);
+    loadData(keyword, BanPhong, FromDate, ToDate, pagination);
   };
 
   /**
@@ -223,7 +223,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handlePrint = () => {};
+
   const addButtonRender = () => {
     return (
       <>
@@ -234,16 +234,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           onClick={handleRedirect}
           disabled={permission && !permission.add}
         >
-          Tạo phiếu
-        </Button>
-        <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
-        >
-          In phiếu
+          Thêm mới
         </Button>
       </>
     );
@@ -263,10 +254,10 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieu}
+          {val.maPhieuYeuCau}
         </Link>
       ) : (
-        <span disabled>{val.maPhieu}</span>
+        <span disabled>{val.maPhieuYeuCau}</span>
       );
     return <div>{detail}</div>;
   };
@@ -279,47 +270,35 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu đề nghị",
-      key: "maPhieu",
+      title: "Mã phiếu thanh lý",
+      key: "maPhieuYeuCau",
       align: "center",
       render: (val) => renderDetail(val),
     },
     {
-      title: "Xưởng sản xuất",
-      dataIndex: "tenXuongSanXuat",
-      key: "tenXuongSanXuat",
+      title: "Kho thanh lý",
+      dataIndex: "ngayXuat",
+      key: "ngayXuat",
       align: "center",
     },
     {
-      title: "Ngày sản xuất",
-      dataIndex: "ngayYeuCau",
-      key: "ngayYeuCau",
-      align: "center",
-    },
-
-    {
-      title: "Ngày yêu cầu",
-      dataIndex: "ngaySanXuat",
-      key: "ngaySanXuat",
+      title: "Ngày thanh lý",
+      dataIndex: "kho",
+      key: "kho",
       align: "center",
     },
     {
       title: "Người lập",
-      dataIndex: "userLapPhieuLapPhieu",
-      key: "userLapPhieuLapPhieu",
+      dataIndex: "tenNguoiLap",
+      key: "tenNguoiLap",
       align: "center",
     },
-    {
-      title: "Tình trạng",
-      dataIndex: "tinhTrang",
-      key: "tinhTrang",
-      align: "center",
-    },
+
     {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 120,
+      width: 110,
       render: (value) => actionContent(value),
     },
   ];
@@ -346,30 +325,48 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     };
   });
 
-  const handleOnSelectXuongSanXuat = (value) => {
-    setXuongSanXuat(value);
-    setPage(1);
-    getListData(value, TuNgay, DenNgay, 1);
-  };
+  function hanldeRemoveSelected(device) {
+    const newDevice = remove(selectedDevice, (d) => {
+      return d.key !== device.key;
+    });
+    const newKeys = remove(selectedKeys, (d) => {
+      return d !== device.key;
+    });
+    setSelectedDevice(newDevice);
+    setSelectedKeys(newKeys);
+  }
 
-  const handleClearXuongSanXuat = () => {
-    setXuongSanXuat(null);
-    setPage(1);
-    getListData(null, TuNgay, DenNgay, 1);
+  const rowSelection = {
+    selectedRowKeys: selectedKeys,
+    selectedRows: selectedDevice,
+    onChange: (selectedRowKeys, selectedRows) => {
+      const newSelectedDevice = [...selectedRows];
+      const newSelectedKey = [...selectedRowKeys];
+      setSelectedDevice(newSelectedDevice);
+      setSelectedKeys(newSelectedKey);
+    },
   };
-
+  const handleOnSelectBanPhong = (val) => {
+    setBanPhong(val);
+    setPage(1);
+    loadData(keyword, val, FromDate, ToDate, 1);
+  };
+  const handleClearBanPhong = (val) => {
+    setBanPhong("");
+    setPage(1);
+    loadData(keyword, "", FromDate, ToDate, 1);
+  };
   const handleChangeNgay = (dateString) => {
-    setTuNgay(dateString[0]);
-    setDenNgay(dateString[1]);
+    setFromDate(dateString[0]);
+    setToDate(dateString[1]);
     setPage(1);
-    getListData(XuongSanXuat, dateString[0], dateString[1], 1);
+    loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
   };
-
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phiếu đề nghị cấp vật tư"
-        description="Danh sách phiếu đề nghị cấp vật tư"
+        title="Định mức tồn kho vật tư"
+        description="Định mức tồn kho vật tư"
         buttons={addButtonRender()}
       />
 
@@ -384,20 +381,46 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Xưởng sản xuất:</h5>
+            <h5>Mã định mức:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListXuongSanXuat ? ListXuongSanXuat : []}
-              placeholder="Chọn xưởng sản xuất"
+              data={ListBanPhong ? ListBanPhong : []}
+              placeholder="Chọn Ban/Phòng"
               optionsvalue={["id", "tenPhongBan"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectXuongSanXuat}
-              value={XuongSanXuat}
-              onChange={(value) => setXuongSanXuat(value)}
+              onSelect={handleOnSelectBanPhong}
+              value={BanPhong}
+              onChange={(value) => setBanPhong(value)}
               allowClear
-              onClear={handleClearXuongSanXuat}
+              onClear={handleClearBanPhong}
+            />
+          </Col>
+
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Kho:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListBanPhong ? ListBanPhong : []}
+              placeholder="Chọn Ban/Phòng"
+              optionsvalue={["id", "tenPhongBan"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp={"name"}
+              onSelect={handleOnSelectBanPhong}
+              value={BanPhong}
+              onChange={(value) => setBanPhong(value)}
+              allowClear
+              onClear={handleClearBanPhong}
             />
           </Col>
           <Col
@@ -409,19 +432,42 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Ngày:</h5>
-            <RangePicker
-              format={"DD/MM/YYYY"}
-              onChange={(date, dateString) => handleChangeNgay(dateString)}
-              defaultValue={[
-                moment(TuNgay, "DD/MM/YYYY"),
-                moment(DenNgay, "DD/MM/YYYY"),
-              ]}
-              allowClear={false}
+            <h5>Tìm kiếm:</h5>
+            <Toolbar
+              count={1}
+              search={{
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchDeNghiMuaHang,
+                onSearch: onSearchDeNghiMuaHang,
+                allowClear: true,
+                placeholder: "Tìm kiếm",
+              }}
             />
           </Col>
         </Row>
         <Table
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            preserveSelectedRowKeys: true,
+            selectedRowKeys: selectedKeys,
+            getCheckboxProps: (record) => ({}),
+          }}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (e) => {
+                const found = find(selectedKeys, (k) => k === record.key);
+                if (found === undefined) {
+                  setSelectedDevice([record]);
+                  setSelectedKeys([record.key]);
+                } else {
+                  hanldeRemoveSelected(record);
+                }
+              },
+            };
+          }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}
@@ -446,4 +492,4 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   );
 }
 
-export default PhieuDeNghiCapVatTu;
+export default DinhMucTonKho;

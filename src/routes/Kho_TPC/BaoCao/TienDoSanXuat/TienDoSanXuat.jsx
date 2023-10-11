@@ -335,7 +335,15 @@ function TienDoSanXuat({ permission, history, match }) {
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ marginBottom: 10 }}>
-          <Col xl={6} lg={24} md={24} xs={24}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Tìm kiếm:</h5>
             <Toolbar
               count={1}
@@ -354,7 +362,7 @@ function TienDoSanXuat({ permission, history, match }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1300, y: "55vh" }}
+          scroll={{ x: 1200, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}
