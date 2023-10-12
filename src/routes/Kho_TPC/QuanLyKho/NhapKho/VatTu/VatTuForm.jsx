@@ -18,13 +18,14 @@ import {
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { BASE_URL_APP, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
   reDataForTable,
+  setLocalStorage,
 } from "src/util/Common";
 import AddVatTuModal from "./AddVatTuModal";
 const EditableContext = React.createContext(null);
@@ -776,11 +777,15 @@ const VatTuForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
+
   const handlePrint = () => {
-    history.push({
-      pathname: `/quan-ly-kho-tpc/thong-tin-vat-tu/nhap-kho/inMa`,
-      state: { thongTinVatTu: listVatTu, info: info },
-    });
+    const newData = {
+      thongTinVatTu: listVatTu,
+      info: info,
+    };
+    const newPathname = `/quan-ly-kho-tpc/thong-tin-vat-tu/nhap-kho/inMa`;
+    setLocalStorage(`qrCodeVatTu`, newData);
+    window.open(`${BASE_URL_APP}${newPathname}`);
   };
   const addButtonRender = () => {
     return (
