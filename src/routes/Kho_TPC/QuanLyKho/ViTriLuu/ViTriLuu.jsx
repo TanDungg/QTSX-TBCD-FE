@@ -298,9 +298,9 @@ function ViTriLuu({ match, history, permission }) {
       align: "center",
     },
     {
-      title: "Kho nhập",
-      dataIndex: "tenCTKho",
-      key: "tenCTKho",
+      title: "Kho",
+      dataIndex: "tenKho",
+      key: "tenKho",
       align: "center",
     },
     {
@@ -311,8 +311,8 @@ function ViTriLuu({ match, history, permission }) {
     },
     {
       title: "Hạn sử dụng",
-      dataIndex: "hanSuDung",
-      key: "hanSuDung",
+      dataIndex: "thoiGianSuDung",
+      key: "thoiGianSuDung",
       align: "center",
     },
     {

@@ -107,7 +107,7 @@ function Ke({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && !item.isUsed
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -128,7 +128,7 @@ function Ke({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maCauTrucKho, "kệ");
+    ModalDeleteConfirm(deleteItemAction, item, item.maKe, "kệ");
   };
 
   /**
@@ -143,7 +143,7 @@ function Ke({ match, history, permission }) {
     })
       .then((res) => {
         // Reload lại danh sách
-        loadData();
+        loadData(keyword, page);
       })
       .catch((error) => console.error(error));
   };
@@ -176,21 +176,22 @@ function Ke({ match, history, permission }) {
   let renderHead = [
     {
       title: "STT",
-      dataIndex: "stt",
-      key: "stt",
+      dataIndex: "key",
+      key: "key",
       align: "center",
       width: 70,
     },
     {
       title: "Mã kệ",
-      dataIndex: "maCauTrucKho",
-      key: "maCauTrucKho",
-      render: (value, record) => renderTenMenu(value, record),
+      key: "maKe",
+      dataIndex: "maKe",
+      key: "maKe",
+      // render: (value, record) => renderTenMenu(value, record),
     },
     {
       title: "Tên kệ",
-      dataIndex: "tenCauTrucKho",
-      key: "tenCauTrucKho",
+      dataIndex: "tenKe",
+      key: "tenKe",
       align: "center",
     },
     {
@@ -200,9 +201,15 @@ function Ke({ match, history, permission }) {
       align: "center",
     },
     {
-      title: "Tên Ban/Phòng",
+      title: "Xưởng",
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
+      align: "center",
+    },
+    {
+      title: "Kho",
+      dataIndex: "tenCauTrucKho",
+      key: "tenCauTrucKho",
       align: "center",
     },
     {

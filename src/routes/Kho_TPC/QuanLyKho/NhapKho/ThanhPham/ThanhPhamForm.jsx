@@ -712,6 +712,11 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   const dataList = reDataForTable(ListSanPham);
   const hanldeSelectXuong = (val) => {
     getKho(val);
+    setFieldsValue({
+      phieunhapkho: {
+        cauTrucKho_Id: null,
+      },
+    });
   };
   return (
     <div className="gx-main-content">
