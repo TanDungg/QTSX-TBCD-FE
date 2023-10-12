@@ -307,12 +307,6 @@ function VatTu({ match, history, permission }) {
       align: "center",
     },
     {
-      title: "Ghi chú",
-      dataIndex: "ghiChu",
-      key: "ghiChu",
-      align: "center",
-    },
-    {
       title: "Chức năng",
       key: "action",
       align: "center",

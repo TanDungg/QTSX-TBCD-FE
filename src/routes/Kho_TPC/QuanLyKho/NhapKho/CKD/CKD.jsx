@@ -171,8 +171,8 @@ function CKD({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuYeuCau,
-      "phiếu đặt hàng nội bộ"
+      item.maPhieuNhapKhoVatTu,
+      "phiếu nhập kho CKD"
     );
   };
 
@@ -182,7 +182,7 @@ function CKD({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDatHangNoiBo/${item.id}`;
+    let url = `lkn_PhieuNhapKhoVatTu?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -283,22 +283,17 @@ function CKD({ match, history, permission }) {
       key: "ngayNhan",
       align: "center",
     },
-    {
-      title: "Nhà cung cấp",
-      dataIndex: "tenNhaCungCap",
-      key: "tenNhaCungCap",
-      align: "center",
-    },
-    {
-      title: "Số hóa đơn",
-      dataIndex: "soHoaDon",
-      key: "soHoaDon",
-      align: "center",
-    },
+
     {
       title: "Người nhận",
       dataIndex: "tenNguoiYeuCau",
       key: "tenNguoiYeuCau",
+      align: "center",
+    },
+    {
+      title: "Xưởng",
+      dataIndex: "tenPhongBan",
+      key: "tenPhongBan",
       align: "center",
     },
     {
@@ -307,12 +302,12 @@ function CKD({ match, history, permission }) {
       key: "tenCauTrucKho",
       align: "center",
     },
-    {
-      title: "Ghi chú",
-      dataIndex: "ghiChu",
-      key: "ghiChu",
-      align: "center",
-    },
+    // {
+    //   title: "Ghi chú",
+    //   dataIndex: "ghiChu",
+    //   key: "ghiChu",
+    //   align: "center",
+    // },
     {
       title: "Chức năng",
       key: "action",

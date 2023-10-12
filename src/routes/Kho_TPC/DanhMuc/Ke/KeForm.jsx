@@ -176,7 +176,15 @@ function KeForm({ match, permission, history }) {
       const newUser = CauTrucKho;
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`CauTrucKho`, "POST", newUser, "ADD", "", resolve, reject)
+          fetchStart(
+            `CauTrucKho/ke-thanh-pham`,
+            "POST",
+            newUser,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
         );
       })
         .then((res) => {
@@ -195,7 +203,7 @@ function KeForm({ match, permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `CauTrucKho/${id}`,
+            `CauTrucKho/ke-thanh-pham/${id}`,
             "PUT",
             editUser,
             "EDIT",
@@ -218,6 +226,11 @@ function KeForm({ match, permission, history }) {
   };
   const handleSelectPhongBan = (val) => {
     getListCauTrucKho(val);
+    setFieldsValue({
+      CauTrucKho: {
+        cauTrucKho_Id: null,
+      },
+    });
   };
 
   /**
@@ -295,7 +308,7 @@ function KeForm({ match, permission, history }) {
               <Input className="input-item" placeholder="Nhập sức chứa" />
             </FormItem>
             <FormItem
-              label="Ban/Phòng"
+              label="Xưởng"
               name={["CauTrucKho", "phongBan_Id"]}
               rules={[
                 {
@@ -309,7 +322,7 @@ function KeForm({ match, permission, history }) {
                 datatreeselect={listPhongBan}
                 name="PhongBan"
                 options={["id", "tenPhongBan", "children"]}
-                placeholder="Chọn Ban/Phòng"
+                placeholder="Chọn xưởng"
                 style={{ width: "100%" }}
                 onSelect={handleSelectPhongBan}
               />

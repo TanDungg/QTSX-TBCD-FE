@@ -1,19 +1,5 @@
-import {
-  DeleteOutlined,
-  PlusOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
-import {
-  Card,
-  Form,
-  Input,
-  Row,
-  Col,
-  DatePicker,
-  Button,
-  Tag,
-  Divider,
-} from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
+import { Card, Form, Input, Row, Col, DatePicker, Tag, Divider } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -95,7 +81,7 @@ const EditableCell = ({
           title === "Số lượng"
             ? [
                 {
-                  pattern: /^[1-9]\d*$/,
+                  pattern: /^\d+$/,
                   message: "Số lượng không hợp lệ!",
                 },
               ]
@@ -137,15 +123,14 @@ const CKDForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const [listVatTu, setListVatTu] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [ListSoLot, setListSoLot] = useState([]);
   const [SanPham_Id, setSanPham_Id] = useState();
   const [ListSanPham, setListSanPham] = useState([]);
-  const [SoLuong, setSoLuong] = useState();
-  const { validateFields, resetFields, setFieldsValue } = form;
+  const [activeSoLuong, setActiveSoLuong] = useState(true);
+  const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
     const load = () => {
@@ -228,14 +213,31 @@ const CKDForm = ({ history, match, permission }) => {
       }
     });
   };
-  const getSanPham = (id) => {
+  const getSanPham = (id, phongBan_Id) => {
+    const params = convertObjectToUrlParams({
+      phongBan_Id,
+      lot_Id: id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(`SanPham/${id}`, "GET", null, "DETAIL", "", resolve, reject)
+        fetchStart(
+          `Lot/chi-tiet-by-lot-and-pb?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
       );
     }).then((res) => {
       if (res && res.data) {
-        setListSanPham(JSON.parse(res.data.chiTiet));
+        const newData = res.data;
+        newData.forEach((ct, index) => {
+          newData[index].soLuongNhap = ct.soLuongChiTiet;
+          newData[index].ghiChu = "";
+        });
+        setListSanPham(newData);
       } else {
         setListSanPham([]);
       }
@@ -313,7 +315,7 @@ const CKDForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuNhapKhoVatTu/${id}?${params}`,
+          `lkn_PhieuNhapKhoVatTu/nhap-kho-ckd/${id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -325,17 +327,19 @@ const CKDForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListVatTu(JSON.parse(res.data.chiTietVatTu));
           getUserLap(INFO, res.data.userNhan_Id);
           setInfo(res.data);
           getLot();
-          getKho();
+          getKho(res.data.phongBan_Kho_Id);
           getXuong();
+          setListSanPham(JSON.parse(res.data.chiTiet));
+          setActiveSoLuong(false);
           setFieldsValue({
             phieunhapkho: {
               ...res.data,
+              phongBan_Id: res.data.phongBan_Kho_Id,
               ngayNhan: moment(res.data.ngayNhan, "DD/MM/YYYY"),
-              ngayHoaDon: moment(res.data.ngayHoaDon, "DD/MM/YYYY"),
+              soLuong: res.data.soLuongSanPham,
             },
           });
         }
@@ -377,11 +381,8 @@ const CKDForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter((d) => d.sanPham_Id !== item.sanPham_Id);
-    setListVatTu(newData);
-    const newListSanPham = [...ListSanPham];
-    newListSanPham.push(item);
-    setListSanPham(newListSanPham);
+    const newData = ListSanPham.filter((d) => d.chiTiet_Id !== item.chiTiet_Id);
+    setListSanPham(newData);
   };
 
   /**
@@ -432,11 +433,10 @@ const CKDForm = ({ history, match, permission }) => {
       key: "tenDonViTinh",
       align: "center",
     },
-
     {
       title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
+      dataIndex: "soLuongNhap",
+      key: "soLuongNhap",
       align: "center",
       editable:
         type === "new" || type === "edit" || type === "xacnhan" ? true : false,
@@ -449,13 +449,13 @@ const CKDForm = ({ history, match, permission }) => {
       editable:
         type === "new" || type === "edit" || type === "xacnhan" ? true : false,
     },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-    },
+    // {
+    //   title: "Chức năng",
+    //   key: "action",
+    //   align: "center",
+    //   width: 80,
+    //   render: (value) => actionContent(value),
+    // },
   ];
   const components = {
     body: {
@@ -464,15 +464,17 @@ const CKDForm = ({ history, match, permission }) => {
     },
   };
   const handleSave = (row) => {
-    const newData = [...listVatTu];
-    const index = newData.findIndex((item) => row.vatTu_Id === item.vatTu_Id);
+    const newData = [...ListSanPham];
+    const index = newData.findIndex(
+      (item) => row.chiTiet_Id === item.chiTiet_Id
+    );
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
       ...row,
     });
     setFieldTouch(true);
-    setListVatTu(newData);
+    setListSanPham(newData);
   };
   const columns = map(colValues, (col) => {
     if (!col.editable) {
@@ -502,8 +504,8 @@ const CKDForm = ({ history, match, permission }) => {
   const saveAndClose = (val) => {
     validateFields()
       .then((values) => {
-        if (listVatTu.length === 0) {
-          Helpers.alertError("Danh sách vật tư rỗng");
+        if (ListSanPham.length === 0) {
+          Helpers.alertError("Danh sách chi tiết rỗng");
         } else {
           saveData(values.phieunhapkho, val);
         }
@@ -517,14 +519,13 @@ const CKDForm = ({ history, match, permission }) => {
     if (type === "new") {
       const newData = {
         ...nhapkho,
-        chiTiet_PhieuNhapKhoVatTus: listVatTu,
-        ngayHoaDon: nhapkho.ngayHoaDon._i,
+        chiTiet_PhieuNhapKhoCKDs: ListSanPham,
         ngayNhan: nhapkho.ngayNhan._i,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuNhapKhoVatTu`,
+            `lkn_PhieuNhapKhoVatTu/nhap-kho-ckd`,
             "POST",
             newData,
             "ADD",
@@ -539,19 +540,15 @@ const CKDForm = ({ history, match, permission }) => {
             if (saveQuit) {
               goBack();
             } else {
+              resetFields();
               setFieldsValue({
                 phieunhapkho: {
-                  phieuNhanHang_Id: null,
-                  soHoaDon: null,
-                  nhaCungCap_Id: null,
-                  noiDungNhanVatTu: null,
-                  cauTrucKho_Id: null,
                   ngayNhan: moment(getDateNow(), "DD/MM/YYYY"),
-                  ngayHoaDon: moment(getDateNow(), "DD/MM/YYYY"),
+                  userNhan_Id: nhapkho.userNhan_Id,
                 },
               });
               setFieldTouch(false);
-              setListVatTu([]);
+              setListSanPham([]);
             }
           } else {
             setFieldTouch(false);
@@ -563,19 +560,18 @@ const CKDForm = ({ history, match, permission }) => {
       const newData = {
         id: id,
         ...nhapkho,
-        chiTiet_PhieuNhapKhoVatTus: listVatTu.map((vt) => {
+        chiTiet_PhieuNhapKhoCKDs: ListSanPham.map((vt) => {
           return {
             ...vt,
             lkn_PhieuNhapKhoVatTu_Id: id,
           };
         }),
-        ngayHoaDon: nhapkho.ngayHoaDon._i,
         ngayNhan: nhapkho.ngayNhan._i,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuNhapKhoVatTu/${id}`,
+            `lkn_PhieuNhapKhoVatTu/nhap-kho-ckd/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -624,7 +620,7 @@ const CKDForm = ({ history, match, permission }) => {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận phiếu đề nghị mua hàng",
+    title: "Xác nhận phiếu nhập kho",
     onOk: hanldeXacNhan,
   };
   const modalXK = () => {
@@ -666,85 +662,20 @@ const CKDForm = ({ history, match, permission }) => {
         <Tag color={"success"}>{info.maPhieuNhapKhoVatTu}</Tag>
       </span>
     );
-  const hanldeSelectMaPhieu = (vaL) => {
-    const params = convertObjectToUrlParams({ donVi_Id: INFO.donVi_Id });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuNhanHang/${vaL}?${params}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const newVatTu = [];
-          res.data.chiTietVatTu &&
-            JSON.parse(res.data.chiTietVatTu).forEach((ct) => {
-              if (Number(ct.soLuongNhan) > 0) {
-                newVatTu.push({
-                  id: ct.vatTu_Id + "_" + ct.sanPham_Id,
-                  maVatTu: ct.maVatTu,
-                  tenVatTu: ct.tenVatTu,
-                  tenDonViTinh: ct.tenDonViTinh,
-                  soLuongNhap: ct.soLuongNhan,
-                  vatTu_Id: ct.vatTu_Id,
-                  thoiGianSuDung: getDateNow(),
-                });
-              }
-            });
-          setListVatTu(newVatTu);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
 
-  const hanldeThem = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `SanPham/${SanPham_Id}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          res.data.soLuong = SoLuong;
-          res.data.sanPham_Id = res.data.id;
-          const newData = ListSanPham.filter((d) => d.id !== SanPham_Id);
-          setListSanPham(newData);
-          setListVatTu([...listVatTu, res.data]);
-          setFieldsValue({
-            sanPham: {
-              sanPham_Id: "",
-              soLuong: "",
-            },
-          });
-          setSanPham_Id();
-          setSoLuong();
-        }
-      })
-      .catch((error) => console.error(error));
-  };
   const dataList = reDataForTable(ListSanPham);
   const handleSelectXuong = (val) => {
+    const { lot_Id } = getFieldValue("phieunhapkho");
+    if (lot_Id) getSanPham(lot_Id, val);
+
     getKho(val);
   };
   const handleSelectSoLot = (val) => {
+    setActiveSoLuong(false);
+    const { phongBan_Id } = getFieldValue("phieunhapkho");
+    if (phongBan_Id) getSanPham(val, phongBan_Id);
     ListSoLot.forEach((sl) => {
       if (sl.id === val) {
-        getSanPham(sl.sanPham_Id);
         setFieldsValue({
           phieunhapkho: {
             tenSanPham: sl.tenSanPham,
@@ -753,6 +684,15 @@ const CKDForm = ({ history, match, permission }) => {
         });
       }
     });
+  };
+  const hanldeBlurSoLuong = (sl) => {
+    if (sl !== "") {
+      const newData = [...ListSanPham];
+      newData.forEach((sp, index) => {
+        newData[index].soLuongNhap = Number(sp.soLuongChiTiet) * Number(sl);
+      });
+      setListSanPham(newData);
+    }
   };
   return (
     <div className="gx-main-content">
@@ -917,17 +857,22 @@ const CKDForm = ({ history, match, permission }) => {
                 name={["phieunhapkho", "soLuong"]}
                 rules={[
                   {
-                    type: "string",
                     required: true,
                   },
                 ]}
               >
                 <Input
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  type="number"
+                  disabled={
+                    (type === "new" || type === "edit") && !activeSoLuong
+                      ? false
+                      : true
+                  }
+                  onBlur={(e) => hanldeBlurSoLuong(e.target.value)}
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            {/* <Col span={12}>
               <FormItem
                 label="Nội dung nhập"
                 name={["phieunhapkho", "noiDungNhanVatTu"]}
@@ -942,7 +887,7 @@ const CKDForm = ({ history, match, permission }) => {
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
-            </Col>
+            </Col> */}
           </Row>
           <Divider />
         </Form>
