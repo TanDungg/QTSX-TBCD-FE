@@ -297,7 +297,7 @@ a:focus {
   outline: 0;
 }
 a[disabled] {
-  color: rgba(0, 0, 0, 0.25);
+  color: #545454;
   cursor: not-allowed;
   pointer-events: none;
 }
@@ -19311,10 +19311,10 @@ span.ant-radio + * {
 }
 
 .ant-select-disabled .ant-select-selector .ant-select-selection-item {
-  color: #545454;
+  color: #000;
 }
 .ant-select-single .ant-select-selector .ant-select-selection-item {
-  position: relative;
+  position: relative; 
   user-select: none;
 }
 .ant-select-single .ant-select-selector .ant-select-selection-placeholder {

@@ -781,17 +781,10 @@ export const exportPDF = (fileName, fileContent) => {
   const byteArray = new Uint8Array(byteNumbers);
   const dataBlob = new Blob([byteArray], { type: fileType });
 
-  // Tạo một URL Blob từ dataBlob
   const blobURL = URL.createObjectURL(dataBlob);
 
-  // Mở URL Blob trong một cửa sổ mới với tên là fileName
-  // const newWindow =
+  // Thay đổi cách gọi window.open để bao gồm fileName
   window.open(blobURL, fileName);
-
-  // Tuỳ chọn, thu hồi URL Blob sau khi cửa sổ được đóng (dọn dẹp)
-  // newWindow.addEventListener("unload", () => {
-  //   URL.revokeObjectURL(blobURL);
-  // });
 };
 
 /**

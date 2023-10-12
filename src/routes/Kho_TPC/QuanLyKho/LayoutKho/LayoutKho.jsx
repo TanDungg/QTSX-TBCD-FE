@@ -115,7 +115,15 @@ function LayoutKho({ match, history, permission }) {
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ marginBottom: 15 }}>
-          <Col span={6}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Kho</h5>
             <Select
               className="heading-select slt-search th-select-heading"
