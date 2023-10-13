@@ -9,12 +9,11 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
   EditableTableRow,
-  Toolbar,
   Select,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
@@ -40,7 +39,6 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const [XuongSanXuat, setXuongSanXuat] = useState(null);
   const [TuNgay, setTuNgay] = useState(getDateNow(7));
   const [DenNgay, setDenNgay] = useState(getDateNow());
-  const [keyword, setKeyword] = useState("");
   const [SelectedDNCVT, setSelectedDNCVT] = useState(null);
   const [SelectedKeys, setSelectedKeys] = useState(null);
   useEffect(() => {
@@ -209,7 +207,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(keyword, XuongSanXuat, TuNgay, DenNgay, pagination);
+    getListData(XuongSanXuat, TuNgay, DenNgay, pagination);
   };
 
   /**
@@ -220,6 +218,13 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const handleRedirect = () => {
     history.push({
       pathname: `${match.url}/them-moi`,
+    });
+  };
+
+  const handleTaoPhieuXuat = () => {
+    history.push({
+      pathname: `/quan-ly-kho-tpc/xuat-kho/vat-tu/them-moi`,
+      state: { itemData: SelectedDNCVT },
     });
   };
 
@@ -293,6 +298,15 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
         >
           In phiếu
         </Button>
+        <Button
+          icon={<PrinterOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleTaoPhieuXuat}
+          disabled={(permission && !permission.print) || SelectedDNCVT === null}
+        >
+          Xuất kho
+        </Button>
       </>
     );
   };
@@ -311,10 +325,10 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieu}
+          {val.maPhieuDeNghiCapVatTu}
         </Link>
       ) : (
-        <span disabled>{val.maPhieu}</span>
+        <span disabled>{val.maPhieuDeNghiCapVatTu}</span>
       );
     return <div>{detail}</div>;
   };
@@ -328,7 +342,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     },
     {
       title: "Mã phiếu đề nghị",
-      key: "maPhieu",
+      key: "maPhieuDeNghiCapVatTu",
       align: "center",
       render: (val) => renderDetail(val),
     },
@@ -353,8 +367,8 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     },
     {
       title: "Người lập",
-      dataIndex: "userLapPhieuLapPhieu",
-      key: "userLapPhieuLapPhieu",
+      dataIndex: "userLapPhieu",
+      key: "userLapPhieu",
       align: "center",
     },
     {

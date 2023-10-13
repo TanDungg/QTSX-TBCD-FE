@@ -580,8 +580,8 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng kế hoạch",
-      dataIndex: "soLuongKH",
-      key: "soLuongKH",
+      dataIndex: "soLuongKeHoach",
+      key: "soLuongKeHoach",
       align: "center",
     },
     {
@@ -592,8 +592,8 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Định mức",
-      dataIndex: "dinhMuc",
-      key: "dinhMuc",
+      dataIndex: "dinhMucVatTu",
+      key: "dinhMucVatTu",
       align: "center",
     },
     {
@@ -890,7 +890,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       <span>
         Chi tiết phiếu đề nghị cấp vật tư -{" "}
         <Tag color={"blue"} style={{ fontSize: "14px" }}>
-          {info.maPhieu}
+          {info.maPhieuDeNghiCapVatTu}
         </Tag>
         <Tag color={"blue"} style={{ fontSize: "14px" }}>
           {info.tinhTrang}

@@ -1,4 +1,5 @@
 // export const BASE_URL_API = "https://qlcntt-be.thacoindustries.com";
+// export const BASE_URL_API = `http://10.14.7.70:8585`;
 export const BASE_URL_API = `http://10.14.7.215:1512`;
 // export const BASE_URL_API = `http://localhost`;
 
