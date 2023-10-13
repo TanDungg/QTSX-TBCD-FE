@@ -53,6 +53,8 @@ const SoDuDauKyForm = asyncComponent(() => import("./SoDuDauKy/SoDuDauKyForm"));
 const LayoutKho = asyncComponent(() => import("./LayoutKho/LayoutKho"));
 const ViTriLuu = asyncComponent(() => import("./ViTriLuu/ViTriLuu"));
 
+const KhoVatTu = asyncComponent(() => import("./KhoVatTu/KhoVatTu"));
+const KhoVatTuForm = asyncComponent(() => import("./KhoVatTu/KhoVatTuForm"));
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -241,6 +243,21 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/dinh-muc-ton-kho/them-moi`}
         exact
         component={Auth(DinhMucTonKhoForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/kho-vat-tu`}
+        exact
+        component={Auth(KhoVatTu, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/kho-vat-tu/them-moi`}
+        exact
+        component={Auth(KhoVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/kho-vat-tu/:id/chinh-sua`}
+        exact
+        component={Auth(KhoVatTuForm, menus, pathname, permission)}
       />
     </Switch>
   );

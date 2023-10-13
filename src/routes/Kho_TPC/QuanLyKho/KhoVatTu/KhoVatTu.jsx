@@ -26,21 +26,23 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
-
+import ModalAddViTri from "./ModalAddViTri";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function ViTriLuu({ match, history, permission }) {
+function KhoVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [selectedDevice, setSelectedDevice] = useState([]);
+  const [ListVatTuSelected, setListVatTuSelected] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [BanPhong, setBanPhong] = useState("");
+  const [ActiveModal, setActiveModal] = useState(false);
+
   useEffect(() => {
     if (permission && permission.view) {
       getKho();
@@ -206,32 +208,32 @@ function ViTriLuu({ match, history, permission }) {
    * @memberof ChucNang
    */
   const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
+    setActiveModal(true);
   };
   const handlePrint = () => {};
   const addButtonRender = () => {
     return (
       <>
         <Button
-          icon={<PlusOutlined />}
+          icon={<EditOutlined />}
           className="th-margin-bottom-0"
           type="primary"
           onClick={handleRedirect}
-          disabled={permission && !permission.add}
+          disabled={
+            (permission && !permission.add) || ListVatTuSelected.length === 0
+          }
         >
-          Tạo phiếu
+          Vị trí
         </Button>
-        <Button
-          icon={<PrinterOutlined />}
+        {/* <Button
+          icon={<EditOutlined />}
           className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
           disabled={permission && !permission.print}
         >
-          In phiếu
-        </Button>
+          Chỉnh sửa vị trí
+        </Button> */}
       </>
     );
   };
@@ -303,9 +305,17 @@ function ViTriLuu({ match, history, permission }) {
     },
     {
       title: "Vị trí lưu",
-      dataIndex: "viTriLuu",
       key: "viTriLuu",
       align: "center",
+      render: (val) => {
+        return (
+          <span>
+            {val.tenKe && val.tenKe}
+            {val.tenTang && ` - ${val.tenTang}`}
+            {val.tenNgan && ` - ${val.tenNgan}`}
+          </span>
+        );
+      },
     },
     {
       title: "Hạn sử dụng",
@@ -313,13 +323,13 @@ function ViTriLuu({ match, history, permission }) {
       key: "thoiGianSuDung",
       align: "center",
     },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
-    },
+    // {
+    //   title: "Chức năng",
+    //   key: "action",
+    //   align: "center",
+    //   width: 110,
+    //   render: (value) => actionContent(value),
+    // },
   ];
 
   const components = {
@@ -345,23 +355,30 @@ function ViTriLuu({ match, history, permission }) {
   });
 
   function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
+    const newDevice = remove(ListVatTuSelected, (d) => {
       return d.key !== device.key;
     });
     const newKeys = remove(selectedKeys, (d) => {
       return d !== device.key;
     });
-    setSelectedDevice(newDevice);
+    setListVatTuSelected(newDevice);
     setSelectedKeys(newKeys);
   }
 
   const rowSelection = {
     selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
+    selectedRows: ListVatTuSelected,
     onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
+      const newListVatTuSelected =
+        ListVatTuSelected.length > 0
+          ? selectedRows.filter((d) => d.key !== ListVatTuSelected[0].key)
+          : [...selectedRows];
+      const newSelectedKey =
+        selectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
+          : [...selectedRowKeys];
+
+      setListVatTuSelected(newListVatTuSelected);
       setSelectedKeys(newSelectedKey);
     },
   };
@@ -384,8 +401,8 @@ function ViTriLuu({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Danh sách vị trí lưu kho"
-        description="Danh sách vị trí lưu kho"
+        title="Kho vật tư"
+        description="Kho vật tư"
         buttons={addButtonRender()}
       />
 
@@ -467,6 +484,7 @@ function ViTriLuu({ match, history, permission }) {
             ...rowSelection,
             preserveSelectedRowKeys: true,
             selectedRowKeys: selectedKeys,
+            hideSelectAll: true,
             getCheckboxProps: (record) => ({}),
           }}
           onRow={(record, rowIndex) => {
@@ -474,7 +492,7 @@ function ViTriLuu({ match, history, permission }) {
               onClick: (e) => {
                 const found = find(selectedKeys, (k) => k === record.key);
                 if (found === undefined) {
-                  setSelectedDevice([record]);
+                  setListVatTuSelected([record]);
                   setSelectedKeys([record.key]);
                 } else {
                   hanldeRemoveSelected(record);
@@ -502,8 +520,13 @@ function ViTriLuu({ match, history, permission }) {
           loading={loading}
         />
       </Card>
+      <ModalAddViTri
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        vatTu={ListVatTuSelected[0]}
+      />
     </div>
   );
 }
 
-export default ViTriLuu;
+export default KhoVatTu;

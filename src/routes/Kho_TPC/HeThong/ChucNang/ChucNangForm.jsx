@@ -161,7 +161,7 @@ function ChucNangForm({ match, permission, history }) {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const editChucNang = { ...item, ...chucNang };
+      const editChucNang = { id, ...item, ...chucNang };
       editChucNang.parent_Id =
         editChucNang.parent_Id === "root"
           ? (editChucNang.parent_Id = null)

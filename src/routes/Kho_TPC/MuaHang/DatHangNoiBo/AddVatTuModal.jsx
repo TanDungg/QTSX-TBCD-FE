@@ -54,7 +54,6 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
             values.vatTu.tenVatTu = vt.tenVatTu;
           }
         });
-        console.log(values.vatTu);
         addVatTu(values.vatTu);
         openModalFS(false);
         resetFields();
