@@ -196,16 +196,6 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
-      } else if (includes(match.url, "xac-nhan")) {
-        if (permission && permission.edit) {
-          setType("xacnhan");
-          const { id } = match.params;
-          setId(id);
-          getInfo(id);
-          getUserKy(INFO);
-        } else if (permission && !permission.edit) {
-          history.push("/home");
-        }
       }
     };
     load();
@@ -213,9 +203,9 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getUserLap = (info, nguoiLap_Id) => {
+  const getUserLap = (info, userLap_Id) => {
     const params = convertObjectToUrlParams({
-      id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
+      id: userLap_Id ? userLap_Id : info.user_Id,
       donVi_Id: info.donVi_Id,
     });
     new Promise((resolve, reject) => {
@@ -235,7 +225,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           dinhmuctonkho: {
-            userYeuCau_Id: res.data.Id,
+            userLap_Id: res.data.Id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -379,9 +369,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
           ? "/them-moi"
           : type === "edit"
           ? `/${id}/chinh-sua`
-          : type === "detail" || type === "UploadFile"
-          ? `/${id}/chi-tiet`
-          : `/${id}/xac-nhan`,
+          : `/${id}/chi-tiet`,
         ""
       )}`
     );
@@ -847,8 +835,8 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Người đề nghị"
-                name={["dinhmuctonkho", "userYeuCau_Id"]}
+                label="Người lập"
+                name={["dinhmuctonkho", "userLap_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -897,7 +885,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Mã định mức"
+                label="Loại định mức"
                 name={["dinhmuctonkho", "maDinhMuc"]}
                 rules={[
                   {
@@ -906,10 +894,12 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
                   },
                 ]}
               >
-                <Input
-                  className="input-item"
-                  placeholder="Nhập mã định mức"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListUser ? ListUser : []}
+                  optionsvalue={["Id", "fullName"]}
+                  style={{ width: "100%" }}
+                  placeholder="Loại định mức"
                 />
               </FormItem>
             </Col>
