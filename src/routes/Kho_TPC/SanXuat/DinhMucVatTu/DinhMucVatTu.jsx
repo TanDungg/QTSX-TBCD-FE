@@ -471,18 +471,15 @@ function DinhMucVatTu({ permission, history, match }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
           <Col
-            xxl={2}
-            xl={3}
-            lg={4}
-            md={4}
-            sm={5}
-            xs={7}
-            align={"center"}
-            style={{ marginTop: 8 }}
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
           >
-            Người lập:
-          </Col>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
+            <h5>Người lập:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListUser ? ListUser : []}
@@ -499,18 +496,15 @@ function DinhMucVatTu({ permission, history, match }) {
             />
           </Col>
           <Col
-            xxl={2}
-            xl={3}
-            lg={4}
-            md={4}
-            sm={5}
-            xs={7}
-            align={"center"}
-            style={{ marginTop: 8 }}
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
           >
-            Ngày yêu cầu:
-          </Col>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
+            <h5> Ngày yêu cầu:</h5>
             <RangePicker
               format={"DD/MM/YYYY"}
               onChange={(date, dateString) => handleChangeNgay(dateString)}
@@ -521,7 +515,16 @@ function DinhMucVatTu({ permission, history, match }) {
               allowClear={false}
             />
           </Col>
-          <Col xl={6} lg={24} md={24} xs={24}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Tìm kiếm:</h5>
             <Toolbar
               count={1}
               search={{
@@ -539,7 +542,7 @@ function DinhMucVatTu({ permission, history, match }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1300, y: "55vh" }}
+          scroll={{ x: 1000, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}
@@ -557,7 +560,6 @@ function DinhMucVatTu({ permission, history, match }) {
             type: "radio",
             selectedRowKeys: selectedKeys ? [selectedKeys] : [],
             onChange: (selectedRowKeys, selectedRows) => {
-              console.log(selectedRows);
               if (
                 selectedRows.length > 0 &&
                 selectedRows[0].xacNhanDinhMuc === "Xác nhận"

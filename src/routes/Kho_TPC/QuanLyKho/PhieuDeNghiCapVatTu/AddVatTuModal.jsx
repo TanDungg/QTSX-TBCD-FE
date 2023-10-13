@@ -1,15 +1,14 @@
 import { Modal as AntModal, Button, Row, Form, Input, Col } from "antd";
-import { map, isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
-import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { convertObjectToUrlParams } from "src/util/Common";
+import { DEFAULT_FORM_MODAL } from "src/constants/Config";
 import { Select } from "src/components/Common";
 
 const FormItem = Form.Item;
 
-function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
+function AddVatTuModal({ openModalFS, openModal, addVatTu }) {
   const dispatch = useDispatch();
   const [listVatTu, setListVatTu] = useState([]);
   const [fieldTouch, setFieldTouch] = useState(false);
@@ -66,7 +65,7 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
   const handleCancel = () => {
     openModalFS(false);
   };
-  
+
   /**
    * Khi submit
    *
@@ -86,7 +85,7 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
     >
       <div className="gx-main-content">
         <Form
-          {...DEFAULT_FORM_CUSTOM}
+          {...DEFAULT_FORM_MODAL}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}

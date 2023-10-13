@@ -482,8 +482,8 @@ function KeHoach({ match, history, permission }) {
           <Col
             xxl={6}
             xl={8}
-            lg={8}
-            md={8}
+            lg={12}
+            md={12}
             sm={24}
             xs={24}
             style={{ marginBottom: 8 }}
@@ -504,8 +504,8 @@ function KeHoach({ match, history, permission }) {
           <Col
             xxl={6}
             xl={8}
-            lg={8}
-            md={8}
+            lg={12}
+            md={12}
             sm={24}
             xs={24}
             style={{ marginBottom: 8 }}
@@ -524,8 +524,8 @@ function KeHoach({ match, history, permission }) {
           <Col
             xxl={6}
             xl={8}
-            lg={8}
-            md={8}
+            lg={12}
+            md={12}
             sm={24}
             xs={24}
             style={{ marginBottom: 8 }}
@@ -545,8 +545,8 @@ function KeHoach({ match, history, permission }) {
           <Col
             xxl={6}
             xl={8}
-            lg={8}
-            md={8}
+            lg={12}
+            md={12}
             sm={24}
             xs={24}
             style={{ marginBottom: 8 }}

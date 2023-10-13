@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
-import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { DEFAULT_FORM_MODAL } from "src/constants/Config";
 import { Select } from "src/components/Common";
 
 const FormItem = Form.Item;
@@ -71,14 +71,14 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
     <AntModal
       title="Thêm vật tư"
       open={openModal}
-      width={`80%`}
+      width={`60%`}
       closable={true}
       onCancel={handleCancel}
       footer={null}
     >
       <div className="gx-main-content">
         <Form
-          {...DEFAULT_FORM_CUSTOM}
+          {...DEFAULT_FORM_MODAL}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}

@@ -15,7 +15,7 @@ import {
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { DEFAULT_FORM_DMVT } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -564,14 +564,22 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       <ContainerHeader title={formTitle} back={goBack} />
       <Card className="th-card-margin-bottom">
         <Form
-          {...DEFAULT_FORM_CUSTOM}
+          {...DEFAULT_FORM_DMVT}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
           <Row>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Người lập"
                 name={["dinhmucvattu", "userLap_Id"]}
@@ -591,7 +599,15 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Ban/Phòng"
                 name={["dinhmucvattu", "tenPhongBan"]}
@@ -605,7 +621,15 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                 <Input className="input-item" disabled={true} />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Sản phẩm"
                 name={["dinhmucvattu", "sanPham_Id"]}
@@ -629,7 +653,15 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Chi tiết"
                 name={["dinhmucvattu", "chiTiet_Id"]}
@@ -651,9 +683,17 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
-                label="Ngày yêu câù"
+                label="Ngày yêu cầu"
                 name={["dinhmucvattu", "ngayYeuCau"]}
                 rules={[
                   {
@@ -668,7 +708,15 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Người ký"
                 name={["dinhmucvattu", "nguoiKy_Id"]}
@@ -692,7 +740,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
               </FormItem>
             </Col>
             {type === "new" || type === "edit" ? (
-              <Col span={12} align="center">
+              <Col span={24} style={{ marginBottom: 8 }} align="center">
                 <Button
                   icon={<PlusOutlined />}
                   type="primary"

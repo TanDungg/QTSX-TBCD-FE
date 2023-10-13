@@ -387,7 +387,15 @@ function DieuChuyen({ match, history, permission }) {
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
@@ -405,7 +413,15 @@ function DieuChuyen({ match, history, permission }) {
             />
           </Col>
 
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Ngày:</h5>
             <RangePicker
               format={"DD/MM/YYYY"}
@@ -417,7 +433,15 @@ function DieuChuyen({ match, history, permission }) {
               allowClear={false}
             />
           </Col>
-          <Col xl={6} lg={24} md={24} xs={24}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Tìm kiếm:</h5>
             <Toolbar
               count={1}

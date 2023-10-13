@@ -4,10 +4,8 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
+  CheckCircleOutlined,
   PrinterOutlined,
-  RetweetOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -26,6 +24,7 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  exportPDF,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -43,7 +42,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const [DenNgay, setDenNgay] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
   const [SelectedDNCVT, setSelectedDNCVT] = useState(null);
-  const [selectedKeys, setSelectedKeys] = useState(null);
+  const [SelectedKeys, setSelectedKeys] = useState(null);
   useEffect(() => {
     if (permission && permission.view) {
       getXuongSanXuat();
@@ -112,16 +111,16 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     const detailItem =
       (permission &&
         permission.cof &&
-        item.userKiemTra_Id === INFO.user_Id &&
+        item.userKhoVatTu_Id === INFO.user_Id &&
         item.tinhTrang === "Chưa duyệt") ||
       (permission &&
         permission.cof &&
-        item.userKeToan_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác Nhận bởi kiểm tra") ||
+        item.userKiemTra_Id === INFO.user_Id &&
+        item.tinhTrang === "Đã xác nhận bởi Kho vật tư") ||
       (permission &&
         permission.cof &&
         item.userDuyet_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác Nhận bởi kiểm tra, kế toán") ? (
+        item.tinhTrang === "Đã xác nhận bởi Kiểm tra và Kho vật tư") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -129,11 +128,11 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           }}
           title="Xác nhận"
         >
-          <EyeOutlined />
+          <CheckCircleOutlined />
         </Link>
       ) : (
         <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
+          <CheckCircleOutlined />
         </span>
       );
     const editItem =
@@ -223,7 +222,56 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handlePrint = () => {};
+
+  const handlePrint = () => {
+    const params = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuDeNghiCapVatTu/${SelectedDNCVT.id}?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newData = {
+            ...res.data,
+            nguoiNhanHang: res.data.userLapPhieu,
+            boPhan: res.data.tenPhongBan,
+            lstpdncvtct:
+              res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
+              JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu),
+          };
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `lkn_PhieuDeNghiCapVatTu/export-pdf`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportPDF("PhieuDeNghiCapVatTu", res.data.datapdf);
+            setSelectedDNCVT(null);
+            setSelectedKeys(null);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -241,7 +289,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
-          disabled={permission && !permission.print}
+          disabled={(permission && !permission.print) || SelectedDNCVT === null}
         >
           In phiếu
         </Button>
@@ -438,6 +486,44 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
             total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,
+          }}
+          rowSelection={{
+            type: "radio",
+            selectedRowKeys: SelectedKeys ? [SelectedKeys] : [],
+            onChange: (selectedRowKeys, selectedRows) => {
+              if (
+                (selectedRows.length > 0 &&
+                  selectedRows[0].tinhTrang === "Chưa duyệt") ||
+                selectedRows[0].tinhTrang.startsWith("Đã từ chối")
+              ) {
+                setSelectedDNCVT(SelectedDNCVT);
+                setSelectedKeys(SelectedKeys);
+              } else {
+                setSelectedDNCVT(selectedRows[0]);
+                setSelectedKeys(selectedRows[0].key);
+              }
+            },
+          }}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (e) => {
+                if (SelectedKeys === record.key) {
+                  setSelectedDNCVT(null);
+                  setSelectedKeys(null);
+                } else {
+                  if (
+                    record.tinhTrang === "Chưa duyệt" ||
+                    record.tinhTrang.startsWith("Đã từ chối")
+                  ) {
+                    setSelectedDNCVT(SelectedDNCVT);
+                    setSelectedKeys(SelectedKeys);
+                  } else {
+                    setSelectedDNCVT(record);
+                    setSelectedKeys(record.key);
+                  }
+                }
+              },
+            };
           }}
           loading={loading}
         />

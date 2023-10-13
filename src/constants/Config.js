@@ -28,6 +28,16 @@ export const DEFAULT_FORM_CUSTOM = {
   },
 };
 
+export const DEFAULT_FORM_MODAL = {
+  labelCol: {
+    span: 6,
+    style: { fontWeight: "bold" },
+  },
+  wrapperCol: {
+    span: 14,
+  },
+};
+
 export const DEFAULT_FORM = {
   labelCol: {
     span: 6,
@@ -127,6 +137,37 @@ export const DEFAULT_FORM_DENGHI_CVT = {
         ? 17
         : window.innerWidth >= 576
         ? 15
+        : 17,
+  },
+};
+
+export const DEFAULT_FORM_DMVT = {
+  labelCol: {
+    span:
+      window.innerWidth >= 1600
+        ? 6
+        : window.innerWidth >= 1200
+        ? 9
+        : window.innerWidth >= 768
+        ? 6
+        : window.innerWidth >= 576
+        ? 8
+        : 7,
+    style: {
+      fontWeight: "bold",
+      marginLeft: window.innerWidth >= 1200 ? -15 : 0,
+    },
+  },
+  wrapperCol: {
+    span:
+      window.innerWidth >= 1600
+        ? 16
+        : window.innerWidth >= 1200
+        ? 15
+        : window.innerWidth >= 768
+        ? 17
+        : window.innerWidth >= 576
+        ? 16
         : 17,
   },
 };
