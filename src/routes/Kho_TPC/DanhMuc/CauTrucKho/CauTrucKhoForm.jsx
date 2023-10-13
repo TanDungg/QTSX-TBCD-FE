@@ -302,20 +302,6 @@ function CauTrucKhoForm({ match, permission, history }) {
               />
             </FormItem>
             <FormItem
-              label="Sức chứa"
-              name={["CauTrucKho", "sucChua"]}
-              rules={[
-                {
-                  type: "string",
-                },
-                {
-                  max: 250,
-                },
-              ]}
-            >
-              <Input className="input-item" placeholder="Nhập sức chứa" />
-            </FormItem>
-            <FormItem
               label="Ban/Phòng"
               name={["CauTrucKho", "phongBan_Id"]}
               rules={[

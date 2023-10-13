@@ -77,6 +77,9 @@ function KhoVatTu({ match, history, permission }) {
       )
     );
   };
+  const refesh = () => {
+    loadData(keyword, BanPhong, FromDate, ToDate, page);
+  };
   const getKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -280,9 +283,9 @@ function KhoVatTu({ match, history, permission }) {
       align: "center",
     },
     {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
+      title: "Ngày nhập kho",
+      dataIndex: "ngayNhan",
+      key: "ngayNhan",
       align: "center",
     },
     {
@@ -292,11 +295,12 @@ function KhoVatTu({ match, history, permission }) {
       align: "center",
     },
     {
-      title: "Ngày nhập kho",
-      dataIndex: "ngayNhan",
-      key: "ngayNhan",
+      title: "Đơn vị tính",
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
       align: "center",
     },
+
     {
       title: "Kho",
       dataIndex: "tenKho",
@@ -524,6 +528,7 @@ function KhoVatTu({ match, history, permission }) {
         openModal={ActiveModal}
         openModalFS={setActiveModal}
         vatTu={ListVatTuSelected[0]}
+        refesh={refesh}
       />
     </div>
   );

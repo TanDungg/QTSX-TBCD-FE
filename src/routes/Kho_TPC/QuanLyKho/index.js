@@ -52,6 +52,10 @@ const ViTriLuu = asyncComponent(() => import("./ViTriLuu/ViTriLuu"));
 
 const KhoVatTu = asyncComponent(() => import("./KhoVatTu/KhoVatTu"));
 const KhoVatTuForm = asyncComponent(() => import("./KhoVatTu/KhoVatTuForm"));
+const KhoThanhPham = asyncComponent(() =>
+  import("./KhoThanhPham/KhoThanhPham")
+);
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -240,6 +244,11 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/kho-vat-tu/:id/chinh-sua`}
         exact
         component={Auth(KhoVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/kho-thanh-pham`}
+        exact
+        component={Auth(KhoThanhPham, menus, pathname, permission)}
       />
     </Switch>
   );

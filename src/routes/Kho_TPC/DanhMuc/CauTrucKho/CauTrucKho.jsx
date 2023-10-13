@@ -198,12 +198,7 @@ function CauTrucKho({ match, history, permission }) {
       key: "tenCauTrucKho",
       align: "center",
     },
-    {
-      title: "Sức chứa",
-      dataIndex: "sucChua",
-      key: "sucChua",
-      align: "center",
-    },
+
     {
       title: "Tên Ban/Phòng",
       dataIndex: "tenPhongBan",
