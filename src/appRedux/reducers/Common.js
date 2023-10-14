@@ -85,6 +85,14 @@ export default (state = INIT_STATE, action) => {
         responseStatus === 201 ||
         responseStatus === 204
       ) {
+        if (apiType === "DETAIL") {
+          return state
+            .set("error", "")
+            .set("message", "")
+            .set("loading", false)
+            .set("item", fromJS(action.data))
+            .set("reset", false);
+        }
         if (apiType === "LIST") {
           if (action.getName) {
             let setValue = {};
@@ -110,6 +118,7 @@ export default (state = INIT_STATE, action) => {
         if (!isEmpty(action.data) && typeof action.data.trim() === "string") {
           customMessage = action.data;
         }
+
         if (apiType === "ADD") {
           // Message thêm mới
           if (customMessage) Helper.alertSuccessMessage(customMessage);
@@ -120,7 +129,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "YEUCAU") {
+        }
+        if (apiType === "YEUCAU") {
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.GUI_YEU_CAU_THANH_CONG);
           return state
@@ -129,7 +139,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "NHANHANG") {
+        }
+        if (apiType === "NHANHANG") {
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.NHAN_HANG_THANH_CONG);
           return state
@@ -138,7 +149,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "EDITQUYTRINH") {
+        }
+        if (apiType === "EDITQUYTRINH") {
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.QUY_TRINH_THANH_CONG);
           return state
@@ -147,7 +159,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "XACNHAN") {
+        }
+        if (apiType === "XACNHAN") {
           // Message thêm mới
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.XAC_NHAN_THANH_CONG);
@@ -157,7 +170,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "TUCHOI") {
+        }
+        if (apiType === "TUCHOI") {
           // Message thêm mới
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.TU_CHOI_THANH_CONG);
@@ -167,7 +181,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "CANCEL") {
+        }
+        if (apiType === "CANCEL") {
           // Message thêm mới
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.HUY_THANH_CONG);
@@ -177,7 +192,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "FINISH") {
+        }
+        if (apiType === "FINISH") {
           // Message thêm mới
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.BAO_TRI_THANH_CONG);
@@ -187,7 +203,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "REPLY") {
+        }
+        if (apiType === "REPLY") {
           // Message đánh giá
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.DANH_GIA_THANH_CONG);
@@ -197,7 +214,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "DOWLOAD") {
+        }
+        if (apiType === "DOWLOAD") {
           // Message DOWLOAD
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.TAI_FILE_THANH_CONG);
@@ -207,7 +225,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "DELETE") {
+        }
+        if (apiType === "DELETE") {
           // Message xoá thành công
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.XOA_THANH_CONG);
@@ -216,7 +235,8 @@ export default (state = INIT_STATE, action) => {
             .set("customMessage", customMessage)
             .set("loading", false)
             .set("reset", false);
-        } else if (apiType === "EDIT") {
+        }
+        if (apiType === "EDIT") {
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.CAP_NHAT_THANH_CONG);
           return state
@@ -226,7 +246,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "GUIPHIEU") {
+        }
+        if (apiType === "GUIPHIEU") {
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.GUI_PHIEU_THANH_CONG);
           return state
@@ -236,14 +257,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "DETAIL") {
-          return state
-            .set("error", "")
-            .set("message", "")
-            .set("loading", false)
-            .set("item", fromJS(action.data))
-            .set("reset", false);
-        } else if (apiType === "XUATKHO") {
+        }
+        if (apiType === "XUATKHO") {
           // Message xuất kho
           return state
             .set("message", messages.XUATKHO_THANH_CONG)
@@ -251,7 +266,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "IMPORT") {
+        }
+        if (apiType === "IMPORT") {
           // Message xuất kho
           if (!isEmpty(action.data.message) && action.data.message !== "") {
             customMessage = action.data.message;
@@ -263,7 +279,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "ROLE") {
+        }
+        if (apiType === "ROLE") {
           // Message xuất kho
           if (!isEmpty(action.data.message) && action.data.message !== "") {
             customMessage = action.data.message;
@@ -275,7 +292,8 @@ export default (state = INIT_STATE, action) => {
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);
-        } else if (apiType === "EDITROLE") {
+        }
+        if (apiType === "EDITROLE") {
           // Message xuất kho
           if (!isEmpty(action.data.message) && action.data.message !== "") {
             customMessage = action.data.message;

@@ -3,7 +3,7 @@ import { Card, Button, Divider, Col } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, isEmpty, repeat } from "lodash";
+import { map, isEmpty } from "lodash";
 
 import {
   ModalDeleteConfirm,
@@ -52,19 +52,6 @@ function LoaiNhaCungCap({ match, history, permission }) {
   const handleTableChange = (pagination) => {
     setPage(pagination);
     loadData(keyword, pagination);
-  };
-  /**
-   * Thêm dấu để phân cấp tiêu đề dựa theo tree (flatlist)
-   *
-   * @param {*} value
-   * @param {*} record
-   * @returns
-   * @memberof ChucNang
-   */
-  const renderTenLoaiNhaCungCap = (value, record) => {
-    let string = repeat("- ", record.level);
-    string = `${string} ${value}`;
-    return <div>{string}</div>;
   };
 
   /**

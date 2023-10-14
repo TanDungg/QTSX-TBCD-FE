@@ -4,10 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { DEFAULT_FORM_MODAL } from "src/constants/Config";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 const FormItem = Form.Item;
-const initialState = {
-  maPhieu: "",
-  lyDoTuChoi: "",
-};
+
 function ModalTuChoi({ openModalFS, openModal, itemData, refesh }) {
   const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();

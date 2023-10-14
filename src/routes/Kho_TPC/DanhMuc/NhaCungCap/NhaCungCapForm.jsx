@@ -290,7 +290,8 @@ function NhaCungCapForm({ match, permission, history }) {
               name={["NhaCungCap", "email"]}
               rules={[
                 {
-                  type: "string",
+                  type: "email",
+                  required: true,
                 },
               ]}
             >
@@ -302,6 +303,11 @@ function NhaCungCapForm({ match, permission, history }) {
               rules={[
                 {
                   type: "string",
+                  required: true,
+                },
+                {
+                  pattern: /^\d+$/,
+                  message: "Số điện thoại không hợp lệ",
                 },
               ]}
             >

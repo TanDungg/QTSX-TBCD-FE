@@ -3,12 +3,8 @@ import { Card, Form, Spin } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
 
-import { Input, TreeSelect, FormSubmit } from "src/components/Common";
-import {
-  fetchStart,
-  fetchReset,
-  fetchResetItem,
-} from "src/appRedux/actions/Common";
+import { Input, FormSubmit } from "src/components/Common";
+import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
 
@@ -27,10 +23,8 @@ function LoaiNhaCungCapForm({ match, permission, history }) {
 
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
-  const [ListLoaiNhaCungCap, setListLoaiNhaCungCap] = useState([]);
   const [fieldTouch, setFieldTouch] = useState(false);
-  const { maLoaiNhaCungCap, tenLoaiNhaCungCap, LoaiNhaCungCap_Id } =
-    initialState;
+  const { maLoaiNhaCungCap, tenLoaiNhaCungCap } = initialState;
 
   const { setFieldsValue, validateFields, resetFields } = form;
   useEffect(() => {

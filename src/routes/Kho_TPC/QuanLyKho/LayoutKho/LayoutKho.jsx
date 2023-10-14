@@ -31,7 +31,10 @@ function LayoutKho({ match, history, permission }) {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [ListKho, setListKho] = useState([]);
   const [ListChiTietKho, setListChiTietKho] = useState([]);
-
+  const [ListChiTietVatTu, setListChiTietVatTu] = useState([]);
+  const [focusKe, setFocusKe] = useState("");
+  const [focusNgan, setFocusNgan] = useState("");
+  const [soTangMax, setSoTangMax] = useState(1);
   const [Kho, setKho] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
@@ -69,7 +72,7 @@ function LayoutKho({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_ViTriLuuKho/get-lay-out-kho-vat-tu?cauTrucKho_Id=${val}`,
+          `lkn_ViTriLuuKho/vi-tri-luu-kho-tree?kho_Id=${val}`,
           "GET",
           null,
           "DETAIL",
@@ -80,7 +83,16 @@ function LayoutKho({ match, history, permission }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        console.log(res.data);
+        let soTangMax = 1;
+        res.data.forEach((ke, index) => {
+          if (ke.children) {
+            res.data[index].children = ke.children.reverse();
+            soTangMax =
+              ke.children.length > soTangMax ? ke.children.length : soTangMax;
+          }
+        });
+        res.data.sort((a, b) => a.viTri - b.viTri);
+        setSoTangMax(soTangMax);
         setListChiTietKho(res.data);
       } else {
         setListChiTietKho([]);
@@ -105,9 +117,94 @@ function LayoutKho({ match, history, permission }) {
       )
     );
   };
+  let renderHead = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 45,
+    },
+    {
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
+      align: "center",
+    },
+    {
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
+      align: "center",
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "soLuong",
+      key: "soLuong",
+      align: "center",
+    },
+    {
+      title: "Vị trí lưu",
+      key: "viTriLuu",
+      align: "center",
+      render: (val) => {
+        return (
+          <span>
+            {val.tenKe && val.tenKe}
+            {val.tenTang && ` - ${val.tenTang}`}
+            {val.tenNgan && ` - ${val.tenNgan}`}
+          </span>
+        );
+      },
+    },
+    {
+      title: "Hạn sử dụng",
+      dataIndex: "thoiGianSuDung",
+      key: "thoiGianSuDung",
+      align: "center",
+    },
+    // {
+    //   title: "Chức năng",
+    //   key: "action",
+    //   align: "center",
+    //   width: 110,
+    //   render: (value) => actionContent(value),
+    // },
+  ];
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+  const columns = map(renderHead, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
   const handleOnSelectKho = (val) => {
+    setListChiTietVatTu([]);
+    setFocusNgan("");
+    setFocusKe("");
     setKho(val);
     getChiTietKho(val);
+  };
+  const handleViewThongTin = (tt) => {
+    if (tt) {
+      setListChiTietVatTu(JSON.parse(tt));
+    } else {
+      setListChiTietVatTu([]);
+    }
   };
   return (
     <div className="gx-main-content">
@@ -139,240 +236,172 @@ function LayoutKho({ match, history, permission }) {
           </Col>
         </Row>
         <Row>
-          <Col span={8}>
-            <h5>Kệ 1</h5>
-            <Row>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "blue",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "#ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "#ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "red",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-            </Row>
-            <Row>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "#ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "#ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "#ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "#ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-            </Row>
-            <Row>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "#ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "#ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "#ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "#ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-            </Row>
-            <Row>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "#ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "#ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "#ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-              <Col
-                span={6}
-                style={{
-                  width: 50,
-                  height: 50,
-                  backgroundColor: "#ccc",
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  border: "1px solid #333",
-                }}
-              >
-                a
-              </Col>
-            </Row>
+          <Col span={12}>
+            <Card>
+              <Row>
+                {ListChiTietKho.map((ke) => {
+                  return (
+                    <Col
+                      span={6}
+                      style={{
+                        height: soTangMax * 40,
+
+                        // padding: 0,
+                        marginBottom: 50,
+                        // marginRight: 25,
+                        // border: "1px solid #333",
+                      }}
+                    >
+                      <h5>{ke.tenCauTrucKho}</h5>
+                      <div
+                        style={{
+                          border: "1px solid #333",
+                          width: "100%",
+                          height: "100%",
+                          padding: "0 16px",
+                          cursor: "pointer",
+                          backgroundColor:
+                            focusKe === ke.id
+                              ? "#5cdbd3"
+                              : ke.children.length === 0 && ke.chiTietVatTu
+                              ? "#ff4d4f"
+                              : "#ccc",
+                        }}
+                        onClick={() => {
+                          if (ke.children.length === 0) {
+                            setFocusKe(ke.id);
+                            setFocusNgan("");
+                            handleViewThongTin(ke.chiTietVatTu);
+                          }
+                        }}
+                      >
+                        {ke.children.length > 0 &&
+                          ke.children.map((tang) => {
+                            return (
+                              <Row
+                                style={{
+                                  marginRight: -18,
+                                  border:
+                                    tang.children.length === 0 &&
+                                    "1px solid #333",
+                                  height: 40,
+                                  backgroundColor:
+                                    tang.children.length === 0 && "#ccc",
+                                }}
+                              >
+                                {tang.children.length > 0 &&
+                                  tang.children.map((ngan) => {
+                                    return (
+                                      <Col
+                                        span={24 / tang.children.length}
+                                        style={{
+                                          height: 40,
+                                          backgroundColor:
+                                            focusNgan === ngan.id
+                                              ? "#5cdbd3"
+                                              : ngan.chiTietVatTu
+                                              ? "#ff4d4f"
+                                              : "#ccc",
+                                          border: "1px solid #333",
+                                          cursor: "pointer",
+                                        }}
+                                        onClick={() => {
+                                          handleViewThongTin(ngan.chiTietVatTu);
+                                          setFocusNgan(ngan.id);
+                                          setFocusKe("");
+                                        }}
+                                      ></Col>
+                                    );
+                                  })}
+                              </Row>
+                            );
+                          })}
+                      </div>
+                    </Col>
+                  );
+                })}
+              </Row>
+            </Card>
+          </Col>
+          <Col span={12}>
+            <Card>
+              <div>
+                <h5>Chú thích</h5>
+                <Row>
+                  <Col
+                    span={12}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 20,
+                        height: 20,
+                        backgroundColor: "#ccc",
+                        display: "inline-block",
+                        marginRight: 5,
+                      }}
+                    ></span>
+                    <span>Trống</span>
+                  </Col>
+                  <Col
+                    span={12}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 20,
+                        height: 20,
+                        backgroundColor: "#ff4d4f",
+                        display: "inline-block",
+                        marginRight: 5,
+                      }}
+                    ></span>
+                    <span>Đang chứa vật tư</span>
+                  </Col>
+                  <Col
+                    span={12}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginTop: 10,
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 20,
+                        height: 20,
+                        backgroundColor: "#5cdbd3",
+                        display: "inline-block",
+                        marginRight: 5,
+                      }}
+                    ></span>
+                    <span>Vị trí đang chọn</span>
+                  </Col>
+                </Row>
+                <Row style={{ marginTop: 20 }}>
+                  <Col span={24}>
+                    <h5 style={{ fontWeight: "bold" }}>Tồn kho theo vị trí</h5>
+                  </Col>
+                </Row>
+                <Table
+                  bordered
+                  scroll={{ x: 500, y: "70vh" }}
+                  columns={columns}
+                  components={components}
+                  className="gx-table-responsive"
+                  dataSource={reDataForTable(ListChiTietVatTu)}
+                  size="small"
+                  pagination={false}
+                  loading={loading}
+                />
+              </div>
+            </Card>
           </Col>
         </Row>
       </Card>

@@ -31,7 +31,7 @@ function DonVi({ match, permission, history }) {
   const { data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow } = data;
   const [ActiveModal, setActiveModal] = useState(false);
 
   useEffect(() => {

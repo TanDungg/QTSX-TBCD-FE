@@ -47,7 +47,15 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
   const handleSubmit = () => {
     validateFields()
       .then((values) => {
-        addVatTu(values.vatTu);
+        const newData = values.addVatTu;
+        listVatTu.forEach((vt) => {
+          if (vt.id === newData.vatTu_Id) {
+            newData.tenVatTu = vt.tenVatTu;
+            newData.maVatTu = vt.maVatTu;
+            newData.tenDonViTinh = vt.tenDonViTinh;
+          }
+        });
+        addVatTu(newData);
         openModalFS(false);
         resetFields();
       })
@@ -85,8 +93,8 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã vật tư"
-            name={["vatTu", "vatTu_Id"]}
+            label="Vật tư"
+            name={["addVatTu", "vatTu_Id"]}
             rules={[
               {
                 type: "string",
@@ -96,7 +104,7 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
           >
             <Select
               className="heading-select slt-search th-select-heading"
-              data={listVatTu ? listVatTu : []}
+              data={listVatTu}
               placeholder="Chọn vật tư"
               optionsvalue={["id", "tenVatTu"]}
               style={{ width: "100%" }}
@@ -104,74 +112,49 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
               optionFilterProp="name"
             />
           </FormItem>
+
           <FormItem
-            label="Tên vật tư"
-            name={["vatTu", "vatTu_Id"]}
+            label="SL tồn kho tối thiểu"
+            name={["addVatTu", "slTonKhoToiThieu"]}
             rules={[
               {
-                type: "string",
                 required: true,
               },
             ]}
           >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={listVatTu ? listVatTu : []}
-              placeholder="Chọn vật tư"
-              optionsvalue={["id", "tenVatTu"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              disabled={true}
+            <Input
+              className="input-item"
+              placeholder="Nhập số lượng tồn kho tối thiểu"
+              type="number"
             />
           </FormItem>
+
           <FormItem
-            label="Đơn vị tính"
-            name={["vatTu", "vatTu_Id"]}
+            label="SL tồn kho tối đa"
+            name={["addVatTu", "slTonKhoToiDa"]}
             rules={[
               {
-                type: "string",
                 required: true,
               },
             ]}
           >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={listVatTu ? listVatTu : []}
-              placeholder="Chọn vật tư"
-              optionsvalue={["id", "tenVatTu"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              disabled={true}
+            <Input
+              className="input-item"
+              placeholder="Nhập số lượng tồn kho tối đa"
+              type="number"
             />
-          </FormItem>
-          <FormItem
-            label="Số lượng"
-            name={["vatTu", "dinhMuc"]}
-            rules={[
-              {
-                required: true,
-              },
-              {
-                pattern: /^[1-9]\d*$/,
-                message: "Số lượng không hợp lệ!",
-              },
-            ]}
-          >
-            <Input placeholder="Định mức"></Input>
           </FormItem>
 
           <FormItem
             label="Ghi chú"
-            name={["vatTu", "ghiChu"]}
+            name={["addVatTu", "ghiChu"]}
             rules={[
               {
                 type: "string",
               },
             ]}
           >
-            <Input placeholder="Ghi chú"></Input>
+            <Input className="input-item" placeholder="Nhập ghi chú" />
           </FormItem>
         </Form>
         <Row justify={"center"}>

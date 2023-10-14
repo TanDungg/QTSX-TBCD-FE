@@ -40,18 +40,12 @@ import {
   NAV_STYLE_INSIDE_HEADER_HORIZONTAL,
   THEME_TYPE_DARK,
 } from "src/constants/ThemeSetting";
-import {
-  getLocalStorage,
-  getSessionStorage,
-  getTokenInfo,
-  removeCookieValue,
-  removeSessionStorage,
-} from "src/util/Common";
+import { getSessionStorage, getTokenInfo } from "src/util/Common";
 
 import { messaging } from "src/constants/firebase";
-import { onMessage } from "firebase/messaging";
+// import { onMessage } from "firebase/messaging";
 import { getToken } from "firebase/messaging";
-import { thongBaoLoad } from "src/appRedux/actions";
+// import { thongBaoLoad } from "src/appRedux/actions";
 
 const RestrictedRoute = ({
   component: Component,

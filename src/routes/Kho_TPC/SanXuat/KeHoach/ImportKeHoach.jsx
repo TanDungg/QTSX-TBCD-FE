@@ -38,12 +38,12 @@ const { EditableRow, EditableCell } = EditableTableRow;
 
 function ImportKeHoach({ match, permission, history }) {
   const dispatch = useDispatch();
-  const { loading, item } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = getLocalStorage("menu");
   const [dataView, setDataView] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
-  const [HangTrung, setHangTrung] = useState([]);
+  // const [HangTrung, setHangTrung] = useState([]);
   const [DataLoi, setDataLoi] = useState();
   const [message, setMessageError] = useState([]);
   const [DisableTaiFile, setDisableTaiFile] = useState(false);
@@ -581,14 +581,15 @@ function ImportKeHoach({ match, permission, history }) {
   };
 
   const RowStyle = (current, index) => {
-    if (HangTrung.length > 0) {
-      HangTrung.forEach((maSanPham) => {
-        if (current.maSanPham === maSanPham) {
-          setCheckDanger(true);
-          return "red-row";
-        }
-      });
-    } else if (current.maSanPham === undefined) {
+    // if (HangTrung.length > 0) {
+    //   HangTrung.forEach((maSanPham) => {
+    //     if (current.maSanPham === maSanPham) {
+    //       setCheckDanger(true);
+    //       return "red-row";
+    //     }
+    //   });
+    // } else
+    if (current.maSanPham === undefined) {
       setCheckDanger(true);
       setMessageError("Mã sản phẩm không được rỗng");
       return "red-row";

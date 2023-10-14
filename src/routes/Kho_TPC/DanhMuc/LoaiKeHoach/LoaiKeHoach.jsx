@@ -1,12 +1,10 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider } from "antd";
-import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { treeToFlatlist } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { reDataForTable, removeDuplicates } from "src/util/Common";
 import {
@@ -24,7 +22,7 @@ function LoaiKeHoach({ match, permission, history }) {
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
-  const { totalRow, totalPages, pageSize } = data;
+  const { totalRow, pageSize } = data;
   useEffect(() => {
     if (permission && permission.view) {
       getListData(keyword, page);
