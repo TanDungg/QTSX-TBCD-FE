@@ -274,16 +274,12 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  const getListVatTu = (phongBan_Id, lot) => {
-    const dataForm = getFieldValue("capvattusanxuat").ngaySanXuat._i.split("/");
+  const getListVatTu = (PhongBan_Id, Lot_Id) => {
     const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-      phongBan_Id,
-      lot,
-      ngay: dataForm[0],
-      thang: dataForm[1],
-      nam: dataForm[2],
-      loaiKeHoach_Id: "27267ddf-652a-49a8-9570-73bb176d2e65",
+      PhongBan_Id,
+      Lot_Id,
+      LoaiKeHoach_Id: "27267ddf-652a-49a8-9570-73bb176d2e65",
+      Ngay: getFieldValue("capvattusanxuat").ngaySanXuat._i,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -298,28 +294,28 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
         )
       );
     }).then((res) => {
-      if (res && res.data.length > 0) {
-        const data = res.data[0].bom && JSON.parse(res.data[0].bom);
+      if (res && res.data) {
         const newData = [];
-        data &&
-          data.map((dt) => {
-            dt.chiTietBOM &&
-              dt.chiTietBOM.map((bom) => {
+        res.data.list_ChiTiet &&
+          res.data.list_ChiTiet.map((data) => {
+            data.list_VatTu &&
+              data.list_VatTu.map((vattu) => {
                 newData.push({
-                  lkn_DinhMucVatTu_Id: dt.id,
-                  tenSanPham: dt.tenSanPham,
-                  lkn_ChiTiet_Id: dt.chiTiet_Id,
-                  tenChiTiet: dt.tenChiTiet,
-                  soLuongKH: dt.soLuongKH,
-                  soLuongChiTiet: dt.soLuongChiTiet,
-                  vatTu_Id: bom.vatTu_Id,
-                  maVatTu: bom.maVatTu,
-                  tenVatTu: bom.tenVatTu,
-                  soLuong: dt.soLuongKH * dt.soLuongChiTiet * bom.dinhMuc,
-                  dinhMuc: bom.dinhMuc,
-                  tenDonViTinh: bom.tenDonViTinh,
-                  tenNhomVatTu: bom.tenNhomVatTu,
-                  ghiChu: bom.ghiChu,
+                  tenSanPham: res.data.tenSanPham,
+                  lkn_ChiTiet_Id: data.chiTiet_Id,
+                  tenChiTiet: data.tenChiTiet,
+                  soLuongKH: res.data.soLuongKH,
+                  soLuongChiTiet: data.soLuongChiTiet,
+                  lkn_DinhMucVatTu_Id: vattu.lkn_DinhMucVatTu_Id,
+                  vatTu_Id: vattu.vatTu_Id,
+                  maVatTu: vattu.maVatTu,
+                  tenVatTu: vattu.tenVatTu,
+                  soLuong:
+                    res.data.soLuongKH * data.soLuongChiTiet * vattu.dinhMuc,
+                  dinhMuc: vattu.dinhMuc,
+                  tenDonViTinh: vattu.tenDonViTinh,
+                  tenNhomVatTu: vattu.tenNhomVatTu,
+                  ghiChu: vattu.ghiChu,
                 });
               });
           });
@@ -580,8 +576,8 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng kế hoạch",
-      dataIndex: "soLuongKeHoach",
-      key: "soLuongKeHoach",
+      dataIndex: "soLuongKH",
+      key: "soLuongKH",
       align: "center",
     },
     {
@@ -592,8 +588,8 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Định mức",
-      dataIndex: "dinhMucVatTu",
-      key: "dinhMucVatTu",
+      dataIndex: "dinhMuc",
+      key: "dinhMuc",
       align: "center",
     },
     {
@@ -931,8 +927,15 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
 
   const handleSelectXuong = (val) => {
     setXuong(val);
+    setFieldsValue({
+      capvattusanxuat: {
+        lot_Id: null,
+      },
+    });
+    setListVatTu([]);
     getListLot(val, NgaySanXuat._i);
   };
+
   const handleSelectSoLot = (val) => {
     getListVatTu(Xuong, val);
   };
