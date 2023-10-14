@@ -31,7 +31,7 @@ function Lot({ match, permission, history }) {
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const [ActiveModal, setActiveModal] = useState(false);
-  const { totalRow, totalPages, pageSize } = data;
+  const { totalRow, pageSize } = data;
   useEffect(() => {
     if (permission && permission.view) {
       getListData(keyword, page);

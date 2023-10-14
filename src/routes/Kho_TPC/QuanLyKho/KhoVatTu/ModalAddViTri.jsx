@@ -1,9 +1,8 @@
-import { Modal as AntModal, Button, Row, Form, Input, Col } from "antd";
-import { map, isEmpty } from "lodash";
+import { Modal as AntModal, Button, Row, Form, Input } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { Select } from "src/components/Common";
 
@@ -18,7 +17,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu }) {
   const [require, setRequire] = useState(false);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { validateFields, resetFields, setFieldsValue } = form;
+  const { resetFields, setFieldsValue } = form;
 
   useEffect(() => {
     if (openModal) {

@@ -3,7 +3,7 @@ import { Form, Card, Spin } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import includes from "lodash/includes";
 
-import { Input, FormSubmit, Select, TreeSelect } from "src/components/Common";
+import { Input, FormSubmit } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";

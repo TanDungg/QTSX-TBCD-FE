@@ -1,9 +1,4 @@
-import {
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider } from "antd";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
@@ -34,10 +29,9 @@ function PhongBan({ permission, history }) {
   const INFO = getLocalStorage("menu");
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
-  const [page, setPage] = useState(1);
-  const { totalRow, totalPage, pageSize } = data;
+
+  const { totalRow } = data;
   const [ActiveModal, setActiveModal] = useState(false);
-  const [DonVi, setDonVi] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -309,7 +303,7 @@ function PhongBan({ permission, history }) {
     );
   };
   const refeshData = () => {
-    getListData(DonVi, keyword, page);
+    // getListData(DonVi, keyword, page);
   };
   return (
     <div className="gx-main-content">

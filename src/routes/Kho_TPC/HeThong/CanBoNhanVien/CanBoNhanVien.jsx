@@ -39,7 +39,7 @@ function CanBoNhanVien({ match, history, permission }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [NhanSuNghi, setNhanSuNghi] = useState();
   const [data, setData] = useState([]);
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   useEffect(() => {
     if (permission && permission.view) {

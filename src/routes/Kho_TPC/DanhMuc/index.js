@@ -85,6 +85,7 @@ const QuyTrinhSanPham = asyncComponent(() =>
 const QuyTrinhSanPhamForm = asyncComponent(() =>
   import("./QuyTrinhSanPham/QuyTrinhSanPhamForm")
 );
+
 // const Home = asyncComponent(() => import("../Home"));
 
 const App = ({ match, location, menus, permission }) => {
@@ -442,6 +443,7 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(KeForm, menus, pathname, permission)}
       />
+
       {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
     </Switch>
   );

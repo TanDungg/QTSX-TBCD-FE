@@ -31,7 +31,7 @@ function ChucNangForm({ match, permission, history }) {
   const [PhanMemSelect, setPhanMemSelect] = useState([]);
   const [fieldTouch, setFieldTouch] = useState(false);
 
-  const { setFieldsValue, validateFields, resetFields, getFieldsValue } = form;
+  const { setFieldsValue, validateFields, resetFields } = form;
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
       if (permission && !permission.add) {

@@ -1,16 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { Card, Button, Row, Col, DatePicker } from "antd";
+import { EditOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import ModalAddViTri from "./ModalAddViTri";
 import { map, find, isEmpty, remove } from "lodash";
 import {
-  ModalDeleteConfirm,
   Table,
   EditableTableRow,
   Toolbar,
@@ -26,10 +20,9 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
-// import ModalAddViTri from "./ModalAddViTri";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function KhoVatTu({ match, history, permission }) {
+function KhoVatTu({ history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -70,7 +63,7 @@ function KhoVatTu({ match, history, permission }) {
     });
     dispatch(
       fetchStart(
-        `lkn_ViTriLuuKho/list-vi-tri-luu-kho-vat-tu?${param}`,
+        `lkn_ViTriLuuKho/list-vi-tri-luu-kho-thanh-pham?${param}`,
         "GET",
         null,
         "LIST"
@@ -122,77 +115,6 @@ function KhoVatTu({ match, history, permission }) {
       loadData(val.target.value, BanPhong, FromDate, ToDate, page);
     }
   };
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const editItem =
-      permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.chiTietKho_Id}/chinh-sua`,
-            state: { itemData: item },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
-    const deleteVal =
-      permission && permission.del
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        {editItem}
-        <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa">
-          <DeleteOutlined />
-        </a>
-      </div>
-    );
-  };
-
-  /**
-   * deleteItemFunc: Xoá item theo item
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maPhieuYeuCau,
-      "phiếu đặt hàng nội bộ"
-    );
-  };
-
-  /**
-   * Xóa item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDatHangNoiBo/${item.id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        // Reload lại danh sách
-        if (res.status !== 409) {
-          loadData(keyword, BanPhong, FromDate, ToDate, page);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
 
   /**
    * handleTableChange
@@ -213,7 +135,6 @@ function KhoVatTu({ match, history, permission }) {
   const handleRedirect = () => {
     setActiveModal(true);
   };
-  const handlePrint = () => {};
   const addButtonRender = () => {
     return (
       <>
@@ -240,28 +161,13 @@ function KhoVatTu({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(
     data
     // page === 1 ? page : pageSize * (page - 1) + 2
   );
-  const renderDetail = (val) => {
-    const detail =
-      permission && permission.view ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${val.id}/chi-tiet`,
-            state: { itemData: val, permission },
-          }}
-        >
-          {val.maPhieuYeuCau}
-        </Link>
-      ) : (
-        <span disabled>{val.maPhieuYeuCau}</span>
-      );
-    return <div>{detail}</div>;
-  };
+
   let renderHead = [
     {
       title: "STT",
@@ -271,15 +177,15 @@ function KhoVatTu({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      title: "Mã sản phẩm",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
       align: "center",
     },
     {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      title: "Tên sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       align: "center",
     },
     {
@@ -296,8 +202,8 @@ function KhoVatTu({ match, history, permission }) {
     },
     {
       title: "Ngày nhập kho",
-      dataIndex: "ngayNhan",
-      key: "ngayNhan",
+      dataIndex: "ngayNhap",
+      key: "ngayNhap",
       align: "center",
     },
     {
@@ -308,31 +214,10 @@ function KhoVatTu({ match, history, permission }) {
     },
     {
       title: "Vị trí lưu",
-      key: "viTriLuu",
-      align: "center",
-      render: (val) => {
-        return (
-          <span>
-            {val.tenKe && val.tenKe}
-            {val.tenTang && ` - ${val.tenTang}`}
-            {val.tenNgan && ` - ${val.tenNgan}`}
-          </span>
-        );
-      },
-    },
-    {
-      title: "Hạn sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
+      dataIndex: "tenKe",
+      key: "tenKe",
       align: "center",
     },
-    // {
-    //   title: "Chức năng",
-    //   key: "action",
-    //   align: "center",
-    //   width: 110,
-    //   render: (value) => actionContent(value),
-    // },
   ];
 
   const components = {
@@ -523,12 +408,12 @@ function KhoVatTu({ match, history, permission }) {
           loading={loading}
         />
       </Card>
-      {/* <ModalAddViTri
+      <ModalAddViTri
         openModal={ActiveModal}
         openModalFS={setActiveModal}
-        vatTu={ListVatTuSelected[0]}
+        sanPham={ListVatTuSelected[0]}
         refesh={refesh}
-      /> */}
+      />
     </div>
   );
 }

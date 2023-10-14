@@ -1,8 +1,4 @@
-import {
-  DeleteOutlined,
-  PlusOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
@@ -27,7 +23,6 @@ import {
   reDataForTable,
   setLocalStorage,
 } from "src/util/Common";
-import AddVatTuModal from "./AddVatTuModal";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {

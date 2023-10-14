@@ -6,7 +6,6 @@ import {
   DeleteOutlined,
   EyeOutlined,
   EyeInvisibleOutlined,
-  PrinterOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -27,10 +26,8 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-const { RangePicker } = DatePicker;
 function DinhMucTonKho({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
@@ -68,7 +65,7 @@ function DinhMucTonKho({ match, history, permission }) {
       page,
       donVi_Id: INFO.donVi_Id,
     });
-    dispatch(fetchStart(`lkn_PhieuDatHangNoiBo?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`lkn_DinhMucTonKho?${param}`, "GET", null, "LIST"));
   };
   const getBanPhong = () => {
     new Promise((resolve, reject) => {

@@ -1,19 +1,5 @@
-import {
-  DeleteOutlined,
-  PlusOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
-import {
-  Card,
-  Form,
-  Input,
-  Row,
-  Col,
-  DatePicker,
-  Button,
-  Tag,
-  Divider,
-} from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
+import { Card, Form, Input, Row, Col, DatePicker, Tag, Divider } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -25,7 +11,6 @@ import {
   Select,
   Table,
   ModalDeleteConfirm,
-  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";

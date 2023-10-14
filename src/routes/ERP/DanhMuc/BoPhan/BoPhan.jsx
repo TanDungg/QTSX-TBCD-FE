@@ -30,8 +30,7 @@ function BoPhan({ match, permission, history }) {
   const dispatch = useDispatch();
   const { data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
-  const [page, setPage] = useState(1);
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow } = data;
   const [ActiveModal, setActiveModal] = useState(false);
 
   useEffect(() => {
@@ -101,7 +100,7 @@ function BoPhan({ match, permission, history }) {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        getListData("", page);
+        getListData("", 1);
       })
       .catch((error) => console.error(error));
   };
@@ -327,7 +326,7 @@ function BoPhan({ match, permission, history }) {
     );
   };
   const refeshData = () => {
-    getListData(keyword, page);
+    getListData(keyword, 1);
   };
   return (
     <div className="gx-main-content">

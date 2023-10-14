@@ -32,7 +32,9 @@ function LayoutKho({ match, history, permission }) {
   const [ListKho, setListKho] = useState([]);
   const [ListChiTietKho, setListChiTietKho] = useState([]);
   const [ListChiTietVatTu, setListChiTietVatTu] = useState([]);
-
+  const [focusKe, setFocusKe] = useState("");
+  const [focusNgan, setFocusNgan] = useState("");
+  const [soTangMax, setSoTangMax] = useState(1);
   const [Kho, setKho] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
@@ -81,12 +83,16 @@ function LayoutKho({ match, history, permission }) {
       );
     }).then((res) => {
       if (res && res.data) {
+        let soTangMax = 1;
         res.data.forEach((ke, index) => {
           if (ke.children) {
             res.data[index].children = ke.children.reverse();
+            soTangMax =
+              ke.children.length > soTangMax ? ke.children.length : soTangMax;
           }
         });
-
+        res.data.sort((a, b) => a.viTri - b.viTri);
+        setSoTangMax(soTangMax);
         setListChiTietKho(res.data);
       } else {
         setListChiTietKho([]);
@@ -187,10 +193,9 @@ function LayoutKho({ match, history, permission }) {
     };
   });
   const handleOnSelectKho = (val) => {
-    ListKho.forEach((k) => {
-      if (k.id === val) {
-      }
-    });
+    setListChiTietVatTu([]);
+    setFocusNgan("");
+    setFocusKe("");
     setKho(val);
     getChiTietKho(val);
   };
@@ -239,7 +244,8 @@ function LayoutKho({ match, history, permission }) {
                     <Col
                       span={6}
                       style={{
-                        height: 160,
+                        height: soTangMax * 40,
+
                         // padding: 0,
                         marginBottom: 50,
                         // marginRight: 25,
@@ -253,29 +259,57 @@ function LayoutKho({ match, history, permission }) {
                           width: "100%",
                           height: "100%",
                           padding: "0 16px",
-                          backgroundColor: ke.children.length === 0 && "#ccc",
+                          cursor: "pointer",
+                          backgroundColor:
+                            focusKe === ke.id
+                              ? "#5cdbd3"
+                              : ke.children.length === 0 && ke.chiTietVatTu
+                              ? "#ff4d4f"
+                              : "#ccc",
+                        }}
+                        onClick={() => {
+                          if (ke.children.length === 0) {
+                            setFocusKe(ke.id);
+                            setFocusNgan("");
+                            handleViewThongTin(ke.chiTietVatTu);
+                          }
                         }}
                       >
                         {ke.children.length > 0 &&
                           ke.children.map((tang) => {
                             return (
-                              <Row style={{ marginRight: -18 }}>
+                              <Row
+                                style={{
+                                  marginRight: -18,
+                                  border:
+                                    tang.children.length === 0 &&
+                                    "1px solid #333",
+                                  height: 40,
+                                  backgroundColor:
+                                    tang.children.length === 0 && "#ccc",
+                                }}
+                              >
                                 {tang.children.length > 0 &&
                                   tang.children.map((ngan) => {
                                     return (
                                       <Col
-                                        span={6}
+                                        span={24 / tang.children.length}
                                         style={{
                                           height: 40,
-                                          backgroundColor: ngan.chiTietVatTu
-                                            ? "#ffbb96"
-                                            : "#ccc",
+                                          backgroundColor:
+                                            focusNgan === ngan.id
+                                              ? "#5cdbd3"
+                                              : ngan.chiTietVatTu
+                                              ? "#ff4d4f"
+                                              : "#ccc",
                                           border: "1px solid #333",
                                           cursor: "pointer",
                                         }}
-                                        onClick={() =>
-                                          handleViewThongTin(ngan.chiTietVatTu)
-                                        }
+                                        onClick={() => {
+                                          handleViewThongTin(ngan.chiTietVatTu);
+                                          setFocusNgan(ngan.id);
+                                          setFocusKe("");
+                                        }}
                                       ></Col>
                                     );
                                   })}
@@ -323,12 +357,31 @@ function LayoutKho({ match, history, permission }) {
                       style={{
                         width: 20,
                         height: 20,
-                        backgroundColor: "#ffbb96",
+                        backgroundColor: "#ff4d4f",
                         display: "inline-block",
                         marginRight: 5,
                       }}
                     ></span>
                     <span>Đang chứa vật tư</span>
+                  </Col>
+                  <Col
+                    span={12}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginTop: 10,
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: 20,
+                        height: 20,
+                        backgroundColor: "#5cdbd3",
+                        display: "inline-block",
+                        marginRight: 5,
+                      }}
+                    ></span>
+                    <span>Vị trí đang chọn</span>
                   </Col>
                 </Row>
                 <Row style={{ marginTop: 20 }}>
@@ -338,7 +391,7 @@ function LayoutKho({ match, history, permission }) {
                 </Row>
                 <Table
                   bordered
-                  scroll={{ x: 700, y: "70vh" }}
+                  scroll={{ x: 500, y: "70vh" }}
                   columns={columns}
                   components={components}
                   className="gx-table-responsive"

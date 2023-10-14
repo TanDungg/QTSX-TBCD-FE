@@ -286,6 +286,11 @@ function KhachHangForm({ match, permission, history }) {
               rules={[
                 {
                   type: "string",
+                  required: true,
+                },
+                {
+                  pattern: /^\d+$/,
+                  message: "Số điện thoại không hợp lệ",
                 },
               ]}
             >
@@ -296,7 +301,7 @@ function KhachHangForm({ match, permission, history }) {
               name={["KhachHang", "email"]}
               rules={[
                 {
-                  type: "string",
+                  type: "email",
                 },
               ]}
             >

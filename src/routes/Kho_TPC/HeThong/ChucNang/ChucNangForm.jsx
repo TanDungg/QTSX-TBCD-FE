@@ -30,7 +30,7 @@ function ChucNangForm({ match, permission, history }) {
   const [listMenu, setListMenu] = useState([]);
   const [fieldTouch, setFieldTouch] = useState(false);
 
-  const { setFieldsValue, validateFields, resetFields, getFieldsValue } = form;
+  const { setFieldsValue, validateFields, resetFields } = form;
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
       if (permission && !permission.add) {
@@ -161,7 +161,7 @@ function ChucNangForm({ match, permission, history }) {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const editChucNang = { id, ...item, ...chucNang };
+      const editChucNang = { ...item, ...chucNang };
       editChucNang.parent_Id =
         editChucNang.parent_Id === "root"
           ? (editChucNang.parent_Id = null)

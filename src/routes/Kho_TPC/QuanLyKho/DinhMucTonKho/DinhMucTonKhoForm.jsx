@@ -1,9 +1,4 @@
-import {
-  DeleteOutlined,
-  PrinterOutlined,
-  PlusOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -14,8 +9,6 @@ import {
   Button,
   Divider,
   Tag,
-  Upload,
-  Image,
 } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
@@ -23,13 +16,11 @@ import moment from "moment";
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { BASE_URL_API } from "src/constants/Config";
 import {
   FormSubmit,
   Select,
   Table,
   ModalDeleteConfirm,
-  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_TWO_COL } from "src/constants/Config";
@@ -39,9 +30,8 @@ import {
   getLocalStorage,
   getTokenInfo,
   reDataForTable,
-  renderPDF,
 } from "src/util/Common";
-import Helper from "src/helpers";
+import AddVatTuModal from "./AddVatTuModal";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -148,16 +138,10 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
-  const [ListSanPham, setListSanPham] = useState([]);
-  const [ListUserKy, setListUserKy] = useState([]);
+  const [ListDinhMucTonKho, setListDinhMucTonKho] = useState([]);
+  const [ListKho, setListKho] = useState([]);
   const [ListUser, setListUser] = useState([]);
-  const [SanPham_Id, setSanPham_Id] = useState();
-  const [SoLuong, setSoLuong] = useState();
-  const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
-  const [File, setFile] = useState("");
-  const [disableUpload, setDisableUpload] = useState(false);
-  const [FileChat, setFileChat] = useState("");
-  const [openImage, setOpenImage] = useState(false);
+  const [ActiveModal, setActiveModal] = useState(false);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
@@ -166,8 +150,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           getUserLap(INFO);
           setType("new");
-          getSanPham();
-          getUserKy(INFO);
+          getLoaiDinhMucTonKho();
           setFieldsValue({
             dinhmuctonkho: {
               ngayLap: moment(getDateNow(), "DD/MM/YYYY"),
@@ -182,7 +165,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getInfo(id);
-          getUserKy(INFO);
+          getLoaiDinhMucTonKho();
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -191,8 +174,8 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
           setType("detail");
           const { id } = match.params;
           setId(id);
-          getInfo(id, true);
-          getUserKy(INFO);
+          getLoaiDinhMucTonKho();
+          getInfo(id);
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -229,18 +212,19 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
             tenPhongBan: res.data.tenPhongBan,
           },
         });
+        getKho(res.data.phongBan_Id);
       } else {
       }
     });
   };
-  const getUserKy = (info) => {
+  const getLoaiDinhMucTonKho = () => {
     const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
+      page: -1,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}`,
+          `LoaiDinhMucTonKho?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -251,67 +235,49 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserKy(res.data.datalist);
+        setListDinhMucTonKho(res.data);
       } else {
-        setListUserKy([]);
+        setListDinhMucTonKho([]);
       }
     });
   };
-  const getSanPham = (id) => {
-    if (id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `SanPham/${id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListSanPham([res.data]);
-        } else {
-          setListSanPham([]);
-        }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `SanPham?page=-1`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListSanPham(res.data);
-        } else {
-          setListSanPham([]);
-        }
-      });
-    }
+  const getKho = (id) => {
+    const params = convertObjectToUrlParams({
+      phongBan_Id: id,
+      thuTu: 1,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `CauTrucKho/cau-truc-kho-by-phong-ban?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListKho(res.data);
+      } else {
+        setListKho([]);
+      }
+    });
   };
   /**
    * Lấy thông tin
    *
    */
-  const getInfo = (id, check) => {
+  const getInfo = (id) => {
     const params = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id.toLowerCase(),
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuDeNghiMuaHang/${id}?${params}`,
+          `lkn_DinhMucTonKho/${id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -323,37 +289,8 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          const chiTiet =
-            res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu);
-          chiTiet &&
-            chiTiet.forEach((ct, index) => {
-              chiTiet[index].id = ct.vatTu_Id + "_" + ct.sanPham_Id;
-            });
-          setListVatTu(chiTiet);
           getUserLap(INFO, res.data.userYeuCau_Id);
-          res.data.userYeuCau_Id === INFO.user_Id &&
-            check &&
-            setType("UploadFile");
-          if (res.data.fileXacNhan) {
-            setFile(res.data.fileXacNhan);
-            setDisableUpload(true);
-          }
           setInfo(res.data);
-          getSanPham(res.data.sanPham_Id);
-          setFieldsValue({
-            dinhmuctonkho: {
-              sanPham_Id: res.data.sanPham_Id,
-              ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
-              ngayHoanThanhDukien: moment(
-                res.data.ngayHoanThanhDukien,
-                "DD/MM/YYYY"
-              ),
-              userDuyet_Id: res.data.userDuyet_Id,
-              userKeToan_Id: res.data.userKeToan_Id,
-              userKiemTra_Id: res.data.userKiemTra_Id,
-              isCKD: res.data.isCKD ? "true" : "false",
-            },
-          });
         }
       })
       .catch((error) => console.error(error));
@@ -426,12 +363,6 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Mã định mức",
-      dataIndex: "maDinhMuc",
-      key: "maDinhMuc",
-      align: "center",
-    },
-    {
       title: "Mã vật tư",
       dataIndex: "maVatTu",
       key: "maVatTu",
@@ -441,12 +372,6 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
-      align: "center",
-    },
-    {
-      title: "Kho",
-      dataIndex: "tenKho",
-      key: "tenKho",
       align: "center",
     },
     {
@@ -465,24 +390,6 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
       title: "Ghi chú",
       dataIndex: "ghiChu",
       key: "ghiChu",
-      align: "center",
-    },
-    {
-      title: "Người lập",
-      dataIndex: "user_Id",
-      key: "user_Id",
-      align: "center",
-    },
-    {
-      title: "Bộ phận",
-      dataIndex: "tenBoPhan",
-      key: "tenBoPhan",
-      align: "center",
-    },
-    {
-      title: "Ngày lập",
-      dataIndex: "ngayLap",
-      key: "ngayLap",
       align: "center",
     },
     {
@@ -522,7 +429,11 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.dinhmuctonkho);
+    if (listVatTu.length === 0) {
+      Helpers.alertError("Danh sách vật tư rỗng");
+    } else {
+      saveData(values.dinhmuctonkho);
+    }
   };
 
   const saveAndClose = (val) => {
@@ -542,16 +453,12 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
   const saveData = (deNghiMuaHang, saveQuit = false) => {
     if (type === "new") {
       const newData = {
-        ...deNghiMuaHang,
-        chiTiet_phieumuahangs: listVatTu,
-        ngayHoanThanhDukien: deNghiMuaHang.ngayHoanThanhDukien._i,
-        ngayYeuCau: deNghiMuaHang.ngayYeuCau._i,
-        isCKD: deNghiMuaHang.isCKD === "true",
+        ngayNhap: deNghiMuaHang.ngayNhap._i,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuDeNghiMuaHang`,
+            `lkn_DinhMucTonKho`,
             "POST",
             newData,
             "ADD",
@@ -593,12 +500,12 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
         }),
         ngayHoanThanhDukien: deNghiMuaHang.ngayHoanThanhDukien._i,
         isCKD: deNghiMuaHang.isCKD === "true",
-        ngayYeuCau: deNghiMuaHang.ngayYeuCau._i,
+        ngayNhap: deNghiMuaHang.ngayNhap._i,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuDeNghiMuaHang/${id}`,
+            `lkn_DinhMucTonKho/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -620,183 +527,18 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
     }
   };
 
-  const hanldeXacNhan = () => {
-    const newData = {
-      id: id,
-      isXacNhan: true,
-      chiTiet_phieumuahangs: listVatTu.map((vt) => {
-        return {
-          ...vt,
-          lkn_PhieuMuaHang_Id: id,
-        };
-      }),
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuDeNghiMuaHang/xac-nhan/${id}`,
-          "PUT",
-          newData,
-          "XACNHAN",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) getInfo(id);
-      })
-      .catch((error) => console.error(error));
-  };
-  const prop = {
-    type: "confirm",
-    okText: "Xác nhận",
-    cancelText: "Hủy",
-    title: "Xác nhận phiếu đề nghị mua hàng",
-    onOk: hanldeXacNhan,
-  };
-  const modalXK = () => {
-    Modal(prop);
-  };
-  const hanldeXacNhanTaiFile = () => {
-    const formData = new FormData();
-    formData.append("file", File);
-    const url = info.fileXacNhan
-      ? `${BASE_URL_API}/api/Upload?stringPath=${info.fileXacNhan}`
-      : `${BASE_URL_API}/api/Upload`;
-    fetch(url, {
-      method: "POST",
-      body: formData,
-      headers: {
-        Authorization: "Bearer ".concat(INFO.token),
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `lkn_PhieuDeNghiMuaHang/tai-file-phieu-de-nghi/${id}`,
-              "PUT",
-              { id: id, file: data.path },
-              "GUIPHIEU",
-              "",
-              resolve,
-              reject
-            )
-          );
-        })
-          .then((res) => {
-            if (res.status !== 409) getInfo(id, true);
-          })
-          .catch((error) => console.error(error));
-      })
-      .catch(() => {
-        console.log("upload failed.");
-      });
-  };
-  const prop1 = {
-    type: "confirm",
-    okText: "Xác nhận",
-    cancelText: "Hủy",
-    title: "Xác nhận tải file đã ký",
-    onOk: hanldeXacNhanTaiFile,
-  };
-  const modalUploadFile = () => {
-    Modal(prop1);
-  };
-  const hanldeTuChoi = () => {
-    setActiveModalTuChoi(true);
-  };
-  const saveTuChoi = (val) => {
-    const newData = {
-      id: id,
-      isXacNhan: false,
-      lyDoTuChoi: val,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuDeNghiMuaHang/xac-nhan/${id}`,
-          "PUT",
-          newData,
-          "TUCHOI",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) getInfo(id);
-      })
-      .catch((error) => console.error(error));
-  };
-
   const hanldeThem = () => {
-    const params = convertObjectToUrlParams({ sanPham_Id: SanPham_Id });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_dinhmuctonkho/bom-by-sanpham?${params}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const newData =
-            res.data.chiTietBOM &&
-            JSON.parse(res.data.chiTietBOM).map((ct) => {
-              return {
-                id: ct.vatTu_Id + "_" + res.data.id,
-                vatTu_Id: ct.vatTu_Id,
-                tenVatTu: ct.tenVatTu,
-                dinhMuc: ct.dinhMuc,
-                soLuongTheoDinhMuc: ct.dinhMuc * SoLuong,
-                ghiChu: "",
-                hangMucSuDung: "",
-                soLuong: ct.dinhMuc * SoLuong,
-                tenDonViTinh: ct.tenDonViTinh,
-                tenNhomVatTu: ct.tenNhomVatTu,
-                tenSanPham: res.data.tenSanPham,
-                bom_Id: res.data.id,
-                soLuongSanPham: SoLuong,
-              };
-            });
-          if (newData) {
-            if (listVatTu !== null) {
-              listVatTu.forEach((vt) => {
-                newData.forEach((ct, index) => {
-                  if (vt.id === ct.id) {
-                    newData.splice(index, 1);
-                  }
-                });
-              });
-              setListVatTu([...listVatTu, ...newData]);
-            } else {
-              setListVatTu(newData);
-            }
-            setFieldsValue({
-              sanPham: {
-                sanPham_Id: "",
-                soLuong: "",
-              },
-            });
-            setSanPham_Id();
-            setSoLuong();
-          } else {
-            Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
-          }
-        }
-      })
-      .catch((error) => console.error(error));
+    setActiveModal(true);
+  };
+  const addVatu = (vatTus) => {
+    let check = false;
+    listVatTu.forEach((dl) => {
+      if (dl.vatTu_Id.toLowerCase() === vatTus.vatTu_Id) {
+        check = true;
+        Helpers.alertError(`Vật tư đã được thêm`);
+      }
+    });
+    !check && setListVatTu([...listVatTu, vatTus]);
   };
 
   const formTitle =
@@ -886,7 +628,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Loại định mức"
-                name={["dinhmuctonkho", "maDinhMuc"]}
+                name={["dinhmuctonkho", "loaiDinhMucTonKho_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -896,8 +638,8 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListUser ? ListUser : []}
-                  optionsvalue={["Id", "fullName"]}
+                  data={ListDinhMucTonKho ? ListDinhMucTonKho : []}
+                  optionsvalue={["id", "tenLoaiDinhMucTonKho"]}
                   style={{ width: "100%" }}
                   placeholder="Loại định mức"
                 />
@@ -924,111 +666,12 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
+                  data={ListKho}
                   placeholder="Chọn kho"
-                  optionsvalue={["user_Id", "tenKho"]}
+                  optionsvalue={["id", "tenCTKho"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Vật tư"
-                name={["dinhmuctonkho", "vatTu_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn vật tư"
-                  optionsvalue={["vatTuId_Id", "tenVatTu"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="SL tồn kho tối thiểu"
-                name={["dinhmuctonkho", "slTonKhoToiThieu"]}
-              >
-                <Input
-                  className="input-item"
-                  placeholder="Nhập số lượng tồn kho tối thiểu"
-                  type="number"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="SL tồn kho tối đa"
-                name={["dinhmuctonkho", "slTonKhoToiDa"]}
-              >
-                <Input
-                  className="input-item"
-                  placeholder="Nhập số lượng tồn kho tối đa"
-                  type="number"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Ghi chú"
-                name={["dinhmuctonkho", "ghiChu"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Input
-                  className="input-item"
-                  placeholder="Nhập ghi chú"
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
@@ -1061,7 +704,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
                       },
                     });
                   }}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={true}
                 />
               </FormItem>
             </Col>
@@ -1080,7 +723,6 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
                   icon={<PlusOutlined />}
                   type="primary"
                   onClick={hanldeThem}
-                  disabled={!SanPham_Id || !SoLuong}
                 >
                   Thêm
                 </Button>
@@ -1110,35 +752,12 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
             disabled={fieldTouch}
           />
         ) : null}
-        {type === "xacnhan" && (
-          <Row justify={"end"} style={{ marginTop: 15 }}>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="primary" onClick={modalXK}>
-                Xác nhận
-              </Button>
-            </Col>
-            <Col style={{ marginRight: 15 }}>
-              <Button danger onClick={hanldeTuChoi}>
-                Từ chối
-              </Button>
-            </Col>
-          </Row>
-        )}
-        {type === "UploadFile" &&
-          (!info.isXacNhan || info.isXacNhan !== true) && (
-            <Row justify={"end"} style={{ marginTop: 15 }}>
-              <Col style={{ marginRight: 15 }}>
-                <Button
-                  type="primary"
-                  onClick={modalUploadFile}
-                  disabled={!disableUpload || !File.name}
-                >
-                  Hoàn thành
-                </Button>
-              </Col>
-            </Row>
-          )}
       </Card>
+      <AddVatTuModal
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        addVatTu={addVatu}
+      />
     </div>
   );
 };
