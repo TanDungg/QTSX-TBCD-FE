@@ -35,15 +35,14 @@ function DinhMucTonKho({ match, history, permission }) {
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [selectedDevice, setSelectedDevice] = useState([]);
-  const [FromDate, setFromDate] = useState(getDateNow(7));
-  const [ToDate, setToDate] = useState(getDateNow());
+  const [Kho_Id, setKho_Id] = useState();
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [ListBanPhong, setListBanPhong] = useState([]);
-  const [BanPhong, setBanPhong] = useState("");
+  const [ListLoaiDinhMucTonKho, setListLoaiDinhMucTonKho] = useState([]);
+  const [LoaiDinhMucTonKho, setLoaiDinhMucTonKho] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
-      getBanPhong();
-      loadData(keyword, BanPhong, FromDate, ToDate, page);
+      getLoaiDinhMucTonKho();
+      loadData(keyword, LoaiDinhMucTonKho, Kho_Id, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -56,22 +55,20 @@ function DinhMucTonKho({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const loadData = (keyword, loaiDinhMucTonKho_Id, kho_Id, page) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
-      tuNgay,
-      denNgay,
+      loaiDinhMucTonKho_Id,
+      kho_Id,
       keyword,
       page,
-      donVi_Id: INFO.donVi_Id,
     });
     dispatch(fetchStart(`lkn_DinhMucTonKho?${param}`, "GET", null, "LIST"));
   };
-  const getBanPhong = () => {
+  const getLoaiDinhMucTonKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          `LoaiDinhMucTonKho?page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -83,9 +80,9 @@ function DinhMucTonKho({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListBanPhong(res.data);
+          setListLoaiDinhMucTonKho(res.data);
         } else {
-          setListBanPhong([]);
+          setListLoaiDinhMucTonKho([]);
         }
       })
       .catch((error) => console.error(error));
@@ -95,7 +92,7 @@ function DinhMucTonKho({ match, history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, BanPhong, FromDate, ToDate, page);
+    loadData(keyword, LoaiDinhMucTonKho, Kho_Id, page);
   };
 
   /**
@@ -106,7 +103,7 @@ function DinhMucTonKho({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, BanPhong, FromDate, ToDate, page);
+      loadData(val.target.value, LoaiDinhMucTonKho, Kho_Id, page);
     }
   };
   /**
@@ -116,24 +113,24 @@ function DinhMucTonKho({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const detailItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <EyeOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
-        </span>
-      );
+    // const detailItem =
+    //   permission && permission.cof ? (
+    //     <Link
+    //       to={{
+    //         pathname: `${match.url}/${item.id}/xac-nhan`,
+    //         state: { itemData: item, permission },
+    //       }}
+    //       title="Xác nhận"
+    //     >
+    //       <EyeOutlined />
+    //     </Link>
+    //   ) : (
+    //     <span disabled title="Xác nhận">
+    //       <EyeInvisibleOutlined />
+    //     </span>
+    //   );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
+      permission && permission.edit ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -149,13 +146,13 @@ function DinhMucTonKho({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {detailItem}
-        <Divider type="vertical" />
+        {/* {detailItem}
+        <Divider type="vertical" /> */}
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -193,7 +190,7 @@ function DinhMucTonKho({ match, history, permission }) {
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, BanPhong, FromDate, ToDate, page);
+          loadData(keyword, LoaiDinhMucTonKho, Kho_Id, page);
         }
       })
       .catch((error) => console.error(error));
@@ -207,7 +204,7 @@ function DinhMucTonKho({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, BanPhong, FromDate, ToDate, pagination);
+    loadData(keyword, LoaiDinhMucTonKho, Kho_Id, pagination);
   };
 
   /**
@@ -267,21 +264,39 @@ function DinhMucTonKho({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu thanh lý",
-      key: "maPhieuYeuCau",
-      align: "center",
-      render: (val) => renderDetail(val),
-    },
-    {
-      title: "Kho thanh lý",
-      dataIndex: "ngayXuat",
-      key: "ngayXuat",
+      title: "Mã vật tư",
+      key: "maVatTu",
+      dataIndex: "maVatTu",
       align: "center",
     },
     {
-      title: "Ngày thanh lý",
-      dataIndex: "kho",
-      key: "kho",
+      title: "Tên vật tư",
+      key: "tenVatTu",
+      dataIndex: "tenVatTu",
+      align: "center",
+    },
+    {
+      title: "Loại định mức tồn kho",
+      dataIndex: "tenLoaiDinhMucTonKho",
+      key: "tenLoaiDinhMucTonKho",
+      align: "center",
+    },
+    {
+      title: "SL tồn kho tối thiếu",
+      dataIndex: "sLTonKhoToiThieu",
+      key: "sLTonKhoToiThieu",
+      align: "center",
+    },
+    {
+      title: "SL tông kho tối đa",
+      dataIndex: "sLTonKhoToiDa",
+      key: "sLTonKhoToiDa",
+      align: "center",
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "ghiChu",
+      key: "ghiChu",
       align: "center",
     },
     {
@@ -290,7 +305,6 @@ function DinhMucTonKho({ match, history, permission }) {
       key: "tenNguoiLap",
       align: "center",
     },
-
     {
       title: "Chức năng",
       key: "action",
@@ -343,21 +357,25 @@ function DinhMucTonKho({ match, history, permission }) {
       setSelectedKeys(newSelectedKey);
     },
   };
-  const handleOnSelectBanPhong = (val) => {
-    setBanPhong(val);
+  const handleOnSelectLoaiDinhMucTonKho = (val) => {
+    setLoaiDinhMucTonKho(val);
     setPage(1);
-    loadData(keyword, val, FromDate, ToDate, 1);
+    loadData(keyword, val, Kho_Id, 1);
   };
-  const handleClearBanPhong = (val) => {
-    setBanPhong("");
+  const handleClearLoaiDinhMucTonKho = (val) => {
+    setLoaiDinhMucTonKho("");
     setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
+    loadData(keyword, "", Kho_Id, 1);
   };
-  const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
+  const handleOnSelectKho = (val) => {
+    setKho_Id(val);
     setPage(1);
-    loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    loadData(keyword, LoaiDinhMucTonKho, val, 1);
+  };
+  const handleClearKho = (val) => {
+    setKho_Id("");
+    setPage(1);
+    loadData(keyword, LoaiDinhMucTonKho, "", 1);
   };
   return (
     <div className="gx-main-content">
@@ -378,20 +396,20 @@ function DinhMucTonKho({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Mã định mức:</h5>
+            <h5>Loại định mức:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListBanPhong ? ListBanPhong : []}
-              placeholder="Chọn Ban/Phòng"
-              optionsvalue={["id", "tenPhongBan"]}
+              data={ListLoaiDinhMucTonKho ? ListLoaiDinhMucTonKho : []}
+              placeholder="Chọn Loại định mức"
+              optionsvalue={["id", "tenLoaiDinhMucTonKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectBanPhong}
-              value={BanPhong}
-              onChange={(value) => setBanPhong(value)}
+              onSelect={handleOnSelectLoaiDinhMucTonKho}
+              value={LoaiDinhMucTonKho}
+              onChange={(value) => setLoaiDinhMucTonKho(value)}
               allowClear
-              onClear={handleClearBanPhong}
+              onClear={handleClearLoaiDinhMucTonKho}
             />
           </Col>
 
@@ -407,17 +425,16 @@ function DinhMucTonKho({ match, history, permission }) {
             <h5>Kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListBanPhong ? ListBanPhong : []}
-              placeholder="Chọn Ban/Phòng"
+              data={ListLoaiDinhMucTonKho ? ListLoaiDinhMucTonKho : []}
+              placeholder="Chọn kho"
               optionsvalue={["id", "tenPhongBan"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectBanPhong}
-              value={BanPhong}
-              onChange={(value) => setBanPhong(value)}
+              onSelect={handleOnSelectKho}
+              value={LoaiDinhMucTonKho}
               allowClear
-              onClear={handleClearBanPhong}
+              onClear={handleClearKho}
             />
           </Col>
           <Col

@@ -1,32 +1,20 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Card, Empty, Row, Col } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
-import {
-  ModalDeleteConfirm,
-  Table,
-  EditableTableRow,
-  Toolbar,
-  Select,
-} from "src/components/Common";
+import { map } from "lodash";
+import { Table, EditableTableRow, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
-  getDateNow,
   getLocalStorage,
   getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import moment from "moment";
-import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-const { RangePicker } = DatePicker;
-function LayoutKho({ match, history, permission }) {
-  const { loading, data } = useSelector(({ common }) => common).toJS();
+function LayoutKho({ history, permission }) {
+  const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [ListKho, setListKho] = useState([]);
@@ -51,7 +39,7 @@ function LayoutKho({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
           "GET",
           null,
           "DETAIL",
@@ -163,13 +151,6 @@ function LayoutKho({ match, history, permission }) {
       key: "thoiGianSuDung",
       align: "center",
     },
-    // {
-    //   title: "Chức năng",
-    //   key: "action",
-    //   align: "center",
-    //   width: 110,
-    //   render: (value) => actionContent(value),
-    // },
   ];
   const components = {
     body: {
@@ -208,8 +189,10 @@ function LayoutKho({ match, history, permission }) {
   };
   return (
     <div className="gx-main-content">
-      <ContainerHeader title="LAYOUT KHO" description="LAYOUT KHO" />
-
+      <ContainerHeader
+        title="LAYOUT KHO VẬT TƯ"
+        description="LAYOUT KHO VẬT TƯ"
+      />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ marginBottom: 15 }}>
           <Col
@@ -238,89 +221,95 @@ function LayoutKho({ match, history, permission }) {
         <Row>
           <Col span={12}>
             <Card>
-              <Row>
-                {ListChiTietKho.map((ke) => {
-                  return (
-                    <Col
-                      span={6}
-                      style={{
-                        height: soTangMax * 40,
-
-                        // padding: 0,
-                        marginBottom: 50,
-                        // marginRight: 25,
-                        // border: "1px solid #333",
-                      }}
-                    >
-                      <h5>{ke.tenCauTrucKho}</h5>
-                      <div
+              {ListChiTietKho.length > 0 ? (
+                <Row>
+                  {ListChiTietKho.map((ke) => {
+                    return (
+                      <Col
+                        span={6}
                         style={{
-                          border: "1px solid #333",
-                          width: "100%",
-                          height: "100%",
-                          padding: "0 16px",
-                          cursor: "pointer",
-                          backgroundColor:
-                            focusKe === ke.id
-                              ? "#5cdbd3"
-                              : ke.children.length === 0 && ke.chiTietVatTu
-                              ? "#ff4d4f"
-                              : "#ccc",
-                        }}
-                        onClick={() => {
-                          if (ke.children.length === 0) {
-                            setFocusKe(ke.id);
-                            setFocusNgan("");
-                            handleViewThongTin(ke.chiTietVatTu);
-                          }
+                          height: soTangMax * 40,
+
+                          // padding: 0,
+                          marginBottom: 50,
+                          // marginRight: 25,
+                          // border: "1px solid #333",
                         }}
                       >
-                        {ke.children.length > 0 &&
-                          ke.children.map((tang) => {
-                            return (
-                              <Row
-                                style={{
-                                  marginRight: -18,
-                                  border:
-                                    tang.children.length === 0 &&
-                                    "1px solid #333",
-                                  height: 40,
-                                  backgroundColor:
-                                    tang.children.length === 0 && "#ccc",
-                                }}
-                              >
-                                {tang.children.length > 0 &&
-                                  tang.children.map((ngan) => {
-                                    return (
-                                      <Col
-                                        span={24 / tang.children.length}
-                                        style={{
-                                          height: 40,
-                                          backgroundColor:
-                                            focusNgan === ngan.id
-                                              ? "#5cdbd3"
-                                              : ngan.chiTietVatTu
-                                              ? "#ff4d4f"
-                                              : "#ccc",
-                                          border: "1px solid #333",
-                                          cursor: "pointer",
-                                        }}
-                                        onClick={() => {
-                                          handleViewThongTin(ngan.chiTietVatTu);
-                                          setFocusNgan(ngan.id);
-                                          setFocusKe("");
-                                        }}
-                                      ></Col>
-                                    );
-                                  })}
-                              </Row>
-                            );
-                          })}
-                      </div>
-                    </Col>
-                  );
-                })}
-              </Row>
+                        <h5>{ke.tenCauTrucKho}</h5>
+                        <div
+                          style={{
+                            border: "1px solid #333",
+                            width: "100%",
+                            height: "100%",
+                            padding: "0 16px",
+                            cursor: "pointer",
+                            backgroundColor:
+                              focusKe === ke.id
+                                ? "#5cdbd3"
+                                : ke.children.length === 0 && ke.chiTietVatTu
+                                ? "#ff4d4f"
+                                : "#ccc",
+                          }}
+                          onClick={() => {
+                            if (ke.children.length === 0) {
+                              setFocusKe(ke.id);
+                              setFocusNgan("");
+                              handleViewThongTin(ke.chiTietVatTu);
+                            }
+                          }}
+                        >
+                          {ke.children.length > 0 &&
+                            ke.children.map((tang) => {
+                              return (
+                                <Row
+                                  style={{
+                                    marginRight: -18,
+                                    border:
+                                      tang.children.length === 0 &&
+                                      "1px solid #333",
+                                    height: 40,
+                                    backgroundColor:
+                                      tang.children.length === 0 && "#ccc",
+                                  }}
+                                >
+                                  {tang.children.length > 0 &&
+                                    tang.children.map((ngan) => {
+                                      return (
+                                        <Col
+                                          span={24 / tang.children.length}
+                                          style={{
+                                            height: 40,
+                                            backgroundColor:
+                                              focusNgan === ngan.id
+                                                ? "#5cdbd3"
+                                                : ngan.chiTietVatTu
+                                                ? "#ff4d4f"
+                                                : "#ccc",
+                                            border: "1px solid #333",
+                                            cursor: "pointer",
+                                          }}
+                                          onClick={() => {
+                                            handleViewThongTin(
+                                              ngan.chiTietVatTu
+                                            );
+                                            setFocusNgan(ngan.id);
+                                            setFocusKe("");
+                                          }}
+                                        ></Col>
+                                      );
+                                    })}
+                                </Row>
+                              );
+                            })}
+                        </div>
+                      </Col>
+                    );
+                  })}
+                </Row>
+              ) : (
+                <Empty description={false} />
+              )}
             </Card>
           </Col>
           <Col span={12}>

@@ -265,7 +265,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-phong-ban?thuTu=1&&phongBan_Id=${phongBan_Id}`,
+          `CauTrucKho/cau-truc-kho-by-phong-ban?thuTu=1&&phongBan_Id=${phongBan_Id}&&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",

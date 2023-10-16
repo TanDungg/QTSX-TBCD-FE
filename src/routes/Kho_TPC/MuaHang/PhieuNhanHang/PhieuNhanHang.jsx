@@ -36,11 +36,11 @@ function PhieuNhanHang({ match, history, permission }) {
   const [ToDate, setToDate] = useState(getDateNow());
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListUserYeuCau, setListUserYeuCau] = useState([]);
-  const [BanPhong, setBanPhong] = useState("");
+  const [UserYeuCau, setUserYeuCau] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
       getUserYeuCau();
-      loadData(keyword, BanPhong, FromDate, ToDate, page);
+      loadData(keyword, UserYeuCau, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -53,9 +53,9 @@ function PhieuNhanHang({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const loadData = (keyword, useryeucau_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
+      useryeucau_Id,
       donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
@@ -92,7 +92,7 @@ function PhieuNhanHang({ match, history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, BanPhong, FromDate, ToDate, page);
+    loadData(keyword, UserYeuCau, FromDate, ToDate, page);
   };
 
   /**
@@ -103,7 +103,7 @@ function PhieuNhanHang({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, BanPhong, FromDate, ToDate, page);
+      loadData(val.target.value, UserYeuCau, FromDate, ToDate, page);
     }
   };
   /**
@@ -196,7 +196,7 @@ function PhieuNhanHang({ match, history, permission }) {
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, BanPhong, FromDate, ToDate, page);
+          loadData(keyword, UserYeuCau, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -210,7 +210,7 @@ function PhieuNhanHang({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, BanPhong, FromDate, ToDate, pagination);
+    loadData(keyword, UserYeuCau, FromDate, ToDate, pagination);
   };
 
   /**
@@ -363,13 +363,13 @@ function PhieuNhanHang({ match, history, permission }) {
       setSelectedKeys(newSelectedKey);
     },
   };
-  const handleOnSelectBanPhong = (val) => {
-    setBanPhong(val);
+  const handleOnSelectUserYeuCau = (val) => {
+    setUserYeuCau(val);
     setPage(1);
     loadData(keyword, val, FromDate, ToDate, 1);
   };
-  const handleClearBanPhong = (val) => {
-    setBanPhong("");
+  const handleClearUserYeuCau = (val) => {
+    setUserYeuCau("");
     setPage(1);
     loadData(keyword, "", FromDate, ToDate, 1);
   };
@@ -377,7 +377,7 @@ function PhieuNhanHang({ match, history, permission }) {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    loadData(keyword, UserYeuCau, dateString[0], dateString[1], 1);
   };
   return (
     <div className="gx-main-content">
@@ -407,10 +407,10 @@ function PhieuNhanHang({ match, history, permission }) {
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectBanPhong}
-              value={BanPhong}
+              onSelect={handleOnSelectUserYeuCau}
+              value={UserYeuCau}
               allowClear
-              onClear={handleClearBanPhong}
+              onClear={handleClearUserYeuCau}
             />
           </Col>
           <Col

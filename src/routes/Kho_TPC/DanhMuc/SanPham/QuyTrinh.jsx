@@ -88,6 +88,12 @@ function QuyTrinh({ history, permission, location, match }) {
       width: 45,
     },
     {
+      title: "Mã chi tiết",
+      dataIndex: "maChiTiet",
+      key: "maChiTiet",
+      align: "center",
+    },
+    {
       title: "Tên chi tiết",
       dataIndex: "tenChiTiet",
       key: "tenChiTiet",

@@ -124,6 +124,7 @@ function KeForm({ match, permission, history }) {
     const params = convertObjectToUrlParams({
       phongBan_Id: phongBan_Id,
       thuTu: 1,
+      isThanhPham: true,
     });
     new Promise((resolve, reject) => {
       dispatch(
