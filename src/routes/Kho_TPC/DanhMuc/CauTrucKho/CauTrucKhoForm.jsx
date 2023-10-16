@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Form, Spin } from "antd";
+import { Card, Form, Spin, Switch } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
 
@@ -15,6 +15,7 @@ const initialState = {
   maCauTrucKho: "",
   tenCauTrucKho: "",
   cauTrucKho_Id: "root",
+  isActive: false,
 };
 
 function CauTrucKhoForm({ match, permission, history }) {
@@ -153,7 +154,7 @@ function CauTrucKhoForm({ match, permission, history }) {
       .catch((error) => console.error(error));
   };
 
-  const { maCauTrucKho, tenCauTrucKho, cauTrucKho_Id } = initialState;
+  const { maCauTrucKho, tenCauTrucKho, cauTrucKho_Id, isActive } = initialState;
   /**
    * Khi submit
    *
@@ -183,7 +184,15 @@ function CauTrucKhoForm({ match, permission, history }) {
         newUser.cauTrucKho_Id === "root" ? null : newUser.cauTrucKho_Id;
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`CauTrucKho`, "POST", newUser, "ADD", "", resolve, reject)
+          fetchStart(
+            `CauTrucKho?isThanhPham=${newUser.isThanhPham}`,
+            "POST",
+            newUser,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
         );
       })
         .then((res) => {
@@ -208,7 +217,7 @@ function CauTrucKhoForm({ match, permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `CauTrucKho/${id}`,
+            `CauTrucKho/${id}?isThanhPham=${editUser.isThanhPham}`,
             "PUT",
             editUser,
             "EDIT",
@@ -339,7 +348,21 @@ function CauTrucKhoForm({ match, permission, history }) {
                 placeholder="Chọn cấu trúc kho cha"
                 style={{ width: "100%" }}
                 onSelect={(val) => {
-                  if (val !== "root") setDisableViTri(false);
+                  if (val !== "root") {
+                    setDisableViTri(false);
+                    setFieldsValue({
+                      CauTrucKho: {
+                        isThanhPham: false,
+                      },
+                    });
+                  } else {
+                    setDisableViTri(true);
+                    setFieldsValue({
+                      CauTrucKho: {
+                        viTri: null,
+                      },
+                    });
+                  }
                 }}
               />
             </FormItem>
@@ -357,6 +380,14 @@ function CauTrucKhoForm({ match, permission, history }) {
                 placeholder="Nhập vị trí"
                 disabled={disableViTri}
               />
+            </FormItem>
+            <FormItem
+              label="Kho thành phẩm"
+              name={["CauTrucKho", "isThanhPham"]}
+              valuePropName="checked"
+              initialValue={isActive}
+            >
+              <Switch disabled={!disableViTri} />
             </FormItem>
             <FormSubmit
               goBack={goBack}

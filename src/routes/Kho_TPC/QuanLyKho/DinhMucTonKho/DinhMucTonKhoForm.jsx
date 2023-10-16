@@ -141,6 +141,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
   const [ListDinhMucTonKho, setListDinhMucTonKho] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [ListUser, setListUser] = useState([]);
+  const [ListXuong, setListXuong] = useState([]);
   const [ActiveModal, setActiveModal] = useState(false);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
@@ -150,10 +151,11 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           getUserLap(INFO);
           setType("new");
+          getXuong();
           getLoaiDinhMucTonKho();
           setFieldsValue({
             dinhmuctonkho: {
-              ngayLap: moment(getDateNow(), "DD/MM/YYYY"),
+              ngayNhap: moment(getDateNow(), "DD/MM/YYYY"),
             },
           });
         } else if (permission && !permission.add) {
@@ -212,7 +214,6 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
             tenPhongBan: res.data.tenPhongBan,
           },
         });
-        getKho(res.data.phongBan_Id);
       } else {
       }
     });
@@ -245,6 +246,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
     const params = convertObjectToUrlParams({
       phongBan_Id: id,
       thuTu: 1,
+      isThanhPham: false,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -263,6 +265,33 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
         setListKho(res.data);
       } else {
         setListKho([]);
+      }
+    });
+  };
+  const getXuong = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        const xuong = [];
+        res.data.forEach((x) => {
+          if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+            xuong.push(x);
+          }
+        });
+        setListXuong(xuong);
+      } else {
+        setListXuong([]);
       }
     });
   };
@@ -450,11 +479,18 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
       });
   };
 
-  const saveData = (deNghiMuaHang, saveQuit = false) => {
+  const saveData = (dinhmuctonkho, saveQuit = false) => {
     if (type === "new") {
-      const newData = {
-        ngayNhap: deNghiMuaHang.ngayNhap._i,
-      };
+      const newData = listVatTu.map((vt) => {
+        return {
+          ...dinhmuctonkho,
+          ngayNhap: dinhmuctonkho.ngayNhap._i,
+          slTonKhoToiThieu: vt.slTonKhoToiThieu,
+          slTonKhoToiDa: vt.slTonKhoToiDa,
+          ghiChu: vt.ghiChu,
+          vatTu_Id: vt.vatTu_Id,
+        };
+      });
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -476,6 +512,12 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
               resetFields();
               setFieldTouch(false);
               setListVatTu([]);
+              setFieldsValue({
+                dinhmuctonkho: {
+                  userLap_Id: dinhmuctonkho.userLap_Id,
+                  ngayNhap: moment(dinhmuctonkho.ngayNhap, "DD/MM/YYYY"),
+                },
+              });
             }
           } else {
             setFieldTouch(false);
@@ -486,7 +528,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
     if (type === "edit") {
       const newData = {
         id: id,
-        ...deNghiMuaHang,
+        ...dinhmuctonkho,
         chiTiet_phieumuahangs: listVatTu.map((vt) => {
           return {
             vatTu_Id: vt.vatTu_Id,
@@ -498,9 +540,9 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
             hangMucSuDung: vt.hangMucSuDung,
           };
         }),
-        ngayHoanThanhDukien: deNghiMuaHang.ngayHoanThanhDukien._i,
-        isCKD: deNghiMuaHang.isCKD === "true",
-        ngayNhap: deNghiMuaHang.ngayNhap._i,
+        ngayHoanThanhDukien: dinhmuctonkho.ngayHoanThanhDukien._i,
+        isCKD: dinhmuctonkho.isCKD === "true",
+        ngayNhap: dinhmuctonkho.ngayNhap._i,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -540,7 +582,14 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
     });
     !check && setListVatTu([...listVatTu, vatTus]);
   };
-
+  const hanldeSelectXuong = (val) => {
+    getKho(val);
+    setFieldsValue({
+      dinhmuctonkho: {
+        cauTrucKho_Id: null,
+      },
+    });
+  };
   const formTitle =
     type === "new" ? (
       "Thêm mới định mức tồn kho "
@@ -617,6 +666,70 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
                 <Input className="input-item" disabled={true} />
               </FormItem>
             </Col>
+
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Xưởng"
+                name={["phieunhapkho", "phongBan_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListXuong}
+                  placeholder="Chọn xưởng"
+                  optionsvalue={["id", "tenPhongBan"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                  onSelect={hanldeSelectXuong}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Kho"
+                name={["dinhmuctonkho", "cauTrucKho_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListKho}
+                  placeholder="Chọn kho"
+                  optionsvalue={["id", "tenCTKho"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
             <Col
               xxl={12}
               xl={12}
@@ -655,39 +768,8 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Kho"
-                name={["dinhmuctonkho", "kho_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListKho}
-                  placeholder="Chọn kho"
-                  optionsvalue={["id", "tenCTKho"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
                 label="Ngày lập"
-                name={["dinhmuctonkho", "ngayLap"]}
+                name={["dinhmuctonkho", "ngayNhap"]}
                 rules={[
                   {
                     required: true,
@@ -700,7 +782,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
                   onChange={(date, dateString) => {
                     setFieldsValue({
                       dinhmuctonkho: {
-                        ngayLap: moment(dateString, "DD/MM/YYYY"),
+                        ngayNhap: moment(dateString, "DD/MM/YYYY"),
                       },
                     });
                   }}

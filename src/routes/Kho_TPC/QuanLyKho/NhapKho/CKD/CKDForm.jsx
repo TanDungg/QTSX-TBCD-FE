@@ -127,7 +127,6 @@ const CKDForm = ({ history, match, permission }) => {
   const [ListUser, setListUser] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [ListSoLot, setListSoLot] = useState([]);
-  const [SanPham_Id, setSanPham_Id] = useState();
   const [ListSanPham, setListSanPham] = useState([]);
   const [activeSoLuong, setActiveSoLuong] = useState(true);
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
@@ -287,7 +286,7 @@ const CKDForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-phong-ban?thuTu=1&&phongBan_Id=${phongBan_Id}`,
+          `CauTrucKho/cau-truc-kho-by-phong-ban?thuTu=1&&phongBan_Id=${phongBan_Id}&&isThanhPham=false`,
           "GET",
           null,
           "DETAIL",

@@ -79,7 +79,7 @@ function KhoVatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=false`,
           "GET",
           null,
           "DETAIL",

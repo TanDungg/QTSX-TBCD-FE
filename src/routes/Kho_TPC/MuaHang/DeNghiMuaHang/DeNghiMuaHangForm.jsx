@@ -150,9 +150,13 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
+  const [ListChiTiet, setListChiTiet] = useState([]);
+
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [SanPham_Id, setSanPham_Id] = useState();
+  const [ChiTiet_Id, setChiTiet_Id] = useState();
+
   const [SoLuong, setSoLuong] = useState();
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [File, setFile] = useState("");
@@ -312,6 +316,19 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       });
     }
   };
+  const getChiTiet = (id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(`SanPham/${id}`, "GET", null, "DETAIL", "", resolve, reject)
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListChiTiet(JSON.parse(res.data.chiTiet));
+      } else {
+        setListChiTiet([]);
+      }
+    });
+  };
   /**
    * Lấy thông tin
    *
@@ -464,10 +481,10 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Số lượng sản phẩm",
-      dataIndex: "soLuongSanPham",
+      title: "Số lượng chi tiêt",
       key: "soLuongSanPham",
       align: "center",
+      render: (val) => <span>{val.soLuong / val.dinhMuc}</span>,
     },
     {
       title: "Số lượng theo định mức",
@@ -778,11 +795,11 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       </span>
     );
   const hanldeThem = () => {
-    const params = convertObjectToUrlParams({ sanPham_Id: SanPham_Id });
+    const params = convertObjectToUrlParams({ chiTiet_Id: ChiTiet_Id });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_DinhMucVatTu/bom-by-sanpham?${params}`,
+          `lkn_DinhMucVatTu/bom-by-chi-tiet?${params}`,
           "GET",
           null,
           "LIST",
@@ -809,6 +826,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 tenDonViTinh: ct.tenDonViTinh,
                 tenNhomVatTu: ct.tenNhomVatTu,
                 tenSanPham: res.data.tenSanPham,
+                tenChiTiet: res.data.tenChiTiet,
                 bom_Id: res.data.id,
                 soLuongSanPham: SoLuong,
               };
@@ -830,6 +848,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
               sanPham: {
                 sanPham_Id: "",
                 soLuong: "",
+                chiTiet_Id: "",
               },
             });
             setSanPham_Id();
@@ -884,6 +903,10 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         </Button>
       </>
     );
+  };
+  const hanldeSelectSanPham = (val) => {
+    getChiTiet(val);
+    setSanPham_Id(val);
   };
   return (
     <div className="gx-main-content">
@@ -1230,7 +1253,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                     placeholder="Chọn sản phẩm"
                     optionsvalue={["id", "tenSanPham"]}
                     style={{ width: "100%" }}
-                    onChange={(val) => setSanPham_Id(val)}
+                    onSelect={hanldeSelectSanPham}
                     showSearch
                     optionFilterProp="name"
                     disabled={type === "new" || type === "edit" ? false : true}
@@ -1247,12 +1270,40 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Số lượng sản phẩm"
-                  name={["sanPham", "soLuong"]}
+                  label="Chi tiết"
+                  name={["sanPham", "chiTiet_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                    },
+                  ]}
                 >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListChiTiet ? ListChiTiet : []}
+                    placeholder="Chọn chi tiết"
+                    optionsvalue={["chiTiet_Id", "tenChiTiet"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    onChange={(val) => setChiTiet_Id(val)}
+                    optionFilterProp="name"
+                    disabled={type === "new" || type === "edit" ? false : true}
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem label="Số lượng" name={["sanPham", "soLuong"]}>
                   <Input
                     className="input-item"
-                    placeholder="Nhập số lượng sản phẩm"
+                    placeholder="Nhập số lượng"
                     type="number"
                     onChange={(e) => setSoLuong(e.target.value)}
                     disabled={type === "new" || type === "edit" ? false : true}

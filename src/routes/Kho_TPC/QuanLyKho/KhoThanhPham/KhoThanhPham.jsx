@@ -77,7 +77,7 @@ function KhoVatTu({ history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -186,6 +186,12 @@ function KhoVatTu({ history, permission }) {
       title: "Tên sản phẩm",
       dataIndex: "tenSanPham",
       key: "tenSanPham",
+      align: "center",
+    },
+    {
+      title: "Màu",
+      dataIndex: "tenMauSac",
+      key: "tenMauSac",
       align: "center",
     },
     {

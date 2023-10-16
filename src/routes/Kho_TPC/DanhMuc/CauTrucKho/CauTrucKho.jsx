@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col } from "antd";
+import { Card, Button, Divider, Col, Popover } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty, repeat } from "lodash";
-
+import QRCode from "qrcode.react";
 import {
   ModalDeleteConfirm,
   Table,
@@ -33,7 +33,6 @@ function CauTrucKho({ match, history, permission }) {
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
-
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -106,7 +105,7 @@ function CauTrucKho({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && !item.isUsed
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -206,9 +205,20 @@ function CauTrucKho({ match, history, permission }) {
     },
     {
       title: "Mã Barcode",
-      dataIndex: "maBarcode",
-      key: "maBarcode",
+      dataIndex: "qrCode",
+      key: "qrCode",
       align: "center",
+      render: (value) => (
+        <div id="myqrcode">
+          <Popover content={value}>
+            <QRCode
+              value={value}
+              bordered={false}
+              style={{ width: 50, height: 50 }}
+            />
+          </Popover>
+        </div>
+      ),
     },
     {
       title: "Vị trí",
