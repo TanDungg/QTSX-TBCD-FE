@@ -1,4 +1,8 @@
-import { CheckCircleOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  CheckCircleOutlined,
+  DeleteOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
 import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
@@ -195,15 +199,15 @@ const VatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  const getListPhieuDeNghiCVT = (cauTrucKho_Id, vatTu_Id) => {
+  const getListPhieuDeNghiCVT = (phongBan_Id, ngayYeuCau) => {
     const params = convertObjectToUrlParams({
-      cauTrucKho_Id,
-      vatTu_Id,
+      phongBan_Id,
+      ngayYeuCau,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuXuatKhoVatTu/list-phieu-de-nghi-cap-vat-tu-by-xuong-san-xuat?${params}`,
+          `lkn_PhieuXuatKhoVatTu/list-chua-xuat?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -225,7 +229,7 @@ const VatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&isThanhPham=false`,
           "GET",
           null,
           "DETAIL",
@@ -326,21 +330,22 @@ const VatTuForm = ({ history, match, permission }) => {
           setInfo(res.data);
           getXuong();
           getUserLap(INFO, res.data.userLapPhieu_Id, 1);
+          getListPhieuDeNghiCVT(res.data.xuongSanXuat_Id, res.data.ngayXuatKho);
           setFieldsValue({
             phieuxuatkhovattu: {
               xuongSanXuat_Id: res.data.xuongSanXuat_Id,
-              lot_Id: res.data.lot_Id,
-              ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
-              ngaySanXuat: moment(res.data.ngaySanXuat, "DD/MM/YYYY"),
+              phieuDeNghiCapVatTu_Id: res.data.phieuDeNghiCapVatTu_Id,
+              ngayXuatKho: moment(res.data.ngayXuatKho, "DD/MM/YYYY"),
+              kho_Id: res.data.kho_Id,
+              lyDoXuat: res.data.lyDoXuat,
               userNhan_Id: res.data.userNhan_Id,
               userDuyet_Id: res.data.userDuyet_Id,
-              userKiemTra_Id: res.data.userKiemTra_Id,
+              userPhuTrachBoPhan_Id: res.data.userPhuTrachBoPhan_Id,
             },
           });
-          getListPhieuDeNghiCVT(res.data.xuongSanXuat_Id, res.data.ngaySanXuat);
           const chiTiet =
-            res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
-            JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu);
+            res.data.chiTiet_PhieuXuatKhoVatTus &&
+            JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus);
           const newData =
             chiTiet &&
             chiTiet.map((data) => {
@@ -424,30 +429,57 @@ const VatTuForm = ({ history, match, permission }) => {
     );
   };
 
-  const HandleChonViTri = (record) => {
+  const HandleChonViTri = (record, check) => {
     setActiveModalChonViTri(true);
     setVatTu({
       ...record,
       cauTrucKhoId: CauTrucKho,
+      isCheck: check,
     });
   };
 
   const ThemViTri = (data) => {
-    console.log(data);
+    const newData = listVatTu.map((listvattu) => {
+      if (listvattu.vatTu_Id.toLowerCase() === data.vatTu_Id.toLowerCase()) {
+        return {
+          ...listvattu,
+          ...data,
+        };
+      }
+      return listvattu;
+    });
+    setListVatTu(newData);
   };
 
   const renderLstViTri = (record) => {
     return (
       <div>
-        <Button
-          icon={<CheckCircleOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={() => HandleChonViTri(record)}
-          disabled={!CauTrucKho}
-        >
-          Chọn vị trí
-        </Button>
+        {record.chiTiet_LuuVatTus ? (
+          <div>
+            {record.chiTiet_LuuVatTus.length !== 0 &&
+              record.chiTiet_LuuVatTus.map((vt, index) => (
+                <Tag key={index} style={{ marginRight: 5, color: "#0469B9" }}>
+                  {vt.viTri}
+                </Tag>
+              ))}
+            <EditOutlined
+              style={{ color: "#0469B9" }}
+              onClick={() => {
+                HandleChonViTri(record, true);
+              }}
+            />
+          </div>
+        ) : (
+          <Button
+            icon={<CheckCircleOutlined />}
+            className="th-margin-bottom-0"
+            type="primary"
+            onClick={() => HandleChonViTri(record, false)}
+            disabled={!CauTrucKho}
+          >
+            Chọn vị trí
+          </Button>
+        )}
       </div>
     );
   };
@@ -491,16 +523,22 @@ const VatTuForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Số lượng vật tư",
+      title: "SL vật tư",
       dataIndex: "soLuong",
       key: "soLuong",
       align: "center",
     },
     {
       title: "Vị trí trong kho",
-      key: "soLuong",
+      key: "viTri",
       align: "center",
       render: (record) => renderLstViTri(record),
+    },
+    {
+      title: "Tổng SL kho xuất",
+      dataIndex: "soLuongThucXuat",
+      key: "soLuongThucXuat",
+      align: "center",
     },
     {
       title: "Ghi chú",
@@ -558,9 +596,9 @@ const VatTuForm = ({ history, match, permission }) => {
       render: (record) => renderLstViTri(record),
     },
     {
-      title: "Hạng mục sử dụng",
-      dataIndex: "hangMucSuDung",
-      key: "hangMucSuDung",
+      title: "Tổng SL kho xuất",
+      dataIndex: "soLuongThucXuat",
+      key: "soLuongThucXuat",
       align: "center",
     },
     {
@@ -613,13 +651,13 @@ const VatTuForm = ({ history, match, permission }) => {
     saveData(values.phieuxuatkhovattu);
   };
 
-  const saveAndClose = () => {
+  const saveAndClose = (value) => {
     validateFields()
       .then((values) => {
         if (listVatTu.length === 0) {
           Helpers.alertError("Danh sách vật tư rỗng");
         } else {
-          saveData(values.phieuxuatkhovattu, true);
+          saveData(values.phieuxuatkhovattu, value);
         }
       })
       .catch((error) => {
@@ -632,9 +670,8 @@ const VatTuForm = ({ history, match, permission }) => {
       const newData = {
         ...data,
         ngayXuatKho: data.ngayXuatKho._i,
-        chiTiet_PhieuDeNghiCapVatTus: listVatTu,
+        chiTiet_ChiTietPhieuXuatKhoVatTus: listVatTu,
       };
-
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -747,17 +784,13 @@ const VatTuForm = ({ history, match, permission }) => {
       <span>
         Chi tiết phiếu xuất kho vật tư -{" "}
         <Tag color={"blue"} style={{ fontSize: "14px" }}>
-          {info.maPhieu}
+          {info.MaPhieuXuatKhoVatTu}
         </Tag>
         <Tag color={"blue"} style={{ fontSize: "14px" }}>
           {info.tinhTrang}
         </Tag>
       </span>
     );
-
-  const handleRefeshModal = () => {
-    goBack();
-  };
 
   const handleSelectXuong = (val) => {
     setXuong(val);
@@ -1153,7 +1186,6 @@ const VatTuForm = ({ history, match, permission }) => {
         openModalFS={setActiveModalChonViTri}
         itemData={VatTu}
         ThemViTri={ThemViTri}
-        refesh={handleRefeshModal}
       />
       {/* <AddVatTuModal
         openModal={ActiveModal}

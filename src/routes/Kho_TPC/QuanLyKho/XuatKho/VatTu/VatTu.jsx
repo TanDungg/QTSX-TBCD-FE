@@ -106,64 +106,64 @@ function XuatKhoVatTu({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    // const detailItem =
-    //   (permission &&
-    //     permission.cof &&
-    //     item.userKhoVatTu_Id === INFO.user_Id &&
-    //     item.tinhTrang === "Chưa duyệt") ||
-    //   (permission &&
-    //     permission.cof &&
-    //     item.userKiemTra_Id === INFO.user_Id &&
-    //     item.tinhTrang === "Đã xác nhận bởi Kho vật tư") ||
-    //   (permission &&
-    //     permission.cof &&
-    //     item.userDuyet_Id === INFO.user_Id &&
-    //     item.tinhTrang === "Đã xác nhận bởi Kiểm tra và Kho vật tư") ? (
-    //     <Link
-    //       to={{
-    //         pathname: `${match.url}/${item.id}/xac-nhan`,
-    //         state: { itemData: item, permission },
-    //       }}
-    //       title="Xác nhận"
-    //     >
-    //       <CheckCircleOutlined />
-    //     </Link>
-    //   ) : (
-    //     <span disabled title="Xác nhận">
-    //       <CheckCircleOutlined />
-    //     </span>
-    //   );
-    // const editItem =
-    //   permission && permission.edit && item.tinhTrang === "Chưa duyệt" ? (
-    //     <Link
-    //       to={{
-    //         pathname: `${match.url}/${item.id}/chinh-sua`,
-    //         state: { itemData: item },
-    //       }}
-    //       title="Sửa"
-    //     >
-    //       <EditOutlined />
-    //     </Link>
-    //   ) : (
-    //     <span disabled title="Sửa">
-    //       <EditOutlined />
-    //     </span>
-    //   );
-    // const deleteVal =
-    //   permission && permission.del && item.tinhTrang === "Chưa duyệt"
-    //     ? { onClick: () => deleteItemFunc(item) }
-    //     : { disabled: true };
-    // return (
-    //   <div>
-    //     {detailItem}
-    //     <Divider type="vertical" />
-    //     {editItem}
-    //     <Divider type="vertical" />
-    //     <a {...deleteVal} title="Xóa">
-    //       <DeleteOutlined />
-    //     </a>
-    //   </div>
-    // );
+    const detailItem =
+      (permission &&
+        permission.cof &&
+        item.userKhoVatTu_Id === INFO.user_Id &&
+        item.tinhTrang === "Chưa duyệt") ||
+      (permission &&
+        permission.cof &&
+        item.userKiemTra_Id === INFO.user_Id &&
+        item.tinhTrang === "Đã xác nhận bởi Kho vật tư") ||
+      (permission &&
+        permission.cof &&
+        item.userDuyet_Id === INFO.user_Id &&
+        item.tinhTrang === "Đã xác nhận bởi Kiểm tra và Kho vật tư") ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/xac-nhan`,
+            state: { itemData: item, permission },
+          }}
+          title="Xác nhận"
+        >
+          <CheckCircleOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Xác nhận">
+          <CheckCircleOutlined />
+        </span>
+      );
+    const editItem =
+      permission && permission.edit && item.tinhTrang === "Chưa duyệt" ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/chinh-sua`,
+            state: { itemData: item },
+          }}
+          title="Sửa"
+        >
+          <EditOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Sửa">
+          <EditOutlined />
+        </span>
+      );
+    const deleteVal =
+      permission && permission.del && item.tinhTrang === "Chưa duyệt"
+        ? { onClick: () => deleteItemFunc(item) }
+        : { disabled: true };
+    return (
+      <div>
+        {detailItem}
+        <Divider type="vertical" />
+        {editItem}
+        <Divider type="vertical" />
+        <a {...deleteVal} title="Xóa">
+          <DeleteOutlined />
+        </a>
+      </div>
+    );
   };
 
   /**
@@ -176,8 +176,8 @@ function XuatKhoVatTu({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieu,
-      "phiếu đề nghị mua hàng"
+      item.maPhieuXuatKhoVatTu,
+      "phiếu xuất kho vật tư"
     );
   };
 
@@ -187,7 +187,7 @@ function XuatKhoVatTu({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDeNghiCapVatTu?id=${item.id}`;
+    let url = `lkn_PhieuXuatKhoVatTu?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
