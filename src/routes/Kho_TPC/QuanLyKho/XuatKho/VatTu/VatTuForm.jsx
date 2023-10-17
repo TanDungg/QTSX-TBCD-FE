@@ -27,10 +27,9 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
-import { useLocation, useHistory } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import ModalChonViTri from "./ModalChonViTri";
-// import AddVatTuModal from "./AddVatTuModal";
-// import ModalTuChoi from "./ModalTuChoi";
+import ModalTuChoi from "./ModalTuChoi";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -54,12 +53,12 @@ const VatTuForm = ({ history, match, permission }) => {
   const [ListUser, setListUser] = useState([]);
   const [ActiveModalChonViTri, setActiveModalChonViTri] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
-  const [NgayXuatKho, setNgayXuatKho] = useState(
+  const [NgayYeuCau, setNgayYeuCau] = useState(
     moment(getDateNow(), "DD/MM/YYYY")
   );
   const [PhieuDeNghiCVT, setPhieuDeNghiCVT] = useState([]);
 
-  const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
+  const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
     const load = () => {
@@ -74,7 +73,7 @@ const VatTuForm = ({ history, match, permission }) => {
             setType("new");
             setFieldsValue({
               phieuxuatkhovattu: {
-                ngayXuatKho: moment(getDateNow(), "DD/MM/YYYY"),
+                ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
               },
             });
           } else if (permission && !permission.add) {
@@ -117,12 +116,11 @@ const VatTuForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   const getData = () => {
     getUserKy(INFO);
     getUserLap(INFO, null);
     getXuong();
-    getKho();
+    getListKho();
   };
 
   const getPhieuDeNghiCVT = (id) => {
@@ -158,7 +156,7 @@ const VatTuForm = ({ history, match, permission }) => {
               phieuxuatkhovattu: {
                 phieuDeNghiCapVatTu_Id: res.data.id,
                 xuongSanXuat_Id: res.data.xuongSanXuat_Id,
-                ngayXuatKho: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
+                ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               },
             });
           }
@@ -225,7 +223,7 @@ const VatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  const getKho = () => {
+  const getListKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -330,11 +328,14 @@ const VatTuForm = ({ history, match, permission }) => {
           setInfo(res.data);
           getXuong();
           getUserLap(INFO, res.data.userLapPhieu_Id, 1);
-          getListPhieuDeNghiCVT(res.data.xuongSanXuat_Id, res.data.ngayXuatKho);
+          getListPhieuDeNghiCVT(res.data.xuongSanXuat_Id, res.data.ngayYeuCau);
+          getListKho();
+          setCauTrucKho(res.data.kho_Id);
           setFieldsValue({
             phieuxuatkhovattu: {
               xuongSanXuat_Id: res.data.xuongSanXuat_Id,
               phieuDeNghiCapVatTu_Id: res.data.phieuDeNghiCapVatTu_Id,
+              ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               ngayXuatKho: moment(res.data.ngayXuatKho, "DD/MM/YYYY"),
               kho_Id: res.data.kho_Id,
               lyDoXuat: res.data.lyDoXuat,
@@ -349,10 +350,20 @@ const VatTuForm = ({ history, match, permission }) => {
           const newData =
             chiTiet &&
             chiTiet.map((data) => {
+              const SoLuong = data.chiTiet_LuuVatTus.reduce(
+                (tong, sl) => tong + sl.soLuongThucXuat,
+                0
+              );
+              const lstViTri = data.chiTiet_LuuVatTus.map((vt) => ({
+                ...vt,
+                viTri: `${vt.tenKe}${vt.tenTang ? ` - ${vt.tenTang}` : ""}${
+                  vt.tenNgan ? ` - ${vt.tenNgan}` : ""
+                }`,
+              }));
               return {
                 ...data,
-                soLuongKH: data.soLuongKeHoach,
-                dinhMuc: data.soLuongChiTiet,
+                soLuongThucXuat: SoLuong,
+                chiTiet_LuuVatTus: lstViTri,
               };
             });
           setListVatTu(newData);
@@ -441,14 +452,21 @@ const VatTuForm = ({ history, match, permission }) => {
   const ThemViTri = (data) => {
     const newData = listVatTu.map((listvattu) => {
       if (listvattu.vatTu_Id.toLowerCase() === data.vatTu_Id.toLowerCase()) {
-        return {
-          ...listvattu,
-          ...data,
-        };
+        if (data.soLuongThucXuat <= listvattu.soLuong) {
+          return {
+            ...listvattu,
+            ...data,
+          };
+        } else {
+          Helpers.alertError(
+            "Số lượng xuất không được lớn hơn số lượng yêu cầu"
+          );
+        }
       }
       return listvattu;
     });
     setListVatTu(newData);
+    setFieldTouch(true);
   };
 
   const renderLstViTri = (record) => {
@@ -462,12 +480,16 @@ const VatTuForm = ({ history, match, permission }) => {
                   {vt.viTri}
                 </Tag>
               ))}
-            <EditOutlined
-              style={{ color: "#0469B9" }}
-              onClick={() => {
-                HandleChonViTri(record, true);
-              }}
-            />
+            {type === "detail" || type === "xacnhan" ? null : (
+              <EditOutlined
+                style={{
+                  color: "#0469B9",
+                }}
+                onClick={() => {
+                  HandleChonViTri(record, true);
+                }}
+              />
+            )}
           </div>
         ) : (
           <Button
@@ -533,6 +555,7 @@ const VatTuForm = ({ history, match, permission }) => {
       key: "viTri",
       align: "center",
       render: (record) => renderLstViTri(record),
+      width: 250,
     },
     {
       title: "Tổng SL kho xuất",
@@ -594,6 +617,7 @@ const VatTuForm = ({ history, match, permission }) => {
       key: "soLuong",
       align: "center",
       render: (record) => renderLstViTri(record),
+      width: 250,
     },
     {
       title: "Tổng SL kho xuất",
@@ -624,7 +648,10 @@ const VatTuForm = ({ history, match, permission }) => {
   };
 
   const columns = map(
-    PhieuDeNghiCVT.lot_Id !== null ? colValues : colValuesCapVatTuKhac,
+    info.isLoaiPhieu === true ||
+      (PhieuDeNghiCVT.length !== 0 && PhieuDeNghiCVT.lot_Id !== null)
+      ? colValues
+      : colValuesCapVatTuKhac,
     (col) => {
       if (!col.editable) {
         return col;
@@ -669,7 +696,7 @@ const VatTuForm = ({ history, match, permission }) => {
     if (type === "new" || type === "taophieuxuat") {
       const newData = {
         ...data,
-        ngayXuatKho: data.ngayXuatKho._i,
+        ngayYeuCau: data.ngayYeuCau.format("DD/MM/YYYY"),
         chiTiet_ChiTietPhieuXuatKhoVatTus: listVatTu,
       };
       new Promise((resolve, reject) => {
@@ -704,10 +731,9 @@ const VatTuForm = ({ history, match, permission }) => {
       const newData = {
         ...data,
         id: id,
-        ngayXuatKho: data.ngayXuatKho._i,
-        chiTiet_PhieuDeNghiCapVatTus: listVatTu,
+        ngayYeuCau: data.ngayYeuCau.format("DD/MM/YYYY"),
+        chiTiet_ChiTietPhieuXuatKhoVatTus: listVatTu,
       };
-
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -763,7 +789,7 @@ const VatTuForm = ({ history, match, permission }) => {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận phiếu đề nghị cấp vật tư",
+    title: "Xác nhận phiếu xuất kho vật tư",
     onOk: handleXacNhan,
   };
 
@@ -775,6 +801,10 @@ const VatTuForm = ({ history, match, permission }) => {
     setActiveModalTuChoi(true);
   };
 
+  const handleRefeshModal = () => {
+    goBack();
+  };
+
   const formTitle =
     type === "new" || type === "taophieuxuat" ? (
       "Tạo phiếu xuất kho vật tư "
@@ -784,7 +814,7 @@ const VatTuForm = ({ history, match, permission }) => {
       <span>
         Chi tiết phiếu xuất kho vật tư -{" "}
         <Tag color={"blue"} style={{ fontSize: "14px" }}>
-          {info.MaPhieuXuatKhoVatTu}
+          {info.maPhieuXuatKhoVatTu}
         </Tag>
         <Tag color={"blue"} style={{ fontSize: "14px" }}>
           {info.tinhTrang}
@@ -800,7 +830,7 @@ const VatTuForm = ({ history, match, permission }) => {
       },
     });
     setListVatTu([]);
-    getListPhieuDeNghiCVT(val, NgayXuatKho._i);
+    getListPhieuDeNghiCVT(val, NgayYeuCau._i);
   };
 
   const handleSelectListVatTu = (val) => {
@@ -915,8 +945,8 @@ const VatTuForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Ngày xuất kho"
-                name={["phieuxuatkhovattu", "ngayXuatKho"]}
+                label="Ngày yêu cầu"
+                name={["phieuxuatkhovattu", "ngayYeuCau"]}
                 rules={[
                   {
                     required: true,
@@ -928,7 +958,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   allowClear={false}
                   onChange={(date, dateString) => {
                     getListPhieuDeNghiCVT(Xuong, dateString);
-                    setNgayXuatKho(moment(dateString, "DD/MM/YYYY"));
+                    setNgayYeuCau(moment(dateString, "DD/MM/YYYY"));
                     setListVatTu([]);
                     setFieldsValue({
                       phieuxuatkhovattu: {
@@ -1119,11 +1149,40 @@ const VatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type !== "detail" ? false : true}
+                  disabled={
+                    type === "detail" || type === "xacnhan" ? true : false
+                  }
                 />
               </FormItem>
             </Col>
-            {info.lyDoHuy ? (
+            {info.ngayXuatKho ? (
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Ngày xuất kho"
+                  name={["phieuxuatkhovattu", "ngayXuatKho"]}
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  <DatePicker
+                    format={"DD/MM/YYYY"}
+                    allowClear={false}
+                    disabled
+                  />
+                </FormItem>
+              </Col>
+            ) : null}
+            {info.lyDoTuChoi ? (
               <Col
                 xxl={12}
                 xl={12}
@@ -1137,7 +1196,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   <Input
                     className="input-item"
                     disabled={true}
-                    value={info.lyDoHuy}
+                    value={info.lyDoTuChoi}
                   />
                 </FormItem>
               </Col>
@@ -1148,7 +1207,7 @@ const VatTuForm = ({ history, match, permission }) => {
           <Table
             bordered
             columns={columns}
-            scroll={{ x: 900, y: "55vh" }}
+            scroll={{ x: 1300, y: "55vh" }}
             components={components}
             className="gx-table-responsive"
             dataSource={reDataForTable(listVatTu)}
@@ -1158,7 +1217,7 @@ const VatTuForm = ({ history, match, permission }) => {
             // loading={loading}
           />
         ) : null}
-        {type !== "detail" ? (
+        {type === "new" || type === "edit" || type === "taophieuxuat" ? (
           <FormSubmit
             goBack={goBack}
             handleSave={onFinish}
@@ -1187,17 +1246,12 @@ const VatTuForm = ({ history, match, permission }) => {
         itemData={VatTu}
         ThemViTri={ThemViTri}
       />
-      {/* <AddVatTuModal
-        openModal={ActiveModal}
-        openModalFS={setActiveModal}
-        addVatTu={addVatTu}
-      />
       <ModalTuChoi
         openModal={ActiveModalTuChoi}
         openModalFS={setActiveModalTuChoi}
         itemData={info}
         refesh={handleRefeshModal}
-      /> */}
+      />
     </div>
   );
 };

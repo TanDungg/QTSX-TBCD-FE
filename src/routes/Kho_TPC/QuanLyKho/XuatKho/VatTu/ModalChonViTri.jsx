@@ -5,13 +5,7 @@ import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import { Table } from "src/components/Common";
 
-function ModalChonViTri({
-  openModalFS,
-  openModal,
-  itemData,
-  refesh,
-  ThemViTri,
-}) {
+function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
   const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [ListViTriKho, setListViTriKho] = useState([]);
@@ -53,40 +47,36 @@ function ModalChonViTri({
         const newData = res.data.map((data) => {
           if (itemData.isCheck === true) {
             const vitri = itemData.chiTiet_LuuVatTus.find(
-              (vitri) => data.chiTietKho_Id === vitri.chiTietKho_Id
+              (vitri) =>
+                data.lkn_ChiTietKhoVatTu_Id.toLowerCase() ===
+                vitri.lkn_ChiTietKhoVatTu_Id.toLowerCase()
             );
             if (vitri) {
               return {
                 ...data,
-                viTri: `${data.tenKe}${
-                  data.tenTang ? ` - ${data.tenTang}` : ""
-                }${data.tenNgan ? ` - ${data.tenNgan}` : ""} - (HSD: ${
-                  data.thoiGianSuDung
-                }) - (SL: ${data.soLuong})`,
                 soLuongThucXuat: vitri.soLuongThucXuat,
               };
             }
           }
-
           return {
             ...data,
-            viTri: `${data.tenKe}${data.tenTang ? ` - ${data.tenTang}` : ""}${
-              data.tenNgan ? ` - ${data.tenNgan}` : ""
-            } - (HSD: ${data.thoiGianSuDung}) - (SL: ${data.soLuong})`,
           };
         });
-
         setListViTriKho(newData);
 
         const newSoLuong = {};
         newData.forEach((data) => {
           if (itemData.isCheck === true) {
             const vitri = itemData.chiTiet_LuuVatTus.find(
-              (vitri) => data.chiTietKho_Id === vitri.chiTietKho_Id
+              (vitri) =>
+                data.lkn_ChiTietKhoVatTu_Id.toLowerCase() ===
+                vitri.lkn_ChiTietKhoVatTu_Id.toLowerCase()
             );
-            newSoLuong[data.chiTietKho_Id] = vitri ? vitri.soLuongThucXuat : 0;
+            newSoLuong[data.lkn_ChiTietKhoVatTu_Id] = vitri
+              ? vitri.soLuongThucXuat
+              : 0;
           } else {
-            newSoLuong[data.chiTietKho_Id] = 0;
+            newSoLuong[data.lkn_ChiTietKhoVatTu_Id] = 0;
           }
         });
 
@@ -100,7 +90,8 @@ function ModalChonViTri({
   const renderSoLuongXuat = (record) => {
     if (record) {
       const isEditing =
-        editingRecord && editingRecord.chiTietKho_Id === record.chiTietKho_Id;
+        editingRecord &&
+        editingRecord.lkn_ChiTietKhoVatTu_Id === record.lkn_ChiTietKhoVatTu_Id;
       return (
         <div>
           <Input
@@ -113,7 +104,7 @@ function ModalChonViTri({
             className={`input-item ${
               isEditing && hasError ? "input-error" : ""
             }`}
-            value={(SoLuongXuat && SoLuongXuat[record.chiTietKho_Id]) || 0}
+            value={SoLuongXuat && SoLuongXuat[record.lkn_ChiTietKhoVatTu_Id]}
             type="number"
             // onBlur={(val) => onChangeValue(val, record)}
             onChange={(val) => handleInputChange(val, record)}
@@ -143,11 +134,11 @@ function ModalChonViTri({
     setEditingRecord(record);
     setSoLuongXuat((prevSoLuongXuat) => ({
       ...prevSoLuongXuat,
-      [record.chiTietKho_Id]: sl,
+      [record.lkn_ChiTietKhoVatTu_Id]: sl,
     }));
     setListViTriKho((prevListViTriKho) => {
       return prevListViTriKho.map((item) => {
-        if (record.chiTietKho_Id === item.chiTietKho_Id) {
+        if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
           return {
             ...item,
             soLuongThucXuat: sl ? parseFloat(sl) : 0,
@@ -161,7 +152,7 @@ function ModalChonViTri({
   // const onChangeValue = (val, record) => {
   //   setListViTriKho((prevListViTriKho) => {
   //     return prevListViTriKho.map((item) => {
-  //       if (record.chiTietKho_Id === item.chiTietKho_Id) {
+  //       if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
   //         return {
   //           ...item,
   //           soLuongThucXuat: val.target.value
@@ -257,11 +248,13 @@ function ModalChonViTri({
 
   const handleCancel = () => {
     openModalFS(false);
-    refesh();
   };
 
   const Title = (
-    <span>Chọn vị trí xuất kho của vật tư - {itemData.tenVatTu}</span>
+    <span>
+      Chọn vị trí xuất kho của vật tư - {itemData.tenVatTu} (Số lượng:{" "}
+      {itemData.soLuong})
+    </span>
   );
 
   return (

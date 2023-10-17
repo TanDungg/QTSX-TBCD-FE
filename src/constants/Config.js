@@ -1,5 +1,6 @@
 // export const BASE_URL_API = "https://qlcntt-be.thacoindustries.com";
 export const BASE_URL_API = `http://10.14.7.215:1512`;
+// export const BASE_URL_API = `http://10.14.7.70:8585`;
 // export const BASE_URL_API = `http://localhost`;
 
 export const BASE_URL_APP = `${window.location.origin.toString()}`;
@@ -124,7 +125,7 @@ export const DEFAULT_FORM_DENGHI_CVT = {
         : 7,
     style: {
       fontWeight: "bold",
-      marginLeft: window.innerWidth >= 1600 ? -15 : 0,
+      marginLeft: window.innerWidth > 1400 ? -15 : 0,
     },
   },
   wrapperCol: {
@@ -164,6 +165,37 @@ export const DEFAULT_FORM_DMVT = {
         ? 16
         : window.innerWidth >= 1200
         ? 15
+        : window.innerWidth >= 768
+        ? 17
+        : window.innerWidth >= 576
+        ? 16
+        : 17,
+  },
+};
+
+export const DEFAULT_FORM_DIEUCHUYEN_THANHLY = {
+  labelCol: {
+    span:
+      window.innerWidth >= 1600
+        ? 6
+        : window.innerWidth >= 1200
+        ? 8
+        : window.innerWidth >= 768
+        ? 6
+        : window.innerWidth >= 576
+        ? 8
+        : 7,
+    style: {
+      fontWeight: "bold",
+      marginLeft: window.innerWidth > 1400 ? -15 : 0,
+    },
+  },
+  wrapperCol: {
+    span:
+      window.innerWidth >= 1600
+        ? 17
+        : window.innerWidth >= 1200
+        ? 16
         : window.innerWidth >= 768
         ? 17
         : window.innerWidth >= 576
