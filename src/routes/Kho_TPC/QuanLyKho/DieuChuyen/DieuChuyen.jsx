@@ -121,24 +121,8 @@ function DieuChuyen({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const detailItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <EyeOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
-        </span>
-      );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
+      permission && permission.edit ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -154,13 +138,11 @@ function DieuChuyen({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {detailItem}
-        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -180,8 +162,8 @@ function DieuChuyen({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuYeuCau,
-      "phiếu đặt hàng nội bộ"
+      item.maPhieuDieuChuyen,
+      "phiếu điều chuyển"
     );
   };
 
@@ -191,7 +173,7 @@ function DieuChuyen({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDatHangNoiBo/${item.id}`;
+    let url = `lkn_PhieuDieuChuyen/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -225,7 +207,9 @@ function DieuChuyen({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
+
   const handlePrint = () => {};
+
   const addButtonRender = () => {
     return (
       <>
@@ -238,7 +222,7 @@ function DieuChuyen({ match, history, permission }) {
         >
           Tạo phiếu
         </Button>
-        <Button
+        {/* <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -246,11 +230,11 @@ function DieuChuyen({ match, history, permission }) {
           disabled={permission && !permission.print}
         >
           In phiếu
-        </Button>
+        </Button> */}
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(
     data.datalist,
@@ -265,10 +249,10 @@ function DieuChuyen({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuYeuCau}
+          {val.maPhieuDieuChuyen}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuYeuCau}</span>
+        <span disabled>{val.maPhieuDieuChuyen}</span>
       );
     return <div>{detail}</div>;
   };
@@ -282,26 +266,26 @@ function DieuChuyen({ match, history, permission }) {
     },
     {
       title: "Mã phiếu điều chuyển",
-      key: "maPhieuYeuCau",
+      key: "maPhieuDieuChuyen",
       align: "center",
       render: (val) => renderDetail(val),
     },
     {
       title: "Kho điều chuyển",
-      dataIndex: "ngayXuat",
-      key: "ngayXuat",
+      dataIndex: "tenKhoDi",
+      key: "tenKhoDi",
       align: "center",
     },
     {
       title: "Kho nhận",
-      dataIndex: "tenPhongBan",
-      key: "tenPhongBan",
+      dataIndex: "tenKhoDen",
+      key: "tenKhoDen",
       align: "center",
     },
     {
-      title: "Ngày điều chuyển",
-      dataIndex: "kho",
-      key: "kho",
+      title: "Ngày yêu cầu",
+      dataIndex: "ngayYeuCau",
+      key: "ngayYeuCau",
       align: "center",
     },
     {
@@ -310,7 +294,6 @@ function DieuChuyen({ match, history, permission }) {
       key: "tenNguoiLap",
       align: "center",
     },
-
     {
       title: "Chức năng",
       key: "action",
