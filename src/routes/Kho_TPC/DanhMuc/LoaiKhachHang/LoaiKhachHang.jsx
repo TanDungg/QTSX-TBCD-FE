@@ -111,7 +111,12 @@ function LoaiKhachHang({ history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item);
+    ModalDeleteConfirm(
+      deleteItemAction,
+      item,
+      item.maLoaiKhachHang,
+      "loại khách hàng"
+    );
   };
 
   /**

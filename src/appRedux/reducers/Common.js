@@ -11,7 +11,6 @@ import {
   FETCH_RESET_ITEM,
   WINDOW_WIDTH,
   TOGGLE_COLLAPSED_NAV,
-  GET_APP_NAME,
 } from "src/constants/ActionTypes";
 import Helper from "src/helpers";
 import { messages } from "src/constants/Messages";
@@ -48,7 +47,6 @@ export default (state = INIT_STATE, action) => {
     case TOGGLE_COLLAPSED_NAV: {
       return state.set("navCollapsed", action.navCollapsed);
     }
-
     case FETCH_START: {
       if (apiType === "ADD" || apiType === "EDIT") {
         return state
@@ -85,14 +83,6 @@ export default (state = INIT_STATE, action) => {
         responseStatus === 201 ||
         responseStatus === 204
       ) {
-        if (apiType === "DETAIL") {
-          return state
-            .set("error", "")
-            .set("message", "")
-            .set("loading", false)
-            .set("item", fromJS(action.data))
-            .set("reset", false);
-        }
         if (apiType === "LIST") {
           if (action.getName) {
             let setValue = {};
@@ -115,10 +105,9 @@ export default (state = INIT_STATE, action) => {
           }
         }
         let customMessage;
-        if (!isEmpty(action.data) && typeof action.data.trim() === "string") {
+        if (!isEmpty(action.data) && typeof action.data === "string") {
           customMessage = action.data;
         }
-
         if (apiType === "ADD") {
           // Message thêm mới
           if (customMessage) Helper.alertSuccessMessage(customMessage);
@@ -150,33 +139,12 @@ export default (state = INIT_STATE, action) => {
             .set("loadingSave", false)
             .set("reset", false);
         }
-        if (apiType === "EDITQUYTRINH") {
-          if (customMessage) Helper.alertSuccessMessage(customMessage);
-          else Helper.alertSuccessMessage(messages.QUY_TRINH_THANH_CONG);
-          return state
-            .set("message", messages.QUY_TRINH_THANH_CONG)
-            .set("customMessage", customMessage)
-            .set("loading", false)
-            .set("loadingSave", false)
-            .set("reset", false);
-        }
         if (apiType === "XACNHAN") {
           // Message thêm mới
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.XAC_NHAN_THANH_CONG);
           return state
             .set("message", messages.XAC_NHAN_THANH_CONG)
-            .set("customMessage", customMessage)
-            .set("loading", false)
-            .set("loadingSave", false)
-            .set("reset", false);
-        }
-        if (apiType === "TUCHOI") {
-          // Message thêm mới
-          if (customMessage) Helper.alertSuccessMessage(customMessage);
-          else Helper.alertSuccessMessage(messages.TU_CHOI_THANH_CONG);
-          return state
-            .set("message", messages.TU_CHOI_THANH_CONG)
             .set("customMessage", customMessage)
             .set("loading", false)
             .set("loadingSave", false)
@@ -258,6 +226,14 @@ export default (state = INIT_STATE, action) => {
             .set("loadingSave", false)
             .set("reset", false);
         }
+        if (apiType === "DETAIL") {
+          return state
+            .set("error", "")
+            .set("message", "")
+            .set("loading", false)
+            .set("item", fromJS(action.data))
+            .set("reset", false);
+        }
         if (apiType === "XUATKHO") {
           // Message xuất kho
           return state
@@ -301,6 +277,16 @@ export default (state = INIT_STATE, action) => {
           } else Helper.alertSuccessMessage(messages.EDIT_ROLE_SUCCESS);
           return state
             .set("message", messages.EDIT_ROLE_SUCCESS)
+            .set("customMessage", customMessage)
+            .set("loading", false)
+            .set("loadingSave", false)
+            .set("reset", false);
+        }
+        if (apiType === "EDITQUYTRINH") {
+          if (customMessage) Helper.alertSuccessMessage(customMessage);
+          else Helper.alertSuccessMessage(messages.QUY_TRINH_THANH_CONG);
+          return state
+            .set("message", messages.QUY_TRINH_THANH_CONG)
             .set("customMessage", customMessage)
             .set("loading", false)
             .set("loadingSave", false)

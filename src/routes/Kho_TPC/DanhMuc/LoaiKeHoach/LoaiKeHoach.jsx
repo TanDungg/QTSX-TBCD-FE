@@ -85,8 +85,8 @@ function LoaiKeHoach({ match, permission, history }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "đơn vị tính";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenlkn_LoaiKeHoach, title);
+    const title = "loại kế hoạch";
+    ModalDeleteConfirm(deleteItemAction, item, item.maLoaiKeHoach, title);
   };
 
   /**

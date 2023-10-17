@@ -39,6 +39,8 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
       .then((res) => {
         if (res && res.data) {
           setListVatTu(res.data);
+        } else {
+          setListVatTu([]);
         }
       })
       .catch((error) => console.error(error));

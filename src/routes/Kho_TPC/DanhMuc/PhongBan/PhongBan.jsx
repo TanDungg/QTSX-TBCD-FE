@@ -82,7 +82,7 @@ function PhongBan({ permission, history }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "phòng";
+    const title = "Ban/Phòng";
     ModalDeleteConfirm(deleteItemAction, item, item.tenPhongBan, title);
   };
 

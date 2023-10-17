@@ -31,7 +31,6 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
-import AddVatTuModal from "./AddVatTuModal";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -126,7 +125,7 @@ const EditableCell = ({
 
 const FormItem = Form.Item;
 
-const DinhMucTonKhoForm = ({ history, match, permission }) => {
+const ChuyenQuyTrinhForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = {
     ...getLocalStorage("menu"),
@@ -138,7 +137,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
-  const [ListDinhMucTonKho, setListDinhMucTonKho] = useState([]);
+  const [ListLot, setListLot] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [listVatTuForm, setListVatTuForm] = useState([]);
@@ -153,7 +152,6 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
           getUserLap(INFO);
           setType("new");
           getXuong();
-          getLoaiDinhMucTonKho();
           setFieldsValue({
             dinhmuctonkho: {
               ngayNhap: moment(getDateNow(), "DD/MM/YYYY"),
@@ -169,7 +167,6 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
           setId(id);
           getXuong();
           getInfo(id);
-          getLoaiDinhMucTonKho();
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -178,7 +175,6 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
           setType("detail");
           const { id } = match.params;
           setId(id);
-          getLoaiDinhMucTonKho();
           getInfo(id);
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -220,14 +216,14 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
       }
     });
   };
-  const getLoaiDinhMucTonKho = () => {
+  const getLot = (Lkn_QuyTrinhSX_Id) => {
     const params = convertObjectToUrlParams({
-      page: -1,
+      Lkn_QuyTrinhSX_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `LoaiDinhMucTonKho?${params}`,
+          `lkn_PhieuChuyenQuyTrinhSX/list-chi-tiet-by-lotid?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -238,9 +234,9 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListDinhMucTonKho(res.data);
+        setListLot(res.data);
       } else {
-        setListDinhMucTonKho([]);
+        setListLot([]);
       }
     });
   };
@@ -273,29 +269,17 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
   const getXuong = () => {
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
+        fetchStart(`lkn_QuyTrinhSX`, "GET", null, "DETAIL", "", resolve, reject)
       );
-    }).then((res) => {
-      if (res && res.data) {
-        const xuong = [];
-        res.data.forEach((x) => {
-          if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
-            xuong.push(x);
-          }
-        });
-        setListXuong(xuong);
-      } else {
-        setListXuong([]);
-      }
-    });
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListXuong(res.data);
+        } else {
+          setListXuong([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
   const getVatTu = () => {
     const params = convertObjectToUrlParams({ page: -1 });
@@ -423,37 +407,44 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
       title: "STT",
       dataIndex: "key",
       key: "key",
+      align: "center",
       width: 45,
+    },
+    {
+      title: "Sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       align: "center",
     },
     {
-      title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      title: "Mã chi tiết",
+      dataIndex: "maChiTiet",
+      key: "maChiTiet",
       align: "center",
     },
     {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      title: "Chi tiết",
+      dataIndex: "tenChiTiet",
+      key: "tenChiTiet",
       align: "center",
     },
     {
-      title: "SL tồn kho tối thiểu",
-      dataIndex: "slTonKhoToiThieu",
-      key: "slTonKhoToiThieu",
+      title: "Số Lot",
+      dataIndex: "soLot",
+      key: "soLot",
+      align: "center",
+    },
+
+    {
+      title: "Số lượng",
+      dataIndex: "SoLuong",
+      key: "SoLuong",
       align: "center",
     },
     {
-      title: "SL tồn kho tối đa",
-      dataIndex: "slTonKhoToiDa",
-      key: "slTonKhoToiDa",
-      align: "center",
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "ghiChu",
-      key: "ghiChu",
+      title: "Công đoạn",
+      dataIndex: "tenQuyTrinhSX",
+      key: "tenQuyTrinhSX",
       align: "center",
     },
     {
@@ -605,7 +596,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
     !check && setListVatTu([...listVatTu, vatTus]);
   };
   const hanldeSelectXuong = (val) => {
-    getKho(val);
+    getLot(val);
     setFieldsValue({
       dinhmuctonkho: {
         cauTrucKho_Id: null,
@@ -614,12 +605,12 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
   };
   const formTitle =
     type === "new" ? (
-      "Thêm mới định mức tồn kho "
+      "Tạo phiếu chuyển công đoạn"
     ) : type === "edit" ? (
-      "Chỉnh sửa định mức tồn kho"
+      "Chỉnh sửa phiếu chuyển công đoạn"
     ) : (
       <span>
-        Chi tiết định mức tồn kho -{" "}
+        Chi tiết phiếu chuyển công đoạn -{" "}
         <Tag color={info.isXacNhan === true ? "success" : "blue"}>
           {info.maPhieuYeuCau}
         </Tag>
@@ -688,7 +679,38 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
                 <Input className="input-item" disabled={true} />
               </FormItem>
             </Col>
-
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Ngày lập"
+                name={["dinhmuctonkho", "ngayNhap"]}
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <DatePicker
+                  format={"DD/MM/YYYY"}
+                  allowClear={false}
+                  onChange={(date, dateString) => {
+                    setFieldsValue({
+                      dinhmuctonkho: {
+                        ngayNhap: moment(dateString, "DD/MM/YYYY"),
+                      },
+                    });
+                  }}
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
             <Col
               xxl={12}
               xl={12}
@@ -731,7 +753,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Kho"
+                label="Lot"
                 name={["dinhmuctonkho", "cauTrucKho_Id"]}
                 rules={[
                   {
@@ -742,9 +764,9 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListKho}
-                  placeholder="Chọn kho"
-                  optionsvalue={["id", "tenCTKho"]}
+                  data={ListLot}
+                  placeholder="Chọn Lot"
+                  optionsvalue={["id", "soLot"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -752,197 +774,6 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Loại định mức"
-                name={["dinhmuctonkho", "loaiDinhMucTonKho_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListDinhMucTonKho ? ListDinhMucTonKho : []}
-                  optionsvalue={["id", "tenLoaiDinhMucTonKho"]}
-                  style={{ width: "100%" }}
-                  placeholder="Loại định mức"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Ngày lập"
-                name={["dinhmuctonkho", "ngayNhap"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <DatePicker
-                  format={"DD/MM/YYYY"}
-                  allowClear={false}
-                  onChange={(date, dateString) => {
-                    setFieldsValue({
-                      dinhmuctonkho: {
-                        ngayNhap: moment(dateString, "DD/MM/YYYY"),
-                      },
-                    });
-                  }}
-                  disabled={true}
-                />
-              </FormItem>
-            </Col>
-            {type === "edit" && (
-              <>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Vật tư"
-                    name={["dinhmuctonkho", "vatTu_Id"]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={listVatTuForm}
-                      optionsvalue={["id", "tenVatTu"]}
-                      style={{ width: "100%" }}
-                      placeholder="Vật tư"
-                      disabled={type === "edit" ? false : true}
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="SL tồn kho tối thiểu"
-                    name={["dinhmuctonkho", "slTonKhoToiThieu"]}
-                    rules={[
-                      {
-                        required: true,
-                      },
-                      {
-                        pattern: /^[1-9]\d*$/,
-                        message: "Số lượng phải lớn hơn 0",
-                      },
-                    ]}
-                  >
-                    <Input
-                      type="number"
-                      placeholder="SL tồn kho tối thiểu"
-                    ></Input>
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="SL tồn kho tối đa"
-                    name={["dinhmuctonkho", "slTonKhoToiDa"]}
-                    rules={[
-                      {
-                        required: true,
-                      },
-                      {
-                        pattern: /^[1-9]\d*$/,
-                        message: "Số lượng phải lớn hơn 0",
-                      },
-                    ]}
-                  >
-                    <Input
-                      type="number"
-                      placeholder="SL tồn kho tối đa"
-                    ></Input>
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Ghi chú"
-                    name={["dinhmuctonkho", "ghiChu"]}
-                    rules={[
-                      {
-                        type: "string",
-                      },
-                    ]}
-                  >
-                    <Input placeholder="Ghi chú"></Input>
-                  </FormItem>
-                </Col>
-              </>
-            )}
-            {type === "new" ? (
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-                align="center"
-              >
-                <Button
-                  icon={<PlusOutlined />}
-                  type="primary"
-                  onClick={hanldeThem}
-                >
-                  Thêm
-                </Button>
-              </Col>
-            ) : null}
           </Row>
           {type === "new" && <Divider />}
         </Form>
@@ -970,13 +801,8 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
           />
         ) : null}
       </Card>
-      <AddVatTuModal
-        openModal={ActiveModal}
-        openModalFS={setActiveModal}
-        addVatTu={addVatu}
-      />
     </div>
   );
 };
 
-export default DinhMucTonKhoForm;
+export default ChuyenQuyTrinhForm;
