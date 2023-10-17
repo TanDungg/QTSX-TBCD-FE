@@ -528,6 +528,68 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       }),
     };
   });
+  let renderChiTiet = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 45,
+    },
+    {
+      title: "Mã chi tiết",
+      dataIndex: "maChiTiet",
+      key: "maChiTiet",
+      align: "center",
+    },
+    {
+      title: "Tên chi tiết",
+      dataIndex: "tenChiTiet",
+      key: "tenChiTiet",
+      align: "center",
+    },
+    {
+      title: "Đơn vị tính",
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
+      align: "center",
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "soLuongChiTiet",
+      key: "soLuongChiTiet",
+      align: "center",
+    },
+    {
+      title: "Kích thước",
+      dataIndex: "kichThuoc",
+      key: "kichThuoc",
+      align: "center",
+    },
+    // {
+    //   title: "Chức năng",
+    //   key: "action",
+    //   align: "center",
+    //   width: 100,
+    //   render: (value) => actionContentChiTiet(value),
+    // },
+  ];
+
+  const columnChilden = map(renderChiTiet, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
   /**
    * Khi submit
    *
@@ -555,7 +617,17 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     if (type === "new") {
       const newData = {
         ...nhapkho,
-        chiTiet_PhieuNhapKhoThanhPhams: ListSanPham,
+        chiTiet_PhieuNhapKhoThanhPhams: ListSanPham.map((tp) => {
+          return {
+            ...tp,
+            lst_ChiTiets: JSON.parse(tp.chiTiet).map((ct) => {
+              return {
+                lkn_ChiTiet_Id: ct.chiTiet_Id,
+                soLuongNhap: ct.soLuongChiTiet,
+              };
+            }),
+          };
+        }),
         ngaySanXuat: nhapkho.ngaySanXuat._i,
         ngayNhap: nhapkho.ngayNhap._i,
       };
@@ -882,6 +954,24 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
+          expandable={{
+            expandedRowRender: (record) => (
+              <Table
+                style={{ marginLeft: "80px", width: "80%" }}
+                bordered
+                columns={columnChilden}
+                scroll={{ x: 500 }}
+                components={components}
+                className="gx-table-responsive th-F1D065-head"
+                dataSource={reDataForTable(JSON.parse(record.chiTiet))}
+                size="small"
+                rowClassName={"editable-row"}
+                // loading={loading}
+                pagination={false}
+              />
+            ),
+            rowExpandable: (record) => record.name !== "Not Expandable",
+          }}
         />
         {type === "new" || type === "edit" ? (
           <FormSubmit

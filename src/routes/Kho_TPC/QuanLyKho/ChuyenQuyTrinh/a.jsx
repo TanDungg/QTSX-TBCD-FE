@@ -1,32 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Row, Col, Divider, DatePicker } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  CheckCircleOutlined,
-} from "@ant-design/icons";
+import { Card, Button, Row, Col } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { map } from "lodash";
-import {
-  Table,
-  EditableTableRow,
-  Select,
-  ModalDeleteConfirm,
-} from "src/components/Common";
+import { Table, EditableTableRow, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { Link } from "react-router-dom";
 import {
   convertObjectToUrlParams,
   reDataForTable,
   getLocalStorage,
   getTokenInfo,
-  getDateNow,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import moment from "moment";
-const { RangePicker } = DatePicker;
-
 const { EditableRow, EditableCell } = EditableTableRow;
 function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
@@ -36,9 +21,8 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const [ListXuong, setListXuong] = useState([]);
   const [XuongSanXuat, setXuongSanXuat] = useState(null);
   const [SoLot, setSoLot] = useState();
-  const [page, setPage] = useState(1);
-  const [FromDate, setFromDate] = useState(getDateNow(7));
-  const [ToDate, setToDate] = useState(getDateNow());
+  const [SelectedDNCVT, setSelectedDNCVT] = useState(null);
+  const [SelectedKeys, setSelectedKeys] = useState(null);
   useEffect(() => {
     if (permission && permission.view) {
       getXuongSanXuat();
@@ -53,17 +37,14 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (Lkn_QuyTrinhSX_Id, tuNgay, denNgay, isNhap, page) => {
+  const getListData = (Lkn_QuyTrinhSX_Id, Lot_Id) => {
     const param = convertObjectToUrlParams({
       Lkn_QuyTrinhSX_Id,
-      tuNgay,
-      denNgay,
-      isNhap,
-      page,
+      Lot_Id,
     });
     dispatch(
       fetchStart(
-        `lkn_PhieuChuyenQuyTrinhSX/nhap-xuat-chi-tiet?${param}`,
+        `lkn_PhieuChuyenQuyTrinhSX/list-chi-tiet-by-lotid?${param}`,
         "GET",
         null,
         "LIST"
@@ -81,7 +62,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
         if (res && res.data) {
           setListXuong(res.data);
           setXuongSanXuat(res.data[0].id);
-          getListData(res.data[0].id, FromDate, ToDate, true, page);
+          getListData(res.data[0].id, SoLot);
         } else {
           setListXuong([]);
         }
@@ -135,114 +116,10 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   };
 
   let dataList = reDataForTable(
-    data.datalist
+    data
     // page === 1 ? page : pageSize * (page - 1) + 2
   );
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const detailItem =
-      permission && permission.cof && !item.isXacNhan ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.maPhieuChuyenQuyTrinhSX}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <CheckCircleOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <CheckCircleOutlined />
-        </span>
-      );
-    const editItem =
-      permission && permission.edit && !item.isXacNhan ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.maPhieuChuyenQuyTrinhSX}/chinh-sua`,
-            state: { itemData: item },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
-    const deleteVal =
-      permission && !item.isXacNhan
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        {detailItem}
-        <Divider type="vertical" />
-        {editItem}
-        <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa">
-          <DeleteOutlined />
-        </a>
-      </div>
-    );
-  };
 
-  /**
-   * deleteItemFunc: Xoá item theo item
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maPhieuChuyenQuyTrinhSX,
-      "phiếu chuyển công đoạn"
-    );
-  };
-
-  /**
-   * Xóa item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    let url = `lkn_PhieuChuyenQuyTrinhSX?id=${item.id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        // Reload lại danh sách
-        if (res.status !== 409) {
-          getListData(XuongSanXuat, SoLot);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  const renderDetail = (val) => {
-    const detail =
-      permission && permission.view ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${val.maPhieuChuyenQuyTrinhSX}/chi-tiet`,
-            state: { itemData: val, permission },
-          }}
-        >
-          {val.maPhieuChuyenQuyTrinhSX}
-        </Link>
-      ) : (
-        <span disabled>{val.maPhieuChuyenQuyTrinhSX}</span>
-      );
-    return <div>{detail}</div>;
-  };
   let renderHead = [
     {
       title: "STT",
@@ -252,15 +129,21 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu",
-      key: "maPhieuChuyenQuyTrinhSX",
-      align: "center",
-      render: (val) => renderDetail(val),
-    },
-    {
       title: "Sản phẩm",
       dataIndex: "tenSanPham",
       key: "tenSanPham",
+      align: "center",
+    },
+    {
+      title: "Mã chi tiết",
+      dataIndex: "maChiTiet",
+      key: "maChiTiet",
+      align: "center",
+    },
+    {
+      title: "Chi tiết",
+      dataIndex: "tenChiTiet",
+      key: "tenChiTiet",
       align: "center",
     },
     {
@@ -269,30 +152,18 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       key: "soLot",
       align: "center",
     },
+
     {
-      title: "Ngày chuyển",
-      dataIndex: "ngayYeuCau",
-      key: "ngayYeuCau",
+      title: "Số lượng",
+      dataIndex: "SoLuong",
+      key: "SoLuong",
       align: "center",
     },
     {
-      title: "Xưởng chuyển",
-      dataIndex: "lkn_TenQuyTrinhSXBegin",
-      key: "lkn_TenQuyTrinhSXBegin",
+      title: "Công đoạn",
+      dataIndex: "tenQuyTrinhSX",
+      key: "tenQuyTrinhSX",
       align: "center",
-    },
-    {
-      title: "Xưởng đến",
-      dataIndex: "lkn_TenQuyTrinhSXEnd",
-      key: "lkn_TenQuyTrinhSXEnd",
-      align: "center",
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
     },
   ];
 
@@ -320,15 +191,14 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
 
   const handleOnSelectXuongSanXuat = (value) => {
     setXuongSanXuat(value);
-    setPage(1);
-    getListData(value, FromDate, ToDate, true, 1);
+    getListData(value, SoLot);
     getSoLot(value);
   };
 
   const handleClearXuongSanXuat = () => {
     setXuongSanXuat(null);
     setListSoLot([]);
-    getListData(null, FromDate, ToDate, true, 1);
+    getListData(null, SoLot);
   };
   const handleOnSelectSoLot = (value) => {
     setSoLot(value);
@@ -338,12 +208,6 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const handleClearSoLot = () => {
     setSoLot(null);
     getListData(XuongSanXuat, null);
-  };
-  const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
-    setPage(1);
-    getListData(XuongSanXuat, dateString[0], dateString[1], true, 1);
   };
   return (
     <div className="gx-main-content">
@@ -379,19 +243,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
               onClear={handleClearXuongSanXuat}
             />
           </Col>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Ngày:</h5>
-            <RangePicker
-              format={"DD/MM/YYYY"}
-              onChange={(date, dateString) => handleChangeNgay(dateString)}
-              defaultValue={[
-                moment(FromDate, "DD/MM/YYYY"),
-                moment(ToDate, "DD/MM/YYYY"),
-              ]}
-              allowClear={false}
-            />
-          </Col>
-          {/* <Col
+          <Col
             xxl={6}
             xl={8}
             lg={12}
@@ -415,7 +267,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
               allowClear
               onClear={handleClearSoLot}
             />
-          </Col> */}
+          </Col>
         </Row>
         <Table
           bordered
@@ -433,6 +285,27 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
             total: dataList.length,
             showSizeChanger: false,
             showQuickJumper: true,
+          }}
+          rowSelection={{
+            type: "radio",
+            selectedRowKeys: SelectedKeys ? [SelectedKeys] : [],
+            onChange: (selectedRowKeys, selectedRows) => {
+              setSelectedDNCVT(selectedRows[0]);
+              setSelectedKeys(selectedRows[0].key);
+            },
+          }}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (e) => {
+                if (SelectedKeys === record.key) {
+                  setSelectedDNCVT(null);
+                  setSelectedKeys(null);
+                } else {
+                  setSelectedDNCVT(record);
+                  setSelectedKeys(record.key);
+                }
+              },
+            };
           }}
           loading={loading}
         />
