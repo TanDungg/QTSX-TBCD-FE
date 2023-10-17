@@ -35,18 +35,19 @@ function DieuChuyen({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [page, setPage] = useState(1);
-  const [keyword, setKeyword] = useState("");
-  const [selectedDevice, setSelectedDevice] = useState([]);
+  const [ListBanPhong, setListBanPhong] = useState([]);
+  const [BanPhong, setBanPhong] = useState(null);
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
+  const [keyword, setKeyword] = useState("");
+  const [page, setPage] = useState(1);
+  const [selectedDevice, setSelectedDevice] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [ListBanPhong, setListBanPhong] = useState([]);
-  const [BanPhong, setBanPhong] = useState("");
+
   useEffect(() => {
     if (permission && permission.view) {
       getBanPhong();
-      loadData(keyword, BanPhong, FromDate, ToDate, page);
+      getListData(keyword, BanPhong, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -59,17 +60,18 @@ function DieuChuyen({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const getListData = (keyword, phongBanId, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
       phongBanId,
+      donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
       keyword,
       page,
-      donVi_Id: INFO.donVi_Id,
     });
-    dispatch(fetchStart(`lkn_PhieuDatHangNoiBo?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`lkn_PhieuDieuChuyen?${param}`, "GET", null, "LIST"));
   };
+
   const getBanPhong = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -98,7 +100,7 @@ function DieuChuyen({ match, history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, BanPhong, FromDate, ToDate, page);
+    getListData(keyword, BanPhong, FromDate, ToDate, page);
   };
 
   /**
@@ -109,7 +111,7 @@ function DieuChuyen({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, BanPhong, FromDate, ToDate, page);
+      getListData(val.target.value, BanPhong, FromDate, ToDate, page);
     }
   };
   /**
@@ -196,7 +198,7 @@ function DieuChuyen({ match, history, permission }) {
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, BanPhong, FromDate, ToDate, page);
+          getListData(keyword, BanPhong, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -210,7 +212,7 @@ function DieuChuyen({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, BanPhong, FromDate, ToDate, pagination);
+    getListData(keyword, BanPhong, FromDate, ToDate, pagination);
   };
 
   /**
@@ -251,8 +253,8 @@ function DieuChuyen({ match, history, permission }) {
   const { totalRow, totalPage, pageSize } = data;
 
   let dataList = reDataForTable(
-    data.datalist
-    // page === 1 ? page : pageSize * (page - 1) + 2
+    data.datalist,
+    page === 1 ? page : pageSize * (page - 1) + 2
   );
   const renderDetail = (val) => {
     const detail =
@@ -364,18 +366,18 @@ function DieuChuyen({ match, history, permission }) {
   const handleOnSelectBanPhong = (val) => {
     setBanPhong(val);
     setPage(1);
-    loadData(keyword, val, FromDate, ToDate, 1);
+    getListData(keyword, val, FromDate, ToDate, 1);
   };
   const handleClearBanPhong = (val) => {
     setBanPhong("");
     setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
+    getListData(keyword, "", FromDate, ToDate, 1);
   };
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    getListData(keyword, BanPhong, dateString[0], dateString[1], 1);
   };
   return (
     <div className="gx-main-content">

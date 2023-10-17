@@ -109,16 +109,16 @@ function XuatKhoVatTu({ match, history, permission }) {
     const detailItem =
       (permission &&
         permission.cof &&
-        item.userKhoVatTu_Id === INFO.user_Id &&
-        item.tinhTrang === "Chưa duyệt") ||
-      (permission &&
-        permission.cof &&
-        item.userKiemTra_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác nhận bởi Kho vật tư") ||
+        item.userNhan_Id === INFO.user_Id &&
+        item.tinhTrang === "Đã xác nhận bởi Phụ trách bộ phận") ||
       (permission &&
         permission.cof &&
         item.userDuyet_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác nhận bởi Kiểm tra và Kho vật tư") ? (
+        item.tinhTrang === "Đã xác nhận bởi Phụ trách bộ phận") ||
+      (permission &&
+        permission.cof &&
+        item.userPhuTrachBoPhan_Id === INFO.user_Id &&
+        item.tinhTrang === "Chưa duyệt") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -228,7 +228,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuDeNghiCapVatTu/${SelectedDNCVT.id}?${params}`,
+          `lkn_PhieuXuatKhoVatTu/${SelectedDNCVT.id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -242,16 +242,15 @@ function XuatKhoVatTu({ match, history, permission }) {
         if (res && res.data) {
           const newData = {
             ...res.data,
-            nguoiNhanHang: res.data.userLapPhieu,
             boPhan: res.data.tenPhongBan,
-            lstpdncvtct:
-              res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
-              JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu),
+            lstpxkvtct:
+              res.data.chiTiet_PhieuXuatKhoVatTus &&
+              JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus),
           };
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `lkn_PhieuDeNghiCapVatTu/export-pdf`,
+                `lkn_PhieuXuatKhoVatTu/export-pdf`,
                 "POST",
                 newData,
                 "",

@@ -6,6 +6,7 @@ import {
   DeleteOutlined,
   CheckCircleOutlined,
   PrinterOutlined,
+  ExportOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -299,7 +300,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           In phiếu
         </Button>
         <Button
-          icon={<PrinterOutlined />}
+          icon={<ExportOutlined />}
           className="th-margin-bottom-0"
           type="primary"
           onClick={handleTaoPhieuXuat}
@@ -310,7 +311,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(
     data.datalist
