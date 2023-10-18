@@ -106,7 +106,6 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
             }`}
             value={SoLuongXuat && SoLuongXuat[record.lkn_ChiTietKhoVatTu_Id]}
             type="number"
-            // onBlur={(val) => onChangeValue(val, record)}
             onChange={(val) => handleInputChange(val, record)}
           />
           {isEditing && hasError && (
@@ -148,23 +147,6 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       });
     });
   };
-
-  // const onChangeValue = (val, record) => {
-  //   setListViTriKho((prevListViTriKho) => {
-  //     return prevListViTriKho.map((item) => {
-  //       if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
-  //         return {
-  //           ...item,
-  //           soLuongThucXuat: val.target.value
-  //             ? parseFloat(val.target.value)
-  //             : 0,
-  //         };
-  //       }
-  //       return item;
-  //     });
-  //   });
-  //   setDisabledSave(hasError ? true : false);
-  // };
 
   let colListViTri = [
     {
