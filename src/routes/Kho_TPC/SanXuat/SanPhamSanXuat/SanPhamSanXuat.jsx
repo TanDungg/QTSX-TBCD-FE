@@ -1,48 +1,31 @@
-import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Row, Col, DatePicker, Divider } from "antd";
-import { map } from "lodash";
 import React, { useEffect, useState } from "react";
+import { Card, Button, Row, Col } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { getDateNow, reDataForTable } from "src/util/Common";
-import { Link } from "react-router-dom";
-import {
-  EditableTableRow,
-  Table,
-  Select,
-  ModalDeleteConfirm,
-} from "src/components/Common";
-import ContainerHeader from "src/components/ContainerHeader";
+import { map } from "lodash";
+import { Table, EditableTableRow, Select } from "src/components/Common";
+import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
-  getTokenInfo,
+  reDataForTable,
   getLocalStorage,
+  getTokenInfo,
 } from "src/util/Common";
-import moment from "moment";
-const { RangePicker } = DatePicker;
-
+import ContainerHeader from "src/components/ContainerHeader";
 const { EditableRow, EditableCell } = EditableTableRow;
-
-function SanPhamSanXuat({ permission, history, match }) {
+function SanPhamSanXuat({ match, history, permission }) {
+  const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [page, setPage] = useState(1);
-  const [ListNguoiLap, setListNguoiLap] = useState([]);
-  const [ListSanPham, setListSanPham] = useState([]);
-  const [SanPham, setSanPham] = useState("");
-
-  const [user_Id, setUser_Id] = useState();
-  const [NangLucSanXuat, setNangLucSanXuat] = useState([]);
-  const [FromDate, setFromDate] = useState(getDateNow(7));
-  const [ToDate, setToDate] = useState(getDateNow());
-  const [data, setData] = useState([]);
-
+  const [ListSoLot, setListSoLot] = useState([]);
+  const [ListXuong, setListXuong] = useState([]);
+  const [XuongSanXuat, setXuongSanXuat] = useState(null);
+  const [SoLot, setSoLot] = useState();
+  const [SelectedDNCVT, setSelectedDNCVT] = useState(null);
+  const [SelectedKeys, setSelectedKeys] = useState(null);
   useEffect(() => {
     if (permission && permission.view) {
-      getNangLucSanXuat(SanPham, "", FromDate, ToDate, page);
-      getListSanPham();
-      getListNguoiLap();
+      getXuongSanXuat();
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -50,276 +33,147 @@ function SanPhamSanXuat({ permission, history, match }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getNangLucSanXuat = (sanPham_Id, userid, tungay, denngay, page) => {
-    let param = convertObjectToUrlParams({
-      sanPham_Id,
-      page,
-      userid,
-      tungay,
-      denngay,
-    });
-
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `NangLucSanXuat?${param}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setNangLucSanXuat(res.data);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
   /**
-   * Load danh sách sản phẩm
-   */
-  const getListSanPham = () => {
-    let param = convertObjectToUrlParams({ page: -1 });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `SanPham?${param}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListSanPham(res.data);
-        } else {
-          setListSanPham([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  /**
-   * Load danh sách người lập
-   */
-  const getListNguoiLap = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `NangLucSanXuat/list-user-lap-nlsx`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListNguoiLap(res.data);
-        } else {
-          setListNguoiLap([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  /**
-   * handleTableChange
+   * Lấy dữ liệu về
    *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
    */
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    getNangLucSanXuat(SanPham, user_Id, FromDate, ToDate, pagination);
-  };
-
-  //Lọc các tên giống nhau trong filter
-  function removeDuplicates(arr) {
-    const uniqueObjects = [];
-    arr.forEach((obj) => {
-      const isDuplicate = uniqueObjects.some((item) => {
-        return item.text === obj.text && item.value === obj.value;
-      });
-      if (!isDuplicate) {
-        uniqueObjects.push(obj);
-      }
+  const getListData = (Lkn_QuyTrinhSX_Id, Lot_Id) => {
+    const param = convertObjectToUrlParams({
+      Lkn_QuyTrinhSX_Id,
+      Lot_Id,
     });
-    return uniqueObjects;
-  }
-  const { totalRow, pageSize } = data;
-  //Lấy thông tin thiết bị
-  const dataList = reDataForTable(
-    NangLucSanXuat.datalist,
-    page === 1 ? page : pageSize * (page - 1) + 2
-  );
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    const title = "phiếu định mức vật tư";
-    ModalDeleteConfirm(deleteItemAction, item, item.maNangLucSanXuat, title);
-  };
-
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    let url = `NangLucSanXuat/${item.nangLucSanXuat_Id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        if (res && res.status !== 409) {
-          getNangLucSanXuat(SanPham, user_Id, FromDate, ToDate, page);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const editItem =
-      permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.nangLucSanXuat_Id}/chinh-sua`,
-            state: { itemData: item, permission },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
-    const deleteItemVal =
-      permission && permission.del
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        <React.Fragment>
-          {editItem}
-          <Divider type="vertical" />
-          <a {...deleteItemVal} title="Xóa">
-            <DeleteOutlined />
-          </a>
-        </React.Fragment>
-      </div>
+    dispatch(
+      fetchStart(
+        `lkn_PhieuChuyenQuyTrinhSX/list-chi-tiet-by-lotid?${param}`,
+        "GET",
+        null,
+        "LIST"
+      )
     );
   };
 
-  //tạo bảng
-  let colValues = [
+  const getXuongSanXuat = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(`lkn_QuyTrinhSX`, "GET", null, "DETAIL", "", resolve, reject)
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListXuong(res.data);
+          setXuongSanXuat(res.data[0].id);
+          getListData(res.data[0].id, SoLot);
+        } else {
+          setListXuong([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const getSoLot = (id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuChuyenQuyTrinhSX/list-lot-by-quy-trinh?Lkn_QuyTrinhSX_Id=${id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListSoLot(res.data);
+        } else {
+          setListSoLot([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const handleChuyen = () => {
+    history.push({
+      pathname: `${match.url}/them-moi`,
+    });
+  };
+
+  // const addButtonRender = () => {
+  //   return (
+  //     <>
+  //       <Button
+  //         icon={<PlusOutlined />}
+  //         className="th-margin-bottom-0"
+  //         type="primary"
+  //         onClick={handleChuyen}
+  //         disabled={permission && !permission.add}
+  //       >
+  //         Thêm mới
+  //       </Button>
+  //     </>
+  //   );
+  // };
+
+  let dataList = reDataForTable(
+    data
+    // page === 1 ? page : pageSize * (page - 1) + 2
+  );
+
+  let renderHead = [
     {
       title: "STT",
       dataIndex: "key",
       key: "key",
-      width: 40,
       align: "center",
+      width: 45,
     },
     {
       title: "Sản phẩm",
       dataIndex: "tenSanPham",
       key: "tenSanPham",
       align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenSanPham,
-            value: d.tenSanPham,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenSanPham.includes(value),
-      filterSearch: true,
+    },
+    {
+      title: "Mã chi tiết",
+      dataIndex: "maChiTiet",
+      key: "maChiTiet",
+      align: "center",
+    },
+    {
+      title: "Chi tiết",
+      dataIndex: "tenChiTiet",
+      key: "tenChiTiet",
+      align: "center",
     },
     {
       title: "Số Lot",
       dataIndex: "soLot",
       key: "soLot",
       align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.soLot,
-            value: d.soLot,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.soLot.includes(value),
-      filterSearch: true,
     },
+
     {
       title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
+      dataIndex: "SoLuong",
+      key: "SoLuong",
       align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.soLuong,
-            value: d.soLuong,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.soLuong.includes(value),
-      filterSearch: true,
     },
     {
-      title: "Công đoạn hiện tại",
-      dataIndex: "quyTrinh",
-      key: "quyTrinh",
+      title: "Công đoạn",
+      dataIndex: "tenQuyTrinhSX",
+      key: "tenQuyTrinhSX",
       align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.quyTrinh,
-            value: d.quyTrinh,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.quyTrinh.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
     },
   ];
+
   const components = {
     body: {
       row: EditableRow,
       cell: EditableCell,
     },
   };
-
-  const columns = map(colValues, (col) => {
+  const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
     }
@@ -335,64 +189,30 @@ function SanPhamSanXuat({ permission, history, match }) {
     };
   });
 
-  const handleTaoPhieu = () => {
-    history.push(`${match.url}/them-moi`);
-  };
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<PlusOutlined />}
-          className="th-btn-margin-bottom-0"
-          type="primary"
-          onClick={handleTaoPhieu}
-          disabled={permission && !permission.add}
-        >
-          Tạo phiếu
-        </Button>
-      </>
-    );
+  const handleOnSelectXuongSanXuat = (value) => {
+    setXuongSanXuat(value);
+    getListData(value, SoLot);
+    getSoLot(value);
   };
 
-  // const handleOnSelectSanPham = (value) => {
-  //   setSanPham(value);
-  //   setPage(1);
-  //   getNangLucSanXuat(value, user_Id, FromDate, ToDate, 1);
-  // };
+  const handleOnSelectSoLot = (value) => {
+    setSoLot(value);
+    getListData(XuongSanXuat, value);
+  };
 
-  // const handleOnSelectNguoiLap = (value) => {
-  //   setPage(1);
-  //   setUser_Id(value);
-  //   getNangLucSanXuat(SanPham, value, FromDate, ToDate, 1);
-  // };
-
-  // const handleClearSanPham = () => {
-  //   setSanPham(null);
-  //   setPage(1);
-  //   getNangLucSanXuat(null, user_Id, FromDate, ToDate, 1);
-  // };
-
-  // const handleClearNguoiLap = () => {
-  //   setPage(1);
-  //   setUser_Id(null);
-  //   getNangLucSanXuat(SanPham, null, FromDate, ToDate, 1);
-  // };
-  // const handleChangeNgay = (dateString) => {
-  //   setFromDate(dateString[0]);
-  //   setToDate(dateString[1]);
-  //   setPage(1);
-  //   getNangLucSanXuat(SanPham, user_Id, dateString[0], dateString[1], 1);
-  // };
-
+  const handleClearSoLot = () => {
+    setSoLot(null);
+    getListData(XuongSanXuat, null);
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Sản phẩm sản xuất"}
-        description="Danh sách sản phẩm sản xuất"
-        buttons={addButtonRender()}
+        title="Sản phẩm sản xuất"
+        description="Sản phẩm sản xuất"
+        // buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        {/* <Row>
+        <Row>
           <Col
             xxl={6}
             xl={8}
@@ -402,20 +222,18 @@ function SanPhamSanXuat({ permission, history, match }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Sản phẩm</h5>
+            <h5>Xưởng:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListSanPham ? ListSanPham : []}
-              placeholder="Chọn sản phẩm"
-              optionsvalue={["id", "tenSanPham"]}
+              data={ListXuong}
+              placeholder="Chọn xưởng"
+              optionsvalue={["id", "tenPhongBan"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectSanPham}
-              value={SanPham}
-              onChange={(value) => setSanPham(value)}
-              allowClear
-              onClear={handleClearSanPham}
+              onSelect={handleOnSelectXuongSanXuat}
+              value={XuongSanXuat}
+              onChange={(value) => setXuongSanXuat(value)}
             />
           </Col>
           <Col
@@ -427,60 +245,62 @@ function SanPhamSanXuat({ permission, history, match }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Người lập:</h5>
+            <h5>Lot:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListNguoiLap ? ListNguoiLap : []}
-              placeholder="Chọn người lập"
-              optionsvalue={["nguoiLap_Id", "tennguoiLap"]}
+              data={ListSoLot ? ListSoLot : []}
+              placeholder="Chọn Lot"
+              optionsvalue={["id", "soLot"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectNguoiLap}
-              value={user_Id}
-              onChange={(value) => setUser_Id(value)}
+              onSelect={handleOnSelectSoLot}
+              value={SoLot}
+              onChange={(value) => setSoLot(value)}
               allowClear
-              onClear={handleClearNguoiLap}
+              onClear={handleClearSoLot}
             />
           </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Ngày lập:</h5>
-            <RangePicker
-              format={"DD/MM/YYYY"}
-              onChange={(date, dateString) => handleChangeNgay(dateString)}
-              defaultValue={[
-                moment(FromDate, "DD/MM/YYYY"),
-                moment(ToDate, "DD/MM/YYYY"),
-              ]}
-              allowClear={false}
-            />
-          </Col>
-        </Row> */}
+        </Row>
         <Table
           bordered
+          scroll={{ x: 700, y: "70vh" }}
           columns={columns}
-          scroll={{ x: 1300, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}
           size="small"
-          rowClassName={"editable-row"}
-          loading={loading}
+          rowClassName={(record) => {
+            return record.isParent ? "editable-row" : "editable-row";
+          }}
           pagination={{
-            onChange: handleTableChange,
-            pageSize: pageSize,
-            total: totalRow,
+            pageSize: 20,
+            total: dataList.length,
             showSizeChanger: false,
             showQuickJumper: true,
           }}
+          rowSelection={{
+            type: "radio",
+            selectedRowKeys: SelectedKeys ? [SelectedKeys] : [],
+            onChange: (selectedRowKeys, selectedRows) => {
+              setSelectedDNCVT(selectedRows[0]);
+              setSelectedKeys(selectedRows[0].key);
+            },
+          }}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (e) => {
+                if (SelectedKeys === record.key) {
+                  setSelectedDNCVT(null);
+                  setSelectedKeys(null);
+                } else {
+                  setSelectedDNCVT(record);
+                  setSelectedKeys(record.key);
+                }
+              },
+            };
+          }}
+          loading={loading}
         />
       </Card>
     </div>

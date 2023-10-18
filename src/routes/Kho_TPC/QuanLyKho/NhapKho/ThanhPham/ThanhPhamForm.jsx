@@ -89,6 +89,7 @@ const EditableCell = ({
         }
       >
         <Input
+          type={title === "Số lượng" && "number"}
           style={{
             margin: 0,
             width: "100%",
@@ -113,7 +114,96 @@ const EditableCell = ({
   }
   return <td {...restProps}>{childNode}</td>;
 };
-
+const EditableRowChilder = ({ index, ...props }) => {
+  const [form] = Form.useForm();
+  return (
+    <Form form={form} component={false}>
+      <EditableContext.Provider value={form}>
+        <tr {...props} />
+      </EditableContext.Provider>
+    </Form>
+  );
+};
+const EditableCellChilder = ({
+  title,
+  editable,
+  children,
+  dataIndex,
+  record,
+  handleSave,
+  ...restProps
+}) => {
+  const [editing, setEditing] = useState(false);
+  const inputRef = useRef(null);
+  const form = useContext(EditableContext);
+  useEffect(() => {
+    if (editing) {
+      inputRef.current.focus();
+    }
+  }, [editing]);
+  const toggleEdit = () => {
+    setEditing(!editing);
+    form.setFieldsValue({
+      [dataIndex]: record[dataIndex],
+    });
+  };
+  const save = async () => {
+    try {
+      const values = await form.validateFields();
+      toggleEdit();
+      handleSave({
+        ...record,
+        ...values,
+      });
+    } catch (errInfo) {
+      console.log("Save failed:", errInfo);
+    }
+  };
+  let childNode = children;
+  if (editable) {
+    childNode = editing ? (
+      <Form.Item
+        style={{
+          margin: 0,
+        }}
+        name={dataIndex}
+        rules={
+          title === "Số lượng"
+            ? [
+                {
+                  pattern: /^\d+$/,
+                  message: "Số lượng không hợp lệ!",
+                },
+              ]
+            : null
+        }
+      >
+        <Input
+          type={title === "Số lượng" && "number"}
+          style={{
+            margin: 0,
+            width: "100%",
+            textAlign: "center",
+          }}
+          ref={inputRef}
+          onPressEnter={save}
+          onBlur={save}
+        />
+      </Form.Item>
+    ) : (
+      <div
+        className="editable-cell-value-wrap"
+        style={{
+          paddingRight: 24,
+        }}
+        onClick={toggleEdit}
+      >
+        {children}
+      </div>
+    );
+  }
+  return <td {...restProps}>{childNode}</td>;
+};
 const FormItem = Form.Item;
 
 const ThanhPhamForm = ({ history, match, permission }) => {
@@ -388,7 +478,28 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       },
     });
   };
+  /**
+   * deleteItemFunc: Remove item from list
+   * @param {object} item
+   * @returns
+   * @memberof VaiTro
+   */
+  const deleteItemFuncChiTiet = (item) => {
+    const title = "chi tiết";
+    ModalDeleteConfirm(deleteItemActionChiTiet, item, item.tenChiTiet, title);
+  };
 
+  /**
+   * Remove item
+   *
+   * @param {*} item
+   */
+  const deleteItemActionChiTiet = (item) => {
+    const lst_ChiTiets = ListSanPham[0].lst_ChiTiets.filter(
+      (d) => d.lkn_ChiTiet_Id !== item.lkn_ChiTiet_Id
+    );
+    setListSanPham([{ ...ListSanPham[0], lst_ChiTiets }]);
+  };
   /**
    * ActionContent: Action in table
    * @param {*} item
@@ -399,6 +510,27 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     const deleteItemVal =
       permission && permission.del && (type === "new" || type === "edit")
         ? { onClick: () => deleteItemFunc(item) }
+        : { disabled: true };
+    return (
+      <div>
+        <React.Fragment>
+          <a {...deleteItemVal} title="Xóa">
+            <DeleteOutlined />
+          </a>
+        </React.Fragment>
+      </div>
+    );
+  };
+  /**
+   * ActionContent: Action in table
+   * @param {*} item
+   * @returns View
+   * @memberof ChucNang
+   */
+  const actionContentChiTiet = (item) => {
+    const deleteItemVal =
+      permission && permission.del && (type === "new" || type === "edit")
+        ? { onClick: () => deleteItemFuncChiTiet(item) }
         : { disabled: true };
     return (
       <div>
@@ -503,14 +635,37 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   };
   const handleSave = (row) => {
     const newData = [...ListSanPham];
-    const index = newData.findIndex((item) => row.vatTu_Id === item.vatTu_Id);
+    const index = newData.findIndex((item) => row.id === item.id);
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
       ...row,
     });
+    newData[0].lst_ChiTiets.forEach((ct, index) => {
+      newData[0].lst_ChiTiets[index].soLuongNhap =
+        ct.soLuongChiTiet * newData[0].soLuongNhap;
+    });
     setFieldTouch(true);
     setListSanPham(newData);
+  };
+  const handleSaveChiTiet = (row) => {
+    const newData = [...ListSanPham];
+    const lst_ChiTiets = newData[0].lst_ChiTiets;
+    const index = lst_ChiTiets.findIndex(
+      (item) => row.lkn_ChiTiet_Id === item.lkn_ChiTiet_Id
+    );
+    const item = lst_ChiTiets[index];
+    lst_ChiTiets.splice(index, 1, {
+      ...item,
+      ...row,
+    });
+    setFieldTouch(true);
+    setListSanPham([
+      {
+        ...newData[0],
+        lst_ChiTiets,
+      },
+    ]);
   };
   const columns = map(colValues, (col) => {
     if (!col.editable) {
@@ -556,23 +711,33 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng",
-      dataIndex: "soLuongChiTiet",
-      key: "soLuongChiTiet",
+      dataIndex: "soLuongNhap",
+      key: "soLuongNhap",
       align: "center",
+      editable:
+        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
     },
     {
-      title: "Kích thước",
-      dataIndex: "kichThuoc",
-      key: "kichThuoc",
+      title: "Ghi chú",
+      dataIndex: "ghiChu",
+      key: "ghiChu",
       align: "center",
+      editable:
+        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
     },
     // {
-    //   title: "Chức năng",
-    //   key: "action",
+    //   title: "Kích thước",
+    //   dataIndex: "kichThuoc",
+    //   key: "kichThuoc",
     //   align: "center",
-    //   width: 100,
-    //   render: (value) => actionContentChiTiet(value),
     // },
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 100,
+      render: (value) => actionContentChiTiet(value),
+    },
   ];
 
   const columnChilden = map(renderChiTiet, (col) => {
@@ -587,9 +752,16 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         dataIndex: col.dataIndex,
         title: col.title,
         info: col.info,
+        handleSave: handleSaveChiTiet,
       }),
     };
   });
+  const componentsChilder = {
+    body: {
+      row: EditableRowChilder,
+      cell: EditableCellChilder,
+    },
+  };
   /**
    * Khi submit
    *
@@ -620,12 +792,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         chiTiet_PhieuNhapKhoThanhPhams: ListSanPham.map((tp) => {
           return {
             ...tp,
-            lst_ChiTiets: JSON.parse(tp.chiTiet).map((ct) => {
-              return {
-                lkn_ChiTiet_Id: ct.chiTiet_Id,
-                soLuongNhap: ct.soLuongChiTiet,
-              };
-            }),
+            lst_ChiTiets: tp.lst_ChiTiets,
           };
         }),
         ngaySanXuat: nhapkho.ngaySanXuat._i,
@@ -740,6 +907,17 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                   sanPham_Id: JSON.parse(res.data.mauSac)[0].sanPham_Id,
                   mauSac_Id: JSON.parse(res.data.mauSac)[0].mauSac_Id,
                   soLuongNhap: "1",
+                  lst_ChiTiets: JSON.parse(res.data.chiTiet).map((ct) => {
+                    return {
+                      lkn_ChiTiet_Id: ct.chiTiet_Id,
+                      soLuongNhap: ct.soLuongChiTiet,
+                      soLuongChiTiet: ct.soLuongChiTiet,
+                      tenChiTiet: ct.tenChiTiet,
+                      maChiTiet: ct.maChiTiet,
+                      tenDonViTinh: ct.tenDonViTinh,
+                      ghiChu: "",
+                    };
+                  }),
                 },
               ]);
             } else {
@@ -960,17 +1138,18 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                 style={{ marginLeft: "80px", width: "80%" }}
                 bordered
                 columns={columnChilden}
-                scroll={{ x: 500 }}
-                components={components}
+                scroll={{ x: 500, y: "35vh" }}
+                components={componentsChilder}
                 className="gx-table-responsive th-F1D065-head"
-                dataSource={reDataForTable(JSON.parse(record.chiTiet))}
+                dataSource={reDataForTable(record.lst_ChiTiets)}
                 size="small"
                 rowClassName={"editable-row"}
                 // loading={loading}
                 pagination={false}
               />
             ),
-            rowExpandable: (record) => record.name !== "Not Expandable",
+            // rowExpandable: (record) => record.name !== "Not Expandable",
+            defaultExpandedRowKeys: [1],
           }}
         />
         {type === "new" || type === "edit" ? (

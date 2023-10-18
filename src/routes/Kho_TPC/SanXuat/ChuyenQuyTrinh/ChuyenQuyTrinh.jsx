@@ -35,7 +35,8 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const [ListSoLot, setListSoLot] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
   const [XuongSanXuat, setXuongSanXuat] = useState(null);
-  const [SoLot, setSoLot] = useState();
+  const [SoLot, setSoLot] = useState("");
+  const [Phieu, setPhieu] = useState("false");
   const [page, setPage] = useState(1);
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
@@ -53,12 +54,20 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (Lkn_QuyTrinhSX_Id, tuNgay, denNgay, isNhap, page) => {
+  const getListData = (
+    lkn_QuyTrinhSX_Id,
+    lot_Id,
+    tuNgay,
+    denNgay,
+    isNhap,
+    page
+  ) => {
     const param = convertObjectToUrlParams({
-      Lkn_QuyTrinhSX_Id,
+      lkn_QuyTrinhSX_Id,
+      lot_Id,
       tuNgay,
       denNgay,
-      isNhap,
+      isNhap: isNhap === "true",
       page,
     });
     dispatch(
@@ -81,7 +90,8 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
         if (res && res.data) {
           setListXuong(res.data);
           setXuongSanXuat(res.data[0].id);
-          getListData(res.data[0].id, FromDate, ToDate, true, page);
+          getSoLot(res.data[0].id);
+          getListData(res.data[0].id, SoLot, FromDate, ToDate, false, page);
         } else {
           setListXuong([]);
         }
@@ -149,7 +159,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       permission && permission.cof && !item.isXacNhan ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.maPhieuChuyenQuyTrinhSX}/xac-nhan`,
+            pathname: `${match.url}/${item.maPhieuChuyenQuyTrinhSX}_${XuongSanXuat}/xac-nhan`,
             state: { itemData: item, permission },
           }}
           title="Xác nhận"
@@ -232,7 +242,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       permission && permission.view ? (
         <Link
           to={{
-            pathname: `${match.url}/${val.maPhieuChuyenQuyTrinhSX}/chi-tiet`,
+            pathname: `${match.url}/${val.maPhieuChuyenQuyTrinhSX}_${XuongSanXuat}/chi-tiet`,
             state: { itemData: val, permission },
           }}
         >
@@ -276,15 +286,9 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       align: "center",
     },
     {
-      title: "Xưởng chuyển",
+      title: "Công đoạn chuyển",
       dataIndex: "lkn_TenQuyTrinhSXBegin",
       key: "lkn_TenQuyTrinhSXBegin",
-      align: "center",
-    },
-    {
-      title: "Xưởng đến",
-      dataIndex: "lkn_TenQuyTrinhSXEnd",
-      key: "lkn_TenQuyTrinhSXEnd",
       align: "center",
     },
     {
@@ -321,29 +325,36 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const handleOnSelectXuongSanXuat = (value) => {
     setXuongSanXuat(value);
     setPage(1);
-    getListData(value, FromDate, ToDate, true, 1);
+    getListData(value, SoLot, FromDate, ToDate, Phieu, 1);
     getSoLot(value);
   };
 
   const handleClearXuongSanXuat = () => {
     setXuongSanXuat(null);
     setListSoLot([]);
-    getListData(null, FromDate, ToDate, true, 1);
+    setPage(1);
+    getListData(null, SoLot, FromDate, ToDate, Phieu, 1);
   };
   const handleOnSelectSoLot = (value) => {
     setSoLot(value);
-    getListData(XuongSanXuat, value);
+    setPage(1);
+    getListData(XuongSanXuat, value, FromDate, ToDate, Phieu, 1);
   };
-
+  const handleOnSelectPhieu = (value) => {
+    setPhieu(value);
+    setPage(1);
+    getListData(XuongSanXuat, SoLot, FromDate, ToDate, value, 1);
+  };
   const handleClearSoLot = () => {
     setSoLot(null);
-    getListData(XuongSanXuat, null);
+    setPage(1);
+    getListData(XuongSanXuat, null, FromDate, ToDate, Phieu, 1);
   };
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    getListData(XuongSanXuat, dateString[0], dateString[1], true, 1);
+    getListData(XuongSanXuat, SoLot, dateString[0], dateString[1], Phieu, 1);
   };
   return (
     <div className="gx-main-content">
@@ -354,6 +365,31 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Loại phiếu:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={[
+                { id: "false", name: "Phiếu chuyển" },
+                { id: "true", name: "Phiếu đến" },
+              ]}
+              placeholder="Loại phiếu"
+              optionsvalue={["id", "name"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp={"name"}
+              onSelect={handleOnSelectPhieu}
+              value={Phieu}
+            />
+          </Col>
           <Col
             xxl={6}
             xl={8}
@@ -374,24 +410,11 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
               optionFilterProp={"name"}
               onSelect={handleOnSelectXuongSanXuat}
               value={XuongSanXuat}
-              onChange={(value) => setXuongSanXuat(value)}
               allowClear
               onClear={handleClearXuongSanXuat}
             />
           </Col>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Ngày:</h5>
-            <RangePicker
-              format={"DD/MM/YYYY"}
-              onChange={(date, dateString) => handleChangeNgay(dateString)}
-              defaultValue={[
-                moment(FromDate, "DD/MM/YYYY"),
-                moment(ToDate, "DD/MM/YYYY"),
-              ]}
-              allowClear={false}
-            />
-          </Col>
-          {/* <Col
+          <Col
             xxl={6}
             xl={8}
             lg={12}
@@ -411,11 +434,22 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
               optionFilterProp={"name"}
               onSelect={handleOnSelectSoLot}
               value={SoLot}
-              onChange={(value) => setSoLot(value)}
               allowClear
               onClear={handleClearSoLot}
             />
-          </Col> */}
+          </Col>
+          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
+            <h5>Ngày:</h5>
+            <RangePicker
+              format={"DD/MM/YYYY"}
+              onChange={(date, dateString) => handleChangeNgay(dateString)}
+              defaultValue={[
+                moment(FromDate, "DD/MM/YYYY"),
+                moment(ToDate, "DD/MM/YYYY"),
+              ]}
+              allowClear={false}
+            />
+          </Col>
         </Row>
         <Table
           bordered

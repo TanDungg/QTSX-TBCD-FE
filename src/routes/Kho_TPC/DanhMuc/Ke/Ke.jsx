@@ -313,7 +313,7 @@ function Ke({ match, history, permission }) {
           rowClassName={(record) => {
             return record.isParent ? "editable-row" : "editable-row";
           }}
-          pagination={false}
+          pagination={{ pageSize: 20 }}
           loading={loading}
         />
       </Card>

@@ -113,7 +113,96 @@ const EditableCell = ({
   }
   return <td {...restProps}>{childNode}</td>;
 };
-
+const EditableRowChilder = ({ index, ...props }) => {
+  const [form] = Form.useForm();
+  return (
+    <Form form={form} component={false}>
+      <EditableContext.Provider value={form}>
+        <tr {...props} />
+      </EditableContext.Provider>
+    </Form>
+  );
+};
+const EditableCellChilder = ({
+  title,
+  editable,
+  children,
+  dataIndex,
+  record,
+  handleSave,
+  ...restProps
+}) => {
+  const [editing, setEditing] = useState(false);
+  const inputRef = useRef(null);
+  const form = useContext(EditableContext);
+  useEffect(() => {
+    if (editing) {
+      inputRef.current.focus();
+    }
+  }, [editing]);
+  const toggleEdit = () => {
+    setEditing(!editing);
+    form.setFieldsValue({
+      [dataIndex]: record[dataIndex],
+    });
+  };
+  const save = async () => {
+    try {
+      const values = await form.validateFields();
+      toggleEdit();
+      handleSave({
+        ...record,
+        ...values,
+      });
+    } catch (errInfo) {
+      console.log("Save failed:", errInfo);
+    }
+  };
+  let childNode = children;
+  if (editable) {
+    childNode = editing ? (
+      <Form.Item
+        style={{
+          margin: 0,
+        }}
+        name={dataIndex}
+        rules={
+          title === "Số lượng"
+            ? [
+                {
+                  pattern: /^\d+$/,
+                  message: "Số lượng không hợp lệ!",
+                },
+              ]
+            : null
+        }
+      >
+        <Input
+          type={title === "Số lượng" && "number"}
+          style={{
+            margin: 0,
+            width: "100%",
+            textAlign: "center",
+          }}
+          ref={inputRef}
+          onPressEnter={save}
+          onBlur={save}
+        />
+      </Form.Item>
+    ) : (
+      <div
+        className="editable-cell-value-wrap"
+        style={{
+          paddingRight: 24,
+        }}
+        onClick={toggleEdit}
+      >
+        {children}
+      </div>
+    );
+  }
+  return <td {...restProps}>{childNode}</td>;
+};
 const FormItem = Form.Item;
 
 const CKDForm = ({ history, match, permission }) => {
@@ -212,33 +301,50 @@ const CKDForm = ({ history, match, permission }) => {
       }
     });
   };
-  const getSanPham = (id, phongBan_Id) => {
-    const params = convertObjectToUrlParams({
-      phongBan_Id,
-      lot_Id: id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `Lot/chi-tiet-by-lot-and-pb?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        const newData = res.data;
-        newData.forEach((ct, index) => {
-          newData[index].soLuongNhap = ct.soLuongChiTiet;
-          newData[index].ghiChu = "";
-        });
-        setListSanPham(newData);
-      } else {
-        setListSanPham([]);
+  const getSanPham = (id) => {
+    ListSoLot.forEach((solot) => {
+      if (solot.id === id) {
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `SanPham/${solot.sanPham_Id}`,
+              "GET",
+              null,
+              "LIST",
+              "",
+              resolve,
+              reject
+            )
+          );
+        })
+          .then((res) => {
+            if (res && res.data) {
+              setListSanPham([
+                {
+                  ...res.data,
+                  sanPham_Id: JSON.parse(res.data.mauSac)[0].sanPham_Id,
+                  mauSac_Id: JSON.parse(res.data.mauSac)[0].mauSac_Id,
+                  soLuongNhap: "1",
+                  chiTiet_PhieuNhapKhoCKDs: JSON.parse(res.data.chiTiet).map(
+                    (ct) => {
+                      return {
+                        chiTiet_Id: ct.chiTiet_Id,
+                        soLuongNhap: ct.soLuongChiTiet,
+                        soLuongChiTiet: ct.soLuongChiTiet,
+                        tenChiTiet: ct.tenChiTiet,
+                        maChiTiet: ct.maChiTiet,
+                        tenDonViTinh: ct.tenDonViTinh,
+                        ghiChu: "",
+                      };
+                    }
+                  ),
+                },
+              ]);
+            } else {
+              setListSanPham([]);
+            }
+          })
+          .catch((error) => console.error(error));
       }
     });
   };
@@ -331,7 +437,15 @@ const CKDForm = ({ history, match, permission }) => {
           getLot();
           getKho(res.data.phongBan_Kho_Id);
           getXuong();
-          setListSanPham(JSON.parse(res.data.chiTiet));
+          setListSanPham([
+            {
+              maSanPham: res.data.maSanPham,
+              tenSanPham: res.data.tenSanPham,
+              tenDonViTinh: res.data.tenDonViTinh,
+              soLuongNhap: res.data.soLuongSanPham,
+              chiTiet_PhieuNhapKhoCKDs: JSON.parse(res.data.chiTiet),
+            },
+          ]);
           setActiveSoLuong(false);
           setFieldsValue({
             phieunhapkho: {
@@ -405,7 +519,50 @@ const CKDForm = ({ history, match, permission }) => {
       </div>
     );
   };
+  /**
+   * ActionContent: Action in table
+   * @param {*} item
+   * @returns View
+   * @memberof ChucNang
+   */
+  /**
+   * deleteItemFunc: Remove item from list
+   * @param {object} item
+   * @returns
+   * @memberof VaiTro
+   */
+  const deleteItemFuncChiTiet = (item) => {
+    const title = "chi tiết";
+    ModalDeleteConfirm(deleteItemActionChiTiet, item, item.tenChiTiet, title);
+  };
 
+  /**
+   * Remove item
+   *
+   * @param {*} item
+   */
+  const deleteItemActionChiTiet = (item) => {
+    const chiTiet_PhieuNhapKhoCKDs =
+      ListSanPham[0].chiTiet_PhieuNhapKhoCKDs.filter(
+        (d) => d.chiTiet_Id !== item.chiTiet_Id
+      );
+    setListSanPham([{ ...ListSanPham[0], chiTiet_PhieuNhapKhoCKDs }]);
+  };
+  const actionContentChiTiet = (item) => {
+    const deleteItemVal =
+      permission && permission.del && (type === "new" || type === "edit")
+        ? { onClick: () => deleteItemFuncChiTiet(item) }
+        : { disabled: true };
+    return (
+      <div>
+        <React.Fragment>
+          <a {...deleteItemVal} title="Xóa">
+            <DeleteOutlined />
+          </a>
+        </React.Fragment>
+      </div>
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -415,13 +572,62 @@ const CKDForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Sản phẩm",
+      title: "Mã sản phẩm",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
+      align: "center",
+    },
+    {
+      title: "Tên sản phẩm",
       dataIndex: "tenSanPham",
       key: "tenSanPham",
       align: "center",
     },
     {
-      title: "Chi tiết",
+      title: "Đơn vị tính",
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
+      align: "center",
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "soLuongNhap",
+      key: "soLuongNhap",
+      align: "center",
+      editable:
+        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+    },
+
+    // {
+    //   title: "Chức năng",
+    //   key: "action",
+    //   align: "center",
+    //   width: 80,
+    //   render: (value) => actionContent(value),
+    // },
+  ];
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+  let renderChiTiet = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 45,
+    },
+    {
+      title: "Mã chi tiết",
+      dataIndex: "maChiTiet",
+      key: "maChiTiet",
+      align: "center",
+    },
+    {
+      title: "Tên chi tiết",
       dataIndex: "tenChiTiet",
       key: "tenChiTiet",
       align: "center",
@@ -449,28 +655,30 @@ const CKDForm = ({ history, match, permission }) => {
         type === "new" || type === "edit" || type === "xacnhan" ? true : false,
     },
     // {
-    //   title: "Chức năng",
-    //   key: "action",
+    //   title: "Kích thước",
+    //   dataIndex: "kichThuoc",
+    //   key: "kichThuoc",
     //   align: "center",
-    //   width: 80,
-    //   render: (value) => actionContent(value),
     // },
-  ];
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 100,
+      render: (value) => actionContentChiTiet(value),
     },
-  };
+  ];
   const handleSave = (row) => {
     const newData = [...ListSanPham];
-    const index = newData.findIndex(
-      (item) => row.chiTiet_Id === item.chiTiet_Id
-    );
+    const index = newData.findIndex((item) => row.id === item.id);
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
       ...row,
+    });
+    newData[0].chiTiet_PhieuNhapKhoCKDs.forEach((ct, index) => {
+      newData[0].chiTiet_PhieuNhapKhoCKDs[index].soLuongNhap =
+        ct.soLuongChiTiet * newData[0].soLuongNhap;
     });
     setFieldTouch(true);
     setListSanPham(newData);
@@ -491,6 +699,47 @@ const CKDForm = ({ history, match, permission }) => {
       }),
     };
   });
+  const handleSaveChiTiet = (row) => {
+    const newData = [...ListSanPham];
+    const chiTiet_PhieuNhapKhoCKDs = newData[0].chiTiet_PhieuNhapKhoCKDs;
+    const index = chiTiet_PhieuNhapKhoCKDs.findIndex(
+      (item) => row.chiTiet_Id === item.chiTiet_Id
+    );
+    const item = chiTiet_PhieuNhapKhoCKDs[index];
+    chiTiet_PhieuNhapKhoCKDs.splice(index, 1, {
+      ...item,
+      ...row,
+    });
+    setFieldTouch(true);
+    setListSanPham([
+      {
+        ...newData[0],
+        chiTiet_PhieuNhapKhoCKDs,
+      },
+    ]);
+  };
+  const columnChilden = map(renderChiTiet, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+        handleSave: handleSaveChiTiet,
+      }),
+    };
+  });
+  const componentsChilder = {
+    body: {
+      row: EditableRowChilder,
+      cell: EditableCellChilder,
+    },
+  };
   /**
    * Khi submit
    *
@@ -518,7 +767,7 @@ const CKDForm = ({ history, match, permission }) => {
     if (type === "new") {
       const newData = {
         ...nhapkho,
-        chiTiet_PhieuNhapKhoCKDs: ListSanPham,
+        chiTiet_PhieuNhapKhoCKDs: ListSanPham[0].chiTiet_PhieuNhapKhoCKDs,
         ngayNhan: nhapkho.ngayNhan._i,
       };
       new Promise((resolve, reject) => {
@@ -559,12 +808,14 @@ const CKDForm = ({ history, match, permission }) => {
       const newData = {
         id: id,
         ...nhapkho,
-        chiTiet_PhieuNhapKhoCKDs: ListSanPham.map((vt) => {
-          return {
-            ...vt,
-            lkn_PhieuNhapKhoVatTu_Id: id,
-          };
-        }),
+        chiTiet_PhieuNhapKhoCKDs: ListSanPham[0].chiTiet_PhieuNhapKhoCKDs.map(
+          (vt) => {
+            return {
+              ...vt,
+              lkn_PhieuNhapKhoVatTu_Id: id,
+            };
+          }
+        ),
         ngayNhan: nhapkho.ngayNhan._i,
       };
       new Promise((resolve, reject) => {
@@ -670,19 +921,19 @@ const CKDForm = ({ history, match, permission }) => {
     getKho(val);
   };
   const handleSelectSoLot = (val) => {
-    setActiveSoLuong(false);
-    const { phongBan_Id } = getFieldValue("phieunhapkho");
-    if (phongBan_Id) getSanPham(val, phongBan_Id);
-    ListSoLot.forEach((sl) => {
-      if (sl.id === val) {
-        setFieldsValue({
-          phieunhapkho: {
-            tenSanPham: sl.tenSanPham,
-            soLuong: "1",
-          },
-        });
-      }
-    });
+    // setActiveSoLuong(false);
+    // const { phongBan_Id } = getFieldValue("phieunhapkho");
+    getSanPham(val);
+    // ListSoLot.forEach((sl) => {
+    //   if (sl.id === val) {
+    //     setFieldsValue({
+    //       phieunhapkho: {
+    //         tenSanPham: sl.tenSanPham,
+    //         soLuong: "1",
+    //       },
+    //     });
+    //   }
+    // });
   };
   const hanldeBlurSoLuong = (sl) => {
     if (sl !== "") {
@@ -740,7 +991,7 @@ const CKDForm = ({ history, match, permission }) => {
               </FormItem>
             </Col>
 
-            <Col span={12}>
+            {/* <Col span={12}>
               <FormItem
                 label="Xưởng"
                 name={["phieunhapkho", "phongBan_Id"]}
@@ -786,7 +1037,7 @@ const CKDForm = ({ history, match, permission }) => {
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
-            </Col>
+            </Col> */}
             <Col span={12}>
               <FormItem
                 label="Ngày nhập"
@@ -836,7 +1087,7 @@ const CKDForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            {/* <Col span={12}>
               <FormItem
                 label="Sản phẩm"
                 name={["phieunhapkho", "tenSanPham"]}
@@ -870,7 +1121,7 @@ const CKDForm = ({ history, match, permission }) => {
                   onBlur={(e) => hanldeBlurSoLuong(e.target.value)}
                 />
               </FormItem>
-            </Col>
+            </Col> */}
             {/* <Col span={12}>
               <FormItem
                 label="Nội dung nhập"
@@ -900,7 +1151,25 @@ const CKDForm = ({ history, match, permission }) => {
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
-          // loading={loading}
+          expandable={{
+            expandedRowRender: (record) => (
+              <Table
+                style={{ marginLeft: "80px", width: "80%" }}
+                bordered
+                columns={columnChilden}
+                scroll={{ x: 500, y: "35vh" }}
+                components={componentsChilder}
+                className="gx-table-responsive th-F1D065-head"
+                dataSource={reDataForTable(record.chiTiet_PhieuNhapKhoCKDs)}
+                size="small"
+                rowClassName={"editable-row"}
+                // loading={loading}
+                pagination={false}
+              />
+            ),
+            // rowExpandable: (record) => record.name !== "Not Expandable",
+            defaultExpandedRowKeys: [1],
+          }}
         />
         {type === "new" || type === "edit" ? (
           <FormSubmit
