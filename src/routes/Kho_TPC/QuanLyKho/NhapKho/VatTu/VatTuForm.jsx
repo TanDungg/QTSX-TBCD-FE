@@ -170,15 +170,6 @@ const VatTuForm = ({ history, match, permission }) => {
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
-      } else if (includes(match.url, "xac-nhan")) {
-        if (permission && permission.edit) {
-          setType("xacnhan");
-          const { id } = match.params;
-          setId(id);
-          getInfo(id);
-        } else if (permission && !permission.edit) {
-          history.push("/home");
-        }
       }
     };
     load();
@@ -283,26 +274,53 @@ const VatTuForm = ({ history, match, permission }) => {
       });
     }
   };
-  const getMaPhieu = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuNhanHang/get-phieu-nhan-ma-phieu`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        setListMaPhieu(res.data);
-      } else {
-        setListMaPhieu([]);
-      }
-    });
+  const getMaPhieu = (id) => {
+    if (!id) {
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `lkn_PhieuNhanHang/get-phieu-nhan-hang-chua-nhap `,
+            "GET",
+            null,
+            "DETAIL",
+            "",
+            resolve,
+            reject
+          )
+        );
+      }).then((res) => {
+        if (res && res.data) {
+          setListMaPhieu(res.data);
+        } else {
+          setListMaPhieu([]);
+        }
+      });
+    } else {
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `lkn_PhieuNhanHang/${id}?donVi_Id=${INFO.donVi_Id}`,
+            "GET",
+            null,
+            "DETAIL",
+            "",
+            resolve,
+            reject
+          )
+        );
+      }).then((res) => {
+        if (res && res.data) {
+          setListMaPhieu([
+            {
+              maPhieuNhanHang: res.data.maPhieuNhanHang,
+              id: res.data.id,
+            },
+          ]);
+        } else {
+          setListMaPhieu([]);
+        }
+      });
+    }
   };
   const getKho = (id) => {
     if (id) {
@@ -374,8 +392,8 @@ const VatTuForm = ({ history, match, permission }) => {
           getUserLap(INFO, res.data.userNhan_Id);
           getUserKy(INFO);
           setInfo(res.data);
-          getMaPhieu();
           getKho();
+          getMaPhieu(res.data.phieuNhanHang_Id);
           getNhaCungCap();
           setFieldsValue({
             phieunhapkho: {
@@ -891,7 +909,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                   onSelect={hanldeSelectMaPhieu}
                 />
               </FormItem>

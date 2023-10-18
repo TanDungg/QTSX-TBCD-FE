@@ -59,7 +59,12 @@ const SoDuDauKy = asyncComponent(() => import("./SoDuDauKy/SoDuDauKy"));
 const SoDuDauKyForm = asyncComponent(() => import("./SoDuDauKy/SoDuDauKyForm"));
 const LayoutKho = asyncComponent(() => import("./LayoutKho/LayoutKho"));
 const ViTriLuu = asyncComponent(() => import("./ViTriLuu/ViTriLuu"));
-
+const ChuyenQuyTrinh = asyncComponent(() =>
+  import("./ChuyenQuyTrinh/ChuyenQuyTrinh")
+);
+const ChuyenQuyTrinhForm = asyncComponent(() =>
+  import("./ChuyenQuyTrinh/ChuyenQuyTrinhForm")
+);
 const KhoVatTu = asyncComponent(() => import("./KhoVatTu/KhoVatTu"));
 const KhoThanhPham = asyncComponent(() =>
   import("./KhoThanhPham/KhoThanhPham")
@@ -290,6 +295,11 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(DinhMucTonKhoForm, menus, pathname, permission)}
       />
       <Route
+        path={`${match.url}/dinh-muc-ton-kho/:id/chinh-sua`}
+        exact
+        component={Auth(DinhMucTonKhoForm, menus, pathname, permission)}
+      />
+      <Route
         path={`${match.url}/kho-vat-tu`}
         exact
         component={Auth(KhoVatTu, menus, pathname, permission)}
@@ -298,6 +308,31 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/kho-thanh-pham`}
         exact
         component={Auth(KhoThanhPham, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/chuyen-cong-doan`}
+        exact
+        component={Auth(ChuyenQuyTrinh, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/chuyen-cong-doan/them-moi`}
+        exact
+        component={Auth(ChuyenQuyTrinhForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/chuyen-cong-doan/:id/chinh-sua`}
+        exact
+        component={Auth(ChuyenQuyTrinhForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/chuyen-cong-doan/:id/chi-tiet`}
+        exact
+        component={Auth(ChuyenQuyTrinhForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/chuyen-cong-doan/:id/xac-nhan`}
+        exact
+        component={Auth(ChuyenQuyTrinhForm, menus, pathname, permission)}
       />
     </Switch>
   );

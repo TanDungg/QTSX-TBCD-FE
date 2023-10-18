@@ -180,6 +180,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu }) {
   };
   const handleSelectKe = (val) => {
     getTang(val);
+    setListNgan([]);
     setFieldsValue({
       vatTu: {
         tang_Id: null,
@@ -243,7 +244,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu }) {
               },
             ]}
           >
-            <Input placeholder="Số lượng" type="number" disabled={true}></Input>
+            <Input placeholder="Số lượng" type="number"></Input>
           </FormItem>
           <FormItem
             label="Kệ"

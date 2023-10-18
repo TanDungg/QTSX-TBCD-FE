@@ -94,8 +94,8 @@ function Lot({ match, permission, history }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "số lot";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenLot, title);
+    const title = "số Lot";
+    ModalDeleteConfirm(deleteItemAction, item, item.soLot, title);
   };
 
   /**

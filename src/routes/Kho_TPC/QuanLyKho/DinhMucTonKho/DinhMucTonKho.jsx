@@ -1,15 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-} from "@ant-design/icons";
+import { Card, Button, Divider, Row, Col } from "antd";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -18,30 +12,24 @@ import {
   Select,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import {
-  convertObjectToUrlParams,
-  reDataForTable,
-  getDateNow,
-  getLocalStorage,
-  getTokenInfo,
-} from "src/util/Common";
+import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 function DinhMucTonKho({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [selectedDevice, setSelectedDevice] = useState([]);
   const [Kho_Id, setKho_Id] = useState();
-  const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListLoaiDinhMucTonKho, setListLoaiDinhMucTonKho] = useState([]);
+  const [ListKho, setListKho] = useState([]);
+
   const [LoaiDinhMucTonKho, setLoaiDinhMucTonKho] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
       getLoaiDinhMucTonKho();
+      getKho();
       loadData(keyword, LoaiDinhMucTonKho, Kho_Id, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
@@ -83,6 +71,29 @@ function DinhMucTonKho({ match, history, permission }) {
           setListLoaiDinhMucTonKho(res.data);
         } else {
           setListLoaiDinhMucTonKho([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const getKho = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListKho(res.data);
+        } else {
+          setListKho([]);
         }
       })
       .catch((error) => console.error(error));
@@ -169,12 +180,7 @@ function DinhMucTonKho({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maPhieuYeuCau,
-      "phiếu đặt hàng nội bộ"
-    );
+    ModalDeleteConfirm(deleteItemAction, item, "", "định mức tồn kho");
   };
 
   /**
@@ -183,7 +189,7 @@ function DinhMucTonKho({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDatHangNoiBo/${item.id}`;
+    let url = `lkn_dinhmuctonkho/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -336,27 +342,6 @@ function DinhMucTonKho({ match, history, permission }) {
     };
   });
 
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
-
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
   const handleOnSelectLoaiDinhMucTonKho = (val) => {
     setLoaiDinhMucTonKho(val);
     setPage(1);
@@ -425,14 +410,14 @@ function DinhMucTonKho({ match, history, permission }) {
             <h5>Kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListLoaiDinhMucTonKho ? ListLoaiDinhMucTonKho : []}
+              data={ListKho ? ListKho : []}
               placeholder="Chọn kho"
-              optionsvalue={["id", "tenPhongBan"]}
+              optionsvalue={["id", "tenCTKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
               onSelect={handleOnSelectKho}
-              value={LoaiDinhMucTonKho}
+              value={Kho_Id}
               allowClear
               onClear={handleClearKho}
             />
@@ -462,26 +447,6 @@ function DinhMucTonKho({ match, history, permission }) {
           </Col>
         </Row>
         <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            preserveSelectedRowKeys: true,
-            selectedRowKeys: selectedKeys,
-            getCheckboxProps: (record) => ({}),
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setSelectedDevice([record]);
-                  setSelectedKeys([record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            };
-          }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}

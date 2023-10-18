@@ -208,7 +208,6 @@ function KhoVatTu({ match, history, permission }) {
   const handleRedirect = () => {
     setActiveModal(true);
   };
-  const handlePrint = () => {};
   const addButtonRender = () => {
     return (
       <>
@@ -223,15 +222,6 @@ function KhoVatTu({ match, history, permission }) {
         >
           Vị trí
         </Button>
-        {/* <Button
-          icon={<EditOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
-        >
-          Chỉnh sửa vị trí
-        </Button> */}
       </>
     );
   };
@@ -241,22 +231,7 @@ function KhoVatTu({ match, history, permission }) {
     data
     // page === 1 ? page : pageSize * (page - 1) + 2
   );
-  const renderDetail = (val) => {
-    const detail =
-      permission && permission.view ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${val.id}/chi-tiet`,
-            state: { itemData: val, permission },
-          }}
-        >
-          {val.maPhieuYeuCau}
-        </Link>
-      ) : (
-        <span disabled>{val.maPhieuYeuCau}</span>
-      );
-    return <div>{detail}</div>;
-  };
+
   let renderHead = [
     {
       title: "STT",
@@ -322,13 +297,6 @@ function KhoVatTu({ match, history, permission }) {
       key: "thoiGianSuDung",
       align: "center",
     },
-    // {
-    //   title: "Chức năng",
-    //   key: "action",
-    //   align: "center",
-    //   width: 110,
-    //   render: (value) => actionContent(value),
-    // },
   ];
 
   const components = {

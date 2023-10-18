@@ -51,28 +51,29 @@ function Home({ permission, history }) {
         // buttons={addButtonRender()}
       />
       <Row>
-        {data.map((dt) => {
-          return (
-            <Col
-              span={6}
-              align="center"
-              onClick={() => handleClick(dt)}
-              style={{ cursor: "pointer" }}
-            >
-              <Card bodyStyle={{ paddingBottom: 0 }}>
-                <Icon
-                  type={dt.icon}
-                  style={{
-                    fontSize: 100,
-                    color: "#0469B9",
-                    marginBottom: 10,
-                  }}
-                />
-                <h4 style={{ color: "#0469B9" }}>{dt.tenPhanMem}</h4>
-              </Card>
-            </Col>
-          );
-        })}
+        {data &&
+          data.map((dt) => {
+            return (
+              <Col
+                span={6}
+                align="center"
+                onClick={() => handleClick(dt)}
+                style={{ cursor: "pointer" }}
+              >
+                <Card bodyStyle={{ paddingBottom: 0 }}>
+                  <Icon
+                    type={dt.icon}
+                    style={{
+                      fontSize: 100,
+                      color: "#0469B9",
+                      marginBottom: 10,
+                    }}
+                  />
+                  <h4 style={{ color: "#0469B9" }}>{dt.tenPhanMem}</h4>
+                </Card>
+              </Col>
+            );
+          })}
       </Row>
       {/* </Card> */}
     </div>

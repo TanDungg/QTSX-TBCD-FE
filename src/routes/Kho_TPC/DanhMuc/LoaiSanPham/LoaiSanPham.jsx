@@ -106,7 +106,12 @@ function LoaiSanPham({ history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item);
+    ModalDeleteConfirm(
+      deleteItemAction,
+      item,
+      item.maLoaiSanPham,
+      "loại sản phẩm"
+    );
   };
 
   /**
