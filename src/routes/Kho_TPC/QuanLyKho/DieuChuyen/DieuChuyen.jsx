@@ -1,16 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -31,7 +24,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function DieuChuyen({ match, history, permission }) {
+function PhieuDieuChuyen({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -41,8 +34,6 @@ function DieuChuyen({ match, history, permission }) {
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
-  const [selectedDevice, setSelectedDevice] = useState([]);
-  const [selectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -173,7 +164,8 @@ function DieuChuyen({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDieuChuyen/${item.id}`;
+    console.log(item);
+    let url = `lkn_PhieuDieuChuyen?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -208,8 +200,6 @@ function DieuChuyen({ match, history, permission }) {
     });
   };
 
-  const handlePrint = () => {};
-
   const addButtonRender = () => {
     return (
       <>
@@ -222,15 +212,6 @@ function DieuChuyen({ match, history, permission }) {
         >
           Tạo phiếu
         </Button>
-        {/* <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
-        >
-          In phiếu
-        </Button> */}
       </>
     );
   };
@@ -325,43 +306,25 @@ function DieuChuyen({ match, history, permission }) {
     };
   });
 
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
-
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
   const handleOnSelectBanPhong = (val) => {
     setBanPhong(val);
     setPage(1);
     getListData(keyword, val, FromDate, ToDate, 1);
   };
+
   const handleClearBanPhong = (val) => {
     setBanPhong("");
     setPage(1);
     getListData(keyword, "", FromDate, ToDate, 1);
   };
+
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
     getListData(keyword, BanPhong, dateString[0], dateString[1], 1);
   };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -371,7 +334,7 @@ function DieuChuyen({ match, history, permission }) {
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row>
+        <Row style={{ marginBottom: 8 }}>
           <Col
             xxl={6}
             xl={8}
@@ -443,26 +406,6 @@ function DieuChuyen({ match, history, permission }) {
           </Col>
         </Row>
         <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            preserveSelectedRowKeys: true,
-            selectedRowKeys: selectedKeys,
-            getCheckboxProps: (record) => ({}),
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setSelectedDevice([record]);
-                  setSelectedKeys([record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            };
-          }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}
@@ -487,4 +430,4 @@ function DieuChuyen({ match, history, permission }) {
   );
 }
 
-export default DieuChuyen;
+export default PhieuDieuChuyen;

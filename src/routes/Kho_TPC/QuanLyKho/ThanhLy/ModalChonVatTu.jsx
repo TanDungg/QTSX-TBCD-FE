@@ -14,7 +14,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   const [ViTriKho, setViTriKho] = useState(null);
   const [VatTu, setVatTu] = useState([]);
   const [ListVatTu, setListVatTu] = useState([]);
-  const [SoLuongDieuChuyen, setSoLuongDieuChuyen] = useState(0);
+  const [SoLuongThanhLy, setSoLuongThanhLy] = useState(0);
   const [hasError, setHasError] = useState(false);
   const [DisabledSave, setDisabledSave] = useState(true);
 
@@ -55,7 +55,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             vatTu: `${data.maVatTu} - ${data.tenVatTu}${
               vitri ? ` (${vitri})` : ""
             }`,
-            soLuongDieuChuyen: data.soLuong,
+            soLuongThanhLy: data.soLuong,
           };
         });
 
@@ -71,14 +71,14 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
         newData.forEach((data) => {
           newSoLuong[data.lkn_ChiTietKhoVatTu_Id] = data.soLuong;
         });
-        setSoLuongDieuChuyen(newSoLuong);
+        setSoLuongThanhLy(newSoLuong);
       } else {
         setListViTriKho([]);
       }
     });
   };
 
-  const renderSoLuongDieuChuyen = () => {
+  const renderSoLuongThanhLy = () => {
     return (
       <div>
         <Input
@@ -90,8 +90,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
           }}
           className={`input-item ${hasError ? "input-error" : ""}`}
           value={
-            SoLuongDieuChuyen &&
-            SoLuongDieuChuyen[VatTu[0].lkn_ChiTietKhoVatTu_Id]
+            SoLuongThanhLy && SoLuongThanhLy[VatTu[0].lkn_ChiTietKhoVatTu_Id]
           }
           type="number"
           onChange={(val) => handleInputChange(val)}
@@ -105,15 +104,15 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     if (sl > VatTu[0].soLuong) {
       setHasError(true);
       Helpers.alertError(
-        "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho"
+        "Số lượng thanh lý phải nhỏ hơn hoặc bằng số lượng trong kho"
       );
       setDisabledSave(true);
     } else {
       setDisabledSave(false);
       setHasError(false);
     }
-    setSoLuongDieuChuyen((prevSoLuongDieuChuyen) => ({
-      ...prevSoLuongDieuChuyen,
+    setSoLuongThanhLy((prevSoLuongThanhLy) => ({
+      ...prevSoLuongThanhLy,
       [VatTu[0].lkn_ChiTietKhoVatTu_Id]: sl,
     }));
     setVatTu((prevVatTu) => {
@@ -121,7 +120,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
         if (VatTu[0].lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
           return {
             ...item,
-            soLuongDieuChuyen: sl ? parseFloat(sl) : 0,
+            soLuongThanhLy: sl ? parseFloat(sl) : 0,
           };
         }
         return item;
@@ -173,10 +172,10 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       align: "center",
     },
     {
-      title: "SL điều chuyển",
-      key: "soLuongDieuChuyen",
+      title: "SL thanh lý",
+      key: "soLuongThanhLy",
       align: "center",
-      render: (record) => renderSoLuongDieuChuyen(record),
+      render: (record) => renderSoLuongThanhLy(record),
     },
     {
       title: "Đơn vị tính",
@@ -241,9 +240,9 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       align: "center",
     },
     {
-      title: "Số lượng điều chuyển",
-      dataIndex: "soLuongDieuChuyen",
-      key: "soLuongDieuChuyen",
+      title: "Số lượng thanh lý",
+      dataIndex: "soLuongThanhLy",
+      key: "soLuongThanhLy",
       align: "center",
     },
     {
@@ -305,7 +304,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   return (
     <AntModal
-      title={`Chọn vật tư điều chuyển`}
+      title={`Chọn vật tư thanh lý`}
       open={openModal}
       width={width > 1000 ? `80%` : "100%"}
       closable={true}
@@ -342,7 +341,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
               <Select
                 className="heading-select slt-search th-select-heading"
                 data={ListViTriKho ? ListViTriKho : []}
-                placeholder="Chọn vật tư điều chuyển"
+                placeholder="Chọn vật tư thanh lý"
                 optionsvalue={["lkn_ChiTietKhoVatTu_Id", "vatTu"]}
                 style={{ width: "calc(100% - 100px)" }}
                 optionFilterProp={"name"}

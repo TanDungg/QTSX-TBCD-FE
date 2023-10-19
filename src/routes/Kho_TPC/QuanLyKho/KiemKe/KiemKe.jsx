@@ -4,9 +4,7 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-  PrinterOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -31,16 +29,17 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function PhieuThanhLy({ match, history, permission }) {
+
+function TraNhaCungCap({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  const [page, setPage] = useState(1);
   const [ListBanPhong, setListBanPhong] = useState([]);
-  const [BanPhong, setBanPhong] = useState(null);
+  const [BanPhong, setBanPhong] = useState("");
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
-  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -67,7 +66,7 @@ function PhieuThanhLy({ match, history, permission }) {
       keyword,
       page,
     });
-    dispatch(fetchStart(`lkn_PhieuThanhLyVatTu?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`lkn_PhieuTraHangNCC?${param}`, "GET", null, "LIST"));
   };
 
   const getBanPhong = () => {
@@ -93,10 +92,7 @@ function PhieuThanhLy({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * Tìm kiếm sản phẩm
-   *
-   */
+
   const onSearchDeNghiMuaHang = () => {
     getListData(keyword, BanPhong, FromDate, ToDate, page);
   };
@@ -112,6 +108,7 @@ function PhieuThanhLy({ match, history, permission }) {
       getListData(val.target.value, BanPhong, FromDate, ToDate, page);
     }
   };
+
   /**
    * ActionContent: Hành động trên bảng
    * @param {*} item
@@ -119,8 +116,24 @@ function PhieuThanhLy({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
+    const detailItem =
+      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/xac-nhan`,
+            state: { itemData: item, permission },
+          }}
+          title="Xác nhận"
+        >
+          <CheckCircleOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Xác nhận">
+          <CheckCircleOutlined />
+        </span>
+      );
     const editItem =
-      permission && permission.edit ? (
+      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -136,11 +149,16 @@ function PhieuThanhLy({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del
+      permission &&
+      permission.del &&
+      !item.isUsed &&
+      item.tinhTrang === "Chưa xác nhận"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
+        {detailItem}
+        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -160,8 +178,8 @@ function PhieuThanhLy({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuThanhLy,
-      "phiếu thanh lý"
+      item.maPhieuTraHang,
+      "phiếu trả hàng nhà cung cấp"
     );
   };
 
@@ -171,12 +189,11 @@ function PhieuThanhLy({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuThanhLyVatTu?id=${item.id}`;
+    let url = `lkn_PhieuTraHangNCC?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        // Reload lại danh sách
         if (res.status !== 409) {
           getListData(keyword, BanPhong, FromDate, ToDate, page);
         }
@@ -227,6 +244,7 @@ function PhieuThanhLy({ match, history, permission }) {
     data.datalist,
     page === 1 ? page : pageSize * (page - 1) + 2
   );
+
   const renderDetail = (val) => {
     const detail =
       permission && permission.view ? (
@@ -236,32 +254,27 @@ function PhieuThanhLy({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuThanhLy}
+          {val.maPhieuTraHang}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuThanhLy}</span>
+        <span disabled>{val.maPhieuTraHang}</span>
       );
     return <div>{detail}</div>;
   };
+
   let renderHead = [
     {
       title: "STT",
       dataIndex: "key",
       key: "key",
       align: "center",
-      width: 50,
+      width: 45,
     },
     {
-      title: "Mã phiếu thanh lý",
-      key: "maPhieuThanhLy",
+      title: "Mã phiếu",
+      key: "maPhieuTraHang",
       align: "center",
       render: (val) => renderDetail(val),
-    },
-    {
-      title: "Kho thanh lý",
-      dataIndex: "tenKhoThanhLy",
-      key: "tenKhoThanhLy",
-      align: "center",
     },
     {
       title: "Ngày yêu cầu",
@@ -270,9 +283,21 @@ function PhieuThanhLy({ match, history, permission }) {
       align: "center",
     },
     {
-      title: "Người lập",
-      dataIndex: "nguoiLapPhieu",
-      key: "nguoiLapPhieu",
+      title: "Ban/Phòng",
+      dataIndex: "tenPhongBan",
+      key: "tenPhongBan",
+      align: "center",
+    },
+    {
+      title: "Người lập phiếu",
+      dataIndex: "tenNguoiYeuCau",
+      key: "tenNguoiYeuCau",
+      align: "center",
+    },
+    {
+      title: "Tình trạng",
+      dataIndex: "tinhTrang",
+      key: "tinhTrang",
       align: "center",
     },
     {
@@ -328,13 +353,13 @@ function PhieuThanhLy({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Thanh lý vật tư"
-        description="Thanh lý vật tư"
+        title="Phiếu trả hàng nhà cung cấp"
+        description="Danh sách phiếu trả hàng nhà cung cấp"
         buttons={addButtonRender()}
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row style={{ marginBottom: 8 }}>
+        <Row>
           <Col
             xxl={6}
             xl={8}
@@ -344,7 +369,7 @@ function PhieuThanhLy({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Kho:</h5>
+            <h5>Ban/Phòng:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListBanPhong ? ListBanPhong : []}
@@ -407,7 +432,7 @@ function PhieuThanhLy({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 800, y: "70vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -430,4 +455,4 @@ function PhieuThanhLy({ match, history, permission }) {
   );
 }
 
-export default PhieuThanhLy;
+export default TraNhaCungCap;

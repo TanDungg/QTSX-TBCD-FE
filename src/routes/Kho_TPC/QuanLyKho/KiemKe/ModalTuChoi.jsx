@@ -16,7 +16,7 @@ function ModalTuChoi({ openModalFS, openModal, itemData, refesh }) {
     if (openModal) {
       setFieldsValue({
         modaltuchoi: {
-          maPhieuDeNghiCapVatTu: itemData.maPhieuDeNghiCapVatTu,
+          maPhieuXuatKhoVatTu: itemData.maPhieuXuatKhoVatTu,
         },
       });
     }
@@ -37,7 +37,7 @@ function ModalTuChoi({ openModalFS, openModal, itemData, refesh }) {
         new Promise((resolve, reject) => {
           dispatch(
             fetchStart(
-              `lkn_PhieuDeNghiCapVatTu/xac-nhan/${itemData.id}`,
+              `lkn_PhieuXuatKhoVatTu/xac-nhan/${itemData.id}`,
               "PUT",
               newData,
               "TUCHOI",
@@ -67,18 +67,9 @@ function ModalTuChoi({ openModalFS, openModal, itemData, refesh }) {
     refesh();
   };
 
-  const Title = (
-    <span>
-      Lý do từ chối phiếu đề nghị cấp vật tư -{" "}
-      <Tag color={"blue"} style={{ fontSize: "14px" }}>
-        {itemData.maPhieuDeNghiCapVatTu}
-      </Tag>
-    </span>
-  );
-
   return (
     <AntModal
-      title={Title}
+      title={`Lý do từ chối phiếu xuất kho vật tư`}
       open={openModal}
       width={width > 1000 ? `50%` : "80%"}
       closable={true}
@@ -94,8 +85,8 @@ function ModalTuChoi({ openModalFS, openModal, itemData, refesh }) {
             onFieldsChange={() => setFieldTouch(true)}
           >
             <FormItem
-              label="Mã lot"
-              name={["modaltuchoi", "maPhieuDeNghiCapVatTu"]}
+              label="Mã phiếu"
+              name={["modaltuchoi", "maPhieuXuatKhoVatTu"]}
               rules={[
                 {
                   type: "string",

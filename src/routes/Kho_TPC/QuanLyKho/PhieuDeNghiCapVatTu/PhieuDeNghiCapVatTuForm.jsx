@@ -900,14 +900,25 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
 
   const onChange = (e) => {
     setValue(e.target.value);
-    const data = getFieldValue("capvattusanxuat");
-    setFieldsValue({
-      capvattukhac: {
-        ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
-        userLapPhieu_Id: data.userLapPhieu_Id,
-        tenPhongBan: data.tenPhongBan,
-      },
-    });
+    getUserLap(INFO, null, e.target.value);
+    if (e.target.value === 1) {
+      setFieldsValue({
+        capvattusanxuat: {
+          ngaySanXuat: moment(getDateNow(-1), "DD/MM/YYYY"),
+          ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
+        },
+      });
+      setListVatTu([]);
+      setListSoLot([]);
+    } else {
+      resetFields();
+      setFieldsValue({
+        capvattukhac: {
+          ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
+        },
+      });
+      setListVatTuKhac([]);
+    }
   };
 
   const addVatTu = (data) => {
@@ -1051,9 +1062,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                       showSearch
                       optionFilterProp={"name"}
                       onSelect={handleSelectXuong}
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
+                      disabled={type === "new" ? false : true}
                     />
                   </FormItem>
                 </Col>
@@ -1085,9 +1094,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                       showSearch
                       optionFilterProp={"name"}
                       onSelect={handleSelectSoLot}
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
+                      disabled={type === "new" ? false : true}
                     />
                   </FormItem>
                 </Col>
@@ -1110,9 +1117,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                     ]}
                   >
                     <DatePicker
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
+                      disabled={type === "new" ? false : true}
                       format={"DD/MM/YYYY"}
                       allowClear={false}
                       onChange={(date, dateString) => {
@@ -1156,9 +1161,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                           },
                         });
                       }}
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
+                      disabled={type === "new" ? false : true}
                     />
                   </FormItem>
                 </Col>
@@ -1382,9 +1385,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                       style={{ width: "100%" }}
                       showSearch
                       optionFilterProp={"name"}
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
+                      disabled={type === "new" ? false : true}
                     />
                   </FormItem>
                 </Col>
@@ -1407,9 +1408,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                     ]}
                   >
                     <DatePicker
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
+                      disabled={type === "new" ? false : true}
                       format={"DD/MM/YYYY"}
                       allowClear={false}
                       onChange={(date, dateString) => {

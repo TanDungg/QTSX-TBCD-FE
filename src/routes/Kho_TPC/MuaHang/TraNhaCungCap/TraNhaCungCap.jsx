@@ -7,6 +7,7 @@ import {
   EyeOutlined,
   EyeInvisibleOutlined,
   PrinterOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -31,22 +32,22 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
+
 function TraNhaCungCap({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
-  const [keyword, setKeyword] = useState("");
-  const [FromDate, setFromDate] = useState(getDateNow(7));
-  const [ToDate, setToDate] = useState(getDateNow());
-  const [setSelectedTraNCC, setsetSelectedTraNCC] = useState(null);
-  const [selectedKeys, setSelectedKeys] = useState(null);
   const [ListBanPhong, setListBanPhong] = useState([]);
   const [BanPhong, setBanPhong] = useState("");
+  const [FromDate, setFromDate] = useState(getDateNow(7));
+  const [ToDate, setToDate] = useState(getDateNow());
+  const [keyword, setKeyword] = useState("");
+
   useEffect(() => {
     if (permission && permission.view) {
       getBanPhong();
-      loadData(keyword, BanPhong, FromDate, ToDate, page);
+      getListData(keyword, BanPhong, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -59,9 +60,10 @@ function TraNhaCungCap({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const getListData = (keyword, phongBanId, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
       phongBanId,
+      donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
       keyword,
@@ -69,6 +71,7 @@ function TraNhaCungCap({ match, history, permission }) {
     });
     dispatch(fetchStart(`lkn_PhieuTraHangNCC?${param}`, "GET", null, "LIST"));
   };
+
   const getBanPhong = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -92,12 +95,9 @@ function TraNhaCungCap({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * Tìm kiếm sản phẩm
-   *
-   */
+
   const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, BanPhong, FromDate, ToDate, page);
+    getListData(keyword, BanPhong, FromDate, ToDate, page);
   };
 
   /**
@@ -108,9 +108,10 @@ function TraNhaCungCap({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, BanPhong, FromDate, ToDate, page);
+      getListData(val.target.value, BanPhong, FromDate, ToDate, page);
     }
   };
+
   /**
    * ActionContent: Hành động trên bảng
    * @param {*} item
@@ -119,7 +120,7 @@ function TraNhaCungCap({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      permission && permission.cof ? (
+      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -127,15 +128,15 @@ function TraNhaCungCap({ match, history, permission }) {
           }}
           title="Xác nhận"
         >
-          <EyeOutlined />
+          <CheckCircleOutlined />
         </Link>
       ) : (
         <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
+          <CheckCircleOutlined />
         </span>
       );
     const editItem =
-      permission && permission.edit ? (
+      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -151,7 +152,10 @@ function TraNhaCungCap({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && !item.isUsed
+      permission &&
+      permission.del &&
+      !item.isUsed &&
+      item.tinhTrang === "Chưa xác nhận"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -177,7 +181,7 @@ function TraNhaCungCap({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuYeuCau,
+      item.maPhieuTraHang,
       "phiếu trả hàng nhà cung cấp"
     );
   };
@@ -188,14 +192,13 @@ function TraNhaCungCap({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuTraHangNCC/${item.id}`;
+    let url = `lkn_PhieuTraHangNCC?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, BanPhong, FromDate, ToDate, page);
+          getListData(keyword, BanPhong, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -209,7 +212,7 @@ function TraNhaCungCap({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, BanPhong, FromDate, ToDate, pagination);
+    getListData(keyword, BanPhong, FromDate, ToDate, pagination);
   };
 
   /**
@@ -222,7 +225,7 @@ function TraNhaCungCap({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handlePrint = () => {};
+
   const addButtonRender = () => {
     return (
       <>
@@ -235,24 +238,32 @@ function TraNhaCungCap({ match, history, permission }) {
         >
           Tạo phiếu
         </Button>
-        <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
-        >
-          In phiếu
-        </Button>
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(
-    data.datalist
-    // page === 1 ? page : pageSize * (page - 1) + 2
+    data.datalist,
+    page === 1 ? page : pageSize * (page - 1) + 2
   );
+
+  const renderDetail = (val) => {
+    const detail =
+      permission && permission.view ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${val.id}/chi-tiet`,
+            state: { itemData: val, permission },
+          }}
+        >
+          {val.maPhieuTraHang}
+        </Link>
+      ) : (
+        <span disabled>{val.maPhieuTraHang}</span>
+      );
+    return <div>{detail}</div>;
+  };
 
   let renderHead = [
     {
@@ -264,9 +275,9 @@ function TraNhaCungCap({ match, history, permission }) {
     },
     {
       title: "Mã phiếu",
-      dataIndex: "maPhieuYeuCau",
-      key: "maPhieuYeuCau",
+      key: "maPhieuTraHang",
       align: "center",
+      render: (val) => renderDetail(val),
     },
     {
       title: "Ngày yêu cầu",
@@ -286,14 +297,12 @@ function TraNhaCungCap({ match, history, permission }) {
       key: "tenNguoiYeuCau",
       align: "center",
     },
-
     {
       title: "Tình trạng",
       dataIndex: "tinhTrang",
       key: "tinhTrang",
       align: "center",
     },
-
     {
       title: "Chức năng",
       key: "action",
@@ -328,19 +337,22 @@ function TraNhaCungCap({ match, history, permission }) {
   const handleOnSelectBanPhong = (val) => {
     setBanPhong(val);
     setPage(1);
-    loadData(keyword, val, FromDate, ToDate, 1);
+    getListData(keyword, val, FromDate, ToDate, 1);
   };
+
   const handleClearBanPhong = (val) => {
     setBanPhong("");
     setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
+    getListData(keyword, "", FromDate, ToDate, 1);
   };
+
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    getListData(keyword, BanPhong, dateString[0], dateString[1], 1);
   };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -440,38 +452,6 @@ function TraNhaCungCap({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
-          rowSelection={{
-            type: "radio",
-            selectedRowKeys: selectedKeys ? [selectedKeys] : [],
-            onChange: (selectedRowKeys, selectedRows) => {
-              if (
-                selectedRows.length > 0 &&
-                selectedRows[0].tinhTrang === "Đã hoàn tất xác nhận"
-              ) {
-                setSelectedTraNCC(selectedRows[0]);
-                setSelectedKeys(selectedRows[0].key);
-              } else {
-                setSelectedTraNCC(null);
-                setSelectedKeys(null);
-              }
-            },
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                if (
-                  selectedKeys === record.key ||
-                  record.tinhTrang !== "Đã hoàn tất xác nhận"
-                ) {
-                  setSelectedTraNCC(null);
-                  setSelectedKeys(null);
-                } else {
-                  setSelectedTraNCC(record);
-                  setSelectedKeys(record.key);
-                }
-              },
-            };
-          }}
         />
       </Card>
     </div>

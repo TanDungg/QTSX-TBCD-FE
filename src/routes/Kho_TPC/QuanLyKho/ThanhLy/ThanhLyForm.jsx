@@ -38,7 +38,7 @@ import ModalChonVatTu from "./ModalChonVatTu";
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 
-const DieuChuyenForm = ({ history, match, permission }) => {
+const ThanhLyForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [form] = Form.useForm();
@@ -52,7 +52,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
   const [KhoVatTu, setKhoVatTu] = useState(null);
   const [ListUser, setListUser] = useState([]);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(null);
-  const [SoLuongDieuChuyen, setSoLuongDieuChuyen] = useState([]);
+  const [SoLuongThanhLy, setSoLuongThanhLy] = useState([]);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [editingRecord, setEditingRecord] = useState(null);
@@ -66,7 +66,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           setType("new");
           setFieldsValue({
-            phieudieuchuyen: {
+            phieuthanhly: {
               ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
             },
           });
@@ -156,7 +156,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
       if (res && res.data) {
         setListUser([res.data]);
         setFieldsValue({
-          phieudieuchuyen: {
+          phieuthanhly: {
             userLap_Id: res.data.Id,
             tenPhongBan: res.data.tenPhongBan,
           },
@@ -212,7 +212,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuDieuChuyen/${id}?${params}`,
+          `lkn_PhieuThanhLyVatTu/${id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -227,13 +227,12 @@ const DieuChuyenForm = ({ history, match, permission }) => {
           setInfo(res.data);
           getUserLap(INFO, res.data.userLap_Id, 1);
           getListKho();
-          setKhoVatTu(res.data.khoDi_Id);
-          getListViTriKho(res.data.khoDi_Id);
+          setKhoVatTu(res.data.khoThanhLy_Id);
+          getListViTriKho(res.data.khoThanhLy_Id);
           setFieldsValue({
-            phieudieuchuyen: {
+            phieuthanhly: {
               ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
-              khoDi_Id: res.data.khoDi_Id,
-              khoDen_Id: res.data.khoDen_Id,
+              khoThanhLy_Id: res.data.khoThanhLy_Id,
             },
           });
 
@@ -246,7 +245,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
 
               return {
                 ...data,
-                soLuongDieuChuyen: data.soLuong,
+                soLuongThanhLy: data.soLuong,
                 lkn_ChiTietKhoVatTu_Id: data.lkn_ChiTietKhoVatTu_Id
                   ? data.lkn_ChiTietKhoVatTu_Id.toLowerCase()
                   : createGuid(),
@@ -259,10 +258,9 @@ const DieuChuyenForm = ({ history, match, permission }) => {
 
           const newSoLuong = {};
           newData.forEach((data) => {
-            newSoLuong[data.lkn_ChiTietKhoVatTu_Id] =
-              data.soLuongDieuChuyen || 0;
+            newSoLuong[data.lkn_ChiTietKhoVatTu_Id] = data.soLuongThanhLy || 0;
           });
-          setSoLuongDieuChuyen(newSoLuong);
+          setSoLuongThanhLy(newSoLuong);
         }
       })
       .catch((error) => console.error(error));
@@ -331,7 +329,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
     );
   };
 
-  const renderSoLuongDieuChuyen = (record) => {
+  const renderSoLuongThanhLy = (record) => {
     if (record) {
       const isEditing =
         editingRecord &&
@@ -350,8 +348,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
               isEditing && hasError ? "input-error" : ""
             }`}
             value={
-              SoLuongDieuChuyen &&
-              SoLuongDieuChuyen[record.lkn_ChiTietKhoVatTu_Id]
+              SoLuongThanhLy && SoLuongThanhLy[record.lkn_ChiTietKhoVatTu_Id]
             }
             type="number"
             onChange={(val) => handleInputChange(val, record)}
@@ -361,7 +358,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
           )}
         </div>
       ) : (
-        SoLuongDieuChuyen[record.lkn_ChiTietKhoVatTu_Id]
+        SoLuongThanhLy[record.lkn_ChiTietKhoVatTu_Id]
       );
     }
     return null;
@@ -380,7 +377,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
     if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
       setHasError(true);
       setErrorMessage(
-        "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho"
+        "Số lượng thanh lý phải nhỏ hơn hoặc bằng số lượng trong kho"
       );
       setDisabledSave(true);
     } else {
@@ -389,8 +386,8 @@ const DieuChuyenForm = ({ history, match, permission }) => {
       setErrorMessage(null);
     }
     setEditingRecord(record);
-    setSoLuongDieuChuyen((prevSoLuongDieuChuyen) => ({
-      ...prevSoLuongDieuChuyen,
+    setSoLuongThanhLy((prevSoLuongThanhLy) => ({
+      ...prevSoLuongThanhLy,
       [record.lkn_ChiTietKhoVatTu_Id]: sl,
     }));
     setListVatTu((prevListVatTu) => {
@@ -398,7 +395,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
         if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
           return {
             ...item,
-            soLuongDieuChuyen: sl ? parseFloat(sl) : 0,
+            soLuongThanhLy: sl ? parseFloat(sl) : 0,
           };
         }
         return item;
@@ -445,10 +442,10 @@ const DieuChuyenForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "SL điều chuyển",
-      key: "soLuongDieuChuyen",
+      title: "SL thanh lý",
+      key: "soLuongThanhLy",
       align: "center",
-      render: (record) => renderSoLuongDieuChuyen(record),
+      render: (record) => renderSoLuongThanhLy(record),
     },
     {
       title: "Đơn vị tính",
@@ -494,7 +491,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.phieudieuchuyen);
+    saveData(values.phieuthanhly);
   };
 
   const saveAndClose = (value) => {
@@ -503,7 +500,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
         if (ListVatTu.length === 0) {
           Helpers.alertError("Danh sách vật tư rỗng");
         } else {
-          saveData(values.phieudieuchuyen, value);
+          saveData(values.phieuthanhly, value);
         }
       })
       .catch((error) => {
@@ -516,12 +513,12 @@ const DieuChuyenForm = ({ history, match, permission }) => {
       const newData = {
         ...data,
         ngayYeuCau: data.ngayYeuCau.format("DD/MM/YYYY"),
-        chiTiet_PhieuDieuChuyens: ListVatTu,
+        chiTiet_PhieuThanhLys: ListVatTu,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuDieuChuyen`,
+            `lkn_PhieuThanhLyVatTu`,
             "POST",
             newData,
             "ADD",
@@ -539,6 +536,12 @@ const DieuChuyenForm = ({ history, match, permission }) => {
               resetFields();
               setFieldTouch(false);
               setListVatTu([]);
+              getData();
+              setFieldsValue({
+                phieuthanhly: {
+                  ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
+                },
+              });
             }
           } else {
             setFieldTouch(false);
@@ -551,12 +554,12 @@ const DieuChuyenForm = ({ history, match, permission }) => {
         ...data,
         id: id,
         ngayYeuCau: data.ngayYeuCau.format("DD/MM/YYYY"),
-        chiTiet_PhieuDieuChuyens: ListVatTu,
+        chiTiet_PhieuThanhLys: ListVatTu,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuDieuChuyen/${id}`,
+            `lkn_PhieuThanhLyVatTu/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -572,7 +575,6 @@ const DieuChuyenForm = ({ history, match, permission }) => {
           } else {
             getInfo(id);
             setFieldTouch(false);
-            setDisabledSave(true);
           }
         })
         .catch((error) => console.error(error));
@@ -587,29 +589,29 @@ const DieuChuyenForm = ({ history, match, permission }) => {
     const newListVatTu = [...ListVatTu, ...data];
     const newSoLuong = {};
     newListVatTu.forEach((dt) => {
-      newSoLuong[dt.lkn_ChiTietKhoVatTu_Id] = dt.soLuongDieuChuyen;
+      newSoLuong[dt.lkn_ChiTietKhoVatTu_Id] = dt.soLuongThanhLy;
     });
-    setSoLuongDieuChuyen(newSoLuong);
+    setSoLuongThanhLy(newSoLuong);
     setListVatTu(newListVatTu);
     if (type === "edit") {
       setFieldTouch(true);
     }
   };
 
-  const handleSelectKhoDi = (value) => {
+  const handleSelectKhoThanhLy = (value) => {
     setKhoVatTu(value);
   };
 
   const formTitle =
     type === "new" ? (
-      "Tạo phiếu điều chuyển vật tư "
+      "Tạo phiếu thanh lý vật tư "
     ) : type === "edit" ? (
-      "Chỉnh sửa phiếu điều chuyển vật tư"
+      "Chỉnh sửa phiếu thanh lý vật tư"
     ) : (
       <span>
-        Chi tiết phiếu điều chuyển vật tư -{" "}
+        Chi tiết phiếu thanh lý vật tư -{" "}
         <Tag color={"blue"} style={{ fontSize: "14px" }}>
-          {info.maPhieuDieuChuyen}
+          {info.maPhieuThanhLy}
         </Tag>
       </span>
     );
@@ -637,7 +639,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người lập"
-                name={["phieudieuchuyen", "userLap_Id"]}
+                name={["phieuthanhly", "userLap_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -665,7 +667,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Ban/Phòng"
-                name={["phieudieuchuyen", "tenPhongBan"]}
+                name={["phieuthanhly", "tenPhongBan"]}
                 rules={[
                   {
                     type: "string",
@@ -686,8 +688,8 @@ const DieuChuyenForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Kho đi"
-                name={["phieudieuchuyen", "khoDi_Id"]}
+                label="Kho thanh lý"
+                name={["phieuthanhly", "khoThanhLy_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -700,10 +702,10 @@ const DieuChuyenForm = ({ history, match, permission }) => {
                   data={ListKhoVatTu ? ListKhoVatTu : []}
                   optionsvalue={["id", "tenCTKho"]}
                   style={{ width: "100%" }}
-                  placeholder="Kho điều chuyển"
+                  placeholder="Kho thanh lý"
                   showSearch
                   optionFilterProp={"name"}
-                  onSelect={handleSelectKhoDi}
+                  onSelect={handleSelectKhoThanhLy}
                   disabled={ListVatTu && ListVatTu.length === 0 ? false : true}
                 />
               </FormItem>
@@ -719,7 +721,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Ngày yêu cầu"
-                name={["phieudieuchuyen", "ngayYeuCau"]}
+                name={["phieuthanhly", "ngayYeuCau"]}
                 rules={[
                   {
                     required: true,
@@ -730,37 +732,6 @@ const DieuChuyenForm = ({ history, match, permission }) => {
                   format={"DD/MM/YYYY"}
                   allowClear={false}
                   disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Kho đến"
-                name={["phieudieuchuyen", "khoDen_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListKhoVatTu ? ListKhoVatTu : []}
-                  optionsvalue={["id", "tenCTKho"]}
-                  style={{ width: "100%" }}
-                  placeholder="Kho nhận"
-                  showSearch
-                  optionFilterProp={"name"}
-                  disabled={type !== "detail" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -820,4 +791,4 @@ const DieuChuyenForm = ({ history, match, permission }) => {
   );
 };
 
-export default DieuChuyenForm;
+export default ThanhLyForm;
