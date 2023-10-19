@@ -277,11 +277,8 @@ function KhoVatTu({ history, permission }) {
     setKho(val);
     setPage(1);
     loadData(keyword, val, 1);
-  };
-  const handleClearKho = (val) => {
-    setKho("");
-    setPage(1);
-    loadData(keyword, "", 1);
+    setSelectedKeys([]);
+    setListVatTuSelected([]);
   };
 
   return (

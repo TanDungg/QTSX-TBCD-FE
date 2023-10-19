@@ -1,21 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Popover } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { Card, Button, Col, Popover } from "antd";
+import { PrinterOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import { map, remove, find, isEmpty, repeat } from "lodash";
 import QRCode from "qrcode.react";
-import {
-  ModalDeleteConfirm,
-  Table,
-  EditableTableRow,
-  Toolbar,
-} from "src/components/Common";
+import { Table, EditableTableRow, Toolbar } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
@@ -29,13 +18,12 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function CauTrucKho({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [selectedDevice, setSelectedDevice] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     if (permission && permission.view) {
-      loadData(keyword, page);
+      loadData(keyword, 1);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -59,7 +47,7 @@ function CauTrucKho({ match, history, permission }) {
    *
    */
   const onSearchCauTrucKho = () => {
-    loadData(keyword, page);
+    loadData(keyword, 1);
   };
 
   /**
@@ -70,7 +58,7 @@ function CauTrucKho({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, page);
+      loadData(val.target.value, 1);
     }
   };
   /**
@@ -87,111 +75,23 @@ function CauTrucKho({ match, history, permission }) {
     return <div>{string}</div>;
   };
 
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const editItem =
-      permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
-    const deleteVal =
-      permission && permission.del
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        {editItem}
-        <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa">
-          <DeleteOutlined />
-        </a>
-      </div>
-    );
-  };
-
-  /**
-   * deleteItemFunc: Xoá item theo item
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maCauTrucKho,
-      "cấu trúc kho"
-    );
-  };
-
-  /**
-   * Xóa item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    let url = `CauTrucKho/${item.id}`;
-    if (item.isRemove) url = `CauTrucKho/${item.id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        // Reload lại danh sách
-        loadData();
-      })
-      .catch((error) => console.error(error));
-  };
-
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
-  };
   const handlePrint = () => {
     history.push({
       pathname: `${match.url}/inMa`,
-      state: { VatTu: selectedDevice },
+      state: { CauTrucKho: selectedDevice },
     });
   };
   const addButtonRender = () => {
     return (
       <>
         <Button
-          icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleRedirect}
-          disabled={permission && !permission.add}
-        >
-          Thêm mới
-        </Button>
-        <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
-          disabled={permission && !permission.print}
+          disabled={
+            (permission && !permission.print) || selectedDevice.length === 0
+          }
         >
           In Barcode
         </Button>
@@ -248,13 +148,6 @@ function CauTrucKho({ match, history, permission }) {
       key: "viTri",
       align: "center",
     },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-    },
   ];
   let dataList = treeToFlatlist(data);
   dataList = reDataSelectedTable(dataList);
@@ -304,8 +197,8 @@ function CauTrucKho({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Cấu trúc kho"
-        description="Danh sách cấu trúc kho"
+        title="In Barcode cấu trúc kho"
+        description="In Barcode cấu trúc kho"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">

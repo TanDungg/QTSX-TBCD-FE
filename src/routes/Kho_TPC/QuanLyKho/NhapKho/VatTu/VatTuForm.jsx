@@ -208,7 +208,7 @@ const VatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${info.user_Id}?${params}`,
+          `Account/cbnv/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -388,7 +388,9 @@ const VatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListVatTu(JSON.parse(res.data.chiTietVatTu));
+          setListVatTu(
+            res.data.chiTietVatTu ? JSON.parse(res.data.chiTietVatTu) : []
+          );
           getUserLap(INFO, res.data.userNhan_Id);
           getUserKy(INFO);
           setInfo(res.data);
@@ -821,7 +823,7 @@ const VatTuForm = ({ history, match, permission }) => {
       <ContainerHeader
         title={formTitle}
         back={goBack}
-        buttons={addButtonRender()}
+        // buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom">
         <Form

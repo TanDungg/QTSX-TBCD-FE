@@ -245,22 +245,7 @@ function DinhMucTonKho({ match, history, permission }) {
     data.datalist
     // page === 1 ? page : pageSize * (page - 1) + 2
   );
-  const renderDetail = (val) => {
-    const detail =
-      permission && permission.view ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${val.id}/chi-tiet`,
-            state: { itemData: val, permission },
-          }}
-        >
-          {val.maPhieuYeuCau}
-        </Link>
-      ) : (
-        <span disabled>{val.maPhieuYeuCau}</span>
-      );
-    return <div>{detail}</div>;
-  };
+
   let renderHead = [
     {
       title: "STT",
@@ -300,15 +285,15 @@ function DinhMucTonKho({ match, history, permission }) {
       align: "center",
     },
     {
-      title: "Ghi chú",
-      dataIndex: "ghiChu",
-      key: "ghiChu",
-      align: "center",
-    },
-    {
       title: "Người lập",
       dataIndex: "tenNguoiLap",
       key: "tenNguoiLap",
+      align: "center",
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "ghiChu",
+      key: "ghiChu",
       align: "center",
     },
     {

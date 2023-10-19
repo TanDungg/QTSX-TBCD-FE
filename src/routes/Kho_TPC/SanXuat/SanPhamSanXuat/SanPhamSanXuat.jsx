@@ -16,13 +16,13 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function SanPhamSanXuat({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  // const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [ListSoLot, setListSoLot] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
   const [XuongSanXuat, setXuongSanXuat] = useState(null);
   const [SoLot, setSoLot] = useState();
-  const [SelectedDNCVT, setSelectedDNCVT] = useState(null);
-  const [SelectedKeys, setSelectedKeys] = useState(null);
+  // const [SelectedDNCVT, setSelectedDNCVT] = useState(null);
+  // const [SelectedKeys, setSelectedKeys] = useState(null);
   useEffect(() => {
     if (permission && permission.view) {
       getXuongSanXuat();
@@ -93,28 +93,6 @@ function SanPhamSanXuat({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const handleChuyen = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
-  };
-
-  // const addButtonRender = () => {
-  //   return (
-  //     <>
-  //       <Button
-  //         icon={<PlusOutlined />}
-  //         className="th-margin-bottom-0"
-  //         type="primary"
-  //         onClick={handleChuyen}
-  //         disabled={permission && !permission.add}
-  //       >
-  //         Thêm mới
-  //       </Button>
-  //     </>
-  //   );
-  // };
-
   let dataList = reDataForTable(
     data
     // page === 1 ? page : pageSize * (page - 1) + 2
@@ -129,34 +107,21 @@ function SanPhamSanXuat({ match, history, permission }) {
       width: 45,
     },
     {
+      title: "Mã sản phẩm",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
+      align: "center",
+    },
+    {
       title: "Sản phẩm",
       dataIndex: "tenSanPham",
       key: "tenSanPham",
       align: "center",
     },
     {
-      title: "Mã chi tiết",
-      dataIndex: "maChiTiet",
-      key: "maChiTiet",
-      align: "center",
-    },
-    {
-      title: "Chi tiết",
-      dataIndex: "tenChiTiet",
-      key: "tenChiTiet",
-      align: "center",
-    },
-    {
       title: "Số Lot",
       dataIndex: "soLot",
       key: "soLot",
-      align: "center",
-    },
-
-    {
-      title: "Số lượng",
-      dataIndex: "SoLuong",
-      key: "SoLuong",
       align: "center",
     },
     {
@@ -174,6 +139,55 @@ function SanPhamSanXuat({ match, history, permission }) {
     },
   };
   const columns = map(renderHead, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
+  let renderChiTiet = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 45,
+    },
+    {
+      title: "Mã chi tiết",
+      dataIndex: "maChiTiet",
+      key: "maChiTiet",
+      align: "center",
+    },
+    {
+      title: "Tên chi tiết",
+      dataIndex: "tenChiTiet",
+      key: "tenChiTiet",
+      align: "center",
+    },
+    {
+      title: "Đơn vị tính",
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
+      align: "center",
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "soLuong",
+      key: "soLuong",
+      align: "center",
+    },
+  ];
+
+  const columnChilden = map(renderChiTiet, (col) => {
     if (!col.editable) {
       return col;
     }
@@ -209,7 +223,6 @@ function SanPhamSanXuat({ match, history, permission }) {
       <ContainerHeader
         title="Sản phẩm sản xuất"
         description="Sản phẩm sản xuất"
-        // buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
@@ -279,27 +292,45 @@ function SanPhamSanXuat({ match, history, permission }) {
             showSizeChanger: false,
             showQuickJumper: true,
           }}
-          rowSelection={{
-            type: "radio",
-            selectedRowKeys: SelectedKeys ? [SelectedKeys] : [],
-            onChange: (selectedRowKeys, selectedRows) => {
-              setSelectedDNCVT(selectedRows[0]);
-              setSelectedKeys(selectedRows[0].key);
-            },
+          expandable={{
+            expandedRowRender: (record) => (
+              <Table
+                style={{ marginLeft: "80px", width: "80%" }}
+                bordered
+                columns={columnChilden}
+                scroll={{ x: 500, y: "35vh" }}
+                components={components}
+                className="gx-table-responsive th-F1D065-head"
+                dataSource={reDataForTable(JSON.parse(record.list_ChiTiets))}
+                size="small"
+                rowClassName={"editable-row"}
+                // loading={loading}
+                pagination={false}
+              />
+            ),
+            rowExpandable: (record) => record.name !== "Not Expandable",
           }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                if (SelectedKeys === record.key) {
-                  setSelectedDNCVT(null);
-                  setSelectedKeys(null);
-                } else {
-                  setSelectedDNCVT(record);
-                  setSelectedKeys(record.key);
-                }
-              },
-            };
-          }}
+          // rowSelection={{
+          //   type: "radio",
+          //   selectedRowKeys: SelectedKeys ? [SelectedKeys] : [],
+          //   onChange: (selectedRowKeys, selectedRows) => {
+          //     setSelectedDNCVT(selectedRows[0]);
+          //     setSelectedKeys(selectedRows[0].key);
+          //   },
+          // }}
+          // onRow={(record, rowIndex) => {
+          //   return {
+          //     onClick: (e) => {
+          //       if (SelectedKeys === record.key) {
+          //         setSelectedDNCVT(null);
+          //         setSelectedKeys(null);
+          //       } else {
+          //         setSelectedDNCVT(record);
+          //         setSelectedKeys(record.key);
+          //       }
+          //     },
+          //   };
+          // }}
           loading={loading}
         />
       </Card>

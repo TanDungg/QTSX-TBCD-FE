@@ -21,7 +21,7 @@ function Home({ permission, history }) {
   useEffect(() => {
     getInfo();
     return () => dispatch(fetchReset());
-  }, []);
+  }, [dispatch]);
   const getInfo = () => {
     dispatch(
       fetchStart(

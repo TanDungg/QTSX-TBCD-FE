@@ -17,20 +17,16 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import ModalAddViTri from "./ModalAddViTri";
 const { EditableRow, EditableCell } = EditableTableRow;
 function KhoVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [ListVatTuSelected, setListVatTuSelected] = useState([]);
-
+  const [selectedDevice, setSelectedDevice] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState("");
-  const [ActiveModal, setActiveModal] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -47,25 +43,21 @@ function KhoVatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, cauTrucKho_Id, page) => {
+  const loadData = (keyword, cauTrucKho_Id) => {
     const param = convertObjectToUrlParams({
       cauTrucKho_Id,
       keyword,
-      page,
-      donVi_Id: INFO.donVi_Id,
     });
     dispatch(
       fetchStart(
-        `lkn_ViTriLuuKho/list-vi-tri-luu-kho-vat-tu?${param}`,
+        `lkn_ViTriLuuKho/list-vat-tu-da-co-vi-tri?${param}`,
         "GET",
         null,
         "LIST"
       )
     );
   };
-  const refesh = () => {
-    loadData(keyword, Kho, page);
-  };
+
   const getKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -83,7 +75,7 @@ function KhoVatTu({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setKho(res.data[0].id);
-          loadData(keyword, res.data[0].id, page);
+          loadData(keyword, res.data[0].id);
           setListKho(res.data);
         } else {
           setListKho([]);
@@ -96,7 +88,7 @@ function KhoVatTu({ match, history, permission }) {
    *
    */
   const onSearchVatTu = () => {
-    loadData(keyword, Kho, page);
+    loadData(keyword, Kho);
   };
 
   /**
@@ -107,27 +99,15 @@ function KhoVatTu({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, Kho, page);
+      loadData(val.target.value, Kho);
     }
   };
-  /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    loadData(keyword, Kho, pagination);
-  };
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
-  const handleRedirect = () => {
-    setActiveModal(true);
+  const handlePrint = () => {
+    history.push({
+      pathname: `${match.url}/inMa`,
+      state: { VatTu: selectedDevice },
+    });
   };
   const addButtonRender = () => {
     return (
@@ -136,17 +116,17 @@ function KhoVatTu({ match, history, permission }) {
           icon={<EditOutlined />}
           className="th-margin-bottom-0"
           type="primary"
-          onClick={handleRedirect}
+          onClick={handlePrint}
           disabled={
-            (permission && !permission.add) || ListVatTuSelected.length === 0
+            (permission && !permission.add) || selectedDevice.length === 0
           }
         >
-          Vị trí
+          In BarCode
         </Button>
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, totalPageSize } = data;
 
   let dataList = reDataForTable(
     data
@@ -243,46 +223,39 @@ function KhoVatTu({ match, history, permission }) {
   });
 
   function hanldeRemoveSelected(device) {
-    const newDevice = remove(ListVatTuSelected, (d) => {
+    const newDevice = remove(selectedDevice, (d) => {
       return d.key !== device.key;
     });
     const newKeys = remove(selectedKeys, (d) => {
       return d !== device.key;
     });
-    setListVatTuSelected(newDevice);
+    setSelectedDevice(newDevice);
     setSelectedKeys(newKeys);
   }
 
   const rowSelection = {
     selectedRowKeys: selectedKeys,
-    selectedRows: ListVatTuSelected,
+    selectedRows: selectedDevice,
     onChange: (selectedRowKeys, selectedRows) => {
-      const newListVatTuSelected =
-        ListVatTuSelected.length > 0
-          ? selectedRows.filter((d) => d.key !== ListVatTuSelected[0].key)
-          : [...selectedRows];
-      const newSelectedKey =
-        selectedKeys.length > 0
-          ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
-          : [...selectedRowKeys];
-
-      setListVatTuSelected(newListVatTuSelected);
+      const newSelectedDevice = [...selectedRows];
+      const newSelectedKey = [...selectedRowKeys];
+      setSelectedDevice(newSelectedDevice);
       setSelectedKeys(newSelectedKey);
     },
   };
   const handleOnSelectKho = (val) => {
     setKho(val);
-    setPage(1);
+
     loadData(keyword, val, 1);
     setSelectedKeys([]);
-    setListVatTuSelected([]);
+    setSelectedDevice([]);
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Kho vật tư"
-        description="Kho vật tư"
+        title="In Barcode vật tư"
+        description="In Barcode vật tư"
         buttons={addButtonRender()}
       />
 
@@ -341,7 +314,6 @@ function KhoVatTu({ match, history, permission }) {
             ...rowSelection,
             preserveSelectedRowKeys: true,
             selectedRowKeys: selectedKeys,
-            hideSelectAll: true,
             getCheckboxProps: (record) => ({}),
           }}
           onRow={(record, rowIndex) => {
@@ -349,8 +321,8 @@ function KhoVatTu({ match, history, permission }) {
               onClick: (e) => {
                 const found = find(selectedKeys, (k) => k === record.key);
                 if (found === undefined) {
-                  setListVatTuSelected([record]);
-                  setSelectedKeys([record.key]);
+                  setSelectedDevice([...selectedDevice, record]);
+                  setSelectedKeys([...selectedKeys, record.key]);
                 } else {
                   hanldeRemoveSelected(record);
                 }
@@ -368,8 +340,7 @@ function KhoVatTu({ match, history, permission }) {
             return record.isParent ? "editable-row" : "editable-row";
           }}
           pagination={{
-            onChange: handleTableChange,
-            pageSize: pageSize,
+            pageSize: 20,
             total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,
@@ -377,12 +348,6 @@ function KhoVatTu({ match, history, permission }) {
           loading={loading}
         />
       </Card>
-      <ModalAddViTri
-        openModal={ActiveModal}
-        openModalFS={setActiveModal}
-        vatTu={ListVatTuSelected[0]}
-        refesh={refesh}
-      />
     </div>
   );
 }

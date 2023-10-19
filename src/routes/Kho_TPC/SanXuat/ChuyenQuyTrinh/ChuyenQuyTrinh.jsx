@@ -102,7 +102,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuChuyenQuyTrinhSX/list-lot-by-quy-trinh?Lkn_QuyTrinhSX_Id=${id}`,
+          `lkn_PhieuChuyenQuyTrinhSX/list-tat-ca-lot-by-quy-trinh?Lkn_QuyTrinhSX_Id=${id}`,
           "GET",
           null,
           "DETAIL",

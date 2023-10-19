@@ -218,7 +218,7 @@ const ChuyenQuyTrinhForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${info.user_Id}?${params}`,
+          `Account/cbnv/${userLap_Id ? userLap_Id : info.user_Id}?${params}`,
           "GET",
           null,
           "DETAIL",
