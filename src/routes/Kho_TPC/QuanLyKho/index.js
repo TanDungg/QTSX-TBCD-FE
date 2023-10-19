@@ -55,6 +55,9 @@ const DieuChuyenForm = asyncComponent(() =>
 const ThanhLy = asyncComponent(() => import("./ThanhLy/ThanhLy"));
 const ThanhLyForm = asyncComponent(() => import("./ThanhLy/ThanhLyForm"));
 
+const KiemKe = asyncComponent(() => import("./KiemKe/KiemKe"));
+const KiemKeForm = asyncComponent(() => import("./KiemKe/KiemKeForm"));
+
 const TheKho = asyncComponent(() => import("./TheKho/TheKho"));
 const TheKhoForm = asyncComponent(() => import("./TheKho/TheKhoForm"));
 const SoDuDauKy = asyncComponent(() => import("./SoDuDauKy/SoDuDauKy"));
@@ -260,6 +263,26 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/thanh-ly/:id/chi-tiet`}
         exact
         component={Auth(ThanhLyForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/kiem-ke`}
+        exact
+        component={Auth(KiemKe, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/kiem-ke/them-moi`}
+        exact
+        component={Auth(KiemKeForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/kiem-ke/:id/chinh-sua`}
+        exact
+        component={Auth(KiemKeForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/kiem-ke/:id/chi-tiet`}
+        exact
+        component={Auth(KiemKeForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/the-kho`}

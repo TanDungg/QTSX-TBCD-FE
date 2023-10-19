@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -30,7 +30,7 @@ import moment from "moment";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
-function TraNhaCungCap({ match, history, permission }) {
+function KiemKe({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -66,7 +66,7 @@ function TraNhaCungCap({ match, history, permission }) {
       keyword,
       page,
     });
-    dispatch(fetchStart(`lkn_PhieuTraHangNCC?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`lkn_PhieuKiemKe?${param}`, "GET", null, "LIST"));
   };
 
   const getBanPhong = () => {
@@ -117,7 +117,7 @@ function TraNhaCungCap({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
+      permission && permission.cof && item.tinhTrang !== "Hoàn thành" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -178,8 +178,8 @@ function TraNhaCungCap({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuTraHang,
-      "phiếu trả hàng nhà cung cấp"
+      item.maPhieuKiemKe,
+      "phiếu kiểm kê vật tư"
     );
   };
 
@@ -189,7 +189,7 @@ function TraNhaCungCap({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuTraHangNCC?id=${item.id}`;
+    let url = `lkn_PhieuKiemKe?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -254,10 +254,10 @@ function TraNhaCungCap({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuTraHang}
+          {val.maPhieuKiemKe}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuTraHang}</span>
+        <span disabled>{val.maPhieuKiemKe}</span>
       );
     return <div>{detail}</div>;
   };
@@ -272,14 +272,14 @@ function TraNhaCungCap({ match, history, permission }) {
     },
     {
       title: "Mã phiếu",
-      key: "maPhieuTraHang",
+      key: "maPhieuKiemKe",
       align: "center",
       render: (val) => renderDetail(val),
     },
     {
-      title: "Ngày yêu cầu",
-      dataIndex: "ngayYeuCau",
-      key: "ngayYeuCau",
+      title: "Ngày kiểm kê",
+      dataIndex: "ngayKiemKe",
+      key: "ngayKiemKe",
       align: "center",
     },
     {
@@ -290,8 +290,8 @@ function TraNhaCungCap({ match, history, permission }) {
     },
     {
       title: "Người lập phiếu",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
+      dataIndex: "tenNguoiLap",
+      key: "tenNguoiLap",
       align: "center",
     },
     {
@@ -353,8 +353,8 @@ function TraNhaCungCap({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phiếu trả hàng nhà cung cấp"
-        description="Danh sách phiếu trả hàng nhà cung cấp"
+        title="Phiếu kiểm kê vật tư"
+        description="Danh sách phiếu kiểm kê vật tư"
         buttons={addButtonRender()}
       />
 
@@ -455,4 +455,4 @@ function TraNhaCungCap({ match, history, permission }) {
   );
 }
 
-export default TraNhaCungCap;
+export default KiemKe;
