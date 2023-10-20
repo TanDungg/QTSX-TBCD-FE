@@ -38,7 +38,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
-  const [listChiTiet, setListChiTiet] = useState([]);
+  // const [listLoaiSanPham, setListLoaiSanPham] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
@@ -54,6 +54,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
           getUserLap(INFO);
           getUserKy(INFO);
           setType("new");
+          // getLoaiSanPham();
           getSanPham();
           setFieldsValue({
             dinhmucvattu: {
@@ -154,10 +155,32 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       }
     });
   };
-  const getSanPham = () => {
+  // const getLoaiSanPham = () => {
+  //   new Promise((resolve, reject) => {
+  //     dispatch(
+  //       fetchStart(
+  //         `LoaiSanPham?page=-1`,
+  //         "GET",
+  //         null,
+  //         "DETAIL",
+  //         "",
+  //         resolve,
+  //         reject
+  //       )
+  //     );
+  //   }).then((res) => {
+  //     if (res && res.data) {
+  //       setListLoaiSanPham(res.data);
+  //     } else {
+  //       setListLoaiSanPham([]);
+  //     }
+  //   });
+  // };
+  const getSanPham = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
+          // `SanPham?page=-1&&loaiSanPham_Id=${id}`,
           `SanPham?page=-1`,
           "GET",
           null,
@@ -200,10 +223,8 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
           getUserLap(INFO, res.data.nguoiLap_Id);
           setInfo(res.data);
           getSanPham();
-          handleSelectSanPham(res.data.sanPham_Id);
           setFieldsValue({
             dinhmucvattu: {
-              chiTiet_Id: res.data.chiTiet_Id.toUpperCase(),
               sanPham_Id: res.data.sanPham_Id,
               ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               nguoiKy_Id: res.data.nguoiKy_Id,
@@ -251,6 +272,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
           res.data.dinhMuc = data.dinhMuc;
           res.data.vatTu_Id = res.data.id;
           setListVatTu([...listVatTu, res.data]);
+          setFieldTouch(true);
         }
       })
       .catch((error) => console.error(error));
@@ -272,8 +294,9 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter((d) => d.id !== item.id);
+    const newData = listVatTu.filter((d) => d.vatTu_Id !== item.vatTu_Id);
     setListVatTu(newData);
+    setFieldTouch(true);
   };
 
   /**
@@ -421,6 +444,13 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
               resetFields();
               setFieldTouch(false);
               setListVatTu([]);
+              setFieldsValue({
+                dinhmucvattu: {
+                  userLap_Id: newData.userLap_Id,
+                  tenPhongBan: newData.tenPhongBan,
+                  ngayYeuCau: DinhMucVatTu.ngayYeuCau,
+                },
+              });
             }
           } else {
             setFieldTouch(false);
@@ -430,7 +460,6 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
     }
     if (type === "edit") {
       newData.id = id;
-      newData.maDinhMucVatTu = info.maDinhMucVatTu;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -514,7 +543,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
           `lkn_DinhMucVatTu/xac-nhan/${id}`,
           "PUT",
           newData,
-          "EDIT",
+          "TUCHOI",
           "",
           resolve,
           reject
@@ -548,16 +577,8 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
         </Tag>
       </span>
     );
-  const handleSelectSanPham = (val) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(`SanPham/${val}`, "GET", null, "LIST", "", resolve, reject)
-      );
-    })
-      .then((res) => {
-        if (res && res.data) setListChiTiet(JSON.parse(res.data.chiTiet));
-      })
-      .catch((error) => console.error(error));
+  const handleSelectLoaiSanPham = (val) => {
+    getSanPham(val);
   };
   return (
     <div className="gx-main-content">
@@ -621,6 +642,38 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                 <Input className="input-item" disabled={true} />
               </FormItem>
             </Col>
+            {/* <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Loại sản phẩm"
+                name={["dinhmucvattu", "loaiSanPham_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={listLoaiSanPham ? listLoaiSanPham : []}
+                  placeholder="Chọn loại sản phẩm"
+                  optionsvalue={["id", "tenLoaiSanPham"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  onSelect={handleSelectLoaiSanPham}
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col> */}
             <Col
               xxl={12}
               xl={12}
@@ -648,7 +701,6 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  onSelect={handleSelectSanPham}
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>

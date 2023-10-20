@@ -84,36 +84,34 @@ function KeHoach({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const newData = res.data.map((dt) => {
+          const newData = res.data.map((sp) => {
             const ctkh = {};
             let t = 0;
-            JSON.parse(dt.chiTietKeHoach).forEach((ct) => {
+            JSON.parse(sp.chiTietKeHoach).forEach((ct) => {
               let chiTietMS = [];
-              JSON.parse(dt.chiTietMauSac).forEach((ms) => {
-                if (ms.keHoach_Id === ct.KeHoach_Id) {
-                  chiTietMS.push({
-                    mauSac_Id: ms.mauSac_Id,
-                    tenMauSac: ms.tenMauSac,
-                    soLuong: ms.soLuong,
-                  });
-                }
+              ct.chiTietMauSac.forEach((ms) => {
+                chiTietMS.push({
+                  mauSac_Id: ms.mauSac_Id,
+                  tenMauSac: ms.tenMauSac,
+                  soLuong: ms.soLuong,
+                });
               });
               ctkh[`ngay${ct.ngay}`] = {
                 soLuong: ct.tongSoLuong,
                 mauSac: chiTietMS,
-                keHoach_Id: ct.KeHoach_Id,
+                keHoach_Id: ct.keHoach_Id,
                 ngay: ct.ngay,
-                sanPham_Id: dt.sanPham_Id,
-                thang: thang,
-                nam: nam,
-                tenSanPham: dt.tenSanPham,
+                sanPham_Id: sp.sanPham_Id,
+                thang: ct.thang,
+                nam: ct.nam,
+                tenSanPham: sp.tenSanPham,
               };
               t = t + ct.tongSoLuong;
             });
             return {
-              maSanPham: dt.maSanPham,
-              tenSanPham: dt.tenSanPham,
-              sanPham_Id: dt.sanPham_Id,
+              maSanPham: sp.maSanPham,
+              tenSanPham: sp.tenSanPham,
+              sanPham_Id: sp.sanPham_Id,
               tong: t > 0 ? t : 0,
               ...ctkh,
             };
@@ -142,7 +140,7 @@ function KeHoach({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListKeHoach(res.data);
-          setKeHoach(res.data[1].id);
+          setKeHoach(res.data[0].id);
         } else {
           setListKeHoach([]);
         }
@@ -441,11 +439,6 @@ function KeHoach({ match, history, permission }) {
     getVersion(KeHoach, Xuong, Thang, Nam);
   };
   const { totalPages, totalRow } = data;
-
-  const handleClearLoaiXe = (value) => {
-    getListData(KeHoach, "", Thang, Nam);
-    setLoaiXe(null);
-  };
   const handleClearVersion = (value) => {
     getListData(KeHoach, loaiXe, Thang, Nam);
     setVersion(null);

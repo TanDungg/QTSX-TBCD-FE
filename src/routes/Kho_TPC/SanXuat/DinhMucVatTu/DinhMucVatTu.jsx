@@ -41,8 +41,8 @@ function DinhMucVatTu({ permission, history, match }) {
   const [DinhMucVatTu, setDinhMucVatTu] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
-  const [SelectedDinhMucVatTu, setSelectedDinhMucVatTu] = useState(null);
-  const [selectedKeys, setSelectedKeys] = useState(null);
+  // const [SelectedDinhMucVatTu, setSelectedDinhMucVatTu] = useState(null);
+  // const [selectedKeys, setSelectedKeys] = useState(null);
   const [keyword, setKeyword] = useState("");
   const [data, setData] = useState([]);
 
@@ -222,7 +222,7 @@ function DinhMucVatTu({ permission, history, match }) {
       permission &&
       permission.cof &&
       item.nguoiKy_Id === INFO.user_Id &&
-      item.xacNhan === null ? (
+      item.isXacNhan === 0 ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -238,10 +238,7 @@ function DinhMucVatTu({ permission, history, match }) {
         </span>
       );
     const editItem =
-      permission &&
-      permission.edit &&
-      item.nguoiLap_Id === INFO.user_Id &&
-      item.xacNhan === null ? (
+      permission && permission.edit && item.isXacNhan === 0 ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -257,10 +254,7 @@ function DinhMucVatTu({ permission, history, match }) {
         </span>
       );
     const deleteItemVal =
-      permission &&
-      permission.del &&
-      item.nguoiLap_Id === INFO.user_Id &&
-      item.xacNhan === null
+      permission && permission.del && item.isXacNhan === 0
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -404,14 +398,14 @@ function DinhMucVatTu({ permission, history, match }) {
     };
   });
 
-  /**
-   * Redirect to create new organization
-   *
-   * @memberof ChucNang
-   */
-  const handleInPhieu = () => {
-    history.push();
-  };
+  // /**
+  //  * Redirect to create new organization
+  //  *
+  //  * @memberof ChucNang
+  //  */
+  // const handleInPhieu = () => {
+  //   history.push();
+  // };
 
   const handleTaoPhieu = () => {
     history.push(`${match.url}/them-moi`);
@@ -424,11 +418,12 @@ function DinhMucVatTu({ permission, history, match }) {
           className="th-btn-margin-bottom-0"
           type="primary"
           onClick={handleTaoPhieu}
-          disabled={(permission && !permission.add) || selectedKeys !== null}
+          // disabled={(permission && !permission.add) || selectedKeys !== null}
+          disabled={permission && !permission.add}
         >
           Tạo phiếu
         </Button>
-        <Button
+        {/* <Button
           icon={<PrinterOutlined />}
           className="th-btn-margin-bottom-0"
           type="primary"
@@ -436,7 +431,7 @@ function DinhMucVatTu({ permission, history, match }) {
           disabled={(permission && !permission.print) || selectedKeys === null}
         >
           In phiếu
-        </Button>
+        </Button> */}
       </>
     );
   };
@@ -449,8 +444,8 @@ function DinhMucVatTu({ permission, history, match }) {
 
   const handleClearUser_Id = () => {
     setUser_Id(null);
-    setSelectedDinhMucVatTu(null);
-    setSelectedKeys(null);
+    // setSelectedDinhMucVatTu(null);
+    // setSelectedKeys(null);
     getDinhMucVatTu(keyword, "", FromDate, ToDate, 1);
   };
 
@@ -556,38 +551,38 @@ function DinhMucVatTu({ permission, history, match }) {
             showSizeChanger: false,
             showQuickJumper: true,
           }}
-          rowSelection={{
-            type: "radio",
-            selectedRowKeys: selectedKeys ? [selectedKeys] : [],
-            onChange: (selectedRowKeys, selectedRows) => {
-              if (
-                selectedRows.length > 0 &&
-                selectedRows[0].xacNhanDinhMuc === "Xác nhận"
-              ) {
-                setSelectedDinhMucVatTu(selectedRows[0]);
-                setSelectedKeys(selectedRows[0].key);
-              } else {
-                setSelectedDinhMucVatTu(null);
-                setSelectedKeys(null);
-              }
-            },
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                if (
-                  selectedKeys === record.key ||
-                  record.xacNhanDinhMuc !== "Xác nhận"
-                ) {
-                  setSelectedDinhMucVatTu(null);
-                  setSelectedKeys(null);
-                } else {
-                  setSelectedDinhMucVatTu(record);
-                  setSelectedKeys(record.key);
-                }
-              },
-            };
-          }}
+          // rowSelection={{
+          //   type: "radio",
+          //   selectedRowKeys: selectedKeys ? [selectedKeys] : [],
+          //   onChange: (selectedRowKeys, selectedRows) => {
+          //     if (
+          //       selectedRows.length > 0 &&
+          //       selectedRows[0].xacNhanDinhMuc === "Xác nhận"
+          //     ) {
+          //       setSelectedDinhMucVatTu(selectedRows[0]);
+          //       setSelectedKeys(selectedRows[0].key);
+          //     } else {
+          //       setSelectedDinhMucVatTu(null);
+          //       setSelectedKeys(null);
+          //     }
+          //   },
+          // }}
+          // onRow={(record, rowIndex) => {
+          //   return {
+          //     onClick: (e) => {
+          //       if (
+          //         selectedKeys === record.key ||
+          //         record.xacNhanDinhMuc !== "Xác nhận"
+          //       ) {
+          //         setSelectedDinhMucVatTu(null);
+          //         setSelectedKeys(null);
+          //       } else {
+          //         setSelectedDinhMucVatTu(record);
+          //         setSelectedKeys(record.key);
+          //       }
+          //     },
+          //   };
+          // }}
         />
       </Card>
     </div>

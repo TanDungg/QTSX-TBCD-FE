@@ -72,7 +72,6 @@ function AddSanPhamModal({ openModalFS, openModal, loading, addSanPham }) {
     validateFields()
       .then((values) => {
         const newData = values.sanpham;
-        console.log(newData);
         ListSanPham.forEach((lsp) => {
           if (lsp.id === newData.sanPham_Id) {
             newData.tenLoaiSanPham = lsp.tenLoaiSanPham;
@@ -81,7 +80,7 @@ function AddSanPhamModal({ openModalFS, openModal, loading, addSanPham }) {
             newData.tenDonViTinh = lsp.tenDonViTinh;
             if (newData.mauSac_Id) {
               JSON.parse(lsp.mauSac).forEach((ms) => {
-                if (ms.id === newData.mauSac_Id) {
+                if (ms.mauSac_Id === newData.mauSac_Id) {
                   newData.tenMauSac = ms.tenMauSac;
                 }
               });
@@ -205,7 +204,6 @@ function AddSanPhamModal({ openModalFS, openModal, loading, addSanPham }) {
             rules={[
               {
                 type: "string",
-                required: true,
               },
             ]}
           >
