@@ -49,7 +49,7 @@ import ModalTuChoi from "./ModalTuChoi";
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 
-const TraNhaCungCapForm = ({ history, match, permission }) => {
+const KiemKeForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [form] = Form.useForm();
@@ -75,7 +75,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           setType("new");
           setFieldsValue({
-            tranhacungcap: {
+            kiemkeform: {
               ngayKiemKe: moment(getDateNow(), "DD/MM/YYYY"),
             },
           });
@@ -116,6 +116,8 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const getData = () => {
+
+    
     getUserLap(INFO, null);
     getXuong();
     getListKho();
@@ -141,6 +143,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
+        console.log(res.data);
         const xuong = [];
         res.data.forEach((x) => {
           if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
@@ -199,7 +202,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
       if (res && res.data) {
         setListUser([res.data]);
         setFieldsValue({
-          tranhacungcap: {
+          kiemkeform: {
             userLap_Id: res.data.Id,
             tenPhongBan: res.data.tenPhongBan,
           },
@@ -244,7 +247,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuTraHangNCC/${id}?${params}`,
+          `lkn_PhieuKiemKe/${id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -258,41 +261,33 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
         if (res && res.data) {
           setInfo(res.data);
           getUserDuyet(INFO);
+          getXuong();
           getListKho();
           getUserLap(INFO, res.data.userLap_Id);
+          setXuong(res.data.phongBan_Id);
           setFieldsValue({
-            tranhacungcap: {
+            kiemkeform: {
               ngayKiemKe: moment(res.data.ngayKiemKe, "DD/MM/YYYY"),
               phongBan_Id: res.data.phongBan_Id,
-              benVanChuyen_Id: res.data.benVanChuyen_Id,
-              userDuyet_Id: res.data.userDuyet_Id,
-              fileDanhGiaChatLuong: res.data.fileDanhGiaChatLuong,
+              userDuyet2_Id: res.data.userDuyet2_Id,
+              userDuyet3_Id: res.data.userDuyet3_Id,
+              userDuyet4_Id: res.data.userDuyet4_Id,
             },
           });
 
           const newData =
-            res.data.chiTietVatTu &&
-            JSON.parse(res.data.chiTietVatTu).map((data) => {
-              const vitri = `${data.tenKe ? `${data.tenKe}` : ""}${
-                data.tenTang ? ` - ${data.tenTang}` : ""
-              }${data.tenNgan ? ` - ${data.tenNgan}` : ""}`;
-
+            res.data.chiTiet_PhieuKiemKes &&
+            JSON.parse(res.data.chiTiet_PhieuKiemKes).map((data) => {
               return {
                 ...data,
-                soLuongKiemKe: data.soLuong,
-                lkn_ChiTietKhoVatTu_Id: data.lkn_ChiTietKhoVatTu_Id
-                  ? data.lkn_ChiTietKhoVatTu_Id.toLowerCase()
-                  : createGuid(),
-                vatTu: `${data.maVatTu} - ${data.tenVatTu}${
-                  vitri ? ` (${vitri})` : ""
-                }`,
+                vatTu_Id: data.vatTu_Id.toLowerCase(),
               };
             });
           setListVatTu(newData);
 
           const newSoLuong = {};
           newData.forEach((data) => {
-            newSoLuong[data.lkn_ChiTietKhoVatTu_Id] = data.soLuongKiemKe || 0;
+            newSoLuong[data.vatTu_Id] = data.soLuongKiemKe || 0;
           });
           setSoLuongKiemKe(newSoLuong);
         }
@@ -366,7 +361,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
   const renderSoLuongKiemKe = (record) => {
     if (record) {
       return type === "detail" || type === "xacnhan" ? (
-        SoLuongKiemKe[record.lkn_ChiTietKhoVatTu_Id]
+        SoLuongKiemKe[record.vatTu_Id]
       ) : (
         <div>
           <Input
@@ -376,9 +371,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
               width: "100%",
             }}
             className={`input-item`}
-            value={
-              SoLuongKiemKe && SoLuongKiemKe[record.lkn_ChiTietKhoVatTu_Id]
-            }
+            value={SoLuongKiemKe && SoLuongKiemKe[record.vatTu_Id]}
             type="number"
             onChange={(val) => handleInputChange(val, record)}
           />
@@ -392,11 +385,11 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
     const sl = val.target.value;
     setSoLuongKiemKe((prevSoLuongKiemKe) => ({
       ...prevSoLuongKiemKe,
-      [record.lkn_ChiTietKhoVatTu_Id]: sl,
+      [record.vatTu_Id]: sl,
     }));
     setListVatTu((prevListVatTu) => {
       return prevListVatTu.map((item) => {
-        if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+        if (record.vatTu_Id === item.vatTu_Id) {
           return {
             ...item,
             soLuongKiemKe: sl ? parseFloat(sl) : 0,
@@ -440,7 +433,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "SL điều chuyển",
+      title: "SL kiểm kê",
       key: "soLuongKiemKe",
       align: "center",
       render: (record) => renderSoLuongKiemKe(record),
@@ -489,13 +482,13 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.tranhacungcap);
+    saveData(values.kiemkeform);
   };
 
   const saveAndClose = (value) => {
     validateFields()
       .then((values) => {
-        saveData(values.tranhacungcap, value);
+        saveData(values.kiemkeform, value);
       })
       .catch((error) => {
         console.log("error", error);
@@ -510,12 +503,12 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
         const newData = {
           ...data,
           ngayKiemKe: data.ngayKiemKe.format("DD/MM/YYYY"),
-          chiTiet_traHangNCCs: ListVatTu,
+          chiTiet_PhieuKiemKes: ListVatTu,
         };
         new Promise((resolve, reject) => {
           dispatch(
             fetchStart(
-              `lkn_PhieuTraHangNCC`,
+              `lkn_PhieuKiemKe`,
               "POST",
               newData,
               "ADD",
@@ -534,7 +527,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                 setFieldTouch(false);
                 getData();
                 setFieldsValue({
-                  tranhacungcap: {
+                  kiemkeform: {
                     ngayKiemKe: moment(getDateNow(), "DD/MM/YYYY"),
                   },
                 });
@@ -552,12 +545,12 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
         ...data,
         id: id,
         ngayKiemKe: data.ngayKiemKe.format("DD/MM/YYYY"),
-        chiTiet_traHangNCCs: ListVatTu,
+        chiTiet_PhieuKiemKes: ListVatTu,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuTraHangNCC/${id}`,
+            `lkn_PhieuKiemKe/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -587,7 +580,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuTraHangNCC/xac-nhan/${id}`,
+          `lkn_PhieuKiemKe/xac-nhan/${id}`,
           "PUT",
           newData,
           "XACNHAN",
@@ -656,7 +649,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
       <span>
         Chi tiết phiếu kiểm kê vật tư -{" "}
         <Tag color={"blue"} style={{ fontSize: "14px" }}>
-          {info.maPhieuTraHangNCC}
+          {info.maPhieuKiemKe}
         </Tag>
       </span>
     );
@@ -684,7 +677,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người lập"
-                name={["tranhacungcap", "userLap_Id"]}
+                name={["kiemkeform", "userLap_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -712,7 +705,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Ban/Phòng"
-                name={["tranhacungcap", "tenPhongBan"]}
+                name={["kiemkeform", "tenPhongBan"]}
                 rules={[
                   {
                     type: "string",
@@ -734,7 +727,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Ban/Phòng"
-                name={["tranhacungcap", "phongBan_Id"]}
+                name={["kiemkeform", "phongBan_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -751,7 +744,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp={"name"}
                   onSelect={handleSelectXuong}
-                  disabled={ListVatTu.length !== 0 ? true : false}
+                  disabled={ListVatTu && ListVatTu.length !== 0 ? true : false}
                 />
               </FormItem>
             </Col>
@@ -766,7 +759,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Ngày kiểm kê"
-                name={["tranhacungcap", "ngayKiemKe"]}
+                name={["kiemkeform", "ngayKiemKe"]}
                 rules={[
                   {
                     required: true,
@@ -776,7 +769,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                 <DatePicker
                   format={"DD/MM/YYYY"}
                   allowClear={false}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -791,7 +784,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người duyệt 1"
-                name={["tranhacungcap", "userDuyet2_Id"]}
+                name={["kiemkeform", "userDuyet2_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -822,7 +815,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người duyệt 2"
-                name={["tranhacungcap", "userDuyet3_Id"]}
+                name={["kiemkeform", "userDuyet3_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -853,7 +846,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người duyệt 3"
-                name={["tranhacungcap", "userDuyet4_Id"]}
+                name={["kiemkeform", "userDuyet4_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -900,22 +893,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
           scroll={{ x: 1300, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
-          dataSource={
-            type === "new"
-              ? reDataForTable(ListVatTu)
-              : reDataForTable(
-                  ListVatTu.map((list) => {
-                    const Kho = ListKhoVatTu.filter(
-                      (d) =>
-                        d.id.toLowerCase() === list.cauTrucKho_Id.toLowerCase()
-                    );
-                    return {
-                      ...list,
-                      tenCTKho: Kho.length !== 0 && Kho[0].tenCTKho,
-                    };
-                  })
-                )
-          }
+          dataSource={reDataForTable(ListVatTu)}
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
@@ -947,7 +925,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
-        itemData={{ xuong: Xuong }}
+        itemData={{ xuong: Xuong, listVatTu: ListVatTu && ListVatTu }}
         ThemVatTu={handleThemVatTu}
       />
       <ModalTuChoi
@@ -955,7 +933,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
         openModalFS={setActiveModalTuChoi}
         itemData={{
           xuong: Xuong,
-          listVatTu: ListVatTu.length !== 0 && ListVatTu,
+          listVatTu: ListVatTu && ListVatTu,
         }}
         refesh={handleRefeshModal}
       />
@@ -963,4 +941,4 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
   );
 };
 
-export default TraNhaCungCapForm;
+export default KiemKeForm;

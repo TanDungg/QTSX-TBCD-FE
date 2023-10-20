@@ -17,6 +17,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   useEffect(() => {
     if (openModal) {
+      console.log(itemData);
       getListVatTu(itemData.xuong);
     }
     return () => {
@@ -47,6 +48,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
           return {
             ...data,
             vatTu: `${data.maVatTu} - ${data.tenVatTu}`,
+            soLuongKiemKe: data.soLuong,
           };
         });
         const newData = itemData.listVatTu
