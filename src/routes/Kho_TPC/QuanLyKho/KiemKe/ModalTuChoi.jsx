@@ -16,7 +16,7 @@ function ModalTuChoi({ openModalFS, openModal, itemData, refesh }) {
     if (openModal) {
       setFieldsValue({
         modaltuchoi: {
-          maPhieuXuatKhoVatTu: itemData.maPhieuXuatKhoVatTu,
+          maPhieuKiemKe: itemData.maPhieuKiemKe,
         },
       });
     }
@@ -37,7 +37,7 @@ function ModalTuChoi({ openModalFS, openModal, itemData, refesh }) {
         new Promise((resolve, reject) => {
           dispatch(
             fetchStart(
-              `lkn_PhieuXuatKhoVatTu/xac-nhan/${itemData.id}`,
+              `lkn_PhieuKiemKe/xac-nhan/${itemData.id}`,
               "PUT",
               newData,
               "TUCHOI",
@@ -69,7 +69,7 @@ function ModalTuChoi({ openModalFS, openModal, itemData, refesh }) {
 
   return (
     <AntModal
-      title={`Lý do từ chối phiếu xuất kho vật tư`}
+      title={`Lý do từ chối phiếu kiểm kê vật tư`}
       open={openModal}
       width={width > 1000 ? `50%` : "80%"}
       closable={true}
@@ -86,7 +86,7 @@ function ModalTuChoi({ openModalFS, openModal, itemData, refesh }) {
           >
             <FormItem
               label="Mã phiếu"
-              name={["modaltuchoi", "maPhieuXuatKhoVatTu"]}
+              name={["modaltuchoi", "maPhieuKiemKe"]}
               rules={[
                 {
                   type: "string",

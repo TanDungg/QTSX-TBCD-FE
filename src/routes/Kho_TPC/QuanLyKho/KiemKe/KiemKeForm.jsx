@@ -1,8 +1,4 @@
-import {
-  DeleteOutlined,
-  PlusCircleOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -13,7 +9,6 @@ import {
   Button,
   Tag,
   Divider,
-  Upload,
 } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
@@ -30,14 +25,9 @@ import {
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import { DEFAULT_FORM_DIEUCHUYEN_THANHLY } from "src/constants/Config";
 import {
-  BASE_URL_API,
-  DEFAULT_FORM_DIEUCHUYEN_THANHLY,
-} from "src/constants/Config";
-import {
-  FileName,
   convertObjectToUrlParams,
-  createGuid,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
@@ -116,8 +106,6 @@ const KiemKeForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const getData = () => {
-
-    
     getUserLap(INFO, null);
     getXuong();
     getListKho();

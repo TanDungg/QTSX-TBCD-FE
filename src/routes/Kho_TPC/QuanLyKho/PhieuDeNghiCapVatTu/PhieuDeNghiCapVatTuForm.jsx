@@ -23,6 +23,7 @@ import {
   Table,
   ModalDeleteConfirm,
   Modal,
+  EditableTableRow,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_DENGHI_CVT } from "src/constants/Config";
@@ -36,98 +37,7 @@ import {
 import AddVatTuModal from "./AddVatTuModal";
 import ModalTuChoi from "./ModalTuChoi";
 
-const EditableContext = React.createContext(null);
-
-const EditableRow = ({ index, ...props }) => {
-  const [form] = Form.useForm();
-  return (
-    <Form form={form} component={false}>
-      <EditableContext.Provider value={form}>
-        <tr {...props} />
-      </EditableContext.Provider>
-    </Form>
-  );
-};
-const EditableCell = ({
-  title,
-  editable,
-  children,
-  dataIndex,
-  record,
-  handleSave,
-  ...restProps
-}) => {
-  const [editing, setEditing] = useState(false);
-  const inputRef = useRef(null);
-  const form = useContext(EditableContext);
-  useEffect(() => {
-    if (editing) {
-      inputRef.current.focus();
-    }
-  }, [editing]);
-  const toggleEdit = () => {
-    setEditing(!editing);
-    form.setFieldsValue({
-      [dataIndex]: record[dataIndex],
-    });
-  };
-  const save = async () => {
-    try {
-      const values = await form.validateFields();
-      toggleEdit();
-      handleSave({
-        ...record,
-        ...values,
-      });
-    } catch (errInfo) {
-      console.log("Save failed:", errInfo);
-    }
-  };
-  let childNode = children;
-  if (editable) {
-    childNode = editing ? (
-      <Form.Item
-        style={{
-          margin: 0,
-        }}
-        name={dataIndex}
-        rules={
-          title === "SL cần mua"
-            ? [
-                {
-                  pattern: /^[1-9]\d*$/,
-                  message: "Số lượng không hợp lệ!",
-                },
-              ]
-            : null
-        }
-      >
-        <Input
-          style={{
-            margin: 0,
-            width: "100%",
-            textAlign: "center",
-          }}
-          ref={inputRef}
-          onPressEnter={save}
-          onBlur={save}
-        />
-      </Form.Item>
-    ) : (
-      <div
-        className="editable-cell-value-wrap"
-        style={{
-          paddingRight: 24,
-        }}
-        onClick={toggleEdit}
-      >
-        {children}
-      </div>
-    );
-  }
-  return <td {...restProps}>{childNode}</td>;
-};
-
+const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 
 const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
@@ -139,8 +49,10 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   const [form] = Form.useForm();
   const [ListXuong, setListXuong] = useState([]);
   const [Xuong, setXuong] = useState([]);
-  const [ListSoLot, setListSoLot] = useState([]);
+  const [ListSanPham, setListSanPham] = useState([]);
   const [listVatTu, setListVatTu] = useState([]);
+  const [SoLuongVatTu, setSoLuongVatTu] = useState([]);
+  const [HanMucVatTu, setHanMucVatTu] = useState([]);
   const [ListVatTuKhac, setListVatTuKhac] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
@@ -243,7 +155,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  const getListLot = (phongBan_Id, ngaySanXuat) => {
+  const getListSanPham = (phongBan_Id, ngaySanXuat) => {
     const ngay = ngaySanXuat.split("/");
     const params = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id,
@@ -251,12 +163,12 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       ngay: ngay[0],
       thang: ngay[1],
       nam: ngay[2],
-      loaiKeHoach_Id: "27267ddf-652a-49a8-9570-73bb176d2e65",
+      loaiKeHoach_Id: "3adecca0-3fe1-4433-b93b-0137dc3dfdce",
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_DinhMucVatTu/list-san-pham-by-lot-in-ke-hoach?${params}`,
+          `lkn_DinhMucVatTu/list-san-pham-in-ke-hoach?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -267,18 +179,18 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data.length > 0) {
-        setListSoLot(res.data);
+        setListSanPham(res.data);
       } else {
-        setListSoLot([]);
+        setListSanPham([]);
       }
     });
   };
 
-  const getListVatTu = (PhongBan_Id, Lot_Id) => {
+  const getListVatTu = (PhongBan_Id, SanPham_Id) => {
     const params = convertObjectToUrlParams({
       PhongBan_Id,
-      Lot_Id,
-      LoaiKeHoach_Id: "27267ddf-652a-49a8-9570-73bb176d2e65",
+      SanPham_Id,
+      LoaiKeHoach_Id: "3adecca0-3fe1-4433-b93b-0137dc3dfdce",
       Ngay: getFieldValue("capvattusanxuat").ngaySanXuat._i,
     });
     new Promise((resolve, reject) => {
@@ -295,31 +207,27 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        const newData = [];
-        res.data.list_ChiTiet &&
-          res.data.list_ChiTiet.map((data) => {
-            data.list_VatTu &&
-              data.list_VatTu.map((vattu) => {
-                newData.push({
-                  tenSanPham: res.data.tenSanPham,
-                  lkn_ChiTiet_Id: data.chiTiet_Id,
-                  tenChiTiet: data.tenChiTiet,
-                  soLuongKH: res.data.soLuongKH,
-                  soLuongChiTiet: data.soLuongChiTiet,
-                  lkn_DinhMucVatTu_Id: vattu.lkn_DinhMucVatTu_Id,
-                  vatTu_Id: vattu.vatTu_Id,
-                  maVatTu: vattu.maVatTu,
-                  tenVatTu: vattu.tenVatTu,
-                  soLuong:
-                    res.data.soLuongKH * data.soLuongChiTiet * vattu.dinhMuc,
-                  dinhMuc: vattu.dinhMuc,
-                  tenDonViTinh: vattu.tenDonViTinh,
-                  tenNhomVatTu: vattu.tenNhomVatTu,
-                  ghiChu: vattu.ghiChu,
-                });
-              });
+        const newData =
+          res.data.list_VatTus &&
+          res.data.list_VatTus.map((data) => {
+            return {
+              ...data,
+              soLuong: res.data.soLuongKH * data.dinhMuc,
+              soLuongKH: res.data.soLuongKH,
+            };
           });
         setListVatTu(newData);
+
+        console.log(res.data);
+        const newSoLuong = {};
+        const newHanMuc = {};
+        newData &&
+          newData.forEach((data) => {
+            newSoLuong[data.vatTu_Id] = data.soLuong || 0;
+            newHanMuc[data.vatTu_Id] = data.hanMucVatTu || null;
+          });
+        setSoLuongVatTu(newSoLuong);
+        setHanMucVatTu(newHanMuc);
       } else {
         setListVatTu([]);
       }
@@ -422,7 +330,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
             setFieldsValue({
               capvattusanxuat: {
                 xuongSanXuat_Id: res.data.xuongSanXuat_Id,
-                lot_Id: res.data.lot_Id,
+                sanPham_Id: res.data.sanPham_Id,
                 ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
                 ngaySanXuat: moment(res.data.ngaySanXuat, "DD/MM/YYYY"),
                 userDuyet_Id: res.data.userDuyet_Id,
@@ -430,7 +338,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                 userKiemTra_Id: res.data.userKiemTra_Id,
               },
             });
-            getListLot(res.data.xuongSanXuat_Id, res.data.ngaySanXuat);
+            getListSanPham(res.data.xuongSanXuat_Id, res.data.ngaySanXuat);
             const chiTiet =
               res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
               JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu);
@@ -536,24 +444,94 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     );
   };
 
+  const renderSoLuongVatTu = (record) => {
+    if (record) {
+      return type === "detail" || type === "xacnhan" ? (
+        SoLuongVatTu[record.vatTu_Id]
+      ) : (
+        <div>
+          <Input
+            min={0}
+            style={{
+              textAlign: "center",
+              width: "100%",
+            }}
+            className={`input-item`}
+            value={SoLuongVatTu && SoLuongVatTu[record.vatTu_Id]}
+            type="number"
+            onChange={(val) => handleSoLuongVatTu(val, record)}
+          />
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const handleSoLuongVatTu = (val, record) => {
+    const sl = val.target.value;
+    setSoLuongVatTu((prevSoLuongVatTu) => ({
+      ...prevSoLuongVatTu,
+      [record.vatTu_Id]: sl,
+    }));
+    setListVatTu((prevListVatTu) => {
+      return prevListVatTu.map((item) => {
+        if (record.vatTu_Id === item.vatTu_Id) {
+          return {
+            ...item,
+            soLuong: sl ? parseFloat(sl) : 0,
+          };
+        }
+        return item;
+      });
+    });
+  };
+
+  const renderHanMucVatTu = (record) => {
+    if (record) {
+      return type === "detail" || type === "xacnhan" ? (
+        HanMucVatTu[record.vatTu_Id]
+      ) : (
+        <div>
+          <Input
+            style={{
+              textAlign: "center",
+              width: "100%",
+            }}
+            className={`input-item`}
+            value={HanMucVatTu && HanMucVatTu[record.vatTu_Id]}
+            onChange={(val) => handleHanMucVatTu(val, record)}
+          />
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const handleHanMucVatTu = (value, record) => {
+    const hanmuc = value.target.value;
+    setHanMucVatTu((prevHanMucVatTu) => ({
+      ...prevHanMucVatTu,
+      [record.vatTu_Id]: hanmuc,
+    }));
+    setListVatTu((prevListVatTu) => {
+      return prevListVatTu.map((item) => {
+        if (record.vatTu_Id === item.vatTu_Id) {
+          return {
+            ...item,
+            hanMucVatTu: hanmuc && hanmuc,
+          };
+        }
+        return item;
+      });
+    });
+  };
+
   let colValues = [
     {
       title: "STT",
       dataIndex: "key",
       key: "key",
       width: 45,
-      align: "center",
-    },
-    {
-      title: "Sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
-      align: "center",
-    },
-    {
-      title: "Chi tiết",
-      dataIndex: "tenChiTiet",
-      key: "tenChiTiet",
       align: "center",
     },
     {
@@ -581,12 +559,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Số lượng chi tiết",
-      dataIndex: "soLuongChiTiet",
-      key: "soLuongChiTiet",
-      align: "center",
-    },
-    {
       title: "Định mức",
       dataIndex: "dinhMuc",
       key: "dinhMuc",
@@ -594,9 +566,15 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng vật tư",
-      dataIndex: "soLuong",
       key: "soLuong",
       align: "center",
+      render: (record) => renderSoLuongVatTu(record),
+    },
+    {
+      title: "Hạn mức sử dụng",
+      key: "hanMucSuDung",
+      align: "center",
+      render: (record) => renderHanMucVatTu(record),
     },
     {
       title: "Ghi chú",
@@ -909,7 +887,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
         },
       });
       setListVatTu([]);
-      setListSoLot([]);
+      setListSanPham([]);
     } else {
       resetFields();
       setFieldsValue({
@@ -940,14 +918,14 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     setXuong(val);
     setFieldsValue({
       capvattusanxuat: {
-        lot_Id: null,
+        sanPham_Id: null,
       },
     });
     setListVatTu([]);
-    getListLot(val, NgaySanXuat._i);
+    getListSanPham(val, NgaySanXuat._i);
   };
 
-  const handleSelectSoLot = (val) => {
+  const handleSelectSanPham = (val) => {
     getListVatTu(Xuong, val);
   };
 
@@ -1076,8 +1054,8 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                   style={{ marginBottom: 8 }}
                 >
                   <FormItem
-                    label="Số Lot"
-                    name={["capvattusanxuat", "lot_Id"]}
+                    label="Sản phẩm"
+                    name={["capvattusanxuat", "sanPham_Id"]}
                     rules={[
                       {
                         type: "string",
@@ -1087,13 +1065,13 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                   >
                     <Select
                       className="heading-select slt-search th-select-heading"
-                      data={ListSoLot ? ListSoLot : []}
-                      optionsvalue={["lot_Id", "soLot"]}
+                      data={ListSanPham ? ListSanPham : []}
+                      optionsvalue={["sanPham_Id", "tenSanPham"]}
                       style={{ width: "100%" }}
-                      placeholder="Nhập số Lot"
+                      placeholder="Chọn sản phẩm"
                       showSearch
                       optionFilterProp={"name"}
-                      onSelect={handleSelectSoLot}
+                      onSelect={handleSelectSanPham}
                       disabled={type === "new" ? false : true}
                     />
                   </FormItem>
@@ -1152,11 +1130,11 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                       format={"DD/MM/YYYY"}
                       allowClear={false}
                       onChange={(date, dateString) => {
-                        getListLot(Xuong, dateString);
+                        getListSanPham(Xuong, dateString);
                         setNgaySanXuat(moment(dateString, "DD/MM/YYYY"));
                         setFieldsValue({
                           capvattusanxuat: {
-                            lot_Id: null,
+                            sanPham_Id: null,
                             ngaySanXuat: moment(dateString, "DD/MM/YYYY"),
                           },
                         });
