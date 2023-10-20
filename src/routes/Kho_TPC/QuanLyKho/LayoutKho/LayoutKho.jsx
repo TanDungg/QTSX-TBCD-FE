@@ -219,17 +219,18 @@ function LayoutKho({ history, permission }) {
           </Col>
         </Row>
         <Row>
-          <Col span={12}>
-            <Card>
+          <Col xxl={12} xl={12} xs={24}>
+            <Card style={{ width: "95%" }}>
               {ListChiTietKho.length > 0 ? (
                 <Row>
                   {ListChiTietKho.map((ke) => {
                     return (
                       <Col
-                        span={6}
+                        xxl={8}
+                        xl={12}
+                        lg={12}
                         style={{
                           height: soTangMax * 40,
-
                           // padding: 0,
                           marginBottom: 50,
                           // marginRight: 25,
@@ -240,9 +241,9 @@ function LayoutKho({ history, permission }) {
                         <div
                           style={{
                             border: "1px solid #333",
-                            width: "100%",
+                            width: "90%",
                             height: "100%",
-                            padding: "0 16px",
+                            padding: "0 14px",
                             cursor: "pointer",
                             backgroundColor:
                               focusKe === ke.id
@@ -264,7 +265,7 @@ function LayoutKho({ history, permission }) {
                               return (
                                 <Row
                                   style={{
-                                    marginRight: -18,
+                                    marginRight: -16,
                                     border:
                                       tang.children.length === 0 &&
                                       "1px solid #333",
@@ -280,6 +281,8 @@ function LayoutKho({ history, permission }) {
                                           span={24 / tang.children.length}
                                           style={{
                                             height: 40,
+                                            margin: 0,
+                                            width: 40,
                                             backgroundColor:
                                               focusNgan === ngan.id
                                                 ? "#5cdbd3"
@@ -312,7 +315,7 @@ function LayoutKho({ history, permission }) {
               )}
             </Card>
           </Col>
-          <Col span={12}>
+          <Col xxl={12} xl={12} xs={24}>
             <Card>
               <div>
                 <h5>Chú thích</h5>

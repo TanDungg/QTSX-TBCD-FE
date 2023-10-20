@@ -137,7 +137,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu }) {
   };
   const saveData = (vattu) => {
     const newData = {
-      id: vatTu.chiTietKho_Id,
+      id: vatTu.lkn_ChiTietKhoVatTu_Id,
       ke_Id: vattu.ke_Id,
       tang_Id: vattu.tang_Id,
       ngan_Id: vattu.ngan_Id,
@@ -147,7 +147,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_ViTriLuuKho?id=${vatTu.chiTietKho_Id}`,
+          `lkn_ViTriLuuKho?id=${vatTu.lkn_ChiTietKhoVatTu_Id}`,
           "PUT",
           newData,
           "ADD",

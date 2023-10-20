@@ -19,7 +19,8 @@ import MainApp from "./MainApp";
 import SignIn from "../SignIn";
 import InMaQrVatTu from "src/routes/Kho_TPC/DanhMuc/VatTu/InMaQr";
 import InMaQrTTVatTu from "src/routes/Kho_TPC/QuanLyKho/ThongTinVatTu/InMaQr";
-import InMaQrThongTinVatTu from "src/routes/Kho_TPC/QuanLyKho/NhapKho/VatTu/InMaQr";
+import InMaQrThongTinVatTu from "src/routes/Kho_TPC/InBarcode/VatTu/InMaQr";
+import InMaQrCauTrucKho from "src/routes/Kho_TPC/InBarcode/CauTrucKho/InMaQr";
 
 import { setInitUrl } from "src/appRedux/actions/Auth";
 import {
@@ -277,12 +278,22 @@ const App = () => {
           />
           <Route
             exact
+            path="/in-barcode-kho-tpc/ke/inMa"
+            component={InMaQrCauTrucKho}
+          />
+          <Route
+            exact
+            path="/in-barcode-kho-tpc/cau-truc-kho/inMa"
+            component={InMaQrCauTrucKho}
+          />
+          <Route
+            exact
             path="/quan-ly-kho-tpc/thong-tin-vat-tu/inMa"
             component={InMaQrTTVatTu}
           />
           <Route
             exact
-            path="/quan-ly-kho-tpc/thong-tin-vat-tu/nhap-kho/inMa"
+            path="/in-barcode-kho-tpc/vat-tu/inMa"
             component={InMaQrThongTinVatTu}
           />
           <RestrictedRoute

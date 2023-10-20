@@ -218,7 +218,7 @@ const ChuyenQuyTrinhForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${info.user_Id}?${params}`,
+          `Account/cbnv/${userLap_Id ? userLap_Id : info.user_Id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -313,9 +313,10 @@ const ChuyenQuyTrinhForm = ({ history, match, permission }) => {
    * Lấy thông tin
    *
    */
-  const getInfo = (ma) => {
+  const getInfo = (info) => {
     const params = convertObjectToUrlParams({
-      maQuyTrinhSX: ma,
+      maPhieuChuyenQuyTrinhSX: info.split("_")[0],
+      lkn_QuyTrinhSX_Id: info.split("_")[1],
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -647,27 +648,27 @@ const ChuyenQuyTrinhForm = ({ history, match, permission }) => {
       </span>
     );
   const handleXacNhan = () => {
-    listVatTu.forEach((vt) => {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `lkn_PhieuChuyenQuyTrinhSX/xac-nhan?id=${vt.lkn_PhieuChuyenQuyTrinhSX_Id}`,
-            "PUT",
-            null,
-            "XACNHAN",
-            "",
-            resolve,
-            reject
-          )
-        );
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuChuyenQuyTrinhSX/xac-nhan?maPhieuChuyenQuyTrinhSX=${
+            id.split("_")[0]
+          }`,
+          "PUT",
+          null,
+          "XACNHAN",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          goBack();
+        }
       })
-        .then((res) => {
-          if (res.status !== 409) {
-            goBack();
-          }
-        })
-        .catch((error) => console.error(error));
-    });
+      .catch((error) => console.error(error));
   };
 
   const prop = {

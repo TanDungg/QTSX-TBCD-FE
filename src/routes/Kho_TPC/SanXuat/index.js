@@ -18,12 +18,15 @@ const NangLucSanXuatForm = asyncComponent(() =>
 const SanPhamSanXuat = asyncComponent(() =>
   import("./SanPhamSanXuat/SanPhamSanXuat")
 );
-const SanPhamSanXuatForm = asyncComponent(() =>
-  import("./SanPhamSanXuat/SanPhamSanXuatForm")
-);
+
 const KeHoach = asyncComponent(() => import("./KeHoach/KeHoach"));
 const ImportKeHoach = asyncComponent(() => import("./KeHoach/ImportKeHoach"));
-
+const ChuyenQuyTrinh = asyncComponent(() =>
+  import("./ChuyenQuyTrinh/ChuyenQuyTrinh")
+);
+const ChuyenQuyTrinhForm = asyncComponent(() =>
+  import("./ChuyenQuyTrinh/ChuyenQuyTrinhForm")
+);
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -84,14 +87,29 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(SanPhamSanXuat, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/san-pham-san-xuat/them-moi`}
+        path={`${match.url}/chuyen-cong-doan`}
         exact
-        component={Auth(SanPhamSanXuatForm, menus, pathname, permission)}
+        component={Auth(ChuyenQuyTrinh, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/san-pham-san-xuat/:id/chinh-sua`}
+        path={`${match.url}/chuyen-cong-doan/them-moi`}
         exact
-        component={Auth(SanPhamSanXuatForm, menus, pathname, permission)}
+        component={Auth(ChuyenQuyTrinhForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/chuyen-cong-doan/:id/chinh-sua`}
+        exact
+        component={Auth(ChuyenQuyTrinhForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/chuyen-cong-doan/:id/chi-tiet`}
+        exact
+        component={Auth(ChuyenQuyTrinhForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/chuyen-cong-doan/:id/xac-nhan`}
+        exact
+        component={Auth(ChuyenQuyTrinhForm, menus, pathname, permission)}
       />
     </Switch>
   );

@@ -29,17 +29,14 @@ function KhoVatTu({ history, permission }) {
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [ListVatTuSelected, setListVatTuSelected] = useState([]);
-  const [FromDate, setFromDate] = useState(getDateNow(7));
-  const [ToDate, setToDate] = useState(getDateNow());
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListKho, setListKho] = useState([]);
-  const [BanPhong, setBanPhong] = useState("");
+  const [Kho, setKho] = useState("");
   const [ActiveModal, setActiveModal] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
       getKho();
-      loadData(keyword, BanPhong, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -52,11 +49,9 @@ function KhoVatTu({ history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, cauTrucKho_Id, tuNgay, denNgay, page) => {
+  const loadData = (keyword, cauTrucKho_Id, page) => {
     const param = convertObjectToUrlParams({
       cauTrucKho_Id,
-      tuNgay,
-      denNgay,
       keyword,
       page,
       donVi_Id: INFO.donVi_Id,
@@ -71,7 +66,7 @@ function KhoVatTu({ history, permission }) {
     );
   };
   const refesh = () => {
-    loadData(keyword, BanPhong, FromDate, ToDate, page);
+    loadData(keyword, Kho, page);
   };
   const getKho = () => {
     new Promise((resolve, reject) => {
@@ -90,6 +85,8 @@ function KhoVatTu({ history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListKho(res.data);
+          setKho(res.data[0].id);
+          loadData(keyword, res.data[0].id, page);
         } else {
           setListKho([]);
         }
@@ -101,7 +98,7 @@ function KhoVatTu({ history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, BanPhong, FromDate, ToDate, page);
+    loadData(keyword, Kho, page);
   };
 
   /**
@@ -112,7 +109,7 @@ function KhoVatTu({ history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, BanPhong, FromDate, ToDate, page);
+      loadData(val.target.value, Kho, page);
     }
   };
 
@@ -124,7 +121,7 @@ function KhoVatTu({ history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, BanPhong, FromDate, ToDate, pagination);
+    loadData(keyword, Kho, pagination);
   };
 
   /**
@@ -276,22 +273,14 @@ function KhoVatTu({ history, permission }) {
       setSelectedKeys(newSelectedKey);
     },
   };
-  const handleOnSelectBanPhong = (val) => {
-    setBanPhong(val);
+  const handleOnSelectKho = (val) => {
+    setKho(val);
     setPage(1);
-    loadData(keyword, val, FromDate, ToDate, 1);
+    loadData(keyword, val, 1);
+    setSelectedKeys([]);
+    setListVatTuSelected([]);
   };
-  const handleClearBanPhong = (val) => {
-    setBanPhong("");
-    setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
-  };
-  const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
-    setPage(1);
-    loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
-  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -320,32 +309,9 @@ function KhoVatTu({ history, permission }) {
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectBanPhong}
-              value={BanPhong}
-              onChange={(value) => setBanPhong(value)}
-              allowClear
-              onClear={handleClearBanPhong}
-            />
-          </Col>
-
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Ngày:</h5>
-            <RangePicker
-              format={"DD/MM/YYYY"}
-              onChange={(date, dateString) => handleChangeNgay(dateString)}
-              defaultValue={[
-                moment(FromDate, "DD/MM/YYYY"),
-                moment(ToDate, "DD/MM/YYYY"),
-              ]}
-              allowClear={false}
+              onSelect={handleOnSelectKho}
+              value={Kho}
+              onChange={(value) => setKho(value)}
             />
           </Col>
           <Col

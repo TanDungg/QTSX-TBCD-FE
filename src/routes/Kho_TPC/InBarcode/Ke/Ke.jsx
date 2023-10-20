@@ -8,8 +8,8 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, remove, find, isEmpty, repeat } from "lodash";
-import QRCode from "qrcode.react";
+import { map, isEmpty, repeat, remove, find } from "lodash";
+
 import {
   ModalDeleteConfirm,
   Table,
@@ -17,20 +17,18 @@ import {
   Toolbar,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import {
-  convertObjectToUrlParams,
-  reDataSelectedTable,
-  treeToFlatlist,
-} from "src/util/Common";
+import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import QRCode from "qrcode.react";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function CauTrucKho({ match, history, permission }) {
+function Ke({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
+
   const [selectedDevice, setSelectedDevice] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
@@ -39,6 +37,7 @@ function CauTrucKho({ match, history, permission }) {
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
+
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -50,7 +49,7 @@ function CauTrucKho({ match, history, permission }) {
   const loadData = (keyword, page) => {
     const param = convertObjectToUrlParams({ keyword, page });
     dispatch(
-      fetchStart(`CauTrucKho/cau-truc-kho-tree?${param}`, "GET", null, "LIST")
+      fetchStart(`CauTrucKho/ke-thanh-pham?${param}`, "GET", null, "LIST")
     );
   };
 
@@ -73,125 +72,24 @@ function CauTrucKho({ match, history, permission }) {
       loadData(val.target.value, page);
     }
   };
-  /**
-   * Thêm dấu để phân cấp tiêu đề dựa theo tree (flatlist)
-   *
-   * @param {*} value
-   * @param {*} record
-   * @returns
-   * @memberof ChucNang
-   */
-  const renderTenMenu = (value, record) => {
-    let string = repeat("- ", record.level);
-    string = `${string} ${value}`;
-    return <div>{string}</div>;
-  };
 
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const editItem =
-      permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
-    const deleteVal =
-      permission && permission.del
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        {editItem}
-        <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa">
-          <DeleteOutlined />
-        </a>
-      </div>
-    );
-  };
-
-  /**
-   * deleteItemFunc: Xoá item theo item
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maCauTrucKho,
-      "cấu trúc kho"
-    );
-  };
-
-  /**
-   * Xóa item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    let url = `CauTrucKho/${item.id}`;
-    if (item.isRemove) url = `CauTrucKho/${item.id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        // Reload lại danh sách
-        loadData();
-      })
-      .catch((error) => console.error(error));
-  };
-
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
-  };
   const handlePrint = () => {
     history.push({
       pathname: `${match.url}/inMa`,
-      state: { VatTu: selectedDevice },
+      state: { Ke: selectedDevice },
     });
   };
   const addButtonRender = () => {
     return (
       <>
         <Button
-          icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleRedirect}
-          disabled={permission && !permission.add}
-        >
-          Thêm mới
-        </Button>
-        <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
-          disabled={permission && !permission.print}
+          disabled={
+            (permission && !permission.print) || selectedDevice.length === 0
+          }
         >
           In Barcode
         </Button>
@@ -202,33 +100,46 @@ function CauTrucKho({ match, history, permission }) {
   let renderHead = [
     {
       title: "STT",
-      dataIndex: "stt",
-      key: "stt",
+      dataIndex: "key",
+      key: "key",
       align: "center",
       width: 70,
     },
     {
-      title: "Mã cấu trúc kho",
-      dataIndex: "maCauTrucKho",
-      key: "maCauTrucKho",
-      render: (value, record) => renderTenMenu(value, record),
+      title: "Mã kệ",
+      key: "maKe",
+      dataIndex: "maKe",
+      key: "maKe",
+      // render: (value, record) => renderTenMenu(value, record),
     },
     {
-      title: "Tên cấu trúc kho",
-      dataIndex: "tenCauTrucKho",
-      key: "tenCauTrucKho",
+      title: "Tên kệ",
+      dataIndex: "tenKe",
+      key: "tenKe",
       align: "center",
     },
     {
-      title: "Tên Ban/Phòng",
+      title: "Sức chứa",
+      dataIndex: "sucChua",
+      key: "sucChua",
+      align: "center",
+    },
+    {
+      title: "Xưởng",
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
       align: "center",
     },
     {
+      title: "Kho",
+      dataIndex: "tenCauTrucKho",
+      key: "tenCauTrucKho",
+      align: "center",
+    },
+    {
       title: "Mã Barcode",
-      dataIndex: "qrCode",
-      key: "qrCode",
+      dataIndex: "id",
+      key: "id",
       align: "center",
       render: (value) => (
         <div id="myqrcode">
@@ -242,22 +153,8 @@ function CauTrucKho({ match, history, permission }) {
         </div>
       ),
     },
-    {
-      title: "Vị trí",
-      dataIndex: "viTri",
-      key: "viTri",
-      align: "center",
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-    },
   ];
-  let dataList = treeToFlatlist(data);
-  dataList = reDataSelectedTable(dataList);
+  let dataList = reDataForTable(data.datalist);
 
   const components = {
     body: {
@@ -280,6 +177,7 @@ function CauTrucKho({ match, history, permission }) {
       }),
     };
   });
+
   function hanldeRemoveSelected(device) {
     const newDevice = remove(selectedDevice, (d) => {
       return d.key !== device.key;
@@ -304,8 +202,8 @@ function CauTrucKho({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Cấu trúc kho"
-        description="Danh sách cấu trúc kho"
+        title="In Barcode Kệ"
+        description="In Barcode  kệ"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -363,7 +261,7 @@ function CauTrucKho({ match, history, permission }) {
           rowClassName={(record) => {
             return record.isParent ? "editable-row" : "editable-row";
           }}
-          pagination={false}
+          pagination={{ pageSize: 20 }}
           loading={loading}
           rowSelection={{
             type: "checkbox",
@@ -391,4 +289,4 @@ function CauTrucKho({ match, history, permission }) {
   );
 }
 
-export default CauTrucKho;
+export default Ke;

@@ -183,7 +183,7 @@ function VatTu({ match, history, permission }) {
         >
           Import
         </Button>
-        <Button
+        {/* <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -191,7 +191,7 @@ function VatTu({ match, history, permission }) {
           disabled={permission && !permission.print}
         >
           In Barcode
-        </Button>
+        </Button> */}
         <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
@@ -262,23 +262,23 @@ function VatTu({ match, history, permission }) {
       key: "tiLeQuyDoi",
       align: "center",
     },
-    {
-      title: "Mã Barcode",
-      dataIndex: "id",
-      key: "id",
-      align: "center",
-      render: (value) => (
-        <div id="myqrcode">
-          <Popover content={value}>
-            <QRCode
-              value={value}
-              bordered={false}
-              style={{ width: 50, height: 50 }}
-            />
-          </Popover>
-        </div>
-      ),
-    },
+    // {
+    //   title: "Mã Barcode",
+    //   dataIndex: "id",
+    //   key: "id",
+    //   align: "center",
+    //   render: (value) => (
+    //     <div id="myqrcode">
+    //       <Popover content={value}>
+    //         <QRCode
+    //           value={value}
+    //           bordered={false}
+    //           style={{ width: 50, height: 50 }}
+    //         />
+    //       </Popover>
+    //     </div>
+    //   ),
+    // },
     {
       title: "Chức năng",
       key: "action",
@@ -383,26 +383,26 @@ function VatTu({ match, history, permission }) {
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            preserveSelectedRowKeys: true,
-            selectedRowKeys: selectedKeys,
-            getCheckboxProps: (record) => ({}),
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setSelectedDevice([...selectedDevice, record]);
-                  setSelectedKeys([...selectedKeys, record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            };
-          }}
+          // rowSelection={{
+          //   type: "checkbox",
+          //   ...rowSelection,
+          //   preserveSelectedRowKeys: true,
+          //   selectedRowKeys: selectedKeys,
+          //   getCheckboxProps: (record) => ({}),
+          // }}
+          // onRow={(record, rowIndex) => {
+          //   return {
+          //     onClick: (e) => {
+          //       const found = find(selectedKeys, (k) => k === record.key);
+          //       if (found === undefined) {
+          //         setSelectedDevice([...selectedDevice, record]);
+          //         setSelectedKeys([...selectedKeys, record.key]);
+          //       } else {
+          //         hanldeRemoveSelected(record);
+          //       }
+          //     },
+          //   };
+          // }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}
