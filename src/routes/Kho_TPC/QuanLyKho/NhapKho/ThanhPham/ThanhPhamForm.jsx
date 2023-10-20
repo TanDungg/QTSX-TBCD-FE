@@ -1,5 +1,15 @@
-import { DeleteOutlined } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, DatePicker, Tag, Divider } from "antd";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Col,
+  DatePicker,
+  Tag,
+  Divider,
+  Button,
+} from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -114,96 +124,6 @@ const EditableCell = ({
   }
   return <td {...restProps}>{childNode}</td>;
 };
-const EditableRowChilder = ({ index, ...props }) => {
-  const [form] = Form.useForm();
-  return (
-    <Form form={form} component={false}>
-      <EditableContext.Provider value={form}>
-        <tr {...props} />
-      </EditableContext.Provider>
-    </Form>
-  );
-};
-const EditableCellChilder = ({
-  title,
-  editable,
-  children,
-  dataIndex,
-  record,
-  handleSave,
-  ...restProps
-}) => {
-  const [editing, setEditing] = useState(false);
-  const inputRef = useRef(null);
-  const form = useContext(EditableContext);
-  useEffect(() => {
-    if (editing) {
-      inputRef.current.focus();
-    }
-  }, [editing]);
-  const toggleEdit = () => {
-    setEditing(!editing);
-    form.setFieldsValue({
-      [dataIndex]: record[dataIndex],
-    });
-  };
-  const save = async () => {
-    try {
-      const values = await form.validateFields();
-      toggleEdit();
-      handleSave({
-        ...record,
-        ...values,
-      });
-    } catch (errInfo) {
-      console.log("Save failed:", errInfo);
-    }
-  };
-  let childNode = children;
-  if (editable) {
-    childNode = editing ? (
-      <Form.Item
-        style={{
-          margin: 0,
-        }}
-        name={dataIndex}
-        rules={
-          title === "Số lượng"
-            ? [
-                {
-                  pattern: /^\d+$/,
-                  message: "Số lượng không hợp lệ!",
-                },
-              ]
-            : null
-        }
-      >
-        <Input
-          type={title === "Số lượng" && "number"}
-          style={{
-            margin: 0,
-            width: "100%",
-            textAlign: "center",
-          }}
-          ref={inputRef}
-          onPressEnter={save}
-          onBlur={save}
-        />
-      </Form.Item>
-    ) : (
-      <div
-        className="editable-cell-value-wrap"
-        style={{
-          paddingRight: 24,
-        }}
-        onClick={toggleEdit}
-      >
-        {children}
-      </div>
-    );
-  }
-  return <td {...restProps}>{childNode}</td>;
-};
 const FormItem = Form.Item;
 
 const ThanhPhamForm = ({ history, match, permission }) => {
@@ -217,8 +137,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   const [ListUser, setListUser] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
-  const [ListSoLot, setListSoLot] = useState([]);
-
   const [ListSanPham, setListSanPham] = useState([]);
   const [ActiveModal, setActiveModal] = useState(false);
 
@@ -230,7 +148,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           getUserLap(INFO);
           setType("new");
-          getSoLot();
           getXuong();
           setFieldsValue({
             phieunhapkho: {
@@ -297,33 +214,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     });
   };
 
-  const getSoLot = (id) => {
-    if (id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(`lot/${id}`, "GET", null, "DETAIL", "", resolve, reject)
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListSoLot([res.data]);
-        } else {
-          setListSoLot([]);
-        }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(`lot?page=-1`, "GET", null, "DETAIL", "", resolve, reject)
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListSoLot(res.data);
-        } else {
-          setListSoLot([]);
-        }
-      });
-    }
-  };
   const getXuong = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -423,7 +313,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           setInfo(res.data);
           getXuong();
           getKho(res.data.phongBan_Id);
-          getSoLot();
           getMauSac(JSON.parse(res.data.chiTietThanhPham)[0].sanPham_Id);
           setFieldsValue({
             phieunhapkho: {
@@ -472,33 +361,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
    */
   const deleteItemAction = (item) => {
     setListSanPham([]);
-    setFieldsValue({
-      phieunhapkho: {
-        lot_Id: null,
-      },
-    });
-  };
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFuncChiTiet = (item) => {
-    const title = "chi tiết";
-    ModalDeleteConfirm(deleteItemActionChiTiet, item, item.tenChiTiet, title);
-  };
-
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
-  const deleteItemActionChiTiet = (item) => {
-    const lst_ChiTiets = ListSanPham[0].lst_ChiTiets.filter(
-      (d) => d.lkn_ChiTiet_Id !== item.lkn_ChiTiet_Id
-    );
-    setListSanPham([{ ...ListSanPham[0], lst_ChiTiets }]);
   };
   /**
    * ActionContent: Action in table
@@ -510,27 +372,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     const deleteItemVal =
       permission && permission.del && (type === "new" || type === "edit")
         ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        <React.Fragment>
-          <a {...deleteItemVal} title="Xóa">
-            <DeleteOutlined />
-          </a>
-        </React.Fragment>
-      </div>
-    );
-  };
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContentChiTiet = (item) => {
-    const deleteItemVal =
-      permission && permission.del && (type === "new" || type === "edit")
-        ? { onClick: () => deleteItemFuncChiTiet(item) }
         : { disabled: true };
     return (
       <div>
@@ -598,10 +439,10 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     },
     {
       title: "Màu sắc",
-      dataIndex: "mauSac",
-      key: "mauSac",
+      dataIndex: "tenMauSac",
+      key: "tenMauSac",
       align: "center",
-      render: (val, record) => renderMauSac(val, record),
+      // render: (val, record) => renderMauSac(val, record),
     },
     {
       title: "Số lượng",
@@ -635,37 +476,16 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   };
   const handleSave = (row) => {
     const newData = [...ListSanPham];
-    const index = newData.findIndex((item) => row.id === item.id);
+    const index = newData.findIndex(
+      (item) => row.sanPham_Id === item.sanPham_Id
+    );
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
       ...row,
     });
-    newData[0].lst_ChiTiets.forEach((ct, index) => {
-      newData[0].lst_ChiTiets[index].soLuongNhap =
-        ct.soLuongChiTiet * newData[0].soLuongNhap;
-    });
     setFieldTouch(true);
     setListSanPham(newData);
-  };
-  const handleSaveChiTiet = (row) => {
-    const newData = [...ListSanPham];
-    const lst_ChiTiets = newData[0].lst_ChiTiets;
-    const index = lst_ChiTiets.findIndex(
-      (item) => row.lkn_ChiTiet_Id === item.lkn_ChiTiet_Id
-    );
-    const item = lst_ChiTiets[index];
-    lst_ChiTiets.splice(index, 1, {
-      ...item,
-      ...row,
-    });
-    setFieldTouch(true);
-    setListSanPham([
-      {
-        ...newData[0],
-        lst_ChiTiets,
-      },
-    ]);
   };
   const columns = map(colValues, (col) => {
     if (!col.editable) {
@@ -683,85 +503,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       }),
     };
   });
-  let renderChiTiet = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      align: "center",
-      width: 45,
-    },
-    {
-      title: "Mã chi tiết",
-      dataIndex: "maChiTiet",
-      key: "maChiTiet",
-      align: "center",
-    },
-    {
-      title: "Tên chi tiết",
-      dataIndex: "tenChiTiet",
-      key: "tenChiTiet",
-      align: "center",
-    },
-    {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
-      align: "center",
-    },
-    {
-      title: "Số lượng",
-      dataIndex: "soLuongNhap",
-      key: "soLuongNhap",
-      align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "ghiChu",
-      key: "ghiChu",
-      align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
-    },
-    // {
-    //   title: "Kích thước",
-    //   dataIndex: "kichThuoc",
-    //   key: "kichThuoc",
-    //   align: "center",
-    // },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 100,
-      render: (value) => actionContentChiTiet(value),
-    },
-  ];
-
-  const columnChilden = map(renderChiTiet, (col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-        handleSave: handleSaveChiTiet,
-      }),
-    };
-  });
-  const componentsChilder = {
-    body: {
-      row: EditableRowChilder,
-      cell: EditableCellChilder,
-    },
-  };
   /**
    * Khi submit
    *
@@ -882,54 +623,9 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         <Tag color={"success"}>{info.maPhieuNhapKhoThanhPham}</Tag>
       </span>
     );
-  const handleSoLot = (vaL) => {
-    ListSoLot.forEach((solot) => {
-      if (solot.id === vaL) {
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `SanPham/${solot.sanPham_Id}`,
-              "GET",
-              null,
-              "LIST",
-              "",
-              resolve,
-              reject
-            )
-          );
-        })
-          .then((res) => {
-            if (res && res.data) {
-              setListMauSac(JSON.parse(res.data.mauSac));
-              setListSanPham([
-                {
-                  ...res.data,
-                  sanPham_Id: JSON.parse(res.data.mauSac)[0].sanPham_Id,
-                  mauSac_Id: JSON.parse(res.data.mauSac)[0].mauSac_Id,
-                  soLuongNhap: "1",
-                  lst_ChiTiets: JSON.parse(res.data.chiTiet).map((ct) => {
-                    return {
-                      lkn_ChiTiet_Id: ct.chiTiet_Id,
-                      soLuongNhap: ct.soLuongChiTiet,
-                      soLuongChiTiet: ct.soLuongChiTiet,
-                      tenChiTiet: ct.tenChiTiet,
-                      maChiTiet: ct.maChiTiet,
-                      tenDonViTinh: ct.tenDonViTinh,
-                      ghiChu: "",
-                    };
-                  }),
-                },
-              ]);
-            } else {
-              setListMauSac([]);
-            }
-          })
-          .catch((error) => console.error(error));
-      }
-    });
-  };
 
   const addSanPham = (data) => {
+    console.log(data);
     let check = false;
     ListSanPham.forEach((dl) => {
       if (
@@ -937,7 +633,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         dl.mauSac_Id === data.mauSac_Id
       ) {
         check = true;
-        Helpers.alertError(`Sản phẩm đã được thêm`);
+        Helpers.alertWarning(`Sản phẩm đã được thêm`);
       }
     });
     !check && ListSanPham.length > 0 && setListSanPham([...ListSanPham, data]);
@@ -1095,29 +791,14 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
-              <FormItem
-                label="Số Lot"
-                name={["phieunhapkho", "lot_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
+            <Col span={12} align="center">
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                onClick={() => setActiveModal(true)}
               >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListSoLot}
-                  placeholder="Chọn số Lot"
-                  optionsvalue={["id", "soLot"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                  onSelect={handleSoLot}
-                />
-              </FormItem>
+                Chọn sản phẩm
+              </Button>
             </Col>
           </Row>
           <Divider />
@@ -1132,25 +813,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
-          expandable={{
-            expandedRowRender: (record) => (
-              <Table
-                style={{ marginLeft: "80px", width: "80%" }}
-                bordered
-                columns={columnChilden}
-                scroll={{ x: 500, y: "35vh" }}
-                components={componentsChilder}
-                className="gx-table-responsive th-F1D065-head"
-                dataSource={reDataForTable(record.lst_ChiTiets)}
-                size="small"
-                rowClassName={"editable-row"}
-                // loading={loading}
-                pagination={false}
-              />
-            ),
-            // rowExpandable: (record) => record.name !== "Not Expandable",
-            defaultExpandedRowKeys: [1],
-          }}
         />
         {type === "new" || type === "edit" ? (
           <FormSubmit

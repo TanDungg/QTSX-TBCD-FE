@@ -303,6 +303,26 @@ function VatTuForm({ match, permission, history }) {
               />
             </FormItem>
             <FormItem
+              label="Đơn vị tính"
+              name={["VatTu", "donViTinh_Id"]}
+              rules={[
+                {
+                  type: "string",
+                  required: true,
+                },
+              ]}
+            >
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={DonViTinhSelect ? DonViTinhSelect : []}
+                placeholder="Chọn đơn vị tính"
+                optionsvalue={["id", "tenDonViTinh"]}
+                style={{ width: "100%" }}
+                showSearch
+                optionFilterProp="name"
+              />
+            </FormItem>
+            <FormItem
               label="Thông số"
               name={["VatTu", "quyCach"]}
               rules={[
@@ -332,26 +352,7 @@ function VatTuForm({ match, permission, history }) {
                 optionFilterProp="name"
               />
             </FormItem>
-            <FormItem
-              label="Đơn vị tính"
-              name={["VatTu", "donViTinh_Id"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-              ]}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={DonViTinhSelect ? DonViTinhSelect : []}
-                placeholder="Chọn đơn vị tính"
-                optionsvalue={["id", "tenDonViTinh"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp="name"
-              />
-            </FormItem>
+
             <FormItem
               label="Đơn vị quy đổi"
               name={["VatTu", "donViQuyDoi"]}
@@ -369,7 +370,6 @@ function VatTuForm({ match, permission, history }) {
               rules={[
                 {
                   type: "string",
-                  required: true,
                 },
               ]}
             >
