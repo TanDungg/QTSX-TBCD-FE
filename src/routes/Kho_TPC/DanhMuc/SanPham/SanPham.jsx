@@ -80,32 +80,32 @@ function SanPham({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const phanQuyenItem =
-      permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/quy-trinh`,
-            state: { itemData: item },
-          }}
-          title="Quy trình"
-        >
-          <GatewayOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Quy trình">
-          <GatewayOutlined />
-        </span>
-      );
-    const addItem =
-      permission && permission.add
-        ? {
-            onClick: () => {
-              setActiveModalAddChiTiet(true);
-              setInfoSanPham({ ...item, sanPham_Id: item.id });
-              setType("add");
-            },
-          }
-        : { disabled: true };
+    // const phanQuyenItem =
+    //   permission && permission.edit ? (
+    //     <Link
+    //       to={{
+    //         pathname: `${match.url}/${item.id}/quy-trinh`,
+    //         state: { itemData: item },
+    //       }}
+    //       title="Quy trình"
+    //     >
+    //       <GatewayOutlined />
+    //     </Link>
+    //   ) : (
+    //     <span disabled title="Quy trình">
+    //       <GatewayOutlined />
+    //     </span>
+    //   );
+    // const addItem =
+    //   permission && permission.add
+    //     ? {
+    //         onClick: () => {
+    //           setActiveModalAddChiTiet(true);
+    //           setInfoSanPham({ ...item, sanPham_Id: item.id });
+    //           setType("add");
+    //         },
+    //       }
+    //     : { disabled: true };
 
     const editItem =
       permission && permission.edit ? (
@@ -129,12 +129,12 @@ function SanPham({ match, history, permission }) {
         : { disabled: true };
     return (
       <div>
-        {phanQuyenItem}
+        {/* {phanQuyenItem}
         <Divider type="vertical" />
         <a {...addItem} title="Thêm chi tiết">
           <PlusCircleOutlined />
         </a>
-        <Divider type="vertical" />
+        <Divider type="vertical" /> */}
 
         {editItem}
         <Divider type="vertical" />
@@ -144,33 +144,33 @@ function SanPham({ match, history, permission }) {
       </div>
     );
   };
-  const actionContentChiTiet = (item) => {
-    const editItem =
-      permission && permission.edit
-        ? {
-            onClick: () => {
-              setActiveModalAddChiTiet(true);
-              setInfoSanPham(item);
-              setType("edit");
-            },
-          }
-        : { disabled: true };
-    const deleteVal =
-      permission && permission.del
-        ? { onClick: () => deleteItemFunc(item, "chi tiết") }
-        : { disabled: true };
-    return (
-      <div>
-        <a {...editItem} title="Sửa chi tiết">
-          <EditOutlined />
-        </a>
-        <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa chi tiết">
-          <DeleteOutlined />
-        </a>
-      </div>
-    );
-  };
+  // const actionContentChiTiet = (item) => {
+  //   const editItem =
+  //     permission && permission.edit
+  //       ? {
+  //           onClick: () => {
+  //             setActiveModalAddChiTiet(true);
+  //             setInfoSanPham(item);
+  //             setType("edit");
+  //           },
+  //         }
+  //       : { disabled: true };
+  //   const deleteVal =
+  //     permission && permission.del
+  //       ? { onClick: () => deleteItemFunc(item, "chi tiết") }
+  //       : { disabled: true };
+  //   return (
+  //     <div>
+  //       <a {...editItem} title="Sửa chi tiết">
+  //         <EditOutlined />
+  //       </a>
+  //       <Divider type="vertical" />
+  //       <a {...deleteVal} title="Xóa chi tiết">
+  //         <DeleteOutlined />
+  //       </a>
+  //     </div>
+  //   );
+  // };
   /**
    * deleteItemFunc: Xoá item theo item
    * @param {object} item
@@ -178,12 +178,7 @@ function SanPham({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item, title) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maChiTiet ? item.maChiTiet : item.maSanPham,
-      title
-    );
+    ModalDeleteConfirm(deleteItemAction, item, item.maSanPham, title);
   };
 
   /**
@@ -192,9 +187,11 @@ function SanPham({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = item.maChiTiet
-      ? `lkn_ChiTiet/${item.chiTiet_Id}`
-      : `SanPham/${item.id}`;
+    let url =
+      // item.maChiTiet
+      //   ? `lkn_ChiTiet/${item.chiTiet_Id}`
+      //   :
+      `SanPham/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -331,7 +328,7 @@ function SanPham({ match, history, permission }) {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 120,
+      width: 80,
       render: (value) => actionContent(value),
     },
   ];
@@ -351,68 +348,68 @@ function SanPham({ match, history, permission }) {
       }),
     };
   });
-  let renderChiTiet = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      align: "center",
-      width: 45,
-    },
-    {
-      title: "Mã chi tiết",
-      dataIndex: "maChiTiet",
-      key: "maChiTiet",
-      align: "center",
-    },
-    {
-      title: "Tên chi tiết",
-      dataIndex: "tenChiTiet",
-      key: "tenChiTiet",
-      align: "center",
-    },
-    {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
-      align: "center",
-    },
-    {
-      title: "Số lượng",
-      dataIndex: "soLuongChiTiet",
-      key: "soLuongChiTiet",
-      align: "center",
-    },
-    {
-      title: "Kích thước",
-      dataIndex: "kichThuoc",
-      key: "kichThuoc",
-      align: "center",
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 100,
-      render: (value) => actionContentChiTiet(value),
-    },
-  ];
+  // let renderChiTiet = [
+  //   {
+  //     title: "STT",
+  //     dataIndex: "key",
+  //     key: "key",
+  //     align: "center",
+  //     width: 45,
+  //   },
+  //   {
+  //     title: "Mã chi tiết",
+  //     dataIndex: "maChiTiet",
+  //     key: "maChiTiet",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Tên chi tiết",
+  //     dataIndex: "tenChiTiet",
+  //     key: "tenChiTiet",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Đơn vị tính",
+  //     dataIndex: "tenDonViTinh",
+  //     key: "tenDonViTinh",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Số lượng",
+  //     dataIndex: "soLuongChiTiet",
+  //     key: "soLuongChiTiet",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Kích thước",
+  //     dataIndex: "kichThuoc",
+  //     key: "kichThuoc",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Chức năng",
+  //     key: "action",
+  //     align: "center",
+  //     width: 100,
+  //     render: (value) => actionContentChiTiet(value),
+  //   },
+  // ];
 
-  const columnChilden = map(renderChiTiet, (col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-      }),
-    };
-  });
+  // const columnChilden = map(renderChiTiet, (col) => {
+  //   if (!col.editable) {
+  //     return col;
+  //   }
+  //   return {
+  //     ...col,
+  //     onCell: (record) => ({
+  //       record,
+  //       editable: col.editable,
+  //       dataIndex: col.dataIndex,
+  //       title: col.title,
+  //       info: col.info,
+  //     }),
+  //   };
+  // });
   const components = {
     body: {
       row: EditableRow,
@@ -492,24 +489,24 @@ function SanPham({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
-          expandable={{
-            expandedRowRender: (record) => (
-              <Table
-                style={{ marginLeft: "80px", width: "80%" }}
-                bordered
-                columns={columnChilden}
-                scroll={{ x: 500 }}
-                components={components}
-                className="gx-table-responsive th-F1D065-head"
-                dataSource={reDataForTable(JSON.parse(record.chiTiet))}
-                size="small"
-                rowClassName={"editable-row"}
-                loading={loading}
-                pagination={false}
-              />
-            ),
-            rowExpandable: (record) => record.name !== "Not Expandable",
-          }}
+          // expandable={{
+          //   expandedRowRender: (record) => (
+          //     <Table
+          //       style={{ marginLeft: "80px", width: "80%" }}
+          //       bordered
+          //       columns={columnChilden}
+          //       scroll={{ x: 500 }}
+          //       components={components}
+          //       className="gx-table-responsive th-F1D065-head"
+          //       dataSource={reDataForTable(JSON.parse(record.chiTiet))}
+          //       size="small"
+          //       rowClassName={"editable-row"}
+          //       loading={loading}
+          //       pagination={false}
+          //     />
+          //   ),
+          //   rowExpandable: (record) => record.name !== "Not Expandable",
+          // }}
         />
       </Card>
       <ImportSanPham

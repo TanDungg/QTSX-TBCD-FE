@@ -663,37 +663,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Chi tiết"
-                name={["dinhmucvattu", "chiTiet_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={listChiTiet ? listChiTiet : []}
-                  placeholder="Chọn chi tiết"
-                  optionsvalue={["chiTiet_Id", "tenChiTiet"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Ngày yêu cầu"
+                label="Ngày tạo"
                 name={["dinhmucvattu", "ngayYeuCau"]}
                 rules={[
                   {
