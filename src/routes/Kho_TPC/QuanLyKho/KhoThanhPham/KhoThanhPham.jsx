@@ -67,6 +67,8 @@ function KhoVatTu({ history, permission }) {
   };
   const refesh = () => {
     loadData(keyword, Kho, page);
+    setSelectedKeys([]);
+    setListVatTuSelected([]);
   };
   const getKho = () => {
     new Promise((resolve, reject) => {

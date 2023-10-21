@@ -38,7 +38,7 @@ import ModalChonVatTu from "./ModalChonVatTu";
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 
-const DieuChuyenForm = ({ history, match, permission }) => {
+const DieuChuyenVatTuForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [form] = Form.useForm();
@@ -820,4 +820,4 @@ const DieuChuyenForm = ({ history, match, permission }) => {
   );
 };
 
-export default DieuChuyenForm;
+export default DieuChuyenVatTuForm;

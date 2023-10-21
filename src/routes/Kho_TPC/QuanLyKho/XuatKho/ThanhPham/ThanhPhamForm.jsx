@@ -152,7 +152,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           getXuong();
           setFieldsValue({
             phieunhapkho: {
-              ngayNhap: moment(getDateNow(), "DD/MM/YYYY"),
+              ngayXuatKho: moment(getDateNow(), "DD/MM/YYYY"),
             },
           });
         } else if (permission && !permission.add) {
@@ -296,7 +296,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuNhapKhoThanhPham/${id}?${params}`,
+          `lkn_PhieuXuatKhoThanhPham/${id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -316,7 +316,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           setFieldsValue({
             phieunhapkho: {
               ...res.data,
-              ngayNhap: moment(res.data.ngayNhap, "DD/MM/YYYY"),
+              ngayXuatKho: moment(res.data.ngayXuatKho, "DD/MM/YYYY"),
             },
           });
         }
@@ -358,12 +358,9 @@ const ThanhPhamForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    setListSanPham([]);
-    setFieldsValue({
-      phieunhapkho: {
-        lot_Id: null,
-      },
-    });
+    const newData = ListSanPham.filter((d) => d.ke_Id !== item.ke_Id);
+    setFieldTouch(true);
+    setListSanPham(newData);
   };
 
   /**
@@ -374,7 +371,10 @@ const ThanhPhamForm = ({ history, match, permission }) => {
    */
   const actionContent = (item) => {
     const deleteItemVal =
-      permission && permission.del && (type === "new" || type === "edit")
+      permission &&
+      permission.del &&
+      (type === "new" || type === "edit") &&
+      ListSanPham.length > 1
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -428,14 +428,14 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     },
     {
       title: "Màu sắc",
-      dataIndex: "mauSac",
-      key: "mauSac",
+      dataIndex: "tenMauSac",
+      key: "tenMauSac",
       align: "center",
     },
     {
       title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
+      dataIndex: "soLuongXuat",
+      key: "soLuongXuat",
       align: "center",
     },
     {
@@ -495,14 +495,14 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     if (type === "new") {
       const newData = {
         ...nhapkho,
-        chiTiet_PhieuNhapKhoThanhPhams: ListSanPham,
-        ngaySanXuat: nhapkho.ngaySanXuat._i,
-        ngayNhap: nhapkho.ngayNhap._i,
+        chiTiet_PhieuXuatKhoThanhPhams: ListSanPham,
+        ngayXuatKho: nhapkho.ngayXuatKho._i,
+        ngayYeuCau: nhapkho.ngayXuatKho._i,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuNhapKhoThanhPham`,
+            `lkn_PhieuXuatKhoThanhPham`,
             "POST",
             newData,
             "ADD",
@@ -522,6 +522,8 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                 phieunhapkho: {
                   ngayNhan: moment(getDateNow(), "DD/MM/YYYY"),
                   ngayHoaDon: moment(getDateNow(), "DD/MM/YYYY"),
+                  userLap_Id: nhapkho.userLap_Id,
+                  tenPhongBan: nhapkho.tenPhongBan,
                 },
               });
               setFieldTouch(false);
@@ -538,19 +540,14 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         id: id,
         ...info,
         ...nhapkho,
-        chiTiet_PhieuNhapKhoThanhPhams: ListSanPham.map((vt) => {
-          return {
-            ...vt,
-            lkn_PhieuNhapKhoThanhPham_Id: id,
-          };
-        }),
-        ngaySanXuat: nhapkho.ngaySanXuat._i,
-        ngayNhap: nhapkho.ngayNhap._i,
+        chiTiet_PhieuXuatKhoThanhPhams: ListSanPham,
+        ngayXuatKho: nhapkho.ngayXuatKho._i,
+        ngayYeuCau: nhapkho.ngayXuatKho._i,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuNhapKhoThanhPham/${id}`,
+            `lkn_PhieuXuatKhoThanhPham/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -580,36 +577,17 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết phiếu xuất kho thành phẩm -{" "}
-        <Tag color={"success"}>{info.maPhieuNhapKhoThanhPham}</Tag>
+        <Tag color={"success"}>{info.maPhieuXuatKhoThanhPham}</Tag>
       </span>
     );
   const addSanPham = (vaL) => {
     let check = false;
     ListSanPham.forEach((sp) => {
-      if (sp.ke_Id === vaL) check = true;
+      if (sp.ke_Id === vaL[0].ke_Id) check = true;
     });
     if (!check) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `lkn_ViTriLuuKho/list-thanh-pham-in-ke-kho?ke_Id=${vaL}`,
-            "GET",
-            null,
-            "LIST",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.data) {
-            setListSanPham([...ListSanPham, res.data[0]]);
-          } else {
-            setListSanPham([]);
-          }
-        })
-        .catch((error) => console.error(error));
+      setListSanPham([...ListSanPham, ...vaL]);
+      setFieldTouch(true);
     } else {
       Helpers.alertWarning("Kệ đã được thêm");
     }
@@ -692,7 +670,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                   onSelect={hanldeSelectXuong}
                 />
               </FormItem>
@@ -717,14 +695,14 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp="name"
                   onSelect={handleSelectKho}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>
             <Col span={12}>
               <FormItem
                 label="Ngày xuất"
-                name={["phieunhapkho", "ngayNhap"]}
+                name={["phieunhapkho", "ngayXuatKho"]}
                 rules={[
                   {
                     required: true,
@@ -738,7 +716,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                   onChange={(date, dateString) => {
                     setFieldsValue({
                       phieunhapkho: {
-                        ngayNhap: moment(dateString, "DD/MM/YYYY"),
+                        ngayXuatKho: moment(dateString, "DD/MM/YYYY"),
                       },
                     });
                   }}

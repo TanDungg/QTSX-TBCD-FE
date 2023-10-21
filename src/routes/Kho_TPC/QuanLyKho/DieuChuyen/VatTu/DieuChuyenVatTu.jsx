@@ -24,7 +24,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function PhieuDieuChuyen({ match, history, permission }) {
+function DieuChuyenVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -430,4 +430,4 @@ function PhieuDieuChuyen({ match, history, permission }) {
   );
 }
 
-export default PhieuDieuChuyen;
+export default DieuChuyenVatTu;

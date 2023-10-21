@@ -1,16 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -31,22 +24,21 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function ThanhPham({ match, history, permission }) {
+function DieuChuyenThanhPham({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [page, setPage] = useState(1);
-  const [keyword, setKeyword] = useState("");
-  const [selectedDevice, setSelectedDevice] = useState([]);
+  const [ListBanPhong, setListBanPhong] = useState([]);
+  const [BanPhong, setBanPhong] = useState(null);
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
-  const [selectedKeys, setSelectedKeys] = useState([]);
-  const [ListBanPhong, setListBanPhong] = useState([]);
-  const [BanPhong, setBanPhong] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [page, setPage] = useState(1);
+
   useEffect(() => {
     if (permission && permission.view) {
       getBanPhong();
-      loadData(keyword, BanPhong, FromDate, ToDate, page);
+      getListData(keyword, BanPhong, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -59,19 +51,18 @@ function ThanhPham({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const getListData = (keyword, phongBanId, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
       phongBanId,
+      donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
       keyword,
       page,
-      donVi_Id: INFO.donVi_Id,
     });
-    dispatch(
-      fetchStart(`lkn_PhieuXuatKhoThanhPham?${param}`, "GET", null, "LIST")
-    );
+    dispatch(fetchStart(`lkn_PhieuDieuChuyen?${param}`, "GET", null, "LIST"));
   };
+
   const getBanPhong = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -100,7 +91,7 @@ function ThanhPham({ match, history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, BanPhong, FromDate, ToDate, page);
+    getListData(keyword, BanPhong, FromDate, ToDate, page);
   };
 
   /**
@@ -111,7 +102,7 @@ function ThanhPham({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, BanPhong, FromDate, ToDate, page);
+      getListData(val.target.value, BanPhong, FromDate, ToDate, page);
     }
   };
   /**
@@ -121,22 +112,6 @@ function ThanhPham({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    // const detailItem =
-    //   permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
-    //     <Link
-    //       to={{
-    //         pathname: `${match.url}/${item.id}/xac-nhan`,
-    //         state: { itemData: item, permission },
-    //       }}
-    //       title="Xác nhận"
-    //     >
-    //       <EyeOutlined />
-    //     </Link>
-    //   ) : (
-    //     <span disabled title="Xác nhận">
-    //       <EyeInvisibleOutlined />
-    //     </span>
-    //   );
     const editItem =
       permission && permission.edit ? (
         <Link
@@ -159,8 +134,6 @@ function ThanhPham({ match, history, permission }) {
         : { disabled: true };
     return (
       <div>
-        {/* {detailItem}
-        <Divider type="vertical" /> */}
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -180,8 +153,8 @@ function ThanhPham({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuXuatKhoThanhPham,
-      "phiếu xuất kho thành phẩm"
+      item.maPhieuDieuChuyen,
+      "phiếu điều chuyển"
     );
   };
 
@@ -191,14 +164,15 @@ function ThanhPham({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuXuatKhoThanhPham?id=${item.id}`;
+    console.log(item);
+    let url = `lkn_PhieuDieuChuyen?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, BanPhong, FromDate, ToDate, page);
+          getListData(keyword, BanPhong, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -212,7 +186,7 @@ function ThanhPham({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, BanPhong, FromDate, ToDate, pagination);
+    getListData(keyword, BanPhong, FromDate, ToDate, pagination);
   };
 
   /**
@@ -225,7 +199,7 @@ function ThanhPham({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handlePrint = () => {};
+
   const addButtonRender = () => {
     return (
       <>
@@ -238,23 +212,14 @@ function ThanhPham({ match, history, permission }) {
         >
           Tạo phiếu
         </Button>
-        {/* <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
-        >
-          In phiếu
-        </Button> */}
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(
-    data.datalist
-    // page === 1 ? page : pageSize * (page - 1) + 2
+    data.datalist,
+    page === 1 ? page : pageSize * (page - 1) + 2
   );
   const renderDetail = (val) => {
     const detail =
@@ -265,10 +230,10 @@ function ThanhPham({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuXuatKhoThanhPham}
+          {val.maPhieuDieuChuyen}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuXuatKhoThanhPham}</span>
+        <span disabled>{val.maPhieuDieuChuyen}</span>
       );
     return <div>{detail}</div>;
   };
@@ -281,34 +246,33 @@ function ThanhPham({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu xuất kho",
-      key: "maPhieuXuatKhoThanhPham",
+      title: "Mã phiếu điều chuyển",
+      key: "maPhieuDieuChuyen",
       align: "center",
       render: (val) => renderDetail(val),
     },
     {
-      title: "Xưởng sản xuất",
-      dataIndex: "tenPhongBan",
-      key: "tenPhongBan",
+      title: "Kho điều chuyển",
+      dataIndex: "tenKhoDi",
+      key: "tenKhoDi",
       align: "center",
     },
     {
-      title: "Ngày xuất kho",
-      dataIndex: "ngayXuatKho",
-      key: "ngayXuatKho",
+      title: "Kho nhận",
+      dataIndex: "tenKhoDen",
+      key: "tenKhoDen",
       align: "center",
     },
-
+    {
+      title: "Ngày yêu cầu",
+      dataIndex: "ngayYeuCau",
+      key: "ngayYeuCau",
+      align: "center",
+    },
     {
       title: "Người lập",
       dataIndex: "tenNguoiLap",
       key: "tenNguoiLap",
-      align: "center",
-    },
-    {
-      title: "Kho",
-      dataIndex: "tenCauTrucKho",
-      key: "tenCauTrucKho",
       align: "center",
     },
     {
@@ -342,55 +306,45 @@ function ThanhPham({ match, history, permission }) {
     };
   });
 
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
-
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
   const handleOnSelectBanPhong = (val) => {
     setBanPhong(val);
     setPage(1);
-    loadData(keyword, val, FromDate, ToDate, 1);
+    getListData(keyword, val, FromDate, ToDate, 1);
   };
+
   const handleClearBanPhong = (val) => {
     setBanPhong("");
     setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
+    getListData(keyword, "", FromDate, ToDate, 1);
   };
+
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    getListData(keyword, BanPhong, dateString[0], dateString[1], 1);
   };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Xuất kho thành phẩm"
-        description="Xuất kho thành phẩm"
+        title="Điều chuyển vật tư"
+        description="Điều chuyển vật tư"
         buttons={addButtonRender()}
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Ban/Phòng:</h5>
+        <Row style={{ marginBottom: 8 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListBanPhong ? ListBanPhong : []}
@@ -407,7 +361,15 @@ function ThanhPham({ match, history, permission }) {
             />
           </Col>
 
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Ngày:</h5>
             <RangePicker
               format={"DD/MM/YYYY"}
@@ -419,7 +381,15 @@ function ThanhPham({ match, history, permission }) {
               allowClear={false}
             />
           </Col>
-          <Col xl={6} lg={24} md={24} xs={24}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Tìm kiếm:</h5>
             <Toolbar
               count={1}
@@ -436,26 +406,6 @@ function ThanhPham({ match, history, permission }) {
           </Col>
         </Row>
         <Table
-          // rowSelection={{
-          //   type: "checkbox",
-          //   ...rowSelection,
-          //   preserveSelectedRowKeys: true,
-          //   selectedRowKeys: selectedKeys,
-          //   getCheckboxProps: (record) => ({}),
-          // }}
-          // onRow={(record, rowIndex) => {
-          //   return {
-          //     onClick: (e) => {
-          //       const found = find(selectedKeys, (k) => k === record.key);
-          //       if (found === undefined) {
-          //         setSelectedDevice([record]);
-          //         setSelectedKeys([record.key]);
-          //       } else {
-          //         hanldeRemoveSelected(record);
-          //       }
-          //     },
-          //   };
-          // }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}
@@ -480,4 +430,4 @@ function ThanhPham({ match, history, permission }) {
   );
 }
 
-export default ThanhPham;
+export default DieuChuyenThanhPham;
