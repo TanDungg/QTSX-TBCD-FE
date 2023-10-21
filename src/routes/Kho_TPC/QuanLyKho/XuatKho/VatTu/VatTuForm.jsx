@@ -57,9 +57,9 @@ const VatTuForm = ({ history, match, permission }) => {
     moment(getDateNow(), "DD/MM/YYYY")
   );
   const [PhieuDeNghiCVT, setPhieuDeNghiCVT] = useState([]);
-
   const { validateFields, resetFields, setFieldsValue } = form;
-  const [info, setInfo] = useState({});
+  const [info, setInfo] = useState([]);
+
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
@@ -157,6 +157,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 phieuDeNghiCapVatTu_Id: res.data.id,
                 xuongSanXuat_Id: res.data.xuongSanXuat_Id,
                 ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
+                tenSanPham: res.data.tenSanPham,
               },
             });
           }
@@ -515,18 +516,6 @@ const VatTuForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
-      align: "center",
-    },
-    {
-      title: "Chi tiết",
-      dataIndex: "tenChiTiet",
-      key: "tenChiTiet",
-      align: "center",
-    },
-    {
       title: "Mã vật tư",
       dataIndex: "maVatTu",
       key: "maVatTu",
@@ -536,6 +525,12 @@ const VatTuForm = ({ history, match, permission }) => {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
+      align: "center",
+    },
+    {
+      title: "Nhóm vật tư",
+      dataIndex: "tenNhomVatTu",
+      key: "tenNhomVatTu",
       align: "center",
     },
     {
@@ -578,68 +573,6 @@ const VatTuForm = ({ history, match, permission }) => {
     },
   ];
 
-  let colValuesCapVatTuKhac = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      width: 45,
-      align: "center",
-    },
-
-    {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
-      align: "center",
-    },
-    {
-      title: "Nhóm vật tư",
-      dataIndex: "tenNhomVatTu",
-      key: "tenNhomVatTu",
-      align: "center",
-    },
-    {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
-      align: "center",
-    },
-
-    {
-      title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
-      align: "center",
-    },
-    {
-      title: "Vị trí trong kho",
-      key: "soLuong",
-      align: "center",
-      render: (record) => renderLstViTri(record),
-      width: 250,
-    },
-    {
-      title: "Tổng SL kho xuất",
-      dataIndex: "soLuongThucXuat",
-      key: "soLuongThucXuat",
-      align: "center",
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "ghiChu",
-      key: "ghiChu",
-      align: "center",
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-    },
-  ];
-
   const components = {
     body: {
       row: EditableRow,
@@ -647,27 +580,21 @@ const VatTuForm = ({ history, match, permission }) => {
     },
   };
 
-  const columns = map(
-    info.isLoaiPhieu === true ||
-      (PhieuDeNghiCVT.length !== 0 && PhieuDeNghiCVT.lot_Id !== null)
-      ? colValues
-      : colValuesCapVatTuKhac,
-    (col) => {
-      if (!col.editable) {
-        return col;
-      }
-      return {
-        ...col,
-        onCell: (record) => ({
-          record,
-          editable: col.editable,
-          dataIndex: col.dataIndex,
-          title: col.title,
-          info: col.info,
-        }),
-      };
+  const columns = map(colValues, (col) => {
+    if (!col.editable) {
+      return col;
     }
-  );
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
 
   /**
    * Khi submit
@@ -1002,6 +929,32 @@ const VatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
+            {location.state.itemData.sanPham_Id && (
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Sản phẩm"
+                  name={["phieuxuatkhovattu", "tenSanPham"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Input className="input-item" disabled={true} />
+                </FormItem>
+              </Col>
+            )}
+          </Row>
+          <Row>
             <Col
               xxl={12}
               xl={12}

@@ -293,7 +293,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `NhaCungCap?page=-1&&loaiNhaCungCap_Id=${"cb50af21-24d3-495a-9fc2-b7a4b758f599"}`,
+            `NhaCungCap?page=-1&&loaiNhaCungCap_Id=${"0657c2ab-cde0-4753-b2c4-5801bb4891fa"}`,
             "GET",
             null,
             "DETAIL",
