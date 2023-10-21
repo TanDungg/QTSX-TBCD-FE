@@ -4,10 +4,9 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
   PrinterOutlined,
   RetweetOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -124,10 +123,7 @@ function DeNghiMuaHang({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      permission &&
-      permission.cof &&
-      item.tinhTrang === "Chưa xác nhận" &&
-      item.fileXacNhan ? (
+      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -135,11 +131,11 @@ function DeNghiMuaHang({ match, history, permission }) {
           }}
           title="Xác nhận"
         >
-          <EyeOutlined />
+          <CheckCircleOutlined />
         </Link>
       ) : (
         <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
+          <CheckCircleOutlined />
         </span>
       );
     const kyItem =

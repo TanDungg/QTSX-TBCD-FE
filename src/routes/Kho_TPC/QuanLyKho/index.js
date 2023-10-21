@@ -47,9 +47,11 @@ const DinhMucTonKhoForm = asyncComponent(() =>
   import("./DinhMucTonKho/DinhMucTonKhoForm")
 );
 
-const DieuChuyen = asyncComponent(() => import("./DieuChuyen/DieuChuyen"));
-const DieuChuyenForm = asyncComponent(() =>
-  import("./DieuChuyen/DieuChuyenForm")
+const DieuChuyenVatTu = asyncComponent(() =>
+  import("./DieuChuyen/VatTu/DieuChuyenVatTu")
+);
+const DieuChuyenVatTuForm = asyncComponent(() =>
+  import("./DieuChuyen/VatTu/DieuChuyenVatTuForm")
 );
 
 const ThanhLy = asyncComponent(() => import("./ThanhLy/ThanhLy"));
@@ -220,24 +222,24 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(XuatKhoThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/dieu-chuyen`}
+        path={`${match.url}/dieu-chuyen/vat-tu`}
         exact
-        component={Auth(DieuChuyen, menus, pathname, permission)}
+        component={Auth(DieuChuyenVatTu, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/dieu-chuyen/them-moi`}
+        path={`${match.url}/dieu-chuyen/vat-tu/them-moi`}
         exact
-        component={Auth(DieuChuyenForm, menus, pathname, permission)}
+        component={Auth(DieuChuyenVatTuForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/dieu-chuyen/:id/chinh-sua`}
+        path={`${match.url}/dieu-chuyen/vat-tu/:id/chinh-sua`}
         exact
-        component={Auth(DieuChuyenForm, menus, pathname, permission)}
+        component={Auth(DieuChuyenVatTuForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/dieu-chuyen/:id/chi-tiet`}
+        path={`${match.url}/dieu-chuyen/vat-tu/:id/chi-tiet`}
         exact
-        component={Auth(DieuChuyenForm, menus, pathname, permission)}
+        component={Auth(DieuChuyenVatTuForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/thanh-ly`}

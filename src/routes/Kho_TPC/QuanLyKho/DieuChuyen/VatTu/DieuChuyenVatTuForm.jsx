@@ -48,8 +48,9 @@ const DieuChuyenForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [info, setInfo] = useState({});
   const [ListVatTu, setListVatTu] = useState([]);
-  const [ListKhoVatTu, setListKhoVatTu] = useState([]);
-  const [KhoVatTu, setKhoVatTu] = useState(null);
+  const [ListKhoVatTuDi, setListKhoVatTuDi] = useState([]);
+  const [ListKhoVatTuDen, setListKhoVatTuDen] = useState([]);
+  const [KhoVatTuDi, setKhoVatTuDi] = useState(null);
   const [ListUser, setListUser] = useState([]);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(null);
   const [SoLuongDieuChuyen, setSoLuongDieuChuyen] = useState([]);
@@ -127,9 +128,11 @@ const DieuChuyenForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListKhoVatTu(res.data);
+          setListKhoVatTuDen(res.data);
+          setListKhoVatTuDi(res.data);
         } else {
-          setListKhoVatTu([]);
+          setListKhoVatTuDen([]);
+          setListKhoVatTuDi([]);
         }
       })
       .catch((error) => console.error(error));
@@ -227,7 +230,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
           setInfo(res.data);
           getUserLap(INFO, res.data.userLap_Id, 1);
           getListKho();
-          setKhoVatTu(res.data.khoDi_Id);
+          setKhoVatTuDi(res.data.khoDi_Id);
           getListViTriKho(res.data.khoDi_Id);
           setFieldsValue({
             phieudieuchuyen: {
@@ -597,7 +600,9 @@ const DieuChuyenForm = ({ history, match, permission }) => {
   };
 
   const handleSelectKhoDi = (value) => {
-    setKhoVatTu(value);
+    setKhoVatTuDi(value);
+    const newData = ListKhoVatTuDen.filter((d) => d.id !== value);
+    setListKhoVatTuDen(newData);
   };
 
   const formTitle =
@@ -697,7 +702,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListKhoVatTu ? ListKhoVatTu : []}
+                  data={ListKhoVatTuDi ? ListKhoVatTuDi : []}
                   optionsvalue={["id", "tenCTKho"]}
                   style={{ width: "100%" }}
                   placeholder="Kho điều chuyển"
@@ -754,13 +759,15 @@ const DieuChuyenForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListKhoVatTu ? ListKhoVatTu : []}
+                  data={ListKhoVatTuDen ? ListKhoVatTuDen : []}
                   optionsvalue={["id", "tenCTKho"]}
                   style={{ width: "100%" }}
                   placeholder="Kho nhận"
                   showSearch
                   optionFilterProp={"name"}
-                  disabled={type !== "detail" ? false : true}
+                  disabled={
+                    KhoVatTuDi === null || type === "detail" ? true : false
+                  }
                 />
               </FormItem>
             </Col>
@@ -779,7 +786,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
               className="th-margin-bottom-0"
               type="primary"
               onClick={handleChonVatTu}
-              disabled={KhoVatTu === null ? true : false}
+              disabled={KhoVatTuDi === null ? true : false}
             >
               Chọn vật tư
             </Button>
@@ -813,7 +820,7 @@ const DieuChuyenForm = ({ history, match, permission }) => {
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
-        itemData={{ kho_Id: KhoVatTu, listVatTu: ListVatTu && ListVatTu }}
+        itemData={{ kho_Id: KhoVatTuDi, listVatTu: ListVatTu && ListVatTu }}
         ThemVatTu={handleThemVatTu}
       />
     </div>

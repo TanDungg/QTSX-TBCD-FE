@@ -171,7 +171,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           getSanPham();
           getUserKy(INFO);
           setFieldsValue({
-            dinhmucvattu: {
+            deNghiMuaHang: {
               ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
               ngayHoanThanhDukien: moment(getDateNow(), "DD/MM/YYYY"),
             },
@@ -237,7 +237,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       if (res && res.data) {
         setListUser([res.data]);
         setFieldsValue({
-          dinhmucvattu: {
+          deNghiMuaHang: {
             userYeuCau_Id: res.data.Id,
             tenPhongBan: res.data.tenPhongBan,
           },
@@ -338,13 +338,11 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          const chiTiet =
+          setInfo(res.data);
+          const vattu =
             res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu);
-          chiTiet &&
-            chiTiet.forEach((ct, index) => {
-              chiTiet[index].id = ct.vatTu_Id + "_" + ct.sanPham_Id;
-            });
-          setListVatTu(chiTiet);
+          setListVatTu(vattu);
+
           getUserLap(INFO, res.data.userYeuCau_Id);
           res.data.userYeuCau_Id === INFO.user_Id &&
             check &&
@@ -353,10 +351,9 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             setFile(res.data.fileXacNhan);
             setDisableUpload(true);
           }
-          setInfo(res.data);
           getSanPham(res.data.sanPham_Id);
           setFieldsValue({
-            dinhmucvattu: {
+            deNghiMuaHang: {
               sanPham_Id: res.data.sanPham_Id,
               ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               ngayHoanThanhDukien: moment(
@@ -373,6 +370,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
+
   /**
    * Quay lại trang bộ phận
    *
@@ -549,7 +547,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.dinhmucvattu);
+    saveData(values.deNghiMuaHang);
   };
 
   const saveAndClose = (val) => {
@@ -558,7 +556,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         if (listVatTu.length === 0) {
           Helpers.alertError("Danh sách vật tư rỗng");
         } else {
-          saveData(values.dinhmucvattu, val);
+          saveData(values.deNghiMuaHang, val);
         }
       })
       .catch((error) => {
@@ -573,7 +571,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         chiTiet_phieumuahangs: listVatTu,
         ngayHoanThanhDukien: deNghiMuaHang.ngayHoanThanhDukien._i,
         ngayYeuCau: deNghiMuaHang.ngayYeuCau._i,
-        isCKD: deNghiMuaHang.isCKD === "true",
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -607,20 +604,9 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       const newData = {
         id: id,
         ...deNghiMuaHang,
-        chiTiet_phieumuahangs: listVatTu.map((vt) => {
-          return {
-            vatTu_Id: vt.vatTu_Id,
-            lkn_PhieuMuaHang_Id: id,
-            bom_Id: vt.bom_Id,
-            soLuong: vt.soLuong,
-            soLuongTonKho: 0,
-            ghiChu: vt.ghiChu,
-            hangMucSuDung: vt.hangMucSuDung,
-          };
-        }),
         ngayHoanThanhDukien: deNghiMuaHang.ngayHoanThanhDukien._i,
-        isCKD: deNghiMuaHang.isCKD === "true",
         ngayYeuCau: deNghiMuaHang.ngayYeuCau._i,
+        chiTiet_phieumuahangs: listVatTu,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -774,6 +760,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         </Tag>
       </span>
     );
+
   const hanldeThem = () => {
     const params = convertObjectToUrlParams({ SanPham_Id: SanPham_Id });
     new Promise((resolve, reject) => {
@@ -837,6 +824,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
+
   const props = {
     beforeUpload: (file) => {
       const isPNG =
@@ -911,7 +899,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người đề nghị"
-                name={["dinhmucvattu", "userYeuCau_Id"]}
+                name={["deNghiMuaHang", "userYeuCau_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -939,7 +927,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Ban/Phòng"
-                name={["dinhmucvattu", "tenPhongBan"]}
+                name={["deNghiMuaHang", "tenPhongBan"]}
                 rules={[
                   {
                     type: "string",
@@ -961,7 +949,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Dự kiến hoàn thành"
-                name={["dinhmucvattu", "ngayHoanThanhDukien"]}
+                name={["deNghiMuaHang", "ngayHoanThanhDukien"]}
                 rules={[
                   {
                     required: true,
@@ -974,7 +962,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                   allowClear={false}
                   onChange={(date, dateString) => {
                     setFieldsValue({
-                      dinhmucvattu: {
+                      deNghiMuaHang: {
                         ngayHoanThanhDukien: moment(dateString, "DD/MM/YYYY"),
                       },
                     });
@@ -993,7 +981,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Ngày yêu cầu"
-                name={["dinhmucvattu", "ngayYeuCau"]}
+                name={["deNghiMuaHang", "ngayYeuCau"]}
                 rules={[
                   {
                     required: true,
@@ -1005,7 +993,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                   allowClear={false}
                   onChange={(date, dateString) => {
                     setFieldsValue({
-                      dinhmucvattu: {
+                      deNghiMuaHang: {
                         ngayYeuCau: moment(dateString, "DD/MM/YYYY"),
                       },
                     });
@@ -1025,7 +1013,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người kiểm tra"
-                name={["dinhmucvattu", "userKiemTra_Id"]}
+                name={["deNghiMuaHang", "userKiemTra_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -1056,7 +1044,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Kế toán duyệt"
-                name={["dinhmucvattu", "userKeToan_Id"]}
+                name={["deNghiMuaHang", "userKeToan_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -1087,7 +1075,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Duyệt"
-                name={["dinhmucvattu", "userDuyet_Id"]}
+                name={["deNghiMuaHang", "userDuyet_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -1124,7 +1112,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="File đã ký"
-                  name={["dinhmucvattu", "userDuyet_Id"]}
+                  name={["deNghiMuaHang", "userDuyet_Id"]}
                 >
                   {!disableUpload ? (
                     <Upload {...props}>

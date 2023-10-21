@@ -20,6 +20,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   useEffect(() => {
     if (openModal) {
+      console.log(itemData);
       getListViTriKho(itemData.kho_Id);
     }
     return () => {
@@ -46,6 +47,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       );
     }).then((res) => {
       if (res && res.data) {
+        console.log(res.data);
         const newListVatTu = res.data.map((data) => {
           const vitri = `${data.tenKe ? `${data.tenKe}` : ""}${
             data.tenTang ? ` - ${data.tenTang}` : ""
