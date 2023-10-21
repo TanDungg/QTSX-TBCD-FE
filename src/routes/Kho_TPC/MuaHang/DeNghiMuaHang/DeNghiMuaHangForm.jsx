@@ -150,12 +150,9 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
-  const [ListChiTiet, setListChiTiet] = useState([]);
-
+  const [SanPham_Id, setSanPham_Id] = useState();
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
-  const [SanPham_Id, setSanPham_Id] = useState();
-  const [ChiTiet_Id, setChiTiet_Id] = useState();
 
   const [SoLuong, setSoLuong] = useState();
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
@@ -273,6 +270,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       }
     });
   };
+
   const getSanPham = (id) => {
     if (id) {
       new Promise((resolve, reject) => {
@@ -316,19 +314,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       });
     }
   };
-  const getChiTiet = (id) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(`SanPham/${id}`, "GET", null, "DETAIL", "", resolve, reject)
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        setListChiTiet(JSON.parse(res.data.chiTiet));
-      } else {
-        setListChiTiet([]);
-      }
-    });
-  };
+
   /**
    * Lấy thông tin
    *
@@ -481,13 +467,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Số lượng chi tiêt",
-      key: "soLuongSanPham",
-      align: "center",
-      render: (val) => <span>{val.soLuong / val.dinhMuc}</span>,
-    },
-    {
-      title: "Số lượng theo định mức",
+      title: "SL theo định mức",
       dataIndex: "soLuongTheoDinhMuc",
       key: "soLuongTheoDinhMuc",
       align: "center",
@@ -795,11 +775,11 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       </span>
     );
   const hanldeThem = () => {
-    const params = convertObjectToUrlParams({ chiTiet_Id: ChiTiet_Id });
+    const params = convertObjectToUrlParams({ SanPham_Id: SanPham_Id });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_DinhMucVatTu/bom-by-chi-tiet?${params}`,
+          `lkn_DinhMucVatTu/bom-by-san-pham?${params}`,
           "GET",
           null,
           "LIST",
@@ -811,23 +791,20 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
+          const data = res.data[0];
           const newData =
-            res.data.chiTietBOM &&
-            JSON.parse(res.data.chiTietBOM).map((ct) => {
+            data.chiTietBOM &&
+            JSON.parse(data.chiTietBOM).map((ct) => {
               return {
-                id: ct.vatTu_Id + "_" + res.data.id,
-                vatTu_Id: ct.vatTu_Id,
-                tenVatTu: ct.tenVatTu,
-                dinhMuc: ct.dinhMuc,
+                ...ct,
+                sanPham_Id: data.sanPham_Id,
+                tenSanPham: data.tenSanPham,
+                bom_Id: data.id,
+                vatTu_Id: ct.vatTu_Id.toLowerCase(),
                 soLuongTheoDinhMuc: ct.dinhMuc * SoLuong,
                 ghiChu: "",
                 hangMucSuDung: "",
                 soLuong: ct.dinhMuc * SoLuong,
-                tenDonViTinh: ct.tenDonViTinh,
-                tenNhomVatTu: ct.tenNhomVatTu,
-                tenSanPham: res.data.tenSanPham,
-                tenChiTiet: res.data.tenChiTiet,
-                bom_Id: res.data.id,
                 soLuongSanPham: SoLuong,
               };
             });
@@ -905,7 +882,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     );
   };
   const hanldeSelectSanPham = (val) => {
-    getChiTiet(val);
     setSanPham_Id(val);
   };
   return (
@@ -1255,37 +1231,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                     style={{ width: "100%" }}
                     onSelect={hanldeSelectSanPham}
                     showSearch
-                    optionFilterProp="name"
-                    disabled={type === "new" || type === "edit" ? false : true}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Chi tiết"
-                  name={["sanPham", "chiTiet_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListChiTiet ? ListChiTiet : []}
-                    placeholder="Chọn chi tiết"
-                    optionsvalue={["chiTiet_Id", "tenChiTiet"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    onChange={(val) => setChiTiet_Id(val)}
                     optionFilterProp="name"
                     disabled={type === "new" || type === "edit" ? false : true}
                   />

@@ -52,7 +52,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   const [ListSanPham, setListSanPham] = useState([]);
   const [listVatTu, setListVatTu] = useState([]);
   const [SoLuongVatTu, setSoLuongVatTu] = useState([]);
-  const [HanMucVatTu, setHanMucVatTu] = useState([]);
+  const [HanMucSuDung, setHanMucSuDung] = useState([]);
   const [ListVatTuKhac, setListVatTuKhac] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
@@ -218,16 +218,15 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
           });
         setListVatTu(newData);
 
-        console.log(res.data);
         const newSoLuong = {};
         const newHanMuc = {};
         newData &&
           newData.forEach((data) => {
             newSoLuong[data.vatTu_Id] = data.soLuong || 0;
-            newHanMuc[data.vatTu_Id] = data.hanMucVatTu || null;
+            newHanMuc[data.vatTu_Id] = data.HanMucSuDung || null;
           });
         setSoLuongVatTu(newSoLuong);
-        setHanMucVatTu(newHanMuc);
+        setHanMucSuDung(newHanMuc);
       } else {
         setListVatTu([]);
       }
@@ -342,16 +341,17 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
             const chiTiet =
               res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
               JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu);
-            const newData =
-              chiTiet &&
-              chiTiet.map((data) => {
-                return {
-                  ...data,
-                  soLuongKH: data.soLuongKeHoach,
-                  dinhMuc: data.soLuongChiTiet,
-                };
+            setListVatTu(chiTiet);
+
+            const newSoLuong = {};
+            const newHanMuc = {};
+            chiTiet &&
+              chiTiet.forEach((data) => {
+                newSoLuong[data.vatTu_Id] = data.soLuong || 0;
+                newHanMuc[data.vatTu_Id] = data.hanMucSuDung || null;
               });
-            setListVatTu(newData);
+            setSoLuongVatTu(newSoLuong);
+            setHanMucSuDung(newHanMuc);
           } else {
             setValue(2);
             getUserLap(INFO, res.data.userLapPhieu_Id, 2);
@@ -372,8 +372,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
               chiTiet.map((data) => {
                 return {
                   ...data,
-                  soLuongKH: data.soLuongKeHoach,
-                  dinhMuc: data.soLuongChiTiet,
                 };
               });
             setListVatTuKhac(newData);
@@ -473,6 +471,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       ...prevSoLuongVatTu,
       [record.vatTu_Id]: sl,
     }));
+    setFieldTouch(true);
     setListVatTu((prevListVatTu) => {
       return prevListVatTu.map((item) => {
         if (record.vatTu_Id === item.vatTu_Id) {
@@ -486,10 +485,10 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  const renderHanMucVatTu = (record) => {
+  const renderHanMucSuDung = (record) => {
     if (record) {
       return type === "detail" || type === "xacnhan" ? (
-        HanMucVatTu[record.vatTu_Id]
+        HanMucSuDung[record.vatTu_Id]
       ) : (
         <div>
           <Input
@@ -498,8 +497,8 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
               width: "100%",
             }}
             className={`input-item`}
-            value={HanMucVatTu && HanMucVatTu[record.vatTu_Id]}
-            onChange={(val) => handleHanMucVatTu(val, record)}
+            value={HanMucSuDung && HanMucSuDung[record.vatTu_Id]}
+            onChange={(val) => handleHanMucSuDung(val, record)}
           />
         </div>
       );
@@ -507,18 +506,19 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     return null;
   };
 
-  const handleHanMucVatTu = (value, record) => {
+  const handleHanMucSuDung = (value, record) => {
     const hanmuc = value.target.value;
-    setHanMucVatTu((prevHanMucVatTu) => ({
-      ...prevHanMucVatTu,
+    setHanMucSuDung((prevHanMucSuDung) => ({
+      ...prevHanMucSuDung,
       [record.vatTu_Id]: hanmuc,
     }));
+    setFieldTouch(true);
     setListVatTu((prevListVatTu) => {
       return prevListVatTu.map((item) => {
         if (record.vatTu_Id === item.vatTu_Id) {
           return {
             ...item,
-            hanMucVatTu: hanmuc && hanmuc,
+            hanMucSuDung: hanmuc && hanmuc,
           };
         }
         return item;
@@ -574,7 +574,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       title: "Hạn mức sử dụng",
       key: "hanMucSuDung",
       align: "center",
-      render: (record) => renderHanMucVatTu(record),
+      render: (record) => renderHanMucSuDung(record),
     },
     {
       title: "Ghi chú",
@@ -702,21 +702,21 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     }
   };
 
-  const saveAndClose = () => {
+  const saveAndClose = (check) => {
     validateFields()
       .then((values) => {
         if (value === 1) {
           if (listVatTu.length === 0) {
             Helpers.alertError("Danh sách vật tư rỗng");
           } else {
-            saveData(values.capvattusanxuat, true);
+            saveData(values.capvattusanxuat, check);
           }
         }
         if (value === 2) {
           if (ListVatTuKhac.length === 0) {
             Helpers.alertError("Danh sách vật tư rỗng");
           } else {
-            saveData(values.capvattukhac, true);
+            saveData(values.capvattukhac, check);
           }
         }
       })
