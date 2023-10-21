@@ -3,7 +3,7 @@ import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import {
@@ -11,7 +11,6 @@ import {
   Select,
   Table,
   ModalDeleteConfirm,
-  EditableTableRow,
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -25,8 +24,98 @@ import {
 } from "src/util/Common";
 import AddVatTuModal from "./AddVatTuModal";
 import ModalTuChoi from "./ModalTuChoi";
+import AddSanPhamModal from "./AddSanPhamModal";
+const EditableContext = React.createContext(null);
 
-const { EditableRow, EditableCell } = EditableTableRow;
+const EditableRow = ({ index, ...props }) => {
+  const [form] = Form.useForm();
+  return (
+    <Form form={form} component={false}>
+      <EditableContext.Provider value={form}>
+        <tr {...props} />
+      </EditableContext.Provider>
+    </Form>
+  );
+};
+const EditableCell = ({
+  title,
+  editable,
+  children,
+  dataIndex,
+  record,
+  handleSave,
+  ...restProps
+}) => {
+  const [editing, setEditing] = useState(false);
+  const inputRef = useRef(null);
+  const form = useContext(EditableContext);
+  useEffect(() => {
+    if (editing) {
+      inputRef.current.focus();
+    }
+  }, [editing]);
+  const toggleEdit = () => {
+    setEditing(!editing);
+    form.setFieldsValue({
+      [dataIndex]: record[dataIndex],
+    });
+  };
+  const save = async () => {
+    try {
+      const values = await form.validateFields();
+      toggleEdit();
+      handleSave({
+        ...record,
+        ...values,
+      });
+    } catch (errInfo) {
+      console.log("Save failed:", errInfo);
+    }
+  };
+  let childNode = children;
+  if (editable) {
+    childNode = editing ? (
+      <Form.Item
+        style={{
+          margin: 0,
+        }}
+        name={dataIndex}
+        rules={
+          title === "Định mức"
+            ? [
+                {
+                  pattern: /^(0\.\d*[1-9]\d*|[1-9]\d*(\.\d+)?)$/,
+                  message: "Định mức phải là số và lớn hơn 0!",
+                },
+              ]
+            : null
+        }
+      >
+        <Input
+          style={{
+            margin: 0,
+            width: "100%",
+            textAlign: "center",
+          }}
+          ref={inputRef}
+          onPressEnter={save}
+          onBlur={save}
+        />
+      </Form.Item>
+    ) : (
+      <div
+        className="editable-cell-value-wrap"
+        style={{
+          paddingRight: 24,
+        }}
+        onClick={toggleEdit}
+      >
+        {children}
+      </div>
+    );
+  }
+  return <td {...restProps}>{childNode}</td>;
+};
 
 const FormItem = Form.Item;
 
@@ -38,11 +127,13 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
+
   // const [listLoaiSanPham, setListLoaiSanPham] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ActiveModal, setActiveModal] = useState(false);
+  const [ActiveModalSanPham, setActiveModalSanPham] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
 
   const { validateFields, resetFields, setFieldsValue } = form;
@@ -277,6 +368,33 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
+  const getDetailSanPham = (data) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `SanPham/${data.vatTu_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          res.data.ghiChu = data.ghiChu;
+          res.data.dinhMuc = data.dinhMuc;
+          res.data.vatTu_Id = res.data.id;
+          res.data.tenVatTu = res.data.tenSanPham;
+          res.data.maVatTu = res.data.maSanPham;
+          setListVatTu([...listVatTu, res.data]);
+          setFieldTouch(true);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   /**
    * deleteItemFunc: Remove item from list
    * @param {object} item
@@ -351,12 +469,14 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       dataIndex: "dinhMuc",
       key: "dinhMuc",
       align: "center",
+      editable: type === "new" || type === "edit" ? true : false,
     },
     {
       title: "Ghi chú",
       dataIndex: "ghiChu",
       key: "ghiChu",
       align: "center",
+      editable: type === "new" || type === "edit" ? true : false,
     },
     {
       title: "Chức năng",
@@ -372,7 +492,16 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       cell: EditableCell,
     },
   };
-
+  const handleSave = (row) => {
+    const newData = [...listVatTu];
+    const index = newData.findIndex((item) => row.vatTu_Id === item.vatTu_Id);
+    const item = newData[index];
+    newData.splice(index, 1, {
+      ...item,
+      ...row,
+    });
+    setListVatTu(newData);
+  };
   const columns = map(colValues, (col) => {
     if (!col.editable) {
       return col;
@@ -385,9 +514,11 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
         dataIndex: col.dataIndex,
         title: col.title,
         info: col.info,
+        handleSave,
       }),
     };
   });
+
   /**
    * Khi submit
    *
@@ -494,6 +625,16 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       }
     });
     !check && getDetailVatTu(data);
+  };
+  const addSanPham = (data) => {
+    let check = false;
+    listVatTu.forEach((dl) => {
+      if (dl.vatTu_Id.toLowerCase() === data.vatTu_Id) {
+        check = true;
+        Helpers.alertError(`Sản phẩm đã được thêm`);
+      }
+    });
+    !check && getDetailSanPham(data);
   };
   const hanldeXacNhan = () => {
     const newData = {
@@ -762,13 +903,20 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
               </FormItem>
             </Col>
             {type === "new" || type === "edit" ? (
-              <Col span={24} style={{ marginBottom: 8 }} align="center">
+              <Col span={12} style={{ marginBottom: 8 }} align="center">
                 <Button
                   icon={<PlusOutlined />}
                   type="primary"
                   onClick={() => setActiveModal(true)}
                 >
-                  Thêm vật tư
+                  Chọn vật tư
+                </Button>
+                <Button
+                  icon={<PlusOutlined />}
+                  type="primary"
+                  onClick={() => setActiveModalSanPham(true)}
+                >
+                  Chọn sản phẩm
                 </Button>
               </Col>
             ) : null}
@@ -787,6 +935,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
           pagination={false}
           // loading={loading}
         />
+
         {type === "new" || type === "edit" ? (
           <FormSubmit
             goBack={goBack}
@@ -814,6 +963,11 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
         openModal={ActiveModal}
         openModalFS={setActiveModal}
         addVatTu={addVatTu}
+      />
+      <AddSanPhamModal
+        openModal={ActiveModalSanPham}
+        openModalFS={setActiveModalSanPham}
+        addSanPham={addSanPham}
       />
       <ModalTuChoi
         openModal={ActiveModalTuChoi}

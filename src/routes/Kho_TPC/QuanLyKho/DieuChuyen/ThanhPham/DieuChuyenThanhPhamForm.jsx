@@ -38,7 +38,7 @@ import ModalChonVatTu from "./ModalChonVatTu";
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 
-const DieuChuyenVatTuForm = ({ history, match, permission }) => {
+const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [form] = Form.useForm();
@@ -48,9 +48,8 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [info, setInfo] = useState({});
   const [ListVatTu, setListVatTu] = useState([]);
-  const [ListKhoVatTuDi, setListKhoVatTuDi] = useState([]);
-  const [ListKhoVatTuDen, setListKhoVatTuDen] = useState([]);
-  const [KhoVatTuDi, setKhoVatTuDi] = useState(null);
+  const [ListKhoVatTu, setListKhoVatTu] = useState([]);
+  const [KhoVatTu, setKhoVatTu] = useState(null);
   const [ListUser, setListUser] = useState([]);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(null);
   const [SoLuongDieuChuyen, setSoLuongDieuChuyen] = useState([]);
@@ -128,11 +127,9 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListKhoVatTuDen(res.data);
-          setListKhoVatTuDi(res.data);
+          setListKhoVatTu(res.data);
         } else {
-          setListKhoVatTuDen([]);
-          setListKhoVatTuDi([]);
+          setListKhoVatTu([]);
         }
       })
       .catch((error) => console.error(error));
@@ -230,7 +227,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
           setInfo(res.data);
           getUserLap(INFO, res.data.userLap_Id, 1);
           getListKho();
-          setKhoVatTuDi(res.data.khoDi_Id);
+          setKhoVatTu(res.data.khoDi_Id);
           getListViTriKho(res.data.khoDi_Id);
           setFieldsValue({
             phieudieuchuyen: {
@@ -600,19 +597,17 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
   };
 
   const handleSelectKhoDi = (value) => {
-    setKhoVatTuDi(value);
-    const newData = ListKhoVatTuDen.filter((d) => d.id !== value);
-    setListKhoVatTuDen(newData);
+    setKhoVatTu(value);
   };
 
   const formTitle =
     type === "new" ? (
-      "Tạo phiếu điều chuyển vật tư "
+      "Tạo phiếu điều chuyển thành phẩm "
     ) : type === "edit" ? (
-      "Chỉnh sửa phiếu điều chuyển vật tư"
+      "Chỉnh sửa phiếu điều chuyển thành phẩm"
     ) : (
       <span>
-        Chi tiết phiếu điều chuyển vật tư -{" "}
+        Chi tiết phiếu điều chuyển thành phẩm -{" "}
         <Tag color={"blue"} style={{ fontSize: "14px" }}>
           {info.maPhieuDieuChuyen}
         </Tag>
@@ -691,6 +686,47 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
+                label="Loại điều chuyển"
+                name={["phieudieuchuyen", "khoDi_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={[
+                    {
+                      id: "true",
+                      name: "Thành phẩm => Vật tư",
+                    },
+                    {
+                      id: "false",
+                      name: "Thành phẩm => Thành phẩm",
+                    },
+                  ]}
+                  optionsvalue={["id", "name"]}
+                  style={{ width: "100%" }}
+                  placeholder="Loại điều chuyển"
+                  showSearch
+                  optionFilterProp={"name"}
+                  onSelect={handleSelectKhoDi}
+                  disabled={ListVatTu && ListVatTu.length === 0 ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
                 label="Kho đi"
                 name={["phieudieuchuyen", "khoDi_Id"]}
                 rules={[
@@ -702,7 +738,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListKhoVatTuDi ? ListKhoVatTuDi : []}
+                  data={ListKhoVatTu ? ListKhoVatTu : []}
                   optionsvalue={["id", "tenCTKho"]}
                   style={{ width: "100%" }}
                   placeholder="Kho điều chuyển"
@@ -759,15 +795,13 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListKhoVatTuDen ? ListKhoVatTuDen : []}
+                  data={ListKhoVatTu ? ListKhoVatTu : []}
                   optionsvalue={["id", "tenCTKho"]}
                   style={{ width: "100%" }}
                   placeholder="Kho nhận"
                   showSearch
                   optionFilterProp={"name"}
-                  disabled={
-                    KhoVatTuDi === null || type === "detail" ? true : false
-                  }
+                  disabled={type !== "detail" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -776,7 +810,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
         <Divider style={{ marginBottom: 15 }} />
         <Row justify={"center"}>
           <h2 style={{ color: "#0469B9" }}>
-            <strong>DANH SÁCH VẬT TƯ</strong>
+            <strong>DANH SÁCH SẢN PHẨM</strong>
           </h2>
         </Row>
         {type !== "detail" ? (
@@ -786,9 +820,9 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
               className="th-margin-bottom-0"
               type="primary"
               onClick={handleChonVatTu}
-              disabled={KhoVatTuDi === null ? true : false}
+              disabled={KhoVatTu === null ? true : false}
             >
-              Chọn vật tư
+              Chọn sản phẩm
             </Button>
           </Row>
         ) : null}
@@ -820,11 +854,11 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
-        itemData={{ kho_Id: KhoVatTuDi, listVatTu: ListVatTu && ListVatTu }}
+        itemData={{ kho_Id: KhoVatTu, listVatTu: ListVatTu && ListVatTu }}
         ThemVatTu={handleThemVatTu}
       />
     </div>
   );
 };
 
-export default DieuChuyenVatTuForm;
+export default DieuChuyenThanhPhamForm;

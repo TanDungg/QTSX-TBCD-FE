@@ -68,7 +68,9 @@ function ThanhPham({ match, history, permission }) {
       page,
       donVi_Id: INFO.donVi_Id,
     });
-    dispatch(fetchStart(`lkn_PhieuDatHangNoiBo?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(`lkn_PhieuXuatKhoThanhPham?${param}`, "GET", null, "LIST")
+    );
   };
   const getBanPhong = () => {
     new Promise((resolve, reject) => {
@@ -119,24 +121,24 @@ function ThanhPham({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const detailItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <EyeOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
-        </span>
-      );
+    // const detailItem =
+    //   permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
+    //     <Link
+    //       to={{
+    //         pathname: `${match.url}/${item.id}/xac-nhan`,
+    //         state: { itemData: item, permission },
+    //       }}
+    //       title="Xác nhận"
+    //     >
+    //       <EyeOutlined />
+    //     </Link>
+    //   ) : (
+    //     <span disabled title="Xác nhận">
+    //       <EyeInvisibleOutlined />
+    //     </span>
+    //   );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
+      permission && permission.edit ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -152,13 +154,13 @@ function ThanhPham({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {detailItem}
-        <Divider type="vertical" />
+        {/* {detailItem}
+        <Divider type="vertical" /> */}
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -178,8 +180,8 @@ function ThanhPham({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuYeuCau,
-      "phiếu đặt hàng nội bộ"
+      item.maPhieuXuatKhoThanhPham,
+      "phiếu xuất kho thành phẩm"
     );
   };
 
@@ -189,7 +191,7 @@ function ThanhPham({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDatHangNoiBo/${item.id}`;
+    let url = `lkn_PhieuXuatKhoThanhPham?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -236,7 +238,7 @@ function ThanhPham({ match, history, permission }) {
         >
           Tạo phiếu
         </Button>
-        <Button
+        {/* <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -244,7 +246,7 @@ function ThanhPham({ match, history, permission }) {
           disabled={permission && !permission.print}
         >
           In phiếu
-        </Button>
+        </Button> */}
       </>
     );
   };
@@ -263,10 +265,10 @@ function ThanhPham({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuYeuCau}
+          {val.maPhieuXuatKhoThanhPham}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuYeuCau}</span>
+        <span disabled>{val.maPhieuXuatKhoThanhPham}</span>
       );
     return <div>{detail}</div>;
   };
@@ -280,7 +282,7 @@ function ThanhPham({ match, history, permission }) {
     },
     {
       title: "Mã phiếu xuất kho",
-      key: "maPhieuYeuCau",
+      key: "maPhieuXuatKhoThanhPham",
       align: "center",
       render: (val) => renderDetail(val),
     },
@@ -292,8 +294,8 @@ function ThanhPham({ match, history, permission }) {
     },
     {
       title: "Ngày xuất kho",
-      dataIndex: "ngayXuat",
-      key: "ngayXuat",
+      dataIndex: "ngayXuatKho",
+      key: "ngayXuatKho",
       align: "center",
     },
 
@@ -305,8 +307,8 @@ function ThanhPham({ match, history, permission }) {
     },
     {
       title: "Kho",
-      dataIndex: "kho",
-      key: "kho",
+      dataIndex: "tenCauTrucKho",
+      key: "tenCauTrucKho",
       align: "center",
     },
     {
@@ -434,26 +436,26 @@ function ThanhPham({ match, history, permission }) {
           </Col>
         </Row>
         <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            preserveSelectedRowKeys: true,
-            selectedRowKeys: selectedKeys,
-            getCheckboxProps: (record) => ({}),
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setSelectedDevice([record]);
-                  setSelectedKeys([record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            };
-          }}
+          // rowSelection={{
+          //   type: "checkbox",
+          //   ...rowSelection,
+          //   preserveSelectedRowKeys: true,
+          //   selectedRowKeys: selectedKeys,
+          //   getCheckboxProps: (record) => ({}),
+          // }}
+          // onRow={(record, rowIndex) => {
+          //   return {
+          //     onClick: (e) => {
+          //       const found = find(selectedKeys, (k) => k === record.key);
+          //       if (found === undefined) {
+          //         setSelectedDevice([record]);
+          //         setSelectedKeys([record.key]);
+          //       } else {
+          //         hanldeRemoveSelected(record);
+          //       }
+          //     },
+          //   };
+          // }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}

@@ -24,7 +24,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function DieuChuyenVatTu({ match, history, permission }) {
+function DieuChuyenThanhPham({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -430,4 +430,4 @@ function DieuChuyenVatTu({ match, history, permission }) {
   );
 }
 
-export default DieuChuyenVatTu;
+export default DieuChuyenThanhPham;
