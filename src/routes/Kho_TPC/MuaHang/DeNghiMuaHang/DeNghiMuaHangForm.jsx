@@ -35,6 +35,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_TWO_COL } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
+  exportPDF,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
@@ -593,6 +594,13 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
               resetFields();
               setFieldTouch(false);
               setListVatTu([]);
+              getUserLap(INFO);
+              setFieldsValue({
+                deNghiMuaHang: {
+                  ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
+                  ngayHoanThanhDukien: moment(getDateNow(), "DD/MM/YYYY"),
+                },
+              });
             }
           } else {
             setFieldTouch(false);
@@ -777,7 +785,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       );
     })
       .then((res) => {
-        if (res && res.data) {
+        if (res && res.data.length !== 0) {
           const data = res.data[0];
           const newData =
             data.chiTietBOM &&
@@ -820,6 +828,8 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           } else {
             Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
           }
+        } else {
+          Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
         }
       })
       .catch((error) => console.error(error));
@@ -845,6 +855,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     showUploadList: false,
     maxCount: 1,
   };
+
   const handleViewFile = (file) => {
     if (file.type === "application/pdf") {
       renderPDF(file);
@@ -852,7 +863,33 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       setOpenImage(true);
     }
   };
-  const handlePrint = () => {};
+
+  const handlePrint = () => {
+    const newData = {
+      ...info,
+      lstpdncvtct: listVatTu,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuDeNghiMuaHang/export-pdf`,
+          "POST",
+          newData,
+          "DOWLOAD",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          exportPDF("PhieuDeNghiMuaHang", res.data.datapdf);
+          getInfo(id);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
 
   const addButtonRender = () => {
     return (
@@ -869,9 +906,11 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       </>
     );
   };
+
   const hanldeSelectSanPham = (val) => {
     setSanPham_Id(val);
   };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -1286,15 +1325,23 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             disabled={fieldTouch}
           />
         ) : null}
-        {type === "xacnhan" && (
+        {type === "xacnhan" && info.isXacNhan === null && (
           <Row justify={"end"} style={{ marginTop: 15 }}>
             <Col style={{ marginRight: 15 }}>
-              <Button type="primary" onClick={modalXK}>
+              <Button
+                type="primary"
+                onClick={modalXK}
+                disabled={info.fileXacNhan === null}
+              >
                 Xác nhận
               </Button>
             </Col>
             <Col style={{ marginRight: 15 }}>
-              <Button danger onClick={hanldeTuChoi}>
+              <Button
+                danger
+                onClick={hanldeTuChoi}
+                disabled={info.fileXacNhan === null}
+              >
                 Từ chối
               </Button>
             </Col>

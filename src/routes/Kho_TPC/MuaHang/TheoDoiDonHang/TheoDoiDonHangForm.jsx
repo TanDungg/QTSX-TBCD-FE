@@ -1,5 +1,5 @@
-import { DeleteOutlined } from "@ant-design/icons";
-import { Card, Row, Col, Tag } from "antd";
+import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
+import { Card, Row, Col, Tag, Button } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes, map } from "lodash";
 
@@ -13,6 +13,7 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import {
   FileName,
+  exportExcel,
   getLocalStorage,
   getTokenInfo,
   reDataForTable,
@@ -224,12 +225,14 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
       align: "center",
     },
   ];
+
   const components = {
     body: {
       row: EditableRow,
       cell: EditableCell,
     },
   };
+
   const handleSave = (row) => {
     const newData = [...listVatTu];
     const index = newData.findIndex((item) => row.vatTu_Id === item.vatTu_Id);
@@ -238,9 +241,50 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
       ...item,
       ...row,
     });
-    // setDisableSave(true);
     setListVatTu(newData);
   };
+
+  const handlePrint = () => {
+    const newData = listVatTu.map((data) => {
+      return {
+        ...info,
+        ...data,
+      };
+    });
+    console.log(newData);
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuNhanHang/export-file-excel-theo-doi-don-hang`,
+          "POST",
+          newData,
+          "DOWLOAD",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      exportExcel("PhieuTheoDoiDonHang-", res.data.dataexcel);
+    });
+  };
+
+  const addButtonRender = () => {
+    return (
+      <>
+        <Button
+          icon={<PrinterOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handlePrint}
+          disabled={permission && !permission.print}
+        >
+          Xuất Excel
+        </Button>
+      </>
+    );
+  };
+
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
@@ -266,7 +310,11 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
 
   return (
     <div className="gx-main-content">
-      <ContainerHeader title={formTitle} back={goBack} />
+      <ContainerHeader
+        title={formTitle}
+        back={goBack}
+        buttons={addButtonRender()}
+      />
       <Card className="th-card-margin-bottom" style={{ padding: "0px 10px" }}>
         <Row style={{ marginLeft: 2 }}>
           <Col>

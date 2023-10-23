@@ -235,6 +235,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       }
     });
   };
+
   const getCVThuMua = (info) => {
     const params = convertObjectToUrlParams({
       donVi_Id: info.donVi_Id,
@@ -260,10 +261,10 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       }
     });
   };
-  const getPhieuMuaHang = (info, phongBanId, loaiPhieu, id) => {
+
+  const getPhieuMuaHang = (info, loaiPhieu, id) => {
     const params = convertObjectToUrlParams({
       donVi_Id: info.donVi_Id,
-      phongBanId,
       loaiPhieu,
     });
     new Promise((resolve, reject) => {
@@ -570,6 +571,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
         console.log("error", error);
       });
   };
+
   const uploadFile = (phieunhanhang, saveQuit) => {
     if (type === "new" && phieunhanhang.fileDinhKem) {
       const formData = new FormData();
@@ -765,22 +767,16 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
         </Tag>
       </span>
     );
-  const handleGetListPhieu = (val) => {
-    const record = getFieldValue("phieunhanhang");
-    if (record.loaiPhieu && record.phongBanId) {
-      getPhieuMuaHang(
-        INFO,
-        record.phongBanId,
-        record.loaiPhieu.toLowerCase() === "true"
-      );
-      setListVatTu([]);
-      setFieldsValue({
-        phieunhanhang: {
-          phieuMuaHang_Id: undefined,
-          userYeuCau_Id: undefined,
-        },
-      });
-    }
+
+  const handleGetListPhieu = (value) => {
+    getPhieuMuaHang(INFO, value);
+    setListVatTu([]);
+    setFieldsValue({
+      phieunhanhang: {
+        phieuMuaHang_Id: null,
+        userYeuCau_Id: null,
+      },
+    });
   };
   const hanldeSelectPhieu = (val) => {
     ListPhieuMuaHang.forEach((p) => {
@@ -839,38 +835,6 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <Row>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Ban/Phòng"
-                name={["phieunhanhang", "phongBanId"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListBanPhong}
-                  placeholder="Chọn Ban/Phòng"
-                  optionsvalue={["id", "tenPhongBan"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  onSelect={handleGetListPhieu}
-                  disabled={type === "new" ? false : true}
-                />
-              </FormItem>
-            </Col>
             <Col
               xxl={12}
               xl={12}

@@ -67,7 +67,7 @@ const VatTuForm = ({ history, match, permission }) => {
         if (location.state) {
           const newData = location.state.itemData;
           setType("taophieuxuat");
-          getPhieuDeNghiCVT(newData.id);
+          getPhieuDeNghiCVT(newData.length !== 0 && newData[0].id);
         } else {
           if (permission && permission.add) {
             setType("new");
@@ -142,6 +142,7 @@ const VatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
+          console.log(res.data);
           setPhieuDeNghiCVT(res.data);
           setListVatTu(
             res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
@@ -345,6 +346,7 @@ const VatTuForm = ({ history, match, permission }) => {
               userPhuTrachBoPhan_Id: res.data.userPhuTrachBoPhan_Id,
             },
           });
+
           const chiTiet =
             res.data.chiTiet_PhieuXuatKhoVatTus &&
             JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus);
@@ -645,6 +647,12 @@ const VatTuForm = ({ history, match, permission }) => {
               goBack();
             } else {
               resetFields();
+              getUserLap(INFO);
+              setFieldsValue({
+                phieuxuatkhovattu: {
+                  ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
+                },
+              });
               setFieldTouch(false);
               setListVatTu([]);
             }
@@ -929,7 +937,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            {location.state.itemData.sanPham_Id && (
+            {location.state && location.state.itemData[0].sanPham_Id && (
               <Col
                 xxl={12}
                 xl={12}

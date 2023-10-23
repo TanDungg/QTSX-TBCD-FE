@@ -118,95 +118,6 @@ function TheoDoiHangVe({ match, history, permission }) {
       loadData(val.target.value, NhomVatTu, FromDate, ToDate, page);
     }
   };
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const detailItem =
-      permission && permission.cof ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <EyeOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
-        </span>
-      );
-    const editItem =
-      permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
-    const deleteVal =
-      permission && permission.del && !item.isUsed
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        {detailItem}
-        <Divider type="vertical" />
-        {editItem}
-        <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa">
-          <DeleteOutlined />
-        </a>
-      </div>
-    );
-  };
-
-  /**
-   * deleteItemFunc: Xoá item theo item
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maPhieuYeuCau,
-      "phiếu trả hàng nhà cung cấp"
-    );
-  };
-
-  /**
-   * Xóa item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    let url = `lkn_PhieuTraHangNCC/${item.id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        // Reload lại danh sách
-        if (res.status !== 409) {
-          loadData(keyword, NhomVatTu, FromDate, ToDate, page);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
 
   /**
    * handleTableChange
@@ -219,32 +130,7 @@ function TheoDoiHangVe({ match, history, permission }) {
     loadData(keyword, NhomVatTu, FromDate, ToDate, pagination);
   };
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
-  };
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleRedirect}
-          disabled={permission && !permission.add}
-        >
-          Nhập kho
-        </Button>
-      </>
-    );
-  };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(
     data
@@ -286,14 +172,14 @@ function TheoDoiHangVe({ match, history, permission }) {
     },
     {
       title: "Ngày xác nhận hàng về",
-      dataIndex: "tenPhongBan",
-      key: "tenPhongBan",
+      dataIndex: "ngayHoanThanhDuKien",
+      key: "ngayHoanThanhDuKien",
       align: "center",
     },
     {
       title: "CV Thu mua",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
+      dataIndex: "tenThuMua",
+      key: "tenThuMua",
       align: "center",
     },
     {
@@ -404,7 +290,6 @@ function TheoDoiHangVe({ match, history, permission }) {
       <ContainerHeader
         title="Theo dõi hàng về"
         description="Theo dõi hàng về"
-        buttons={addButtonRender()}
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
@@ -481,26 +366,6 @@ function TheoDoiHangVe({ match, history, permission }) {
           </Col>
         </Row>
         <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            preserveSelectedRowKeys: true,
-            selectedRowKeys: selectedKeys,
-            getCheckboxProps: (record) => ({}),
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setSelectedDevice([record]);
-                  setSelectedKeys([record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            };
-          }}
           bordered
           scroll={{ x: 1200, y: "70vh" }}
           columns={columns}

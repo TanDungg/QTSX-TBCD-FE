@@ -625,13 +625,10 @@ const VatTuForm = ({ history, match, permission }) => {
             if (saveQuit) {
               goBack();
             } else {
+              resetFields();
+              getUserLap(INFO);
               setFieldsValue({
                 phieunhapkho: {
-                  phieuNhanHang_Id: null,
-                  soHoaDon: null,
-                  nhaCungCap_Id: null,
-                  noiDungNhanVatTu: null,
-                  cauTrucKho_Id: null,
                   ngayNhan: moment(getDateNow(), "DD/MM/YYYY"),
                   ngayHoaDon: moment(getDateNow(), "DD/MM/YYYY"),
                 },
@@ -675,6 +672,7 @@ const VatTuForm = ({ history, match, permission }) => {
           if (saveQuit) {
             if (res.status !== 409) goBack();
           } else {
+            console.log(res);
             getInfo(id);
             setFieldTouch(false);
           }
@@ -713,12 +711,15 @@ const VatTuForm = ({ history, match, permission }) => {
     title: "Xác nhận phiếu đề nghị mua hàng",
     onOk: hanldeXacNhan,
   };
+
   const modalXK = () => {
     Modal(prop);
   };
+
   const hanlde = () => {
     setActiveModal(true);
   };
+
   const save = (val) => {
     const newData = {
       id: id,
@@ -755,12 +756,13 @@ const VatTuForm = ({ history, match, permission }) => {
         <Tag color={"success"}>{info.maPhieuNhapKhoVatTu}</Tag>
       </span>
     );
-  const hanldeSelectMaPhieu = (vaL) => {
+
+  const hanldeSelectMaPhieu = (value) => {
     const params = convertObjectToUrlParams({ donVi_Id: INFO.donVi_Id });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuNhanHang/${vaL}?${params}`,
+          `lkn_PhieuNhanHang/${value}?${params}`,
           "GET",
           null,
           "LIST",
@@ -772,6 +774,7 @@ const VatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
+          console.log(res.data);
           const newVatTu = [];
           res.data.chiTietVatTu &&
             JSON.parse(res.data.chiTietVatTu).forEach((ct) => {
@@ -880,7 +883,7 @@ const VatTuForm = ({ history, match, permission }) => {
               >
                 <DatePicker
                   format={"DD/MM/YYYY"}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                   allowClear={false}
                   onChange={(date, dateString) => {
                     setFieldsValue({
@@ -939,7 +942,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 rules={[]}
               >
                 <DatePicker
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                   format={"DD/MM/YYYY"}
                   allowClear={false}
                   onChange={(date, dateString) => {

@@ -170,8 +170,8 @@ function VatTu({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuYeuCau,
-      "phiếu đặt hàng nội bộ"
+      item.maPhieuNhapKhoVatTu,
+      "phiếu nhập kho"
     );
   };
 
@@ -181,7 +181,8 @@ function VatTu({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDatHangNoiBo/${item.id}`;
+    console.log(item);
+    let url = `lkn_PhieuNhapKhoVatTu?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -233,18 +234,20 @@ function VatTu({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
-          disabled={permission && !permission.print}
+          disabled={
+            (permission && !permission.print) || selectedDevice.length === 0
+          }
         >
           In phiếu
         </Button>
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(
-    data.datalist
-    // page === 1 ? page : pageSize * (page - 1) + 2
+    data.datalist,
+    page === 1 ? page : pageSize * (page - 1) + 2
   );
   const renderDetail = (val) => {
     const detail =
@@ -351,13 +354,23 @@ function VatTu({ match, history, permission }) {
   const rowSelection = {
     selectedRowKeys: selectedKeys,
     selectedRows: selectedDevice,
+
     onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
+      const row =
+        selectedDevice.length > 0
+          ? selectedRows.filter((d) => d.key !== selectedDevice[0].key)
+          : [...selectedRows];
+
+      const key =
+        selectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
+          : [...selectedRowKeys];
+
+      setSelectedDevice(row);
+      setSelectedKeys(key);
     },
   };
+
   const handleOnSelectBanPhong = (val) => {
     setBanPhong(val);
     setPage(1);
@@ -434,22 +447,9 @@ function VatTu({ match, history, permission }) {
           rowSelection={{
             type: "checkbox",
             ...rowSelection,
-            preserveSelectedRowKeys: true,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
             selectedRowKeys: selectedKeys,
-            getCheckboxProps: (record) => ({}),
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setSelectedDevice([record]);
-                  setSelectedKeys([record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            };
           }}
           bordered
           scroll={{ x: 700, y: "70vh" }}

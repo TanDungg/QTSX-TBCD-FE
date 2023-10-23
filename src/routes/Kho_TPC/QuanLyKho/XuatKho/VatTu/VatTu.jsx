@@ -41,8 +41,8 @@ function XuatKhoVatTu({ match, history, permission }) {
   const [XuongSanXuat, setXuongSanXuat] = useState(null);
   const [TuNgay, setTuNgay] = useState(getDateNow(7));
   const [DenNgay, setDenNgay] = useState(getDateNow());
-  const [SelectedDNCVT, setSelectedDNCVT] = useState(null);
-  const [SelectedKeys, setSelectedKeys] = useState(null);
+  const [SelectedDevice, setSelectedDevice] = useState([]);
+  const [SelectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     if (permission && permission.view) {
       getXuongSanXuat();
@@ -228,7 +228,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuXuatKhoVatTu/${SelectedDNCVT.id}?${params}`,
+          `lkn_PhieuXuatKhoVatTu/${SelectedDevice[0].id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -240,13 +240,24 @@ function XuatKhoVatTu({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
+          const listVatTu =
+            res.data.chiTiet_PhieuXuatKhoVatTus &&
+            JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus).map((list) => {
+              const SoLuong = list.chiTiet_LuuVatTus.reduce(
+                (tong, sl) => tong + sl.soLuongThucXuat,
+                0
+              );
+              return {
+                ...list,
+                soLuongThucXuat: SoLuong,
+              };
+            });
           const newData = {
             ...res.data,
             boPhan: res.data.tenPhongBan,
-            lstpxkvtct:
-              res.data.chiTiet_PhieuXuatKhoVatTus &&
-              JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus),
+            lstpxkvtct: listVatTu,
           };
+
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
@@ -260,9 +271,9 @@ function XuatKhoVatTu({ match, history, permission }) {
               )
             );
           }).then((res) => {
-            exportPDF("PhieuDeNghiCapVatTu", res.data.datapdf);
-            setSelectedDNCVT(null);
-            setSelectedKeys(null);
+            exportPDF("PhieuXuatKhoVatTu", res.data.datapdf);
+            setSelectedDevice([]);
+            setSelectedKeys([]);
           });
         }
       })
@@ -383,7 +394,9 @@ function XuatKhoVatTu({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
-          disabled={(permission && !permission.print) || SelectedDNCVT === null}
+          disabled={
+            (permission && !permission.print) || SelectedDevice.length === 0
+          }
         >
           In phiếu
         </Button>
@@ -408,6 +421,35 @@ function XuatKhoVatTu({ match, history, permission }) {
     setDenNgay(dateString[1]);
     setPage(1);
     getListData(XuongSanXuat, dateString[0], dateString[1], 1);
+  };
+
+  const rowSelection = {
+    selectedRowKeys: SelectedKeys,
+    selectedRows: SelectedDevice,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        SelectedDevice.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectedDevice[0].key)
+          : [...selectedRows];
+
+      const key =
+        SelectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
+          : [...selectedRowKeys];
+
+      if (
+        row.length !== 0 &&
+        (row[0].tinhTrang === "Chưa duyệt" ||
+          row[0].tinhTrang.startsWith("Đã từ chối"))
+      ) {
+        setSelectedDevice([]);
+        setSelectedKeys([]);
+      } else {
+        setSelectedDevice(row);
+        setSelectedKeys(key);
+      }
+    },
   };
 
   return (
@@ -485,42 +527,11 @@ function XuatKhoVatTu({ match, history, permission }) {
             showQuickJumper: true,
           }}
           rowSelection={{
-            type: "radio",
-            selectedRowKeys: SelectedKeys ? [SelectedKeys] : [],
-            onChange: (selectedRowKeys, selectedRows) => {
-              if (
-                (selectedRows.length > 0 &&
-                  selectedRows[0].tinhTrang === "Chưa duyệt") ||
-                selectedRows[0].tinhTrang.startsWith("Đã từ chối")
-              ) {
-                setSelectedDNCVT(SelectedDNCVT);
-                setSelectedKeys(SelectedKeys);
-              } else {
-                setSelectedDNCVT(selectedRows[0]);
-                setSelectedKeys(selectedRows[0].key);
-              }
-            },
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                if (SelectedKeys === record.key) {
-                  setSelectedDNCVT(null);
-                  setSelectedKeys(null);
-                } else {
-                  if (
-                    record.tinhTrang === "Chưa duyệt" ||
-                    record.tinhTrang.startsWith("Đã từ chối")
-                  ) {
-                    setSelectedDNCVT(SelectedDNCVT);
-                    setSelectedKeys(SelectedKeys);
-                  } else {
-                    setSelectedDNCVT(record);
-                    setSelectedKeys(record.key);
-                  }
-                }
-              },
-            };
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: SelectedKeys,
           }}
           loading={loading}
         />

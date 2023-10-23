@@ -62,21 +62,31 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   const [NgaySanXuat, setNgaySanXuat] = useState(
     moment(getDateNow(-1), "DD/MM/YYYY")
   );
-
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
   const [info, setInfo] = useState({});
+
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
           setType("new");
-          getData();
-          setFieldsValue({
-            capvattusanxuat: {
-              ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
-              ngaySanXuat: moment(getDateNow(-1), "DD/MM/YYYY"),
-            },
-          });
+          getUserKy(INFO);
+          getUserLap(INFO, null, value);
+          getXuong();
+          setFieldsValue(
+            value === 1
+              ? {
+                  capvattusanxuat: {
+                    ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
+                    ngaySanXuat: moment(getDateNow(-1), "DD/MM/YYYY"),
+                  },
+                }
+              : {
+                  capvattukhac: {
+                    ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
+                  },
+                }
+          );
         } else if (permission && !permission.add) {
           history.push("/home");
         }
@@ -116,12 +126,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const getData = () => {
-    getUserKy(INFO);
-    getUserLap(INFO, null, value);
-    getXuong();
-  };
 
   const getXuong = () => {
     const params = convertObjectToUrlParams({
@@ -253,22 +257,21 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     }).then((res) => {
       if (res && res.data) {
         setListUser([res.data]);
-        if (value === 1) {
-          setFieldsValue({
-            capvattusanxuat: {
-              userLapPhieu_Id: res.data.Id,
-              tenPhongBan: res.data.tenPhongBan,
-            },
-          });
-        } else {
-          setFieldsValue({
-            capvattukhac: {
-              userLapPhieu_Id: res.data.Id,
-              tenPhongBan: res.data.tenPhongBan,
-            },
-          });
-        }
-      } else {
+        setFieldsValue(
+          value === 1
+            ? {
+                capvattusanxuat: {
+                  userLapPhieu_Id: res.data.Id,
+                  tenPhongBan: res.data.tenPhongBan,
+                },
+              }
+            : {
+                capvattukhac: {
+                  userLapPhieu_Id: res.data.Id,
+                  tenPhongBan: res.data.tenPhongBan,
+                },
+              }
+        );
       }
     });
   };
@@ -571,7 +574,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       render: (record) => renderSoLuongVatTu(record),
     },
     {
-      title: "Hạn mức sử dụng",
+      title: "Hạng mục sử dụng",
       key: "hanMucSuDung",
       align: "center",
       render: (record) => renderHanMucSuDung(record),
@@ -590,6 +593,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       render: (value) => actionContent(value),
     },
   ];
+
   let colValuesCapVatTuKhac = [
     {
       title: "STT",
@@ -763,6 +767,21 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
               resetFields();
               setFieldTouch(false);
               setListVatTu([]);
+              getUserLap(INFO, null, value);
+              setFieldsValue(
+                value === 1
+                  ? {
+                      capvattusanxuat: {
+                        ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
+                        ngaySanXuat: moment(getDateNow(-1), "DD/MM/YYYY"),
+                      },
+                    }
+                  : {
+                      capvattukhac: {
+                        ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
+                      },
+                    }
+              );
             }
           } else {
             setFieldTouch(false);
@@ -807,6 +826,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
           } else {
             getInfo(id);
             setFieldTouch(false);
+            getUserLap(INFO, null, value);
           }
         })
         .catch((error) => console.error(error));
@@ -880,6 +900,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     setValue(e.target.value);
     getUserLap(INFO, null, e.target.value);
     if (e.target.value === 1) {
+      resetFields();
       setFieldsValue({
         capvattusanxuat: {
           ngaySanXuat: moment(getDateNow(-1), "DD/MM/YYYY"),

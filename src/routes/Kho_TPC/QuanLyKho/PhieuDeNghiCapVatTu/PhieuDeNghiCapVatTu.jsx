@@ -40,8 +40,8 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const [XuongSanXuat, setXuongSanXuat] = useState(null);
   const [TuNgay, setTuNgay] = useState(getDateNow(7));
   const [DenNgay, setDenNgay] = useState(getDateNow());
-  const [SelectedDNCVT, setSelectedDNCVT] = useState(null);
-  const [SelectedKeys, setSelectedKeys] = useState(null);
+  const [SelectedDNCVT, setSelectedDNCVT] = useState([]);
+  const [SelectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     if (permission && permission.view) {
       getXuongSanXuat();
@@ -135,7 +135,10 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
         </span>
       );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa duyệt" ? (
+      permission &&
+      permission.edit &&
+      item.userLapPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -236,7 +239,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuDeNghiCapVatTu/${SelectedDNCVT.id}?${params}`,
+          `lkn_PhieuDeNghiCapVatTu/${SelectedDNCVT[0].id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -270,8 +273,8 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
             );
           }).then((res) => {
             exportPDF("PhieuDeNghiCapVatTu", res.data.datapdf);
-            setSelectedDNCVT(null);
-            setSelectedKeys(null);
+            setSelectedDNCVT([]);
+            setSelectedKeys([]);
           });
         }
       })
@@ -295,7 +298,9 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
-          disabled={(permission && !permission.print) || SelectedDNCVT === null}
+          disabled={
+            (permission && !permission.print) || SelectedKeys.length === 0
+          }
         >
           In phiếu
         </Button>
@@ -304,7 +309,9 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handleTaoPhieuXuat}
-          disabled={(permission && !permission.print) || SelectedDNCVT === null}
+          disabled={
+            (permission && !permission.print) || SelectedKeys.length === 0
+          }
         >
           Xuất kho
         </Button>
@@ -428,6 +435,34 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     getListData(XuongSanXuat, dateString[0], dateString[1], 1);
   };
 
+  const rowSelection = {
+    selectedRowKeys: SelectedKeys,
+    selectedRows: SelectedDNCVT,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        SelectedDNCVT.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectedDNCVT[0].key)
+          : [...selectedRows];
+
+      const key =
+        SelectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
+          : [...selectedRowKeys];
+      if (
+        row.length !== 0 &&
+        (row[0].tinhTrang === "Chưa duyệt" ||
+          row[0].tinhTrang.startsWith("Đã từ chối"))
+      ) {
+        setSelectedDNCVT([]);
+        setSelectedKeys([]);
+      } else {
+        setSelectedDNCVT(row);
+        setSelectedKeys(key);
+      }
+    },
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -503,42 +538,11 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
             showQuickJumper: true,
           }}
           rowSelection={{
-            type: "radio",
-            selectedRowKeys: SelectedKeys ? [SelectedKeys] : [],
-            onChange: (selectedRowKeys, selectedRows) => {
-              if (
-                (selectedRows.length > 0 &&
-                  selectedRows[0].tinhTrang === "Chưa duyệt") ||
-                selectedRows[0].tinhTrang.startsWith("Đã từ chối")
-              ) {
-                setSelectedDNCVT(SelectedDNCVT);
-                setSelectedKeys(SelectedKeys);
-              } else {
-                setSelectedDNCVT(selectedRows[0]);
-                setSelectedKeys(selectedRows[0].key);
-              }
-            },
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                if (SelectedKeys === record.key) {
-                  setSelectedDNCVT(null);
-                  setSelectedKeys(null);
-                } else {
-                  if (
-                    record.tinhTrang === "Chưa duyệt" ||
-                    record.tinhTrang.startsWith("Đã từ chối")
-                  ) {
-                    setSelectedDNCVT(SelectedDNCVT);
-                    setSelectedKeys(SelectedKeys);
-                  } else {
-                    setSelectedDNCVT(record);
-                    setSelectedKeys(record.key);
-                  }
-                }
-              },
-            };
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: SelectedKeys,
           }}
           loading={loading}
         />

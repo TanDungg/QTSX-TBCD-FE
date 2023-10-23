@@ -25,6 +25,7 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  exportPDF,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -39,8 +40,8 @@ function DeNghiMuaHang({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
-  const [SelectedMuaHang, setSelectedMuaHang] = useState(null);
-  const [selectedKeys, setSelectedKeys] = useState(null);
+  const [SelectedMuaHang, setSelectedMuaHang] = useState([]);
+  const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListBanPhong, setListBanPhong] = useState([]);
   const [BanPhong, setBanPhong] = useState("");
 
@@ -244,7 +245,53 @@ function DeNghiMuaHang({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handlePrint = () => {};
+  const handlePrint = () => {
+    const params = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuDeNghiMuaHang/${SelectedMuaHang[0].id}?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newData = {
+            ...res.data,
+            lstpdncvtct:
+              res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu),
+          };
+          console.log(newData);
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `lkn_PhieuDeNghiMuaHang/export-pdf`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportPDF("PhieuDeNghiMuaHang", res.data.datapdf);
+            setSelectedMuaHang([]);
+            setSelectedKeys([]);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -262,10 +309,7 @@ function DeNghiMuaHang({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
-          disabled={
-            SelectedMuaHang === null ||
-            SelectedMuaHang.tinhTrang !== "Đã xác nhận"
-          }
+          disabled={SelectedMuaHang.length === 0}
         >
           In phiếu
         </Button>
@@ -312,12 +356,6 @@ function DeNghiMuaHang({ match, history, permission }) {
       title: "Ngày yêu cầu",
       dataIndex: "ngayYeuCau",
       key: "ngayYeuCau",
-      align: "center",
-    },
-    {
-      title: "Ban/Phòng",
-      dataIndex: "tenPhongBan",
-      key: "tenPhongBan",
       align: "center",
     },
     {
@@ -386,6 +424,30 @@ function DeNghiMuaHang({ match, history, permission }) {
     setToDate(dateString[1]);
     setPage(1);
     loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
+  };
+
+  const rowSelection = {
+    selectedRowKeys: selectedKeys,
+    selectedRows: SelectedMuaHang,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        SelectedMuaHang.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectedMuaHang[0].key)
+          : [...selectedRows];
+
+      const key =
+        selectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
+          : [...selectedRowKeys];
+      if (row.length !== 0 && row[0].tinhTrang === "Chưa xác nhận") {
+        setSelectedMuaHang([]);
+        setSelectedKeys([]);
+      } else {
+        setSelectedMuaHang(row);
+        setSelectedKeys(key);
+      }
+    },
   };
 
   return (
@@ -487,36 +549,11 @@ function DeNghiMuaHang({ match, history, permission }) {
           }}
           loading={loading}
           rowSelection={{
-            type: "radio",
-            selectedRowKeys: selectedKeys ? [selectedKeys] : [],
-            onChange: (selectedRowKeys, selectedRows) => {
-              if (
-                selectedRows.length > 0 &&
-                selectedRows[0].tinhTrang === "Đã xác nhận"
-              ) {
-                setSelectedMuaHang(selectedRows[0]);
-                setSelectedKeys(selectedRows[0].key);
-              } else {
-                setSelectedMuaHang(null);
-                setSelectedKeys(null);
-              }
-            },
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                if (
-                  selectedKeys === record.key ||
-                  record.tinhTrang !== "Đã xác nhận"
-                ) {
-                  setSelectedMuaHang(null);
-                  setSelectedKeys(null);
-                } else {
-                  setSelectedMuaHang(record);
-                  setSelectedKeys(record.key);
-                }
-              },
-            };
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: selectedKeys,
           }}
         />
       </Card>

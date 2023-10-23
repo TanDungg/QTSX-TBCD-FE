@@ -129,95 +129,6 @@ function TheoDoiDonHang({ match, history, permission }) {
       loadData(val.target.value, BanPhong, FromDate, ToDate, page, LoaiDonHang);
     }
   };
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const detailItem =
-      permission && permission.cof ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <EyeOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
-        </span>
-      );
-    const editItem =
-      permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
-    const deleteVal =
-      permission && permission.del && !item.isUsed
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        {detailItem}
-        <Divider type="vertical" />
-        {editItem}
-        <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa">
-          <DeleteOutlined />
-        </a>
-      </div>
-    );
-  };
-
-  /**
-   * deleteItemFunc: Xoá item theo item
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maPhieuYeuCau,
-      "phiếu trả hàng nhà cung cấp"
-    );
-  };
-
-  /**
-   * Xóa item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    let url = `lkn_PhieuTraHangNCC/${item.id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        // Reload lại danh sách
-        if (res.status !== 409) {
-          loadData(keyword, BanPhong, FromDate, ToDate, page, LoaiDonHang);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
 
   /**
    * handleTableChange
@@ -230,27 +141,11 @@ function TheoDoiDonHang({ match, history, permission }) {
     loadData(keyword, BanPhong, FromDate, ToDate, pagination, LoaiDonHang);
   };
 
-  const handlePrint = () => {};
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
-        >
-          Xuất Excel
-        </Button>
-      </>
-    );
-  };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(
-    data.datalist
-    // page === 1 ? page : pageSize * (page - 1) + 2
+    data.datalist,
+    page === 1 ? page : pageSize * (page - 1) + 2
   );
   const renderDetail = (val) => {
     const detail =
@@ -403,7 +298,6 @@ function TheoDoiDonHang({ match, history, permission }) {
       <ContainerHeader
         title="Theo dõi đơn hàng"
         description="Theo dõi đơn hàng"
-        buttons={addButtonRender()}
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
