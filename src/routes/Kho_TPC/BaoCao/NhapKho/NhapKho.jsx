@@ -29,6 +29,7 @@ function NhapKho({ permission, history, match }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
+  const [Loai, setLoai] = useState("sanpham");
   const [ListKho, setListKho] = useState([]);
   const [Kho_Id, setKho_Id] = useState(null);
   const [ListLoaiVatTu, setListLoaiVatTu] = useState([]);
@@ -42,8 +43,18 @@ function NhapKho({ permission, history, match }) {
 
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(keyword, Kho_Id, LoaiVT_nhomSP, Xuong, TuNgay, DenNgay, page);
+      getListData(
+        keyword,
+        Kho_Id,
+        LoaiVT_nhomSP,
+        Xuong,
+        TuNgay,
+        DenNgay,
+        page,
+        Loai === "sanpham" ? true : false
+      );
       getXuongSanXuat(INFO);
+      getKho();
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -58,7 +69,8 @@ function NhapKho({ permission, history, match }) {
     phongBan_Id,
     tungay,
     denngay,
-    page
+    page,
+    IsSanPham
   ) => {
     let param = convertObjectToUrlParams({
       keyword,
@@ -68,7 +80,7 @@ function NhapKho({ permission, history, match }) {
       tungay,
       denngay,
       page,
-      IsSanPham: false,
+      IsSanPham,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -89,6 +101,28 @@ function NhapKho({ permission, history, match }) {
         }
       })
       .catch((error) => console.error(error));
+  };
+
+  const getKho = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListKho(res.data);
+      } else {
+        setListKho([]);
+      }
+    });
   };
 
   const getXuongSanXuat = () => {
@@ -132,13 +166,23 @@ function NhapKho({ permission, history, match }) {
         Xuong,
         TuNgay,
         DenNgay,
-        page
+        page,
+        Loai === "sanpham" ? true : false
       );
     }
   };
 
   const onSearchKeyword = () => {
-    getListData(keyword, Kho_Id, LoaiVT_nhomSP, Xuong, TuNgay, DenNgay, page);
+    getListData(
+      keyword,
+      Kho_Id,
+      LoaiVT_nhomSP,
+      Xuong,
+      TuNgay,
+      DenNgay,
+      page,
+      Loai === "sanpham" ? true : false
+    );
   };
 
   const handleTableChange = (pagination) => {
@@ -150,7 +194,8 @@ function NhapKho({ permission, history, match }) {
       Xuong,
       TuNgay,
       DenNgay,
-      pagination
+      pagination,
+      Loai === "sanpham" ? true : false
     );
   };
 
@@ -312,33 +357,92 @@ function NhapKho({ permission, history, match }) {
     );
   };
 
+  const handleOnSelectLoai = (value) => {
+    setLoai(value);
+    getListData(
+      keyword,
+      Kho_Id,
+      LoaiVT_nhomSP,
+      Xuong,
+      TuNgay,
+      DenNgay,
+      1,
+      value === "sanpham" ? true : false
+    );
+  };
+
   const handleOnSelectKho = (value) => {
     setKho_Id(value);
-    getListData(keyword, value, LoaiVT_nhomSP, Xuong, TuNgay, DenNgay, 1);
+    getListData(
+      keyword,
+      value,
+      LoaiVT_nhomSP,
+      Xuong,
+      TuNgay,
+      DenNgay,
+      1,
+      Loai === "sanpham" ? true : false
+    );
   };
 
   const handleClearKho = () => {
     setKho_Id(null);
     setPage(1);
-    getListData(keyword, null, LoaiVT_nhomSP, Xuong, TuNgay, DenNgay, 1);
+    getListData(
+      keyword,
+      null,
+      LoaiVT_nhomSP,
+      Xuong,
+      TuNgay,
+      DenNgay,
+      1,
+      Loai === "sanpham" ? true : false
+    );
   };
 
   const handleOnSelectXuongSanXuat = (value) => {
     setXuong(value);
-    getListData(keyword, Kho_Id, LoaiVT_nhomSP, value, TuNgay, DenNgay, 1);
+    getListData(
+      keyword,
+      Kho_Id,
+      LoaiVT_nhomSP,
+      value,
+      TuNgay,
+      DenNgay,
+      1,
+      Loai === "sanpham" ? true : false
+    );
   };
 
   const handleClearXuongSanXuat = () => {
     setXuong(null);
     setPage(1);
-    getListData(keyword, Kho_Id, LoaiVT_nhomSP, null, TuNgay, DenNgay, 1);
+    getListData(
+      keyword,
+      Kho_Id,
+      LoaiVT_nhomSP,
+      null,
+      TuNgay,
+      DenNgay,
+      1,
+      Loai === "sanpham" ? true : false
+    );
   };
 
   const handleChangeNgay = (dateString) => {
     setTuNgay(dateString[0]);
     setDenNgay(dateString[1]);
     setPage(1);
-    getListData(keyword, dateString[0], dateString[1], 1);
+    getListData(
+      keyword,
+      Kho_Id,
+      LoaiVT_nhomSP,
+      null,
+      dateString[0],
+      dateString[1],
+      1,
+      Loai === "sanpham" ? true : false
+    );
   };
 
   return (
@@ -350,6 +454,37 @@ function NhapKho({ permission, history, match }) {
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ marginBottom: 10 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Sản phẩm/Vật tư:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={[
+                {
+                  key: "sanpham",
+                  value: "Sản phẩm",
+                },
+                {
+                  key: "vattu",
+                  value: "Vật tư",
+                },
+              ]}
+              placeholder="Chọn kho"
+              optionsvalue={["key", "value"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+              onSelect={handleOnSelectLoai}
+              value={Loai}
+            />
+          </Col>
           <Col
             xxl={6}
             xl={8}
