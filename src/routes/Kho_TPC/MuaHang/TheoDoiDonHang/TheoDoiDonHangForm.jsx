@@ -4,12 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { includes, map } from "lodash";
 import React, { useEffect, useState } from "react";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import {
-  Table,
-  ModalDeleteConfirm,
-  EditableTableRow,
-  Select,
-} from "src/components/Common";
+import { Table, EditableTableRow, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import {
   FileName,
@@ -32,7 +27,6 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [listVatTu, setListVatTu] = useState([]);
   const [FileNhanHang, setFileNhanHang] = useState([]);
@@ -43,16 +37,13 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
 
   useEffect(() => {
     const load = () => {
-      if (includes(match.url, "chi-tiet")) {
-        if (permission && permission.edit) {
-          setType("detail");
-          const { id } = match.params;
-          setId(id);
-          getInfo(id);
-          getUserThuMua(INFO);
-        } else if (permission && !permission.edit) {
-          history.push("/home");
-        }
+      if (permission && permission.edit) {
+        const { id } = match.params;
+        setId(id);
+        getInfo(id);
+        getUserThuMua(INFO);
+      } else if (permission && !permission.edit) {
+        history.push("/home");
       }
     };
     load();
@@ -84,6 +75,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
           setInfo(data);
           const chiTiet = JSON.parse(res.data.chiTietTheoDoiDonHang);
           setListVatTu(chiTiet);
+
           console.log(chiTiet);
           const newNgay = [];
           const newNguoiThuMua = [];
@@ -94,7 +86,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
               : null;
 
             newNguoiThuMua[ct.lkn_ChiTietPhieuMuaHangs_Id] = ct.userThuMua_Id
-              ? ct.userThuMua_Id
+              ? ct.userThuMua_Id.toLowerCase()
               : null;
           });
 
@@ -105,6 +97,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
+
   /**
    * Quay lại trang bộ phận
    *
@@ -148,12 +141,11 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
         userThuMua_Id:
           NguoiThuMua && NguoiThuMua[item.lkn_ChiTietPhieuMuaHangs_Id],
       };
-      console.log(newData);
 
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuDeNghiMuaHang/put-ngay-xac-nhan-hang-ve/${item.lkn_ChiTietPhieuMuaHangs_Id}`,
+            `lkn_PhieuDeNghiMuaHang/put-ngay-xac-nhan-hang-ve?id=${item.lkn_ChiTietPhieuMuaHangs_Id}`,
             "PUT",
             newData,
             "EDIT",
@@ -164,10 +156,8 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (res.status !== 409) {
-            getUserThuMua(INFO);
-            getInfo(id);
-          }
+          getUserThuMua(INFO);
+          getInfo(id);
         })
         .catch((error) => console.error(error));
     };
@@ -192,9 +182,10 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
               justifyContent: "center",
               alignItems: "center",
             }}
-            type={"primary"}
+            type={item.soLuongNhan > 0 ? "" : "primary"}
             ghost
             onClick={CapNhat}
+            disabled={item.soLuongNhan > 0 ? true : false}
           >
             Cập nhật
           </Button>
@@ -215,12 +206,13 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
             }
             placeholder="Chọn ngày"
             value={
-              NgayXacNhanHangVe &&
+              NgayXacNhanHangVe[record.lkn_ChiTietPhieuMuaHangs_Id] &&
               moment(
                 NgayXacNhanHangVe[record.lkn_ChiTietPhieuMuaHangs_Id],
                 "DD/MM/YYYY"
               )
             }
+            disabled={record.soLuongNhan > 0 ? true : false}
           />
         </div>
       );
@@ -264,8 +256,10 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
             optionFilterProp="name"
             onSelect={(value) => handleNguoiThuMua(value, record)}
             value={
-              NguoiThuMua && NguoiThuMua[record.lkn_ChiTietPhieuMuaHangs_Id]
+              NguoiThuMua[record.lkn_ChiTietPhieuMuaHangs_Id] &&
+              NguoiThuMua[record.lkn_ChiTietPhieuMuaHangs_Id]
             }
+            disabled={record.soLuongNhan > 0 ? true : false}
           />
         </div>
       );
@@ -274,7 +268,6 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
   };
 
   const handleNguoiThuMua = (value, record) => {
-    console.log(value);
     setNguoiThuMua((prevNguoiThuMua) => ({
       ...prevNguoiThuMua,
       [record.lkn_ChiTietPhieuMuaHangs_Id]: value,
