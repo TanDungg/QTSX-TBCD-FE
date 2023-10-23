@@ -672,7 +672,6 @@ const VatTuForm = ({ history, match, permission }) => {
           if (saveQuit) {
             if (res.status !== 409) goBack();
           } else {
-            console.log(res);
             getInfo(id);
             setFieldTouch(false);
           }
@@ -821,6 +820,7 @@ const VatTuForm = ({ history, match, permission }) => {
     );
   };
   const dataList = reDataForTable(listVatTu);
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
