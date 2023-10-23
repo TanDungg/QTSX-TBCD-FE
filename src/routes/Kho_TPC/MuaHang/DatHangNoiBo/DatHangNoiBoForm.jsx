@@ -30,7 +30,7 @@ import {
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_TWO_COL } from "src/constants/Config";
+import { DEFAULT_FORM_TWO_COL, LOAI_NCC_NOI_BO } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -293,7 +293,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `NhaCungCap?page=-1&&loaiNhaCungCap_Id=${"cb50af21-24d3-495a-9fc2-b7a4b758f599"}`,
+            `NhaCungCap?page=-1&&loaiNhaCungCap_Id=${LOAI_NCC_NOI_BO}`,
             "GET",
             null,
             "DETAIL",

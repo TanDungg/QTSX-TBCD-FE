@@ -28,8 +28,8 @@ function DieuChuyenThanhPham({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [ListBanPhong, setListBanPhong] = useState([]);
-  const [BanPhong, setBanPhong] = useState(null);
+  const [ListKho, setListKho] = useState([]);
+  const [Kho, setKho] = useState(null);
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
@@ -37,8 +37,8 @@ function DieuChuyenThanhPham({ match, history, permission }) {
 
   useEffect(() => {
     if (permission && permission.view) {
-      getBanPhong();
-      getListData(keyword, BanPhong, FromDate, ToDate, page);
+      getKho();
+      getListData(keyword, Kho, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -51,23 +51,24 @@ function DieuChuyenThanhPham({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const getListData = (keyword, cauTrucKho_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
+      cauTrucKho_Id,
       donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
       keyword,
       page,
+      isKhoThanhPhamBegin: true,
     });
     dispatch(fetchStart(`lkn_PhieuDieuChuyen?${param}`, "GET", null, "LIST"));
   };
 
-  const getBanPhong = () => {
+  const getKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1`,
           "GET",
           null,
           "DETAIL",
@@ -79,9 +80,9 @@ function DieuChuyenThanhPham({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListBanPhong(res.data);
+          setListKho(res.data);
         } else {
-          setListBanPhong([]);
+          setListKho([]);
         }
       })
       .catch((error) => console.error(error));
@@ -91,7 +92,7 @@ function DieuChuyenThanhPham({ match, history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    getListData(keyword, BanPhong, FromDate, ToDate, page);
+    getListData(keyword, Kho, FromDate, ToDate, page);
   };
 
   /**
@@ -102,7 +103,7 @@ function DieuChuyenThanhPham({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, BanPhong, FromDate, ToDate, page);
+      getListData(val.target.value, Kho, FromDate, ToDate, page);
     }
   };
   /**
@@ -113,7 +114,10 @@ function DieuChuyenThanhPham({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const editItem =
-      permission && permission.edit ? (
+      permission &&
+      permission.edit &&
+      moment(getDateNow(2), "DD/MM/YYYY") <=
+        moment(item.ngayXuatKho, "DD/MM/YYYY") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -129,7 +133,10 @@ function DieuChuyenThanhPham({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del
+      permission &&
+      permission.del &&
+      moment(getDateNow(2), "DD/MM/YYYY") <=
+        moment(item.ngayXuatKho, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -172,7 +179,7 @@ function DieuChuyenThanhPham({ match, history, permission }) {
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(keyword, BanPhong, FromDate, ToDate, page);
+          getListData(keyword, Kho, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -186,7 +193,7 @@ function DieuChuyenThanhPham({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(keyword, BanPhong, FromDate, ToDate, pagination);
+    getListData(keyword, Kho, FromDate, ToDate, pagination);
   };
 
   /**
@@ -306,14 +313,14 @@ function DieuChuyenThanhPham({ match, history, permission }) {
     };
   });
 
-  const handleOnSelectBanPhong = (val) => {
-    setBanPhong(val);
+  const handleOnSelectKho = (val) => {
+    setKho(val);
     setPage(1);
     getListData(keyword, val, FromDate, ToDate, 1);
   };
 
-  const handleClearBanPhong = (val) => {
-    setBanPhong("");
+  const handleClearKho = (val) => {
+    setKho("");
     setPage(1);
     getListData(keyword, "", FromDate, ToDate, 1);
   };
@@ -322,7 +329,7 @@ function DieuChuyenThanhPham({ match, history, permission }) {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    getListData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    getListData(keyword, Kho, dateString[0], dateString[1], 1);
   };
 
   return (
@@ -347,17 +354,17 @@ function DieuChuyenThanhPham({ match, history, permission }) {
             <h5>Kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListBanPhong ? ListBanPhong : []}
-              placeholder="Chọn Ban/Phòng"
-              optionsvalue={["id", "tenPhongBan"]}
+              data={ListKho ? ListKho : []}
+              placeholder="Chọn Kho"
+              optionsvalue={["id", "tenCTKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectBanPhong}
-              value={BanPhong}
-              onChange={(value) => setBanPhong(value)}
+              onSelect={handleOnSelectKho}
+              value={Kho}
+              onChange={(value) => setKho(value)}
               allowClear
-              onClear={handleClearBanPhong}
+              onClear={handleClearKho}
             />
           </Col>
 

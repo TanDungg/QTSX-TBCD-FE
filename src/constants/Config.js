@@ -5,6 +5,7 @@ export const BASE_URL_API = `http://10.14.7.215:1512`;
 
 export const BASE_URL_APP = `${window.location.origin.toString()}`;
 // export const BASE_URL_APP = `http://localhost:4000`;
+export const LOAI_NCC_NOI_BO = "0657c2ab-cde0-4753-b2c4-5801bb4891fa";
 
 export const APP_NAME = "HỆ THỐNG ERP";
 export const PAGE_SIZE = 20;

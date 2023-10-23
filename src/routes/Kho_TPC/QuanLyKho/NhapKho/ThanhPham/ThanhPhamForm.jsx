@@ -336,9 +336,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           ? "/them-moi"
           : type === "edit"
           ? `/${id}/chinh-sua`
-          : type === "detail"
-          ? `/${id}/chi-tiet`
-          : `/${id}/xac-nhan`,
+          : `/${id}/chi-tiet`,
         ""
       )}`
     );
@@ -383,28 +381,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       </div>
     );
   };
-  const hanldeSelectMauSac = (val) => {
-    const newData = [...ListSanPham];
-    newData[0].mauSac_Id = val;
-    setListSanPham(newData);
-    setFieldTouch(true);
-  };
-  const renderMauSac = (item, record) => {
-    return (
-      <Select
-        className="heading-select slt-search th-select-heading"
-        data={ListMauSac}
-        value={record.mauSac_Id}
-        placeholder="Chọn màu sắc"
-        optionsvalue={["mauSac_Id", "tenMauSac"]}
-        style={{ width: "100%" }}
-        showSearch
-        optionFilterProp="name"
-        disabled={type === "new" || type === "edit" ? false : true}
-        onSelect={hanldeSelectMauSac}
-      />
-    );
-  };
+
   let colValues = [
     {
       title: "STT",
@@ -449,16 +426,14 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       dataIndex: "soLuongNhap",
       key: "soLuongNhap",
       align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+      editable: type === "new" || type === "edit" ? true : false,
     },
     {
       title: "Ghi chú",
       dataIndex: "ghiChu",
       key: "ghiChu",
       align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+      editable: type === "new" || type === "edit" ? true : false,
     },
     {
       title: "Chức năng",
@@ -625,7 +600,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     );
 
   const addSanPham = (data) => {
-    console.log(data);
     let check = false;
     ListSanPham.forEach((dl) => {
       if (
@@ -791,15 +765,17 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12} align="center">
-              <Button
-                icon={<PlusOutlined />}
-                type="primary"
-                onClick={() => setActiveModal(true)}
-              >
-                Chọn sản phẩm
-              </Button>
-            </Col>
+            {type === "new" || type === "edit" ? (
+              <Col span={12} align="center">
+                <Button
+                  icon={<PlusOutlined />}
+                  type="primary"
+                  onClick={() => setActiveModal(true)}
+                >
+                  Chọn sản phẩm
+                </Button>
+              </Col>
+            ) : null}
           </Row>
           <Divider />
         </Form>

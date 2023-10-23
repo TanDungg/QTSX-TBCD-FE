@@ -138,7 +138,10 @@ function ThanhPham({ match, history, permission }) {
     //     </span>
     //   );
     const editItem =
-      permission && permission.edit ? (
+      permission &&
+      permission.edit &&
+      moment(getDateNow(2), "DD/MM/YYYY") <=
+        moment(item.ngayXuatKho, "DD/MM/YYYY") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -154,7 +157,10 @@ function ThanhPham({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del
+      permission &&
+      permission.del &&
+      moment(getDateNow(2), "DD/MM/YYYY") <=
+        moment(item.ngayXuatKho, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
