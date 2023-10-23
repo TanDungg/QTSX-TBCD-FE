@@ -126,7 +126,7 @@ function VatTu({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
-      moment(getDateNow(1, true), "DD/MM/YYYY") <=
+      moment(getDateNow(2), "DD/MM/YYYY") <=
         moment(item.ngayNhan, "DD/MM/YYYY") ? (
         <Link
           to={{
@@ -145,8 +145,7 @@ function VatTu({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
-      moment(getDateNow(1, true), "DD/MM/YYYY") <=
-        moment(item.ngayNhan, "DD/MM/YYYY")
+      moment(getDateNow(2), "DD/MM/YYYY") <= moment(item.ngayNhan, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (

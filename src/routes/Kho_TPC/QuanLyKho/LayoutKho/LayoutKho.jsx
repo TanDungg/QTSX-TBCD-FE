@@ -230,7 +230,10 @@ function LayoutKho({ history, permission }) {
                         xl={12}
                         lg={12}
                         style={{
-                          height: soTangMax * 40,
+                          height:
+                            ke.children.length === 0
+                              ? soTangMax * 40
+                              : ke.children.length * 40,
                           // padding: 0,
                           marginBottom: 50,
                           // marginRight: 25,
@@ -261,7 +264,7 @@ function LayoutKho({ history, permission }) {
                           }}
                         >
                           {ke.children.length > 0 &&
-                            ke.children.map((tang) => {
+                            ke.children.map((tang, index) => {
                               return (
                                 <Row
                                   style={{
@@ -282,7 +285,8 @@ function LayoutKho({ history, permission }) {
                                           style={{
                                             height: 40,
                                             margin: 0,
-                                            width: 40,
+                                            // width: "100%",
+                                            padding: 0,
                                             backgroundColor:
                                               focusNgan === ngan.id
                                                 ? "#5cdbd3"

@@ -13,7 +13,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   const [ListViTriKho, setListViTriKho] = useState([]);
   const [ViTriKho, setViTriKho] = useState(null);
   const [VatTu, setVatTu] = useState([]);
-  const [ListVatTu, setListVatTu] = useState([]);
+  const [ListSanPham, setListSanPham] = useState([]);
   const [SoLuongDieuChuyen, setSoLuongDieuChuyen] = useState(0);
   const [hasError, setHasError] = useState(false);
   const [DisabledSave, setDisabledSave] = useState(true);
@@ -27,15 +27,14 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
-
   const getListViTriKho = (cauTrucKho_Id) => {
-    const params = convertObjectToUrlParams({
+    const param = convertObjectToUrlParams({
       cauTrucKho_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_ViTriLuuKho/list-vi-tri-luu-kho-vat-tu?${params}`,
+          `lkn_ViTriLuuKho/list-vi-tri-luu-kho-thanh-pham?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -44,41 +43,28 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
           reject
         )
       );
-    }).then((res) => {
-      if (res && res.data) {
-        const newListVatTu = res.data.map((data) => {
-          const vitri = `${data.tenKe ? `${data.tenKe}` : ""}${
-            data.tenTang ? ` - ${data.tenTang}` : ""
-          }${data.tenNgan ? ` - ${data.tenNgan}` : ""}`;
-          return {
-            ...data,
-            vatTu: `${data.maVatTu} - ${data.tenVatTu}${
-              vitri ? ` (${vitri})` : ""
-            }`,
-            soLuongDieuChuyen: data.soLuong,
-          };
-        });
-
-        const newData = newListVatTu.filter((data) => {
-          return (
-            itemData.listVatTu &&
-            !itemData.listVatTu.some((item) => item.vatTu === data.vatTu)
-          );
-        });
-        setListViTriKho(newData);
-
-        const newSoLuong = {};
-        newData.forEach((data) => {
-          newSoLuong[data.lkn_ChiTietKhoVatTu_Id] = data.soLuong;
-        });
-        setSoLuongDieuChuyen(newSoLuong);
-      } else {
-        setListViTriKho([]);
-      }
-    });
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newData = res.data.map((dt) => {
+            return {
+              ...dt,
+              tenVatTu: dt.tenSanPham,
+              vatTu_Id: dt.sanPham_Id,
+              maVatTu: dt.maSanPham,
+              vatTu: dt.maSanPham + " - " + dt.tenSanPham,
+              lkn_ChiTietKhoBegin_Id: dt.chiTietKho_Id,
+              soLuongDieuChuyen: dt.soLuong,
+            };
+          });
+          setListViTriKho(newData);
+        } else {
+          setListViTriKho([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
-
-  const renderSoLuongDieuChuyen = () => {
+  const renderSoLuongDieuChuyen = (record) => {
     return (
       <div>
         <Input
@@ -89,10 +75,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             borderColor: hasError ? "red" : "",
           }}
           className={`input-item ${hasError ? "input-error" : ""}`}
-          value={
-            SoLuongDieuChuyen &&
-            SoLuongDieuChuyen[VatTu[0].lkn_ChiTietKhoVatTu_Id]
-          }
+          value={record.soLuongDieuChuyen}
           type="number"
           onChange={(val) => handleInputChange(val)}
         />
@@ -112,13 +95,9 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       setDisabledSave(false);
       setHasError(false);
     }
-    setSoLuongDieuChuyen((prevSoLuongDieuChuyen) => ({
-      ...prevSoLuongDieuChuyen,
-      [VatTu[0].lkn_ChiTietKhoVatTu_Id]: sl,
-    }));
     setVatTu((prevVatTu) => {
       return prevVatTu.map((item) => {
-        if (VatTu[0].lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+        if (VatTu[0].lkn_ChiTietKhoBegin_Id === item.lkn_ChiTietKhoBegin_Id) {
           return {
             ...item,
             soLuongDieuChuyen: sl ? parseFloat(sl) : 0,
@@ -131,45 +110,27 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   let colVatTu = [
     {
-      title: "Mã vật tư",
+      title: "Mã sản phẩm",
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
     },
     {
-      title: "Tên vật tư",
+      title: "Tên sản phẩm",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
       align: "center",
     },
     {
-      title: "Tên kệ",
+      title: "Kệ",
       dataIndex: "tenKe",
       key: "tenKe",
-      align: "center",
-    },
-    {
-      title: "Tên tầng",
-      dataIndex: "tenTang",
-      key: "tenTang",
-      align: "center",
-    },
-    {
-      title: "Tên ngăn",
-      dataIndex: "tenNgan",
-      key: "tenNgan",
       align: "center",
     },
     {
       title: "SL trong kho",
       dataIndex: "soLuong",
       key: "soLuong",
-      align: "center",
-    },
-    {
-      title: "Thời hạn sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
       align: "center",
     },
     {
@@ -198,17 +159,17 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   };
 
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, "vật tư");
+    ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, "sản phẩm");
   };
 
   const deleteItemAction = (item) => {
-    const newData = ListVatTu.filter(
-      (data) => data.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
+    const newData = ListSanPham.filter(
+      (data) => data.lkn_ChiTietKhoBegin_Id !== item.lkn_ChiTietKhoBegin_Id
     );
-    setListVatTu(newData);
+    setListSanPham(newData);
   };
 
-  let colListVatTu = [
+  let colListSanPham = [
     {
       title: "STT",
       dataIndex: "key",
@@ -217,39 +178,27 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       width: 50,
     },
     {
-      title: "Mã vật tư",
+      title: "Mã sản phẩm",
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
     },
     {
-      title: "Tên vật tư",
+      title: "Tên sản phẩm",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
       align: "center",
     },
     {
-      title: "Tên kệ",
+      title: "Kệ",
       dataIndex: "tenKe",
       key: "tenKe",
-      align: "center",
-    },
-    {
-      title: "Tên tầng",
-      dataIndex: "tenTang",
-      key: "tenTang",
       align: "center",
     },
     {
       title: "Số lượng điều chuyển",
       dataIndex: "soLuongDieuChuyen",
       key: "soLuongDieuChuyen",
-      align: "center",
-    },
-    {
-      title: "Thời hạn sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
       align: "center",
     },
     {
@@ -269,7 +218,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   const HandleChonVatTu = (value) => {
     const vattu = ListViTriKho.filter(
-      (d) => d.lkn_ChiTietKhoVatTu_Id === value
+      (d) => d.lkn_ChiTietKhoBegin_Id === value
     );
     setViTriKho(value);
     setVatTu(vattu);
@@ -277,9 +226,9 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   };
 
   const HandleThemVatTu = () => {
-    setListVatTu([...ListVatTu, VatTu[0]]);
+    setListSanPham([...ListSanPham, VatTu[0]]);
     const listvitrikho = ListViTriKho.filter(
-      (d) => d.lkn_ChiTietKhoVatTu_Id !== ViTriKho
+      (d) => d.lkn_ChiTietKhoBegin_Id !== ViTriKho
     );
     setListViTriKho(listvitrikho);
     setViTriKho(null);
@@ -287,9 +236,9 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   };
 
   const XacNhanListDieuChuyen = () => {
-    ThemVatTu(ListVatTu);
+    ThemVatTu(ListSanPham);
     setListViTriKho([]);
-    setListVatTu([]);
+    setListSanPham([]);
     setVatTu([]);
     setViTriKho(null);
     openModalFS(false);
@@ -297,7 +246,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   const handleCancel = () => {
     setListViTriKho([]);
-    setListVatTu([]);
+    setListSanPham([]);
     setVatTu([]);
     setViTriKho(null);
     openModalFS(false);
@@ -305,7 +254,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   return (
     <AntModal
-      title={`Chọn vật tư điều chuyển`}
+      title={`Chọn sản phẩm điều chuyển`}
       open={openModal}
       width={width > 1000 ? `80%` : "100%"}
       closable={true}
@@ -336,14 +285,14 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
                 alignItems: "center",
               }}
             >
-              <span style={{ width: "100px", fontWeight: "bold" }}>
-                Chọn vật tư:
+              <span style={{ width: "150px", fontWeight: "bold" }}>
+                Chọn sản phẩm:
               </span>
               <Select
                 className="heading-select slt-search th-select-heading"
                 data={ListViTriKho ? ListViTriKho : []}
-                placeholder="Chọn vật tư điều chuyển"
-                optionsvalue={["lkn_ChiTietKhoVatTu_Id", "vatTu"]}
+                placeholder="Chọn sản phẩm điều chuyển"
+                optionsvalue={["lkn_ChiTietKhoBegin_Id", "vatTu"]}
                 style={{ width: "calc(100% - 100px)" }}
                 optionFilterProp={"name"}
                 showSearch
@@ -366,16 +315,16 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
                 onClick={HandleThemVatTu}
                 disabled={DisabledSave}
               >
-                Thêm vật tư
+                Thêm sản phẩm
               </Button>
             </Col>
           </Row>
           <Table
             bordered
-            columns={colListVatTu}
+            columns={colListSanPham}
             scroll={{ x: 800, y: "25vh" }}
             className="gx-table-responsive"
-            dataSource={reDataForTable(ListVatTu)}
+            dataSource={reDataForTable(ListSanPham)}
             size="small"
             pagination={false}
           />
@@ -386,7 +335,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
               className="th-btn-margin-bottom-0"
               type="primary"
               onClick={XacNhanListDieuChuyen}
-              disabled={ListVatTu.length === 0}
+              disabled={ListSanPham.length === 0}
             >
               Xác nhận
             </Button>

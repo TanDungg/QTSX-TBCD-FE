@@ -38,7 +38,15 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListVatTu(res.data);
+          const newData = res.data.map((dt) => {
+            return {
+              ...dt,
+              name: dt.maVatTu + " - " + dt.tenVatTu,
+            };
+          });
+          setListVatTu(newData);
+        } else {
+          setListVatTu([]);
         }
       })
       .catch((error) => console.error(error));
@@ -98,7 +106,7 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
               className="heading-select slt-search th-select-heading"
               data={listVatTu ? listVatTu : []}
               placeholder="Chọn vật tư"
-              optionsvalue={["id", "tenVatTu"]}
+              optionsvalue={["id", "name"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"

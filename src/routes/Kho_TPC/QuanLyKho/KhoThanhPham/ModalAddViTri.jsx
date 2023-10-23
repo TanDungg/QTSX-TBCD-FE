@@ -52,7 +52,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-ke-thanh-pham?${params}`,
+          `CauTrucKho/cau-truc-kho-ke-thanh-pham-chua-day?${params}`,
           "GET",
           null,
           "DETAIL",

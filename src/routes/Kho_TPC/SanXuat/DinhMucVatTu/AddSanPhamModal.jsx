@@ -38,7 +38,13 @@ function AddSanPhamModal({ openModalFS, openModal, loading, addSanPham }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListSanPham(res.data);
+          const newData = res.data.map((dt) => {
+            return {
+              ...dt,
+              name: dt.maSanPham + " - " + dt.tenSanPham,
+            };
+          });
+          setListSanPham(newData);
         }
       })
       .catch((error) => console.error(error));
@@ -98,7 +104,7 @@ function AddSanPhamModal({ openModalFS, openModal, loading, addSanPham }) {
               className="heading-select slt-search th-select-heading"
               data={listSanPham ? listSanPham : []}
               placeholder="Chọn sản phẩm"
-              optionsvalue={["id", "tenSanPham"]}
+              optionsvalue={["id", "name"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"

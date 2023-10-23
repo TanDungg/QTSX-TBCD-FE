@@ -47,7 +47,6 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        console.log(res.data);
         const newListVatTu = res.data.map((data) => {
           const vitri = `${data.tenKe ? `${data.tenKe}` : ""}${
             data.tenTang ? ` - ${data.tenTang}` : ""
@@ -58,6 +57,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
               vitri ? ` (${vitri})` : ""
             }`,
             soLuongDieuChuyen: data.soLuong,
+            lkn_ChiTietKhoBegin_Id: data.lkn_ChiTietKhoVatTu_Id,
           };
         });
 
