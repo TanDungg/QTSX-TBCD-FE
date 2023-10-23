@@ -67,7 +67,7 @@ function DieuChuyenThanhPham({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -334,8 +334,8 @@ function DieuChuyenThanhPham({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Điều chuyển vật tư"
-        description="Điều chuyển vật tư"
+        title="Điều chuyển thành phẩm"
+        description="Điều chuyển thành phẩm"
         buttons={addButtonRender()}
       />
 

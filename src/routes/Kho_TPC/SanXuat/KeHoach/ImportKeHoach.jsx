@@ -529,23 +529,27 @@ function ImportKeHoach({ match, permission, history }) {
   };
 
   const handleSubmit = () => {
-    const newData = [];
-    dataView.forEach((dt) => {
-      for (let index = 1; index <= getNumberDayOfMonth(Thang, Nam); index++) {
-        if (dt[index]) {
-          newData.push({
-            loaiKeHoach_Id: KeHoach,
-            phongban_Id: Xuong,
-            nam: Nam,
-            thang: Thang,
-            ngay: index,
-            soLuong: dt[index],
-            maMauSac: dt.maMauSac,
-            maSanPham: dt.maSanPham,
-          });
-        }
-      }
-    });
+    const newData = {
+      loaiKeHoach_Id: KeHoach,
+      phongban_Id: Xuong,
+      nam: Nam,
+      thang: Thang,
+      list_SanPhams: dataView.map((dt) => {
+        return {
+          maSanPham: dt.maSanPham,
+          maMauSac: dt.maMauSac,
+          list_ChiTiets: Array.from(
+            { length: getNumberDayOfMonth(Thang, Nam) },
+            (_, i) => {
+              return {
+                ngay: i,
+                soLuong: dt[i],
+              };
+            }
+          ),
+        };
+      }),
+    };
 
     new Promise((resolve, reject) => {
       dispatch(

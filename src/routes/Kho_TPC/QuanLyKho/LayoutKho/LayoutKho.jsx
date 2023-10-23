@@ -243,7 +243,8 @@ function LayoutKho({ history, permission }) {
                         <h5>{ke.tenCauTrucKho}</h5>
                         <div
                           style={{
-                            border: "1px solid #333",
+                            border:
+                              ke.children.length === 0 && "1px solid #333",
                             width: "90%",
                             height: "100%",
                             padding: "0 14px",
@@ -263,52 +264,68 @@ function LayoutKho({ history, permission }) {
                             }
                           }}
                         >
-                          {ke.children.length > 0 &&
-                            ke.children.map((tang, index) => {
-                              return (
-                                <Row
-                                  style={{
-                                    marginRight: -16,
-                                    border:
-                                      tang.children.length === 0 &&
-                                      "1px solid #333",
-                                    height: 40,
-                                    backgroundColor:
-                                      tang.children.length === 0 && "#ccc",
-                                  }}
-                                >
-                                  {tang.children.length > 0 &&
-                                    tang.children.map((ngan) => {
-                                      return (
-                                        <Col
-                                          span={24 / tang.children.length}
-                                          style={{
-                                            height: 40,
-                                            margin: 0,
-                                            // width: "100%",
-                                            padding: 0,
-                                            backgroundColor:
-                                              focusNgan === ngan.id
-                                                ? "#5cdbd3"
-                                                : ngan.chiTietVatTu
-                                                ? "#ff4d4f"
-                                                : "#ccc",
-                                            border: "1px solid #333",
-                                            cursor: "pointer",
-                                          }}
-                                          onClick={() => {
-                                            handleViewThongTin(
-                                              ngan.chiTietVatTu
-                                            );
-                                            setFocusNgan(ngan.id);
-                                            setFocusKe("");
-                                          }}
-                                        ></Col>
-                                      );
-                                    })}
-                                </Row>
-                              );
-                            })}
+                          {ke.children.length > 0
+                            ? [
+                                // ke.children.length !== soTangMax &&
+                                ...Array.from(
+                                  { length: soTangMax - ke.children.length },
+                                  (_, i) => (
+                                    <Row
+                                      style={{
+                                        height: 40,
+                                        backgroundColor: "#fff",
+                                      }}
+                                    ></Row>
+                                  )
+                                ),
+                                ,
+                                ...ke.children.map((tang, index) => {
+                                  return (
+                                    <Row
+                                      style={{
+                                        marginRight: -16,
+                                        border:
+                                          tang.children.length === 0 &&
+                                          "1px solid #333",
+                                        height: 40,
+                                        backgroundColor:
+                                          tang.children.length === 0 && "#ccc",
+                                      }}
+                                    >
+                                      {tang.children.length > 0 &&
+                                        tang.children.map((ngan) => {
+                                          return (
+                                            <Col
+                                              span={24 / tang.children.length}
+                                              style={{
+                                                height: 40,
+                                                margin: 0,
+                                                // width: "100%",
+                                                padding: 0,
+                                                backgroundColor:
+                                                  focusNgan === ngan.id
+                                                    ? "#5cdbd3"
+                                                    : ngan.chiTietVatTu
+                                                    ? "#ff4d4f"
+                                                    : "#ccc",
+                                                border: "1px solid #333",
+                                                cursor: "pointer",
+                                              }}
+                                              onClick={() => {
+                                                handleViewThongTin(
+                                                  ngan.chiTietVatTu
+                                                );
+                                                setFocusNgan(ngan.id);
+                                                setFocusKe("");
+                                              }}
+                                            ></Col>
+                                          );
+                                        })}
+                                    </Row>
+                                  );
+                                }),
+                              ]
+                            : null}
                         </div>
                       </Col>
                     );
