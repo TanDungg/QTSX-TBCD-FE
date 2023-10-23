@@ -154,7 +154,10 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa duyệt"
+      permission &&
+      permission.del &&
+      item.userLapPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (

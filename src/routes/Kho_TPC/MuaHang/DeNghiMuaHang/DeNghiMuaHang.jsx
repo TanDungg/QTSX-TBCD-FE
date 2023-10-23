@@ -124,7 +124,10 @@ function DeNghiMuaHang({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
+      permission &&
+      permission.cof &&
+      item.userDuyet_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -140,7 +143,7 @@ function DeNghiMuaHang({ match, history, permission }) {
         </span>
       );
     const kyItem =
-      permission && permission.edit ? (
+      permission && permission.edit && item.userYeuCau_Id === INFO.user_Id ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/quy-trinh`,
@@ -156,7 +159,10 @@ function DeNghiMuaHang({ match, history, permission }) {
         </span>
       );
     const editItem =
-      permission && permission.edit && !item.fileXacNhan ? (
+      permission &&
+      permission.edit &&
+      !item.fileXacNhan &&
+      item.userYeuCau_Id === INFO.user_Id ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -172,7 +178,10 @@ function DeNghiMuaHang({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && !item.fileXacNhan
+      permission &&
+      permission.del &&
+      !item.fileXacNhan &&
+      item.userYeuCau_Id === INFO.user_Id
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -269,7 +278,6 @@ function DeNghiMuaHang({ match, history, permission }) {
             lstpdncvtct:
               res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu),
           };
-          console.log(newData);
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(

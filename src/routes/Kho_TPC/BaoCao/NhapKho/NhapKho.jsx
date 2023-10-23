@@ -28,20 +28,22 @@ function NhapKho({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  const [Data, setData] = useState([]);
+  const [ListKho, setListKho] = useState([]);
+  const [Kho_Id, setKho_Id] = useState(null);
+  const [ListLoaiVatTu, setListLoaiVatTu] = useState([]);
+  const [LoaiVT_nhomSP, setloaiVT_nhomSP] = useState(null);
+  const [ListXuong, setListXuong] = useState([]);
+  const [Xuong, setXuong] = useState(null);
+  const [TuNgay, setTuNgay] = useState(getDateNow(7));
+  const [DenNgay, setDenNgay] = useState(getDateNow());
+  const [keyword, setKeyword] = useState(null);
   const [page, setPage] = useState(1);
-  const [ListUser, setListUser] = useState([]);
-  const [user_Id, setUser_Id] = useState("");
-  const [DinhMucVatTu, setDinhMucVatTu] = useState([]);
-  const [FromDate, setFromDate] = useState(getDateNow(7));
-  const [ToDate, setToDate] = useState(getDateNow());
-  const [keyword, setKeyword] = useState("");
-  const [data, setData] = useState([]);
-  const [loai, setLoai] = useState(true);
 
   useEffect(() => {
     if (permission && permission.view) {
-      getListUser();
-      getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, page);
+      getListData(keyword, Kho_Id, LoaiVT_nhomSP, Xuong, TuNgay, DenNgay, page);
+      getXuongSanXuat(INFO);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -49,20 +51,29 @@ function NhapKho({ permission, history, match }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getDinhMucVatTu = (keyword, userid, tungay, denngay, page) => {
+  const getListData = (
+    keyword,
+    Kho_Id,
+    loaiVT_nhomSP,
+    phongBan_Id,
+    tungay,
+    denngay,
+    page
+  ) => {
     let param = convertObjectToUrlParams({
       keyword,
-      page,
-      userid,
+      Kho_Id,
+      loaiVT_nhomSP,
+      phongBan_Id,
       tungay,
       denngay,
-      checkQL: INFO.user_Id,
+      page,
+      IsSanPham: false,
     });
-
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_DinhMucVatTu?${param}`,
+          `lkn_BaoCao/bao-cao-nhap-kho?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -74,23 +85,17 @@ function NhapKho({ permission, history, match }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setDinhMucVatTu(res.data);
+          setData(res.data);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  /**
-   * Load danh sách người dùng
-   * @param keyword Từ khóa
-   * @param page Trang
-   * @param pageSize
-   */
-  const getListUser = () => {
+  const getXuongSanXuat = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_DinhMucVatTu/list-user-lap-dinh-muc`,
+          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -102,62 +107,53 @@ function NhapKho({ permission, history, match }) {
     })
       .then((res) => {
         if (res && res.data) {
-          if (permission && permission.cof) {
-            setListUser(res.data);
-          } else {
-            res.data.forEach((us) => {
-              if (us.nguoiLap_Id === INFO.user_Id) {
-                setListUser([us]);
-                setUser_Id(us.nguoiLap_Id);
-                getDinhMucVatTu(
-                  keyword,
-                  us.nguoiLap_Id,
-                  FromDate,
-                  ToDate,
-                  page
-                );
-              }
-            });
-          }
+          const xuongsx = [];
+          res.data.forEach((x) => {
+            if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+              xuongsx.push(x);
+            }
+          });
+          setListXuong(xuongsx);
         } else {
-          setListUser([]);
+          setListXuong([]);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  /**
-   * Thay đổi keyword
-   *
-   * @param {*} val
-   */
   const onChangeKeyword = (val) => {
     setPage(1);
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getDinhMucVatTu(val.target.value, user_Id, FromDate, ToDate, page);
+      getListData(
+        val.target.value,
+        Kho_Id,
+        LoaiVT_nhomSP,
+        Xuong,
+        TuNgay,
+        DenNgay,
+        page
+      );
     }
   };
 
-  /**
-   * Tìm kiếm người dùng
-   *
-   */
-  const onSearchPhieu = () => {
-    getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, page);
-  };
-  /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, pagination);
+  const onSearchKeyword = () => {
+    getListData(keyword, Kho_Id, LoaiVT_nhomSP, Xuong, TuNgay, DenNgay, page);
   };
 
-  //Lọc các tên giống nhau trong filter
+  const handleTableChange = (pagination) => {
+    setPage(pagination);
+    getListData(
+      keyword,
+      Kho_Id,
+      LoaiVT_nhomSP,
+      Xuong,
+      TuNgay,
+      DenNgay,
+      pagination
+    );
+  };
+
   function removeDuplicates(arr) {
     const uniqueObjects = [];
     arr.forEach((obj) => {
@@ -170,11 +166,10 @@ function NhapKho({ permission, history, match }) {
     });
     return uniqueObjects;
   }
-  const { totalRow, pageSize } = data;
+  const { totalRow, pageSize } = Data;
 
-  //Lấy thông tin thiết bị
   const dataList = reDataForTable(
-    DinhMucVatTu.datalist,
+    Data.datalist,
     page === 1 ? page : pageSize * (page - 1) + 2
   );
 
@@ -317,26 +312,33 @@ function NhapKho({ permission, history, match }) {
     );
   };
 
-  const handleOnSelectUser_Id = (value) => {
-    setUser_Id(value);
+  const handleOnSelectKho = (value) => {
+    setKho_Id(value);
+    getListData(keyword, value, LoaiVT_nhomSP, Xuong, TuNgay, DenNgay, 1);
+  };
+
+  const handleClearKho = () => {
+    setKho_Id(null);
     setPage(1);
-    getDinhMucVatTu(keyword, value, FromDate, ToDate, 1);
+    getListData(keyword, null, LoaiVT_nhomSP, Xuong, TuNgay, DenNgay, 1);
   };
 
-  const handleOnSelectDinhMucVatTu = (value) => {};
-
-  const handleClearUser_Id = () => {
-    setUser_Id(null);
-
-    getDinhMucVatTu(keyword, "", FromDate, ToDate, 1);
+  const handleOnSelectXuongSanXuat = (value) => {
+    setXuong(value);
+    getListData(keyword, Kho_Id, LoaiVT_nhomSP, value, TuNgay, DenNgay, 1);
   };
 
-  const handleClearDinhMucVatTu = () => {};
+  const handleClearXuongSanXuat = () => {
+    setXuong(null);
+    setPage(1);
+    getListData(keyword, Kho_Id, LoaiVT_nhomSP, null, TuNgay, DenNgay, 1);
+  };
+
   const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
+    setTuNgay(dateString[0]);
+    setDenNgay(dateString[1]);
     setPage(1);
-    getDinhMucVatTu(keyword, user_Id, dateString[0], dateString[1], 1);
+    getListData(keyword, dateString[0], dateString[1], 1);
   };
 
   return (
@@ -357,24 +359,19 @@ function NhapKho({ permission, history, match }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Loại nhập kho:</h5>
+            <h5>Kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={[
-                { id: "ckd", name: "Nhập kho CKD" },
-                { id: "true", name: "Nhập kho vật tư" },
-                { id: "false", name: "Nhập kho thành phẩm" },
-              ]}
-              placeholder="Chọn loại nhập kho"
-              optionsvalue={["id", "name"]}
+              data={ListKho ? ListKho : []}
+              placeholder="Chọn kho"
+              optionsvalue={["id", "tenCTKho"]}
               style={{ width: "100%" }}
               showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectUser_Id}
-              value={user_Id}
-              onChange={(value) => setUser_Id(value)}
+              optionFilterProp="name"
+              onSelect={handleOnSelectKho}
+              value={Kho_Id}
               allowClear
-              onClear={handleClearUser_Id}
+              onClear={handleClearKho}
             />
           </Col>
           <Col
@@ -389,17 +386,16 @@ function NhapKho({ permission, history, match }) {
             <h5>Loại sản phẩm:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListUser ? ListUser : []}
-              placeholder="Chọn loại sản phẩm"
-              optionsvalue={["nguoiLap_Id", "tennguoiLap"]}
+              data={ListKho ? ListKho : []}
+              placeholder="Chọn kho"
+              optionsvalue={["id", "name"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectUser_Id}
-              value={user_Id}
-              onChange={(value) => setUser_Id(value)}
+              // onSelect={handleOnSelectUser_Id}
+              value={Kho_Id}
               allowClear
-              onClear={handleClearUser_Id}
+              // onClear={handleClearUser_Id}
             />
           </Col>
           <Col
@@ -411,20 +407,19 @@ function NhapKho({ permission, history, match }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Sản phẩm:</h5>
+            <h5>Xưởng sản xuất:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListUser ? ListUser : []}
-              placeholder="Chọn sản phẩm"
-              optionsvalue={["nguoiLap_Id", "tennguoiLap"]}
+              data={ListXuong ? ListXuong : []}
+              placeholder="Chọn xưởng sản xuất"
+              optionsvalue={["id", "tenPhongBan"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectUser_Id}
-              value={user_Id}
-              onChange={(value) => setUser_Id(value)}
+              onSelect={handleOnSelectXuongSanXuat}
+              value={Xuong}
               allowClear
-              onClear={handleClearUser_Id}
+              onClear={handleClearXuongSanXuat}
             />
           </Col>
 
@@ -437,13 +432,13 @@ function NhapKho({ permission, history, match }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Thời gian:</h5>
+            <h5>Ngày:</h5>
             <RangePicker
               format={"DD/MM/YYYY"}
               onChange={(date, dateString) => handleChangeNgay(dateString)}
               defaultValue={[
-                moment(FromDate, "DD/MM/YYYY"),
-                moment(ToDate, "DD/MM/YYYY"),
+                moment(TuNgay, "DD/MM/YYYY"),
+                moment(DenNgay, "DD/MM/YYYY"),
               ]}
               allowClear={false}
             />
@@ -464,8 +459,8 @@ function NhapKho({ permission, history, match }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchPhieu,
-                onSearch: onSearchPhieu,
+                onPressEnter: onSearchKeyword,
+                onSearch: onSearchKeyword,
                 allowClear: true,
                 placeholder: "Tìm kiếm",
               }}

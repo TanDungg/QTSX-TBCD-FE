@@ -113,6 +113,7 @@ function PhieuNhanHang({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
+    console.log(item);
     // const detailItem =
     //   permission && permission.cof ? (
     //     <Link
