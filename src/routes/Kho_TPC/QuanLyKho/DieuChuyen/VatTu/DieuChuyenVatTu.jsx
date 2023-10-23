@@ -51,9 +51,9 @@ function DieuChuyenVatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const getListData = (keyword, cauTrucKho_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
+      cauTrucKho_Id,
       donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
@@ -118,7 +118,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
       permission &&
       permission.edit &&
       moment(getDateNow(2), "DD/MM/YYYY") <=
-        moment(item.ngayXuatKho, "DD/MM/YYYY") ? (
+        moment(item.ngayYeuCau, "DD/MM/YYYY") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -137,7 +137,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
       permission &&
       permission.del &&
       moment(getDateNow(2), "DD/MM/YYYY") <=
-        moment(item.ngayXuatKho, "DD/MM/YYYY")
+        moment(item.ngayYeuCau, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (

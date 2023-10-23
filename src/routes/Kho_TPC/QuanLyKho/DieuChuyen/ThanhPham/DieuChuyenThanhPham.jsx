@@ -46,7 +46,6 @@ function DieuChuyenThanhPham({ match, history, permission }) {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   /**
    * Lấy dữ liệu về
    *
@@ -117,7 +116,7 @@ function DieuChuyenThanhPham({ match, history, permission }) {
       permission &&
       permission.edit &&
       moment(getDateNow(2), "DD/MM/YYYY") <=
-        moment(item.ngayXuatKho, "DD/MM/YYYY") ? (
+        moment(item.ngayYeuCau, "DD/MM/YYYY") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -136,7 +135,7 @@ function DieuChuyenThanhPham({ match, history, permission }) {
       permission &&
       permission.del &&
       moment(getDateNow(2), "DD/MM/YYYY") <=
-        moment(item.ngayXuatKho, "DD/MM/YYYY")
+        moment(item.ngayYeuCau, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -271,7 +270,7 @@ function DieuChuyenThanhPham({ match, history, permission }) {
       align: "center",
     },
     {
-      title: "Ngày yêu cầu",
+      title: "Ngày điều chuyển",
       dataIndex: "ngayYeuCau",
       key: "ngayYeuCau",
       align: "center",

@@ -279,7 +279,7 @@ function DinhMucTonKho({ match, history, permission }) {
       align: "center",
     },
     {
-      title: "SL tông kho tối đa",
+      title: "SL tồn kho tối đa",
       dataIndex: "sLTonKhoToiDa",
       key: "sLTonKhoToiDa",
       align: "center",
@@ -288,12 +288,6 @@ function DinhMucTonKho({ match, history, permission }) {
       title: "Người lập",
       dataIndex: "tenNguoiLap",
       key: "tenNguoiLap",
-      align: "center",
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "ghiChu",
-      key: "ghiChu",
       align: "center",
     },
     {

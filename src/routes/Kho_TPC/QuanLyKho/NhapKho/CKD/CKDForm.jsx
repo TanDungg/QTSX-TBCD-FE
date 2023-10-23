@@ -113,6 +113,14 @@ const EditableCell = ({
   }
   return <td {...restProps}>{childNode}</td>;
 };
+function createValidator(maxValue) {
+  return (_, value) => {
+    if (value && Number(value) > maxValue) {
+      return Promise.reject(new Error(`Số phải nhỏ hơn ${maxValue}!`));
+    }
+    return Promise.resolve();
+  };
+}
 const EditableRowChilder = ({ index, ...props }) => {
   const [form] = Form.useForm();
   return (
@@ -173,6 +181,9 @@ const EditableCellChilder = ({
                   pattern: /^\d+$/,
                   message: "Số lượng không hợp lệ!",
                 },
+                {
+                  validator: createValidator(record.soLuongNhap),
+                },
               ]
             : null
         }
@@ -217,7 +228,6 @@ const CKDForm = ({ history, match, permission }) => {
   const [ListKho, setListKho] = useState([]);
   const [ListSoLot, setListSoLot] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
-  const [activeSoLuong, setActiveSoLuong] = useState(true);
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
@@ -228,6 +238,7 @@ const CKDForm = ({ history, match, permission }) => {
           setType("new");
           getXuong();
           getLot();
+          getKho();
           setFieldsValue({
             phieunhapkho: {
               ngayNhan: moment(getDateNow(), "DD/MM/YYYY"),
@@ -249,15 +260,6 @@ const CKDForm = ({ history, match, permission }) => {
       } else if (includes(match.url, "chi-tiet")) {
         if (permission && permission.edit) {
           setType("detail");
-          const { id } = match.params;
-          setId(id);
-          getInfo(id);
-        } else if (permission && !permission.edit) {
-          history.push("/home");
-        }
-      } else if (includes(match.url, "xac-nhan")) {
-        if (permission && permission.edit) {
-          setType("xacnhan");
           const { id } = match.params;
           setId(id);
           getInfo(id);
@@ -301,52 +303,36 @@ const CKDForm = ({ history, match, permission }) => {
       }
     });
   };
-  const getSanPham = (id) => {
-    ListSoLot.forEach((solot) => {
-      if (solot.id === id) {
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `SanPham/${solot.sanPham_Id}`,
-              "GET",
-              null,
-              "LIST",
-              "",
-              resolve,
-              reject
-            )
-          );
-        })
-          .then((res) => {
-            if (res && res.data) {
-              setListSanPham([
-                {
-                  ...res.data,
-                  sanPham_Id: JSON.parse(res.data.mauSac)[0].sanPham_Id,
-                  mauSac_Id: JSON.parse(res.data.mauSac)[0].mauSac_Id,
-                  soLuongNhap: "1",
-                  chiTiet_PhieuNhapKhoCKDs: JSON.parse(res.data.chiTiet).map(
-                    (ct) => {
-                      return {
-                        chiTiet_Id: ct.chiTiet_Id,
-                        soLuongNhap: ct.soLuongChiTiet,
-                        soLuongChiTiet: ct.soLuongChiTiet,
-                        tenChiTiet: ct.tenChiTiet,
-                        maChiTiet: ct.maChiTiet,
-                        tenDonViTinh: ct.tenDonViTinh,
-                        ghiChu: "",
-                      };
-                    }
-                  ),
-                },
-              ]);
-            } else {
-              setListSanPham([]);
-            }
-          })
-          .catch((error) => console.error(error));
-      }
-    });
+  const getSanPhamByLot = (id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_DinhMucVatTu/bom-by-lot?LotId=${id}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newData = res.data;
+          newData.chiTiet_PhieuNhapKhoCKDs = newData.list_VatTus;
+          newData.soLuongNhap = 1;
+          newData.chiTiet_PhieuNhapKhoCKDs.forEach((vt, index) => {
+            newData.chiTiet_PhieuNhapKhoCKDs[index].soLuongNhap =
+              newData.soLuongNhap * vt.dinhMuc;
+            newData.chiTiet_PhieuNhapKhoCKDs[index].ghiChu = "";
+          });
+          setListSanPham([res.data]);
+        } else {
+          setListSanPham([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
   const getXuong = () => {
     new Promise((resolve, reject) => {
@@ -388,11 +374,11 @@ const CKDForm = ({ history, match, permission }) => {
       }
     });
   };
-  const getKho = (phongBan_Id) => {
+  const getKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-phong-ban?thuTu=1&&phongBan_Id=${phongBan_Id}&&isThanhPham=false`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
           "GET",
           null,
           "DETAIL",
@@ -435,7 +421,7 @@ const CKDForm = ({ history, match, permission }) => {
           getUserLap(INFO, res.data.userNhan_Id);
           setInfo(res.data);
           getLot();
-          getKho(res.data.phongBan_Kho_Id);
+          getKho();
           getXuong();
           setListSanPham([
             {
@@ -443,16 +429,14 @@ const CKDForm = ({ history, match, permission }) => {
               tenSanPham: res.data.tenSanPham,
               tenDonViTinh: res.data.tenDonViTinh,
               soLuongNhap: res.data.soLuongSanPham,
+              sanPham_Id: res.data.sanPham_Id,
               chiTiet_PhieuNhapKhoCKDs: JSON.parse(res.data.chiTiet),
             },
           ]);
-          setActiveSoLuong(false);
           setFieldsValue({
             phieunhapkho: {
               ...res.data,
-              phongBan_Id: res.data.phongBan_Kho_Id,
               ngayNhan: moment(res.data.ngayNhan, "DD/MM/YYYY"),
-              soLuong: res.data.soLuongSanPham,
             },
           });
         }
@@ -470,53 +454,9 @@ const CKDForm = ({ history, match, permission }) => {
           ? "/them-moi"
           : type === "edit"
           ? `/${id}/chinh-sua`
-          : type === "detail"
-          ? `/${id}/chi-tiet`
-          : `/${id}/xac-nhan`,
+          : `/${id}/chi-tiet`,
         ""
       )}`
-    );
-  };
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    const title = "sản phẩm";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenSanPham, title);
-  };
-
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    const newData = ListSanPham.filter((d) => d.chiTiet_Id !== item.chiTiet_Id);
-    setListSanPham(newData);
-  };
-
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const deleteItemVal =
-      permission && permission.del && (type === "new" || type === "edit")
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        <React.Fragment>
-          <a {...deleteItemVal} title="Xóa">
-            <DeleteOutlined />
-          </a>
-        </React.Fragment>
-      </div>
     );
   };
   /**
@@ -532,8 +472,8 @@ const CKDForm = ({ history, match, permission }) => {
    * @memberof VaiTro
    */
   const deleteItemFuncChiTiet = (item) => {
-    const title = "chi tiết";
-    ModalDeleteConfirm(deleteItemActionChiTiet, item, item.tenChiTiet, title);
+    const title = "vật tư";
+    ModalDeleteConfirm(deleteItemActionChiTiet, item, item.tenVatTu, title);
   };
 
   /**
@@ -544,7 +484,7 @@ const CKDForm = ({ history, match, permission }) => {
   const deleteItemActionChiTiet = (item) => {
     const chiTiet_PhieuNhapKhoCKDs =
       ListSanPham[0].chiTiet_PhieuNhapKhoCKDs.filter(
-        (d) => d.chiTiet_Id !== item.chiTiet_Id
+        (d) => d.vatTu_Id !== item.vatTu_Id
       );
     setListSanPham([{ ...ListSanPham[0], chiTiet_PhieuNhapKhoCKDs }]);
   };
@@ -621,15 +561,15 @@ const CKDForm = ({ history, match, permission }) => {
       width: 45,
     },
     {
-      title: "Mã chi tiết",
-      dataIndex: "maChiTiet",
-      key: "maChiTiet",
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
       align: "center",
     },
     {
-      title: "Tên chi tiết",
-      dataIndex: "tenChiTiet",
-      key: "tenChiTiet",
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
       align: "center",
     },
     {
@@ -670,7 +610,9 @@ const CKDForm = ({ history, match, permission }) => {
   ];
   const handleSave = (row) => {
     const newData = [...ListSanPham];
-    const index = newData.findIndex((item) => row.id === item.id);
+    const index = newData.findIndex(
+      (item) => row.sanPham_Id === item.sanPham_Id
+    );
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
@@ -678,7 +620,7 @@ const CKDForm = ({ history, match, permission }) => {
     });
     newData[0].chiTiet_PhieuNhapKhoCKDs.forEach((ct, index) => {
       newData[0].chiTiet_PhieuNhapKhoCKDs[index].soLuongNhap =
-        ct.soLuongChiTiet * newData[0].soLuongNhap;
+        ct.dinhMuc * newData[0].soLuongNhap;
     });
     setFieldTouch(true);
     setListSanPham(newData);
@@ -703,7 +645,7 @@ const CKDForm = ({ history, match, permission }) => {
     const newData = [...ListSanPham];
     const chiTiet_PhieuNhapKhoCKDs = newData[0].chiTiet_PhieuNhapKhoCKDs;
     const index = chiTiet_PhieuNhapKhoCKDs.findIndex(
-      (item) => row.chiTiet_Id === item.chiTiet_Id
+      (item) => row.vatTu_Id === item.vatTu_Id
     );
     const item = chiTiet_PhieuNhapKhoCKDs[index];
     chiTiet_PhieuNhapKhoCKDs.splice(index, 1, {
@@ -753,7 +695,7 @@ const CKDForm = ({ history, match, permission }) => {
     validateFields()
       .then((values) => {
         if (ListSanPham.length === 0) {
-          Helpers.alertError("Danh sách chi tiết rỗng");
+          Helpers.alertError("Danh sách vật tư rỗng");
         } else {
           saveData(values.phieunhapkho, val);
         }
@@ -793,6 +735,7 @@ const CKDForm = ({ history, match, permission }) => {
                 phieunhapkho: {
                   ngayNhan: moment(getDateNow(), "DD/MM/YYYY"),
                   userNhan_Id: nhapkho.userNhan_Id,
+                  tenPhongBan: nhapkho.tenPhongBan,
                 },
               });
               setFieldTouch(false);
@@ -843,64 +786,6 @@ const CKDForm = ({ history, match, permission }) => {
     }
   };
 
-  const hanldeXacNhan = () => {
-    const newData = {
-      id: id,
-      isXacNhan: true,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuDeNghiMuaHang/xac-nhan/${id}`,
-          "PUT",
-          newData,
-          "EDIT",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) goBack();
-      })
-      .catch((error) => console.error(error));
-  };
-  const prop = {
-    type: "confirm",
-    okText: "Xác nhận",
-    cancelText: "Hủy",
-    title: "Xác nhận phiếu nhập kho",
-    onOk: hanldeXacNhan,
-  };
-  const modalXK = () => {
-    Modal(prop);
-  };
-  const save = (val) => {
-    const newData = {
-      id: id,
-      isXacNhan: false,
-      lyDo: val,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuDeNghiMuaHang/xac-nhan/${id}`,
-          "PUT",
-          newData,
-          "EDIT",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) goBack();
-      })
-      .catch((error) => console.error(error));
-  };
-
   const formTitle =
     type === "new" ? (
       "Tạo phiếu nhập kho CKD "
@@ -909,21 +794,16 @@ const CKDForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết phiếu nhập kho CKD -{" "}
-        <Tag color={"success"}>{info.maPhieuNhapKhoVatTu}</Tag>
+        <Tag color={"success"}>{info.maPhieuNhapKhoCKD}</Tag>
       </span>
     );
 
   const dataList = reDataForTable(ListSanPham);
-  const handleSelectXuong = (val) => {
-    const { lot_Id } = getFieldValue("phieunhapkho");
-    if (lot_Id) getSanPham(lot_Id, val);
 
-    getKho(val);
-  };
   const handleSelectSoLot = (val) => {
     // setActiveSoLuong(false);
     // const { phongBan_Id } = getFieldValue("phieunhapkho");
-    getSanPham(val);
+    getSanPhamByLot(val);
     // ListSoLot.forEach((sl) => {
     //   if (sl.id === val) {
     //     setFieldsValue({
@@ -1062,7 +942,29 @@ const CKDForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-
+            <Col span={12}>
+              <FormItem
+                label="Kho vật tư"
+                name={["phieunhapkho", "cauTrucKho_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListKho}
+                  placeholder="Chọn kho"
+                  optionsvalue={["id", "tenCTKho"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
             <Col span={12}>
               <FormItem
                 label="Số Lot"

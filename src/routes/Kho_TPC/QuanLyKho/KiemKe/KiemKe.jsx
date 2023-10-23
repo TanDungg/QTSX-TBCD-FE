@@ -35,16 +35,16 @@ function KiemKe({ match, history, permission }) {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
-  const [ListBanPhong, setListBanPhong] = useState([]);
-  const [BanPhong, setBanPhong] = useState("");
+  const [ListKho, setListKho] = useState([]);
+  const [Kho, setKho] = useState("");
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
 
   useEffect(() => {
     if (permission && permission.view) {
-      getBanPhong();
-      getListData(keyword, BanPhong, FromDate, ToDate, page);
+      getKho();
+      getListData(keyword, Kho, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -57,9 +57,9 @@ function KiemKe({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const getListData = (keyword, cauTrucKho_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
+      cauTrucKho_Id,
       donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
@@ -69,11 +69,11 @@ function KiemKe({ match, history, permission }) {
     dispatch(fetchStart(`lkn_PhieuKiemKe?${param}`, "GET", null, "LIST"));
   };
 
-  const getBanPhong = () => {
+  const getKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
           "GET",
           null,
           "DETAIL",
@@ -85,16 +85,16 @@ function KiemKe({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListBanPhong(res.data);
+          setListKho(res.data);
         } else {
-          setListBanPhong([]);
+          setListKho([]);
         }
       })
       .catch((error) => console.error(error));
   };
 
   const onSearchDeNghiMuaHang = () => {
-    getListData(keyword, BanPhong, FromDate, ToDate, page);
+    getListData(keyword, Kho, FromDate, ToDate, page);
   };
 
   /**
@@ -105,7 +105,7 @@ function KiemKe({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, BanPhong, FromDate, ToDate, page);
+      getListData(val.target.value, Kho, FromDate, ToDate, page);
     }
   };
 
@@ -195,7 +195,7 @@ function KiemKe({ match, history, permission }) {
     })
       .then((res) => {
         if (res.status !== 409) {
-          getListData(keyword, BanPhong, FromDate, ToDate, page);
+          getListData(keyword, Kho, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -209,7 +209,7 @@ function KiemKe({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(keyword, BanPhong, FromDate, ToDate, pagination);
+    getListData(keyword, Kho, FromDate, ToDate, pagination);
   };
 
   /**
@@ -331,14 +331,14 @@ function KiemKe({ match, history, permission }) {
     };
   });
 
-  const handleOnSelectBanPhong = (val) => {
-    setBanPhong(val);
+  const handleOnSelectKho = (val) => {
+    setKho(val);
     setPage(1);
     getListData(keyword, val, FromDate, ToDate, 1);
   };
 
-  const handleClearBanPhong = (val) => {
-    setBanPhong("");
+  const handleClearKho = (val) => {
+    setKho("");
     setPage(1);
     getListData(keyword, "", FromDate, ToDate, 1);
   };
@@ -347,7 +347,7 @@ function KiemKe({ match, history, permission }) {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    getListData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    getListData(keyword, Kho, dateString[0], dateString[1], 1);
   };
 
   return (
@@ -369,20 +369,20 @@ function KiemKe({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Ban/Phòng:</h5>
+            <h5>Kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListBanPhong ? ListBanPhong : []}
-              placeholder="Chọn Ban/Phòng"
-              optionsvalue={["id", "tenPhongBan"]}
+              data={ListKho ? ListKho : []}
+              placeholder="Chọn Kho"
+              optionsvalue={["id", "tenCTKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectBanPhong}
-              value={BanPhong}
-              onChange={(value) => setBanPhong(value)}
+              onSelect={handleOnSelectKho}
+              value={Kho}
+              onChange={(value) => setKho(value)}
               allowClear
-              onClear={handleClearBanPhong}
+              onClear={handleClearKho}
             />
           </Col>
 

@@ -550,6 +550,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
               setFieldsValue({
                 dinhmuctonkho: {
                   userLap_Id: dinhmuctonkho.userLap_Id,
+                  tenPhongBan: dinhmuctonkho.tenPhongBan,
                   ngayNhap: moment(dinhmuctonkho.ngayNhap, "DD/MM/YYYY"),
                 },
               });

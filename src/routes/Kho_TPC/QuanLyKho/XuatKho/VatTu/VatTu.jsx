@@ -37,16 +37,16 @@ function XuatKhoVatTu({ match, history, permission }) {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
-  const [ListXuongSanXuat, setListXuongSanXuat] = useState([]);
-  const [XuongSanXuat, setXuongSanXuat] = useState(null);
+  const [ListKho, setListKho] = useState([]);
+  const [Kho, setKho] = useState(null);
   const [TuNgay, setTuNgay] = useState(getDateNow(7));
   const [DenNgay, setDenNgay] = useState(getDateNow());
   const [SelectedDevice, setSelectedDevice] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     if (permission && permission.view) {
-      getXuongSanXuat();
-      getListData(XuongSanXuat, TuNgay, DenNgay, page);
+      getKho();
+      getListData(Kho, TuNgay, DenNgay, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -59,9 +59,9 @@ function XuatKhoVatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (XuongSanXuat_Id, tuNgay, denNgay, page) => {
+  const getListData = (cauTrucKho_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      XuongSanXuat_Id,
+      cauTrucKho_Id,
       tuNgay,
       denNgay,
       page,
@@ -69,11 +69,11 @@ function XuatKhoVatTu({ match, history, permission }) {
     dispatch(fetchStart(`lkn_PhieuXuatKhoVatTu?${param}`, "GET", null, "LIST"));
   };
 
-  const getXuongSanXuat = () => {
+  const getKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
           "GET",
           null,
           "DETAIL",
@@ -85,15 +85,9 @@ function XuatKhoVatTu({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const xuongsx = [];
-          res.data.forEach((x) => {
-            if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
-              xuongsx.push(x);
-            }
-          });
-          setListXuongSanXuat(xuongsx);
+          setListKho(res.data);
         } else {
-          setListXuongSanXuat([]);
+          setListKho([]);
         }
       })
       .catch((error) => console.error(error));
@@ -193,7 +187,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     })
       .then((res) => {
         if (res.status !== 409) {
-          getListData(XuongSanXuat, TuNgay, DenNgay, page);
+          getListData(Kho, TuNgay, DenNgay, page);
         }
       })
       .catch((error) => console.error(error));
@@ -207,7 +201,7 @@ function XuatKhoVatTu({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(XuongSanXuat, TuNgay, DenNgay, pagination);
+    getListData(Kho, TuNgay, DenNgay, pagination);
   };
 
   /**
@@ -404,14 +398,14 @@ function XuatKhoVatTu({ match, history, permission }) {
     );
   };
 
-  const handleOnSelectXuongSanXuat = (value) => {
-    setXuongSanXuat(value);
+  const handleOnSelectKho = (value) => {
+    setKho(value);
     setPage(1);
     getListData(value, TuNgay, DenNgay, 1);
   };
 
-  const handleClearXuongSanXuat = () => {
-    setXuongSanXuat(null);
+  const handleClearKho = () => {
+    setKho(null);
     setPage(1);
     getListData(null, TuNgay, DenNgay, 1);
   };
@@ -420,7 +414,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     setTuNgay(dateString[0]);
     setDenNgay(dateString[1]);
     setPage(1);
-    getListData(XuongSanXuat, dateString[0], dateString[1], 1);
+    getListData(Kho, dateString[0], dateString[1], 1);
   };
 
   const rowSelection = {
@@ -471,20 +465,20 @@ function XuatKhoVatTu({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Xưởng sản xuất:</h5>
+            <h5>Kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListXuongSanXuat ? ListXuongSanXuat : []}
-              placeholder="Chọn xưởng sản xuất"
-              optionsvalue={["id", "tenPhongBan"]}
+              data={ListKho ? ListKho : []}
+              placeholder="Chọn Kho"
+              optionsvalue={["id", "tenCTKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectXuongSanXuat}
-              value={XuongSanXuat}
-              onChange={(value) => setXuongSanXuat(value)}
+              onSelect={handleOnSelectKho}
+              value={Kho}
+              onChange={(value) => setKho(value)}
               allowClear
-              onClear={handleClearXuongSanXuat}
+              onClear={handleClearKho}
             />
           </Col>
           <Col
