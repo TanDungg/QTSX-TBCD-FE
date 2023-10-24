@@ -533,14 +533,16 @@ const ThanhPhamForm = ({ history, match, permission }) => {
               goBack();
             } else {
               resetFields();
-              setFieldsValue({
-                phieunhapkho: {
-                  ngayNhan: moment(getDateNow(), "DD/MM/YYYY"),
-                  ngayHoaDon: moment(getDateNow(), "DD/MM/YYYY"),
-                },
-              });
               setFieldTouch(false);
               setListSanPham([]);
+              getUserLap(INFO);
+              getXuong();
+              setFieldsValue({
+                phieunhapkho: {
+                  ngayNhap: moment(getDateNow(), "DD/MM/YYYY"),
+                  ngaySanXuat: moment(getDateNow(), "DD/MM/YYYY"),
+                },
+              });
             }
           } else {
             setFieldTouch(false);

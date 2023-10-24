@@ -65,9 +65,11 @@ const VatTuForm = ({ history, match, permission }) => {
       if (includes(match.url, "them-moi")) {
         getData();
         if (location.state) {
-          const newData = location.state.itemData;
+          const newData =
+            location.state.phieuDNCVT && location.state.phieuDNCVT[0];
+          setPhieuDeNghiCVT(newData);
           setType("taophieuxuat");
-          getPhieuDeNghiCVT(newData.length !== 0 && newData[0].id);
+          getPhieuDeNghiCVT(newData.length !== 0 && newData.id);
         } else {
           if (permission && permission.add) {
             setType("new");
@@ -142,8 +144,6 @@ const VatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          console.log(res.data);
-          setPhieuDeNghiCVT(res.data);
           setListVatTu(
             res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
               JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu)
@@ -937,7 +937,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            {location.state && location.state.itemData[0].sanPham_Id && (
+            {PhieuDeNghiCVT && PhieuDeNghiCVT.sanPham_Id && (
               <Col
                 xxl={12}
                 xl={12}

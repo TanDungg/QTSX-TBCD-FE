@@ -183,8 +183,8 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieu,
-      "phiếu đề nghị mua hàng"
+      item.maPhieuDeNghiCapVatTu,
+      "phiếu đề nghị cấp vật tư"
     );
   };
 
@@ -231,7 +231,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const handleTaoPhieuXuat = () => {
     history.push({
       pathname: `/quan-ly-kho-tpc/xuat-kho/vat-tu/them-moi`,
-      state: { itemData: SelectedDNCVT },
+      state: { phieuDNCVT: SelectedDNCVT },
     });
   };
 

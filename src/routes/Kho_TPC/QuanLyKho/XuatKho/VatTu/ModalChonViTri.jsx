@@ -44,6 +44,7 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       );
     }).then((res) => {
       if (res && res.data) {
+        console.log(res.data);
         const newData = res.data.map((data) => {
           if (itemData.isCheck === true) {
             const vitri = itemData.chiTiet_LuuVatTus.find(
@@ -60,27 +61,10 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
           }
           return {
             ...data,
+            soLuongThucXuat: data.soLuong,
           };
         });
         setListViTriKho(newData);
-
-        const newSoLuong = {};
-        newData.forEach((data) => {
-          if (itemData.isCheck === true) {
-            const vitri = itemData.chiTiet_LuuVatTus.find(
-              (vitri) =>
-                data.lkn_ChiTietKhoVatTu_Id.toLowerCase() ===
-                vitri.lkn_ChiTietKhoVatTu_Id.toLowerCase()
-            );
-            newSoLuong[data.lkn_ChiTietKhoVatTu_Id] = vitri
-              ? vitri.soLuongThucXuat
-              : 0;
-          } else {
-            newSoLuong[data.lkn_ChiTietKhoVatTu_Id] = 0;
-          }
-        });
-
-        setSoLuongXuat(newSoLuong);
       } else {
         setListViTriKho([]);
       }
@@ -104,7 +88,7 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
             className={`input-item ${
               isEditing && hasError ? "input-error" : ""
             }`}
-            value={SoLuongXuat && SoLuongXuat[record.lkn_ChiTietKhoVatTu_Id]}
+            value={record.soLuongThucXuat}
             type="number"
             onChange={(val) => handleInputChange(val, record)}
           />
@@ -119,22 +103,31 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
 
   const handleInputChange = (val, record) => {
     const sl = val.target.value;
-    if (sl > record.soLuong) {
+    if (sl === null || sl === "") {
       setHasError(true);
-      setErrorMessage(
-        "Số lượng xuất phải nhỏ hơn hoặc bằng số lượng trong kho"
-      );
+      setErrorMessage("Vui lòng nhập số lượng");
       setDisabledSave(true);
     } else {
-      setDisabledSave(false);
-      setHasError(false);
-      setErrorMessage(null);
+      if (sl <= 0) {
+        setHasError(true);
+        setErrorMessage("Số lượng không được nhỏ hơn 0");
+        setDisabledSave(false);
+      } else {
+        if (sl > record.soLuong) {
+          setHasError(true);
+          setErrorMessage(
+            "Số lượng xuất phải nhỏ hơn hoặc bằng số lượng trong kho"
+          );
+          setDisabledSave(true);
+        } else {
+          setDisabledSave(false);
+          setHasError(false);
+          setErrorMessage(null);
+        }
+      }
     }
     setEditingRecord(record);
-    setSoLuongXuat((prevSoLuongXuat) => ({
-      ...prevSoLuongXuat,
-      [record.lkn_ChiTietKhoVatTu_Id]: sl,
-    }));
+
     setListViTriKho((prevListViTriKho) => {
       return prevListViTriKho.map((item) => {
         if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
