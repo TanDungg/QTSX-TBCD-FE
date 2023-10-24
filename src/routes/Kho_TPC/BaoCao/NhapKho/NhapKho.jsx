@@ -32,8 +32,10 @@ function NhapKho({ permission, history, match }) {
   const [Loai, setLoai] = useState("sanpham");
   const [ListKho, setListKho] = useState([]);
   const [Kho_Id, setKho_Id] = useState(null);
-  const [ListLoaiVatTu, setListLoaiVatTu] = useState([]);
-  const [LoaiVT_nhomSP, setloaiVT_nhomSP] = useState(null);
+  const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
+  const [LoaiSanPham, setLoaiSanPham] = useState(null);
+  const [ListNhomVatTu, setListNhomVatTu] = useState([]);
+  const [NhomVatTu, setNhomVatTu] = useState(null);
   const [ListXuong, setListXuong] = useState([]);
   const [Xuong, setXuong] = useState(null);
   const [TuNgay, setTuNgay] = useState(getDateNow(7));
@@ -46,7 +48,7 @@ function NhapKho({ permission, history, match }) {
       getListData(
         keyword,
         Kho_Id,
-        LoaiVT_nhomSP,
+        Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
         Xuong,
         TuNgay,
         DenNgay,
@@ -54,7 +56,9 @@ function NhapKho({ permission, history, match }) {
         Loai === "sanpham" ? true : false
       );
       getXuongSanXuat(INFO);
-      getKho();
+      getKho(Loai);
+      getLoaiSanPham();
+      getNhomVatTu();
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -103,11 +107,13 @@ function NhapKho({ permission, history, match }) {
       .catch((error) => console.error(error));
   };
 
-  const getKho = () => {
+  const getKho = (Loai) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=${
+            Loai === "sanpham" ? true : false
+          }`,
           "GET",
           null,
           "DETAIL",
@@ -121,6 +127,50 @@ function NhapKho({ permission, history, match }) {
         setListKho(res.data);
       } else {
         setListKho([]);
+      }
+    });
+  };
+
+  const getLoaiSanPham = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `LoaiSanPham?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListLoaiSanPham(res.data);
+      } else {
+        setListLoaiSanPham([]);
+      }
+    });
+  };
+
+  const getNhomVatTu = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `NhomVatTu?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListNhomVatTu(res.data);
+      } else {
+        setListNhomVatTu([]);
       }
     });
   };
@@ -162,7 +212,7 @@ function NhapKho({ permission, history, match }) {
       getListData(
         val.target.value,
         Kho_Id,
-        LoaiVT_nhomSP,
+        Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
         Xuong,
         TuNgay,
         DenNgay,
@@ -176,7 +226,7 @@ function NhapKho({ permission, history, match }) {
     getListData(
       keyword,
       Kho_Id,
-      LoaiVT_nhomSP,
+      Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
       Xuong,
       TuNgay,
       DenNgay,
@@ -190,7 +240,7 @@ function NhapKho({ permission, history, match }) {
     getListData(
       keyword,
       Kho_Id,
-      LoaiVT_nhomSP,
+      Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
       Xuong,
       TuNgay,
       DenNgay,
@@ -218,23 +268,6 @@ function NhapKho({ permission, history, match }) {
     page === 1 ? page : pageSize * (page - 1) + 2
   );
 
-  const renderDetail = (val) => {
-    const detail =
-      permission && permission.view ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${val.id}/chi-tiet`,
-            state: { itemData: val, permission },
-          }}
-        >
-          {val.maDinhMucVatTu}
-        </Link>
-      ) : (
-        <span disabled>{val.maDinhMucVatTu}</span>
-      );
-    return <div>{detail}</div>;
-  };
-
   let colValues = [
     {
       title: "STT",
@@ -245,80 +278,109 @@ function NhapKho({ permission, history, match }) {
     },
     {
       title: "Loại sản phẩm",
-      key: "tenLoaiSanPham",
-      dataIndex: "tenLoaiSanPham",
+      key: "maDinhMucVatTu",
       align: "center",
+      render: (val) => renderDetail(val),
 
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenLoaiSanPham,
-            value: d.tenLoaiSanPham,
+            text: d.maDinhMucVatTu,
+            value: d.maDinhMucVatTu,
           };
         })
       ),
-      onFilter: (value, record) => record.tenLoaiSanPham.includes(value),
+      onFilter: (value, record) => record.maDinhMucVatTu.includes(value),
       filterSearch: true,
     },
     {
       title: "Mã sản phẩm",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
+      dataIndex: "ngayYeuCau",
+      key: "ngayYeuCau",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maSanPham,
-            value: d.maSanPham,
+            text: d.ngayYeuCau,
+            value: d.ngayYeuCau,
           };
         })
       ),
-      onFilter: (value, record) => record.maSanPham.includes(value),
+      onFilter: (value, record) => record.ngayYeuCau.includes(value),
       filterSearch: true,
     },
     {
       title: "Tên sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
+      dataIndex: "tennguoiLap",
+      key: "tennguoiLap",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenSanPham,
-            value: d.tenSanPham,
+            text: d.tennguoiLap,
+            value: d.tennguoiLap,
           };
         })
       ),
-      onFilter: (value, record) => record.tenSanPham.includes(value),
+      onFilter: (value, record) => record.tennguoiLap.includes(value),
       filterSearch: true,
     },
     {
-      title: "Đơn vị tính",
-      dataIndex: "tenNguoiKy",
-      key: "tenNguoiKy",
+      title: "Màu sắc",
+      dataIndex: "tenMauSac",
+      key: "tenMauSac",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenNguoiKy,
-            value: d.tenNguoiKy,
+            text: d.tenMauSac,
+            value: d.tenMauSac,
           };
         })
       ),
-      onFilter: (value, record) => record.tenNguoiKy.includes(value),
+      onFilter: (value, record) => record.tenMauSac.includes(value),
       filterSearch: true,
     },
     {
       title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
+      dataIndex: "xacNhanDinhMuc",
+      key: "xacNhanDinhMuc",
       align: "center",
     },
     {
-      title: "Ngày nhập kho",
+      title: "Ngày nhập",
       dataIndex: "ngayNhap",
       key: "ngayNhap",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayNhap,
+            value: d.ngayNhap,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayNhap.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: Loai === "sanpham" ? "Ngày sản xuất" : "Tên nhà cung cấp",
+      dataIndex: Loai === "sanpham" ? "ngaySanXuat" : "tenNhaCungCap",
+      key: Loai === "sanpham" ? "ngaySanXuat" : "tenNhaCungCap",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: Loai === "sanpham" ? d.ngaySanXuat : d.tenNhaCungCap,
+            value: Loai === "sanpham" ? d.ngaySanXuat : d.tenNhaCungCap,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        Loai === "sanpham"
+          ? record.ngaySanXuat
+          : record.tenNhaCungCap.includes(value),
+      filterSearch: true,
     },
   ];
   const components = {
@@ -365,10 +427,13 @@ function NhapKho({ permission, history, match }) {
 
   const handleOnSelectLoai = (value) => {
     setLoai(value);
+    getKho(value);
+    setLoaiSanPham(null);
+    setNhomVatTu(null);
     getListData(
       keyword,
       Kho_Id,
-      LoaiVT_nhomSP,
+      null,
       Xuong,
       TuNgay,
       DenNgay,
@@ -382,7 +447,7 @@ function NhapKho({ permission, history, match }) {
     getListData(
       keyword,
       value,
-      LoaiVT_nhomSP,
+      Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
       Xuong,
       TuNgay,
       DenNgay,
@@ -397,7 +462,7 @@ function NhapKho({ permission, history, match }) {
     getListData(
       keyword,
       null,
-      LoaiVT_nhomSP,
+      Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
       Xuong,
       TuNgay,
       DenNgay,
@@ -406,12 +471,34 @@ function NhapKho({ permission, history, match }) {
     );
   };
 
+  const handleOnSelectLoaiSP = (value) => {
+    setLoaiSanPham(value);
+    getListData(keyword, Kho_Id, value, Xuong, TuNgay, DenNgay, 1, true);
+  };
+
+  const handleClearLoaiSP = () => {
+    setLoaiSanPham(null);
+    setPage(1);
+    getListData(keyword, Kho_Id, null, Xuong, TuNgay, DenNgay, 1, true);
+  };
+
+  const handleOnSelectNhomVatTu = (value) => {
+    setNhomVatTu(value);
+    getListData(keyword, Kho_Id, value, Xuong, TuNgay, DenNgay, 1, false);
+  };
+
+  const handleClearNhomVatTu = () => {
+    setNhomVatTu(null);
+    setPage(1);
+    getListData(keyword, Kho_Id, null, Xuong, TuNgay, DenNgay, 1, false);
+  };
+
   const handleOnSelectXuongSanXuat = (value) => {
     setXuong(value);
     getListData(
       keyword,
       Kho_Id,
-      LoaiVT_nhomSP,
+      Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
       value,
       TuNgay,
       DenNgay,
@@ -426,7 +513,7 @@ function NhapKho({ permission, history, match }) {
     getListData(
       keyword,
       Kho_Id,
-      LoaiVT_nhomSP,
+      Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
       null,
       TuNgay,
       DenNgay,
@@ -442,7 +529,7 @@ function NhapKho({ permission, history, match }) {
     getListData(
       keyword,
       Kho_Id,
-      LoaiVT_nhomSP,
+      Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
       null,
       dateString[0],
       dateString[1],
@@ -515,30 +602,57 @@ function NhapKho({ permission, history, match }) {
               onClear={handleClearKho}
             />
           </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Loại sản phẩm:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListKho ? ListKho : []}
-              placeholder="Chọn kho"
-              optionsvalue={["id", "name"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp={"name"}
-              // onSelect={handleOnSelectUser_Id}
-              value={Kho_Id}
-              allowClear
-              // onClear={handleClearUser_Id}
-            />
-          </Col>
+          {Loai === "sanpham" ? (
+            <Col
+              xxl={6}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <h5>Loại sản phẩm:</h5>
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListLoaiSanPham ? ListLoaiSanPham : []}
+                placeholder="Loại sản phẩm"
+                optionsvalue={["id", "tenLoaiSanPham"]}
+                style={{ width: "100%" }}
+                showSearch
+                optionFilterProp={"name"}
+                onSelect={handleOnSelectLoaiSP}
+                value={LoaiSanPham}
+                allowClear
+                onClear={handleClearLoaiSP}
+              />
+            </Col>
+          ) : (
+            <Col
+              xxl={6}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <h5>Nhóm vật tư:</h5>
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListNhomVatTu ? ListNhomVatTu : []}
+                placeholder="Nhóm vật tư"
+                optionsvalue={["id", "tenNhomVatTu"]}
+                style={{ width: "100%" }}
+                showSearch
+                optionFilterProp={"name"}
+                onSelect={handleOnSelectNhomVatTu}
+                value={NhomVatTu}
+                allowClear
+                onClear={handleClearNhomVatTu}
+              />
+            </Col>
+          )}
           <Col
             xxl={6}
             xl={8}

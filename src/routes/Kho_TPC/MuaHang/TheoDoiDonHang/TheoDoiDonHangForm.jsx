@@ -320,7 +320,6 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
       key: "tenNhomVatTu",
       align: "center",
       width: 120,
-      fixed: "left",
     },
     {
       title: "Đơn vị tính",
@@ -345,8 +344,8 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
     },
     {
       title: "Ngày dự kiến hoàn thành",
-      dataIndex: "ngayHoanThanhDukien",
-      key: "ngayHoanThanhDukien",
+      dataIndex: "ngayHoanThanhDuKien",
+      key: "ngayHoanThanhDuKien",
       align: "center",
       width: 140,
     },
