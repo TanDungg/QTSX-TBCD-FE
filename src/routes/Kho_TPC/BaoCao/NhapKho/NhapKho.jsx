@@ -277,52 +277,74 @@ function NhapKho({ permission, history, match }) {
       align: "center",
     },
     {
-      title: "Loại sản phẩm",
-      key: "maDinhMucVatTu",
+      title: Loai === "sanpham" ? "Loại sản phẩm" : "Nhóm vật tư",
+      dataIndex: Loai === "sanpham" ? "tenLoaiSanPham" : "tenNhomVatTu",
+      key: Loai === "sanpham" ? "tenLoaiSanPham" : "tenNhomVatTu",
       align: "center",
-      render: (val) => renderDetail(val),
-
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maDinhMucVatTu,
-            value: d.maDinhMucVatTu,
+            text: Loai === "sanpham" ? d.tenLoaiSanPham : d.tenNhomVatTu,
+            value: Loai === "sanpham" ? d.tenLoaiSanPham : d.tenNhomVatTu,
           };
         })
       ),
-      onFilter: (value, record) => record.maDinhMucVatTu.includes(value),
+      onFilter: (value, record) =>
+        Loai === "sanpham"
+          ? record.tenLoaiSanPham
+          : record.tenNhomVatTu.includes(value),
       filterSearch: true,
     },
     {
-      title: "Mã sản phẩm",
-      dataIndex: "ngayYeuCau",
-      key: "ngayYeuCau",
+      title: Loai === "sanpham" ? "Mã sản phẩm" : "Mã vật tư",
+      dataIndex: Loai === "sanpham" ? "maSanPham" : "maVatTu",
+      key: Loai === "sanpham" ? "maSanPham" : "maVatTu",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayYeuCau,
-            value: d.ngayYeuCau,
+            text: Loai === "sanpham" ? d.maSanPham : d.maVatTu,
+            value: Loai === "sanpham" ? d.maSanPham : d.maVatTu,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayYeuCau.includes(value),
+      onFilter: (value, record) =>
+        Loai === "sanpham" ? record.maSanPham : record.maVatTu.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên sản phẩm",
-      dataIndex: "tennguoiLap",
-      key: "tennguoiLap",
+      title: Loai === "sanpham" ? "Tên sản phẩm" : "Tên vật tư",
+      dataIndex: Loai === "sanpham" ? "tenSanPham" : "tenVatTu",
+      key: Loai === "sanpham" ? "tenSanPham" : "tenVatTu",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tennguoiLap,
-            value: d.tennguoiLap,
+            text: Loai === "sanpham" ? d.tenSanPham : d.tenVatTu,
+            value: Loai === "sanpham" ? d.tenSanPham : d.tenVatTu,
           };
         })
       ),
-      onFilter: (value, record) => record.tennguoiLap.includes(value),
+      onFilter: (value, record) =>
+        Loai === "sanpham"
+          ? record.tenSanPham
+          : record.tenVatTu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Kho",
+      dataIndex: "tenCauTrucKho",
+      key: "tenCauTrucKho",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenCauTrucKho,
+            value: d.tenCauTrucKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenCauTrucKho.includes(value),
       filterSearch: true,
     },
     {
@@ -343,8 +365,8 @@ function NhapKho({ permission, history, match }) {
     },
     {
       title: "Số lượng",
-      dataIndex: "xacNhanDinhMuc",
-      key: "xacNhanDinhMuc",
+      dataIndex: "soLuong",
+      key: "soLuong",
       align: "center",
     },
     {
