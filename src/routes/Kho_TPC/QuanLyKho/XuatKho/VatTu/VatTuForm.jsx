@@ -647,7 +647,7 @@ const VatTuForm = ({ history, match, permission }) => {
               goBack();
             } else {
               resetFields();
-              getUserLap(INFO);
+              getData();
               setFieldsValue({
                 phieuxuatkhovattu: {
                   ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),

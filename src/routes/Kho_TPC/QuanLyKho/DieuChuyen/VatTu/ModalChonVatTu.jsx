@@ -14,13 +14,13 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   const [ViTriKho, setViTriKho] = useState(null);
   const [VatTu, setVatTu] = useState([]);
   const [ListVatTu, setListVatTu] = useState([]);
-  const [SoLuongDieuChuyen, setSoLuongDieuChuyen] = useState(0);
   const [hasError, setHasError] = useState(false);
   const [DisabledSave, setDisabledSave] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [editingRecord, setEditingRecord] = useState(null);
 
   useEffect(() => {
     if (openModal) {
-      console.log(itemData);
       getListViTriKho(itemData.kho_Id);
     }
     return () => {
@@ -68,19 +68,16 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
           );
         });
         setListViTriKho(newData);
-
-        const newSoLuong = {};
-        newData.forEach((data) => {
-          newSoLuong[data.lkn_ChiTietKhoVatTu_Id] = data.soLuong;
-        });
-        setSoLuongDieuChuyen(newSoLuong);
       } else {
         setListViTriKho([]);
       }
     });
   };
 
-  const renderSoLuongDieuChuyen = () => {
+  const renderSoLuongDieuChuyen = (record) => {
+    const isEditing =
+      editingRecord &&
+      editingRecord.lkn_ChiTietKhoVatTu_Id === record.lkn_ChiTietKhoVatTu_Id;
     return (
       <div>
         <Input
@@ -91,33 +88,43 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             borderColor: hasError ? "red" : "",
           }}
           className={`input-item ${hasError ? "input-error" : ""}`}
-          value={
-            SoLuongDieuChuyen &&
-            SoLuongDieuChuyen[VatTu[0].lkn_ChiTietKhoVatTu_Id]
-          }
+          value={record.soLuongDieuChuyen}
           type="number"
-          onChange={(val) => handleInputChange(val)}
+          onChange={(val) => handleInputChange(val, record)}
         />
+        {isEditing && hasError && (
+          <div style={{ color: "red" }}>{errorMessage}</div>
+        )}
       </div>
     );
   };
 
-  const handleInputChange = (val) => {
+  const handleInputChange = (val, record) => {
     const sl = val.target.value;
-    if (sl > VatTu[0].soLuong) {
+    if (sl === null || sl === "") {
       setHasError(true);
-      Helpers.alertError(
-        "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho"
-      );
+      setErrorMessage("Vui lòng nhập số lượng");
       setDisabledSave(true);
     } else {
-      setDisabledSave(false);
-      setHasError(false);
+      if (sl <= 0) {
+        setHasError(true);
+        setErrorMessage("Số lượng không được nhỏ hơn 0");
+        setDisabledSave(true);
+      } else {
+        if (sl > VatTu[0].soLuong) {
+          setHasError(true);
+          setErrorMessage(
+            "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho"
+          );
+          setDisabledSave(true);
+        } else {
+          setDisabledSave(false);
+          setHasError(false);
+        }
+      }
     }
-    setSoLuongDieuChuyen((prevSoLuongDieuChuyen) => ({
-      ...prevSoLuongDieuChuyen,
-      [VatTu[0].lkn_ChiTietKhoVatTu_Id]: sl,
-    }));
+    setEditingRecord(record);
+
     setVatTu((prevVatTu) => {
       return prevVatTu.map((item) => {
         if (VatTu[0].lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
@@ -179,6 +186,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       key: "soLuongDieuChuyen",
       align: "center",
       render: (record) => renderSoLuongDieuChuyen(record),
+      width: 200,
     },
     {
       title: "Đơn vị tính",
@@ -356,7 +364,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             <Table
               bordered
               columns={colVatTu}
-              scroll={{ x: 850, y: 60 }}
+              scroll={{ x: 850, y: 100 }}
               className="gx-table-responsive"
               dataSource={VatTu}
               size="small"

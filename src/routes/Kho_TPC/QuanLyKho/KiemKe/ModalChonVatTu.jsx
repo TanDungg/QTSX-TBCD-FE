@@ -17,7 +17,6 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   useEffect(() => {
     if (openModal) {
-      console.log(itemData);
       getListVatTu(itemData.xuong);
     }
     return () => {
@@ -49,6 +48,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             ...data,
             vatTu: `${data.maVatTu} - ${data.tenVatTu}`,
             soLuongKiemKe: data.soLuong,
+            soLuongTrenPhamMem: data.soLuong,
           };
         });
         const newData = itemData.listVatTu
@@ -195,7 +195,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   return (
     <AntModal
-      title={`Chọn vật tư trả nhà cung cấp`}
+      title={`Chọn vật tư kiểm kê`}
       open={openModal}
       width={width > 1000 ? `80%` : "100%"}
       closable={true}

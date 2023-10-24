@@ -447,6 +447,7 @@ function XuatKho({ permission, history, match }) {
   const handleOnSelectLoai = (value) => {
     setLoai(value);
     getKho(value);
+    setKho_Id(null);
     setLoaiSanPham(null);
     setNhomVatTu(null);
     getListData(

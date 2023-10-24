@@ -117,10 +117,12 @@ function VatTu({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
+    console.log(item);
     const editItem =
       permission &&
       permission.edit &&
-      moment(getDateNow(2), "DD/MM/YYYY") <=
+      item.userLapPhieu === INFO.user_Id &&
+      moment(getDateNow(1), "DD/MM/YYYY") <=
         moment(item.ngayNhan, "DD/MM/YYYY") ? (
         <Link
           to={{
@@ -174,7 +176,6 @@ function VatTu({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    console.log(item);
     let url = `lkn_PhieuNhapKhoVatTu?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
@@ -209,7 +210,9 @@ function VatTu({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
+
   const handlePrint = () => {};
+
   const addButtonRender = () => {
     return (
       <>

@@ -52,7 +52,6 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
   const [KhoVatTu, setKhoVatTu] = useState(null);
   const [ListUser, setListUser] = useState([]);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(null);
-  const [SoLuongThanhLy, setSoLuongThanhLy] = useState([]);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [editingRecord, setEditingRecord] = useState(null);
@@ -255,12 +254,6 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
               };
             });
           setListVatTu(newData);
-
-          const newSoLuong = {};
-          newData.forEach((data) => {
-            newSoLuong[data.lkn_ChiTietKhoVatTu_Id] = data.soLuongThanhLy || 0;
-          });
-          setSoLuongThanhLy(newSoLuong);
         }
       })
       .catch((error) => console.error(error));
@@ -347,9 +340,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
             className={`input-item ${
               isEditing && hasError ? "input-error" : ""
             }`}
-            value={
-              SoLuongThanhLy && SoLuongThanhLy[record.lkn_ChiTietKhoVatTu_Id]
-            }
+            value={record.soLuongThanhLy}
             type="number"
             onChange={(val) => handleInputChange(val, record)}
           />
@@ -358,7 +349,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
           )}
         </div>
       ) : (
-        SoLuongThanhLy[record.lkn_ChiTietKhoVatTu_Id]
+        record.soLuongThanhLy
       );
     }
     return null;
@@ -374,22 +365,31 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
           : record.soLuong,
     };
     const sl = val.target.value;
-    if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
+    if (sl === null || sl === "") {
       setHasError(true);
-      setErrorMessage(
-        "Số lượng thanh lý phải nhỏ hơn hoặc bằng số lượng trong kho"
-      );
-      setDisabledSave(true);
+      setErrorMessage("Vui lòng nhập số lượng");
+      setFieldTouch(false);
     } else {
-      setDisabledSave(false);
-      setHasError(false);
-      setErrorMessage(null);
+      if (sl <= 0) {
+        setHasError(true);
+        setErrorMessage("Số lượng không được nhỏ hơn 0");
+        setFieldTouch(false);
+      } else {
+        if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
+          setHasError(true);
+          setErrorMessage(
+            "Số lượng thanh lý phải nhỏ hơn hoặc bằng số lượng trong kho"
+          );
+          setFieldTouch(false);
+        } else {
+          setFieldTouch(true);
+          setHasError(false);
+          setErrorMessage(null);
+        }
+      }
     }
     setEditingRecord(record);
-    setSoLuongThanhLy((prevSoLuongThanhLy) => ({
-      ...prevSoLuongThanhLy,
-      [record.lkn_ChiTietKhoVatTu_Id]: sl,
-    }));
+
     setListVatTu((prevListVatTu) => {
       return prevListVatTu.map((item) => {
         if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
@@ -587,11 +587,6 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
 
   const handleThemVatTu = (data) => {
     const newListVatTu = [...ListVatTu, ...data];
-    const newSoLuong = {};
-    newListVatTu.forEach((dt) => {
-      newSoLuong[dt.lkn_ChiTietKhoVatTu_Id] = dt.soLuongThanhLy;
-    });
-    setSoLuongThanhLy(newSoLuong);
     setListVatTu(newListVatTu);
     if (type === "edit") {
       setFieldTouch(true);
