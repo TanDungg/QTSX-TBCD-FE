@@ -730,7 +730,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                 <DatePicker
                   format={"DD/MM/YYYY"}
                   allowClear={false}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={true}
                 />
               </FormItem>
             </Col>
@@ -783,7 +783,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
-        itemData={{ kho_Id: KhoVatTu, listVatTu: ListVatTu && ListVatTu }}
+        itemData={{ kho_Id: KhoVatTu, ListViTriKho: ListViTriKho }}
         ThemVatTu={handleThemVatTu}
       />
     </div>

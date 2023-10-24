@@ -141,6 +141,7 @@ function VatTu({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
+      item.userLapPhieu === INFO.user_Id &&
       moment(getDateNow(2), "DD/MM/YYYY") <= moment(item.ngayNhan, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };

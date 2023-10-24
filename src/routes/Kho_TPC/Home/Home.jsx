@@ -103,6 +103,43 @@ function Home({ permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
+            `lkn_BaoCao/dashboard-tien-do-san-xuat`,
+            "GET",
+            null,
+            "DETAIL",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (res && res.data) {
+            const newData = [];
+            res.data.forEach((x) => {
+              JSON.parse(x.chiTietSanPham).forEach((sp) => {
+                const chiTiet = {};
+                chiTiet.dept = x.tenPhongBan;
+                chiTiet.tenSanPham = sp.tenSanPham;
+                chiTiet.luyKeSX = sp.luyKeSanXuat;
+                chiTiet.diff = sp.chenhLech;
+                chiTiet.tongKH = sp.keHoachThang;
+                chiTiet.luyKeKH = sp.luyKeSanXuat;
+                sp.soLuongChiTiet &&
+                  sp.soLuongChiTiet.forEach((ct) => {
+                    chiTiet[ct.ngay] = ct.soLuong;
+                  });
+                newData.push(chiTiet);
+              });
+            });
+            setDataTDSXB(reDataForTable(newData));
+          }
+        })
+        .catch((error) => console.error(error));
+    } else if (number == 3) {
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
             `lkn_BaoCao/dashboard-tien-do-nhap-kho`,
             "GET",
             null,
@@ -119,88 +156,15 @@ function Home({ permission, history }) {
             res.data.forEach((x) => {
               JSON.parse(x.chiTietSanPham).forEach((sp) => {
                 const chiTiet = {};
+                chiTiet.dept = x.tenPhongBan;
+                chiTiet.tenSanPham = sp.tenSanPham;
+                chiTiet.tongSoLuong = sp.tongSoLuong;
                 sp.soLuongChiTiet.forEach((ct) => {
-                  chiTiet.dept = x.tenPhongBan;
-                  chiTiet.tenSanPham = ct.tenSanPham;
                   chiTiet[ct.ngay] = ct.soLuong;
                 });
                 newData.push(chiTiet);
               });
             });
-            setDataTDSXB(reDataForTable(newData));
-          }
-        })
-        .catch((error) => console.error(error));
-    } else if (number == 3) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `baocao/tien-do-sx-ct?`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.data) {
-            const newData = res.data;
-            const elementToFind = [];
-            const result = [];
-            map(newData, (d) => {
-              elementToFind.push({ tenXe: d.tenXe });
-            });
-            const uniqueArr = elementToFind.filter((element, index, self) => {
-              return (
-                index === self.findIndex((el) => el.tenXe === element.tenXe)
-              );
-            });
-            uniqueArr.forEach((d) => {
-              let count = 0;
-              let firstIndex = -1;
-              let lastIndex = -1;
-              elementToFind.forEach((element, index) => {
-                const matches = Object.keys(d).every((key) => {
-                  return d[key] === element[key];
-                });
-
-                if (matches) {
-                  count++;
-
-                  if (firstIndex === -1) {
-                    firstIndex = index;
-                  }
-
-                  lastIndex = index;
-                }
-              });
-              result.push({
-                tenXe: d.tenXe,
-                first: firstIndex,
-                last: lastIndex,
-                tong: count,
-              });
-            });
-            setMixRowSXCT(result);
-            for (let i = 1; i <= getNumberDayOfMonth() + 1; i++) {
-              map(newData, (d) => {
-                d.boPhan = "Xưởng";
-                map(d.chiTiet, (dulieu) => {
-                  const key = dulieu.ngay;
-                  if (dulieu.soLuongSX == 0) {
-                    d[key] = "-";
-                  } else {
-                    d[key] = dulieu.soLuongSX;
-                  }
-                  if (dulieu[i] == undefined) {
-                    d[i] = "-";
-                  }
-                });
-              });
-            }
             setDataTDSXCT(reDataForTable(newData));
           }
         })
@@ -209,7 +173,7 @@ function Home({ permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `baocao/tien-do-gh-bo`,
+            `lkn_BaoCao/dashboard-tien-do-giao-hang`,
             "GET",
             null,
             "DETAIL",
@@ -221,23 +185,25 @@ function Home({ permission, history }) {
       })
         .then((res) => {
           if (res && res.data) {
-            // for (let i = 1; i <= getNumberDayOfMonth() + 1; i++) {
-            //   map(newData, (d) => {
-            //     d.dept = res.data.tenPhongBan;
-            //     map(d.chiTiet, (dulieu) => {
-            //       const key = dulieu.ngay;
-            //       if (dulieu.soLuong == 0) {
-            //         d[key] = "-";
-            //       } else {
-            //         d[key] = dulieu.soLuong;
-            //       }
-            //       if (dulieu[i] == undefined) {
-            //         d[i] = "-";
-            //       }
-            //     });
-            //   });
-            // }
-            // setDataTDGHB(reDataForTable(newData));
+            const newData = [];
+            res.data.forEach((x) => {
+              JSON.parse(x.sanPhams).forEach((sp) => {
+                const chiTiet = {};
+                chiTiet.dept = x.tenPhongBan;
+                chiTiet.tenSanPham = sp.tenSanPham;
+                chiTiet.luyKeSX = sp.luyKeThucHien;
+                chiTiet.diff = sp.chenhLech;
+                chiTiet.tongKH = sp.tongkeHoach;
+                chiTiet.luyKeKH = sp.luyKeKeHoach;
+                sp.chiTiets &&
+                  sp.chiTiets.forEach((ct) => {
+                    chiTiet[ct.ngay] = ct.soLuong;
+                  });
+                newData.push(chiTiet);
+              });
+            });
+            console.log(newData);
+            setDataTDGHB(reDataForTable(newData));
           }
         })
         .catch((error) => console.error(error));
@@ -433,14 +399,14 @@ function Home({ permission, history }) {
       dataIndex: "luyKeSX",
       key: "luyKeSX",
       align: "center",
-      width: 60,
+      width: 65,
     },
     {
       title: "Lũy kế kế hoạch",
       dataIndex: "luyKeKH",
       key: "luyKeKH",
       align: "center",
-      width: 60,
+      width: 65,
     },
     {
       title: "Kế hoạch của tháng",
@@ -448,23 +414,23 @@ function Home({ permission, history }) {
       key: "tongKH",
       align: "center",
 
-      width: 60,
+      width: 65,
     },
     {
       title: "Chênh lệch",
       dataIndex: "diff",
       align: "center",
       key: "diff",
-      width: 60,
+      width: 65,
     },
   ];
   let colTDXSCT = [
     {
       title: "Bộ phận",
-      dataIndex: "boPhan",
-      key: "boPhan",
+      dataIndex: "dept",
+      key: "dept",
       width: 60,
-      fixed: width > 770 ? "left" : "none",
+      fixed: width > 450 ? "left" : "none",
       align: "center",
       onCell: (_, index) => {
         if (index == 0) {
@@ -478,89 +444,37 @@ function Home({ permission, history }) {
       },
     },
     {
-      title: "Tên sản phẩm",
-      dataIndex: "tenXe",
-      fixed: width > 770 ? "left" : "none",
-
-      key: "tenXe",
-      width: 120,
-      align: "center",
-      render: (value, row, index) => {
-        const obj = {
-          children: value,
-          props: {},
-        };
-        mixRowSXCT.forEach((d, i) => {
-          if (index === d.first) {
-            obj.props.rowSpan = d.tong;
-          }
-          if (index > d.first && index <= d.last) {
-            obj.props.rowSpan = 0;
-          }
-        });
-        return obj;
-      },
-    },
-    {
-      title: "Mã chi tiết",
-      dataIndex: "maChiTiet",
-      key: "maChiTiet",
-      fixed: width > 770 ? "left" : "none",
-
+      title: "Sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       width: 150,
-      align: "center",
-    },
-    {
-      title: "Tên chi tiết",
-      dataIndex: "tenChiTiet",
-      key: "tenChiTiet",
-      fixed: width > 770 ? "left" : "none",
-
-      width: 150,
+      fixed: width > 450 ? "left" : "none",
       align: "center",
     },
     {
       align: "center",
-      title: `Kết quả sản xuất theo chi tiết tháng ${ngayThangNam.slice(-8)}`,
+      title: `Kết quả nhập kho theo sản phẩm tháng ${ngayThangNam.slice(-8)}`,
       children: new Array(getNumberDayOfMonth()).fill(null).map((_, i) => {
         const id = String(i + 1);
         return {
           title: id,
           align: "center",
-          width: 50,
+          width: 60,
           dataIndex: id,
           key: id,
+          render: (val) =>
+            // id > new Date().getDate() ?
+            render(val),
+          // : renderDisplayName(val),
         };
       }),
     },
     {
-      title: "Lũy kế sản xuất",
-      dataIndex: "luyKeSX",
-      key: "luyKeSX",
+      title: "Tổng",
+      dataIndex: "tongSoLuong",
+      key: "tongSoLuong",
       align: "center",
-      width: 50,
-    },
-    {
-      title: "Lũy kế kế hoạch",
-      dataIndex: "luyKeKH",
-      key: "luyKeKH",
-      align: "center",
-      width: 50,
-    },
-    {
-      title: "Kế hoạch của tháng",
-      dataIndex: "tongKH",
-      key: "tongKH",
-      align: "center",
-
-      width: 60,
-    },
-    {
-      title: "Chênh lệch",
-      dataIndex: "diff",
-      align: "center",
-      key: "diff",
-      width: 50,
+      width: 65,
     },
   ];
   let colTDGHB = [
@@ -584,10 +498,10 @@ function Home({ permission, history }) {
     },
     {
       title: "Sản phẩm",
-      dataIndex: "tenXe",
-      key: "tenXe",
-      fixed: width > 450 ? "left" : "none",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       width: 150,
+      fixed: width > 450 ? "left" : "none",
       align: "center",
     },
     {
@@ -599,28 +513,28 @@ function Home({ permission, history }) {
           title: id,
           align: "center",
           width: 60,
-          key: id,
           dataIndex: id,
+          key: id,
           render: (val) =>
             // id > new Date().getDate() ?
             render(val),
-          //  : renderDisplayName(val),
+          // : renderDisplayName(val),
         };
       }),
     },
     {
-      title: "Lũy kế giao hàng",
-      dataIndex: "luyKeGH",
-      key: "luyKeGH",
+      title: "Lũy kế sản xuất",
+      dataIndex: "luyKeSX",
+      key: "luyKeSX",
       align: "center",
-      width: 60,
+      width: 65,
     },
     {
       title: "Lũy kế kế hoạch",
       dataIndex: "luyKeKH",
       key: "luyKeKH",
       align: "center",
-      width: 60,
+      width: 65,
     },
     {
       title: "Kế hoạch của tháng",
@@ -628,117 +542,14 @@ function Home({ permission, history }) {
       key: "tongKH",
       align: "center",
 
-      width: 60,
+      width: 65,
     },
     {
       title: "Chênh lệch",
       dataIndex: "diff",
       align: "center",
       key: "diff",
-      width: 60,
-    },
-  ];
-
-  let colTDGHCT = [
-    {
-      title: "Bộ phận",
-      dataIndex: "boPhan",
-      key: "boPhan",
-      fixed: width > 770 ? "left" : "none",
-      width: 60,
-      align: "center",
-      onCell: (_, index) => {
-        if (index == 0) {
-          return {
-            rowSpan: dataTDGHCT.length,
-          };
-        }
-        return {
-          rowSpan: 0,
-        };
-      },
-    },
-    {
-      title: "Tên sản phẩm",
-      dataIndex: "tenXe",
-      key: "tenXe",
-      fixed: width > 770 ? "left" : "none",
-      width: 120,
-      align: "center",
-      render: (value, row, index) => {
-        const obj = {
-          children: value,
-          props: {},
-        };
-        mixRowGHCT.forEach((d, i) => {
-          if (index === d.first) {
-            obj.props.rowSpan = d.tong;
-          }
-          if (index > d.first && index <= d.last) {
-            obj.props.rowSpan = 0;
-          }
-        });
-        return obj;
-      },
-    },
-    {
-      title: "Mã chi tiết",
-      dataIndex: "maChiTiet",
-      key: "maChiTiet",
-      fixed: width > 770 ? "left" : "none",
-      width: 150,
-      align: "center",
-    },
-    {
-      title: "Tên chi tiết",
-      dataIndex: "tenChiTiet",
-      key: "tenChiTiet",
-      width: 150,
-      fixed: width > 770 ? "left" : "none",
-      align: "center",
-    },
-    {
-      align: "center",
-      title: `Kết quả sản xuất theo chi tiết tháng ${ngayThangNam.slice(-8)}`,
-      children: new Array(getNumberDayOfMonth()).fill(null).map((_, i) => {
-        const id = String(i + 1);
-        return {
-          title: id,
-          align: "center",
-          width: 50,
-          dataIndex: id,
-          key: id,
-        };
-      }),
-    },
-    {
-      title: "Lũy kế giao hàng ",
-      dataIndex: "luyKeGH",
-      key: "luyKeGH",
-      align: "center",
-      width: 50,
-    },
-    {
-      title: "Lũy kế kế hoạch",
-      dataIndex: "luyKeKH",
-      key: "luyKeKH",
-      align: "center",
-      width: 50,
-    },
-    {
-      title: "Kế hoạch của tháng",
-      dataIndex: "tongKH",
-      key: "tongKH",
-      align: "center",
-
-      width: 60,
-    },
-    {
-      title: "Chênh lệch",
-      dataIndex: "diff",
-      align: "center",
-      key: "diff",
-      width: 50,
+      width: 65,
     },
   ];
 
@@ -780,21 +591,6 @@ function Home({ permission, history }) {
     };
   });
   const columsTDHGB = map(colTDGHB, (col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-      }),
-    };
-  });
-  const columsTDHGCT = map(colTDGHCT, (col) => {
     if (!col.editable) {
       return col;
     }
