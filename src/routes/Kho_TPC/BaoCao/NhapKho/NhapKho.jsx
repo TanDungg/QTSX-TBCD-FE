@@ -332,7 +332,7 @@ function NhapKho({ permission, history, match }) {
       filterSearch: true,
     },
     {
-      title: "Kho",
+      title: "Kho nhập",
       dataIndex: "tenCauTrucKho",
       key: "tenCauTrucKho",
       align: "center",
@@ -370,7 +370,7 @@ function NhapKho({ permission, history, match }) {
       align: "center",
     },
     {
-      title: "Ngày nhập",
+      title: "Ngày nhập kho",
       dataIndex: "ngayNhap",
       key: "ngayNhap",
       align: "center",
