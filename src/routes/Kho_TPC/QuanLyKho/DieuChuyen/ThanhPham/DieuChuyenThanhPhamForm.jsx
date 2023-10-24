@@ -50,11 +50,9 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListKhoVatTuDi, setListKhoVatTuDi] = useState([]);
   const [ListKhoVatTuDen, setListKhoVatTuDen] = useState([]);
-
   const [KhoVatTu, setKhoVatTu] = useState(null);
   const [ListUser, setListUser] = useState([]);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(null);
-  const [SoLuongDieuChuyen, setSoLuongDieuChuyen] = useState([]);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [editingRecord, setEditingRecord] = useState(null);
@@ -158,8 +156,10 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setListKhoVatTuDi(res.data);
+          setListKhoVatTuDen(res.data);
         } else {
           setListKhoVatTuDi([]);
+          setListKhoVatTuDen([]);
         }
       })
       .catch((error) => console.error(error));
@@ -309,13 +309,6 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
               };
             });
           setListSanPham(newData);
-
-          const newSoLuong = {};
-          newData.forEach((data) => {
-            newSoLuong[data.lkn_ChiTietKhoVatTu_Id] =
-              data.soLuongDieuChuyen || 0;
-          });
-          setSoLuongDieuChuyen(newSoLuong);
         }
       })
       .catch((error) => console.error(error));
@@ -402,10 +395,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
             className={`input-item ${
               isEditing && hasError ? "input-error" : ""
             }`}
-            value={
-              SoLuongDieuChuyen &&
-              SoLuongDieuChuyen[record.lkn_ChiTietKhoVatTu_Id]
-            }
+            value={record.soLuongDieuChuyen}
             type="number"
             onChange={(val) => handleInputChange(val, record)}
           />
@@ -414,7 +404,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
           )}
         </div>
       ) : (
-        SoLuongDieuChuyen[record.lkn_ChiTietKhoVatTu_Id]
+        record.soLuongDieuChuyen
       );
     }
     return null;
@@ -430,22 +420,32 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
           : record.soLuong,
     };
     const sl = val.target.value;
-    if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
+
+    if (sl === null || sl === "") {
       setHasError(true);
-      setErrorMessage(
-        "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho"
-      );
-      setDisabledSave(true);
+      setErrorMessage("Vui lòng nhập số lượng");
+      setFieldTouch(false);
     } else {
-      setDisabledSave(false);
-      setHasError(false);
-      setErrorMessage(null);
+      if (sl <= 0) {
+        setHasError(true);
+        setErrorMessage("Số lượng không được nhỏ hơn 0");
+        setFieldTouch(false);
+      } else {
+        if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
+          setHasError(true);
+          setErrorMessage(
+            "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho"
+          );
+          setFieldTouch(false);
+        } else {
+          setFieldTouch(true);
+          setHasError(false);
+          setErrorMessage(null);
+        }
+      }
     }
     setEditingRecord(record);
-    setSoLuongDieuChuyen((prevSoLuongDieuChuyen) => ({
-      ...prevSoLuongDieuChuyen,
-      [record.lkn_ChiTietKhoVatTu_Id]: sl,
-    }));
+
     setListSanPham((prevListSanPham) => {
       return prevListSanPham.map((item) => {
         if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
@@ -580,6 +580,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
               resetFields();
               setFieldTouch(false);
               setListSanPham([]);
+              getData();
             }
           } else {
             setFieldTouch(false);
@@ -626,11 +627,6 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
 
   const handleThemVatTu = (data) => {
     const newListSanPham = [...ListSanPham, ...data];
-    const newSoLuong = {};
-    newListSanPham.forEach((dt) => {
-      newSoLuong[dt.lkn_ChiTietKhoVatTu_Id] = dt.soLuongDieuChuyen;
-    });
-    setSoLuongDieuChuyen(newSoLuong);
     setListSanPham(newListSanPham);
     if (type === "edit") {
       setFieldTouch(true);
@@ -639,15 +635,15 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
 
   const handleSelectKhoDi = (value) => {
     setKhoVatTu(value);
-  };
-  const handleSelectLoaiDieuChuyen = (value) => {
-    getListKhoDen(value === "true");
     setFieldsValue({
       phieudieuchuyen: {
         khoDen_Id: null,
       },
     });
+    const newData = ListKhoVatTuDi.filter((d) => d.id !== value);
+    setListKhoVatTuDen(newData);
   };
+
   const formTitle =
     type === "new" ? (
       "Tạo phiếu điều chuyển thành phẩm "

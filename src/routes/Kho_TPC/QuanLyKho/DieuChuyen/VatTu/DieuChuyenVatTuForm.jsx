@@ -53,7 +53,6 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
   const [KhoVatTuDi, setKhoVatTuDi] = useState(null);
   const [ListUser, setListUser] = useState([]);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(null);
-  const [SoLuongDieuChuyen, setSoLuongDieuChuyen] = useState([]);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [editingRecord, setEditingRecord] = useState(null);
@@ -129,7 +128,9 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setListKhoVatTuDi(res.data);
+          setListKhoVatTuDen(res.data);
         } else {
+          setListKhoVatTuDen([]);
           setListKhoVatTuDi([]);
         }
       })
@@ -257,13 +258,6 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
               };
             });
           setListVatTu(newData);
-
-          const newSoLuong = {};
-          newData.forEach((data) => {
-            newSoLuong[data.lkn_ChiTietKhoVatTu_Id] =
-              data.soLuongDieuChuyen || 0;
-          });
-          setSoLuongDieuChuyen(newSoLuong);
         }
       })
       .catch((error) => console.error(error));
@@ -350,10 +344,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
             className={`input-item ${
               isEditing && hasError ? "input-error" : ""
             }`}
-            value={
-              SoLuongDieuChuyen &&
-              SoLuongDieuChuyen[record.lkn_ChiTietKhoVatTu_Id]
-            }
+            value={record.soLuongDieuChuyen}
             type="number"
             onChange={(val) => handleInputChange(val, record)}
           />
@@ -362,7 +353,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
           )}
         </div>
       ) : (
-        SoLuongDieuChuyen[record.lkn_ChiTietKhoVatTu_Id]
+        record.soLuongDieuChuyen
       );
     }
     return null;
@@ -377,23 +368,33 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
           ? newData[0].soLuong + record.soLuong
           : record.soLuong,
     };
+
     const sl = val.target.value;
-    if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
+    if (sl === null || sl === "") {
       setHasError(true);
-      setErrorMessage(
-        "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho"
-      );
-      setDisabledSave(true);
+      setErrorMessage("Vui lòng nhập số lượng");
+      setFieldTouch(false);
     } else {
-      setDisabledSave(false);
-      setHasError(false);
-      setErrorMessage(null);
+      if (sl <= 0) {
+        setHasError(true);
+        setErrorMessage("Số lượng không được nhỏ hơn 0");
+        setFieldTouch(false);
+      } else {
+        if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
+          setHasError(true);
+          setErrorMessage(
+            "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho"
+          );
+          setFieldTouch(false);
+        } else {
+          setFieldTouch(true);
+          setHasError(false);
+          setErrorMessage(null);
+        }
+      }
     }
     setEditingRecord(record);
-    setSoLuongDieuChuyen((prevSoLuongDieuChuyen) => ({
-      ...prevSoLuongDieuChuyen,
-      [record.lkn_ChiTietKhoVatTu_Id]: sl,
-    }));
+
     setListVatTu((prevListVatTu) => {
       return prevListVatTu.map((item) => {
         if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
@@ -540,6 +541,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
               resetFields();
               setFieldTouch(false);
               setListVatTu([]);
+              getData();
             }
           } else {
             setFieldTouch(false);
@@ -590,7 +592,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
     newListVatTu.forEach((dt) => {
       newSoLuong[dt.lkn_ChiTietKhoVatTu_Id] = dt.soLuongDieuChuyen;
     });
-    setSoLuongDieuChuyen(newSoLuong);
+
     setListVatTu(newListVatTu);
     if (type === "edit") {
       setFieldTouch(true);
@@ -812,11 +814,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
             goBack={goBack}
             handleSave={onFinish}
             saveAndClose={saveAndClose}
-            disabled={
-              type === "new"
-                ? fieldTouch && ListVatTu.length !== 0
-                : fieldTouch || !DisabledSave
-            }
+            disabled={fieldTouch && ListVatTu.length !== 0}
           />
         ) : null}
       </Card>

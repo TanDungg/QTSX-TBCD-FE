@@ -767,7 +767,9 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
               resetFields();
               setFieldTouch(false);
               setListVatTu([]);
+              getUserKy(INFO);
               getUserLap(INFO, null, value);
+              getXuong();
               setFieldsValue(
                 value === 1
                   ? {

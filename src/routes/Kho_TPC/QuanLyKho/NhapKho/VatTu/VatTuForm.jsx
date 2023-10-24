@@ -137,8 +137,8 @@ const VatTuForm = ({ history, match, permission }) => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
-          getUserLap(INFO);
           setType("new");
+          getUserLap(INFO);
           getNhaCungCap();
           getUserKy(INFO);
           getKho();
@@ -488,6 +488,7 @@ const VatTuForm = ({ history, match, permission }) => {
       />
     );
   };
+
   let colValues = [
     {
       title: "STT",
@@ -627,6 +628,10 @@ const VatTuForm = ({ history, match, permission }) => {
             } else {
               resetFields();
               getUserLap(INFO);
+              getNhaCungCap();
+              getUserKy(INFO);
+              getKho();
+              getMaPhieu();
               setFieldsValue({
                 phieunhapkho: {
                   ngayNhan: moment(getDateNow(), "DD/MM/YYYY"),
