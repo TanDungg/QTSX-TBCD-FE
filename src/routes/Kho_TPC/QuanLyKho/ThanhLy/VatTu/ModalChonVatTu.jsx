@@ -56,6 +56,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
               vitri ? ` (${vitri})` : ""
             }`,
             soLuongThanhLy: data.soLuong,
+            lkn_ChiTietKhoBegin_Id: data.lkn_ChiTietKhoVatTu_Id,
           };
         });
 

@@ -5,8 +5,6 @@ import {
   EditOutlined,
   DeleteOutlined,
   ImportOutlined,
-  GatewayOutlined,
-  PlusCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
