@@ -48,6 +48,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [info, setInfo] = useState({});
   const [ListSanPham, setListSanPham] = useState([]);
+  const [ListKhoVatTu, setListKhoVatTu] = useState([]);
   const [ListKhoVatTuDi, setListKhoVatTuDi] = useState([]);
   const [ListKhoVatTuDen, setListKhoVatTuDen] = useState([]);
   const [KhoVatTu, setKhoVatTu] = useState(null);
@@ -111,34 +112,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     getListKhoDi();
     getListKhoDen();
   };
-  const getListSanPham = (cauTrucKho_Id) => {
-    const param = convertObjectToUrlParams({
-      cauTrucKho_Id,
-      page: -1,
-      donVi_Id: INFO.donVi_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_ViTriLuuKho/list-vi-tri-luu-kho-thanh-pham?${param}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListSanPham(res.data);
-        } else {
-          setListSanPham([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
+
   const getListKhoDi = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -156,14 +130,13 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setListKhoVatTuDi(res.data);
-          setListKhoVatTuDen(res.data);
         } else {
           setListKhoVatTuDi([]);
-          setListKhoVatTuDen([]);
         }
       })
       .catch((error) => console.error(error));
   };
+
   const getListKhoDen = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -180,13 +153,16 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
+          setListKhoVatTu(res.data);
           setListKhoVatTuDen(res.data);
         } else {
+          setListKhoVatTu([]);
           setListKhoVatTuDen([]);
         }
       })
       .catch((error) => console.error(error));
   };
+
   const getUserLap = (info, nguoiLap_Id) => {
     const params = convertObjectToUrlParams({
       id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
@@ -640,7 +616,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
         khoDen_Id: null,
       },
     });
-    const newData = ListKhoVatTuDi.filter((d) => d.id !== value);
+    const newData = ListKhoVatTu.filter((d) => d.id !== value);
     setListKhoVatTuDen(newData);
   };
 

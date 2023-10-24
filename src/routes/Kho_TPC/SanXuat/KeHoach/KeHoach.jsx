@@ -18,6 +18,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 import EditKeHoach from "./EditKeHoach";
 import { convertObjectToUrlParams } from "src/util/Common";
 import moment from "moment";
+import LoaiKeHoach from "../../DanhMuc/LoaiKeHoach/LoaiKeHoach";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 

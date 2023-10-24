@@ -8,8 +8,8 @@ const BCXuatKho = asyncComponent(() => import("./XuatKho/XuatKho"));
 const BCDieuChuyen = asyncComponent(() => import("./DieuChuyen/DieuChuyen"));
 const BCThanhLy = asyncComponent(() => import("./ThanhLy/ThanhLy"));
 const BCTonKho = asyncComponent(() => import("./TonKho/TonKho"));
-const BCTienDoSanXuat = asyncComponent(() =>
-  import("./TienDoSanXuat/TienDoSanXuat")
+const BCTienDoSanXuatGiaoHang = asyncComponent(() =>
+  import("./TienDoSanXuatGiaoHang/TienDoSanXuatGiaoHang")
 );
 const BCGiaoHangTheoKeHoach = asyncComponent(() =>
   import("./GiaoHangTheoKeHoach/GiaoHangTheoKeHoach")
@@ -48,9 +48,9 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(BCTonKho, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/tien-do-san-xuat`}
+        path={`${match.url}/tien-do-san-xuat-giao-hang`}
         exact
-        component={Auth(BCTienDoSanXuat, menus, pathname, permission)}
+        component={Auth(BCTienDoSanXuatGiaoHang, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/giao-hang-theo-ke-hoach`}

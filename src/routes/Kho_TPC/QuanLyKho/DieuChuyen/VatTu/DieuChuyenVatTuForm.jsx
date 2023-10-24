@@ -56,7 +56,6 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [editingRecord, setEditingRecord] = useState(null);
-  const [DisabledSave, setDisabledSave] = useState(true);
   const [ListViTriKho, setListViTriKho] = useState([]);
 
   useEffect(() => {
@@ -575,7 +574,6 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
           } else {
             getInfo(id);
             setFieldTouch(false);
-            setDisabledSave(true);
           }
         })
         .catch((error) => console.error(error));

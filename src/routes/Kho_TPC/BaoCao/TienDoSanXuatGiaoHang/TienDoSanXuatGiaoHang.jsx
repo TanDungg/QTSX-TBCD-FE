@@ -28,40 +28,44 @@ import moment from "moment";
 const { RangePicker } = DatePicker;
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function TonKho({ permission, history, match }) {
+function TienDoSanXuatGiaoHang({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
   const [DataXuat, setDataXuat] = useState([]);
-  const [Loai, setLoai] = useState("sanpham");
-  const [Thang, setThang] = useState(getThangNow());
-  const [Nam, setNam] = useState(getNamNow());
+  const [ListLoaiKeHoach, setListLoaiKeHoach] = useState([]);
+  const [LoaiKeHoach, setLoaiKeHoach] = useState(null);
+  const [TenKeHoach, setTenKeHoach] = useState(null);
+  const [ListXuong, setListXuong] = useState([]);
+  const [Xuong, setXuong] = useState(null);
   const [keyword, setKeyword] = useState(null);
   const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(keyword, Thang, Nam, page, Loai === "sanpham" ? true : false);
+      getLoaiKeHoach();
+      getXuong();
+      getListData(LoaiKeHoach, Xuong, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  console.log(LoaiKeHoach);
 
-  const getListData = (KeyWord, Thang, Nam, page, IsThanhPham) => {
+  const getListData = (LoaiKeHoach_Id, phongBan_Id, keyword, page) => {
     let param = convertObjectToUrlParams({
-      KeyWord,
-      Thang,
-      Nam,
+      LoaiKeHoach_Id,
+      phongBan_Id,
+      keyword,
       page,
-      IsThanhPham,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_BaoCao/get-bao-cao-ton-kho?${param}`,
+          `lkn_BaoCao/bao-cao-tien-do-sx-gh?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -78,16 +82,15 @@ function TonKho({ permission, history, match }) {
       })
       .catch((error) => console.error(error));
     let params = convertObjectToUrlParams({
-      KeyWord,
-      Thang,
-      Nam,
+      LoaiKeHoach_Id,
+      phongBan_Id,
+      keyword,
       page: -1,
-      IsThanhPham,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_BaoCao/get-bao-cao-ton-kho?${params}`,
+          `lkn_BaoCao/bao-cao-tien-do-sx-gh?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -105,33 +108,77 @@ function TonKho({ permission, history, match }) {
       .catch((error) => console.error(error));
   };
 
+  const getLoaiKeHoach = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_LoaiKeHoach?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiKeHoach(res.data);
+          setLoaiKeHoach(res.data[0].id);
+        } else {
+          setListLoaiKeHoach([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getXuong = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const xuong = [];
+          res.data.forEach((x) => {
+            if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+              xuong.push(x);
+            }
+          });
+          setListXuong(xuong);
+          setXuong(xuong[0].id);
+        } else {
+          setListXuong([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const onChangeKeyword = (val) => {
     setPage(1);
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(
-        val.target.value,
-        Thang,
-        Nam,
-        1,
-        Loai === "sanpham" ? true : false
-      );
+      getListData(LoaiKeHoach, Xuong, val.target.value, page);
     }
   };
 
   const onSearchKeyword = () => {
-    getListData(keyword, Thang, Nam, 1, Loai === "sanpham" ? true : false);
+    getListData(LoaiKeHoach, Xuong, keyword, page);
   };
 
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(
-      keyword,
-      Thang,
-      Nam,
-      pagination,
-      Loai === "sanpham" ? true : false
-    );
+    getListData(LoaiKeHoach, Xuong, keyword, pagination);
   };
 
   function removeDuplicates(arr) {
@@ -162,7 +209,7 @@ function TonKho({ permission, history, match }) {
       align: "center",
     },
     {
-      title: Loai === "sanpham" ? "Mã sản phẩm" : "Mã vật tư",
+      title: "Mã vật tư",
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
@@ -179,7 +226,7 @@ function TonKho({ permission, history, match }) {
       filterSearch: true,
     },
     {
-      title: Loai === "sanpham" ? "Tên sản phẩm" : "Tên vật tư",
+      title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
       align: "center",
@@ -265,30 +312,31 @@ function TonKho({ permission, history, match }) {
   });
 
   const XuatExcel = () => {
-    const newData = {
-      isThanhPham: Loai === "sanpham" ? true : false,
-      thang: Thang,
-      nam: Nam,
-      ctPhieuTonKho: DataXuat,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_BaoCao/export-file-excel-ton-kho`,
-          "POST",
-          newData,
-          "",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      exportExcel(
-        `BaoCaoTonKho${Loai === "sanpham" ? "SanPham" : "VatTu"}`,
-        res.data.dataexcel
-      );
-    });
+    // const newData = {
+    //   ctPhieuTonKho: DataXuat,
+    // };
+    // new Promise((resolve, reject) => {
+    //   dispatch(
+    //     fetchStart(
+    //       `lkn_BaoCao/export-file-excel-ton-kho`,
+    //       "POST",
+    //       newData,
+    //       "",
+    //       "",
+    //       resolve,
+    //       reject
+    //     )
+    //   );
+    // }).then((res) => {
+    //   exportExcel(
+    //     `BaoCao${
+    //       TenKeHoach === "Kế hoạch sản xuất"
+    //         ? "KeHoachSanXuat"
+    //         : "KeHoachGiaoHang"
+    //     }`,
+    //     res.data.dataexcel
+    //   );
+    // });
   };
 
   const addButtonRender = () => {
@@ -307,26 +355,71 @@ function TonKho({ permission, history, match }) {
     );
   };
 
-  const handleOnSelectLoai = (value) => {
-    setLoai(value);
-    getListData(keyword, Thang, Nam, 1, value === "sanpham" ? true : false);
+  const handleOnSelectLoaiKeHoach = (value) => {
+    setLoaiKeHoach(value);
+    const newData = ListLoaiKeHoach.filter((data) => data.id === value);
+    setTenKeHoach(newData[0].tenLoaiKeHoach);
+    getListData(value, Xuong, keyword, page);
   };
 
-  const handleChangeThang = (month) => {
-    setThang(month.format("MM"));
-    setNam(month.format("yyyy"));
-    getListData(keyword, month.format("MM"), month.format("yyyy"), page);
+  const handleOnSelectXuong = (value) => {
+    setXuong(value);
+    getListData(LoaiKeHoach, value, keyword, page);
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Báo cáo tồn kho"}
-        description="Báo cáo tồn kho"
+        title={"Báo cáo tiến độ sản xuất - giao hàng"}
+        description="Báo cáo tiến độ sản xuất - giao hàng"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ marginBottom: 10 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Loại kế hoạch:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListLoaiKeHoach ? ListLoaiKeHoach : []}
+              placeholder="Chọn loại kế hoạch"
+              optionsvalue={["id", "tenLoaiKeHoach"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+              onSelect={handleOnSelectLoaiKeHoach}
+              value={LoaiKeHoach}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Xưởng:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListXuong ? ListXuong : []}
+              placeholder="Chọn xưởng"
+              optionsvalue={["id", "tenPhongBan"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+              onSelect={handleOnSelectXuong}
+              value={Xuong}
+            />
+          </Col>
           <Col
             xxl={6}
             xl={8}
@@ -348,55 +441,6 @@ function TonKho({ permission, history, match }) {
                 allowClear: true,
                 placeholder: "Tìm kiếm",
               }}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Sản phẩm/Vật tư:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={[
-                {
-                  key: "sanpham",
-                  value: "Sản phẩm",
-                },
-                {
-                  key: "vattu",
-                  value: "Vật tư",
-                },
-              ]}
-              placeholder="Chọn kho"
-              optionsvalue={["key", "value"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleOnSelectLoai}
-              value={Loai}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Tháng:</h5>
-            <DatePicker
-              picker="month"
-              format={"MM - YYYY"}
-              onChange={(month) => handleChangeThang(month)}
-              defaultValue={moment(Thang, "MM - YYYY")}
-              allowClear={false}
             />
           </Col>
         </Row>
@@ -423,4 +467,4 @@ function TonKho({ permission, history, match }) {
   );
 }
 
-export default TonKho;
+export default TienDoSanXuatGiaoHang;
