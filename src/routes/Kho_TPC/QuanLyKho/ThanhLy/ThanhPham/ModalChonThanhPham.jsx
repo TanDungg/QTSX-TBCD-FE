@@ -1,117 +1,12 @@
-import { Modal as AntModal, Card, Input, Button, Row, Col, Form } from "antd";
-import React, { useEffect, useState, useRef, useContext } from "react";
+import { Modal as AntModal, Card, Input, Button, Row, Col } from "antd";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import { ModalDeleteConfirm, Select, Table } from "src/components/Common";
-import { map } from "lodash";
+import Helpers from "src/helpers";
 import { DeleteOutlined } from "@ant-design/icons";
 
-const EditableContext = React.createContext(null);
-function createValidator(maxValue) {
-  return (_, value) => {
-    if (value && Number(value) > maxValue) {
-      return Promise.reject(new Error(`Số phải nhỏ hơn ${maxValue}!`));
-    }
-    return Promise.resolve();
-  };
-}
-const EditableRow = ({ index, ...props }) => {
-  const [form] = Form.useForm();
-  return (
-    <Form form={form} component={false}>
-      <EditableContext.Provider value={form}>
-        <tr {...props} />
-      </EditableContext.Provider>
-    </Form>
-  );
-};
-const EditableCell = ({
-  title,
-  editable,
-  children,
-  dataIndex,
-  record,
-  handleSave,
-  ...restProps
-}) => {
-  const [editing, setEditing] = useState(false);
-  const inputRef = useRef(null);
-  const form = useContext(EditableContext);
-  useEffect(() => {
-    if (editing) {
-      inputRef.current.focus();
-    }
-  }, [editing]);
-  const toggleEdit = () => {
-    setEditing(!editing);
-    form.setFieldsValue({
-      [dataIndex]: record[dataIndex],
-    });
-  };
-  const save = async () => {
-    try {
-      const values = await form.validateFields();
-      toggleEdit();
-      handleSave({
-        ...record,
-        ...values,
-      });
-    } catch (errInfo) {
-      console.log("Save failed:", errInfo);
-    }
-  };
-  let childNode = children;
-  if (editable) {
-    childNode = editing ? (
-      <Form.Item
-        style={{
-          margin: 0,
-        }}
-        name={dataIndex}
-        rules={
-          title === "SL thanh lý"
-            ? [
-                {
-                  required: true,
-                },
-                {
-                  pattern: /^[1-9]\d*$/,
-                  message: "SL thanh lý không hợp lệ!",
-                },
-                {
-                  validator: createValidator(record.soLuong),
-                },
-              ]
-            : null
-        }
-      >
-        <Input
-          type={title === "SL thanh lý" && "number"}
-          style={{
-            margin: 0,
-            width: "100%",
-            textAlign: "center",
-          }}
-          ref={inputRef}
-          onPressEnter={save}
-          onBlur={save}
-        />
-      </Form.Item>
-    ) : (
-      <div
-        className="editable-cell-value-wrap"
-        style={{
-          paddingRight: 24,
-        }}
-        onClick={toggleEdit}
-      >
-        {children}
-      </div>
-    );
-  }
-  return <td {...restProps}>{childNode}</td>;
-};
 function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
@@ -187,6 +82,54 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     });
   };
 
+  const renderSoLuongThanhLy = () => {
+    return (
+      <div>
+        <Input
+          min={0}
+          style={{
+            textAlign: "center",
+            width: "100%",
+            borderColor: hasError ? "red" : "",
+          }}
+          className={`input-item ${hasError ? "input-error" : ""}`}
+          value={SoLuongThanhLy && SoLuongThanhLy[VatTu[0].chiTietKho_Id]}
+          type="number"
+          onChange={(val) => handleInputChange(val)}
+        />
+      </div>
+    );
+  };
+
+  const handleInputChange = (val) => {
+    const sl = val.target.value;
+    if (sl > VatTu[0].soLuong) {
+      setHasError(true);
+      Helpers.alertError(
+        "Số lượng thanh lý phải nhỏ hơn hoặc bằng số lượng trong kho"
+      );
+      setDisabledSave(true);
+    } else {
+      setDisabledSave(false);
+      setHasError(false);
+    }
+    setSoLuongThanhLy((prevSoLuongThanhLy) => ({
+      ...prevSoLuongThanhLy,
+      [VatTu[0].chiTietKho_Id]: sl,
+    }));
+    setVatTu((prevVatTu) => {
+      return prevVatTu.map((item) => {
+        if (VatTu[0].chiTietKho_Id === item.chiTietKho_Id) {
+          return {
+            ...item,
+            soLuongThanhLy: sl ? parseFloat(sl) : 0,
+          };
+        }
+        return item;
+      });
+    });
+  };
+
   let colVatTu = [
     {
       title: "Mã sản phẩm",
@@ -216,8 +159,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       title: "SL thanh lý",
       key: "soLuongThanhLy",
       align: "center",
-      dataIndex: "soLuongThanhLy",
-      editable: true,
+      render: (record) => renderSoLuongThanhLy(record),
     },
     {
       title: "Đơn vị tính",
@@ -226,40 +168,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       align: "center",
     },
   ];
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
-  const handleSave = (row) => {
-    const newData = [...VatTu];
-    const index = newData.findIndex(
-      (item) => row.chiTietKho_Id === item.chiTietKho_Id
-    );
-    const item = newData[index];
-    newData.splice(index, 1, {
-      ...item,
-      ...row,
-    });
-    setVatTu(newData);
-  };
-  const columns = map(colVatTu, (col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-        handleSave: handleSave,
-      }),
-    };
-  });
+
   const actionContent = (item) => {
     const deleteVal = { onClick: () => deleteItemFunc(item) };
     return (
@@ -365,7 +274,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   return (
     <AntModal
-      title={`Chọn vật tư thanh lý`}
+      title={`Chọn sản phẩm thanh lý`}
       open={openModal}
       width={width > 1000 ? `80%` : "100%"}
       closable={true}
@@ -396,13 +305,13 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
                 alignItems: "center",
               }}
             >
-              <span style={{ width: "100px", fontWeight: "bold" }}>
-                Chọn vật tư:
+              <span style={{ width: "150px", fontWeight: "bold" }}>
+                Chọn sản phẩm:
               </span>
               <Select
                 className="heading-select slt-search th-select-heading"
                 data={ListViTriKho ? ListViTriKho : []}
-                placeholder="Chọn vật tư thanh lý"
+                placeholder="Chọn sản phẩm thanh lý"
                 optionsvalue={["chiTietKho_Id", "vatTu"]}
                 style={{ width: "calc(100% - 100px)" }}
                 optionFilterProp={"name"}
@@ -413,12 +322,11 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             </Col>
             <Table
               bordered
-              columns={columns}
+              columns={colVatTu}
               scroll={{ x: 850, y: 60 }}
               className="gx-table-responsive"
               dataSource={VatTu}
               size="small"
-              components={components}
               pagination={false}
             />
             <Col span={24} align="right" style={{ marginTop: 10 }}>
@@ -427,7 +335,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
                 onClick={HandleThemVatTu}
                 disabled={DisabledSave}
               >
-                Thêm vật tư
+                Thêm sản phẩm
               </Button>
             </Col>
           </Row>

@@ -84,6 +84,9 @@ const EditableCell = ({
                   pattern: /^\d+$/,
                   message: "Số lượng không hợp lệ!",
                 },
+                {
+                  required: true,
+                },
               ]
             : null
         }
@@ -183,6 +186,9 @@ const EditableCellChilder = ({
                 },
                 {
                   validator: createValidator(record.soLuongNhap),
+                },
+                {
+                  required: true,
                 },
               ]
             : null

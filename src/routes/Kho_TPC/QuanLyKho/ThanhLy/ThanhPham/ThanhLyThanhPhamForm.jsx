@@ -708,7 +708,7 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Ngày yêu cầu"
+                label="Ngày tạo phiếu"
                 name={["phieuthanhly", "ngayYeuCau"]}
                 rules={[
                   {
@@ -719,7 +719,7 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
                 <DatePicker
                   format={"DD/MM/YYYY"}
                   allowClear={false}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={true}
                 />
               </FormItem>
             </Col>
