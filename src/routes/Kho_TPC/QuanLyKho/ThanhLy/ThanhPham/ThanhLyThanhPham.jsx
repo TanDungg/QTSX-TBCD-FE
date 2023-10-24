@@ -67,7 +67,14 @@ function ThanhLyThanhPham({ match, history, permission }) {
       keyword,
       page,
     });
-    dispatch(fetchStart(`lkn_PhieuThanhLyVatTu?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(
+        `lkn_PhieuThanhLyVatTu/get-thanh-ly-thanh-pham?${param}`,
+        "GET",
+        null,
+        "LIST"
+      )
+    );
   };
 
   const getKho = () => {
