@@ -33,12 +33,12 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
-import ModalChonVatTu from "./ModalChonVatTu";
+import ModalChonThanhPham from "./ModalChonThanhPham";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 
-const ThanhLyForm = ({ history, match, permission }) => {
+const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [form] = Form.useForm();
@@ -115,7 +115,7 @@ const ThanhLyForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&isThanhPham=false`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -412,33 +412,21 @@ const ThanhLyForm = ({ history, match, permission }) => {
       width: 50,
     },
     {
-      title: "Mã vật tư",
+      title: "Mã sản phẩm",
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
     },
     {
-      title: "Tên vật tư",
+      title: "Tên sản phẩm",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
       align: "center",
     },
     {
-      title: "Tên kệ",
+      title: "Kệ",
       dataIndex: "tenKe",
       key: "tenKe",
-      align: "center",
-    },
-    {
-      title: "Tên tầng",
-      dataIndex: "tenTang",
-      key: "tenTang",
-      align: "center",
-    },
-    {
-      title: "Tên ngăn",
-      dataIndex: "tenNgan",
-      key: "tenNgan",
       align: "center",
     },
     {
@@ -518,7 +506,7 @@ const ThanhLyForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuThanhLyVatTu`,
+            `lkn_PhieuThanhLyVatTu/post-thanh-ly-thanh-pham`,
             "POST",
             newData,
             "ADD",
@@ -604,12 +592,12 @@ const ThanhLyForm = ({ history, match, permission }) => {
 
   const formTitle =
     type === "new" ? (
-      "Tạo phiếu thanh lý vật tư "
+      "Tạo phiếu thanh lý thành phẩm "
     ) : type === "edit" ? (
-      "Chỉnh sửa phiếu thanh lý vật tư"
+      "Chỉnh sửa phiếu thanh lý thành phẩm"
     ) : (
       <span>
-        Chi tiết phiếu thanh lý vật tư -{" "}
+        Chi tiết phiếu thanh lý thành phẩm -{" "}
         <Tag color={"blue"} style={{ fontSize: "14px" }}>
           {info.maPhieuThanhLy}
         </Tag>
@@ -740,7 +728,7 @@ const ThanhLyForm = ({ history, match, permission }) => {
         <Divider style={{ marginBottom: 15 }} />
         <Row justify={"center"}>
           <h2 style={{ color: "#0469B9" }}>
-            <strong>DANH SÁCH VẬT TƯ</strong>
+            <strong>DANH SÁCH SẢN PHẨM</strong>
           </h2>
         </Row>
         {type !== "detail" ? (
@@ -752,7 +740,7 @@ const ThanhLyForm = ({ history, match, permission }) => {
               onClick={handleChonVatTu}
               disabled={KhoVatTu === null ? true : false}
             >
-              Chọn vật tư
+              Chọn sản phẩm
             </Button>
           </Row>
         ) : null}
@@ -781,7 +769,7 @@ const ThanhLyForm = ({ history, match, permission }) => {
           />
         ) : null}
       </Card>
-      <ModalChonVatTu
+      <ModalChonThanhPham
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
         itemData={{ kho_Id: KhoVatTu, listVatTu: ListVatTu && ListVatTu }}
@@ -791,4 +779,4 @@ const ThanhLyForm = ({ history, match, permission }) => {
   );
 };
 
-export default ThanhLyForm;
+export default ThanhLyThanhPhamForm;

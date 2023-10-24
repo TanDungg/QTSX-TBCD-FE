@@ -482,6 +482,7 @@ function ImportKeHoach({ match, permission, history }) {
                 setDataView(NewData);
                 setFileName(file.name);
                 setDataLoi();
+                setCheckDanger(false);
                 // if (indices.length > 0) {
                 //   setMessageError(
                 //     `Hàng ${row.join(", ")} có mã sản phẩm trùng nhau`
@@ -542,8 +543,8 @@ function ImportKeHoach({ match, permission, history }) {
             { length: getNumberDayOfMonth(Thang, Nam) },
             (_, i) => {
               return {
-                ngay: i,
-                soLuong: dt[i],
+                ngay: i + 1,
+                soLuong: dt[i + 1] ? dt[i + 1] : 0,
               };
             }
           ),

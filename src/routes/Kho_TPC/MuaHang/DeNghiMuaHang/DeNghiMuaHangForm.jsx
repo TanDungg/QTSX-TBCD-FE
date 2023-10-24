@@ -899,7 +899,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
-          disabled={permission && !permission.print}
+          disabled={(permission && !permission.print) || type === "new"}
         >
           In phiếu
         </Button>

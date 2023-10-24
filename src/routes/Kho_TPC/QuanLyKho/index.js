@@ -59,9 +59,18 @@ const DieuChuyenThanhPham = asyncComponent(() =>
 const DieuChuyenThanhPhamForm = asyncComponent(() =>
   import("./DieuChuyen/ThanhPham/DieuChuyenThanhPhamForm")
 );
-const ThanhLy = asyncComponent(() => import("./ThanhLy/ThanhLy"));
-const ThanhLyForm = asyncComponent(() => import("./ThanhLy/ThanhLyForm"));
-
+const ThanhLyVatTu = asyncComponent(() =>
+  import("./ThanhLy/VatTu/ThanhLyVatTu")
+);
+const ThanhLyVatTuForm = asyncComponent(() =>
+  import("./ThanhLy/VatTu/ThanhLyVatTuForm")
+);
+const ThanhLyThanhPham = asyncComponent(() =>
+  import("./ThanhLy/ThanhPham/ThanhLyThanhPham")
+);
+const ThanhLyThanhPhamForm = asyncComponent(() =>
+  import("./ThanhLy/ThanhPham/ThanhLyThanhPhamForm")
+);
 const KiemKe = asyncComponent(() => import("./KiemKe/KiemKe"));
 const KiemKeForm = asyncComponent(() => import("./KiemKe/KiemKeForm"));
 
@@ -267,24 +276,44 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(DieuChuyenThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/thanh-ly`}
+        path={`${match.url}/thanh-ly/vat-tu`}
         exact
-        component={Auth(ThanhLy, menus, pathname, permission)}
+        component={Auth(ThanhLyVatTu, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/thanh-ly/them-moi`}
+        path={`${match.url}/thanh-ly/vat-tu/them-moi`}
         exact
-        component={Auth(ThanhLyForm, menus, pathname, permission)}
+        component={Auth(ThanhLyVatTuForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/thanh-ly/:id/chinh-sua`}
+        path={`${match.url}/thanh-ly/vat-tu/:id/chinh-sua`}
         exact
-        component={Auth(ThanhLyForm, menus, pathname, permission)}
+        component={Auth(ThanhLyVatTuForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/thanh-ly/:id/chi-tiet`}
+        path={`${match.url}/thanh-ly/vat-tu/:id/chi-tiet`}
         exact
-        component={Auth(ThanhLyForm, menus, pathname, permission)}
+        component={Auth(ThanhLyVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/thanh-ly/thanh-pham`}
+        exact
+        component={Auth(ThanhLyThanhPham, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/thanh-ly/thanh-pham/them-moi`}
+        exact
+        component={Auth(ThanhLyThanhPhamForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/thanh-ly/thanh-pham/:id/chinh-sua`}
+        exact
+        component={Auth(ThanhLyThanhPhamForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/thanh-ly/thanh-pham/:id/chi-tiet`}
+        exact
+        component={Auth(ThanhLyThanhPhamForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/kiem-ke`}
