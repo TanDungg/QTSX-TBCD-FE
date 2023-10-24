@@ -33,12 +33,12 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
-import ModalChonVatTu from "./ModalChonVatTu";
+import ModalChonThanhPham from "./ModalChonThanhPham";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 
-const ThanhLyForm = ({ history, match, permission }) => {
+const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [form] = Form.useForm();
@@ -781,7 +781,7 @@ const ThanhLyForm = ({ history, match, permission }) => {
           />
         ) : null}
       </Card>
-      <ModalChonVatTu
+      <ModalChonThanhPham
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
         itemData={{ kho_Id: KhoVatTu, listVatTu: ListVatTu && ListVatTu }}
@@ -791,4 +791,4 @@ const ThanhLyForm = ({ history, match, permission }) => {
   );
 };
 
-export default ThanhLyForm;
+export default ThanhLyThanhPhamForm;

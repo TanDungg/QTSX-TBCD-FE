@@ -543,7 +543,7 @@ function ImportKeHoach({ match, permission, history }) {
             (_, i) => {
               return {
                 ngay: i,
-                soLuong: dt[i],
+                soLuong: dt[i] ? dt[i] : 0,
               };
             }
           ),

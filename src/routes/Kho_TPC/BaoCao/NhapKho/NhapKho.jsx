@@ -245,51 +245,51 @@ function NhapKho({ permission, history, match }) {
     },
     {
       title: "Loại sản phẩm",
-      key: "maDinhMucVatTu",
+      key: "tenLoaiSanPham",
+      dataIndex: "tenLoaiSanPham",
       align: "center",
-      render: (val) => renderDetail(val),
 
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maDinhMucVatTu,
-            value: d.maDinhMucVatTu,
+            text: d.tenLoaiSanPham,
+            value: d.tenLoaiSanPham,
           };
         })
       ),
-      onFilter: (value, record) => record.maDinhMucVatTu.includes(value),
+      onFilter: (value, record) => record.tenLoaiSanPham.includes(value),
       filterSearch: true,
     },
     {
       title: "Mã sản phẩm",
-      dataIndex: "ngayYeuCau",
-      key: "ngayYeuCau",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayYeuCau,
-            value: d.ngayYeuCau,
+            text: d.maSanPham,
+            value: d.maSanPham,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayYeuCau.includes(value),
+      onFilter: (value, record) => record.maSanPham.includes(value),
       filterSearch: true,
     },
     {
       title: "Tên sản phẩm",
-      dataIndex: "tennguoiLap",
-      key: "tennguoiLap",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tennguoiLap,
-            value: d.tennguoiLap,
+            text: d.tenSanPham,
+            value: d.tenSanPham,
           };
         })
       ),
-      onFilter: (value, record) => record.tennguoiLap.includes(value),
+      onFilter: (value, record) => record.tenSanPham.includes(value),
       filterSearch: true,
     },
     {
@@ -310,8 +310,14 @@ function NhapKho({ permission, history, match }) {
     },
     {
       title: "Số lượng",
-      dataIndex: "xacNhanDinhMuc",
-      key: "xacNhanDinhMuc",
+      dataIndex: "soLuong",
+      key: "soLuong",
+      align: "center",
+    },
+    {
+      title: "Ngày nhập kho",
+      dataIndex: "ngayNhap",
+      key: "ngayNhap",
       align: "center",
     },
   ];

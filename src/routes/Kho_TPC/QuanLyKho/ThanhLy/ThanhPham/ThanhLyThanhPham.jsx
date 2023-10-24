@@ -31,12 +31,12 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function PhieuThanhLy({ match, history, permission }) {
+function ThanhLyThanhPham({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [ListBanPhong, setListBanPhong] = useState([]);
-  const [BanPhong, setBanPhong] = useState(null);
+  const [ListKho, setListKho] = useState([]);
+  const [Kho, setKho] = useState(null);
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
@@ -44,8 +44,8 @@ function PhieuThanhLy({ match, history, permission }) {
 
   useEffect(() => {
     if (permission && permission.view) {
-      getBanPhong();
-      getListData(keyword, BanPhong, FromDate, ToDate, page);
+      getKho();
+      getListData(keyword, Kho, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -58,9 +58,9 @@ function PhieuThanhLy({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const getListData = (keyword, cauTrucKho_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
+      cauTrucKho_Id,
       donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
@@ -70,11 +70,11 @@ function PhieuThanhLy({ match, history, permission }) {
     dispatch(fetchStart(`lkn_PhieuThanhLyVatTu?${param}`, "GET", null, "LIST"));
   };
 
-  const getBanPhong = () => {
+  const getKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -86,9 +86,9 @@ function PhieuThanhLy({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListBanPhong(res.data);
+          setListKho(res.data);
         } else {
-          setListBanPhong([]);
+          setListKho([]);
         }
       })
       .catch((error) => console.error(error));
@@ -98,7 +98,7 @@ function PhieuThanhLy({ match, history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    getListData(keyword, BanPhong, FromDate, ToDate, page);
+    getListData(keyword, Kho, FromDate, ToDate, page);
   };
 
   /**
@@ -109,7 +109,7 @@ function PhieuThanhLy({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, BanPhong, FromDate, ToDate, page);
+      getListData(val.target.value, Kho, FromDate, ToDate, page);
     }
   };
   /**
@@ -178,7 +178,7 @@ function PhieuThanhLy({ match, history, permission }) {
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(keyword, BanPhong, FromDate, ToDate, page);
+          getListData(keyword, Kho, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -192,7 +192,7 @@ function PhieuThanhLy({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(keyword, BanPhong, FromDate, ToDate, pagination);
+    getListData(keyword, Kho, FromDate, ToDate, pagination);
   };
 
   /**
@@ -306,14 +306,14 @@ function PhieuThanhLy({ match, history, permission }) {
     };
   });
 
-  const handleOnSelectBanPhong = (val) => {
-    setBanPhong(val);
+  const handleOnSelectKho = (val) => {
+    setKho(val);
     setPage(1);
     getListData(keyword, val, FromDate, ToDate, 1);
   };
 
-  const handleClearBanPhong = (val) => {
-    setBanPhong("");
+  const handleClearKho = (val) => {
+    setKho("");
     setPage(1);
     getListData(keyword, "", FromDate, ToDate, 1);
   };
@@ -322,14 +322,14 @@ function PhieuThanhLy({ match, history, permission }) {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    getListData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    getListData(keyword, Kho, dateString[0], dateString[1], 1);
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Thanh lý vật tư"
-        description="Thanh lý vật tư"
+        title="Thanh lý thành phẩm"
+        description="Thanh lý thành phẩm"
         buttons={addButtonRender()}
       />
 
@@ -347,17 +347,17 @@ function PhieuThanhLy({ match, history, permission }) {
             <h5>Kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListBanPhong ? ListBanPhong : []}
-              placeholder="Chọn Ban/Phòng"
-              optionsvalue={["id", "tenPhongBan"]}
+              data={ListKho ? ListKho : []}
+              placeholder="Chọn kho"
+              optionsvalue={["id", "tenCTKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectBanPhong}
-              value={BanPhong}
-              onChange={(value) => setBanPhong(value)}
+              onSelect={handleOnSelectKho}
+              value={Kho}
+              onChange={(value) => setKho(value)}
               allowClear
-              onClear={handleClearBanPhong}
+              onClear={handleClearKho}
             />
           </Col>
 
@@ -430,4 +430,4 @@ function PhieuThanhLy({ match, history, permission }) {
   );
 }
 
-export default PhieuThanhLy;
+export default ThanhLyThanhPham;
