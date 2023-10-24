@@ -45,23 +45,11 @@ function Home({ permission, history }) {
   }, [load]);
 
   const loadData = (number) => {
-    const date = new Date();
-    const ngay =
-      date.getDate().toString().length === 1
-        ? "0" + date.getDate()
-        : date.getDate();
-    const thang =
-      (date.getMonth() + 1).toString().length === 1
-        ? "0" + (date.getMonth() + 1)
-        : date.getMonth() + 1;
-    const nam = date.getFullYear();
-    let param1 = convertObjectToUrlParams({ ngay, thang, nam });
-    let param = convertObjectToUrlParams({ thang, nam });
     if (number == 1) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `baocao/bieu-do?${param1}`,
+            `lkn_BaoCao/get-dashboard-ke-hoach-sx-theo-ngay`,
             "GET",
             null,
             "DETAIL",
@@ -85,23 +73,23 @@ function Home({ permission, history }) {
                 const newData = [
                   {
                     name: "Kế hoạch sản xuất",
-                    soLuong: d.soLuongKHSX,
-                    maXe: d.maXe,
+                    soLuong: d.keHoachSanXuat,
+                    maXe: d.tenPhongBan,
                   },
                   {
                     name: "Thực tế sản xuất",
-                    soLuong: d.soLuongTTSX,
-                    maXe: d.maXe,
+                    soLuong: d.thucTeSanXuat,
+                    maXe: d.tenPhongBan,
                   },
                   {
                     name: "Kế hoạch giao hàng",
-                    soLuong: d.soLuongKHGH,
-                    maXe: d.maXe,
+                    soLuong: d.keHoachGiaoHang,
+                    maXe: d.tenPhongBan,
                   },
                   {
                     name: "Thực tế giao hàng",
-                    soLuong: d.soLuongTTGH,
-                    maXe: d.maXe,
+                    soLuong: d.thucTeGiaoHang,
+                    maXe: d.tenPhongBan,
                   },
                 ];
                 dataPlot.push(...newData);
@@ -115,7 +103,7 @@ function Home({ permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `baocao/tien-do-sx-bo?${param}`,
+            `lkn_BaoCao/dashboard-tien-do-nhap-kho`,
             "GET",
             null,
             "DETAIL",
@@ -127,23 +115,18 @@ function Home({ permission, history }) {
       })
         .then((res) => {
           if (res && res.data) {
-            const newData = res.data;
-            for (let i = 1; i <= getNumberDayOfMonth() + 1; i++) {
-              map(newData, (d) => {
-                d.dept = "Xưởng sản xuất";
-                map(d.chiTiet, (dulieu) => {
-                  const key = dulieu.ngay;
-                  if (dulieu.soluong == 0) {
-                    d[key] = "-";
-                  } else {
-                    d[key] = dulieu.soluong;
-                  }
-                  if (dulieu[i] == undefined) {
-                    d[i] = "-";
-                  }
+            const newData = [];
+            res.data.forEach((x) => {
+              JSON.parse(x.chiTietSanPham).forEach((sp) => {
+                const chiTiet = {};
+                sp.soLuongChiTiet.forEach((ct) => {
+                  chiTiet.dept = x.tenPhongBan;
+                  chiTiet.tenSanPham = ct.tenSanPham;
+                  chiTiet[ct.ngay] = ct.soLuong;
                 });
+                newData.push(chiTiet);
               });
-            }
+            });
             setDataTDSXB(reDataForTable(newData));
           }
         })
@@ -152,7 +135,7 @@ function Home({ permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `baocao/tien-do-sx-ct?${param}`,
+            `baocao/tien-do-sx-ct?`,
             "GET",
             null,
             "DETAIL",
@@ -226,7 +209,7 @@ function Home({ permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `baocao/tien-do-gh-bo?${param}`,
+            `baocao/tien-do-gh-bo`,
             "GET",
             null,
             "DETAIL",
@@ -238,99 +221,23 @@ function Home({ permission, history }) {
       })
         .then((res) => {
           if (res && res.data) {
-            const newData = res.data;
-            for (let i = 1; i <= getNumberDayOfMonth() + 1; i++) {
-              map(newData, (d) => {
-                d.dept = "Xưởng sản xuất";
-
-                map(d.chiTiet, (dulieu) => {
-                  const key = dulieu.ngay;
-                  if (dulieu.soLuong == 0) {
-                    d[key] = "-";
-                  } else {
-                    d[key] = dulieu.soLuong;
-                  }
-                  if (dulieu[i] == undefined) {
-                    d[i] = "-";
-                  }
-                });
-              });
-            }
-            setDataTDGHB(reDataForTable(newData));
-          }
-        })
-        .catch((error) => console.error(error));
-    } else if (number == 5) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `baocao/tien-do-gh-ct?${param}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.data) {
-            const newData = res.data;
-            const elementToFind = [];
-            const result = [];
-            map(newData, (d) => {
-              elementToFind.push({ tenXe: d.tenXe });
-            });
-            const uniqueArr = elementToFind.filter((element, index, self) => {
-              return (
-                index === self.findIndex((el) => el.tenXe === element.tenXe)
-              );
-            });
-            uniqueArr.forEach((d) => {
-              let count = 0;
-              let firstIndex = -1;
-              let lastIndex = -1;
-              elementToFind.forEach((element, index) => {
-                const matches = Object.keys(d).every((key) => {
-                  return d[key] === element[key];
-                });
-
-                if (matches) {
-                  count++;
-
-                  if (firstIndex === -1) {
-                    firstIndex = index;
-                  }
-
-                  lastIndex = index;
-                }
-              });
-              result.push({
-                tenXe: d.tenXe,
-                first: firstIndex,
-                last: lastIndex,
-                tong: count,
-              });
-            });
-            setMixRowGHCT(result);
-            for (let i = 1; i <= getNumberDayOfMonth() + 1; i++) {
-              map(newData, (d) => {
-                d.boPhan = "Xưởng";
-                map(d.chiTiet, (dulieu) => {
-                  const key = dulieu.ngay;
-                  if (dulieu.soLuongXK == 0) {
-                    d[key] = "-";
-                  } else {
-                    d[key] = dulieu.soLuongXK;
-                  }
-                  if (dulieu[i] == undefined) {
-                    d[i] = "-";
-                  }
-                });
-              });
-            }
-            setDataTDGHCT(reDataForTable(newData));
+            // for (let i = 1; i <= getNumberDayOfMonth() + 1; i++) {
+            //   map(newData, (d) => {
+            //     d.dept = res.data.tenPhongBan;
+            //     map(d.chiTiet, (dulieu) => {
+            //       const key = dulieu.ngay;
+            //       if (dulieu.soLuong == 0) {
+            //         d[key] = "-";
+            //       } else {
+            //         d[key] = dulieu.soLuong;
+            //       }
+            //       if (dulieu[i] == undefined) {
+            //         d[i] = "-";
+            //       }
+            //     });
+            //   });
+            // }
+            // setDataTDGHB(reDataForTable(newData));
           }
         })
         .catch((error) => console.error(error));
@@ -440,7 +347,7 @@ function Home({ permission, history }) {
     return null;
   };
   const render = (val) => {
-    if (val == "-" || val == "0/0") {
+    if (val === undefined) {
       return (
         <div
           style={{
@@ -497,8 +404,8 @@ function Home({ permission, history }) {
     },
     {
       title: "Sản phẩm",
-      dataIndex: "tenXe",
-      key: "tenXe",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       width: 150,
       fixed: width > 450 ? "left" : "none",
       align: "center",
@@ -1290,14 +1197,14 @@ function Home({ permission, history }) {
         // extra={<EyeOutlined />}
       >
         <Tabs
-          tabBarExtraContent={
-            width < 576 ? null : (
-              <EyeOutlined
-                style={{ cursor: "pointer" }}
-                onClick={goTrinhChieu}
-              />
-            )
-          }
+          // tabBarExtraContent={
+          //   width < 576 ? null : (
+          //     <EyeOutlined
+          //       style={{ cursor: "pointer" }}
+          //       onClick={goTrinhChieu}
+          //     />
+          //   )
+          // }
           defaultActiveKey="1"
           onTabClick={(key) => setActiveTab(key)}
           items={[
@@ -1336,7 +1243,7 @@ function Home({ permission, history }) {
             //   ),
             // },
             {
-              label: `Tiến độ sản xuất bộ`,
+              label: `Tiến độ sản xuất`,
               key: "2",
               children: (
                 <Table
@@ -1352,7 +1259,7 @@ function Home({ permission, history }) {
               ),
             },
             {
-              label: `Tiến độ sản xuất chi tiết`,
+              label: `Tiến độ nhập kho`,
               key: "3",
               children: (
                 <Table
@@ -1368,7 +1275,7 @@ function Home({ permission, history }) {
               ),
             },
             {
-              label: `Tiến độ giao hàng bộ`,
+              label: `Tiến độ giao hàng`,
               key: "4",
               children: (
                 <Table
@@ -1378,22 +1285,6 @@ function Home({ permission, history }) {
                   bordered
                   dataSource={dataTDGHB}
                   columns={columsTDHGB}
-                  components={components}
-                  pagination={false}
-                />
-              ),
-            },
-            {
-              label: `Tiến độ giao hàng chi tiết`,
-              key: "5",
-              children: (
-                <Table
-                  size="small"
-                  className="gx-table-responsive gx-table-resize"
-                  scroll={{ y: 600, x: 1600 }}
-                  bordered
-                  dataSource={dataTDGHCT}
-                  columns={columsTDHGCT}
                   components={components}
                   pagination={false}
                 />

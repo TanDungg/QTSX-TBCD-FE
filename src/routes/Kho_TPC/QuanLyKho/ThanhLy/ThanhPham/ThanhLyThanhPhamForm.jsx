@@ -237,18 +237,18 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
           });
 
           const newData =
-            res.data.chiTietVatTu &&
-            JSON.parse(res.data.chiTietVatTu).map((data) => {
+            res.data.chiTiet &&
+            JSON.parse(res.data.chiTiet).map((data) => {
               const vitri = `${data.tenKe ? `${data.tenKe}` : ""}${
                 data.tenTang ? ` - ${data.tenTang}` : ""
               }${data.tenNgan ? ` - ${data.tenNgan}` : ""}`;
 
               return {
                 ...data,
-                soLuongThanhLy: data.soLuong,
-                lkn_ChiTietKhoVatTu_Id: data.lkn_ChiTietKhoVatTu_Id
-                  ? data.lkn_ChiTietKhoVatTu_Id.toLowerCase()
-                  : createGuid(),
+                // soLuongThanhLy: data.soLuongThanhLy,
+                // lkn_ChiTietKhoBegin_Id: data.lkn_ChiTietKhoBegin_Id
+                //   ? data.lkn_ChiTietKhoBegin_Id.toLowerCase()
+                //   : createGuid(),
                 vatTu: `${data.maVatTu} - ${data.tenVatTu}${
                   vitri ? ` (${vitri})` : ""
                 }`,
@@ -258,8 +258,9 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
 
           const newSoLuong = {};
           newData.forEach((data) => {
-            newSoLuong[data.lkn_ChiTietKhoVatTu_Id] = data.soLuongThanhLy || 0;
+            newSoLuong[data.lkn_ChiTietKhoBegin_Id] = data.soLuongThanhLy || 0;
           });
+          console.log(newSoLuong);
           setSoLuongThanhLy(newSoLuong);
         }
       })
@@ -333,7 +334,7 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
     if (record) {
       const isEditing =
         editingRecord &&
-        editingRecord.lkn_ChiTietKhoVatTu_Id === record.lkn_ChiTietKhoVatTu_Id;
+        editingRecord.lkn_ChiTietKhoBegin_Id === record.lkn_ChiTietKhoBegin_Id;
 
       return type !== "detail" ? (
         <div>
@@ -348,7 +349,7 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
               isEditing && hasError ? "input-error" : ""
             }`}
             value={
-              SoLuongThanhLy && SoLuongThanhLy[record.lkn_ChiTietKhoVatTu_Id]
+              SoLuongThanhLy && SoLuongThanhLy[record.lkn_ChiTietKhoBegin_Id]
             }
             type="number"
             onChange={(val) => handleInputChange(val, record)}
@@ -358,7 +359,7 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
           )}
         </div>
       ) : (
-        SoLuongThanhLy[record.lkn_ChiTietKhoVatTu_Id]
+        SoLuongThanhLy[record.lkn_ChiTietKhoBegin_Id]
       );
     }
     return null;
@@ -388,11 +389,11 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
     setEditingRecord(record);
     setSoLuongThanhLy((prevSoLuongThanhLy) => ({
       ...prevSoLuongThanhLy,
-      [record.lkn_ChiTietKhoVatTu_Id]: sl,
+      [record.lkn_ChiTietKhoBegin_Id]: sl,
     }));
     setListVatTu((prevListVatTu) => {
       return prevListVatTu.map((item) => {
-        if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+        if (record.lkn_ChiTietKhoBegin_Id === item.lkn_ChiTietKhoBegin_Id) {
           return {
             ...item,
             soLuongThanhLy: sl ? parseFloat(sl) : 0,

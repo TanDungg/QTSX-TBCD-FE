@@ -236,15 +236,15 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
           });
 
           const newData =
-            res.data.chiTietVatTu &&
-            JSON.parse(res.data.chiTietVatTu).map((data) => {
+            res.data.chiTiet &&
+            JSON.parse(res.data.chiTiet).map((data) => {
               const vitri = `${data.tenKe ? `${data.tenKe}` : ""}${
                 data.tenTang ? ` - ${data.tenTang}` : ""
               }${data.tenNgan ? ` - ${data.tenNgan}` : ""}`;
 
               return {
                 ...data,
-                soLuongThanhLy: data.soLuong,
+                soLuongThanhLy: data.soLuongThanhLy,
                 lkn_ChiTietKhoVatTu_Id: data.lkn_ChiTietKhoVatTu_Id
                   ? data.lkn_ChiTietKhoVatTu_Id.toLowerCase()
                   : createGuid(),
@@ -553,8 +553,12 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
       const newData = {
         ...data,
         id: id,
-        ngayYeuCau: data.ngayYeuCau.format("DD/MM/YYYY"),
-        chiTiet_PhieuThanhLys: ListVatTu,
+        chiTiet_PhieuThanhLys: ListVatTu.map((tl) => {
+          return {
+            ...tl,
+            lkn_PhieuDieuChuyen_ThanhLy_Id: id,
+          };
+        }),
       };
       new Promise((resolve, reject) => {
         dispatch(
