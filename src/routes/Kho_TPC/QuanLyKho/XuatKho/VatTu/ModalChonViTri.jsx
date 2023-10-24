@@ -108,22 +108,16 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       setErrorMessage("Vui lòng nhập số lượng");
       setDisabledSave(true);
     } else {
-      if (sl <= 0) {
+      if (sl > record.soLuong) {
         setHasError(true);
-        setErrorMessage("Số lượng không được nhỏ hơn 0");
-        setDisabledSave(false);
+        setErrorMessage(
+          "Số lượng xuất phải nhỏ hơn hoặc bằng số lượng trong kho"
+        );
+        setDisabledSave(true);
       } else {
-        if (sl > record.soLuong) {
-          setHasError(true);
-          setErrorMessage(
-            "Số lượng xuất phải nhỏ hơn hoặc bằng số lượng trong kho"
-          );
-          setDisabledSave(true);
-        } else {
-          setDisabledSave(false);
-          setHasError(false);
-          setErrorMessage(null);
-        }
+        setDisabledSave(false);
+        setHasError(false);
+        setErrorMessage(null);
       }
     }
     setEditingRecord(record);
