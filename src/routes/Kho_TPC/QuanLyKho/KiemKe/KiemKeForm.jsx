@@ -131,7 +131,6 @@ const KiemKeForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        console.log(res.data);
         const xuong = [];
         res.data.forEach((x) => {
           if (x.tenPhongBan.toLowerCase().includes("xưởng")) {

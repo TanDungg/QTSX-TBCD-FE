@@ -128,10 +128,8 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListKhoVatTuDen(res.data);
           setListKhoVatTuDi(res.data);
         } else {
-          setListKhoVatTuDen([]);
           setListKhoVatTuDi([]);
         }
       })
@@ -601,7 +599,12 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
 
   const handleSelectKhoDi = (value) => {
     setKhoVatTuDi(value);
-    const newData = ListKhoVatTuDen.filter((d) => d.id !== value);
+    setFieldsValue({
+      phieudieuchuyen: {
+        khoDen_Id: null,
+      },
+    });
+    const newData = ListKhoVatTuDi.filter((d) => d.id !== value);
     setListKhoVatTuDen(newData);
   };
 

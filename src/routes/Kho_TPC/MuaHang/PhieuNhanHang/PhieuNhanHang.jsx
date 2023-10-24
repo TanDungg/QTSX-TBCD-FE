@@ -133,6 +133,7 @@ function PhieuNhanHang({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
+      item.userYeuCau_Id === INFO.user_Id &&
       moment(item.ngayTaoPhieu, "DD/MM/YYYY") >=
         moment(getDateNow(1, true), "DD/MM/YYYY") ? (
         <Link
@@ -152,6 +153,7 @@ function PhieuNhanHang({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
+      item.userYeuCau_Id === INFO.user_Id &&
       moment(item.ngayTaoPhieu, "DD/MM/YYYY") >=
         moment(getDateNow(1, true), "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
@@ -311,7 +313,6 @@ function PhieuNhanHang({ match, history, permission }) {
         </a>
       ),
     },
-
     {
       title: "Chức năng",
       key: "action",
