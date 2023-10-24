@@ -52,8 +52,7 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
     }
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  console.log(LoaiKeHoach);
+  }, [LoaiKeHoach, Xuong]);
 
   const getListData = (LoaiKeHoach_Id, phongBan_Id, keyword, page) => {
     let param = convertObjectToUrlParams({
@@ -210,37 +209,51 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
     },
     {
       title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
       align: "center",
       width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maVatTu,
-            value: d.maVatTu,
+            text: d.maSanPham,
+            value: d.maSanPham,
           };
         })
       ),
-      onFilter: (value, record) => record.maVatTu.includes(value),
+      onFilter: (value, record) => record.maSanPham.includes(value),
       filterSearch: true,
     },
     {
       title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       align: "center",
       width: 250,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenVatTu,
-            value: d.tenVatTu,
+            text: d.tenSanPham,
+            value: d.tenSanPham,
           };
         })
       ),
-      onFilter: (value, record) => record.tenVatTu.includes(value),
+      onFilter: (value, record) => record.tenSanPham.includes(value),
       filterSearch: true,
+    },
+    {
+      title: "Số lượng nhập",
+      dataIndex: "keHoach",
+      key: "keHoach",
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Số lượng xuất",
+      dataIndex: "thucHien",
+      key: "thucHien",
+      align: "center",
+      width: 150,
     },
     {
       title: "Đơn vị tính",
@@ -260,30 +273,9 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
       filterSearch: true,
     },
     {
-      title: "Số lượng nhập",
-      dataIndex: "soLuongNhap",
-      key: "soLuongNhap",
-      align: "center",
-      width: 150,
-    },
-    {
-      title: "Số lượng xuất",
-      dataIndex: "soLuongXuat",
-      key: "soLuongXuat",
-      align: "center",
-      width: 150,
-    },
-    {
       title: "Tồn đầu kỳ",
-      dataIndex: "tonDauKy",
-      key: "tonDauKy",
-      align: "center",
-      width: 150,
-    },
-    {
-      title: "Tồn cuối kỳ",
-      dataIndex: "tonCuoiKy",
-      key: "tonCuoiKy",
+      dataIndex: "phanTram",
+      key: "phanTram",
       align: "center",
       width: 150,
     },
@@ -447,7 +439,7 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1200, y: "55vh" }}
+          scroll={{ x: 1050, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}

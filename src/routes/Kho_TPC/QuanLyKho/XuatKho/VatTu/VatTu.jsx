@@ -104,7 +104,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       (permission &&
         permission.cof &&
         item.userNhan_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác nhận bởi Phụ trách bộ phận") ||
+        item.tinhTrang === "Đã xác nhận bởi bên nhận") ||
       (permission &&
         permission.cof &&
         item.userDuyet_Id === INFO.user_Id &&
