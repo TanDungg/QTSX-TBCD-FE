@@ -709,7 +709,7 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Ngày tạo phiếu"
+                label="Ngày yêu cầu"
                 name={["phieuthanhly", "ngayYeuCau"]}
                 rules={[
                   {

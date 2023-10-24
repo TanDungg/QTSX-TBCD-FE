@@ -888,7 +888,7 @@ const VatTuForm = ({ history, match, permission }) => {
               >
                 <DatePicker
                   format={"DD/MM/YYYY"}
-                  disabled={type === "new" ? false : true}
+                  disabled={true}
                   allowClear={false}
                   onChange={(date, dateString) => {
                     setFieldsValue({

@@ -10,7 +10,7 @@ import { DeleteOutlined } from "@ant-design/icons";
 function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const [ListViTriKho, setListViTriKho] = useState([]);
+  const [ListViTriKhoAdd, setListViTriKhoAdd] = useState([]);
   const [ViTriKho, setViTriKho] = useState(null);
   const [VatTu, setVatTu] = useState([]);
   const [ListVatTu, setListVatTu] = useState([]);
@@ -20,7 +20,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   useEffect(() => {
     if (openModal) {
-      getListViTriKho(itemData.kho_Id);
+      getListViTriKhoAdd(itemData.kho_Id);
     }
     return () => {
       dispatch(fetchReset());
@@ -28,7 +28,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
-  const getListViTriKho = (cauTrucKho_Id) => {
+  const getListViTriKhoAdd = (cauTrucKho_Id) => {
     const params = convertObjectToUrlParams({
       cauTrucKho_Id,
     });
@@ -66,7 +66,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             !itemData.listVatTu.some((item) => item.vatTu === data.vatTu)
           );
         });
-        setListViTriKho(newData);
+        setListViTriKhoAdd(newData);
 
         const newSoLuong = {};
         newData.forEach((data) => {
@@ -74,7 +74,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
         });
         setSoLuongThanhLy(newSoLuong);
       } else {
-        setListViTriKho([]);
+        setListViTriKhoAdd([]);
       }
     });
   };
@@ -268,7 +268,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   ];
 
   const HandleChonVatTu = (value) => {
-    const vattu = ListViTriKho.filter(
+    const vattu = ListViTriKhoAdd.filter(
       (d) => d.lkn_ChiTietKhoVatTu_Id === value
     );
     setViTriKho(value);
@@ -278,17 +278,17 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   const HandleThemVatTu = () => {
     setListVatTu([...ListVatTu, VatTu[0]]);
-    const listvitrikho = ListViTriKho.filter(
+    const listvitrikhoAdd = ListViTriKhoAdd.filter(
       (d) => d.lkn_ChiTietKhoVatTu_Id !== ViTriKho
     );
-    setListViTriKho(listvitrikho);
+    setListViTriKhoAdd(listvitrikhoAdd);
     setViTriKho(null);
     setVatTu([]);
   };
 
   const XacNhanListDieuChuyen = () => {
     ThemVatTu(ListVatTu);
-    setListViTriKho([]);
+    setListViTriKhoAdd([]);
     setListVatTu([]);
     setVatTu([]);
     setViTriKho(null);
@@ -296,7 +296,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   };
 
   const handleCancel = () => {
-    setListViTriKho([]);
+    setListViTriKhoAdd([]);
     setListVatTu([]);
     setVatTu([]);
     setViTriKho(null);
@@ -341,7 +341,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
               </span>
               <Select
                 className="heading-select slt-search th-select-heading"
-                data={ListViTriKho ? ListViTriKho : []}
+                data={ListViTriKhoAdd ? ListViTriKhoAdd : []}
                 placeholder="Chọn vật tư thanh lý"
                 optionsvalue={["lkn_ChiTietKhoVatTu_Id", "vatTu"]}
                 style={{ width: "calc(100% - 100px)" }}
