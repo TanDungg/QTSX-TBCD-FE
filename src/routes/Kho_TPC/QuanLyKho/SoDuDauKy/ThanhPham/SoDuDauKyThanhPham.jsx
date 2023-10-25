@@ -162,7 +162,7 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuYeuCau,
+      item.maPhieuSoDuDauKy,
       "số dư đầu kỳ"
     );
   };
@@ -173,7 +173,7 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDatHangNoiBo/${item.id}`;
+    let url = `lkn_SoDuDauKy?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -247,10 +247,10 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuYeuCau}
+          {val.maPhieuSoDuDauKy}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuYeuCau}</span>
+        <span disabled>{val.maPhieuSoDuDauKy}</span>
       );
     return <div>{detail}</div>;
   };
@@ -264,20 +264,27 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
     },
     {
       title: "Mã phiếu",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
+      // dataIndex: "maPhieuSoDuDauKy",
+      key: "maPhieuSoDuDauKy",
       align: "center",
+      render: (val) => renderDetail(val),
     },
     {
       title: "Người lập",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
+      dataIndex: "tenNguoiLap",
+      key: "tenNguoiLap",
+      align: "center",
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "soLuong",
+      key: "soLuong",
       align: "center",
     },
     {
       title: "Kho",
-      dataIndex: "tenCTKho",
-      key: "tenCTKho",
+      dataIndex: "tenCauTrucKho",
+      key: "tenCauTrucKho",
       align: "center",
     },
     {

@@ -466,6 +466,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
             value={record.soLuong}
             type="number"
             onChange={(val) => handleInputChange(val, record)}
+            disabled={type !== "new"}
           />
           {isEditing && hasError && (
             <div style={{ color: "red" }}>{errorMessage}</div>

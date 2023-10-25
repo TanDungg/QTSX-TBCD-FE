@@ -381,6 +381,11 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(SoDuDauKyVatTuForm, menus, pathname, permission)}
       />
       <Route
+        path={`${match.url}/so-du-dau-ky/vat-tu/:id/chi-tiet`}
+        exact
+        component={Auth(SoDuDauKyVatTuForm, menus, pathname, permission)}
+      />
+      <Route
         path={`${match.url}/so-du-dau-ky/thanh-pham`}
         exact
         component={Auth(SoDuDauKyThanhPham, menus, pathname, permission)}
@@ -392,6 +397,11 @@ const App = ({ match, location, menus, permission }) => {
       />
       <Route
         path={`${match.url}/so-du-dau-ky/thanh-pham/:id/chinh-sua`}
+        exact
+        component={Auth(SoDuDauKyThanhPhamForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/so-du-dau-ky/thanh-pham/:id/chi-tiet`}
         exact
         component={Auth(SoDuDauKyThanhPhamForm, menus, pathname, permission)}
       />

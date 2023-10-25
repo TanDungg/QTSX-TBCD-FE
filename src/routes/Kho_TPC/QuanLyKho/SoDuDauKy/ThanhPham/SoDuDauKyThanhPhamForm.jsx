@@ -231,7 +231,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_DinhMucVatTu/${id}`,
+          `lkn_SoDuDauKy/${id}?id=${id}&&donVi_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -243,15 +243,14 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListVatTu(JSON.parse(res.data.chiTietBOM));
+          setListVatTu(JSON.parse(res.data.chiTiets));
           getUserLap(INFO, res.data.nguoiLap_Id);
           setInfo(res.data);
           getKho();
           setFieldsValue({
             dinhmucvattu: {
               cauTrucKho_Id: res.data.cauTrucKho_Id,
-              ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
-              nguoiKy_Id: res.data.nguoiKy_Id,
+              ngayYeuCau: moment(res.data.ngayTao, "DD/MM/YYYY"),
             },
           });
         }
@@ -269,9 +268,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
           ? "/them-moi"
           : type === "edit"
           ? `/${id}/chinh-sua`
-          : type === "detail"
-          ? `/${id}/chi-tiet`
-          : `/${id}/xac-nhan`,
+          : `/${id}/chi-tiet`,
         ""
       )}`
     );
@@ -410,6 +407,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
       ...row,
     });
     setListVatTu(newData);
+    setFieldTouch(true);
   };
   const columns = map(colValues, (col) => {
     if (!col.editable) {
@@ -497,7 +495,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_DinhMucVatTu?id=${id}`,
+            `lkn_SoDuDauKy/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -548,17 +546,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết định số dư đầu kỳ thành phẩm -{" "}
-        <Tag
-          color={
-            info.xacNhan === null
-              ? "processing"
-              : info.xacNhan
-              ? "success"
-              : "error"
-          }
-        >
-          {info.xacNhanDinhMuc}
-        </Tag>
+        <Tag color={"success"}>{info.maPhieuSoDuDauKy}</Tag>
       </span>
     );
   return (
@@ -650,7 +638,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>

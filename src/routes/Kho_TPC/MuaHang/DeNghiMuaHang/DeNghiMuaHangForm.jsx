@@ -910,21 +910,21 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
-        >
-          In phiếu
-        </Button>
-      </>
-    );
-  };
+  // const addButtonRender = () => {
+  //   return (
+  //     <>
+  //       <Button
+  //         icon={<PrinterOutlined />}
+  //         className="th-margin-bottom-0"
+  //         type="primary"
+  //         onClick={handlePrint}
+  //         disabled={permission && !permission.print}
+  //       >
+  //         In phiếu
+  //       </Button>
+  //     </>
+  //   );
+  // };
 
   const hanldeSelectSanPham = (val) => {
     setSanPham_Id(val);
@@ -939,7 +939,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       <ContainerHeader
         title={formTitle}
         back={goBack}
-        buttons={type === "new" ? null : addButtonRender()}
+        // buttons={type === "new" ? null : addButtonRender()}
       />
       <Card className="th-card-margin-bottom">
         <Form

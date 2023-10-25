@@ -12,6 +12,8 @@ const FormItem = Form.Item;
 function AddSanPhamModal({ openModalFS, openModal, loading, addSanPham }) {
   const dispatch = useDispatch();
   const [listSanPham, setListSanPham] = useState([]);
+  const [listMauSac, setListMauSac] = useState([]);
+
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
@@ -49,10 +51,34 @@ function AddSanPhamModal({ openModalFS, openModal, loading, addSanPham }) {
       })
       .catch((error) => console.error(error));
   };
-
+  const getSanPhamMauSac = (id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(`SanPham/${id}`, "GET", null, "DETAIL", "", resolve, reject)
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListMauSac(JSON.parse(res.data.mauSac));
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   const handleSubmit = () => {
     validateFields()
       .then((values) => {
+        listMauSac.forEach((ms) => {
+          if (ms.mauSac_Id === values.vatTu.mauSac_Id) {
+            values.vatTu.tenMauSac = ms.tenMauSac;
+          }
+        });
+        listSanPham.forEach((sp) => {
+          if (sp.id === values.vatTu.vatTu_Id) {
+            values.vatTu.tenDonViTinh = sp.tenDonViTinh;
+            values.vatTu.tenVatTu = sp.tenSanPham;
+            values.vatTu.maVatTu = sp.maSanPham;
+          }
+        });
         addSanPham(values.vatTu);
         openModalFS(false);
         resetFields();
@@ -108,11 +134,34 @@ function AddSanPhamModal({ openModalFS, openModal, loading, addSanPham }) {
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
+              onSelect={(val) => {
+                getSanPhamMauSac(val);
+              }}
+            />
+          </FormItem>
+          <FormItem
+            label="Màu sắc"
+            name={["vatTu", "mauSac_Id"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
+          >
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={listMauSac ? listMauSac : []}
+              placeholder="Chọn màu sắc"
+              optionsvalue={["mauSac_Id", "tenMauSac"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
             />
           </FormItem>
           <FormItem
             label="Số lượng"
-            name={["vatTu", "soLuong"]}
+            name={["vatTu", "soLuongNhap"]}
             rules={[
               {
                 required: true,

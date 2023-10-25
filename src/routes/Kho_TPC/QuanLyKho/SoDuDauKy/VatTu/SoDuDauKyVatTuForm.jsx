@@ -294,8 +294,10 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           res.data.ghiChu = data.ghiChu;
-          res.data.soLuong = data.soLuong;
+          res.data.soLuongNhap = data.soLuong;
           res.data.vatTu_Id = res.data.id;
+          res.data.tenMauSac = res.data.tenMauSac;
+
           setListVatTu([...listVatTu, res.data]);
           setFieldTouch(true);
         }
@@ -303,31 +305,8 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
   const getDetailSanPham = (data) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `SanPham/${data.vatTu_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          res.data.ghiChu = data.ghiChu;
-          res.data.soLuong = data.soLuong;
-          res.data.vatTu_Id = res.data.id;
-          res.data.tenVatTu = res.data.tenSanPham;
-          res.data.maVatTu = res.data.maSanPham;
-          setListVatTu([...listVatTu, res.data]);
-          setFieldTouch(true);
-        }
-      })
-      .catch((error) => console.error(error));
+    setListVatTu([...listVatTu, data]);
+    setFieldTouch(true);
   };
   /**
    * deleteItemFunc: Remove item from list
@@ -406,8 +385,8 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
+      dataIndex: "soLuongNhap",
+      key: "soLuongNhap",
       align: "center",
       editable: type === "new" || type === "edit" ? true : false,
     },
@@ -434,6 +413,7 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
       ...row,
     });
     setListVatTu(newData);
+    setFieldTouch(true);
   };
   const columns = map(colValues, (col) => {
     if (!col.editable) {
@@ -477,20 +457,14 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
 
   const saveData = (DinhMucVatTu, saveQuit = false) => {
     const newData = {
-      ...DinhMucVatTu,
-      ngayYeuCau:
-        DinhMucVatTu.ngayYeuCau._i.split("/")[2] +
-        "-" +
-        DinhMucVatTu.ngayYeuCau._i.split("/")[1] +
-        "-" +
-        DinhMucVatTu.ngayYeuCau._i.split("/")[0],
-      list_VatTu: listVatTu,
+      cauTrucKho_Id: DinhMucVatTu.cauTrucKho_Id,
+      list_ChiTiets: listVatTu,
     };
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_DinhMucVatTu`,
+            `lkn_SoDuDauKy`,
             "POST",
             newData,
             "ADD",
@@ -527,7 +501,7 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_DinhMucVatTu?id=${id}`,
+            `lkn_SoDuDauKy/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -578,17 +552,7 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết định số dư đầu kỳ vật tư -{" "}
-        <Tag
-          color={
-            info.xacNhan === null
-              ? "processing"
-              : info.xacNhan
-              ? "success"
-              : "error"
-          }
-        >
-          {info.xacNhanDinhMuc}
-        </Tag>
+        <Tag color={"success"}>{info.maPhieuSoDuDauKy}</Tag>
       </span>
     );
   return (
@@ -653,38 +617,6 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
                 <Input className="input-item" disabled={true} />
               </FormItem>
             </Col>
-            {/* <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Loại sản phẩm"
-                name={["dinhmucvattu", "loaicauTrucKho_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={listLoaiSanPham ? listLoaiSanPham : []}
-                  placeholder="Chọn loại sản phẩm"
-                  optionsvalue={["id", "tenLoaiSanPham"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  onSelect={handleSelectLoaiSanPham}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col> */}
             <Col
               xxl={12}
               xl={12}
