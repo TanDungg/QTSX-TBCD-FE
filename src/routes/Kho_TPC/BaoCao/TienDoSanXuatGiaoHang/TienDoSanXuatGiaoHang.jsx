@@ -242,14 +242,14 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
       filterSearch: true,
     },
     {
-      title: "Số lượng nhập",
+      title: "Kế hoạch",
       dataIndex: "keHoach",
       key: "keHoach",
       align: "center",
       width: 150,
     },
     {
-      title: "Số lượng xuất",
+      title: "Thực hiện",
       dataIndex: "thucHien",
       key: "thucHien",
       align: "center",
@@ -273,7 +273,7 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
       filterSearch: true,
     },
     {
-      title: "Tồn đầu kỳ",
+      title: "Tiến độ",
       dataIndex: "phanTram",
       key: "phanTram",
       align: "center",

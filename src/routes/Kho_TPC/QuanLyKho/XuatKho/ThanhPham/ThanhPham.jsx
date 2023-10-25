@@ -1,16 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty, remove } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -31,6 +24,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
+
 function ThanhPham({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
@@ -95,51 +89,23 @@ function ThanhPham({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * Tìm kiếm sản phẩm
-   *
-   */
+
   const onSearchDeNghiMuaHang = () => {
     loadData(keyword, Kho, FromDate, ToDate, page);
   };
 
-  /**
-   * Thay đổi keyword
-   *
-   * @param {*} val
-   */
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
       loadData(val.target.value, Kho, FromDate, ToDate, page);
     }
   };
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
+
   const actionContent = (item) => {
-    // const detailItem =
-    //   permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
-    //     <Link
-    //       to={{
-    //         pathname: `${match.url}/${item.id}/xac-nhan`,
-    //         state: { itemData: item, permission },
-    //       }}
-    //       title="Xác nhận"
-    //     >
-    //       <EyeOutlined />
-    //     </Link>
-    //   ) : (
-    //     <span disabled title="Xác nhận">
-    //       <EyeInvisibleOutlined />
-    //     </span>
-    //   );
     const editItem =
       permission &&
       permission.edit &&
+      item.userLap_Id === INFO.user_Id &&
       moment(getDateNow(2), "DD/MM/YYYY") <=
         moment(item.ngayXuatKho, "DD/MM/YYYY") ? (
         <Link
@@ -159,14 +125,13 @@ function ThanhPham({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
+      item.userLap_Id === INFO.user_Id &&
       moment(getDateNow(2), "DD/MM/YYYY") <=
         moment(item.ngayXuatKho, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {/* {detailItem}
-        <Divider type="vertical" /> */}
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -176,12 +141,6 @@ function ThanhPham({ match, history, permission }) {
     );
   };
 
-  /**
-   * deleteItemFunc: Xoá item theo item
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
   const deleteItemFunc = (item) => {
     ModalDeleteConfirm(
       deleteItemAction,
@@ -191,11 +150,6 @@ function ThanhPham({ match, history, permission }) {
     );
   };
 
-  /**
-   * Xóa item
-   *
-   * @param {*} item
-   */
   const deleteItemAction = (item) => {
     let url = `lkn_PhieuXuatKhoThanhPham?id=${item.id}`;
     new Promise((resolve, reject) => {
@@ -210,28 +164,19 @@ function ThanhPham({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
   const handleTableChange = (pagination) => {
     setPage(pagination);
     loadData(keyword, Kho, FromDate, ToDate, pagination);
   };
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
   const handleRedirect = () => {
     history.push({
       pathname: `${match.url}/them-moi`,
     });
   };
+
   const handlePrint = () => {};
+
   const addButtonRender = () => {
     return (
       <>
@@ -278,6 +223,7 @@ function ThanhPham({ match, history, permission }) {
       );
     return <div>{detail}</div>;
   };
+
   let renderHead = [
     {
       title: "STT",
@@ -332,6 +278,7 @@ function ThanhPham({ match, history, permission }) {
       cell: EditableCell,
     },
   };
+
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
@@ -348,27 +295,6 @@ function ThanhPham({ match, history, permission }) {
     };
   });
 
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
-
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
   const handleOnSelectKho = (val) => {
     setKho(val);
     setPage(1);
@@ -379,12 +305,14 @@ function ThanhPham({ match, history, permission }) {
     setPage(1);
     loadData(keyword, "", FromDate, ToDate, 1);
   };
+
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
     loadData(keyword, Kho, dateString[0], dateString[1], 1);
   };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -442,26 +370,6 @@ function ThanhPham({ match, history, permission }) {
           </Col>
         </Row>
         <Table
-          // rowSelection={{
-          //   type: "checkbox",
-          //   ...rowSelection,
-          //   preserveSelectedRowKeys: true,
-          //   selectedRowKeys: selectedKeys,
-          //   getCheckboxProps: (record) => ({}),
-          // }}
-          // onRow={(record, rowIndex) => {
-          //   return {
-          //     onClick: (e) => {
-          //       const found = find(selectedKeys, (k) => k === record.key);
-          //       if (found === undefined) {
-          //         setSelectedDevice([record]);
-          //         setSelectedKeys([record.key]);
-          //       } else {
-          //         hanldeRemoveSelected(record);
-          //       }
-          //     },
-          //   };
-          // }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}

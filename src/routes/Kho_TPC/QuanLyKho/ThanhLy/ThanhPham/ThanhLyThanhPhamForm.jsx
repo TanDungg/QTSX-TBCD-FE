@@ -27,7 +27,6 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_DIEUCHUYEN_THANHLY } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
-  createGuid,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
@@ -235,7 +234,6 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
               khoThanhLy_Id: res.data.khoThanhLy_Id,
             },
           });
-
           const newData =
             res.data.chiTiet &&
             JSON.parse(res.data.chiTiet).map((data) => {
@@ -245,33 +243,17 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
 
               return {
                 ...data,
-                // soLuongThanhLy: data.soLuongThanhLy,
-                // lkn_ChiTietKhoBegin_Id: data.lkn_ChiTietKhoBegin_Id
-                //   ? data.lkn_ChiTietKhoBegin_Id.toLowerCase()
-                //   : createGuid(),
                 vatTu: `${data.maVatTu} - ${data.tenVatTu}${
                   vitri ? ` (${vitri})` : ""
                 }`,
               };
             });
           setListVatTu(newData ? newData : []);
-
-          const newSoLuong = {};
-          newData &&
-            newData.forEach((data) => {
-              newSoLuong[data.lkn_ChiTietKhoBegin_Id] =
-                data.soLuongThanhLy || 0;
-            });
-          setSoLuongThanhLy(newSoLuong);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  /**
-   * Quay lại trang bộ phận
-   *
-   */
   const goBack = () => {
     history.push(
       `${match.url.replace(
@@ -287,34 +269,17 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
     );
   };
 
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
   const deleteItemFunc = (item) => {
     const title = "vật tư";
     ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
   };
 
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
   const deleteItemAction = (item) => {
     const newData = ListVatTu.filter((d) => d.maVatTu !== item.maVatTu);
     setListVatTu(newData);
     setFieldTouch(true);
   };
 
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
   const actionContent = (item) => {
     const deleteItemVal =
       permission && permission.del && (type === "new" || type === "edit")
@@ -349,9 +314,7 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
             className={`input-item ${
               isEditing && hasError ? "input-error" : ""
             }`}
-            value={
-              SoLuongThanhLy && SoLuongThanhLy[record.lkn_ChiTietKhoBegin_Id]
-            }
+            value={record.soLuongThanhLy}
             type="number"
             onChange={(val) => handleInputChange(val, record)}
           />
@@ -360,7 +323,7 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
           )}
         </div>
       ) : (
-        SoLuongThanhLy[record.lkn_ChiTietKhoBegin_Id]
+        record.soLuongThanhLy
       );
     }
     return null;
@@ -376,22 +339,32 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
           : record.soLuong,
     };
     const sl = val.target.value;
-    if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
+
+    if (sl === null || sl === "") {
       setHasError(true);
-      setErrorMessage(
-        "Số lượng thanh lý phải nhỏ hơn hoặc bằng số lượng trong kho"
-      );
-      setDisabledSave(true);
+      setErrorMessage("Vui lòng nhập số lượng");
+      setFieldTouch(false);
     } else {
-      setDisabledSave(false);
-      setHasError(false);
-      setErrorMessage(null);
+      if (sl <= 0) {
+        setHasError(true);
+        setErrorMessage("Số lượng không được nhỏ hơn 0");
+        setFieldTouch(false);
+      } else {
+        if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
+          setHasError(true);
+          setErrorMessage(
+            "Số lượng thanh lý phải nhỏ hơn hoặc bằng số lượng trong kho"
+          );
+          setFieldTouch(false);
+        } else {
+          setFieldTouch(true);
+          setHasError(false);
+          setErrorMessage(null);
+        }
+      }
     }
     setEditingRecord(record);
-    setSoLuongThanhLy((prevSoLuongThanhLy) => ({
-      ...prevSoLuongThanhLy,
-      [record.lkn_ChiTietKhoBegin_Id]: sl,
-    }));
+
     setListVatTu((prevListVatTu) => {
       return prevListVatTu.map((item) => {
         if (record.lkn_ChiTietKhoBegin_Id === item.lkn_ChiTietKhoBegin_Id) {
@@ -475,11 +448,6 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
     };
   });
 
-  /**
-   * Khi submit
-   *
-   * @param {*} values
-   */
   const onFinish = (values) => {
     saveData(values.phieuthanhly);
   };
@@ -581,11 +549,6 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
 
   const handleThemVatTu = (data) => {
     const newListVatTu = [...ListVatTu, ...data];
-    const newSoLuong = {};
-    newListVatTu.forEach((dt) => {
-      newSoLuong[dt.lkn_ChiTietKhoBegin_Id] = dt.soLuongThanhLy;
-    });
-    setSoLuongThanhLy(newSoLuong);
     setListVatTu(newListVatTu);
     if (type === "edit") {
       setFieldTouch(true);

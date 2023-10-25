@@ -118,6 +118,7 @@ const VatTuForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const getData = () => {
     getUserKy(INFO);
     getUserLap(INFO, null);
@@ -375,10 +376,6 @@ const VatTuForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  /**
-   * Quay lại trang bộ phận
-   *
-   */
   const goBack = () => {
     if (type === "taophieuxuat") {
       history.push({
@@ -399,34 +396,18 @@ const VatTuForm = ({ history, match, permission }) => {
       );
     }
   };
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
+
   const deleteItemFunc = (item) => {
     const title = "vật tư";
     ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
   };
 
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
   const deleteItemAction = (item) => {
     const newData = listVatTu.filter((d) => d.maVatTu !== item.maVatTu);
     setListVatTu(newData);
     setFieldTouch(true);
   };
 
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
   const actionContent = (item) => {
     const deleteItemVal =
       permission && permission.del && (type === "new" || type === "edit")
@@ -598,11 +579,6 @@ const VatTuForm = ({ history, match, permission }) => {
     };
   });
 
-  /**
-   * Khi submit
-   *
-   * @param {*} values
-   */
   const onFinish = (values) => {
     saveData(values.phieuxuatkhovattu);
   };
