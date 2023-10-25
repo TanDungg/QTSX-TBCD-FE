@@ -14,7 +14,7 @@ import {
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import {
@@ -51,8 +51,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   const [Xuong, setXuong] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
   const [listVatTu, setListVatTu] = useState([]);
-  const [SoLuongVatTu, setSoLuongVatTu] = useState([]);
-  const [HanMucSuDung, setHanMucSuDung] = useState([]);
   const [ListVatTuKhac, setListVatTuKhac] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
@@ -294,10 +292,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  /**
-   * Lấy thông tin
-   *
-   */
   const getInfo = (id) => {
     const params = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id,
@@ -359,10 +353,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * Quay lại trang bộ phận
-   *
-   */
+
   const goBack = () => {
     history.push(
       `${match.url.replace(
@@ -377,34 +368,18 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       )}`
     );
   };
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
+
   const deleteItemFunc = (item) => {
     const title = "vật tư";
     ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
   };
 
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
   const deleteItemAction = (item) => {
     const newData = listVatTu.filter((d) => d.maVatTu !== item.maVatTu);
     setListVatTu(newData);
     setFieldTouch(true);
   };
 
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
   const actionContent = (item) => {
     const deleteItemVal =
       permission && permission.del && (type === "new" || type === "edit")
@@ -1377,7 +1352,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                       style={{ width: "100%" }}
                       showSearch
                       optionFilterProp={"name"}
-                      disabled={type === "new" ? false : true}
+                      disabled={ListVatTuKhac.length === 0 ? false : true}
                     />
                   </FormItem>
                 </Col>

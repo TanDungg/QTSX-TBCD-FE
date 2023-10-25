@@ -141,12 +141,14 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
+      width: 150,
     },
     {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
       align: "center",
+      width: 200,
     },
     {
       title: "Tên kho",
@@ -233,12 +235,14 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
+      width: 150,
     },
     {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
       align: "center",
+      width: 200,
     },
     {
       title: "Tên kho",
@@ -325,7 +329,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     <AntModal
       title={`Chọn vật tư trả nhà cung cấp`}
       open={openModal}
-      width={width > 1000 ? `80%` : "100%"}
+      width={width > 1200 ? `90%` : "100%"}
       closable={true}
       onCancel={handleCancel}
       footer={null}
@@ -372,7 +376,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             <Table
               bordered
               columns={colVatTu}
-              scroll={{ x: 850, y: 60 }}
+              scroll={{ x: 1200, y: 60 }}
               className="gx-table-responsive"
               dataSource={VatTu}
               size="small"
@@ -391,7 +395,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
           <Table
             bordered
             columns={colListVatTu}
-            scroll={{ x: 800, y: "25vh" }}
+            scroll={{ x: 1200, y: "25vh" }}
             className="gx-table-responsive"
             dataSource={reDataForTable(ListVatTu)}
             size="small"

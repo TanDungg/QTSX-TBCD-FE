@@ -10,6 +10,7 @@ import {
   FileName,
   convertObjectToUrlParams,
   exportExcel,
+  getDateNow,
   getLocalStorage,
   getTokenInfo,
   reDataForTable,
@@ -31,8 +32,6 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
   const [listVatTu, setListVatTu] = useState([]);
   const [FileNhanHang, setFileNhanHang] = useState([]);
   const [info, setInfo] = useState({});
-  const [NgayXacNhanHangVe, setNgayXacNhanHangVe] = useState([]);
-  const [NguoiThuMua, setNguoiThuMua] = useState([]);
   const [ListNguoiThuMua, setListNguoiThuMua] = useState([]);
 
   useEffect(() => {
@@ -71,28 +70,19 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          const data = res.data;
-          setInfo(data);
-          const chiTiet = JSON.parse(res.data.chiTietTheoDoiDonHang);
+          setInfo(res.data);
+          const chiTiet = JSON.parse(res.data.chiTietTheoDoiDonHang).map(
+            (data) => {
+              return {
+                ...data,
+                userThuMua_Id:
+                  data.userThuMua_Id && data.userThuMua_Id.toLowerCase(),
+              };
+            }
+          );
           setListVatTu(chiTiet);
-
-          console.log(chiTiet);
-          const newNgay = [];
-          const newNguoiThuMua = [];
-
-          chiTiet.forEach((ct, index) => {
-            newNgay[ct.lkn_ChiTietPhieuMuaHangs_Id] = ct.ngayXacNhanHangVe
-              ? ct.ngayXacNhanHangVe
-              : null;
-
-            newNguoiThuMua[ct.lkn_ChiTietPhieuMuaHangs_Id] = ct.userThuMua_Id
-              ? ct.userThuMua_Id.toLowerCase()
-              : null;
-          });
-
-          setNgayXacNhanHangVe(newNgay);
-          setNguoiThuMua(newNguoiThuMua);
-          data.fileNhanHang && setFileNhanHang(JSON.parse(data.fileNhanHang));
+          res.data.fileNhanHang &&
+            setFileNhanHang(JSON.parse(res.data.fileNhanHang));
         }
       })
       .catch((error) => console.error(error));
@@ -135,11 +125,8 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
     const CapNhat = () => {
       const newData = {
         id: item.lkn_ChiTietPhieuMuaHangs_Id,
-        ngayXacNhanHangVe:
-          NgayXacNhanHangVe &&
-          NgayXacNhanHangVe[item.lkn_ChiTietPhieuMuaHangs_Id],
-        userThuMua_Id:
-          NguoiThuMua && NguoiThuMua[item.lkn_ChiTietPhieuMuaHangs_Id],
+        ngayXacNhanHangVe: item.ngayXacNhanHangVe,
+        userThuMua_Id: item.userThuMua_Id,
       };
 
       new Promise((resolve, reject) => {
@@ -206,11 +193,9 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
             }
             placeholder="Chọn ngày"
             value={
-              NgayXacNhanHangVe[record.lkn_ChiTietPhieuMuaHangs_Id] &&
-              moment(
-                NgayXacNhanHangVe[record.lkn_ChiTietPhieuMuaHangs_Id],
-                "DD/MM/YYYY"
-              )
+              record.ngayXacNhanHangVe
+                ? moment(record.ngayXacNhanHangVe, "DD/MM/YYYY")
+                : moment(getDateNow(), "DD/MM/YYYY")
             }
             disabled={record.soLuongNhan > 0 ? true : false}
           />
@@ -221,11 +206,6 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
   };
 
   const handleNgayXacNhanHangVe = (dateString, record) => {
-    setNgayXacNhanHangVe((prevNgayXacNhanHangVe) => ({
-      ...prevNgayXacNhanHangVe,
-      [record.lkn_ChiTietPhieuMuaHangs_Id]: dateString,
-    }));
-
     setListVatTu((prevListVatTu) => {
       return prevListVatTu.map((item) => {
         if (
@@ -255,10 +235,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
             showSearch
             optionFilterProp="name"
             onSelect={(value) => handleNguoiThuMua(value, record)}
-            value={
-              NguoiThuMua[record.lkn_ChiTietPhieuMuaHangs_Id] &&
-              NguoiThuMua[record.lkn_ChiTietPhieuMuaHangs_Id]
-            }
+            value={record.userThuMua_Id && record.userThuMua_Id}
             disabled={record.soLuongNhan > 0 ? true : false}
           />
         </div>
@@ -268,11 +245,6 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
   };
 
   const handleNguoiThuMua = (value, record) => {
-    setNguoiThuMua((prevNguoiThuMua) => ({
-      ...prevNguoiThuMua,
-      [record.lkn_ChiTietPhieuMuaHangs_Id]: value,
-    }));
-
     setListVatTu((prevListVatTu) => {
       return prevListVatTu.map((item) => {
         if (
@@ -619,7 +591,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
           <Table
             bordered
             columns={columns}
-            scroll={{ x: 1720, y: "55vh" }}
+            scroll={{ x: 1720, y: "48vh" }}
             components={components}
             className="gx-table-responsive"
             dataSource={reDataForTable(listVatTu)}

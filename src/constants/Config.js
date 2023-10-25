@@ -56,7 +56,7 @@ export const DEFAULT_FORM_TWO_COL = {
       window.innerWidth >= 1600
         ? 8
         : window.innerWidth >= 1200
-        ? 11
+        ? 10
         : window.innerWidth >= 768
         ? 8
         : window.innerWidth >= 576
@@ -72,9 +72,9 @@ export const DEFAULT_FORM_TWO_COL = {
       window.innerWidth >= 1600
         ? 16
         : window.innerWidth >= 1200
-        ? 13
+        ? 14
         : window.innerWidth >= 768
-        ? 16
+        ? 15
         : window.innerWidth >= 576
         ? 14
         : 17,

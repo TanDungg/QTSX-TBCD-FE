@@ -1,4 +1,8 @@
-import { DeleteOutlined, ShoppingCartOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  PrinterOutlined,
+  ShoppingCartOutlined,
+} from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -26,6 +30,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
+  exportPDF,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
@@ -468,11 +473,47 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       }),
     };
   });
-  /**
-   * Khi submit
-   *
-   * @param {*} values
-   */
+
+  const handlePrint = () => {
+    const newData = {
+      ...info,
+      lstpxktpct: info.chiTietThanhPham && JSON.parse(info.chiTietThanhPham),
+    };
+    console.log(newData);
+
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuXuatKhoThanhPham/export-pdf`,
+          "POST",
+          newData,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      exportPDF("PhieuXuatKhoThanhPham", res.data.datapdf);
+    });
+  };
+
+  const addButtonRender = () => {
+    return (
+      <>
+        <Button
+          icon={<PrinterOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handlePrint}
+          disabled={permission && !permission.print}
+        >
+          In phiếu
+        </Button>
+      </>
+    );
+  };
+
   const onFinish = (values) => {
     saveData(values.phieunhapkho);
   };
@@ -607,7 +648,11 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   };
   return (
     <div className="gx-main-content">
-      <ContainerHeader title={formTitle} back={goBack} />
+      <ContainerHeader
+        title={formTitle}
+        back={goBack}
+        // buttons={addButtonRender()}
+      />
       <Card className="th-card-margin-bottom">
         <Form
           {...DEFAULT_FORM_CUSTOM}
@@ -619,7 +664,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           <Row>
             <Col span={12}>
               <FormItem
-                label="Người nhập"
+                label="Người lập"
                 name={["phieunhapkho", "userLap_Id"]}
                 rules={[
                   {

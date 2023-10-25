@@ -399,7 +399,7 @@ function TheoDoiDonHang({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 1200, y: "70vh" }}
+          scroll={{ x: 1300, y: "70vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

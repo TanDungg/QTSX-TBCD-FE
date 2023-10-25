@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty, remove } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -29,6 +24,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
+
 function ThanhPham({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
@@ -112,6 +108,7 @@ function ThanhPham({ match, history, permission }) {
       loadData(val.target.value, Kho, FromDate, ToDate, page);
     }
   };
+
   /**
    * ActionContent: Hành động trên bảng
    * @param {*} item
@@ -122,6 +119,7 @@ function ThanhPham({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
+      item.userLap_Id === INFO.user_Id &&
       moment(getDateNow(2), "DD/MM/YYYY") <=
         moment(item.ngayNhap, "DD/MM/YYYY") ? (
         <Link
@@ -141,6 +139,7 @@ function ThanhPham({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
+      item.userLap_Id === INFO.user_Id &&
       moment(getDateNow(2), "DD/MM/YYYY") <= moment(item.ngayNhap, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };

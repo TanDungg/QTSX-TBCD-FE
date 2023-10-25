@@ -117,7 +117,6 @@ function VatTu({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    console.log(item);
     const editItem =
       permission &&
       permission.edit &&

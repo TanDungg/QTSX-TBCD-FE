@@ -31,6 +31,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
+
 function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
@@ -54,10 +55,6 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Lấy dữ liệu về
-   *
-   */
   const getListData = (XuongSanXuat_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
       XuongSanXuat_Id,
@@ -100,12 +97,6 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
   const actionContent = (item) => {
     const detailItem =
       (permission &&
@@ -134,6 +125,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           <CheckCircleOutlined />
         </span>
       );
+
     const editItem =
       permission &&
       permission.edit &&
@@ -153,6 +145,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           <EditOutlined />
         </span>
       );
+
     const deleteVal =
       permission &&
       permission.del &&
@@ -160,6 +153,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       item.tinhTrang === "Chưa duyệt"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
+
     return (
       <div>
         {detailItem}
@@ -173,12 +167,6 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     );
   };
 
-  /**
-   * deleteItemFunc: Xoá item theo item
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
   const deleteItemFunc = (item) => {
     ModalDeleteConfirm(
       deleteItemAction,
@@ -188,11 +176,6 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     );
   };
 
-  /**
-   * Xóa item
-   *
-   * @param {*} item
-   */
   const deleteItemAction = (item) => {
     let url = `lkn_PhieuDeNghiCapVatTu?id=${item.id}`;
     new Promise((resolve, reject) => {
@@ -206,22 +189,11 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
   const handleTableChange = (pagination) => {
     setPage(pagination);
     getListData(XuongSanXuat, TuNgay, DenNgay, pagination);
   };
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
   const handleRedirect = () => {
     history.push({
       pathname: `${match.url}/them-moi`,
@@ -327,6 +299,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     data.datalist
     // page === 1 ? page : pageSize * (page - 1) + 2
   );
+
   const renderDetail = (val) => {
     const detail =
       permission && permission.view ? (
@@ -343,6 +316,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       );
     return <div>{detail}</div>;
   };
+
   let renderHead = [
     {
       title: "STT",
@@ -403,6 +377,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       cell: EditableCell,
     },
   };
+
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
@@ -524,7 +499,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 1000, y: "70vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

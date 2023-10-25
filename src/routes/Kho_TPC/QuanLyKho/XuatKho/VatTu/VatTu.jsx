@@ -104,7 +104,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       (permission &&
         permission.cof &&
         item.userNhan_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác nhận bởi bên nhận") ||
+        item.tinhTrang === "Đã xác nhận bởi Bên duyệt và Phụ trách bộ phận") ||
       (permission &&
         permission.cof &&
         item.userDuyet_Id === INFO.user_Id &&
@@ -128,7 +128,10 @@ function XuatKhoVatTu({ match, history, permission }) {
         </span>
       );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa duyệt" ? (
+      permission &&
+      permission.edit &&
+      item.userLapPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -144,7 +147,10 @@ function XuatKhoVatTu({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa duyệt"
+      permission &&
+      permission.del &&
+      item.userLapPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -274,7 +280,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(
     data.datalist
