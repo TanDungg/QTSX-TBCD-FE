@@ -60,16 +60,17 @@ function SoDuDauKyVatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const loadData = (keyword, cauTrucKho_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
+      cauTrucKho_Id,
       tuNgay,
       denNgay,
       keyword,
       page,
       donVi_Id: INFO.donVi_Id,
+      isThanhPham: false,
     });
-    dispatch(fetchStart(`lkn_PhieuDatHangNoiBo?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`lkn_SoDuDauKy?${param}`, "GET", null, "LIST"));
   };
   const getKho = () => {
     new Promise((resolve, reject) => {

@@ -272,9 +272,7 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
           ? "/them-moi"
           : type === "edit"
           ? `/${id}/chinh-sua`
-          : type === "detail"
-          ? `/${id}/chi-tiet`
-          : `/${id}/xac-nhan`,
+          : `/${id}/chi-tiet`,
         ""
       )}`
     );
@@ -392,6 +390,12 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
+      align: "center",
+    },
+    {
+      title: "Màu sắc",
+      dataIndex: "tenMauSac",
+      key: "tenMauSac",
       align: "center",
     },
     {

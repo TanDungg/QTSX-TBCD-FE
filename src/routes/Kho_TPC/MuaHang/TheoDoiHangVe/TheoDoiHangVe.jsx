@@ -388,7 +388,7 @@ function TheoDoiHangVe({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 1200, y: "70vh" }}
+          scroll={{ x: 1200, y: "65vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -399,7 +399,7 @@ function TheoDoiHangVe({ match, history, permission }) {
           }}
           pagination={{
             onChange: handleTableChange,
-            pageSize: pageSize,
+            pageSize: 20,
             total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,

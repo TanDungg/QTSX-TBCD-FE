@@ -302,31 +302,8 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
   const getDetailSanPham = (data) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `SanPham/${data.vatTu_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          res.data.ghiChu = data.ghiChu;
-          res.data.soLuong = data.soLuong;
-          res.data.vatTu_Id = res.data.id;
-          res.data.tenVatTu = res.data.tenSanPham;
-          res.data.maVatTu = res.data.maSanPham;
-          setListVatTu([...listVatTu, res.data]);
-          setFieldTouch(true);
-        }
-      })
-      .catch((error) => console.error(error));
+    setListVatTu([...listVatTu, data]);
+    setFieldTouch(true);
   };
   /**
    * deleteItemFunc: Remove item from list
@@ -335,7 +312,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "vật tư";
+    const title = "sản phẩm";
     ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
   };
 
@@ -392,6 +369,12 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
+      title: "Màu sắc",
+      dataIndex: "tenMauSac",
+      key: "tenMauSac",
+      align: "center",
+    },
+    {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
@@ -399,8 +382,8 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
+      dataIndex: "soLuongNhap",
+      key: "soLuongNhap",
       align: "center",
       editable: type === "new" || type === "edit" ? true : false,
     },
@@ -470,20 +453,14 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
 
   const saveData = (DinhMucVatTu, saveQuit = false) => {
     const newData = {
-      ...DinhMucVatTu,
-      ngayYeuCau:
-        DinhMucVatTu.ngayYeuCau._i.split("/")[2] +
-        "-" +
-        DinhMucVatTu.ngayYeuCau._i.split("/")[1] +
-        "-" +
-        DinhMucVatTu.ngayYeuCau._i.split("/")[0],
-      list_VatTu: listVatTu,
+      cauTrucKho_Id: DinhMucVatTu.cauTrucKho_Id,
+      list_ChiTiets: listVatTu,
     };
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_DinhMucVatTu`,
+            `lkn_SoDuDauKy`,
             "POST",
             newData,
             "ADD",

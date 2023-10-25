@@ -60,16 +60,17 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const loadData = (keyword, cauTrucKho_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
+      cauTrucKho_Id,
       tuNgay,
       denNgay,
       keyword,
       page,
       donVi_Id: INFO.donVi_Id,
+      isThanhPham: true,
     });
-    dispatch(fetchStart(`lkn_PhieuDatHangNoiBo?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`lkn_SoDuDauKy?${param}`, "GET", null, "LIST"));
   };
   const getKho = () => {
     new Promise((resolve, reject) => {
@@ -162,7 +163,7 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
       deleteItemAction,
       item,
       item.maPhieuYeuCau,
-      "phiếu đặt hàng nội bộ"
+      "số dư đầu kỳ"
     );
   };
 
