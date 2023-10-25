@@ -44,6 +44,7 @@ import {
 } from "src/util/Common";
 import ModalTuChoi from "./ModalTuChoi";
 import Helper from "src/helpers";
+import dayjs from "dayjs";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -154,15 +155,17 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const [SanPham_Id, setSanPham_Id] = useState();
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
-
   const [SoLuong, setSoLuong] = useState();
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [File, setFile] = useState("");
   const [disableUpload, setDisableUpload] = useState(false);
   const [FileChat, setFileChat] = useState("");
+  const [Message, setMessage] = useState(null);
+  const [DisabledThem, setDisabledThem] = useState(true);
   const [openImage, setOpenImage] = useState(false);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
+
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
@@ -407,7 +410,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter((d) => d.id !== item.id);
+    const newData = listVatTu.filter((d) => d.vatTu_Id !== item.vatTu_Id);
     setListVatTu(newData);
   };
 
@@ -769,6 +772,22 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       </span>
     );
 
+  const hanldeSoLuong = (value) => {
+    if (value === null || value === "") {
+      setMessage("Vui lòng nhập số lượng");
+      setDisabledThem(true);
+    } else {
+      if (value <= 0) {
+        setMessage("Số lượng phải lớn hơn 0");
+        setDisabledThem(true);
+      } else {
+        setSoLuong(value);
+        setMessage(null);
+        setDisabledThem(false);
+      }
+    }
+  };
+
   const hanldeThem = () => {
     const params = convertObjectToUrlParams({ SanPham_Id: SanPham_Id });
     new Promise((resolve, reject) => {
@@ -899,7 +918,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
-          disabled={(permission && !permission.print) || type === "new"}
+          disabled={permission && !permission.print}
         >
           In phiếu
         </Button>
@@ -911,12 +930,16 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     setSanPham_Id(val);
   };
 
+  const disabledDate = (current) => {
+    return current && current < dayjs().startOf("day");
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
         title={formTitle}
         back={goBack}
-        buttons={addButtonRender()}
+        buttons={type === "new" ? null : addButtonRender()}
       />
       <Card className="th-card-margin-bottom">
         <Form
@@ -997,6 +1020,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
               >
                 <DatePicker
                   disabled={type === "new" || type === "edit" ? false : true}
+                  disabledDate={disabledDate}
                   format={"DD/MM/YYYY"}
                   allowClear={false}
                   onChange={(date, dateString) => {
@@ -1063,7 +1087,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
-                  placeholder="Chọn kiểm tra"
+                  placeholder="Chọn người kiểm tra"
                   optionsvalue={["user_Id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
@@ -1273,13 +1297,22 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem label="Số lượng" name={["sanPham", "soLuong"]}>
-                  <Input
-                    className="input-item"
-                    placeholder="Nhập số lượng"
-                    type="number"
-                    onChange={(e) => setSoLuong(e.target.value)}
-                    disabled={type === "new" || type === "edit" ? false : true}
-                  />
+                  <div>
+                    <Input
+                      style={{
+                        width: "100%",
+                        borderColor: Message ? "red" : "",
+                      }}
+                      className={`input-item ${Message ? "input-error" : ""}`}
+                      placeholder="Nhập số lượng"
+                      type="number"
+                      onChange={(e) => hanldeSoLuong(e.target.value)}
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                    {Message && <div style={{ color: "red" }}>{Message}</div>}
+                  </div>
                 </FormItem>
               </Col>
               {type === "new" || type === "edit" ? (
@@ -1296,7 +1329,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                     icon={<PlusOutlined />}
                     type="primary"
                     onClick={hanldeThem}
-                    disabled={!SanPham_Id || !SoLuong}
+                    disabled={!SanPham_Id || DisabledThem}
                   >
                     Thêm
                   </Button>

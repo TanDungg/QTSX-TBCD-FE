@@ -13,23 +13,48 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   const [ListViTriKho, setListViTriKho] = useState([]);
   const [Kho, setKho] = useState(null);
   const [ViTriKho, setViTriKho] = useState(null);
+  const [ListKhoVatTu, setListKhoVatTu] = useState([]);
+  const [KhoVatTu, setKhoVatTu] = useState(null);
   const [VatTu, setVatTu] = useState([]);
   const [ListVatTu, setListVatTu] = useState([]);
-  const [SoLuongTraNCC, setSoLuongTraNCC] = useState(0);
   const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [editingRecord, setEditingRecord] = useState(null);
   const [DisabledSave, setDisabledSave] = useState(true);
 
   useEffect(() => {
     if (openModal) {
-      const kho = itemData.Kho;
-      setKho(kho);
-      kho && getListViTriKho(kho.id);
+      getListKho();
     }
     return () => {
       dispatch(fetchReset());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
+
+  const getListKho = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&isThanhPham=false`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListKhoVatTu(res.data);
+        } else {
+          setListKhoVatTu([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
 
   const getListViTriKho = (cauTrucKho_Id) => {
     const params = convertObjectToUrlParams({
@@ -49,7 +74,10 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        const newListVatTu = res.data.map((data) => {
+        const newKho = ListKhoVatTu.filter((d) => d.id === cauTrucKho_Id);
+        setKho(newKho[0]);
+
+        const newData = res.data.map((data) => {
           const vitri = `${data.tenKe ? `${data.tenKe}` : ""}${
             data.tenTang ? ` - ${data.tenTang}` : ""
           }${data.tenNgan ? ` - ${data.tenNgan}` : ""}`;
@@ -59,26 +87,10 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
               vitri ? ` (${vitri})` : ""
             }`,
             soLuongTraNCC: data.soLuong,
-            tenCTKho: itemData.Kho && itemData.Kho.tenCTKho,
+            tenCTKho: newKho[0].tenCTKho,
           };
         });
-        const newData = newListVatTu.filter((data) => {
-          return (
-            itemData.listVatTu &&
-            !itemData.listVatTu.some(
-              (item) =>
-                item.vatTu === data.vatTu &&
-                item.cauTrucKho_Id === data.cauTrucKho_Id
-            )
-          );
-        });
         setListViTriKho(newData);
-
-        const newSoLuong = {};
-        newData.forEach((data) => {
-          newSoLuong[data.lkn_ChiTietKhoVatTu_Id] = data.soLuong;
-        });
-        setSoLuongTraNCC(newSoLuong);
       } else {
         setListViTriKho([]);
       }
@@ -96,32 +108,41 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             borderColor: hasError ? "red" : "",
           }}
           className={`input-item ${hasError ? "input-error" : ""}`}
-          value={
-            SoLuongTraNCC && SoLuongTraNCC[VatTu[0].lkn_ChiTietKhoVatTu_Id]
-          }
+          value={VatTu[0].soLuongTraNCC}
           type="number"
           onChange={(val) => handleInputChange(val)}
         />
+        {hasError && <div style={{ color: "red" }}>{errorMessage}</div>}
       </div>
     );
   };
 
   const handleInputChange = (val) => {
     const sl = val.target.value;
-    if (sl > VatTu[0].soLuong) {
+    if (sl === null || sl === "") {
       setHasError(true);
-      Helpers.alertError(
-        "Số lượng trả nhà cung cấp phải nhỏ hơn hoặc bằng số lượng trong kho"
-      );
+      setErrorMessage("Vui lòng nhập số lượng");
       setDisabledSave(true);
     } else {
-      setDisabledSave(false);
-      setHasError(false);
+      if (sl <= 0) {
+        setHasError(true);
+        setErrorMessage("Số lượng xuất phải lớn hơn 0");
+        setDisabledSave(true);
+      } else {
+        if (sl > VatTu[0].soLuong) {
+          setHasError(true);
+          setErrorMessage(
+            "Số lượng xuất phải nhỏ hơn hoặc bằng số lượng trong kho"
+          );
+          setDisabledSave(true);
+        } else {
+          setDisabledSave(false);
+          setHasError(false);
+          setErrorMessage(null);
+        }
+      }
     }
-    setSoLuongTraNCC((prevSoLuongTraNCC) => ({
-      ...prevSoLuongTraNCC,
-      [VatTu[0].lkn_ChiTietKhoVatTu_Id]: sl,
-    }));
+
     setVatTu((prevVatTu) => {
       return prevVatTu.map((item) => {
         if (VatTu[0].lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
@@ -317,6 +338,11 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     openModalFS(false);
   };
 
+  const handleSelectKho = (value) => {
+    setKhoVatTu(value);
+    getListViTriKho(value);
+  };
+
   const handleCancel = () => {
     setListViTriKho([]);
     setListVatTu([]);
@@ -346,10 +372,10 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             justify={"center"}
           >
             <Col
-              xxl={12}
-              xl={16}
-              lg={20}
-              md={20}
+              xxl={10}
+              xl={14}
+              lg={18}
+              md={18}
               sm={24}
               xs={24}
               style={{
@@ -358,7 +384,35 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
                 alignItems: "center",
               }}
             >
-              <span style={{ width: "100px", fontWeight: "bold" }}>
+              <span style={{ width: "120px", fontWeight: "bold" }}>
+                Chọn kho:
+              </span>
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListKhoVatTu ? ListKhoVatTu : []}
+                optionsvalue={["id", "tenCTKho"]}
+                style={{ width: "calc(100% - 120px)" }}
+                placeholder="Kho vật tư"
+                showSearch
+                optionFilterProp={"name"}
+                onSelect={handleSelectKho}
+                value={KhoVatTu}
+              />
+            </Col>
+            <Col
+              xxl={10}
+              xl={14}
+              lg={18}
+              md={18}
+              sm={24}
+              xs={24}
+              style={{
+                marginBottom: 15,
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <span style={{ width: "120px", fontWeight: "bold" }}>
                 Chọn vật tư:
               </span>
               <Select
@@ -366,11 +420,12 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
                 data={ListViTriKho ? ListViTriKho : []}
                 placeholder="Chọn vật tư điều chuyển"
                 optionsvalue={["lkn_ChiTietKhoVatTu_Id", "vatTu"]}
-                style={{ width: "calc(100% - 100px)" }}
+                style={{ width: "calc(100% - 120px)" }}
                 optionFilterProp={"name"}
                 showSearch
                 onSelect={HandleChonVatTu}
                 value={ViTriKho}
+                disabled={!KhoVatTu}
               />
             </Col>
             <Table

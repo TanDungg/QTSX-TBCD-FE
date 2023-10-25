@@ -62,7 +62,6 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
   const [ListNhaCungCap, setListNhaCungCap] = useState([]);
   const [ListVatTu, setListVatTu] = useState([]);
   const [ListKhoVatTu, setListKhoVatTu] = useState([]);
-  const [KhoVatTu, setKhoVatTu] = useState(null);
   const [Kho, setKho] = useState(null);
   const [ListUser, setListUser] = useState([]);
   const [ListUserDuyet, setListUserDuyet] = useState([]);
@@ -850,14 +849,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
     if (type === "edit") {
       setFieldTouch(true);
     }
-    setKhoVatTu(null);
     setKho(null);
-  };
-
-  const handleSelectKho = (value) => {
-    setKhoVatTu(value);
-    const newData = ListKhoVatTu.filter((d) => d.id === value);
-    setKho(newData[0]);
   };
 
   const propsFileDinhKem = {
@@ -1136,30 +1128,6 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
               xs={24}
               style={{ marginBottom: 8 }}
             >
-              <FormItem label="Kho vật tư">
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListKhoVatTu ? ListKhoVatTu : []}
-                  optionsvalue={["id", "tenCTKho"]}
-                  style={{ width: "100%" }}
-                  placeholder="Kho vật tư"
-                  showSearch
-                  optionFilterProp={"name"}
-                  onSelect={handleSelectKho}
-                  value={KhoVatTu}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
               <FormItem
                 label="File đính kèm"
                 name={["tranhacungcap", "fileDanhGiaChatLuong"]}
@@ -1290,7 +1258,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
-        itemData={{ Kho: Kho, listVatTu: ListVatTu && ListVatTu }}
+        itemData={ListVatTu && ListVatTu}
         ThemVatTu={handleThemVatTu}
       />
       <ModalTuChoi

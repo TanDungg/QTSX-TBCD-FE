@@ -448,13 +448,9 @@ function DeNghiMuaHang({ match, history, permission }) {
         selectedKeys.length > 0
           ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
           : [...selectedRowKeys];
-      if (row.length !== 0 && row[0].tinhTrang === "Chưa xác nhận") {
-        setSelectedMuaHang([]);
-        setSelectedKeys([]);
-      } else {
-        setSelectedMuaHang(row);
-        setSelectedKeys(key);
-      }
+
+      setSelectedMuaHang(row);
+      setSelectedKeys(key);
     },
   };
 
