@@ -60,7 +60,6 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             soLuongThanhLy: data.soLuong,
           };
         });
-
         const newData = newListVatTu.filter((data) => {
           return (
             itemData.listVatTu &&

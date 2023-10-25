@@ -76,8 +76,18 @@ const KiemKeForm = asyncComponent(() => import("./KiemKe/KiemKeForm"));
 
 const TheKho = asyncComponent(() => import("./TheKho/TheKho"));
 const TheKhoForm = asyncComponent(() => import("./TheKho/TheKhoForm"));
-const SoDuDauKy = asyncComponent(() => import("./SoDuDauKy/SoDuDauKy"));
-const SoDuDauKyForm = asyncComponent(() => import("./SoDuDauKy/SoDuDauKyForm"));
+const SoDuDauKyVatTu = asyncComponent(() =>
+  import("./SoDuDauKy/VatTu/SoDuDauKyVatTu")
+);
+const SoDuDauKyVatTuForm = asyncComponent(() =>
+  import("./SoDuDauKy/VatTu/SoDuDauKyVatTuForm")
+);
+const SoDuDauKyThanhPham = asyncComponent(() =>
+  import("./SoDuDauKy/ThanhPham/SoDuDauKyThanhPham")
+);
+const SoDuDauKyThanhPhamForm = asyncComponent(() =>
+  import("./SoDuDauKy/ThanhPham/SoDuDauKyThanhPhamForm")
+);
 const LayoutKho = asyncComponent(() => import("./LayoutKho/LayoutKho"));
 const ViTriLuu = asyncComponent(() => import("./ViTriLuu/ViTriLuu"));
 
@@ -356,19 +366,34 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(TheKhoForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/so-du-dau-ky`}
+        path={`${match.url}/so-du-dau-ky/vat-tu`}
         exact
-        component={Auth(SoDuDauKy, menus, pathname, permission)}
+        component={Auth(SoDuDauKyVatTu, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/so-du-dau-ky/them-moi`}
+        path={`${match.url}/so-du-dau-ky/vat-tu/them-moi`}
         exact
-        component={Auth(SoDuDauKyForm, menus, pathname, permission)}
+        component={Auth(SoDuDauKyVatTuForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/so-du-dau-ky/:id/chinh-sua`}
+        path={`${match.url}/so-du-dau-ky/vat-tu/:id/chinh-sua`}
         exact
-        component={Auth(SoDuDauKyForm, menus, pathname, permission)}
+        component={Auth(SoDuDauKyVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/so-du-dau-ky/thanh-pham`}
+        exact
+        component={Auth(SoDuDauKyThanhPham, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/so-du-dau-ky/thanh-pham/them-moi`}
+        exact
+        component={Auth(SoDuDauKyThanhPhamForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/so-du-dau-ky/thanh-pham/:id/chinh-sua`}
+        exact
+        component={Auth(SoDuDauKyThanhPhamForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/layout-kho`}

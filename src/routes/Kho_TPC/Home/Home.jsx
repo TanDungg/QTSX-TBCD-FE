@@ -125,7 +125,7 @@ function Home({ permission, history }) {
                 chiTiet.luyKeSX = sp.luyKeSanXuat;
                 chiTiet.diff = sp.chenhLech;
                 chiTiet.tongKH = sp.keHoachThang;
-                chiTiet.luyKeKH = sp.luyKeSanXuat;
+                chiTiet.luyKeKH = sp.luyKeKeHoach;
                 sp.soLuongChiTiet &&
                   sp.soLuongChiTiet.forEach((ct) => {
                     chiTiet[ct.ngay] = ct.soLuong;

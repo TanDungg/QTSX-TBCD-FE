@@ -7,6 +7,7 @@ import {
   EyeOutlined,
   EyeInvisibleOutlined,
   PrinterOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -31,7 +32,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function SoDuDauKy({ match, history, permission }) {
+function SoDuDauKyThanhPham({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -41,12 +42,12 @@ function SoDuDauKy({ match, history, permission }) {
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [ListBanPhong, setListBanPhong] = useState([]);
-  const [BanPhong, setBanPhong] = useState("");
+  const [ListKho, setListKho] = useState([]);
+  const [Kho, setKho] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
-      getBanPhong();
-      loadData(keyword, BanPhong, FromDate, ToDate, page);
+      getKho();
+      loadData(keyword, Kho, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -70,11 +71,11 @@ function SoDuDauKy({ match, history, permission }) {
     });
     dispatch(fetchStart(`lkn_PhieuDatHangNoiBo?${param}`, "GET", null, "LIST"));
   };
-  const getBanPhong = () => {
+  const getKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -86,9 +87,9 @@ function SoDuDauKy({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListBanPhong(res.data);
+          setListKho(res.data);
         } else {
-          setListBanPhong([]);
+          setListKho([]);
         }
       })
       .catch((error) => console.error(error));
@@ -98,7 +99,7 @@ function SoDuDauKy({ match, history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, BanPhong, FromDate, ToDate, page);
+    loadData(keyword, Kho, FromDate, ToDate, page);
   };
 
   /**
@@ -109,7 +110,7 @@ function SoDuDauKy({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, BanPhong, FromDate, ToDate, page);
+      loadData(val.target.value, Kho, FromDate, ToDate, page);
     }
   };
   /**
@@ -119,24 +120,8 @@ function SoDuDauKy({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const detailItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <EyeOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
-        </span>
-      );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
+      permission && permission.edit ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -152,13 +137,11 @@ function SoDuDauKy({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {detailItem}
-        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -196,7 +179,7 @@ function SoDuDauKy({ match, history, permission }) {
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, BanPhong, FromDate, ToDate, page);
+          loadData(keyword, Kho, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -210,7 +193,7 @@ function SoDuDauKy({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, BanPhong, FromDate, ToDate, pagination);
+    loadData(keyword, Kho, FromDate, ToDate, pagination);
   };
 
   /**
@@ -228,22 +211,22 @@ function SoDuDauKy({ match, history, permission }) {
     return (
       <>
         <Button
+          icon={<UploadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handlePrint}
+          disabled={permission && !permission.add}
+        >
+          Import
+        </Button>
+        <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
           type="primary"
           onClick={handleRedirect}
           disabled={permission && !permission.add}
         >
-          Tạo phiếu
-        </Button>
-        <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
-        >
-          In phiếu
+          Thêm mới
         </Button>
       </>
     );
@@ -279,21 +262,21 @@ function SoDuDauKy({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Tên sản phẩm",
-      key: "maPhieuYeuCau",
-      align: "center",
-      render: (val) => renderDetail(val),
-    },
-    {
-      title: "Số lượng",
-      dataIndex: "ngayXuat",
-      key: "ngayXuat",
+      title: "Mã phiếu",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
       align: "center",
     },
     {
-      title: "Hạn sử dụng",
-      dataIndex: "kho",
-      key: "kho",
+      title: "Người lập",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
+      align: "center",
+    },
+    {
+      title: "Kho",
+      dataIndex: "tenCTKho",
+      key: "tenCTKho",
       align: "center",
     },
     {
@@ -326,35 +309,13 @@ function SoDuDauKy({ match, history, permission }) {
       }),
     };
   });
-
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
-
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
-  const handleOnSelectBanPhong = (val) => {
-    setBanPhong(val);
+  const handleOnSelectKho = (val) => {
+    setKho(val);
     setPage(1);
     loadData(keyword, val, FromDate, ToDate, 1);
   };
-  const handleClearBanPhong = (val) => {
-    setBanPhong("");
+  const handleClearKho = (val) => {
+    setKho("");
     setPage(1);
     loadData(keyword, "", FromDate, ToDate, 1);
   };
@@ -362,13 +323,13 @@ function SoDuDauKy({ match, history, permission }) {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    loadData(keyword, Kho, dateString[0], dateString[1], 1);
   };
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Số dư đầu kỳ"
-        description="Số dư đầu kỳ"
+        title="Số dư đầu kỳ thành phẩm"
+        description="Số dư đầu kỳ thành phẩm"
         buttons={addButtonRender()}
       />
 
@@ -383,20 +344,20 @@ function SoDuDauKy({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Loại phiếu:</h5>
+            <h5>Kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListBanPhong ? ListBanPhong : []}
-              placeholder="Chọn Ban/Phòng"
-              optionsvalue={["id", "tenPhongBan"]}
+              data={ListKho ? ListKho : []}
+              placeholder="Chọn kho"
+              optionsvalue={["id", "tenCTKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectBanPhong}
-              value={BanPhong}
-              onChange={(value) => setBanPhong(value)}
+              onSelect={handleOnSelectKho}
+              value={Kho}
+              onChange={(value) => setKho(value)}
               allowClear
-              onClear={handleClearBanPhong}
+              onClear={handleClearKho}
             />
           </Col>
 
@@ -445,26 +406,6 @@ function SoDuDauKy({ match, history, permission }) {
           </Col>
         </Row>
         <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            preserveSelectedRowKeys: true,
-            selectedRowKeys: selectedKeys,
-            getCheckboxProps: (record) => ({}),
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setSelectedDevice([record]);
-                  setSelectedKeys([record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            };
-          }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}
@@ -489,4 +430,4 @@ function SoDuDauKy({ match, history, permission }) {
   );
 }
 
-export default SoDuDauKy;
+export default SoDuDauKyThanhPham;
