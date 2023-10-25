@@ -250,6 +250,13 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
               };
             });
           setListVatTu(newData);
+
+          const newSoLuong = {};
+          newData.forEach((data) => {
+            newSoLuong[data.lkn_ChiTietKhoBegin_Id] = data.soLuongThanhLy || 0;
+          });
+          console.log(newSoLuong);
+          setSoLuongThanhLy(newSoLuong);
         }
       })
       .catch((error) => console.error(error));
@@ -512,8 +519,12 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
       const newData = {
         ...data,
         id: id,
-        ngayYeuCau: data.ngayYeuCau.format("DD/MM/YYYY"),
-        chiTiet_PhieuThanhLys: ListVatTu,
+        chiTiet_PhieuThanhLys: ListVatTu.map((tl) => {
+          return {
+            ...tl,
+            lkn_PhieuDieuChuyen_ThanhLy_Id: id,
+          };
+        }),
       };
       new Promise((resolve, reject) => {
         dispatch(

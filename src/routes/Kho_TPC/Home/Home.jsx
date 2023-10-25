@@ -26,9 +26,9 @@ function Home({ permission, history }) {
   const [dataTDSXB, setDataTDSXB] = useState([]);
   const [dataTDSXCT, setDataTDSXCT] = useState([]);
   const [dataTDGHB, setDataTDGHB] = useState([]);
-  const [dataTDGHCT, setDataTDGHCT] = useState([]);
-  const [mixRowSXCT, setMixRowSXCT] = useState([]);
-  const [mixRowGHCT, setMixRowGHCT] = useState([]);
+  const [mixRowTDSX, setMixRowTDSX] = useState([]);
+  const [mixRowTDNK, setMixRowTDNK] = useState([]);
+  const [mixRowTDGH, setMixRowTDGH] = useState([]);
   const [activeTab, setActiveTab] = useState("1");
   const [load, setLoad] = useState(false);
   useEffect(() => {
@@ -116,6 +116,7 @@ function Home({ permission, history }) {
         .then((res) => {
           if (res && res.data) {
             const newData = [];
+
             res.data.forEach((x) => {
               JSON.parse(x.chiTietSanPham).forEach((sp) => {
                 const chiTiet = {};
@@ -133,6 +134,42 @@ function Home({ permission, history }) {
               });
             });
             setDataTDSXB(reDataForTable(newData));
+
+            const elementToFind = [];
+            const result = [];
+            map(newData, (d) => {
+              elementToFind.push({ dept: d.dept });
+            });
+            const uniqueArr = elementToFind.filter((element, index, self) => {
+              return index === self.findIndex((el) => el.dept === element.dept);
+            });
+            uniqueArr.forEach((d) => {
+              let count = 0;
+              let firstIndex = -1;
+              let lastIndex = -1;
+              elementToFind.forEach((element, index) => {
+                const matches = Object.keys(d).every((key) => {
+                  return d[key] === element[key];
+                });
+
+                if (matches) {
+                  count++;
+
+                  if (firstIndex === -1) {
+                    firstIndex = index;
+                  }
+
+                  lastIndex = index;
+                }
+              });
+              result.push({
+                dept: d.dept,
+                first: firstIndex,
+                last: lastIndex,
+                tong: count,
+              });
+            });
+            setMixRowTDSX(result);
           }
         })
         .catch((error) => console.error(error));
@@ -166,6 +203,42 @@ function Home({ permission, history }) {
               });
             });
             setDataTDSXCT(reDataForTable(newData));
+
+            const elementToFind = [];
+            const result = [];
+            map(newData, (d) => {
+              elementToFind.push({ dept: d.dept });
+            });
+            const uniqueArr = elementToFind.filter((element, index, self) => {
+              return index === self.findIndex((el) => el.dept === element.dept);
+            });
+            uniqueArr.forEach((d) => {
+              let count = 0;
+              let firstIndex = -1;
+              let lastIndex = -1;
+              elementToFind.forEach((element, index) => {
+                const matches = Object.keys(d).every((key) => {
+                  return d[key] === element[key];
+                });
+
+                if (matches) {
+                  count++;
+
+                  if (firstIndex === -1) {
+                    firstIndex = index;
+                  }
+
+                  lastIndex = index;
+                }
+              });
+              result.push({
+                dept: d.dept,
+                first: firstIndex,
+                last: lastIndex,
+                tong: count,
+              });
+            });
+            setMixRowTDNK(result);
           }
         })
         .catch((error) => console.error(error));
@@ -202,8 +275,42 @@ function Home({ permission, history }) {
                 newData.push(chiTiet);
               });
             });
-            console.log(newData);
             setDataTDGHB(reDataForTable(newData));
+            const elementToFind = [];
+            const result = [];
+            map(newData, (d) => {
+              elementToFind.push({ dept: d.dept });
+            });
+            const uniqueArr = elementToFind.filter((element, index, self) => {
+              return index === self.findIndex((el) => el.dept === element.dept);
+            });
+            uniqueArr.forEach((d) => {
+              let count = 0;
+              let firstIndex = -1;
+              let lastIndex = -1;
+              elementToFind.forEach((element, index) => {
+                const matches = Object.keys(d).every((key) => {
+                  return d[key] === element[key];
+                });
+
+                if (matches) {
+                  count++;
+
+                  if (firstIndex === -1) {
+                    firstIndex = index;
+                  }
+
+                  lastIndex = index;
+                }
+              });
+              result.push({
+                dept: d.dept,
+                first: firstIndex,
+                last: lastIndex,
+                tong: count,
+              });
+            });
+            setMixRowTDGH(result);
           }
         })
         .catch((error) => console.error(error));
@@ -226,92 +333,92 @@ function Home({ permission, history }) {
   };
 
   const ngayThangNam = getDate();
-  /**
-   * Hiển thị tag quyền
-   *
-   * @param {*} val
-   * @returns
-   */
-  const renderDisplayName = (val) => {
-    const tu = val.toString().split("/")[0];
-    const mau = val.toString().split("/")[1];
-    if (!isEmpty(val.toString())) {
-      if (val == "-" || val == "0/0") {
-        return (
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            -
-          </div>
-        );
-      } else if (Number(tu) >= Number(mau)) {
-        return (
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              background: "blue",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              color: "#fff",
-            }}
-          >
-            {val}
-          </div>
-        );
-      } else if (Number(tu) < Number(mau)) {
-        return (
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              background: "red",
-              display: "flex",
-              justifyContent: "center",
-              color: "#fff",
-              alignItems: "center",
-            }}
-          >
-            {val}
-          </div>
-        );
-      } else {
-        return (
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            {val}
-          </div>
-        );
-      }
-    }
-    return null;
-  };
+  // /**
+  //  * Hiển thị tag quyền
+  //  *
+  //  * @param {*} val
+  //  * @returns
+  //  */
+  // const renderDisplayName = (val) => {
+  //   const tu = val.toString().split("/")[0];
+  //   const mau = val.toString().split("/")[1];
+  //   if (!isEmpty(val.toString())) {
+  //     if (val == "-" || val == "0/0") {
+  //       return (
+  //         <div
+  //           style={{
+  //             position: "absolute",
+  //             top: 0,
+  //             left: 0,
+  //             width: "100%",
+  //             height: "100%",
+  //             display: "flex",
+  //             justifyContent: "center",
+  //             alignItems: "center",
+  //           }}
+  //         >
+  //           -
+  //         </div>
+  //       );
+  //     } else if (Number(tu) >= Number(mau)) {
+  //       return (
+  //         <div
+  //           style={{
+  //             position: "absolute",
+  //             top: 0,
+  //             left: 0,
+  //             width: "100%",
+  //             height: "100%",
+  //             background: "blue",
+  //             display: "flex",
+  //             justifyContent: "center",
+  //             alignItems: "center",
+  //             color: "#fff",
+  //           }}
+  //         >
+  //           {val}
+  //         </div>
+  //       );
+  //     } else if (Number(tu) < Number(mau)) {
+  //       return (
+  //         <div
+  //           style={{
+  //             position: "absolute",
+  //             top: 0,
+  //             left: 0,
+  //             width: "100%",
+  //             height: "100%",
+  //             background: "red",
+  //             display: "flex",
+  //             justifyContent: "center",
+  //             color: "#fff",
+  //             alignItems: "center",
+  //           }}
+  //         >
+  //           {val}
+  //         </div>
+  //       );
+  //     } else {
+  //       return (
+  //         <div
+  //           style={{
+  //             position: "absolute",
+  //             top: 0,
+  //             left: 0,
+  //             width: "100%",
+  //             height: "100%",
+  //             display: "flex",
+  //             justifyContent: "center",
+  //             alignItems: "center",
+  //           }}
+  //         >
+  //           {val}
+  //         </div>
+  //       );
+  //     }
+  //   }
+  //   return null;
+  // };
   const render = (val) => {
     if (val === undefined) {
       return (
@@ -357,15 +464,20 @@ function Home({ permission, history }) {
       width: 60,
       fixed: width > 450 ? "left" : "none",
       align: "center",
-      onCell: (_, index) => {
-        if (index == 0) {
-          return {
-            rowSpan: dataTDSXB.length,
-          };
-        }
-        return {
-          rowSpan: 0,
+      render: (value, row, index) => {
+        const obj = {
+          children: value,
+          props: {},
         };
+        mixRowTDSX.forEach((d, i) => {
+          if (index === d.first) {
+            obj.props.rowSpan = d.tong;
+          }
+          if (index > d.first && index <= d.last) {
+            obj.props.rowSpan = 0;
+          }
+        });
+        return obj;
       },
     },
     {
@@ -432,15 +544,20 @@ function Home({ permission, history }) {
       width: 60,
       fixed: width > 450 ? "left" : "none",
       align: "center",
-      onCell: (_, index) => {
-        if (index == 0) {
-          return {
-            rowSpan: dataTDSXCT.length,
-          };
-        }
-        return {
-          rowSpan: 0,
+      render: (value, row, index) => {
+        const obj = {
+          children: value,
+          props: {},
         };
+        mixRowTDNK.forEach((d, i) => {
+          if (index === d.first) {
+            obj.props.rowSpan = d.tong;
+          }
+          if (index > d.first && index <= d.last) {
+            obj.props.rowSpan = 0;
+          }
+        });
+        return obj;
       },
     },
     {
@@ -485,15 +602,20 @@ function Home({ permission, history }) {
       width: 60,
       fixed: width > 450 ? "left" : "none",
       align: "center",
-      onCell: (_, index) => {
-        if (index == 0) {
-          return {
-            rowSpan: dataTDGHB.length,
-          };
-        }
-        return {
-          rowSpan: 0,
+      render: (value, row, index) => {
+        const obj = {
+          children: value,
+          props: {},
         };
+        mixRowTDGH.forEach((d, i) => {
+          if (index === d.first) {
+            obj.props.rowSpan = d.tong;
+          }
+          if (index > d.first && index <= d.last) {
+            obj.props.rowSpan = 0;
+          }
+        });
+        return obj;
       },
     },
     {

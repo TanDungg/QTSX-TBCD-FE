@@ -133,7 +133,7 @@ function NguoiDung({ match, history, permission }) {
    */
   const deleteItemAction = (item) => {
     const param = convertObjectToUrlParams({
-      id: item.id,
+      id: item.user_Id,
       role_Id: item.role_Id,
     });
     let url = `Account/user-cbnv?${param}`;

@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import { ModalDeleteConfirm, Select, Table } from "src/components/Common";
-import Helpers from "src/helpers";
 import { DeleteOutlined } from "@ant-design/icons";
 
 function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
@@ -17,7 +16,6 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [DisabledSave, setDisabledSave] = useState(true);
-
   useEffect(() => {
     if (openModal) {
       getListViTriKho(itemData.kho_Id);
@@ -66,10 +64,13 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
         const newData = newListVatTu.filter((data) => {
           return (
             itemData.listVatTu &&
-            !itemData.listVatTu.some((item) => item.vatTu === data.vatTu)
+            !itemData.listVatTu.some(
+              (item) =>
+                item.lkn_ChiTietKhoBegin_Id === data.lkn_ChiTietKhoBegin_Id
+            )
           );
         });
-        setListViTriKho(newData);
+        setListViTriKho(newData.length > 0 ? newData : newListVatTu);
       } else {
         setListViTriKho([]);
       }
@@ -121,10 +122,9 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
         }
       }
     }
-
     setVatTu((prevVatTu) => {
       return prevVatTu.map((item) => {
-        if (VatTu[0].chiTietKho_Id === item.chiTietKho_Id) {
+        if (VatTu[0].lkn_ChiTietKhoBegin_Id === item.lkn_ChiTietKhoBegin_Id) {
           return {
             ...item,
             soLuongThanhLy: sl ? parseFloat(sl) : 0,
@@ -191,7 +191,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   const deleteItemAction = (item) => {
     const newData = ListVatTu.filter(
-      (data) => data.chiTietKho_Id !== item.chiTietKho_Id
+      (data) => data.lkn_ChiTietKhoBegin_Id !== item.lkn_ChiTietKhoBegin_Id
     );
     setListVatTu(newData);
   };
@@ -244,7 +244,9 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   ];
 
   const HandleChonVatTu = (value) => {
-    const vattu = ListViTriKho.filter((d) => d.chiTietKho_Id === value);
+    const vattu = ListViTriKho.filter(
+      (d) => d.lkn_ChiTietKhoBegin_Id === value
+    );
     setViTriKho(value);
     setVatTu(vattu);
     setDisabledSave(false);
@@ -253,7 +255,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   const HandleThemVatTu = () => {
     setListVatTu([...ListVatTu, VatTu[0]]);
     const listvitrikho = ListViTriKho.filter(
-      (d) => d.chiTietKho_Id !== ViTriKho
+      (d) => d.lkn_ChiTietKhoBegin_Id !== ViTriKho
     );
     setListViTriKho(listvitrikho);
     setViTriKho(null);
@@ -317,7 +319,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
                 className="heading-select slt-search th-select-heading"
                 data={ListViTriKho ? ListViTriKho : []}
                 placeholder="Chọn sản phẩm thanh lý"
-                optionsvalue={["chiTietKho_Id", "vatTu"]}
+                optionsvalue={["lkn_ChiTietKhoBegin_Id", "vatTu"]}
                 style={{ width: "calc(100% - 100px)" }}
                 optionFilterProp={"name"}
                 showSearch
@@ -338,7 +340,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
               <Button
                 type={"primary"}
                 onClick={HandleThemVatTu}
-                disabled={DisabledSave}
+                disabled={DisabledSave || VatTu.length === 0}
               >
                 Thêm sản phẩm
               </Button>
