@@ -14,8 +14,8 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   const [ViTriKho, setViTriKho] = useState(null);
   const [VatTu, setVatTu] = useState([]);
   const [ListVatTu, setListVatTu] = useState([]);
-  const [SoLuongThanhLy, setSoLuongThanhLy] = useState(0);
   const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
   const [DisabledSave, setDisabledSave] = useState(true);
 
   useEffect(() => {
@@ -70,12 +70,6 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
           );
         });
         setListViTriKho(newData);
-
-        const newSoLuong = {};
-        newData.forEach((data) => {
-          newSoLuong[data.chiTietKho_Id] = data.soLuong;
-        });
-        setSoLuongThanhLy(newSoLuong);
       } else {
         setListViTriKho([]);
       }
@@ -93,30 +87,41 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             borderColor: hasError ? "red" : "",
           }}
           className={`input-item ${hasError ? "input-error" : ""}`}
-          value={SoLuongThanhLy && SoLuongThanhLy[VatTu[0].chiTietKho_Id]}
+          value={VatTu[0].soLuongThanhLy}
           type="number"
           onChange={(val) => handleInputChange(val)}
         />
+        {hasError && <div style={{ color: "red" }}>{errorMessage}</div>}
       </div>
     );
   };
 
   const handleInputChange = (val) => {
     const sl = val.target.value;
-    if (sl > VatTu[0].soLuong) {
+    if (sl === null || sl === "") {
       setHasError(true);
-      Helpers.alertError(
-        "Số lượng thanh lý phải nhỏ hơn hoặc bằng số lượng trong kho"
-      );
+      setErrorMessage("Vui lòng nhập số lượng");
       setDisabledSave(true);
     } else {
-      setDisabledSave(false);
-      setHasError(false);
+      if (sl <= 0) {
+        setHasError(true);
+        setErrorMessage("Số lượng không được nhỏ hơn 0");
+        setDisabledSave(true);
+      } else {
+        if (sl > VatTu[0].soLuong) {
+          setHasError(true);
+          setErrorMessage(
+            "Số lượng thanh lý phải nhỏ hơn hoặc bằng số lượng trong kho"
+          );
+          setDisabledSave(true);
+        } else {
+          setDisabledSave(false);
+          setHasError(false);
+          setErrorMessage(null);
+        }
+      }
     }
-    setSoLuongThanhLy((prevSoLuongThanhLy) => ({
-      ...prevSoLuongThanhLy,
-      [VatTu[0].chiTietKho_Id]: sl,
-    }));
+
     setVatTu((prevVatTu) => {
       return prevVatTu.map((item) => {
         if (VatTu[0].chiTietKho_Id === item.chiTietKho_Id) {

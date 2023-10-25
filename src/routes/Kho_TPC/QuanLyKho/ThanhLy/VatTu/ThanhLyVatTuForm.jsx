@@ -200,10 +200,6 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  /**
-   * Lấy thông tin
-   *
-   */
   const getInfo = (id) => {
     const params = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id,
@@ -244,7 +240,6 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
 
               return {
                 ...data,
-                soLuongThanhLy: data.soLuongThanhLy,
                 lkn_ChiTietKhoVatTu_Id: data.lkn_ChiTietKhoVatTu_Id
                   ? data.lkn_ChiTietKhoVatTu_Id.toLowerCase()
                   : createGuid(),
@@ -259,10 +254,6 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  /**
-   * Quay lại trang bộ phận
-   *
-   */
   const goBack = () => {
     history.push(
       `${match.url.replace(
@@ -278,34 +269,17 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
     );
   };
 
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
   const deleteItemFunc = (item) => {
     const title = "vật tư";
     ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
   };
 
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
   const deleteItemAction = (item) => {
     const newData = ListVatTu.filter((d) => d.maVatTu !== item.maVatTu);
     setListVatTu(newData);
     setFieldTouch(true);
   };
 
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
   const actionContent = (item) => {
     const deleteItemVal =
       permission && permission.del && (type === "new" || type === "edit")
@@ -485,11 +459,6 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
     };
   });
 
-  /**
-   * Khi submit
-   *
-   * @param {*} values
-   */
   const onFinish = (values) => {
     saveData(values.phieuthanhly);
   };
@@ -783,7 +752,10 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
-        itemData={{ kho_Id: KhoVatTu, ListViTriKho: ListViTriKho }}
+        itemData={{
+          kho_Id: KhoVatTu,
+          ListViTriKho: ListVatTu.length !== 0 && ListVatTu,
+        }}
         ThemVatTu={handleThemVatTu}
       />
     </div>

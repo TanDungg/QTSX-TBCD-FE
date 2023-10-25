@@ -114,9 +114,11 @@ function DieuChuyenVatTu({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
+    console.log(item);
     const editItem =
       permission &&
       permission.edit &&
+      item.userLap_Id === INFO.user_Id &&
       moment(getDateNow(2), "DD/MM/YYYY") <=
         moment(item.ngayYeuCau, "DD/MM/YYYY") ? (
         <Link
@@ -136,6 +138,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
+      item.userLap_Id === INFO.user_Id &&
       moment(getDateNow(2), "DD/MM/YYYY") <=
         moment(item.ngayYeuCau, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }

@@ -247,7 +247,6 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
 
               return {
                 ...data,
-                soLuongDieuChuyen: data.soLuong,
                 lkn_ChiTietKhoVatTu_Id: data.lkn_ChiTietKhoVatTu_Id
                   ? data.lkn_ChiTietKhoVatTu_Id.toLowerCase()
                   : createGuid(),

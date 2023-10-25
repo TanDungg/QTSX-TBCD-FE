@@ -1,16 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -31,6 +24,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
+
 function ThanhLyThanhPham({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
@@ -54,10 +48,6 @@ function ThanhLyThanhPham({ match, history, permission }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Lấy dữ liệu về
-   *
-   */
   const getListData = (keyword, cauTrucKho_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
       cauTrucKho_Id,
@@ -100,34 +90,21 @@ function ThanhLyThanhPham({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * Tìm kiếm sản phẩm
-   *
-   */
+
   const onSearchDeNghiMuaHang = () => {
     getListData(keyword, Kho, FromDate, ToDate, page);
   };
 
-  /**
-   * Thay đổi keyword
-   *
-   * @param {*} val
-   */
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
       getListData(val.target.value, Kho, FromDate, ToDate, page);
     }
   };
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
+
   const actionContent = (item) => {
     const editItem =
-      permission && permission.edit ? (
+      permission && permission.edit && item.userLap_Id === INFO.user_Id ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -142,10 +119,12 @@ function ThanhLyThanhPham({ match, history, permission }) {
           <EditOutlined />
         </span>
       );
+
     const deleteVal =
-      permission && permission.del
+      permission && permission.del && item.userLap_Id === INFO.user_Id
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
+
     return (
       <div>
         {editItem}
@@ -157,12 +136,6 @@ function ThanhLyThanhPham({ match, history, permission }) {
     );
   };
 
-  /**
-   * deleteItemFunc: Xoá item theo item
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
   const deleteItemFunc = (item) => {
     ModalDeleteConfirm(
       deleteItemAction,
@@ -172,18 +145,12 @@ function ThanhLyThanhPham({ match, history, permission }) {
     );
   };
 
-  /**
-   * Xóa item
-   *
-   * @param {*} item
-   */
   const deleteItemAction = (item) => {
     let url = `lkn_PhieuThanhLyVatTu?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        // Reload lại danh sách
         if (res.status !== 409) {
           getListData(keyword, Kho, FromDate, ToDate, page);
         }
@@ -191,22 +158,11 @@ function ThanhLyThanhPham({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
   const handleTableChange = (pagination) => {
     setPage(pagination);
     getListData(keyword, Kho, FromDate, ToDate, pagination);
   };
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
   const handleRedirect = () => {
     history.push({
       pathname: `${match.url}/them-moi`,
@@ -228,12 +184,14 @@ function ThanhLyThanhPham({ match, history, permission }) {
       </>
     );
   };
+
   const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(
     data.datalist,
     page === 1 ? page : pageSize * (page - 1) + 2
   );
+
   const renderDetail = (val) => {
     const detail =
       permission && permission.view ? (
@@ -250,6 +208,7 @@ function ThanhLyThanhPham({ match, history, permission }) {
       );
     return <div>{detail}</div>;
   };
+
   let renderHead = [
     {
       title: "STT",
@@ -297,6 +256,7 @@ function ThanhLyThanhPham({ match, history, permission }) {
       cell: EditableCell,
     },
   };
+
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
