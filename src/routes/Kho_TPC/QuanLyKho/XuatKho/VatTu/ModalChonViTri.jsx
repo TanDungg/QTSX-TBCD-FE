@@ -9,7 +9,6 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
   const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [ListViTriKho, setListViTriKho] = useState([]);
-  const [SoLuongXuat, setSoLuongXuat] = useState(0);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
   const [editingRecord, setEditingRecord] = useState(null);
@@ -108,16 +107,22 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       setErrorMessage("Vui lòng nhập số lượng");
       setDisabledSave(true);
     } else {
-      if (sl > record.soLuong) {
+      if (sl <= 0) {
         setHasError(true);
-        setErrorMessage(
-          "Số lượng xuất phải nhỏ hơn hoặc bằng số lượng trong kho"
-        );
+        setErrorMessage("Số lượng xuất phải lớn hơn 0");
         setDisabledSave(true);
       } else {
-        setDisabledSave(false);
-        setHasError(false);
-        setErrorMessage(null);
+        if (sl > record.soLuong) {
+          setHasError(true);
+          setErrorMessage(
+            "Số lượng xuất phải nhỏ hơn hoặc bằng số lượng trong kho"
+          );
+          setDisabledSave(true);
+        } else {
+          setDisabledSave(false);
+          setHasError(false);
+          setErrorMessage(null);
+        }
       }
     }
     setEditingRecord(record);

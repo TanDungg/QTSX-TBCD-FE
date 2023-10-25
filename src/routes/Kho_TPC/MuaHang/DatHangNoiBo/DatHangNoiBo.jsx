@@ -4,13 +4,11 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-  PrinterOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -31,6 +29,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
+
 function DatHangNoiBo({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
@@ -39,8 +38,8 @@ function DatHangNoiBo({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
-  const [SelectedDatHang, setSelectedDatHang] = useState(null);
-  const [selectedKeys, setSelectedKeys] = useState(null);
+  const [SelectedDatHang, setSelectedDatHang] = useState([]);
+  const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListBanPhong, setListBanPhong] = useState([]);
   const [BanPhong, setBanPhong] = useState("");
   useEffect(() => {
@@ -131,18 +130,18 @@ function DatHangNoiBo({ match, history, permission }) {
           }}
           title="Xác nhận"
         >
-          <EyeOutlined />
+          <CheckCircleOutlined />
         </Link>
       ) : (
         <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
+          <CheckCircleOutlined />
         </span>
       );
     const editItem =
       permission &&
       permission.edit &&
       !item.fileXacNhan &&
-      INFO.user_Id === item.userYeuCau_Id ? (
+      item.userYeuCau_Id === INFO.user_Id ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -232,7 +231,9 @@ function DatHangNoiBo({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
+
   const handlePrint = () => {};
+
   const addButtonRender = () => {
     return (
       <>
@@ -245,7 +246,7 @@ function DatHangNoiBo({ match, history, permission }) {
         >
           Tạo phiếu
         </Button>
-        <Button
+        {/* <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -253,7 +254,7 @@ function DatHangNoiBo({ match, history, permission }) {
           disabled={permission && !permission.print}
         >
           In phiếu
-        </Button>
+        </Button> */}
       </>
     );
   };
@@ -374,6 +375,26 @@ function DatHangNoiBo({ match, history, permission }) {
     loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
   };
 
+  const rowSelection = {
+    selectedRowKeys: selectedKeys,
+    selectedRows: SelectedDatHang,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        SelectedDatHang.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectedDatHang[0].key)
+          : [...selectedRows];
+
+      const key =
+        selectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
+          : [...selectedRowKeys];
+
+      setSelectedDatHang(row);
+      setSelectedKeys(key);
+    },
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -472,38 +493,13 @@ function DatHangNoiBo({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
-          rowSelection={{
-            type: "radio",
-            selectedRowKeys: selectedKeys ? [selectedKeys] : [],
-            onChange: (selectedRowKeys, selectedRows) => {
-              if (
-                selectedRows.length > 0 &&
-                selectedRows[0].tinhTrang === "Đã hoàn tất xác nhận"
-              ) {
-                setSelectedDatHang(selectedRows[0]);
-                setSelectedKeys(selectedRows[0].key);
-              } else {
-                setSelectedDatHang(null);
-                setSelectedKeys(null);
-              }
-            },
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                if (
-                  selectedKeys === record.key ||
-                  record.tinhTrang !== "Đã hoàn tất xác nhận"
-                ) {
-                  setSelectedDatHang(null);
-                  setSelectedKeys(null);
-                } else {
-                  setSelectedDatHang(record);
-                  setSelectedKeys(record.key);
-                }
-              },
-            };
-          }}
+          // rowSelection={{
+          //   type: "checkbox",
+          //   ...rowSelection,
+          //   hideSelectAll: true,
+          //   preserveSelectedRowKeys: false,
+          //   selectedRowKeys: selectedKeys,
+          // }}
         />
       </Card>
     </div>

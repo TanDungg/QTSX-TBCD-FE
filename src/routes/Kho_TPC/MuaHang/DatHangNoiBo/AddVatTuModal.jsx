@@ -1,15 +1,14 @@
-import { Modal as AntModal, Button, Row, Form, Input, Col } from "antd";
-import { map, isEmpty } from "lodash";
+import { Modal as AntModal, Button, Row, Form, Input } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { Select } from "src/components/Common";
 
 const FormItem = Form.Item;
 
-function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
+function AddVatTuModal({ openModalFS, openModal, addVatTu }) {
   const dispatch = useDispatch();
   const [listVatTu, setListVatTu] = useState([]);
   const [fieldTouch, setFieldTouch] = useState(false);
@@ -167,8 +166,18 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
               },
             ]}
           >
-            <Input placeholder="Số lượng" type="number"></Input>
+            <Input
+              placeholder="Số lượng"
+              type="number"
+              inputMode="numeric"
+              onKeyPress={(e) => {
+                if (e.key === "e") {
+                  e.preventDefault();
+                }
+              }}
+            ></Input>
           </FormItem>
+
           <FormItem
             label="Hạng mục sử dụng"
             name={["vatTu", "hangMucSuDung"]}

@@ -43,6 +43,7 @@ import AddVatTuModal from "./AddVatTuModal";
 import ModalTuChoi from "./ModalTuChoi";
 import { BASE_URL_API } from "src/constants/Config";
 import Helper from "src/helpers";
+import dayjs from "dayjs";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -158,16 +159,19 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
   const [openImage, setOpenImage] = useState(false);
   const [ActiveModal, setActiveModal] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
-
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [editingRecord, setEditingRecord] = useState(null);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
+
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
+          setType("new");
           getUserLap(INFO);
           getUserKy(INFO);
-          setType("new");
           getNhaCungCap();
           setFieldsValue({
             dathangnoibo: {
@@ -361,10 +365,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * Quay lại trang bộ phận
-   *
-   */
+
   const goBack = () => {
     history.push(
       `${match.url.replace(
@@ -445,6 +446,68 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       </div>
     );
   };
+
+  const renderSoLuong = (record) => {
+    if (record) {
+      const isEditing =
+        editingRecord && editingRecord.vatTu_Id === record.vatTu_Id;
+      return (
+        <div>
+          <Input
+            min={0}
+            style={{
+              textAlign: "center",
+              width: "100%",
+              borderColor: isEditing && hasError ? "red" : "",
+            }}
+            className={`input-item ${
+              isEditing && hasError ? "input-error" : ""
+            }`}
+            value={record.soLuong}
+            type="number"
+            onChange={(val) => handleInputChange(val, record)}
+          />
+          {isEditing && hasError && (
+            <div style={{ color: "red" }}>{errorMessage}</div>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const handleInputChange = (val, record) => {
+    const sl = val.target.value;
+    if (sl === null || sl === "") {
+      setHasError(true);
+      setErrorMessage("Vui lòng nhập số lượng hợp lệ");
+      setFieldTouch(false);
+    } else {
+      if (sl <= 0) {
+        setHasError(true);
+        setErrorMessage("Số lượng xuất phải lớn hơn 0");
+        setFieldTouch(false);
+      } else {
+        setFieldTouch(true);
+        setHasError(false);
+        setErrorMessage(null);
+      }
+    }
+    setEditingRecord(record);
+
+    setListVatTu((prevListVatTu) => {
+      return prevListVatTu.map((item) => {
+        if (record.vatTu_Id === item.vatTu_Id) {
+          return {
+            ...item,
+            soLuong: sl ? parseFloat(sl) : 0,
+          };
+        }
+        return item;
+      });
+    });
+  };
+
   let colValues = [
     {
       title: "STT",
@@ -475,11 +538,9 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
 
     {
       title: "Số lượng",
-      dataIndex: "soLuong",
       key: "soLuong",
       align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+      render: (record) => renderSoLuong(record),
     },
     {
       title: "Hạng mục sử dụng",
@@ -591,6 +652,15 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
               resetFields();
               setFieldTouch(false);
               setListVatTu([]);
+              getUserLap(INFO);
+              getUserKy(INFO);
+              getNhaCungCap();
+              setFieldsValue({
+                dathangnoibo: {
+                  ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
+                  ngayHoanThanhDukien: moment(getDateNow(), "DD/MM/YYYY"),
+                },
+              });
             }
           } else {
             setFieldTouch(false);
@@ -787,6 +857,11 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       setOpenImage(true);
     }
   };
+
+  const disabledDate = (current) => {
+    return current && current < dayjs().startOf("day");
+  };
+
   const formTitle =
     type === "new" ? (
       "Tạo phiếu đặt hàng nội bộ "
@@ -808,6 +883,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
         </Tag>
       </span>
     );
+
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -933,7 +1009,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListNhaCungCap}
-                  placeholder="Chọn nhà cung cấp"
+                  placeholder="Chọn người liên hệ"
                   optionsvalue={["id", "nguoiLienHe"]}
                   style={{ width: "100%" }}
                   showSearch
@@ -963,7 +1039,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListNhaCungCap}
-                  placeholder="Chọn nhà cung cấp"
+                  placeholder="Chọn địa chỉ"
                   optionsvalue={["id", "diaChi"]}
                   style={{ width: "100%" }}
                   showSearch
@@ -993,7 +1069,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListNhaCungCap}
-                  placeholder="Chọn nhà cung cấp"
+                  placeholder="Chọn số điện thoại"
                   optionsvalue={["id", "soDienThoai"]}
                   style={{ width: "100%" }}
                   showSearch
@@ -1075,6 +1151,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                   format={"DD/MM/YYYY"}
                   allowClear={false}
                   disabled={type === "new" || type === "edit" ? false : true}
+                  disabledDate={disabledDate}
                   onChange={(date, dateString) => {
                     setFieldsValue({
                       dathangnoibo: {
@@ -1139,7 +1216,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
-                  placeholder="Chọn cv thu mua"
+                  placeholder="Chọn chuyên viên thu mua"
                   optionsvalue={["user_Id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
@@ -1220,7 +1297,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
-                  placeholder="Chọn kiểm tra"
+                  placeholder="Chọn người kiểm tra"
                   optionsvalue={["user_Id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
@@ -1282,7 +1359,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
-                  placeholder="Chọn người duỵet"
+                  placeholder="Chọn người duyệt"
                   optionsvalue={["user_Id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
