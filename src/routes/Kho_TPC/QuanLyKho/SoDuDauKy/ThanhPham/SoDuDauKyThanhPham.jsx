@@ -28,6 +28,7 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import ImportSoDuDauKy from "./ImportSoDuDauKy";
 import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -38,6 +39,7 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
+  const [DisableModal, setDisableModal] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
@@ -60,16 +62,20 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const loadData = (keyword, cauTrucKho_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
+      cauTrucKho_Id,
       tuNgay,
       denNgay,
       keyword,
       page,
       donVi_Id: INFO.donVi_Id,
+      isThanhPham: true,
     });
-    dispatch(fetchStart(`lkn_PhieuDatHangNoiBo?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`lkn_SoDuDauKy?${param}`, "GET", null, "LIST"));
+  };
+  const refesh = () => {
+    loadData(keyword, Kho, FromDate, ToDate, page);
   };
   const getKho = () => {
     new Promise((resolve, reject) => {
@@ -161,8 +167,8 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuYeuCau,
-      "phiếu đặt hàng nội bộ"
+      item.maPhieuSoDuDauKy,
+      "số dư đầu kỳ"
     );
   };
 
@@ -172,7 +178,7 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDatHangNoiBo/${item.id}`;
+    let url = `lkn_SoDuDauKy?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -206,7 +212,9 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handlePrint = () => {};
+  const handlePrint = () => {
+    setDisableModal(true);
+  };
   const addButtonRender = () => {
     return (
       <>
@@ -246,10 +254,10 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuYeuCau}
+          {val.maPhieuSoDuDauKy}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuYeuCau}</span>
+        <span disabled>{val.maPhieuSoDuDauKy}</span>
       );
     return <div>{detail}</div>;
   };
@@ -263,20 +271,27 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
     },
     {
       title: "Mã phiếu",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
+      // dataIndex: "maPhieuSoDuDauKy",
+      key: "maPhieuSoDuDauKy",
       align: "center",
+      render: (val) => renderDetail(val),
     },
     {
       title: "Người lập",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
+      dataIndex: "tenNguoiLap",
+      key: "tenNguoiLap",
+      align: "center",
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "soLuong",
+      key: "soLuong",
       align: "center",
     },
     {
       title: "Kho",
-      dataIndex: "tenCTKho",
-      key: "tenCTKho",
+      dataIndex: "tenCauTrucKho",
+      key: "tenCauTrucKho",
       align: "center",
     },
     {
@@ -424,6 +439,11 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+        />
+        <ImportSoDuDauKy
+          openModal={DisableModal}
+          openModalFS={setDisableModal}
+          refesh={refesh}
         />
       </Card>
     </div>

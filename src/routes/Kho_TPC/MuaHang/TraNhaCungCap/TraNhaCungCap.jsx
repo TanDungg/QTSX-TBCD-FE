@@ -120,7 +120,10 @@ function TraNhaCungCap({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
+      permission &&
+      permission.cof &&
+      item.userDuyet_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -136,7 +139,10 @@ function TraNhaCungCap({ match, history, permission }) {
         </span>
       );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
+      permission &&
+      permission.edit &&
+      item.createdBy === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -154,7 +160,7 @@ function TraNhaCungCap({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
-      !item.isUsed &&
+      item.createdBy === INFO.user_Id &&
       item.tinhTrang === "Chưa xác nhận"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };

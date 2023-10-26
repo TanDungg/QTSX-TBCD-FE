@@ -161,20 +161,7 @@ function TheoDoiHangVe({ match, history, permission }) {
       align: "center",
       width: 120,
     },
-    {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
-      align: "center",
-      width: 80,
-    },
-    {
-      title: "SL mua",
-      dataIndex: "soLuongMua",
-      key: "soLuongMua",
-      align: "center",
-      width: 80,
-    },
+
     {
       title: "Hạng mục sử dụng",
       dataIndex: "hangMucSuDung",
@@ -209,6 +196,20 @@ function TheoDoiHangVe({ match, history, permission }) {
       key: "ngayHangVe",
       align: "center",
       width: 140,
+    },
+    {
+      title: "Đơn vị tính",
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
+      align: "center",
+      width: 80,
+    },
+    {
+      title: "SL mua",
+      dataIndex: "soLuongMua",
+      key: "soLuongMua",
+      align: "center",
+      width: 80,
     },
     {
       title: "SL hàng nhận",
@@ -388,7 +389,7 @@ function TheoDoiHangVe({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 1200, y: "70vh" }}
+          scroll={{ x: 1200, y: "65vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -399,7 +400,7 @@ function TheoDoiHangVe({ match, history, permission }) {
           }}
           pagination={{
             onChange: handleTableChange,
-            pageSize: pageSize,
+            pageSize: 20,
             total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,

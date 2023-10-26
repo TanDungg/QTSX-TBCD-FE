@@ -49,6 +49,7 @@ const VatTuForm = ({ history, match, permission }) => {
   const [VatTu, setVatTu] = useState([]);
   const [ListKhoVatTu, setListKhoVatTu] = useState([]);
   const [CauTrucKho, setCauTrucKho] = useState(null);
+  const [Kho, setKho] = useState(null);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ActiveModalChonViTri, setActiveModalChonViTri] = useState(false);
@@ -428,6 +429,7 @@ const VatTuForm = ({ history, match, permission }) => {
     setActiveModalChonViTri(true);
     setVatTu({
       ...record,
+      ...(Kho && Kho),
       cauTrucKhoId: CauTrucKho,
       isCheck: check,
     });
@@ -619,7 +621,7 @@ const VatTuForm = ({ history, match, permission }) => {
       })
         .then((res) => {
           if (res.status !== 409) {
-            if (saveQuit) {
+            if (saveQuit || type === "taophieuxuat") {
               goBack();
             } else {
               resetFields();
@@ -750,6 +752,8 @@ const VatTuForm = ({ history, match, permission }) => {
 
   const handleSelectViTriKho = (val) => {
     setCauTrucKho(val);
+    const newData = ListKhoVatTu.filter((data) => data.id === val);
+    setKho(newData[0]);
   };
 
   return (
@@ -842,7 +846,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp={"name"}
                   onSelect={handleSelectXuong}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -877,7 +881,7 @@ const VatTuForm = ({ history, match, permission }) => {
                       },
                     });
                   }}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={true}
                 />
               </FormItem>
             </Col>
@@ -909,7 +913,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp={"name"}
                   onSelect={handleSelectListVatTu}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -967,7 +971,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp={"name"}
                   onSelect={handleSelectViTriKho}
-                  disabled={type !== "detail" ? false : true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>

@@ -11,7 +11,6 @@ import {
   Select,
   Table,
   ModalDeleteConfirm,
-  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_DMVT } from "src/constants/Config";
@@ -83,6 +82,9 @@ const EditableCell = ({
           title === "Số lượng"
             ? [
                 {
+                  required: true,
+                },
+                {
                   pattern: /^[1-9]\d*$/,
                   message: "Số lượng phải là số và lớn hơn 0!",
                 },
@@ -127,7 +129,6 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
   const [ListKho, setListKho] = useState([]);
-  const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ActiveModal, setActiveModal] = useState(false);
   const [ActiveModalSanPham, setActiveModalSanPham] = useState(false);
@@ -234,7 +235,7 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_DinhMucVatTu/${id}`,
+          `lkn_SoDuDauKy/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -246,15 +247,14 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListVatTu(JSON.parse(res.data.chiTietBOM));
+          setListVatTu(JSON.parse(res.data.chiTiets));
           getUserLap(INFO, res.data.nguoiLap_Id);
           setInfo(res.data);
           getKho();
           setFieldsValue({
             dinhmucvattu: {
               cauTrucKho_Id: res.data.cauTrucKho_Id,
-              ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
-              nguoiKy_Id: res.data.nguoiKy_Id,
+              ngayYeuCau: moment(res.data.ngayTao, "DD/MM/YYYY"),
             },
           });
         }
@@ -272,9 +272,7 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
           ? "/them-moi"
           : type === "edit"
           ? `/${id}/chinh-sua`
-          : type === "detail"
-          ? `/${id}/chi-tiet`
-          : `/${id}/xac-nhan`,
+          : `/${id}/chi-tiet`,
         ""
       )}`
     );
@@ -295,41 +293,25 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          res.data.ghiChu = data.ghiChu;
-          res.data.soLuong = data.soLuong;
-          res.data.vatTu_Id = res.data.id;
-          setListVatTu([...listVatTu, res.data]);
+          const newData = {
+            soLuongNhap: data.soLuong,
+            vatTu_Id: res.data.id,
+            tenMauSac: res.data.tenMauSac,
+            tenVatTu: res.data.tenVatTu,
+            maVatTu: res.data.maVatTu,
+            tenDonViTinh: res.data.tenDonViTinh,
+            thoiGianSuDung: data.thoiGianSuDung._i,
+          };
+
+          setListVatTu([...listVatTu, newData]);
           setFieldTouch(true);
         }
       })
       .catch((error) => console.error(error));
   };
   const getDetailSanPham = (data) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `SanPham/${data.vatTu_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          res.data.ghiChu = data.ghiChu;
-          res.data.soLuong = data.soLuong;
-          res.data.vatTu_Id = res.data.id;
-          res.data.tenVatTu = res.data.tenSanPham;
-          res.data.maVatTu = res.data.maSanPham;
-          setListVatTu([...listVatTu, res.data]);
-          setFieldTouch(true);
-        }
-      })
-      .catch((error) => console.error(error));
+    setListVatTu([...listVatTu, data]);
+    setFieldTouch(true);
   };
   /**
    * deleteItemFunc: Remove item from list
@@ -395,6 +377,12 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
+      title: "Màu sắc",
+      dataIndex: "tenMauSac",
+      key: "tenMauSac",
+      align: "center",
+    },
+    {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
@@ -402,10 +390,16 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
+      dataIndex: "soLuongNhap",
+      key: "soLuongNhap",
       align: "center",
       editable: type === "new" || type === "edit" ? true : false,
+    },
+    {
+      title: "Hạn sử dụng",
+      dataIndex: "thoiGianSuDung",
+      key: "thoiGianSuDung",
+      align: "center",
     },
     {
       title: "Chức năng",
@@ -430,6 +424,7 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
       ...row,
     });
     setListVatTu(newData);
+    setFieldTouch(true);
   };
   const columns = map(colValues, (col) => {
     if (!col.editable) {
@@ -473,20 +468,14 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
 
   const saveData = (DinhMucVatTu, saveQuit = false) => {
     const newData = {
-      ...DinhMucVatTu,
-      ngayYeuCau:
-        DinhMucVatTu.ngayYeuCau._i.split("/")[2] +
-        "-" +
-        DinhMucVatTu.ngayYeuCau._i.split("/")[1] +
-        "-" +
-        DinhMucVatTu.ngayYeuCau._i.split("/")[0],
-      list_VatTu: listVatTu,
+      cauTrucKho_Id: DinhMucVatTu.cauTrucKho_Id,
+      list_ChiTiets: listVatTu,
     };
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_DinhMucVatTu`,
+            `lkn_SoDuDauKy`,
             "POST",
             newData,
             "ADD",
@@ -523,7 +512,7 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_DinhMucVatTu?id=${id}`,
+            `lkn_SoDuDauKy/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -574,17 +563,7 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết định số dư đầu kỳ vật tư -{" "}
-        <Tag
-          color={
-            info.xacNhan === null
-              ? "processing"
-              : info.xacNhan
-              ? "success"
-              : "error"
-          }
-        >
-          {info.xacNhanDinhMuc}
-        </Tag>
+        <Tag color={"success"}>{info.maPhieuSoDuDauKy}</Tag>
       </span>
     );
   return (
@@ -649,38 +628,6 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
                 <Input className="input-item" disabled={true} />
               </FormItem>
             </Col>
-            {/* <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Loại sản phẩm"
-                name={["dinhmucvattu", "loaicauTrucKho_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={listLoaiSanPham ? listLoaiSanPham : []}
-                  placeholder="Chọn loại sản phẩm"
-                  optionsvalue={["id", "tenLoaiSanPham"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  onSelect={handleSelectLoaiSanPham}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col> */}
             <Col
               xxl={12}
               xl={12}
@@ -708,7 +655,7 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>

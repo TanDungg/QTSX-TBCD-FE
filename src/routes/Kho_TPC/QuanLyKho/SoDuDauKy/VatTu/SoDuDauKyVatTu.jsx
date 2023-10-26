@@ -29,7 +29,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
-
+import ImportSoDuDauKy from "./ImportSoDuDauKy";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 function SoDuDauKyVatTu({ match, history, permission }) {
@@ -43,6 +43,8 @@ function SoDuDauKyVatTu({ match, history, permission }) {
   const [ToDate, setToDate] = useState(getDateNow());
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListKho, setListKho] = useState([]);
+  const [DisableModal, setDisableModal] = useState(false);
+
   const [Kho, setKho] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
@@ -60,16 +62,20 @@ function SoDuDauKyVatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const loadData = (keyword, cauTrucKho_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
+      cauTrucKho_Id,
       tuNgay,
       denNgay,
       keyword,
       page,
       donVi_Id: INFO.donVi_Id,
+      isThanhPham: false,
     });
-    dispatch(fetchStart(`lkn_PhieuDatHangNoiBo?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`lkn_SoDuDauKy?${param}`, "GET", null, "LIST"));
+  };
+  const refesh = () => {
+    loadData(keyword, Kho, FromDate, ToDate, page);
   };
   const getKho = () => {
     new Promise((resolve, reject) => {
@@ -206,7 +212,9 @@ function SoDuDauKyVatTu({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handlePrint = () => {};
+  const handlePrint = () => {
+    setDisableModal(true);
+  };
   const addButtonRender = () => {
     return (
       <>
@@ -246,10 +254,10 @@ function SoDuDauKyVatTu({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuYeuCau}
+          {val.maPhieuSoDuDauKy}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuYeuCau}</span>
+        <span disabled>{val.maPhieuSoDuDauKy}</span>
       );
     return <div>{detail}</div>;
   };
@@ -262,21 +270,16 @@ function SoDuDauKyVatTu({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      title: "Mã phiếu",
+      // dataIndex: "maPhieuSoDuDauKy",
+      key: "maPhieuSoDuDauKy",
       align: "center",
+      render: (val) => renderDetail(val),
     },
     {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
-      align: "center",
-    },
-    {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
+      title: "Người lập",
+      dataIndex: "tenNguoiLap",
+      key: "tenNguoiLap",
       align: "center",
     },
     {
@@ -286,15 +289,9 @@ function SoDuDauKyVatTu({ match, history, permission }) {
       align: "center",
     },
     {
-      title: "Hạn sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
-      align: "center",
-    },
-    {
       title: "Kho",
-      dataIndex: "tenCTKho",
-      key: "tenCTKho",
+      dataIndex: "tenCauTrucKho",
+      key: "tenCauTrucKho",
       align: "center",
     },
     {
@@ -446,26 +443,26 @@ function SoDuDauKyVatTu({ match, history, permission }) {
           </Col>
         </Row>
         <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            preserveSelectedRowKeys: true,
-            selectedRowKeys: selectedKeys,
-            getCheckboxProps: (record) => ({}),
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setSelectedDevice([record]);
-                  setSelectedKeys([record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            };
-          }}
+          // rowSelection={{
+          //   type: "checkbox",
+          //   ...rowSelection,
+          //   preserveSelectedRowKeys: true,
+          //   selectedRowKeys: selectedKeys,
+          //   getCheckboxProps: (record) => ({}),
+          // }}
+          // onRow={(record, rowIndex) => {
+          //   return {
+          //     onClick: (e) => {
+          //       const found = find(selectedKeys, (k) => k === record.key);
+          //       if (found === undefined) {
+          //         setSelectedDevice([record]);
+          //         setSelectedKeys([record.key]);
+          //       } else {
+          //         hanldeRemoveSelected(record);
+          //       }
+          //     },
+          //   };
+          // }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}
@@ -484,6 +481,11 @@ function SoDuDauKyVatTu({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+        />
+        <ImportSoDuDauKy
+          openModal={DisableModal}
+          openModalFS={setDisableModal}
+          refesh={refesh}
         />
       </Card>
     </div>

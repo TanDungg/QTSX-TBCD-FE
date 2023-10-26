@@ -5,6 +5,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
+  PrinterOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -247,7 +248,7 @@ function DatHangNoiBo({ match, history, permission }) {
         >
           Tạo phiếu
         </Button>
-        {/* <Button
+        <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -255,7 +256,7 @@ function DatHangNoiBo({ match, history, permission }) {
           disabled={permission && !permission.print}
         >
           In phiếu
-        </Button> */}
+        </Button>
       </>
     );
   };
@@ -494,13 +495,13 @@ function DatHangNoiBo({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
-          // rowSelection={{
-          //   type: "checkbox",
-          //   ...rowSelection,
-          //   hideSelectAll: true,
-          //   preserveSelectedRowKeys: false,
-          //   selectedRowKeys: selectedKeys,
-          // }}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: selectedKeys,
+          }}
         />
       </Card>
     </div>

@@ -348,7 +348,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                 }`,
               };
             });
-          setListVatTu(newData);
+          setListVatTu(newData ? newData : []);
 
           const newSoLuong = {};
           newData.forEach((data) => {
@@ -1127,8 +1127,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                 <DatePicker
                   format={"DD/MM/YYYY"}
                   allowClear={false}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                  disabledDate={disabledDate}
+                  disabled={true}
                 />
               </FormItem>
             </Col>

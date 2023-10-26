@@ -26371,11 +26371,14 @@ div.ant-typography-edit-content.ant-typography-rtl {
 }
 .ant-upload-list-picture-card-container {
   display: inline-block;
-  width: 104px;
-  height: 104px;
+  width: 200px;
+  height: 200px;
+  /* width: 104px;
+  height: 104px; */
   margin: 0 8px 8px 0;
   vertical-align: top;
 }
+
 .ant-upload-list-picture-card .ant-upload-list-item {
   height: 100%;
   margin: 0;

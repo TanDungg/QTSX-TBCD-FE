@@ -16,6 +16,8 @@ const ChucNang = asyncComponent(() => import("./ChucNang/ChucNang"));
 const ChucNangForm = asyncComponent(() => import("./ChucNang/ChucNangForm"));
 const VaiTro = asyncComponent(() => import("./VaiTro/VaiTro"));
 const VaiTroForm = asyncComponent(() => import("./VaiTro/VaiTroForm"));
+const ChuKy = asyncComponent(() => import("./ChuKy/ChuKy"));
+
 // const PhanQuyenDonVi = asyncComponent(() =>
 //   import("./PhanQuyenDonVi/PhanQuyenDonVi")
 // );
@@ -131,6 +133,11 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/vai-tro/:id/phan-quyen`}
         exact
         component={Auth(Quyen, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/chu-ky-so`}
+        exact
+        component={Auth(ChuKy, menus, pathname, permission)}
       />
       {/* <Route
         path={`${match.url}/dieu-chuyen-cbnv`}

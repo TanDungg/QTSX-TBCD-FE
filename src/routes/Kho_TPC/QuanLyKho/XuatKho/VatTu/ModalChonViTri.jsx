@@ -53,16 +53,23 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
             if (vitri) {
               return {
                 ...data,
+                tenCTKho: itemData.tenCTKho,
                 soLuongThucXuat: vitri.soLuongThucXuat,
+              };
+            } else {
+              return {
+                ...data,
+                tenCTKho: itemData.tenCTKho,
+                soLuongThucXuat: 0,
               };
             }
           }
           return {
             ...data,
+            tenCTKho: itemData.tenCTKho,
             soLuongThucXuat: data.soLuong,
           };
         });
-        console.log(newData);
         setDisabledSave(newData.length > 0 ? false : true);
         setListViTriKho(newData);
       } else {
@@ -150,6 +157,12 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       width: 50,
     },
     {
+      title: "Tên kho",
+      dataIndex: "tenCTKho",
+      key: "tenCTKho",
+      align: "center",
+    },
+    {
       title: "Tên kệ",
       dataIndex: "tenKe",
       key: "tenKe",
@@ -210,9 +223,9 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       soLuongThucXuat: SoLuong,
       chiTiet_LuuVatTus: ViTri.map((vt) => ({
         ...vt,
-        viTri: `${vt.tenKe}${vt.tenTang ? ` - ${vt.tenTang}` : ""}${
-          vt.tenNgan ? ` - ${vt.tenNgan}` : ""
-        }`,
+        viTri: `${vt.tenKe ? ` - ${vt.tenKe}` : ""}${
+          vt.tenTang ? ` - ${vt.tenTang}` : ""
+        }${vt.tenNgan ? ` - ${vt.tenNgan}` : ""}`,
       })),
     };
 

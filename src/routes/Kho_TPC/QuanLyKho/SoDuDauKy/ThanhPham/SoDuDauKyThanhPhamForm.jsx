@@ -231,7 +231,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_DinhMucVatTu/${id}`,
+          `lkn_SoDuDauKy/${id}?id=${id}&&donVi_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -243,15 +243,14 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListVatTu(JSON.parse(res.data.chiTietBOM));
+          setListVatTu(JSON.parse(res.data.chiTiets));
           getUserLap(INFO, res.data.nguoiLap_Id);
           setInfo(res.data);
           getKho();
           setFieldsValue({
             dinhmucvattu: {
               cauTrucKho_Id: res.data.cauTrucKho_Id,
-              ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
-              nguoiKy_Id: res.data.nguoiKy_Id,
+              ngayYeuCau: moment(res.data.ngayTao, "DD/MM/YYYY"),
             },
           });
         }
@@ -269,9 +268,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
           ? "/them-moi"
           : type === "edit"
           ? `/${id}/chinh-sua`
-          : type === "detail"
-          ? `/${id}/chi-tiet`
-          : `/${id}/xac-nhan`,
+          : `/${id}/chi-tiet`,
         ""
       )}`
     );
@@ -302,31 +299,8 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
   const getDetailSanPham = (data) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `SanPham/${data.vatTu_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          res.data.ghiChu = data.ghiChu;
-          res.data.soLuong = data.soLuong;
-          res.data.vatTu_Id = res.data.id;
-          res.data.tenVatTu = res.data.tenSanPham;
-          res.data.maVatTu = res.data.maSanPham;
-          setListVatTu([...listVatTu, res.data]);
-          setFieldTouch(true);
-        }
-      })
-      .catch((error) => console.error(error));
+    setListVatTu([...listVatTu, data]);
+    setFieldTouch(true);
   };
   /**
    * deleteItemFunc: Remove item from list
@@ -335,7 +309,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "vật tư";
+    const title = "sản phẩm";
     ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
   };
 
@@ -392,6 +366,12 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
+      title: "Màu sắc",
+      dataIndex: "tenMauSac",
+      key: "tenMauSac",
+      align: "center",
+    },
+    {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
@@ -399,8 +379,8 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
+      dataIndex: "soLuongNhap",
+      key: "soLuongNhap",
       align: "center",
       editable: type === "new" || type === "edit" ? true : false,
     },
@@ -427,6 +407,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
       ...row,
     });
     setListVatTu(newData);
+    setFieldTouch(true);
   };
   const columns = map(colValues, (col) => {
     if (!col.editable) {
@@ -470,20 +451,14 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
 
   const saveData = (DinhMucVatTu, saveQuit = false) => {
     const newData = {
-      ...DinhMucVatTu,
-      ngayYeuCau:
-        DinhMucVatTu.ngayYeuCau._i.split("/")[2] +
-        "-" +
-        DinhMucVatTu.ngayYeuCau._i.split("/")[1] +
-        "-" +
-        DinhMucVatTu.ngayYeuCau._i.split("/")[0],
-      list_VatTu: listVatTu,
+      cauTrucKho_Id: DinhMucVatTu.cauTrucKho_Id,
+      list_ChiTiets: listVatTu,
     };
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_DinhMucVatTu`,
+            `lkn_SoDuDauKy`,
             "POST",
             newData,
             "ADD",
@@ -520,7 +495,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_DinhMucVatTu?id=${id}`,
+            `lkn_SoDuDauKy/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -571,17 +546,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết định số dư đầu kỳ thành phẩm -{" "}
-        <Tag
-          color={
-            info.xacNhan === null
-              ? "processing"
-              : info.xacNhan
-              ? "success"
-              : "error"
-          }
-        >
-          {info.xacNhanDinhMuc}
-        </Tag>
+        <Tag color={"success"}>{info.maPhieuSoDuDauKy}</Tag>
       </span>
     );
   return (
@@ -673,7 +638,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>
