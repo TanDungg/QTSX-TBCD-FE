@@ -127,6 +127,7 @@ function CKD({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
+      item.userNhan_Id === INFO.user_Id &&
       moment(getDateNow(1, true), "DD/MM/YYYY") <=
         moment(item.ngayNhan, "DD/MM/YYYY") ? (
         <Link
@@ -146,6 +147,7 @@ function CKD({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
+      item.userNhan_Id === INFO.user_Id &&
       moment(getDateNow(1, true), "DD/MM/YYYY") <=
         moment(item.ngayNhan, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }

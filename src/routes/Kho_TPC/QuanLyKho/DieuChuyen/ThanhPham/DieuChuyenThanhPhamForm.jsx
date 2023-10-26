@@ -275,8 +275,8 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
 
               return {
                 ...data,
-                lkn_ChiTietKhoVatTu_Id: data.lkn_ChiTietKhoVatTu_Id
-                  ? data.lkn_ChiTietKhoVatTu_Id.toLowerCase()
+                lkn_ChiTietKhoBegin_Id: data.lkn_ChiTietKhoBegin_Id
+                  ? data.lkn_ChiTietKhoBegin_Id.toLowerCase()
                   : createGuid(),
                 vatTu: `${data.maVatTu} - ${data.tenVatTu}${
                   vitri ? ` (${vitri})` : ""
@@ -356,7 +356,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     if (record) {
       const isEditing =
         editingRecord &&
-        editingRecord.lkn_ChiTietKhoVatTu_Id === record.lkn_ChiTietKhoVatTu_Id;
+        editingRecord.lkn_ChiTietKhoBegin_Id === record.lkn_ChiTietKhoBegin_Id;
 
       return type !== "detail" ? (
         <div>
@@ -403,7 +403,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     } else {
       if (sl <= 0) {
         setHasError(true);
-        setErrorMessage("Số lượng không được nhỏ hơn 0");
+        setErrorMessage("Số lượng phải lớn hơn 0");
         setFieldTouch(false);
       } else {
         if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
@@ -423,7 +423,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
 
     setListSanPham((prevListSanPham) => {
       return prevListSanPham.map((item) => {
-        if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+        if (record.lkn_ChiTietKhoBegin_Id === item.lkn_ChiTietKhoBegin_Id) {
           return {
             ...item,
             soLuongDieuChuyen: sl ? parseFloat(sl) : 0,

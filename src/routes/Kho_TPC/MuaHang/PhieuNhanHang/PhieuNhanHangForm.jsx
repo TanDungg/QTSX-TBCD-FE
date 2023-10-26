@@ -422,7 +422,9 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter((d) => d.id !== item.id);
+    const newData = listVatTu.filter(
+      (d) => d.lkn_ChiTietPhieuMuaHang_Id !== item.lkn_ChiTietPhieuMuaHang_Id
+    );
     setListVatTu(newData);
   };
 

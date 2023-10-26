@@ -189,7 +189,7 @@ function Ke({ match, history, permission }) {
         >
           Thêm mới
         </Button>
-        <Button
+        {/* <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -197,7 +197,7 @@ function Ke({ match, history, permission }) {
           disabled={permission && !permission.print}
         >
           In Barcode
-        </Button>
+        </Button> */}
       </>
     );
   };

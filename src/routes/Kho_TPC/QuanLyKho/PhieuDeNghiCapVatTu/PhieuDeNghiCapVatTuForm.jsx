@@ -14,7 +14,7 @@ import {
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import {
@@ -37,8 +37,8 @@ import {
 import AddVatTuModal from "./AddVatTuModal";
 import ModalTuChoi from "./ModalTuChoi";
 import dayjs from "dayjs";
+const EditableContext = React.createContext(null);
 
-const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 
 const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
@@ -354,7 +354,98 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
-
+  const EditableRow = ({ index, ...props }) => {
+    const [form] = Form.useForm();
+    return (
+      <Form form={form} component={false}>
+        <EditableContext.Provider value={form}>
+          <tr {...props} />
+        </EditableContext.Provider>
+      </Form>
+    );
+  };
+  const EditableCell = ({
+    title,
+    editable,
+    children,
+    dataIndex,
+    record,
+    handleSave,
+    ...restProps
+  }) => {
+    const [editing, setEditing] = useState(false);
+    const inputRef = useRef(null);
+    const form = useContext(EditableContext);
+    useEffect(() => {
+      if (editing) {
+        inputRef.current.focus();
+      }
+    }, [editing]);
+    const toggleEdit = () => {
+      setEditing(!editing);
+      form.setFieldsValue({
+        [dataIndex]: record[dataIndex],
+      });
+    };
+    const save = async () => {
+      try {
+        const values = await form.validateFields();
+        toggleEdit();
+        handleSave({
+          ...record,
+          ...values,
+        });
+      } catch (errInfo) {
+        console.log("Save failed:", errInfo);
+      }
+    };
+    let childNode = children;
+    if (editable) {
+      editing && setFieldTouch(false);
+      childNode = editing ? (
+        <Form.Item
+          style={{
+            margin: 0,
+          }}
+          name={dataIndex}
+          rules={
+            title === "Số lượng"
+              ? [
+                  { required: true },
+                  {
+                    pattern: /^[1-9]\d*$/,
+                    message: "Số lượng không hợp lệ!",
+                  },
+                ]
+              : null
+          }
+        >
+          <Input
+            // type={title === "Số lượng" && "number"}
+            style={{
+              margin: 0,
+              width: "100%",
+              textAlign: "center",
+            }}
+            ref={inputRef}
+            onPressEnter={save}
+            onBlur={save}
+          />
+        </Form.Item>
+      ) : (
+        <div
+          className="editable-cell-value-wrap"
+          style={{
+            paddingRight: 24,
+          }}
+          onClick={toggleEdit}
+        >
+          {children}
+        </div>
+      );
+    }
+    return <td {...restProps}>{childNode}</td>;
+  };
   const goBack = () => {
     history.push(
       `${match.url.replace(
@@ -629,14 +720,15 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   };
 
   const handleSave = (row) => {
-    const newData = [...listVatTu];
+    const newData = value === 1 ? [...listVatTu] : [...ListVatTuKhac];
     const index = newData.findIndex((item) => row.vatTu_Id === item.vatTu_Id);
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
       ...row,
     });
-    setListVatTu(newData);
+    setFieldTouch(true);
+    value === 1 ? setListVatTu(newData) : setListVatTuKhac(newData);
   };
 
   const columns = map(

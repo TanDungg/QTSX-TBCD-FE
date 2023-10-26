@@ -375,7 +375,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
     } else {
       if (sl <= 0) {
         setHasError(true);
-        setErrorMessage("Số lượng không được nhỏ hơn 0");
+        setErrorMessage("Số lượng phải lớn hơn 0");
         setFieldTouch(false);
       } else {
         if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {

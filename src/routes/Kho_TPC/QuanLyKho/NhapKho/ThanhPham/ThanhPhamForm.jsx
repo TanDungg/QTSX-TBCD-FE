@@ -90,6 +90,7 @@ const EditableCell = ({
         rules={
           title === "Số lượng"
             ? [
+                { required: true },
                 {
                   pattern: /^[1-9]\d*$/,
                   message: "Số lượng không hợp lệ!",
@@ -309,7 +310,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setListSanPham(JSON.parse(res.data.chiTietThanhPham));
-          getUserLap(INFO, res.data.userNhan_Id);
+          getUserLap(INFO, res.data.userLap_Id);
           setInfo(res.data);
           getXuong();
           getKho(res.data.phongBan_Id);
@@ -358,7 +359,10 @@ const ThanhPhamForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    setListSanPham([]);
+    const chiTiet_PhieuNhapKhoCKDs = ListSanPham.filter(
+      (d) => d.sanPham_Id !== item.sanPham_Id
+    );
+    setListSanPham(chiTiet_PhieuNhapKhoCKDs);
   };
   /**
    * ActionContent: Action in table

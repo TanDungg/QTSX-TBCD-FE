@@ -113,29 +113,12 @@ function PhieuNhanHang({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    console.log(item);
-    // const detailItem =
-    //   permission && permission.cof ? (
-    //     <Link
-    //       to={{
-    //         pathname: `${match.url}/${item.id}/xac-nhan`,
-    //         state: { itemData: item, permission },
-    //       }}
-    //       title="Xác nhận"
-    //     >
-    //       <EyeOutlined />
-    //     </Link>
-    //   ) : (
-    //     <span disabled title="Xác nhận">
-    //       <EyeInvisibleOutlined />
-    //     </span>
-    //   );
     const editItem =
       permission &&
       permission.edit &&
-      item.userYeuCau_Id === INFO.user_Id &&
+      item.createdBy === INFO.user_Id &&
       moment(item.ngayTaoPhieu, "DD/MM/YYYY") >=
-        moment(getDateNow(1, true), "DD/MM/YYYY") ? (
+        moment(getDateNow(1), "DD/MM/YYYY") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -153,15 +136,13 @@ function PhieuNhanHang({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
-      item.userYeuCau_Id === INFO.user_Id &&
+      item.createdBy === INFO.user_Id &&
       moment(item.ngayTaoPhieu, "DD/MM/YYYY") >=
-        moment(getDateNow(1, true), "DD/MM/YYYY")
+        moment(getDateNow(1), "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {/* {detailItem}
-        <Divider type="vertical" /> */}
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -290,8 +271,8 @@ function PhieuNhanHang({ match, history, permission }) {
     },
     {
       title: "CV Thu mua",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
+      dataIndex: "tenThuMua",
+      key: "tenThuMua",
       align: "center",
     },
     {
