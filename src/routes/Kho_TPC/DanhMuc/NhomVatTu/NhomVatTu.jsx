@@ -163,6 +163,7 @@ function NhomVatTu({ history, permission }) {
       title: "Mã loại vật tư",
       dataIndex: "maNhomVatTu",
       key: "maNhomVatTu",
+      align: "center",
       render: (value, record) => renderTenMenu(value, record),
     },
     {

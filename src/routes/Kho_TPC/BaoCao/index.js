@@ -17,6 +17,9 @@ const BCGiaoHangTheoKeHoach = asyncComponent(() =>
 const BCTraCuuSanPham = asyncComponent(() =>
   import("./TraCuuSanPham/TraCuuSanPham")
 );
+const ThongKeDinhMucSanXuat = asyncComponent(() =>
+  import("./ThongKeDinhMucSanXuat/ThongKeDinhMucSanXuat")
+);
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -61,6 +64,11 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/tra-cuu-san-pham`}
         exact
         component={Auth(BCTraCuuSanPham, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/thong-ke-dinh-muc-san-xuat`}
+        exact
+        component={Auth(ThongKeDinhMucSanXuat, menus, pathname, permission)}
       />
     </Switch>
   );

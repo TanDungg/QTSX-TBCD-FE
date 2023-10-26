@@ -523,7 +523,10 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
   };
   const handleSave = (row) => {
     const newData = [...listVatTu];
-    const index = newData.findIndex((item) => row.vatTu_Id === item.vatTu_Id);
+    const index = newData.findIndex(
+      (item) =>
+        row.lkn_ChiTietPhieuMuaHang_Id === item.lkn_ChiTietPhieuMuaHang_Id
+    );
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,

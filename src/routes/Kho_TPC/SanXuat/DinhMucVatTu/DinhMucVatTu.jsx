@@ -1,13 +1,11 @@
 import {
-  PrinterOutlined,
   EditOutlined,
   DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
+  CheckCircleOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
 import { Button, Card, Row, Col, DatePicker, Divider } from "antd";
-import { map, remove, find, isEmpty } from "lodash";
+import { map, isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
@@ -230,11 +228,11 @@ function DinhMucVatTu({ permission, history, match }) {
           }}
           title="Xác nhận"
         >
-          <EyeOutlined />
+          <CheckCircleOutlined />
         </Link>
       ) : (
         <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
+          <CheckCircleOutlined />
         </span>
       );
     const editItem =

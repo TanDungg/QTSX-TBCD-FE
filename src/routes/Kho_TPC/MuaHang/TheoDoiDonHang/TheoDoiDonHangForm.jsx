@@ -308,20 +308,6 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
       width: 80,
     },
     {
-      title: "Hạng mục sử dụng",
-      dataIndex: "hangMucSuDung",
-      key: "hangMucSuDung",
-      align: "center",
-      width: 100,
-    },
-    {
-      title: "Ngày dự kiến hoàn thành",
-      dataIndex: "ngayHoanThanhDuKien",
-      key: "ngayHoanThanhDuKien",
-      align: "center",
-      width: 140,
-    },
-    {
       title: "Ngày xác nhận hàng về",
       key: "ngayXacNhanHangVe",
       align: "center",
@@ -334,13 +320,6 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
       align: "center",
       width: 180,
       render: (record) => renderNguoiThuMua(record),
-    },
-    {
-      title: "Ngày nhận hàng",
-      dataIndex: "ngayHangVe",
-      key: "ngayHangVe",
-      align: "center",
-      width: 140,
     },
     {
       title: "SL hàng nhận",
@@ -535,9 +514,55 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
                 fontWeight: "bold",
               }}
             >
-              Ngày hoàn thành:
+              Ngày yêu cầu:
+            </span>
+            {info.ngayYeuCau}
+          </Col>
+          <Col
+            xxl={12}
+            xl={12}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{
+              marginBottom: 10,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <span
+              style={{
+                width: "200px",
+                fontWeight: "bold",
+              }}
+            >
+              Ngày dự kiến hoàn thành:
             </span>
             {info.ngayHoanThanhDukien}
+          </Col>
+          <Col
+            xxl={12}
+            xl={12}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{
+              marginBottom: 10,
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <span
+              style={{
+                width: "140px",
+                fontWeight: "bold",
+              }}
+            >
+              Ngày nhận hàng:
+            </span>
+            {info.ngayHangVe}
           </Col>
           <Col
             span={24}
@@ -591,7 +616,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
           <Table
             bordered
             columns={columns}
-            scroll={{ x: 1720, y: "48vh" }}
+            scroll={{ x: 1500, y: "48vh" }}
             components={components}
             className="gx-table-responsive"
             dataSource={reDataForTable(listVatTu)}

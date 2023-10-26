@@ -129,7 +129,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_SoDuDauKy/export-file-mau`,
+          `lkn_SoDuDauKy/export-file-mau?IsThanhPham=true`,
           "POST",
           null,
           "DOWLOAD",
@@ -139,7 +139,8 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
         )
       );
     }).then((res) => {
-      exportExcel("File_Import_So_Du_Dau_Ky_Vat_Tu", res.data.dataexcel);
+      res.status === 200 &&
+        exportExcel("File_Import_So_Du_Dau_Ky_Thanh_Pham", res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {
@@ -194,7 +195,6 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
         const MVT = "Tên sản phẩm";
         const MMS = "Mã màu sắc";
         const SL = "Số lượng";
-        const TGSD = "Thời gian sử dụng";
         const Data = [];
         const NewData = [];
         data.forEach((d, index) => {
@@ -218,11 +218,6 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
               soLuongNhap: d[SL]
                 ? d[SL].toString().trim() !== ""
                   ? d[SL].toString().trim()
-                  : undefined
-                : undefined,
-              thoiGianSuDung: d[TGSD]
-                ? d[TGSD].toString().trim() !== ""
-                  ? d[TGSD].toString().trim()
                   : undefined
                 : undefined,
             });
@@ -255,8 +250,8 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
           setFileName(file.name);
           setDataLoi();
           if (indices.length > 0) {
-            setMessageError(`Hàng ${row.join(", ")} có vật tư trùng nhau`);
-            Helper.alertError(`Hàng ${row.join(", ")} có vật tư trùng nhau`);
+            setMessageError(`Hàng ${row.join(", ")} có sản phẩm trùng nhau`);
+            Helper.alertError(`Hàng ${row.join(", ")} có sản phẩm trùng nhau`);
             setHangTrung(indices);
             setCheckDanger(true);
           } else {
@@ -343,11 +338,11 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
       });
     } else if (current.maVatTu === undefined) {
       setCheckDanger(true);
-      setMessageError("Mã vật tư không được rỗng");
+      setMessageError("Mã sản phẩm không được rỗng");
       return "red-row";
     } else if (current.tenVatTu === undefined) {
       setCheckDanger(true);
-      setMessageError("Tên vật tư không được rỗng");
+      setMessageError("Tên sản phẩm không được rỗng");
       return "red-row";
     } else if (current.soLuongNhap === undefined) {
       setCheckDanger(true);

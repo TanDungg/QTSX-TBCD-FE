@@ -60,7 +60,17 @@ function Ke({ match, history, permission }) {
   const onSearchCauTrucKho = () => {
     loadData(keyword, page);
   };
+  /**
+   * handleTableChange
+   *
+   * Fetch dữ liệu dựa theo thay đổi trang
+   * @param {number} pagination
+   */
 
+  const handleTableChange = (pagination) => {
+    setPage(pagination);
+    loadData(keyword, pagination);
+  };
   /**
    * Thay đổi keyword
    *
@@ -205,6 +215,7 @@ function Ke({ match, history, permission }) {
       key: "maKe",
       dataIndex: "maKe",
       key: "maKe",
+      align: "center",
       // render: (value, record) => renderTenMenu(value, record),
     },
     {
@@ -257,7 +268,9 @@ function Ke({ match, history, permission }) {
       render: (value) => actionContent(value),
     },
   ];
-  let dataList = reDataForTable(data.datalist);
+  const { totalRow, totalPages, pageSize } = data;
+
+  let dataList = reDataForTable(data.datalist, page, pageSize);
 
   const components = {
     body: {
@@ -364,28 +377,34 @@ function Ke({ match, history, permission }) {
           rowClassName={(record) => {
             return record.isParent ? "editable-row" : "editable-row";
           }}
-          pagination={{ pageSize: 20 }}
+          pagination={{
+            onChange: handleTableChange,
+            pageSize: pageSize,
+            total: totalRow,
+            showSizeChanger: false,
+            showQuickJumper: true,
+          }}
           loading={loading}
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            preserveSelectedRowKeys: true,
-            selectedRowKeys: selectedKeys,
-            getCheckboxProps: (record) => ({}),
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setSelectedDevice([...selectedDevice, record]);
-                  setSelectedKeys([...selectedKeys, record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            };
-          }}
+          // rowSelection={{
+          //   type: "checkbox",
+          //   ...rowSelection,
+          //   preserveSelectedRowKeys: true,
+          //   selectedRowKeys: selectedKeys,
+          //   getCheckboxProps: (record) => ({}),
+          // }}
+          // onRow={(record, rowIndex) => {
+          //   return {
+          //     onClick: (e) => {
+          //       const found = find(selectedKeys, (k) => k === record.key);
+          //       if (found === undefined) {
+          //         setSelectedDevice([...selectedDevice, record]);
+          //         setSelectedKeys([...selectedKeys, record.key]);
+          //       } else {
+          //         hanldeRemoveSelected(record);
+          //       }
+          //     },
+          //   };
+          // }}
         />
       </Card>
     </div>

@@ -177,7 +177,10 @@ function LoaiNhaCungCap({ match, history, permission }) {
       render: (value) => actionContent(value),
     },
   ];
-  const dataList = reDataForTable(data.datalist);
+  const { totalRow, totalPages, pageSize } = data;
+
+  let dataList = reDataForTable(data.datalist, page, pageSize);
+
   /**
    * Tìm kiếm người dùng
    *
@@ -284,7 +287,8 @@ function LoaiNhaCungCap({ match, history, permission }) {
           }}
           pagination={{
             onChange: handleTableChange,
-            pageSize: 20,
+            pageSize: pageSize,
+            total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,
           }}
