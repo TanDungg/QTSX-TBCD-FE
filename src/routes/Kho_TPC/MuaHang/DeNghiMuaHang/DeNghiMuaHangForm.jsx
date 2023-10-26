@@ -165,6 +165,9 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const [openImage, setOpenImage] = useState(false);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
+  const [hasError, setHasError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [editingRecord, setEditingRecord] = useState(null);
 
   useEffect(() => {
     const load = () => {
@@ -410,7 +413,9 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter((d) => d.vatTu_Id !== item.vatTu_Id);
+    const newData = listVatTu.filter(
+      (d) => d.lkn_ChiTietBOM_Id !== item.lkn_ChiTietBOM_Id
+    );
     setListVatTu(newData);
   };
 
@@ -434,6 +439,72 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         </React.Fragment>
       </div>
     );
+  };
+
+  const renderSoLuong = (record) => {
+    if (record) {
+      const isEditing =
+        editingRecord &&
+        editingRecord.lkn_ChiTietBOM_Id === record.lkn_ChiTietBOM_Id;
+
+      return type === "detail" || type === "xacnhan" ? (
+        record.soLuong
+      ) : (
+        <div>
+          <Input
+            min={0}
+            style={{
+              textAlign: "center",
+              width: "100%",
+              borderColor: isEditing && hasError ? "red" : "",
+            }}
+            className={`input-item ${
+              isEditing && hasError ? "input-error" : ""
+            }`}
+            value={record.soLuong}
+            type="number"
+            onChange={(val) => handleInputChange(val, record)}
+          />
+          {isEditing && hasError && (
+            <div style={{ color: "red" }}>{errorMessage}</div>
+          )}
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const handleInputChange = (val, record) => {
+    const sl = val.target.value;
+
+    if (sl === null || sl === "") {
+      setHasError(true);
+      setErrorMessage("Vui lòng nhập số lượng");
+      setFieldTouch(false);
+    } else {
+      if (sl <= 0) {
+        setHasError(true);
+        setErrorMessage("Số lượng xuất phải lớn hơn 0");
+        setFieldTouch(false);
+      } else {
+        setHasError(false);
+        setErrorMessage(null);
+        setFieldTouch(true);
+      }
+    }
+    setEditingRecord(record);
+
+    setListVatTu((prevListVatTu) => {
+      return prevListVatTu.map((item) => {
+        if (record.lkn_ChiTietBOM_Id === item.lkn_ChiTietBOM_Id) {
+          return {
+            ...item,
+            soLuong: sl ? parseFloat(sl) : 0,
+          };
+        }
+        return item;
+      });
+    });
   };
 
   let colValues = [
@@ -482,11 +553,9 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     },
     {
       title: "SL cần mua",
-      dataIndex: "soLuong",
       key: "soLuong",
       align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+      render: (record) => renderSoLuong(record),
     },
     {
       title: "Hạng mục sử dụng",
@@ -814,27 +883,20 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 sanPham_Id: data.sanPham_Id,
                 tenSanPham: data.tenSanPham,
                 bom_Id: data.id,
+                lkn_ChiTietBOM_Id: ct.lkn_ChiTietBOM_Id.toLowerCase(),
                 vatTu_Id: ct.vatTu_Id.toLowerCase(),
                 soLuongTheoDinhMuc: ct.dinhMuc * SoLuong,
                 ghiChu: "",
                 hangMucSuDung: "",
                 soLuong: ct.dinhMuc * SoLuong,
-                soLuongSanPham: SoLuong,
               };
             });
           if (newData) {
-            if (listVatTu !== null) {
-              listVatTu.forEach((vt) => {
-                newData.forEach((ct, index) => {
-                  if (vt.id === ct.id) {
-                    newData.splice(index, 1);
-                  }
-                });
-              });
-              setListVatTu([...listVatTu, ...newData]);
-            } else {
-              setListVatTu(newData);
-            }
+            const newListSanPham = ListSanPham.filter(
+              (d) => d.id !== data.sanPham_Id
+            );
+            setListVatTu([...listVatTu, ...newData]);
+            setListSanPham(newListSanPham);
             setFieldsValue({
               sanPham: {
                 sanPham_Id: "",
@@ -1310,6 +1372,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                       disabled={
                         type === "new" || type === "edit" ? false : true
                       }
+                      value={SoLuong}
                     />
                     {Message && <div style={{ color: "red" }}>{Message}</div>}
                   </div>
@@ -1355,7 +1418,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             goBack={goBack}
             handleSave={saveAndClose}
             saveAndClose={saveAndClose}
-            disabled={fieldTouch}
+            disabled={fieldTouch && listVatTu.length !== 0}
           />
         ) : null}
         {type === "xacnhan" && info.isXacNhan === null && (

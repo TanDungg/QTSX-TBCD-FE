@@ -32,6 +32,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
+
 function DeNghiMuaHang({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
@@ -126,7 +127,7 @@ function DeNghiMuaHang({ match, history, permission }) {
     const detailItem =
       permission &&
       permission.cof &&
-      item.userDuyet_Id === INFO.user_Id &&
+      item.userYeuCau_Id === INFO.user_Id &&
       item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{

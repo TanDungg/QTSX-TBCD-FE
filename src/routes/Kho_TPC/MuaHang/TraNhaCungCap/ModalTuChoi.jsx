@@ -14,7 +14,6 @@ function ModalTuChoi({ openModalFS, openModal, itemData, refesh }) {
 
   useEffect(() => {
     if (openModal) {
-      console.log(itemData);
       setFieldsValue({
         modaltuchoi: {
           maPhieuTraHangNCC: itemData.maPhieuTraHangNCC,

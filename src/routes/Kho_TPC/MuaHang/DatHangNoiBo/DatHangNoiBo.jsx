@@ -121,6 +121,7 @@ function DatHangNoiBo({ match, history, permission }) {
     const detailItem =
       permission &&
       permission.cof &&
+      item.userThuMua_Id === INFO.user_Id &&
       item.tinhTrang === "Chưa xác nhận" &&
       item.fileXacNhan ? (
         <Link

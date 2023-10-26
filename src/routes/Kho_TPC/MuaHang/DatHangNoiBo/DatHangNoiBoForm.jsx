@@ -1183,7 +1183,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                 <DatePicker
                   format={"DD/MM/YYYY"}
                   allowClear={false}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={true}
                   onChange={(date, dateString) => {
                     setFieldsValue({
                       dathangnoibo: {

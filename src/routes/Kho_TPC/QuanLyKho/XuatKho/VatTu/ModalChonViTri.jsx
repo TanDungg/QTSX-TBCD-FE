@@ -43,7 +43,6 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        console.log(res.data);
         const newData = res.data.map((data) => {
           if (itemData.isCheck === true) {
             const vitri = itemData.chiTiet_LuuVatTus.find(
@@ -63,6 +62,8 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
             soLuongThucXuat: data.soLuong,
           };
         });
+        console.log(newData);
+        setDisabledSave(newData.length > 0 ? false : true);
         setListViTriKho(newData);
       } else {
         setListViTriKho([]);
@@ -107,9 +108,9 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       setErrorMessage("Vui lòng nhập số lượng");
       setDisabledSave(true);
     } else {
-      if (sl <= 0) {
+      if (sl < 0) {
         setHasError(true);
-        setErrorMessage("Số lượng xuất phải lớn hơn 0");
+        setErrorMessage("Số lượng xuất phải lớn hơn hoặc bằng 0");
         setDisabledSave(true);
       } else {
         if (sl > record.soLuong) {

@@ -46,6 +46,7 @@ import {
 } from "src/util/Common";
 import ModalChonVatTu from "./ModalChonVatTu";
 import ModalTuChoi from "./ModalTuChoi";
+import dayjs from "dayjs";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -429,7 +430,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
         editingRecord.lkn_ChiTietKhoVatTu_Id === record.lkn_ChiTietKhoVatTu_Id;
 
       return type === "detail" || type === "xacnhan" ? (
-        SoLuongTraNCC[record.lkn_ChiTietKhoVatTu_Id]
+        record.soLuongTraNCC
       ) : (
         <div>
           <Input
@@ -442,9 +443,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
             className={`input-item ${
               isEditing && hasError ? "input-error" : ""
             }`}
-            value={
-              SoLuongTraNCC && SoLuongTraNCC[record.lkn_ChiTietKhoVatTu_Id]
-            }
+            value={record.soLuongTraNCC}
             type="number"
             onChange={(val) => handleInputChange(val, record)}
           />
@@ -470,22 +469,31 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
           : record.soLuong,
     };
     const sl = val.target.value;
-    if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
+    if (sl === null || sl === "") {
       setHasError(true);
-      setErrorMessage(
-        "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho"
-      );
-      setDisabledSave(true);
+      setErrorMessage("Vui lòng nhập số lượng");
+      setFieldTouch(false);
     } else {
-      setDisabledSave(false);
-      setHasError(false);
-      setErrorMessage(null);
+      if (sl <= 0) {
+        setHasError(true);
+        setErrorMessage("Số lượng xuất phải lớn hơn 0");
+        setFieldTouch(false);
+      } else {
+        if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
+          setHasError(true);
+          setErrorMessage(
+            "Số lượng trả nhà cung cấp phải nhỏ hơn hoặc bằng số lượng trong kho"
+          );
+          setFieldTouch(false);
+        } else {
+          setFieldTouch(true);
+          setHasError(false);
+          setErrorMessage(null);
+        }
+      }
     }
     setEditingRecord(record);
-    setSoLuongTraNCC((prevSoLuongTraNCC) => ({
-      ...prevSoLuongTraNCC,
-      [record.lkn_ChiTietKhoVatTu_Id]: sl,
-    }));
+
     setListVatTu((prevListVatTu) => {
       return prevListVatTu.map((item) => {
         if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
@@ -862,6 +870,10 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
     maxCount: 1,
   };
 
+  const disabledDate = (current) => {
+    return current && current < dayjs().startOf("day");
+  };
+
   const formTitle =
     type === "new" ? (
       "Tạo phiếu trả vật tư nhà cung cấp"
@@ -1116,6 +1128,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
                   format={"DD/MM/YYYY"}
                   allowClear={false}
                   disabled={type === "new" || type === "edit" ? false : true}
+                  disabledDate={disabledDate}
                 />
               </FormItem>
             </Col>
