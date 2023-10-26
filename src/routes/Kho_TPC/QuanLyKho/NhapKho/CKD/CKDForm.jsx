@@ -1,6 +1,6 @@
 import { DeleteOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Row, Col, DatePicker, Tag, Divider } from "antd";
-import { includes, map } from "lodash";
+import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState, useRef, useContext } from "react";
@@ -22,8 +22,8 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
+import ViTriLuu from "../../ViTriLuu/ViTriLuu";
 const EditableContext = React.createContext(null);
-
 const EditableRow = ({ index, ...props }) => {
   const [form] = Form.useForm();
   return (
@@ -81,7 +81,7 @@ const EditableCell = ({
           title === "Số lượng"
             ? [
                 {
-                  pattern: /^\d+$/,
+                  pattern: /^[1-9]\d*$/,
                   message: "Số lượng không hợp lệ!",
                 },
                 {
@@ -221,6 +221,7 @@ const EditableCellChilder = ({
   return <td {...restProps}>{childNode}</td>;
 };
 const FormItem = Form.Item;
+const errorMessage = "Số lượng phải là số lớn hơn 0 và bắt buộc";
 
 const CKDForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
@@ -236,6 +237,10 @@ const CKDForm = ({ history, match, permission }) => {
   const [ListSanPham, setListSanPham] = useState([]);
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
   const [info, setInfo] = useState({});
+  const [hasError, setHasError] = useState(false);
+  const [editingRecord, setEditingRecord] = useState(null);
+  const [editingRecordCT, setEditingRecordCT] = useState([]);
+
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
@@ -449,6 +454,7 @@ const CKDForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
+
   /**
    * Quay lại trang bộ phận
    *
@@ -509,6 +515,117 @@ const CKDForm = ({ history, match, permission }) => {
       </div>
     );
   };
+  const changeSoLuongSP = (val, item) => {
+    const soLuongNhap = val.target.value;
+    if (isEmpty(soLuongNhap) || soLuongNhap === "0") {
+      setEditingRecord(item);
+      setFieldTouch(false);
+    } else {
+      setEditingRecord(null);
+      setFieldTouch(true);
+    }
+    const newData = [...ListSanPham];
+    newData.forEach((sp, index) => {
+      if (sp.sanPham_Id === item.sanPham_Id) {
+        sp.soLuongNhap = soLuongNhap;
+        sp.chiTiet_PhieuNhapKhoCKDs.forEach((ct) => {
+          ct.soLuongNhap = sp.soLuongNhap * ct.dinhMuc;
+        });
+      }
+    });
+    setListSanPham(newData);
+  };
+  const renderSoLuong = (item) => {
+    const isEditing =
+      editingRecord && editingRecord.sanPham_Id === item.sanPham_Id;
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.soLuongNhap}
+          onChange={(val) => changeSoLuongSP(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{errorMessage}</div>}
+      </>
+    );
+  };
+  const changeSoLuongCT = (val, item) => {
+    const soLuongNhap = val.target.value;
+    if (isEmpty(soLuongNhap) || soLuongNhap === "0") {
+      setFieldTouch(false);
+      setEditingRecordCT([...editingRecordCT, item]);
+    } else {
+      const newData = editingRecordCT.filter(
+        (d) => d.vatTu_Id !== item.vatTu_Id
+      );
+      setEditingRecordCT(newData);
+      newData.length === 0 && setFieldTouch(true);
+    }
+    const newData = [...ListSanPham];
+    newData.forEach((sp, index) => {
+      sp.chiTiet_PhieuNhapKhoCKDs.forEach((ct) => {
+        if (ct.vatTu_Id === item.vatTu_Id) {
+          ct.soLuongNhap = soLuongNhap;
+        }
+      });
+    });
+    setListSanPham(newData);
+  };
+  const renderSoLuongCT = (item) => {
+    let isEditing = false;
+    editingRecordCT.forEach((ct) => {
+      if (ct.vatTu_Id === item.vatTu_Id) {
+        isEditing = true;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.soLuongNhap}
+          onChange={(val) => changeSoLuongCT(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{errorMessage}</div>}
+      </>
+    );
+  };
+  const changeGhiChu = (val, item) => {
+    const ghiChu = val.target.value;
+    const newData = [...ListSanPham];
+    newData.forEach((sp, index) => {
+      sp.chiTiet_PhieuNhapKhoCKDs.forEach((ct) => {
+        if (ct.vatTu_Id === item.vatTu_Id) {
+          ct.ghiChu = ghiChu;
+        }
+      });
+    });
+    setListSanPham(newData);
+  };
+  const renderGhiChu = (item) => {
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          value={item.ghiChu}
+          onChange={(val) => changeGhiChu(val, item)}
+        />
+      </>
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -537,11 +654,10 @@ const CKDForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng",
-      dataIndex: "soLuongNhap",
+      // dataIndex: "soLuongNhap",
       key: "soLuongNhap",
       align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+      render: (val) => renderSoLuong(val),
     },
 
     // {
@@ -586,19 +702,16 @@ const CKDForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng",
-      dataIndex: "soLuongNhap",
       key: "soLuongNhap",
       align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+      render: (val) => renderSoLuongCT(val),
     },
     {
       title: "Ghi chú",
       dataIndex: "ghiChu",
       key: "ghiChu",
       align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+      render: (val) => renderGhiChu(val),
     },
     // {
     //   title: "Kích thước",

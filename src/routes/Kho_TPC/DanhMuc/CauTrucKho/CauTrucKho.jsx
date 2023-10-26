@@ -186,7 +186,7 @@ function CauTrucKho({ match, history, permission }) {
         >
           Thêm mới
         </Button>
-        <Button
+        {/* <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -194,7 +194,7 @@ function CauTrucKho({ match, history, permission }) {
           disabled={permission && !permission.print}
         >
           In Barcode
-        </Button>
+        </Button> */}
       </>
     );
   };
@@ -365,26 +365,26 @@ function CauTrucKho({ match, history, permission }) {
           }}
           pagination={false}
           loading={loading}
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            preserveSelectedRowKeys: true,
-            selectedRowKeys: selectedKeys,
-            getCheckboxProps: (record) => ({}),
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setSelectedDevice([...selectedDevice, record]);
-                  setSelectedKeys([...selectedKeys, record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            };
-          }}
+          // rowSelection={{
+          //   type: "checkbox",
+          //   ...rowSelection,
+          //   preserveSelectedRowKeys: true,
+          //   selectedRowKeys: selectedKeys,
+          //   getCheckboxProps: (record) => ({}),
+          // }}
+          // onRow={(record, rowIndex) => {
+          //   return {
+          //     onClick: (e) => {
+          //       const found = find(selectedKeys, (k) => k === record.key);
+          //       if (found === undefined) {
+          //         setSelectedDevice([...selectedDevice, record]);
+          //         setSelectedKeys([...selectedKeys, record.key]);
+          //       } else {
+          //         hanldeRemoveSelected(record);
+          //       }
+          //     },
+          //   };
+          // }}
         />
       </Card>
     </div>
