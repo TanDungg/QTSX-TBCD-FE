@@ -167,7 +167,7 @@ function SoDuDauKyVatTu({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuYeuCau,
+      item.maPhieuSoDuDauKy,
       "số dư đầu kỳ"
     );
   };
@@ -178,7 +178,7 @@ function SoDuDauKyVatTu({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDatHangNoiBo/${item.id}`;
+    let url = `lkn_SoDuDauKy?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -241,10 +241,8 @@ function SoDuDauKyVatTu({ match, history, permission }) {
   };
   const { totalRow, totalPage, pageSize } = data;
 
-  let dataList = reDataForTable(
-    data.datalist
-    // page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  let dataList = reDataForTable(data.datalist, page, pageSize);
+
   const renderDetail = (val) => {
     const detail =
       permission && permission.view ? (

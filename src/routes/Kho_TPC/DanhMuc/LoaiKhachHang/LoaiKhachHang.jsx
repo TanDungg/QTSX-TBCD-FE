@@ -173,6 +173,7 @@ function LoaiKhachHang({ history, permission }) {
     {
       title: "Mã loại khách hàng",
       dataIndex: "maLoaiKhachHang",
+      align: "center",
       key: "maLoaiKhachHang",
       render: (value, record) => renderTenLoaiKhachHang(value, record),
     },

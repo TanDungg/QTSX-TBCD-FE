@@ -171,10 +171,7 @@ function NhaCungCap({ match, history, permission }) {
   };
   const { totalRow, totalPage, pageSize } = data;
 
-  let dataList = reDataForTable(
-    data.datalist
-    // page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  let dataList = reDataForTable(data.datalist, page, pageSize);
 
   let renderHead = [
     {

@@ -109,6 +109,7 @@ function Ke({ match, history, permission }) {
       title: "Mã kệ",
       key: "maKe",
       dataIndex: "maKe",
+      align: "center",
       key: "maKe",
       // render: (value, record) => renderTenMenu(value, record),
     },

@@ -169,6 +169,7 @@ function LoaiSanPham({ history, permission }) {
       title: "Mã loại sản phẩm",
       dataIndex: "maLoaiSanPham",
       key: "maLoaiSanPham",
+      align: "center",
       render: (value, record) => renderTenLoaiSanPham(value, record),
     },
     {

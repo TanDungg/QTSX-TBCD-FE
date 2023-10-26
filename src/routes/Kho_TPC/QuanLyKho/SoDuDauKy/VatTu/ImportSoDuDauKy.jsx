@@ -135,7 +135,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_SoDuDauKy/export-file-mau`,
+          `lkn_SoDuDauKy/export-file-mau?IsThanhPham=false`,
           "POST",
           null,
           "DOWLOAD",
@@ -145,7 +145,8 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
         )
       );
     }).then((res) => {
-      exportExcel("File_Import_So_Du_Dau_Ky_Vat_Tu", res.data.dataexcel);
+      res.status === 200 &&
+        exportExcel("File_Import_So_Du_Dau_Ky_Vat_Tu", res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {

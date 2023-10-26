@@ -223,10 +223,8 @@ function DieuChuyenThanhPham({ match, history, permission }) {
   };
   const { totalRow, pageSize } = data;
 
-  let dataList = reDataForTable(
-    data.datalist,
-    page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  let dataList = reDataForTable(data.datalist, page, pageSize);
+
   const renderDetail = (val) => {
     const detail =
       permission && permission.view ? (

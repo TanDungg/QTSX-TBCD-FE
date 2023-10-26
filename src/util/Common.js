@@ -500,22 +500,33 @@ export const FormFileMau = (header, data, mergeRange, sheetName) => {
   return { worksheet, sheetName };
 };
 
-/**
- * * reDataForTable: Dùng cho phân trang
- *
- * @param {array} data
- * @param {number} activePage
- * @param {number} pageSize
- */
-export const reDataForTable = (data, activePage = 1) =>
-  map(data, (item, index) => {
+// /**
+//  * * reDataForTable: Dùng cho phân trang
+//  *
+//  * @param {array} data
+//  * @param {number} activePage
+//  * @param {number} pageSize
+//  */
+// export const reDataForTable = (data, activePage = 1) =>
+//   map(data, (item, index) => {
+//     if (item.key) delete item.key;
+//     return {
+//       key: activePage === 1 ? index + 1 : index + (activePage - 1),
+//       ...item,
+//     };
+//   });
+export const reDataForTable = (data, activePage, itemsPerPage) => {
+  itemsPerPage = itemsPerPage ? itemsPerPage : data ? data.length : 1;
+  activePage = activePage || 1;
+  return map(data, (item, index) => {
     if (item.key) delete item.key;
+    const baseKey = (activePage - 1) * itemsPerPage;
     return {
-      key: activePage === 1 ? index + 1 : index + (activePage - 1),
+      key: baseKey + index + 1,
       ...item,
     };
   });
-
+};
 /**
  * * reDataForTable: Dùng cho phân trang
  *

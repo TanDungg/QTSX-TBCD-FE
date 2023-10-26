@@ -263,10 +263,7 @@ function NhapKho({ permission, history, match }) {
   }
   const { totalRow, pageSize } = Data;
 
-  const dataList = reDataForTable(
-    Data.datalist,
-    page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  let dataList = reDataForTable(Data.datalist, page, pageSize);
 
   let colValues = [
     {
