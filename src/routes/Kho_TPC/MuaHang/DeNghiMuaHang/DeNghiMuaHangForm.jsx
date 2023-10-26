@@ -647,9 +647,9 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     if (type === "new") {
       const newData = {
         ...deNghiMuaHang,
-        chiTiet_phieumuahangs: listVatTu,
         ngayHoanThanhDukien: deNghiMuaHang.ngayHoanThanhDukien._i,
         ngayYeuCau: deNghiMuaHang.ngayYeuCau._i,
+        chiTiet_phieumuahangs: listVatTu.filter((ct) => Number(ct.soLuong) > 0),
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -692,7 +692,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         ...deNghiMuaHang,
         ngayHoanThanhDukien: deNghiMuaHang.ngayHoanThanhDukien._i,
         ngayYeuCau: deNghiMuaHang.ngayYeuCau._i,
-        chiTiet_phieumuahangs: listVatTu,
+        chiTiet_phieumuahangs: listVatTu.filter((ct) => Number(ct.soLuong) > 0),
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -951,49 +951,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     }
   };
 
-  const handlePrint = () => {
-    const newData = {
-      ...info,
-      lstpdncvtct: listVatTu,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuDeNghiMuaHang/export-pdf`,
-          "POST",
-          newData,
-          "DOWLOAD",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) {
-          exportPDF("PhieuDeNghiMuaHang", res.data.datapdf);
-          getInfo(id);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  // const addButtonRender = () => {
-  //   return (
-  //     <>
-  //       <Button
-  //         icon={<PrinterOutlined />}
-  //         className="th-margin-bottom-0"
-  //         type="primary"
-  //         onClick={handlePrint}
-  //         disabled={permission && !permission.print}
-  //       >
-  //         In phiếu
-  //       </Button>
-  //     </>
-  //   );
-  // };
-
   const hanldeSelectSanPham = (val) => {
     setSanPham_Id(val);
   };
@@ -1004,11 +961,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
 
   return (
     <div className="gx-main-content">
-      <ContainerHeader
-        title={formTitle}
-        back={goBack}
-        // buttons={type === "new" ? null : addButtonRender()}
-      />
+      <ContainerHeader title={formTitle} back={goBack} />
       <Card className="th-card-margin-bottom">
         <Form
           {...DEFAULT_FORM_TWO_COL}

@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import { ModalDeleteConfirm, Select, Table } from "src/components/Common";
-import Helpers from "src/helpers";
 import { DeleteOutlined } from "@ant-design/icons";
 
 function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
@@ -59,7 +58,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             lkn_ChiTietKhoBegin_Id: data.lkn_ChiTietKhoVatTu_Id,
           };
         });
-        
+
         const newData = newListVatTu.filter((data) => {
           if (itemData.ListViTriKho.length > 0) {
             return !itemData.ListViTriKho.some(

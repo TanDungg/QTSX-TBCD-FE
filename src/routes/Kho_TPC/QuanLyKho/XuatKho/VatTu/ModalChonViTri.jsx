@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import { Table } from "src/components/Common";
+import { find, remove } from "lodash";
 
 function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
   const { width } = useSelector(({ common }) => common).toJS();
@@ -13,10 +14,12 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
   const [errorMessage, setErrorMessage] = useState(null);
   const [editingRecord, setEditingRecord] = useState(null);
   const [DisabledSave, setDisabledSave] = useState(true);
+  const [SelectedViTri, setSelectedViTri] = useState([]);
+  const [SelectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (openModal) {
-      getListViTriKho(itemData.cauTrucKhoId, itemData.vatTu_Id);
+      getListViTriKho(itemData.kho_Id, itemData.vatTu_Id);
     }
     return () => {
       dispatch(fetchReset());
@@ -146,6 +149,17 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
         return item;
       });
     });
+    setSelectedViTri((prevSelectedViTri) => {
+      return prevSelectedViTri.map((item) => {
+        if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+          return {
+            ...item,
+            soLuongThucXuat: sl ? parseFloat(sl) : 0,
+          };
+        }
+        return item;
+      });
+    });
   };
 
   let colListViTri = [
@@ -207,11 +221,7 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
   ];
 
   const XacNhanViTri = () => {
-    const ViTri = ListViTriKho.filter(
-      (data) => data.soLuongThucXuat && data.soLuongThucXuat !== 0
-    );
-
-    const SoLuong = ViTri.reduce(
+    const SoLuong = SelectedViTri.reduce(
       (tong, vitri) => tong + vitri.soLuongThucXuat,
       0
     );
@@ -221,14 +231,16 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       maVatTu: itemData.maVatTu,
       tenVatTu: itemData.tenVatTu,
       soLuongThucXuat: SoLuong,
-      chiTiet_LuuVatTus: ViTri.map((vt) => ({
+      chiTiet_LuuVatTus: SelectedViTri.map((vt) => ({
         ...vt,
-        viTri: `${vt.tenKe ? ` - ${vt.tenKe}` : ""}${
-          vt.tenTang ? ` - ${vt.tenTang}` : ""
-        }${vt.tenNgan ? ` - ${vt.tenNgan}` : ""}`,
+        viTri:
+          vt.tenKe !== null
+            ? `${vt.tenKe ? ` - ${vt.tenKe}` : ""}${
+                vt.tenTang ? ` - ${vt.tenTang}` : ""
+              }${vt.tenNgan ? ` - ${vt.tenNgan}` : ""}`
+            : itemData.tenCTKho,
       })),
     };
-
     ThemViTri(newData);
     openModalFS(false);
     setListViTriKho([]);
@@ -236,6 +248,18 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
 
   const handleCancel = () => {
     openModalFS(false);
+  };
+
+  const rowSelection = {
+    selectedRowKeys: SelectedKeys,
+    selectedRows: SelectedViTri,
+    onChange: (selectedRowKeys, selectedRows) => {
+      console.log(selectedRowKeys);
+      const newSelectedViTri = [...selectedRows];
+      const newSelectedKeys = [...selectedRowKeys];
+      setSelectedViTri(newSelectedViTri);
+      setSelectedKeys(newSelectedKeys);
+    },
   };
 
   const Title = (
@@ -264,6 +288,12 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
             dataSource={reDataForTable(ListViTriKho)}
             size="small"
             pagination={false}
+            rowSelection={{
+              type: "checkbox",
+              ...rowSelection,
+              preserveSelectedRowKeys: true,
+              selectedRowKeys: SelectedKeys,
+            }}
           />
           <div
             style={{ display: "flex", justifyContent: "center", marginTop: 20 }}

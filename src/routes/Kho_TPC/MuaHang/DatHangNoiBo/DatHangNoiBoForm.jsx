@@ -272,6 +272,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       }
     });
   };
+
   const getNhaCungCap = (id) => {
     if (id) {
       new Promise((resolve, reject) => {
@@ -743,7 +744,9 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       );
     })
       .then((res) => {
-        if (res.status !== 409) getInfo(id);
+        if (res.status !== 409) {
+          goBack();
+        }
       })
       .catch((error) => console.error(error));
   };

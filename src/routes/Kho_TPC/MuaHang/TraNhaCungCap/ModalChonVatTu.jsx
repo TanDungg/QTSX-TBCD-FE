@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import { ModalDeleteConfirm, Select, Table } from "src/components/Common";
-import Helpers from "src/helpers";
 import { DeleteOutlined } from "@ant-design/icons";
 
 function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
@@ -77,19 +76,23 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
         const newKho = ListKhoVatTu.filter((d) => d.id === cauTrucKho_Id);
         setKho(newKho[0]);
 
-        const newData = res.data.map((data) => {
-          const vitri = `${data.tenKe ? `${data.tenKe}` : ""}${
-            data.tenTang ? ` - ${data.tenTang}` : ""
-          }${data.tenNgan ? ` - ${data.tenNgan}` : ""}`;
-          return {
-            ...data,
-            vatTu: `${data.maVatTu} - ${data.tenVatTu}${
-              vitri ? ` (${vitri})` : ""
-            }`,
-            soLuongTraNCC: data.soLuong,
-            tenCTKho: newKho[0].tenCTKho,
-          };
-        });
+        const newData = res.data
+          .filter((data) => data.soLuong > 0)
+          .map((data) => {
+            const vitri = `${data.tenKe ? `${data.tenKe}` : ""}${
+              data.tenTang ? ` - ${data.tenTang}` : ""
+            }${data.tenNgan ? ` - ${data.tenNgan}` : ""}`;
+
+            return {
+              ...data,
+              vatTu: `${data.maVatTu} - ${data.tenVatTu}${
+                vitri ? ` (${vitri})` : ""
+              }`,
+              soLuongTraNCC: data.soLuong,
+              tenCTKho: newKho[0].tenCTKho,
+            };
+          });
+
         setListViTriKho(newData);
       } else {
         setListViTriKho([]);

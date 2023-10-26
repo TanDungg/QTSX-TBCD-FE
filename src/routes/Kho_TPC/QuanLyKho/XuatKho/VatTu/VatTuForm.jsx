@@ -48,8 +48,6 @@ const VatTuForm = ({ history, match, permission }) => {
   const [listVatTu, setListVatTu] = useState([]);
   const [VatTu, setVatTu] = useState([]);
   const [ListKhoVatTu, setListKhoVatTu] = useState([]);
-  const [CauTrucKho, setCauTrucKho] = useState(null);
-  const [Kho, setKho] = useState(null);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ActiveModalChonViTri, setActiveModalChonViTri] = useState(false);
@@ -146,10 +144,18 @@ const VatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListVatTu(
+          const newData =
             res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
-              JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu)
-          );
+            JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu).map((data) => {
+              return {
+                ...data,
+                lkn_ChiTietPhieuDeNghiCapVatTu_Id:
+                  data.lkn_ChiTietPhieuDeNghiCapVatTu_Id.toLowerCase(),
+                kho_Id: null,
+              };
+            });
+
+          setListVatTu(newData);
           if (location.state) {
             getListPhieuDeNghiCVT(
               res.data.xuongSanXuat_Id,
@@ -201,10 +207,9 @@ const VatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  const getListPhieuDeNghiCVT = (phongBan_Id, ngayYeuCau) => {
+  const getListPhieuDeNghiCVT = (phongBan_Id) => {
     const params = convertObjectToUrlParams({
       phongBan_Id,
-      ngayYeuCau,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -331,10 +336,15 @@ const VatTuForm = ({ history, match, permission }) => {
         if (res && res.data) {
           setInfo(res.data);
           getXuong();
-          getUserLap(INFO, res.data.userLapPhieu_Id, 1);
-          getListPhieuDeNghiCVT(res.data.xuongSanXuat_Id, res.data.ngayYeuCau);
+          getUserLap(
+            INFO,
+            res.data.userLapPhieu_Id && res.data.userLapPhieu_Id,
+            1
+          );
+          getListPhieuDeNghiCVT(
+            res.data.xuongSanXuat_Id && res.data.xuongSanXuat_Id
+          );
           getListKho();
-          setCauTrucKho(res.data.kho_Id);
           setFieldsValue({
             phieuxuatkhovattu: {
               xuongSanXuat_Id: res.data.xuongSanXuat_Id,
@@ -348,7 +358,6 @@ const VatTuForm = ({ history, match, permission }) => {
               userPhuTrachBoPhan_Id: res.data.userPhuTrachBoPhan_Id,
             },
           });
-
           const chiTiet =
             res.data.chiTiet_PhieuXuatKhoVatTus &&
             JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus);
@@ -371,7 +380,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 chiTiet_LuuVatTus: lstViTri,
               };
             });
-          setListVatTu(newData);
+          setListVatTu(newData.length > 0 && newData);
         }
       })
       .catch((error) => console.error(error));
@@ -429,13 +438,12 @@ const VatTuForm = ({ history, match, permission }) => {
     setActiveModalChonViTri(true);
     setVatTu({
       ...record,
-      ...(Kho && Kho),
-      cauTrucKhoId: CauTrucKho,
       isCheck: check,
     });
   };
 
   const ThemViTri = (data) => {
+    console.log(data);
     const newData = listVatTu.map((listvattu) => {
       if (listvattu.vatTu_Id.toLowerCase() === data.vatTu_Id.toLowerCase()) {
         if (data.soLuongThucXuat <= listvattu.soLuong) {
@@ -460,12 +468,34 @@ const VatTuForm = ({ history, match, permission }) => {
       <div>
         {record.chiTiet_LuuVatTus ? (
           <div>
-            {record.chiTiet_LuuVatTus.length !== 0 &&
-              record.chiTiet_LuuVatTus.map((vt, index) => (
-                <Tag key={index} style={{ marginRight: 5, color: "#0469B9" }}>
-                  {vt.viTri}
-                </Tag>
-              ))}
+            {record.chiTiet_LuuVatTus.length !== 0 && (
+              <div>
+                {record.chiTiet_LuuVatTus.map((vt, index) => {
+                  if (vt.viTri === "Kho vật tư XS") {
+                    if (index === 0) {
+                      return (
+                        <Tag
+                          key={index}
+                          style={{ marginRight: 5, color: "#0469B9" }}
+                        >
+                          {vt.viTri}
+                        </Tag>
+                      );
+                    }
+                  } else {
+                    return (
+                      <Tag
+                        key={index}
+                        style={{ marginRight: 5, color: "#0469B9" }}
+                      >
+                        {vt.viTri}
+                      </Tag>
+                    );
+                  }
+                })}
+              </div>
+            )}
+
             {type === "detail" || type === "xacnhan" ? null : (
               <EditOutlined
                 style={{
@@ -483,13 +513,52 @@ const VatTuForm = ({ history, match, permission }) => {
             className="th-margin-bottom-0"
             type="primary"
             onClick={() => HandleChonViTri(record, false)}
-            disabled={!CauTrucKho}
+            disabled={record.kho_Id === null}
           >
             Chọn vị trí
           </Button>
         )}
       </div>
     );
+  };
+
+  const renderListKho = (record) => {
+    if (record) {
+      return (
+        <div>
+          <Select
+            className="heading-select slt-search th-select-heading"
+            data={ListKhoVatTu ? ListKhoVatTu : []}
+            optionsvalue={["id", "tenCTKho"]}
+            style={{ width: "100%" }}
+            placeholder="Kho xuất"
+            onSelect={(value) => handleSelectKho(value, record)}
+            disabled={record.chiTiet_LuuVatTus}
+          />
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const handleSelectKho = (val, record) => {
+    const newData = ListKhoVatTu.filter((data) => data.id === val);
+    setListVatTu((prevListVatTu) => {
+      return prevListVatTu.map((item) => {
+        if (
+          record.lkn_ChiTietPhieuDeNghiCapVatTu_Id ===
+          item.lkn_ChiTietPhieuDeNghiCapVatTu_Id
+        ) {
+          return {
+            ...item,
+            kho_Id: val,
+            tenCTKho: newData[0].tenCTKho,
+            maCTKho: newData[0].maCTKho,
+          };
+        }
+        return item;
+      });
+    });
   };
 
   let colValues = [
@@ -529,6 +598,13 @@ const VatTuForm = ({ history, match, permission }) => {
       dataIndex: "soLuong",
       key: "soLuong",
       align: "center",
+    },
+    {
+      title: "Kho",
+      key: "kho_Id",
+      align: "center",
+      render: (record) => renderListKho(record),
+      width: 200,
     },
     {
       title: "Vị trí trong kho",
@@ -750,12 +826,6 @@ const VatTuForm = ({ history, match, permission }) => {
     getPhieuDeNghiCVT(val);
   };
 
-  const handleSelectViTriKho = (val) => {
-    setCauTrucKho(val);
-    const newData = ListKhoVatTu.filter((data) => data.id === val);
-    setKho(newData[0]);
-  };
-
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -943,38 +1013,6 @@ const VatTuForm = ({ history, match, permission }) => {
             )}
           </Row>
           <Row>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Kho xuất"
-                name={["phieuxuatkhovattu", "kho_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListKhoVatTu ? ListKhoVatTu : []}
-                  optionsvalue={["id", "tenCTKho"]}
-                  style={{ width: "100%" }}
-                  placeholder="Kho xuất"
-                  showSearch
-                  optionFilterProp={"name"}
-                  onSelect={handleSelectViTriKho}
-                  disabled={type === "new" ? false : true}
-                />
-              </FormItem>
-            </Col>
             <Col
               xxl={12}
               xl={12}

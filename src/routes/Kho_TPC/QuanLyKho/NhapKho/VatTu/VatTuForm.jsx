@@ -443,7 +443,10 @@ const VatTuForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter((d) => d.id !== item.id);
+    console.log(item);
+    const newData = listVatTu.filter(
+      (d) => d.chiTietPhieuNhanHang_Id !== item.chiTietPhieuNhanHang_Id
+    );
     setListVatTu(newData);
   };
 
@@ -495,6 +498,12 @@ const VatTuForm = ({ history, match, permission }) => {
       dataIndex: "key",
       key: "key",
       width: 45,
+      align: "center",
+    },
+    {
+      title: "Sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       align: "center",
     },
     {
@@ -778,61 +787,26 @@ const VatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          console.log(res.data);
-          const newVatTu = [];
-          res.data.chiTietVatTu &&
-            JSON.parse(res.data.chiTietVatTu).forEach((ct) => {
-              if (Number(ct.soLuongNhan) > 0) {
-                newVatTu.push({
-                  id: ct.vatTu_Id + "_" + ct.sanPham_Id,
-                  maVatTu: ct.maVatTu,
-                  tenVatTu: ct.tenVatTu,
-                  tenDonViTinh: ct.tenDonViTinh,
-                  soLuongNhap: ct.soLuongNhan,
-                  vatTu_Id: ct.vatTu_Id,
-                  thoiGianSuDung: getDateNow(),
-                });
-              }
-            });
-          setListVatTu(newVatTu);
+          const newVatTu =
+            res.data.chiTietVatTu &&
+            JSON.parse(res.data.chiTietVatTu)
+              .filter((ct) => Number(ct.soLuongNhan) > 0)
+              .map((ct) => ({
+                ...ct,
+                soLuongNhap: ct.soLuongNhan,
+                chiTietPhieuNhanHang_Id:
+                  ct.chiTietPhieuNhanHang_Id.toLowerCase(),
+                thoiGianSuDung: getDateNow(),
+              }));
+          setListVatTu(newVatTu || []);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  const handlePrint = () => {
-    const newData = {
-      thongTinVatTu: listVatTu,
-      info: info,
-    };
-    const newPathname = `/quan-ly-kho-tpc/thong-tin-vat-tu/nhap-kho/inMa`;
-    setLocalStorage(`qrCodeVatTu`, newData);
-    window.open(`${BASE_URL_APP}${newPathname}`);
-  };
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={(permission && !permission.print) || listVatTu.length === 0}
-        >
-          In mã QrCode
-        </Button>
-      </>
-    );
-  };
-  const dataList = reDataForTable(listVatTu);
-
   return (
     <div className="gx-main-content">
-      <ContainerHeader
-        title={formTitle}
-        back={goBack}
-        // buttons={addButtonRender()}
-      />
+      <ContainerHeader title={formTitle} back={goBack} />
       <Card className="th-card-margin-bottom">
         <Form
           {...DEFAULT_FORM_CUSTOM}
@@ -1099,7 +1073,7 @@ const VatTuForm = ({ history, match, permission }) => {
           scroll={{ x: 900, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
-          dataSource={dataList}
+          dataSource={reDataForTable(listVatTu && listVatTu)}
           size="small"
           rowClassName={"editable-row"}
           pagination={false}

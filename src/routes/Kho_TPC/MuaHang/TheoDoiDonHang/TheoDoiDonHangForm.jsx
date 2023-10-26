@@ -17,6 +17,7 @@ import {
 } from "src/util/Common";
 import { BASE_URL_API } from "src/constants/Config";
 import moment from "moment";
+import dayjs from "dayjs";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -181,6 +182,10 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
     );
   };
 
+  const disabledDate = (current) => {
+    return current && current < dayjs().startOf("day");
+  };
+
   const renderNgayXacNhanHangVe = (record) => {
     if (record) {
       return (
@@ -188,6 +193,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
           <DatePicker
             format={"DD/MM/YYYY"}
             allowClear={false}
+            disabledDate={disabledDate}
             onChange={(date, dateString) =>
               handleNgayXacNhanHangVe(dateString, record)
             }

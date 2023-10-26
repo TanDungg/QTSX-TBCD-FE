@@ -43,6 +43,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const [DenNgay, setDenNgay] = useState(getDateNow());
   const [SelectedDNCVT, setSelectedDNCVT] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
+
   useEffect(() => {
     if (permission && permission.view) {
       getXuongSanXuat();
