@@ -185,12 +185,6 @@ function TheoDoiDonHang({ match, history, permission }) {
       align: "center",
     },
     {
-      title: "Ngày xác nhận hàng về",
-      dataIndex: "ngayHoanThanhDukien",
-      key: "ngayHoanThanhDukien",
-      align: "center",
-    },
-    {
       title: "Ngày hàng về",
       dataIndex: "ngayHangVe",
       key: "ngayHangVe",

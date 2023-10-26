@@ -277,7 +277,35 @@ export const getTimeNow = () => {
   // const seconds = time.getSeconds().toString().padStart(2, "0");
   return `${hours}:${minutes}`;
 };
+export function excelSerialNumberToDate(serialNumber) {
+  console.log(serialNumber);
+  const checkDate = typeof serialNumber === "number" ? false : true;
+  if (!checkDate) {
+    const MS_PER_DAY = 24 * 60 * 60 * 1000; // Số mili giây trong một ngày
+    const excelStartDate = new Date(1900, 0, 0); // Ngày bắt đầu tính trong Excel
 
+    // Số ngày tính từ ngày bắt đầu Excel
+    const numDays = serialNumber - 1;
+
+    // Chuyển đổi số ngày thành số mili giây
+    const numMilliseconds = numDays * MS_PER_DAY;
+
+    // Tính toán ngày kết quả
+    const resultDate = new Date(excelStartDate.getTime() + numMilliseconds);
+
+    return `${
+      (resultDate.getDate() + 1).toString().length > 1
+        ? resultDate.getDate() + 1
+        : `0${resultDate.getDate() + 1}`
+    }/${
+      (resultDate.getMonth() + 1).toString().length > 1
+        ? resultDate.getMonth() + 1
+        : `0${resultDate.getMonth() + 1}`
+    }/${resultDate.getFullYear()}`;
+  } else {
+    return serialNumber;
+  }
+}
 /**
  * * Xóa ký tự tìm thấy đầu tiên trong string
  *

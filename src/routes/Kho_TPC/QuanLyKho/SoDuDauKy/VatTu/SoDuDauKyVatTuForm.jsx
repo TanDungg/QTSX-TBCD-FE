@@ -11,7 +11,6 @@ import {
   Select,
   Table,
   ModalDeleteConfirm,
-  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_DMVT } from "src/constants/Config";
@@ -83,6 +82,9 @@ const EditableCell = ({
           title === "Số lượng"
             ? [
                 {
+                  required: true,
+                },
+                {
                   pattern: /^[1-9]\d*$/,
                   message: "Số lượng phải là số và lớn hơn 0!",
                 },
@@ -127,7 +129,6 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
   const [ListKho, setListKho] = useState([]);
-  const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ActiveModal, setActiveModal] = useState(false);
   const [ActiveModalSanPham, setActiveModalSanPham] = useState(false);
@@ -234,7 +235,7 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_DinhMucVatTu/${id}`,
+          `lkn_SoDuDauKy/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -246,15 +247,14 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListVatTu(JSON.parse(res.data.chiTietBOM));
+          setListVatTu(JSON.parse(res.data.chiTiets));
           getUserLap(INFO, res.data.nguoiLap_Id);
           setInfo(res.data);
           getKho();
           setFieldsValue({
             dinhmucvattu: {
               cauTrucKho_Id: res.data.cauTrucKho_Id,
-              ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
-              nguoiKy_Id: res.data.nguoiKy_Id,
+              ngayYeuCau: moment(res.data.ngayTao, "DD/MM/YYYY"),
             },
           });
         }
@@ -293,12 +293,17 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          res.data.ghiChu = data.ghiChu;
-          res.data.soLuongNhap = data.soLuong;
-          res.data.vatTu_Id = res.data.id;
-          res.data.tenMauSac = res.data.tenMauSac;
+          const newData = {
+            soLuongNhap: data.soLuong,
+            vatTu_Id: res.data.id,
+            tenMauSac: res.data.tenMauSac,
+            tenVatTu: res.data.tenVatTu,
+            maVatTu: res.data.maVatTu,
+            tenDonViTinh: res.data.tenDonViTinh,
+            thoiGianSuDung: data.thoiGianSuDung._i,
+          };
 
-          setListVatTu([...listVatTu, res.data]);
+          setListVatTu([...listVatTu, newData]);
           setFieldTouch(true);
         }
       })
@@ -389,6 +394,12 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
       key: "soLuongNhap",
       align: "center",
       editable: type === "new" || type === "edit" ? true : false,
+    },
+    {
+      title: "Hạn sử dụng",
+      dataIndex: "thoiGianSuDung",
+      key: "thoiGianSuDung",
+      align: "center",
     },
     {
       title: "Chức năng",
@@ -644,7 +655,7 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>

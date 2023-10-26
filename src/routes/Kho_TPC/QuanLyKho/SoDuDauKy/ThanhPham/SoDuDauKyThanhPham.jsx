@@ -28,6 +28,7 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import ImportSoDuDauKy from "./ImportSoDuDauKy";
 import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -38,6 +39,7 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
+  const [DisableModal, setDisableModal] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(7));
   const [ToDate, setToDate] = useState(getDateNow());
@@ -71,6 +73,9 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
       isThanhPham: true,
     });
     dispatch(fetchStart(`lkn_SoDuDauKy?${param}`, "GET", null, "LIST"));
+  };
+  const refesh = () => {
+    loadData(keyword, Kho, FromDate, ToDate, page);
   };
   const getKho = () => {
     new Promise((resolve, reject) => {
@@ -207,7 +212,9 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handlePrint = () => {};
+  const handlePrint = () => {
+    setDisableModal(true);
+  };
   const addButtonRender = () => {
     return (
       <>
@@ -432,6 +439,11 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+        />
+        <ImportSoDuDauKy
+          openModal={DisableModal}
+          openModalFS={setDisableModal}
+          refesh={refesh}
         />
       </Card>
     </div>

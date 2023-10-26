@@ -1,11 +1,12 @@
-import { Modal as AntModal, Button, Row, Form, Input, Col } from "antd";
-import { map, isEmpty } from "lodash";
+import { Modal as AntModal, Button, Row, Form, Input, DatePicker } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 import { DEFAULT_FORM_MODAL } from "src/constants/Config";
 import { Select } from "src/components/Common";
+import dayjs from "dayjs";
+import moment from "moment";
 
 const FormItem = Form.Item;
 
@@ -75,6 +76,10 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
   const onFinish = (values) => {
     // saveData(values.bophan);
   };
+  const disabledDate = (current) => {
+    return current && current < dayjs().startOf("day");
+  };
+
   return (
     <AntModal
       title="Thêm vật tư"
@@ -127,6 +132,23 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
             ]}
           >
             <Input placeholder="Số lượng"></Input>
+          </FormItem>
+          <FormItem
+            label="Thời gian sử dụng"
+            name={["vatTu", "thoiGianSuDung"]}
+          >
+            <DatePicker
+              placeholder="Thời gian sử dụng"
+              format={"DD/MM/YYYY"}
+              disabledDate={disabledDate}
+              onChange={(date, dateString) =>
+                setFieldsValue({
+                  vatTu: {
+                    thoiGianSuDung: moment(dateString, "DD/MM/YYYY"),
+                  },
+                })
+              }
+            />
           </FormItem>
         </Form>
         <Row justify={"center"}>
