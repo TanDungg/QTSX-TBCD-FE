@@ -11,7 +11,7 @@ import {
   Upload,
   Image,
 } from "antd";
-import { includes, map, set } from "lodash";
+import { includes, isEmpty, map, set } from "lodash";
 import Helper from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState, useRef, useContext } from "react";
@@ -34,8 +34,6 @@ import {
   reDataForTable,
   renderPDF,
 } from "src/util/Common";
-// import AddVatTuModal from "./AddVatTuModal";
-// import ModalTuChoi from "./ModalTuChoi";
 
 const EditableContext = React.createContext(null);
 
@@ -152,8 +150,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
   const [FileChat, setFileChat] = useState("");
   const [openImage, setOpenImage] = useState(false);
 
-  const [ActiveModal, setActiveModal] = useState(false);
-  const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
+  const [editingRecord, setEditingRecord] = useState([]);
 
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
   const [info, setInfo] = useState({});
@@ -323,7 +320,13 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListVatTu(res.data);
+        const newData = res.data.map((vt) => {
+          return {
+            ...vt,
+            soLuongNhan: vt.soLuongMua,
+          };
+        });
+        setListVatTu(newData);
       } else {
         setListVatTu([]);
       }
@@ -354,7 +357,8 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           const chiTiet = JSON.parse(res.data.chiTietVatTu);
           chiTiet &&
             chiTiet.forEach((ct, index) => {
-              chiTiet[index].id = ct.vatTu_Id + "_" + ct.sanPham_Id;
+              chiTiet[index].id =
+                ct.lkn_ChiTietPhieuMuaHang_Id + "_" + ct.sanPham_Id;
             });
           setListVatTu(chiTiet ? chiTiet : []);
           if (res.data.fileDinhKem) {
@@ -449,6 +453,54 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       </div>
     );
   };
+
+  const handleInputChange = (val, item) => {
+    const soLuongNhan = val.target.value;
+    if (isEmpty(soLuongNhan) || Number(soLuongNhan) <= 0) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+    } else {
+      const newData = editingRecord.filter(
+        (d) => d.lkn_ChiTietPhieuMuaHang_Id !== item.lkn_ChiTietPhieuMuaHang_Id
+      );
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
+    }
+    const newData = [...listVatTu];
+    newData.forEach((ct, index) => {
+      if (ct.lkn_ChiTietPhieuMuaHang_Id === item.lkn_ChiTietPhieuMuaHang_Id) {
+        ct.soLuongNhan = soLuongNhan;
+      }
+    });
+    setListVatTu(newData);
+  };
+  const rendersoLuong = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.lkn_ChiTietPhieuMuaHang_Id === item.lkn_ChiTietPhieuMuaHang_Id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.soLuongNhan}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChange(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -490,10 +542,9 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng nhận",
-      dataIndex: "soLuongNhan",
       key: "soLuongNhan",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      render: (record) => rendersoLuong(record),
     },
     {
       title: "Hạng mục sử dụng",
@@ -534,7 +585,6 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       ...item,
       ...row,
     });
-    // setDisableSave(true);
     setFieldTouch(true);
     setListVatTu(newData);
   };
@@ -689,66 +739,6 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
         })
         .catch((error) => console.error(error));
     }
-  };
-  const hanldeXacNhan = () => {
-    const newData = {
-      id: id,
-      isXacNhan: true,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_phieuphieunhanhang/xac-nhan/${id}`,
-          "PUT",
-          newData,
-          "EDIT",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) goBack();
-      })
-      .catch((error) => console.error(error));
-  };
-  const prop = {
-    type: "confirm",
-    okText: "Xác nhận",
-    cancelText: "Hủy",
-    title: "Xác nhận phiếu đặt hàng nội bộ",
-    onOk: hanldeXacNhan,
-  };
-  const modalXK = () => {
-    Modal(prop);
-  };
-  const hanldeTuChoi = () => {
-    setActiveModalTuChoi(true);
-  };
-  const saveTuChoi = (val) => {
-    const newData = {
-      id: id,
-      isXacNhan: false,
-      lyDoTuChoi: val,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_phieuphieunhanhang/xac-nhan/${id}`,
-          "PUT",
-          newData,
-          "EDIT",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) goBack();
-      })
-      .catch((error) => console.error(error));
   };
 
   const formTitle =
@@ -1120,31 +1110,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
             disabled={fieldTouch}
           />
         ) : null}
-        {type === "xacnhan" && (
-          <Row justify={"end"} style={{ marginTop: 15 }}>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="primary" onClick={modalXK}>
-                Xác nhận
-              </Button>
-            </Col>
-            <Col style={{ marginRight: 15 }}>
-              <Button danger onClick={hanldeTuChoi}>
-                Từ chối
-              </Button>
-            </Col>
-          </Row>
-        )}
       </Card>
-      {/* <AddVatTuModal
-        openModal={ActiveModal}
-        openModalFS={setActiveModal}
-        addVatTu={addVatTu}
-      />
-      <ModalTuChoi
-        openModal={ActiveModalTuChoi}
-        openModalFS={setActiveModalTuChoi}
-        saveTuChoi={saveTuChoi}
-      /> */}
     </div>
   );
 };

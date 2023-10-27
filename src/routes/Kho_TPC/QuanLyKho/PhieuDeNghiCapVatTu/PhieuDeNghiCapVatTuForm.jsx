@@ -11,7 +11,7 @@ import {
   Tag,
   Radio,
 } from "antd";
-import { includes, map } from "lodash";
+import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState, useContext, useRef } from "react";
@@ -63,9 +63,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   );
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
   const [info, setInfo] = useState({});
-  const [hasError, setHasError] = useState(false);
-  const [editingRecord, setEditingRecord] = useState(null);
-  const [errorMessage, setErrorMessage] = useState(null);
+  const [editingRecord, setEditingRecord] = useState([]);
 
   useEffect(() => {
     const load = () => {
@@ -467,7 +465,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   };
 
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter((d) => d.maVatTu !== item.maVatTu);
+    const newData = listVatTu.filter((d) => d.vatTu_Id !== item.vatTu_Id);
     setListVatTu(newData);
     setFieldTouch(true);
   };
@@ -488,103 +486,77 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     );
   };
 
-  const renderSoLuongVatTu = (record) => {
-    if (record) {
-      const isEditing =
-        editingRecord && editingRecord.vatTu_Id === record.vatTu_Id;
-
-      return type === "detail" || type === "xacnhan" ? (
-        record.soLuong
-      ) : (
-        <div>
-          <Input
-            min={0}
-            style={{
-              textAlign: "center",
-              width: "100%",
-            }}
-            className={`input-item`}
-            value={record.soLuong}
-            type="number"
-            onChange={(val) => handleSoLuongVatTu(val, record)}
-          />
-          {isEditing && hasError && (
-            <div style={{ color: "red" }}>{errorMessage}</div>
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const handleSoLuongVatTu = (val, record) => {
-    const sl = val.target.value;
-    if (sl === null || sl === "") {
-      setHasError(true);
-      setErrorMessage("Vui lòng nhập số lượng");
+  const handleInputChange = (val, item) => {
+    const soLuong = val.target.value;
+    if (isEmpty(soLuong) || Number(soLuong) <= 0) {
       setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
     } else {
-      if (sl <= 0) {
-        setHasError(true);
-        setErrorMessage("Số lượng không được nhỏ hơn 0");
-        setFieldTouch(false);
-      } else {
-        setFieldTouch(true);
-        setHasError(false);
-        setErrorMessage(null);
-      }
+      const newData = editingRecord.filter((d) => d.vatTu_Id !== item.vatTu_Id);
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
     }
-    setEditingRecord(record);
-
-    setListVatTu((prevListVatTu) => {
-      return prevListVatTu.map((item) => {
-        if (record.vatTu_Id === item.vatTu_Id) {
-          return {
-            ...item,
-            soLuong: sl ? parseFloat(sl) : 0,
-          };
-        }
-        return item;
-      });
+    const newData = [...listVatTu];
+    newData.forEach((ct, index) => {
+      if (ct.vatTu_Id === item.vatTu_Id) {
+        ct.soLuong = soLuong;
+      }
     });
+    setListVatTu(newData);
+  };
+  const rendersoLuong = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.vatTu_Id === item.vatTu_Id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.soLuong}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChange(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
   };
 
   const renderHanMucSuDung = (record) => {
-    if (record) {
-      return type === "detail" || type === "xacnhan" ? (
-        record.hanMucSuDung
-      ) : (
-        <div>
-          <Input
-            style={{
-              textAlign: "center",
-              width: "100%",
-            }}
-            className={`input-item`}
-            value={record.hanMucSuDung}
-            onChange={(val) => handleHanMucSuDung(val, record)}
-          />
-        </div>
-      );
-    }
-    return null;
+    return (
+      <Input
+        style={{
+          textAlign: "center",
+          width: "100%",
+        }}
+        className={`input-item`}
+        disabled={type === "new" || type === "edit" ? false : true}
+        value={record.hanMucSuDung}
+        onChange={(val) => handleHanMucSuDung(val, record)}
+      />
+    );
   };
 
   const handleHanMucSuDung = (value, record) => {
     const hanmuc = value.target.value;
     setFieldTouch(true);
-
-    setListVatTu((prevListVatTu) => {
-      return prevListVatTu.map((item) => {
-        if (record.vatTu_Id === item.vatTu_Id) {
-          return {
-            ...item,
-            hanMucSuDung: hanmuc && hanmuc,
-          };
-        }
-        return item;
-      });
+    const newData = [...listVatTu];
+    newData.forEach((ct, index) => {
+      if (ct.vatTu_Id === record.vatTu_Id) {
+        ct.hanMucSuDung = hanmuc;
+      }
     });
+    setListVatTu(newData);
   };
 
   let colValues = [
@@ -629,7 +601,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       title: "Số lượng vật tư",
       key: "soLuong",
       align: "center",
-      render: (record) => renderSoLuongVatTu(record),
+      render: (record) => rendersoLuong(record),
     },
     {
       title: "Hạng mục sử dụng",
@@ -1349,19 +1321,27 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                   </Col>
                 ) : null}
               </Row>
+              <Table
+                bordered
+                columns={columns}
+                scroll={{ x: 900, y: "55vh" }}
+                components={components}
+                className="gx-table-responsive"
+                dataSource={reDataForTable(listVatTu)}
+                size="small"
+                rowClassName={"editable-row"}
+                pagination={false}
+                // loading={loading}
+              />
+              {type === "new" || type === "edit" ? (
+                <FormSubmit
+                  goBack={goBack}
+                  handleSave={onFinish}
+                  saveAndClose={saveAndClose}
+                  disabled={fieldTouch || listVatTu.length === 0}
+                />
+              ) : null}
             </Form>
-            <Table
-              bordered
-              columns={columns}
-              scroll={{ x: 900, y: "55vh" }}
-              components={components}
-              className="gx-table-responsive"
-              dataSource={reDataForTable(listVatTu)}
-              size="small"
-              rowClassName={"editable-row"}
-              pagination={false}
-              // loading={loading}
-            />
           </>
         ) : (
           <>
@@ -1625,29 +1605,31 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                   </Col>
                 ) : null}
               </Row>
+
+              <Table
+                bordered
+                columns={columns}
+                scroll={{ x: 1200, y: "55vh" }}
+                components={components}
+                className="gx-table-responsive"
+                dataSource={reDataForTable(ListVatTuKhac)}
+                size="small"
+                rowClassName={"editable-row"}
+                pagination={false}
+                // loading={loading}
+              />
+              {type === "new" || type === "edit" ? (
+                <FormSubmit
+                  goBack={goBack}
+                  handleSave={onFinish}
+                  saveAndClose={saveAndClose}
+                  disabled={fieldTouch || listVatTu.length === 0}
+                />
+              ) : null}
             </Form>
-            <Table
-              bordered
-              columns={columns}
-              scroll={{ x: 1200, y: "55vh" }}
-              components={components}
-              className="gx-table-responsive"
-              dataSource={reDataForTable(ListVatTuKhac)}
-              size="small"
-              rowClassName={"editable-row"}
-              pagination={false}
-              // loading={loading}
-            />
           </>
         )}
-        {type === "new" || type === "edit" ? (
-          <FormSubmit
-            goBack={goBack}
-            handleSave={onFinish}
-            saveAndClose={saveAndClose}
-            disabled={fieldTouch}
-          />
-        ) : null}
+
         {type === "xacnhan" && (
           <Row justify={"end"} style={{ marginTop: 15 }}>
             <Col style={{ marginRight: 15 }}>

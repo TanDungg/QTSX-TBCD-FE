@@ -1,6 +1,6 @@
 import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
-import { includes, map } from "lodash";
+import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState, useRef, useContext } from "react";
@@ -130,6 +130,8 @@ const VatTuForm = ({ history, match, permission }) => {
   const [ListKho, setListKho] = useState([]);
   const [ListMaPhieu, setListMaPhieu] = useState([]);
   const [ActiveModal, setActiveModal] = useState(false);
+  const [editingRecord, setEditingRecord] = useState([]);
+
   const [ListUserKy, setListUserKy] = useState([]);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
@@ -480,7 +482,7 @@ const VatTuForm = ({ history, match, permission }) => {
         onChange={(date, dateString) => {
           const newVatTu = [...listVatTu];
           newVatTu.forEach((vt, index) => {
-            if (vt.vatTu_Id === record.vatTu_Id) {
+            if (vt.chiTietPhieuNhanHang_Id === record.chiTietPhieuNhanHang_Id) {
               newVatTu[index].thoiGianSuDung = dateString;
             }
           });
@@ -491,6 +493,83 @@ const VatTuForm = ({ history, match, permission }) => {
     );
   };
 
+  const handleInputChange = (val, item) => {
+    const soLuongNhap = val.target.value;
+    if (isEmpty(soLuongNhap) || Number(soLuongNhap) <= 0) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+    } else if (Number(soLuongNhap) > item.soLuongNhan) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng phải nhỏ hơn";
+    } else {
+      const newData = editingRecord.filter(
+        (d) => d.chiTietPhieuNhanHang_Id !== item.chiTietPhieuNhanHang_Id
+      );
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
+    }
+    const newData = [...listVatTu];
+    newData.forEach((ct, index) => {
+      if (ct.chiTietPhieuNhanHang_Id === item.chiTietPhieuNhanHang_Id) {
+        ct.soLuongNhap = soLuongNhap;
+      }
+    });
+    setListVatTu(newData);
+  };
+  const rendersoLuong = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.chiTietPhieuNhanHang_Id === item.chiTietPhieuNhanHang_Id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.soLuongNhap}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChange(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
+  const changeGhiChu = (val, item) => {
+    const ghiChu = val.target.value;
+    const newData = [...listVatTu];
+    newData.forEach((sp, index) => {
+      if (sp.chiTietPhieuNhanHang_Id === item.chiTietPhieuNhanHang_Id) {
+        sp.ghiChu = ghiChu;
+      }
+    });
+    setListVatTu(newData);
+  };
+  const renderGhiChu = (item) => {
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          value={item.ghiChu}
+          onChange={(val) => changeGhiChu(val, item)}
+          disabled={type === "new" || type === "edit" ? false : true}
+        />
+      </>
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -525,10 +604,10 @@ const VatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng",
-      dataIndex: "soLuongNhap",
+      render: (record) => rendersoLuong(record),
+
       key: "soLuongNhap",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
     },
     {
       title: "Thời gian sử dụng",
@@ -539,10 +618,9 @@ const VatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Ghi chú",
-      dataIndex: "ghiChu",
       key: "ghiChu",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      render: (record) => renderGhiChu(record),
     },
     {
       title: "Chức năng",
@@ -560,7 +638,9 @@ const VatTuForm = ({ history, match, permission }) => {
   };
   const handleSave = (row) => {
     const newData = [...listVatTu];
-    const index = newData.findIndex((item) => row.vatTu_Id === item.vatTu_Id);
+    const index = newData.findIndex(
+      (item) => row.chiTietPhieuNhanHang_Id === item.chiTietPhieuNhanHang_Id
+    );
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
@@ -662,7 +742,7 @@ const VatTuForm = ({ history, match, permission }) => {
         chiTiet_PhieuNhapKhoVatTus: listVatTu.map((vt) => {
           return {
             ...vt,
-            lkn_PhieuNhapKhoVatTu_Id: id,
+            lkn_PhieuNhapKhochiTietPhieuNhanHang_Id: id,
           };
         }),
         ngayHoaDon: nhapkho.ngayHoaDon._i,
