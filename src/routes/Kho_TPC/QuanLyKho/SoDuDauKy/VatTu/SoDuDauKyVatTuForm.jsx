@@ -1,6 +1,6 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
-import { includes, map } from "lodash";
+import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState, useRef, useContext } from "react";
@@ -132,7 +132,7 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
   const [ListUser, setListUser] = useState([]);
   const [ActiveModal, setActiveModal] = useState(false);
   const [ActiveModalSanPham, setActiveModalSanPham] = useState(false);
-
+  const [editingRecord, setEditingRecord] = useState([]);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
@@ -356,6 +356,53 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
       </div>
     );
   };
+
+  const handleInputChange = (val, item) => {
+    const soLuongNhap = val.target.value;
+    if (isEmpty(soLuongNhap) || Number(soLuongNhap) <= 0) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+    } else {
+      const newData = editingRecord.filter((d) => d.vatTu_Id !== item.vatTu_Id);
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
+    }
+    const newData = [...listVatTu];
+    newData.forEach((ct, index) => {
+      if (ct.vatTu_Id === item.vatTu_Id) {
+        ct.soLuongNhap = soLuongNhap;
+      }
+    });
+    setListVatTu(newData);
+  };
+  const rendersoLuong = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.vatTu_Id === item.vatTu_Id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.soLuongNhap}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChange(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
+
   let colValues = [
     {
       title: "STT",
@@ -390,10 +437,9 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng",
-      dataIndex: "soLuongNhap",
       key: "soLuongNhap",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      render: (record) => rendersoLuong(record),
     },
     {
       title: "Hạn sử dụng",

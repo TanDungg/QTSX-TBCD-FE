@@ -10,7 +10,7 @@ import {
   Tag,
   Divider,
 } from "antd";
-import { includes, map } from "lodash";
+import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -54,11 +54,8 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
   const [KhoVatTu, setKhoVatTu] = useState(null);
   const [ListUser, setListUser] = useState([]);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(null);
-  const [hasError, setHasError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [editingRecord, setEditingRecord] = useState(null);
+  const [editingRecord, setEditingRecord] = useState([]);
   const [DisabledSave, setDisabledSave] = useState(true);
-  const [ListViTriKho, setListViTriKho] = useState([]);
 
   useEffect(() => {
     const load = () => {
@@ -193,42 +190,6 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     });
   };
 
-  const getListViTriKho = (cauTrucKho_Id) => {
-    const params = convertObjectToUrlParams({
-      cauTrucKho_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_ViTriLuuKho/list-vi-tri-luu-kho-vat-tu?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        const newData = res.data.map((data) => {
-          const vitri = `${data.tenKe ? `${data.tenKe}` : ""}${
-            data.tenTang ? ` - ${data.tenTang}` : ""
-          }${data.tenNgan ? ` - ${data.tenNgan}` : ""}`;
-          return {
-            ...data,
-            vatTu: `${data.maVatTu} - ${data.tenVatTu}${
-              vitri ? ` (${vitri})` : ""
-            }`,
-          };
-        });
-        setListViTriKho(newData);
-      } else {
-        setListViTriKho([]);
-      }
-    });
-  };
-
   /**
    * Lấy thông tin
    *
@@ -257,7 +218,6 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
           getListKhoDi();
           getListKhoDen();
           setKhoVatTu(res.data.khoDi_Id);
-          getListViTriKho(res.data.khoDi_Id);
           setFieldsValue({
             phieudieuchuyen: {
               ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
@@ -352,88 +312,57 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     );
   };
 
-  const renderSoLuongDieuChuyen = (record) => {
-    if (record) {
-      const isEditing =
-        editingRecord &&
-        editingRecord.lkn_ChiTietKhoBegin_Id === record.lkn_ChiTietKhoBegin_Id;
-
-      return type !== "detail" ? (
-        <div>
-          <Input
-            min={0}
-            style={{
-              textAlign: "center",
-              width: "100%",
-              borderColor: isEditing && hasError ? "red" : "",
-            }}
-            className={`input-item ${
-              isEditing && hasError ? "input-error" : ""
-            }`}
-            value={record.soLuongDieuChuyen}
-            type="number"
-            onChange={(val) => handleInputChange(val, record)}
-          />
-          {isEditing && hasError && (
-            <div style={{ color: "red" }}>{errorMessage}</div>
-          )}
-        </div>
-      ) : (
-        record.soLuongDieuChuyen
-      );
-    }
-    return null;
-  };
-
-  const handleInputChange = (val, record) => {
-    const newData = ListViTriKho.filter((d) => d.vatTu === record.vatTu);
-    const data = {
-      ...(newData && newData[0]),
-      soLuong:
-        newData.length !== 0
-          ? newData[0].soLuong + record.soLuong
-          : record.soLuong,
-    };
-    const sl = val.target.value;
-
-    if (sl === null || sl === "") {
-      setHasError(true);
-      setErrorMessage("Vui lòng nhập số lượng");
+  const handleInputChange = (val, item) => {
+    const soLuongDieuChuyen = val.target.value;
+    if (isEmpty(soLuongDieuChuyen) || soLuongDieuChuyen === "0") {
       setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+    } else if (soLuongDieuChuyen > item.soLuong) {
+      setFieldTouch(false);
+      item.message = `Số lượng không được lớn hơn ${item.soLuong}`;
+      setEditingRecord([...editingRecord, item]);
     } else {
-      if (sl <= 0) {
-        setHasError(true);
-        setErrorMessage("Số lượng phải lớn hơn 0");
-        setFieldTouch(false);
-      } else {
-        if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
-          setHasError(true);
-          setErrorMessage(
-            "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho"
-          );
-          setFieldTouch(false);
-        } else {
-          setFieldTouch(true);
-          setHasError(false);
-          setErrorMessage(null);
-        }
-      }
+      const newData = editingRecord.filter(
+        (d) => d.lkn_ChiTietKhoBegin_Id !== item.lkn_ChiTietKhoBegin_Id
+      );
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
     }
-    setEditingRecord(record);
-
-    setListSanPham((prevListSanPham) => {
-      return prevListSanPham.map((item) => {
-        if (record.lkn_ChiTietKhoBegin_Id === item.lkn_ChiTietKhoBegin_Id) {
-          return {
-            ...item,
-            soLuongDieuChuyen: sl ? parseFloat(sl) : 0,
-          };
-        }
-        return item;
-      });
+    const newData = [...ListSanPham];
+    newData.forEach((ct, index) => {
+      if (ct.lkn_ChiTietKhoBegin_Id === item.lkn_ChiTietKhoBegin_Id) {
+        ct.soLuongDieuChuyen = soLuongDieuChuyen;
+      }
     });
+    setListSanPham(newData);
   };
-
+  const renderSoLuongDieuChuyen = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.lkn_ChiTietKhoBegin_Id === item.lkn_ChiTietKhoBegin_Id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.soLuongDieuChuyen}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChange(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
   let colValues = [
     {
       title: "STT",

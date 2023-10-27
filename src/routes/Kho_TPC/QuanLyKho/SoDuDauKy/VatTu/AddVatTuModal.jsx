@@ -144,7 +144,9 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
               onChange={(date, dateString) =>
                 setFieldsValue({
                   vatTu: {
-                    thoiGianSuDung: moment(dateString, "DD/MM/YYYY"),
+                    thoiGianSuDung: date
+                      ? moment(dateString, "DD/MM/YYYY")
+                      : null,
                   },
                 })
               }

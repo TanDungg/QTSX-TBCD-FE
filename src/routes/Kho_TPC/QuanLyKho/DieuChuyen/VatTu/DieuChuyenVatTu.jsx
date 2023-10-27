@@ -416,7 +416,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 700, y: "65vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

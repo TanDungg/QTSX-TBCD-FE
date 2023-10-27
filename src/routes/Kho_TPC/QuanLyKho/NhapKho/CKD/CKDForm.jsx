@@ -22,7 +22,6 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
-import ViTriLuu from "../../ViTriLuu/ViTriLuu";
 const EditableContext = React.createContext(null);
 const EditableRow = ({ index, ...props }) => {
   const [form] = Form.useForm();
@@ -221,7 +220,6 @@ const EditableCellChilder = ({
   return <td {...restProps}>{childNode}</td>;
 };
 const FormItem = Form.Item;
-const errorMessage = "Số lượng phải là số lớn hơn 0 và bắt buộc";
 
 const CKDForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
@@ -237,7 +235,6 @@ const CKDForm = ({ history, match, permission }) => {
   const [ListSanPham, setListSanPham] = useState([]);
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
   const [info, setInfo] = useState({});
-  const [hasError, setHasError] = useState(false);
   const [editingRecord, setEditingRecord] = useState(null);
   const [editingRecordCT, setEditingRecordCT] = useState([]);
 
@@ -518,6 +515,7 @@ const CKDForm = ({ history, match, permission }) => {
   const changeSoLuongSP = (val, item) => {
     const soLuongNhap = val.target.value;
     if (isEmpty(soLuongNhap) || soLuongNhap === "0") {
+      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
       setEditingRecord(item);
       setFieldTouch(false);
     } else {
@@ -547,10 +545,13 @@ const CKDForm = ({ history, match, permission }) => {
           }}
           className={`input-item`}
           type="number"
+          disabled={type === "new" || type === "edit" ? false : true}
           value={item.soLuongNhap}
           onChange={(val) => changeSoLuongSP(val, item)}
         />
-        {isEditing && <div style={{ color: "red" }}>{errorMessage}</div>}
+        {isEditing && (
+          <div style={{ color: "red" }}>{editingRecord.message}</div>
+        )}
       </>
     );
   };
@@ -558,6 +559,16 @@ const CKDForm = ({ history, match, permission }) => {
     const soLuongNhap = val.target.value;
     if (isEmpty(soLuongNhap) || soLuongNhap === "0") {
       setFieldTouch(false);
+      setEditingRecordCT([...editingRecordCT, item]);
+      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+    } else if (
+      soLuongNhap >
+      Number(ListSanPham[0].soLuongNhap) * Number(item.dinhMuc)
+    ) {
+      setFieldTouch(false);
+      item.message = `Số lương phải nhỏ hơn hoặc bằng ${
+        Number(ListSanPham[0].soLuongNhap) * Number(item.dinhMuc)
+      }`;
       setEditingRecordCT([...editingRecordCT, item]);
     } else {
       const newData = editingRecordCT.filter(
@@ -578,9 +589,11 @@ const CKDForm = ({ history, match, permission }) => {
   };
   const renderSoLuongCT = (item) => {
     let isEditing = false;
+    let message = "";
     editingRecordCT.forEach((ct) => {
       if (ct.vatTu_Id === item.vatTu_Id) {
         isEditing = true;
+        message = ct.message;
       }
     });
     return (
@@ -593,9 +606,10 @@ const CKDForm = ({ history, match, permission }) => {
           className={`input-item`}
           type="number"
           value={item.soLuongNhap}
+          disabled={type === "new" || type === "edit" ? false : true}
           onChange={(val) => changeSoLuongCT(val, item)}
         />
-        {isEditing && <div style={{ color: "red" }}>{errorMessage}</div>}
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
       </>
     );
   };
@@ -622,6 +636,7 @@ const CKDForm = ({ history, match, permission }) => {
           className={`input-item`}
           value={item.ghiChu}
           onChange={(val) => changeGhiChu(val, item)}
+          disabled={type === "new" || type === "edit" ? false : true}
         />
       </>
     );
@@ -913,7 +928,7 @@ const CKDForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết phiếu nhập kho CKD -{" "}
-        <Tag color={"success"}>{info.maPhieuNhapKhoCKD}</Tag>
+        <Tag color={"success"}>{info.maPhieuNhapKhoVatTu}</Tag>
       </span>
     );
 
