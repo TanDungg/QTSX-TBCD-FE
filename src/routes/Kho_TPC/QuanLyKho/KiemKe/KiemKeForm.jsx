@@ -176,7 +176,7 @@ const KiemKeForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${info.user_Id}?${params}`,
+          `Account/cbnv/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}?${params}`,
           "GET",
           null,
           "DETAIL",

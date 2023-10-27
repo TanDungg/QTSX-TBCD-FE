@@ -261,153 +261,198 @@ function ImportKeHoach({ match, permission, history }) {
         type: "binary",
       });
       const worksheet = workbook.Sheets["Kế hoạch"];
-      const checkKeHoach =
+      let checkMau =
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 0, r: 3 }, e: { c: 0, r: 3 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 1, r: 1 }, e: { c: 1, r: 1 } },
+            range: { s: { c: 0, r: 3 }, e: { c: 0, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Kế hoạch:" &&
+          .trim() === "STT" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 1, r: 3 }, e: { c: 1, r: 3 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 2, r: 1 }, e: { c: 2, r: 1 } },
+            range: { s: { c: 1, r: 3 }, e: { c: 1, r: 3 } },
           })[0]
           .toString()
-          .trim() === TenKeHoach;
-      if (!checkKeHoach) {
+          .trim() === "Mã sản phẩm" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
+        })[0] &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
+          })[0]
+          .toString()
+          .trim() === "Tên sản phẩm" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
+          })[0]
+          .toString()
+          .trim() === "Mã màu sắc";
+      if (checkMau) {
+        for (let index = 1; index <= getNumberDayOfMonth(Thang, Nam); index++) {
+          if (
+            XLSX.utils.sheet_to_json(worksheet, {
+              header: 1,
+              range: {
+                s: { c: 3 + index, r: 3 },
+                e: { c: 3 + index, r: 3 },
+              },
+            })[0] &&
+            XLSX.utils
+              .sheet_to_json(worksheet, {
+                header: 1,
+                range: {
+                  s: { c: 3 + index, r: 3 },
+                  e: { c: 3 + index, r: 3 },
+                },
+              })[0]
+              .toString()
+              .trim() !== index.toString()
+          ) {
+            checkMau = false;
+          }
+        }
+      }
+      if (!checkMau) {
         setFileName(file.name);
         setDataView([]);
         setCheckDanger(true);
-        setMessageError("Kế hoạch không hợp lệ");
-        Helper.alertError("Kế hoạch không hợp lệ");
+        setMessageError("Mẫu import không hợp lệ");
+        Helper.alertError("Mẫu file import không hợp lệ");
       } else {
-        const checkXuong =
+        const checkKeHoach =
+          XLSX.utils.sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 1, r: 1 }, e: { c: 1, r: 1 } },
+          })[0] &&
           XLSX.utils
             .sheet_to_json(worksheet, {
               header: 1,
-              range: { s: { c: 4, r: 1 }, e: { c: 4, r: 1 } },
+              range: { s: { c: 1, r: 1 }, e: { c: 1, r: 1 } },
             })[0]
             .toString()
-            .trim() === "Xưởng:" &&
+            .trim() === "Kế hoạch:" &&
+          XLSX.utils.sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 2, r: 1 }, e: { c: 2, r: 1 } },
+          })[0] &&
           XLSX.utils
             .sheet_to_json(worksheet, {
               header: 1,
-              range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
+              range: { s: { c: 2, r: 1 }, e: { c: 2, r: 1 } },
             })[0]
             .toString()
-            .trim() === TenXuong;
-        if (!checkXuong) {
+            .trim() === TenKeHoach;
+        if (!checkKeHoach) {
           setFileName(file.name);
           setDataView([]);
           setCheckDanger(true);
-          setMessageError("Xưởng không hợp lệ");
-          Helper.alertError("Xưởng không hợp lệ");
+          setMessageError("Kế hoạch không hợp lệ");
+          Helper.alertError("Kế hoạch không hợp lệ");
         } else {
-          const checkThangNam =
+          const checkXuong =
+            XLSX.utils.sheet_to_json(worksheet, {
+              header: 1,
+              range: { s: { c: 4, r: 1 }, e: { c: 4, r: 1 } },
+            })[0] &&
             XLSX.utils
               .sheet_to_json(worksheet, {
                 header: 1,
-                range: { s: { c: 11, r: 1 }, e: { c: 11, r: 1 } },
+                range: { s: { c: 4, r: 1 }, e: { c: 4, r: 1 } },
               })[0]
               .toString()
-              .trim() === "Tháng:" &&
+              .trim() === "Xưởng:" &&
+            XLSX.utils.sheet_to_json(worksheet, {
+              header: 1,
+              range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
+            })[0] &&
             XLSX.utils
               .sheet_to_json(worksheet, {
                 header: 1,
-                range: { s: { c: 13, r: 1 }, e: { c: 13, r: 1 } },
+                range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
               })[0]
               .toString()
-              .trim().length === 1
-              ? "0" +
-                XLSX.utils
-                  .sheet_to_json(worksheet, {
-                    header: 1,
-                    range: { s: { c: 13, r: 1 }, e: { c: 13, r: 1 } },
-                  })[0]
-                  .toString()
-                  .trim()
-              : XLSX.utils
-                  .sheet_to_json(worksheet, {
-                    header: 1,
-                    range: { s: { c: 13, r: 1 }, e: { c: 13, r: 1 } },
-                  })[0]
-                  .toString()
-                  .trim() === Thang.toString() &&
-                XLSX.utils
-                  .sheet_to_json(worksheet, {
-                    header: 1,
-                    range: { s: { c: 15, r: 1 }, e: { c: 15, r: 1 } },
-                  })[0]
-                  .toString()
-                  .trim() === "Năm:" &&
-                XLSX.utils
-                  .sheet_to_json(worksheet, {
-                    header: 1,
-                    range: { s: { c: 16, r: 1 }, e: { c: 16, r: 1 } },
-                  })[0]
-                  .toString()
-                  .trim() === Nam.toString();
-          if (!checkThangNam) {
+              .trim() === TenXuong;
+          if (!checkXuong) {
             setFileName(file.name);
             setDataView([]);
             setCheckDanger(true);
-            setMessageError("Tháng Năm không hợp lệ");
-            Helper.alertError("Tháng Năm không hợp lệ");
+            setMessageError("Xưởng không hợp lệ");
+            Helper.alertError("Xưởng không hợp lệ");
           } else {
-            let checkMau =
+            const checkThangNam =
               XLSX.utils
                 .sheet_to_json(worksheet, {
                   header: 1,
-                  range: { s: { c: 0, r: 3 }, e: { c: 0, r: 3 } },
+                  range: { s: { c: 11, r: 1 }, e: { c: 11, r: 1 } },
                 })[0]
                 .toString()
-                .trim() === "STT" &&
+                .trim() === "Tháng:" &&
               XLSX.utils
                 .sheet_to_json(worksheet, {
                   header: 1,
-                  range: { s: { c: 1, r: 3 }, e: { c: 1, r: 3 } },
+                  range: { s: { c: 13, r: 1 }, e: { c: 13, r: 1 } },
                 })[0]
                 .toString()
-                .trim() === "Mã sản phẩm" &&
-              XLSX.utils
-                .sheet_to_json(worksheet, {
-                  header: 1,
-                  range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
-                })[0]
-                .toString()
-                .trim() === "Tên sản phẩm" &&
-              XLSX.utils
-                .sheet_to_json(worksheet, {
-                  header: 1,
-                  range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
-                })[0]
-                .toString()
-                .trim() === "Mã màu sắc";
-            if (checkMau) {
-              for (
-                let index = 1;
-                index <= getNumberDayOfMonth(Thang, Nam);
-                index++
-              ) {
-                if (
+                .trim().length === 1
+                ? "0" +
                   XLSX.utils
                     .sheet_to_json(worksheet, {
                       header: 1,
-                      range: {
-                        s: { c: 3 + index, r: 3 },
-                        e: { c: 3 + index, r: 3 },
-                      },
+                      range: { s: { c: 13, r: 1 }, e: { c: 13, r: 1 } },
                     })[0]
                     .toString()
-                    .trim() !== index.toString()
-                ) {
-                  checkMau = false;
-                }
-              }
-            }
-            if (checkMau) {
+                    .trim()
+                : XLSX.utils
+                    .sheet_to_json(worksheet, {
+                      header: 1,
+                      range: { s: { c: 13, r: 1 }, e: { c: 13, r: 1 } },
+                    })[0]
+                    .toString()
+                    .trim() === Thang.toString() &&
+                  XLSX.utils
+                    .sheet_to_json(worksheet, {
+                      header: 1,
+                      range: { s: { c: 15, r: 1 }, e: { c: 15, r: 1 } },
+                    })[0]
+                    .toString()
+                    .trim() === "Năm:" &&
+                  XLSX.utils
+                    .sheet_to_json(worksheet, {
+                      header: 1,
+                      range: { s: { c: 16, r: 1 }, e: { c: 16, r: 1 } },
+                    })[0]
+                    .toString()
+                    .trim() === Nam.toString();
+            if (!checkThangNam) {
+              setFileName(file.name);
+              setDataView([]);
+              setCheckDanger(true);
+              setMessageError("Tháng Năm không hợp lệ");
+              Helper.alertError("Tháng Năm không hợp lệ");
+            } else {
               const data = XLSX.utils.sheet_to_json(worksheet, {
                 range: 3,
               });
@@ -464,45 +509,11 @@ function ImportKeHoach({ match, permission, history }) {
                 setMessageError("Dữ liệu import không được rỗng");
                 Helper.alertError("Dữ liệu import không được rỗng");
               } else {
-                // const indices = [];
-                // const row = [];
-                // for (let i = 0; i < Data.length; i++) {
-                //   for (let j = i + 1; j < Data.length; j++) {
-                //     if (
-                //       Data[i] === Data[j] &&
-                //       Data[j] !== undefined &&
-                //       Data[i] !== undefined
-                //     ) {
-                //       indices.push(Data[i]);
-                //       row.push(i + 1);
-                //       row.push(j + 1);
-                //     }
-                //   }
-                // }
                 setDataView(NewData);
                 setFileName(file.name);
                 setDataLoi();
                 setCheckDanger(false);
-                // if (indices.length > 0) {
-                //   setMessageError(
-                //     `Hàng ${row.join(", ")} có mã sản phẩm trùng nhau`
-                //   );
-                //   Helper.alertError(
-                //     `Hàng ${row.join(", ")} có mã sản phẩm trùng nhau`
-                //   );
-                //   setHangTrung(indices);
-                //   setCheckDanger(true);
-                // } else {
-                //   setHangTrung([]);
-                //   setCheckDanger(false);
-                // }
               }
-            } else {
-              setFileName(file.name);
-              setDataView([]);
-              setCheckDanger(true);
-              setMessageError("Mẫu import không hợp lệ");
-              Helper.alertError("Mẫu file import không hợp lệ");
             }
           }
         }

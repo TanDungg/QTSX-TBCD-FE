@@ -147,11 +147,7 @@ function KhoVatTu({ match, history, permission }) {
     );
   };
   const { totalRow, totalPage, pageSize } = data;
-
-  let dataList = reDataForTable(
-    data
-    // page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  let dataList = reDataForTable(data.splice((vt) => vt.soLuong !== 0));
 
   let renderHead = [
     {

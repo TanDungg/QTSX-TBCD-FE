@@ -55,6 +55,7 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
   const handleSubmit = () => {
     validateFields()
       .then((values) => {
+        values.vatTu.isBatBuoc = false;
         addVatTu(values.vatTu);
         openModalFS(false);
         resetFields();
