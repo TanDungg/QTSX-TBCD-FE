@@ -10,7 +10,7 @@ import {
   Divider,
   Tag,
 } from "antd";
-import { includes, map } from "lodash";
+import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState, useRef, useContext } from "react";
@@ -146,6 +146,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
   const [ActiveModal, setActiveModal] = useState(false);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
+  const [editingRecord, setEditingRecord] = useState([]);
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
@@ -392,7 +393,7 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter((d) => d.id !== item.id);
+    const newData = listVatTu.filter((d) => d.vatTu_Id !== item.vatTu_Id);
     setListVatTu(newData);
   };
 
@@ -418,6 +419,95 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
     );
   };
 
+  const handleInputChange = (val, item, sl) => {
+    const soLuongThanhLy = val.target.value;
+    if (isEmpty(soLuongThanhLy) || Number(soLuongThanhLy) <= 0) {
+      setFieldTouch(false);
+      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+      item.title = sl;
+      if (editingRecord.length === 0) {
+        setEditingRecord([...editingRecord, item]);
+      } else {
+        editingRecord.forEach((e) => {
+          if (e.vatTu_Id === item.vatTu_Id && e.title !== sl) {
+            setEditingRecord([...editingRecord, item]);
+          }
+        });
+      }
+    } else if (
+      Number(soLuongThanhLy) >= Number(item.slTonKhoToiDa) &&
+      sl === "slTonKhoToiThieu"
+    ) {
+      setFieldTouch(false);
+      item.title = sl;
+      item.message = `SL tồn kho tối thiếu không được lớn hơn hơn hoặc bằng SL tồn kho tối đa`;
+      if (editingRecord.length === 0) {
+        setEditingRecord([...editingRecord, item]);
+      } else {
+        editingRecord.forEach((e) => {
+          if (e.vatTu_Id === item.vatTu_Id && e.title !== sl) {
+            setEditingRecord([...editingRecord, item]);
+          }
+        });
+      }
+    } else if (
+      Number(soLuongThanhLy) <= Number(item.slTonKhoToiThieu) &&
+      sl === "slTonKhoToiDa"
+    ) {
+      setFieldTouch(false);
+      item.title = sl;
+      item.message = `SL tồn kho tối đa không được nhỏ hơn hoặc bằng SL tồn kho tối thiếu`;
+      if (editingRecord.length === 0) {
+        setEditingRecord([...editingRecord, item]);
+      } else {
+        editingRecord.forEach((e) => {
+          if (e.vatTu_Id === item.vatTu_Id && e.title !== sl) {
+            setEditingRecord([...editingRecord, item]);
+          }
+        });
+      }
+    } else {
+      const newData = editingRecord.filter(
+        (d) => !(d.vatTu_Id === item.vatTu_Id && d.title === sl)
+      );
+      console.log(newData);
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
+    }
+    const newData = [...listVatTu];
+    newData.forEach((ct, index) => {
+      if (ct.vatTu_Id === item.vatTu_Id) {
+        ct[sl] = soLuongThanhLy;
+      }
+    });
+    setListVatTu(newData);
+  };
+  const renderSoLuong = (item, sl) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.vatTu_Id === item.vatTu_Id && ct.title === sl) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item[sl]}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChange(val, item, sl)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -440,14 +530,14 @@ const DinhMucTonKhoForm = ({ history, match, permission }) => {
     },
     {
       title: "SL tồn kho tối thiểu",
-      dataIndex: "slTonKhoToiThieu",
+      render: (record) => renderSoLuong(record, "slTonKhoToiThieu"),
       key: "slTonKhoToiThieu",
       align: "center",
     },
     {
       title: "SL tồn kho tối đa",
-      dataIndex: "slTonKhoToiDa",
       key: "slTonKhoToiDa",
+      render: (record) => renderSoLuong(record, "slTonKhoToiDa"),
       align: "center",
     },
     {

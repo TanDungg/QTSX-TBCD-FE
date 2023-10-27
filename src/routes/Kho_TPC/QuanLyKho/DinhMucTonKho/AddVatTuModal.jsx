@@ -122,6 +122,10 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
               {
                 required: true,
               },
+              {
+                pattern: /^[1-9]\d*$/,
+                message: "Số lượng không hợp lệ!",
+              },
             ]}
           >
             <Input
@@ -138,6 +142,25 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
               {
                 required: true,
               },
+              {
+                pattern: /^[1-9]\d*$/,
+                message: "Số lượng không hợp lệ!",
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (
+                    !value ||
+                    getFieldValue(["addVatTu", "slTonKhoToiThieu"]) < value
+                  ) {
+                    return Promise.resolve();
+                  }
+                  return Promise.reject(
+                    new Error(
+                      "SL tồn kho tối đa phải lớn hơn SL tồn kho tối thiểu!"
+                    )
+                  );
+                },
+              }),
             ]}
           >
             <Input

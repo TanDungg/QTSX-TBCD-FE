@@ -31,7 +31,6 @@ function LayoutKho({ history, permission }) {
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
-
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -234,10 +233,7 @@ function LayoutKho({ history, permission }) {
                             ke.children.length === 0
                               ? soTangMax * 40
                               : ke.children.length * 40,
-                          // padding: 0,
                           marginBottom: 50,
-                          // marginRight: 25,
-                          // border: "1px solid #333",
                         }}
                       >
                         <h5>{ke.tenCauTrucKho}</h5>
@@ -266,7 +262,6 @@ function LayoutKho({ history, permission }) {
                         >
                           {ke.children.length > 0
                             ? [
-                                // ke.children.length !== soTangMax &&
                                 ...Array.from(
                                   { length: soTangMax - ke.children.length },
                                   (_, i) => (
@@ -293,10 +288,26 @@ function LayoutKho({ history, permission }) {
                                       }}
                                     >
                                       {tang.children.length > 0 &&
-                                        tang.children.map((ngan) => {
+                                        tang.children.map((ngan, index) => {
                                           return (
                                             <Col
-                                              span={24 / tang.children.length}
+                                              span={
+                                                (tang.children.length === 5 ||
+                                                  tang.children.length === 7 ||
+                                                  tang.children.length === 9 ||
+                                                  tang.children.length === 10 ||
+                                                  tang.children.length === 11 ||
+                                                  tang.children.length ===
+                                                    13) &&
+                                                index + 1 ===
+                                                  tang.children.length
+                                                  ? Math.floor(
+                                                      24 / tang.children.length
+                                                    ) * 2
+                                                  : Math.floor(
+                                                      24 / tang.children.length
+                                                    )
+                                              }
                                               style={{
                                                 height: 40,
                                                 margin: 0,

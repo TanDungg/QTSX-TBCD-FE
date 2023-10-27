@@ -53,6 +53,7 @@ function AddSanPhamModal({ openModalFS, openModal, loading, addSanPham }) {
   const handleSubmit = () => {
     validateFields()
       .then((values) => {
+        values.vatTu.isBatBuoc = false;
         addSanPham(values.vatTu);
         openModalFS(false);
         resetFields();

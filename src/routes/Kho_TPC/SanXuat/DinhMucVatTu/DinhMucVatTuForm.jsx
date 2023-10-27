@@ -1,5 +1,15 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Col,
+  DatePicker,
+  Button,
+  Tag,
+  Checkbox,
+} from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -438,6 +448,27 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       </div>
     );
   };
+  const hanldeCheckBox = (val, item) => {
+    const newData = [...listVatTu];
+    newData.forEach((vt) => {
+      if (vt.vatTu_Id === item.vatTu_Id) {
+        vt.isBatBuoc = true;
+      } else {
+        vt.isBatBuoc = false;
+      }
+    });
+    setListVatTu(newData);
+    setFieldTouch(false);
+  };
+  const renderBatBuoc = (item) => {
+    return (
+      <Checkbox
+        checked={item.isBatBuoc}
+        disabled={type === "new" || type === "edit" ? false : true}
+        onChange={(val) => hanldeCheckBox(val, item)}
+      />
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -477,6 +508,12 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       key: "ghiChu",
       align: "center",
       editable: type === "new" || type === "edit" ? true : false,
+    },
+    {
+      title: "Bắt buộc",
+      key: "isBatBuoc",
+      align: "center",
+      render: (val) => renderBatBuoc(val),
     },
     {
       title: "Chức năng",
