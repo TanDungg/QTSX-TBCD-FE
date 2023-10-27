@@ -121,7 +121,7 @@ function VatTu({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
-      item.userLapPhieu === INFO.user_Id &&
+      item.userNhan_Id === INFO.user_Id &&
       moment(getDateNow(1), "DD/MM/YYYY") <=
         moment(item.ngayNhan, "DD/MM/YYYY") ? (
         <Link
@@ -141,7 +141,7 @@ function VatTu({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
-      item.userLapPhieu === INFO.user_Id &&
+      item.userNhan_Id === INFO.user_Id &&
       moment(getDateNow(2), "DD/MM/YYYY") <= moment(item.ngayNhan, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
@@ -219,7 +219,7 @@ function VatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuXuatKhoVatTu/${selectedDevice[0].id}?${params}`,
+          `lkn_PhieuNhapKhoVatTu/${selectedDevice[0].id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -233,16 +233,13 @@ function VatTu({ match, history, permission }) {
         if (res && res.data) {
           const newData = {
             ...res.data,
-            nguoiNhanHang: res.data.userLapPhieu,
-            boPhan: res.data.tenPhongBan,
-            lst_ChiTietPhieuDeNghiCapVatTu:
-              res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
-              JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu),
+            lstpnkvtct:
+              res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu),
           };
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `lkn_PhieuXuatKhoVatTu/export-pdf`,
+                `lkn_PhieuXuatKhoVatTu/export-pdf-nhap-kho`,
                 "POST",
                 newData,
                 "",
@@ -252,7 +249,7 @@ function VatTu({ match, history, permission }) {
               )
             );
           }).then((res) => {
-            exportPDF("PhieuXuatKhoVatTu", res.data.datapdf);
+            exportPDF("PhieuNhapKhoVatTu", res.data.datapdf);
             setSelectedDevice([]);
             setSelectedKeys([]);
           });
@@ -382,17 +379,6 @@ function VatTu({ match, history, permission }) {
     };
   });
 
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
-
   const rowSelection = {
     selectedRowKeys: selectedKeys,
     selectedRows: selectedDevice,
@@ -494,7 +480,7 @@ function VatTu({ match, history, permission }) {
             selectedRowKeys: selectedKeys,
           }}
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 700, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

@@ -154,7 +154,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 kho_Id: null,
               };
             });
-
+          console.log(newData);
           setListVatTu(newData);
           if (location.state) {
             getListPhieuDeNghiCVT(res.data.phongBan_Id);

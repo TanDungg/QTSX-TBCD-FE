@@ -344,6 +344,7 @@ function PhieuNhanHang({ match, history, permission }) {
       setSelectedKeys(newSelectedKey);
     },
   };
+
   const handleOnSelectUserYeuCau = (val) => {
     setUserYeuCau(val);
     setPage(1);
@@ -441,7 +442,7 @@ function PhieuNhanHang({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 700, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

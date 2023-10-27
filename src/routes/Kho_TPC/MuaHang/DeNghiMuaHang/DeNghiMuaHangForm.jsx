@@ -442,7 +442,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   };
 
   const renderSoLuong = (record) => {
-    console.log(record);
     if (record) {
       const isEditing =
         editingRecord &&
@@ -745,7 +744,9 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       );
     })
       .then((res) => {
-        if (res.status !== 409) getInfo(id);
+        if (res.status !== 409) {
+          goBack();
+        }
       })
       .catch((error) => console.error(error));
   };
@@ -869,7 +870,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_DinhMucVatTu/bom-by-san-pham?${params}`,
+          `lkn_DinhMucVatTu/bom-vat-tu-by-san-pham?${params}`,
           "GET",
           null,
           "LIST",
