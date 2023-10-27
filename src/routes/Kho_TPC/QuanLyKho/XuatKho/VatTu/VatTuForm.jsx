@@ -157,14 +157,11 @@ const VatTuForm = ({ history, match, permission }) => {
 
           setListVatTu(newData);
           if (location.state) {
-            getListPhieuDeNghiCVT(
-              res.data.xuongSanXuat_Id,
-              res.data.ngayYeuCau
-            );
+            getListPhieuDeNghiCVT(res.data.phongBan_Id);
             setFieldsValue({
               phieuxuatkhovattu: {
                 phieuDeNghiCapVatTu_Id: res.data.id,
-                xuongSanXuat_Id: res.data.xuongSanXuat_Id,
+                phongBan_Id: res.data.phongBan_Id,
                 ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
                 tenSanPham: res.data.tenSanPham,
               },
@@ -336,6 +333,7 @@ const VatTuForm = ({ history, match, permission }) => {
         if (res && res.data) {
           setInfo(res.data);
           getXuong();
+          getListKho();
           getUserLap(
             INFO,
             res.data.userLapPhieu_Id && res.data.userLapPhieu_Id,
@@ -347,11 +345,10 @@ const VatTuForm = ({ history, match, permission }) => {
           getListKho();
           setFieldsValue({
             phieuxuatkhovattu: {
-              xuongSanXuat_Id: res.data.xuongSanXuat_Id,
+              phongBan_Id: res.data.xuongSanXuat_Id,
               phieuDeNghiCapVatTu_Id: res.data.phieuDeNghiCapVatTu_Id,
               ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               ngayXuatKho: moment(res.data.ngayXuatKho, "DD/MM/YYYY"),
-              kho_Id: res.data.kho_Id,
               lyDoXuat: res.data.lyDoXuat,
               userNhan_Id: res.data.userNhan_Id,
               userDuyet_Id: res.data.userDuyet_Id,
@@ -361,6 +358,7 @@ const VatTuForm = ({ history, match, permission }) => {
           const chiTiet =
             res.data.chiTiet_PhieuXuatKhoVatTus &&
             JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus);
+
           const newData =
             chiTiet &&
             chiTiet.map((data) => {
@@ -376,6 +374,7 @@ const VatTuForm = ({ history, match, permission }) => {
               }));
               return {
                 ...data,
+                kho_Id: data.kho_Id.toLowerCase(),
                 soLuongThucXuat: SoLuong,
                 chiTiet_LuuVatTus: lstViTri,
               };
@@ -443,7 +442,6 @@ const VatTuForm = ({ history, match, permission }) => {
   };
 
   const ThemViTri = (data) => {
-    console.log(data);
     const newData = listVatTu.map((listvattu) => {
       if (listvattu.vatTu_Id.toLowerCase() === data.vatTu_Id.toLowerCase()) {
         if (data.soLuongThucXuat <= listvattu.soLuong) {
@@ -523,6 +521,7 @@ const VatTuForm = ({ history, match, permission }) => {
   };
 
   const renderListKho = (record) => {
+    console.log(record);
     if (record) {
       return (
         <div>
@@ -899,7 +898,7 @@ const VatTuForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Xưởng sản xuất"
-                name={["phieuxuatkhovattu", "xuongSanXuat_Id"]}
+                name={["phieuxuatkhovattu", "phongBan_Id"]}
                 rules={[
                   {
                     type: "string",

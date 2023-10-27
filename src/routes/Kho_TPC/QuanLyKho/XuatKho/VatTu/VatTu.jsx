@@ -59,9 +59,9 @@ function XuatKhoVatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (cauTrucKho_Id, tuNgay, denNgay, page) => {
+  const getListData = (PhongBan_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      cauTrucKho_Id,
+      PhongBan_Id,
       tuNgay,
       denNgay,
       page,
