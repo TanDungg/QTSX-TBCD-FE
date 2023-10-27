@@ -10,7 +10,7 @@ import {
   Divider,
   Button,
 } from "antd";
-import { includes, map } from "lodash";
+import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState, useRef, useContext } from "react";
@@ -140,6 +140,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   const [ListXuong, setListXuong] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
   const [ActiveModal, setActiveModal] = useState(false);
+  const [editingRecord, setEditingRecord] = useState([]);
 
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
@@ -385,7 +386,83 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       </div>
     );
   };
-
+  const handleInputChange = (val, item) => {
+    const soLuongNhap = val.target.value;
+    if (isEmpty(soLuongNhap) || Number(soLuongNhap) <= 0) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+    } else if (Number(soLuongNhap) > item.soLuongNhan) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng phải nhỏ hơn";
+    } else {
+      const newData = editingRecord.filter(
+        (d) => d.sanPham_Id !== item.sanPham_Id
+      );
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
+    }
+    const newData = [...ListSanPham];
+    newData.forEach((ct, index) => {
+      if (ct.sanPham_Id === item.sanPham_Id) {
+        ct.soLuongNhap = soLuongNhap;
+      }
+    });
+    setListSanPham(newData);
+  };
+  const rendersoLuong = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.sanPham_Id === item.sanPham_Id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.soLuongNhap}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChange(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
+  const changeGhiChu = (val, item) => {
+    const ghiChu = val.target.value;
+    const newData = [...ListSanPham];
+    newData.forEach((sp, index) => {
+      if (sp.sanPham_Id === item.sanPham_Id) {
+        sp.ghiChu = ghiChu;
+      }
+    });
+    setListSanPham(newData);
+  };
+  const renderGhiChu = (item) => {
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          value={item.ghiChu}
+          onChange={(val) => changeGhiChu(val, item)}
+          disabled={type === "new" || type === "edit" ? false : true}
+        />
+      </>
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -427,17 +504,15 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng",
-      dataIndex: "soLuongNhap",
       key: "soLuongNhap",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      render: (record) => rendersoLuong(record),
     },
     {
       title: "Ghi chú",
-      dataIndex: "ghiChu",
       key: "ghiChu",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      render: (record) => renderGhiChu(record),
     },
     {
       title: "Chức năng",
