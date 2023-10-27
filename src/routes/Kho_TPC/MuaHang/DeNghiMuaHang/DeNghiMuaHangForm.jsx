@@ -146,7 +146,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const [type, setType] = useState("new");
+  const [type, setType] = useState("");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
@@ -442,14 +442,13 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   };
 
   const renderSoLuong = (record) => {
+    console.log(record);
     if (record) {
       const isEditing =
         editingRecord &&
         editingRecord.lkn_ChiTietBOM_Id === record.lkn_ChiTietBOM_Id;
 
-      return type === "detail" || type === "xacnhan" ? (
-        record.soLuong
-      ) : (
+      return type === "new" || type === "edit" ? (
         <div>
           <Input
             min={0}
@@ -469,6 +468,8 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             <div style={{ color: "red" }}>{errorMessage}</div>
           )}
         </div>
+      ) : (
+        record.soLuong
       );
     }
     return null;
@@ -1196,7 +1197,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="File đã ký"
-                  name={["deNghiMuaHang", "userDuyet_Id"]}
+                  name={["deNghiMuaHang", "fileXacNhan"]}
                 >
                   {!disableUpload ? (
                     <Upload {...props}>

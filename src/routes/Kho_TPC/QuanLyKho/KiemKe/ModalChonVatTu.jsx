@@ -114,13 +114,22 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   };
 
   const deleteItemAction = (item) => {
-    const newData = ListVatTu.filter(
-      (data) => data.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
-    );
+    const newData = ListVatTu.filter((data) => data.vatTu_Id !== item.vatTu_Id);
     setListVatTu(newData);
+
+    const newVatTu = ListVatTu.filter(
+      (data) => data.vatTu_Id === item.vatTu_Id
+    );
+    setListVatTuKho([...ListVatTuKho, ...newVatTu]);
   };
 
   let colListVatTu = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+    },
     {
       title: "Mã vật tư",
       dataIndex: "maVatTu",
@@ -193,6 +202,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     openModalFS(false);
   };
 
+  console.log(VatTu);
   return (
     <AntModal
       title={`Chọn vật tư kiểm kê`}

@@ -937,6 +937,36 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
+                label="Sản phẩm"
+                name={["phieunhanhang", "sanPham_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListUserYeuCau}
+                  placeholder="Người yêu cầu"
+                  optionsvalue={["id", "fullName"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
                 label="Ngày hàng về"
                 name={["phieunhanhang", "ngayHangVe"]}
                 rules={[

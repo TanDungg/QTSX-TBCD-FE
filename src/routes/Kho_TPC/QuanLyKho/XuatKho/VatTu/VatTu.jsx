@@ -393,7 +393,11 @@ function XuatKhoVatTu({ match, history, permission }) {
           type="primary"
           onClick={handlePrint}
           disabled={
-            (permission && !permission.print) || SelectedDevice.length === 0
+            (permission && !permission.print) ||
+            SelectedKeys.length === 0 ||
+            (SelectedDevice.length > 0 &&
+              (SelectedDevice[0].tinhTrang === "Chưa duyệt" ||
+                SelectedDevice[0].tinhTrang.startsWith("Đã từ chối")))
           }
         >
           In phiếu

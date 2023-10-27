@@ -288,8 +288,9 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           disabled={
             (permission && !permission.print) ||
             SelectedKeys.length === 0 ||
-            SelectedDNCVT[0].tinhTrang === "Chưa duyệt" ||
-            SelectedDNCVT[0].tinhTrang.startsWith("Đã từ chối")
+            (SelectedDNCVT.length > 0 &&
+              (SelectedDNCVT[0].tinhTrang === "Chưa duyệt" ||
+                SelectedDNCVT[0].tinhTrang.startsWith("Đã từ chối")))
           }
         >
           Xuất kho
