@@ -243,10 +243,14 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
     };
     ThemViTri(newData);
     openModalFS(false);
+    setSelectedViTri([]);
+    setSelectedKeys([]);
     setListViTriKho([]);
   };
 
   const handleCancel = () => {
+    setSelectedViTri([]);
+    setSelectedKeys([]);
     openModalFS(false);
   };
 
@@ -254,7 +258,6 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
     selectedRowKeys: SelectedKeys,
     selectedRows: SelectedViTri,
     onChange: (selectedRowKeys, selectedRows) => {
-      console.log(selectedRowKeys);
       const newSelectedViTri = [...selectedRows];
       const newSelectedKeys = [...selectedRowKeys];
       setSelectedViTri(newSelectedViTri);

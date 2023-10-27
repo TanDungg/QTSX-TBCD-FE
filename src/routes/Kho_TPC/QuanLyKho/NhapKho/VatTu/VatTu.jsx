@@ -23,6 +23,7 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  exportPDF,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -211,7 +212,54 @@ function VatTu({ match, history, permission }) {
     });
   };
 
-  const handlePrint = () => {};
+  const handlePrint = () => {
+    const params = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuXuatKhoVatTu/${selectedDevice[0].id}?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newData = {
+            ...res.data,
+            nguoiNhanHang: res.data.userLapPhieu,
+            boPhan: res.data.tenPhongBan,
+            lst_ChiTietPhieuDeNghiCapVatTu:
+              res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
+              JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu),
+          };
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `lkn_PhieuXuatKhoVatTu/export-pdf`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportPDF("PhieuXuatKhoVatTu", res.data.datapdf);
+            setSelectedDevice([]);
+            setSelectedKeys([]);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
 
   const addButtonRender = () => {
     return (

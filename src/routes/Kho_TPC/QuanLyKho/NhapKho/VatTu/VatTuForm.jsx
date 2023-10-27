@@ -443,7 +443,6 @@ const VatTuForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    console.log(item);
     const newData = listVatTu.filter(
       (d) => d.chiTietPhieuNhanHang_Id !== item.chiTietPhieuNhanHang_Id
     );

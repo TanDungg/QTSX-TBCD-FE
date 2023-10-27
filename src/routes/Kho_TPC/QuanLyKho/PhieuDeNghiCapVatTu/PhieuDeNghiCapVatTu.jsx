@@ -37,8 +37,8 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
-  const [ListXuongSanXuat, setListXuongSanXuat] = useState([]);
-  const [XuongSanXuat, setXuongSanXuat] = useState(null);
+  const [ListPhongBan, setListPhongBan] = useState([]);
+  const [PhongBan, setPhongBan] = useState(null);
   const [TuNgay, setTuNgay] = useState(getDateNow(7));
   const [DenNgay, setDenNgay] = useState(getDateNow());
   const [SelectedDNCVT, setSelectedDNCVT] = useState([]);
@@ -46,8 +46,8 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
 
   useEffect(() => {
     if (permission && permission.view) {
-      getXuongSanXuat();
-      getListData(XuongSanXuat, TuNgay, DenNgay, page);
+      getPhongBan();
+      getListData(PhongBan, TuNgay, DenNgay, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -56,9 +56,9 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListData = (XuongSanXuat_Id, tuNgay, denNgay, page) => {
+  const getListData = (phongBan_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      XuongSanXuat_Id,
+      phongBan_Id,
       tuNgay,
       denNgay,
       page,
@@ -68,7 +68,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     );
   };
 
-  const getXuongSanXuat = () => {
+  const getPhongBan = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -90,9 +90,9 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
               xuongsx.push(x);
             }
           });
-          setListXuongSanXuat(xuongsx);
+          setListPhongBan(xuongsx);
         } else {
-          setListXuongSanXuat([]);
+          setListPhongBan([]);
         }
       })
       .catch((error) => console.error(error));
@@ -184,7 +184,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     })
       .then((res) => {
         if (res.status !== 409) {
-          getListData(XuongSanXuat, TuNgay, DenNgay, page);
+          getListData(PhongBan, TuNgay, DenNgay, page);
         }
       })
       .catch((error) => console.error(error));
@@ -192,7 +192,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
 
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(XuongSanXuat, TuNgay, DenNgay, pagination);
+    getListData(PhongBan, TuNgay, DenNgay, pagination);
   };
 
   const handleRedirect = () => {
@@ -231,7 +231,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
             ...res.data,
             nguoiNhanHang: res.data.userLapPhieu,
             boPhan: res.data.tenPhongBan,
-            lstpdncvtct:
+            lst_ChiTietPhieuDeNghiCapVatTu:
               res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
               JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu),
           };
@@ -286,7 +286,10 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           type="primary"
           onClick={handleTaoPhieuXuat}
           disabled={
-            (permission && !permission.print) || SelectedKeys.length === 0
+            (permission && !permission.print) ||
+            SelectedKeys.length === 0 ||
+            SelectedDNCVT[0].tinhTrang === "Chưa duyệt" ||
+            SelectedDNCVT[0].tinhTrang.startsWith("Đã từ chối")
           }
         >
           Xuất kho
@@ -392,14 +395,14 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     };
   });
 
-  const handleOnSelectXuongSanXuat = (value) => {
-    setXuongSanXuat(value);
+  const handleOnSelectPhongBan = (value) => {
+    setPhongBan(value);
     setPage(1);
     getListData(value, TuNgay, DenNgay, 1);
   };
 
-  const handleClearXuongSanXuat = () => {
-    setXuongSanXuat(null);
+  const handleClearPhongBan = () => {
+    setPhongBan(null);
     setPage(1);
     getListData(null, TuNgay, DenNgay, 1);
   };
@@ -408,7 +411,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     setTuNgay(dateString[0]);
     setDenNgay(dateString[1]);
     setPage(1);
-    getListData(XuongSanXuat, dateString[0], dateString[1], 1);
+    getListData(PhongBan, dateString[0], dateString[1], 1);
   };
 
   const rowSelection = {
@@ -425,17 +428,9 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
         SelectedKeys.length > 0
           ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
           : [...selectedRowKeys];
-      if (
-        row.length !== 0 &&
-        (row[0].tinhTrang === "Chưa duyệt" ||
-          row[0].tinhTrang.startsWith("Đã từ chối"))
-      ) {
-        setSelectedDNCVT([]);
-        setSelectedKeys([]);
-      } else {
-        setSelectedDNCVT(row);
-        setSelectedKeys(key);
-      }
+
+      setSelectedDNCVT(row);
+      setSelectedKeys(key);
     },
   };
 
@@ -461,17 +456,17 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
             <h5>Xưởng sản xuất:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListXuongSanXuat ? ListXuongSanXuat : []}
+              data={ListPhongBan ? ListPhongBan : []}
               placeholder="Chọn xưởng sản xuất"
               optionsvalue={["id", "tenPhongBan"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectXuongSanXuat}
-              value={XuongSanXuat}
-              onChange={(value) => setXuongSanXuat(value)}
+              onSelect={handleOnSelectPhongBan}
+              value={PhongBan}
+              onChange={(value) => setPhongBan(value)}
               allowClear
-              onClear={handleClearXuongSanXuat}
+              onClear={handleClearPhongBan}
             />
           </Col>
           <Col
