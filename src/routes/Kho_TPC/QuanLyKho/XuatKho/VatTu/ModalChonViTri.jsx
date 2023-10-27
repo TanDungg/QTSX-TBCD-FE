@@ -235,9 +235,9 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
         ...vt,
         viTri:
           vt.tenKe !== null
-            ? `${vt.tenKe ? ` - ${vt.tenKe}` : ""}${
+            ? `${vt.tenKe ? `${vt.tenKe}` : ""}${
                 vt.tenTang ? ` - ${vt.tenTang}` : ""
-              }${vt.tenNgan ? ` - ${vt.tenNgan}` : ""}`
+              }${vt.tenNgan ? ` - ${vt.tenNgan}, ` : ", "}`
             : itemData.tenCTKho,
       })),
     };
