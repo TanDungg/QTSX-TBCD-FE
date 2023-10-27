@@ -534,7 +534,7 @@ function DeNghiMuaHang({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 1100, y: "70vh" }}
+          scroll={{ x: 1100, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

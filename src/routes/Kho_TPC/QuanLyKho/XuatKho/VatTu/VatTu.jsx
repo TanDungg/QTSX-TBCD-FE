@@ -108,7 +108,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       (permission &&
         permission.cof &&
         item.userDuyet_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác nhận bởi Phụ trách bộ phận") ||
+        item.tinhTrang === "Đã xác nhận bởi bên Phụ trách bộ phận") ||
       (permission &&
         permission.cof &&
         item.userPhuTrachBoPhan_Id === INFO.user_Id &&
@@ -393,7 +393,11 @@ function XuatKhoVatTu({ match, history, permission }) {
           type="primary"
           onClick={handlePrint}
           disabled={
-            (permission && !permission.print) || SelectedDevice.length === 0
+            (permission && !permission.print) ||
+            SelectedKeys.length === 0 ||
+            (SelectedDevice.length > 0 &&
+              (SelectedDevice[0].tinhTrang === "Chưa duyệt" ||
+                SelectedDevice[0].tinhTrang.startsWith("Đã từ chối")))
           }
         >
           In phiếu
@@ -436,17 +440,8 @@ function XuatKhoVatTu({ match, history, permission }) {
           ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
           : [...selectedRowKeys];
 
-      if (
-        row.length !== 0 &&
-        (row[0].tinhTrang === "Chưa duyệt" ||
-          row[0].tinhTrang.startsWith("Đã từ chối"))
-      ) {
-        setSelectedDevice([]);
-        setSelectedKeys([]);
-      } else {
-        setSelectedDevice(row);
-        setSelectedKeys(key);
-      }
+      setSelectedDevice(row);
+      setSelectedKeys(key);
     },
   };
 

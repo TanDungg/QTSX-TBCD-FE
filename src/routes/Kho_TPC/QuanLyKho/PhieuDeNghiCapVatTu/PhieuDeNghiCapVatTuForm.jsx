@@ -14,7 +14,7 @@ import {
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
-import React, { useEffect, useState, useContext, useRef } from "react";
+import React, { useEffect, useState, useRef, useContext } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import {
@@ -36,9 +36,8 @@ import {
 } from "src/util/Common";
 import AddVatTuModal from "./AddVatTuModal";
 import ModalTuChoi from "./ModalTuChoi";
-import dayjs from "dayjs";
-const EditableContext = React.createContext(null);
 
+const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 
 const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
@@ -291,6 +290,10 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     });
   };
 
+  /**
+   * Lấy thông tin
+   *
+   */
   const getInfo = (id) => {
     const params = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id,
@@ -317,7 +320,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
             getUserLap(INFO, res.data.userLapPhieu_Id, 1);
             setFieldsValue({
               capvattusanxuat: {
-                phongBan_Id: res.data.phongBan_Id,
+                xuongSanXuat_Id: res.data.xuongSanXuat_Id,
                 sanPham_Id: res.data.sanPham_Id,
                 ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
                 ngaySanXuat: moment(res.data.ngaySanXuat, "DD/MM/YYYY"),
@@ -326,7 +329,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                 userKiemTra_Id: res.data.userKiemTra_Id,
               },
             });
-            getListSanPham(res.data.phongBan_Id, res.data.ngaySanXuat);
+            getListSanPham(res.data.xuongSanXuat_Id, res.data.ngaySanXuat);
             const chiTiet =
               res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
               JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu);
@@ -336,7 +339,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
             getUserLap(INFO, res.data.userLapPhieu_Id, 2);
             setFieldsValue({
               capvattukhac: {
-                phongBan_Id: res.data.phongBan_Id,
+                xuongSanXuat_Id: res.data.xuongSanXuat_Id,
                 ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
                 userDuyet_Id: res.data.userDuyet_Id,
                 userKhoVatTu_Id: res.data.userKhoVatTu_Id,
@@ -352,98 +355,10 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
-  const EditableRow = ({ index, ...props }) => {
-    const [form] = Form.useForm();
-    return (
-      <Form form={form} component={false}>
-        <EditableContext.Provider value={form}>
-          <tr {...props} />
-        </EditableContext.Provider>
-      </Form>
-    );
-  };
-  const EditableCell = ({
-    title,
-    editable,
-    children,
-    dataIndex,
-    record,
-    handleSave,
-    ...restProps
-  }) => {
-    const [editing, setEditing] = useState(false);
-    const inputRef = useRef(null);
-    const form = useContext(EditableContext);
-    useEffect(() => {
-      if (editing) {
-        inputRef.current.focus();
-      }
-    }, [editing]);
-    const toggleEdit = () => {
-      setEditing(!editing);
-      form.setFieldsValue({
-        [dataIndex]: record[dataIndex],
-      });
-    };
-    const save = async () => {
-      try {
-        const values = await form.validateFields();
-        toggleEdit();
-        handleSave({
-          ...record,
-          ...values,
-        });
-      } catch (errInfo) {
-        console.log("Save failed:", errInfo);
-      }
-    };
-    let childNode = children;
-    if (editable) {
-      editing && setFieldTouch(false);
-      childNode = editing ? (
-        <Form.Item
-          style={{
-            margin: 0,
-          }}
-          name={dataIndex}
-          rules={
-            title === "Số lượng"
-              ? [
-                  { required: true },
-                  {
-                    pattern: /^[1-9]\d*$/,
-                    message: "Số lượng không hợp lệ!",
-                  },
-                ]
-              : null
-          }
-        >
-          <Input
-            // type={title === "Số lượng" && "number"}
-            style={{
-              margin: 0,
-              width: "100%",
-              textAlign: "center",
-            }}
-            ref={inputRef}
-            onPressEnter={save}
-            onBlur={save}
-          />
-        </Form.Item>
-      ) : (
-        <div
-          className="editable-cell-value-wrap"
-          style={{
-            paddingRight: 24,
-          }}
-          onClick={toggleEdit}
-        >
-          {children}
-        </div>
-      );
-    }
-    return <td {...restProps}>{childNode}</td>;
-  };
+  /**
+   * Quay lại trang bộ phận
+   *
+   */
   const goBack = () => {
     history.push(
       `${match.url.replace(
@@ -458,18 +373,34 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       )}`
     );
   };
-
+  /**
+   * deleteItemFunc: Remove item from list
+   * @param {object} item
+   * @returns
+   * @memberof VaiTro
+   */
   const deleteItemFunc = (item) => {
     const title = "vật tư";
     ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
   };
 
+  /**
+   * Remove item
+   *
+   * @param {*} item
+   */
   const deleteItemAction = (item) => {
     const newData = listVatTu.filter((d) => d.vatTu_Id !== item.vatTu_Id);
     setListVatTu(newData);
     setFieldTouch(true);
   };
 
+  /**
+   * ActionContent: Action in table
+   * @param {*} item
+   * @returns View
+   * @memberof ChucNang
+   */
   const actionContent = (item) => {
     const deleteItemVal =
       permission && permission.del && (type === "new" || type === "edit")
@@ -505,6 +436,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     });
     setListVatTu(newData);
   };
+
   const rendersoLuong = (item) => {
     let isEditing = false;
     let message = "";
@@ -514,12 +446,14 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
         message = ct.message;
       }
     });
+
     return (
       <>
         <Input
           style={{
             textAlign: "center",
             width: "100%",
+            borderColor: isEditing ? "red" : "",
           }}
           className={`input-item`}
           type="number"
@@ -692,15 +626,14 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   };
 
   const handleSave = (row) => {
-    const newData = value === 1 ? [...listVatTu] : [...ListVatTuKhac];
+    const newData = [...listVatTu];
     const index = newData.findIndex((item) => row.vatTu_Id === item.vatTu_Id);
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
       ...row,
     });
-    setFieldTouch(true);
-    value === 1 ? setListVatTu(newData) : setListVatTuKhac(newData);
+    setListVatTu(newData);
   };
 
   const columns = map(
@@ -983,10 +916,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     getListVatTu(Xuong, val);
   };
 
-  const disabledDate = (current) => {
-    return current && current <= dayjs().startOf("day");
-  };
-
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -1081,7 +1010,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                 >
                   <FormItem
                     label="Xưởng sản xuất"
-                    name={["capvattusanxuat", "phongBan_Id"]}
+                    name={["capvattusanxuat", "xuongSanXuat_Id"]}
                     rules={[
                       {
                         type: "string",
@@ -1198,7 +1127,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                         });
                       }}
                       disabled={type === "new" ? false : true}
-                      disabledDate={disabledDate}
                     />
                   </FormItem>
                 </Col>
@@ -1414,7 +1342,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                 >
                   <FormItem
                     label="Xưởng sản xuất"
-                    name={["capvattukhac", "phongBan_Id"]}
+                    name={["capvattukhac", "xuongSanXuat_Id"]}
                     rules={[
                       {
                         type: "string",
@@ -1430,7 +1358,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                       style={{ width: "100%" }}
                       showSearch
                       optionFilterProp={"name"}
-                      disabled={ListVatTuKhac.length === 0 ? false : true}
+                      disabled={type === "new" ? false : true}
                     />
                   </FormItem>
                 </Col>
@@ -1453,7 +1381,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                     ]}
                   >
                     <DatePicker
-                      disabled={true}
+                      disabled={type === "new" ? false : true}
                       format={"DD/MM/YYYY"}
                       allowClear={false}
                       onChange={(date, dateString) => {

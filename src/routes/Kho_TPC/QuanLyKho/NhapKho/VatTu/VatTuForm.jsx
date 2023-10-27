@@ -446,7 +446,7 @@ const VatTuForm = ({ history, match, permission }) => {
    */
   const deleteItemAction = (item) => {
     const newData = listVatTu.filter(
-      (d) => d.chiTietPhieuNhanHang_Id !== item.chiTietPhieuNhanHang_Id
+      (d) => d.lkn_ChiTietPhieuNhanHang_Id !== item.lkn_ChiTietPhieuNhanHang_Id
     );
     setListVatTu(newData);
   };
@@ -473,6 +473,7 @@ const VatTuForm = ({ history, match, permission }) => {
     );
   };
   const renderDatePicker = (val, record) => {
+    console.log(record);
     return (
       <DatePicker
         format={"DD/MM/YYYY"}
@@ -482,7 +483,10 @@ const VatTuForm = ({ history, match, permission }) => {
         onChange={(date, dateString) => {
           const newVatTu = [...listVatTu];
           newVatTu.forEach((vt, index) => {
-            if (vt.chiTietPhieuNhanHang_Id === record.chiTietPhieuNhanHang_Id) {
+            if (
+              vt.lkn_ChiTietPhieuNhanHang_Id ===
+              record.lkn_ChiTietPhieuNhanHang_Id
+            ) {
               newVatTu[index].thoiGianSuDung = dateString;
             }
           });
@@ -505,24 +509,26 @@ const VatTuForm = ({ history, match, permission }) => {
       item.message = "Số lượng phải nhỏ hơn";
     } else {
       const newData = editingRecord.filter(
-        (d) => d.chiTietPhieuNhanHang_Id !== item.chiTietPhieuNhanHang_Id
+        (d) =>
+          d.lkn_ChiTietPhieuNhanHang_Id !== item.lkn_ChiTietPhieuNhanHang_Id
       );
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...listVatTu];
     newData.forEach((ct, index) => {
-      if (ct.chiTietPhieuNhanHang_Id === item.chiTietPhieuNhanHang_Id) {
+      if (ct.lkn_ChiTietPhieuNhanHang_Id === item.lkn_ChiTietPhieuNhanHang_Id) {
         ct.soLuongNhap = soLuongNhap;
       }
     });
     setListVatTu(newData);
   };
+
   const rendersoLuong = (item) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (ct.chiTietPhieuNhanHang_Id === item.chiTietPhieuNhanHang_Id) {
+      if (ct.lkn_ChiTietPhieuNhanHang_Id === item.lkn_ChiTietPhieuNhanHang_Id) {
         isEditing = true;
         message = ct.message;
       }
@@ -548,12 +554,13 @@ const VatTuForm = ({ history, match, permission }) => {
     const ghiChu = val.target.value;
     const newData = [...listVatTu];
     newData.forEach((sp, index) => {
-      if (sp.chiTietPhieuNhanHang_Id === item.chiTietPhieuNhanHang_Id) {
+      if (sp.lkn_ChiTietPhieuNhanHang_Id === item.lkn_ChiTietPhieuNhanHang_Id) {
         sp.ghiChu = ghiChu;
       }
     });
     setListVatTu(newData);
   };
+
   const renderGhiChu = (item) => {
     return (
       <>
@@ -639,7 +646,8 @@ const VatTuForm = ({ history, match, permission }) => {
   const handleSave = (row) => {
     const newData = [...listVatTu];
     const index = newData.findIndex(
-      (item) => row.chiTietPhieuNhanHang_Id === item.chiTietPhieuNhanHang_Id
+      (item) =>
+        row.lkn_ChiTietPhieuNhanHang_Id === item.lkn_ChiTietPhieuNhanHang_Id
     );
     const item = newData[index];
     newData.splice(index, 1, {
@@ -850,11 +858,10 @@ const VatTuForm = ({ history, match, permission }) => {
     );
 
   const hanldeSelectMaPhieu = (value) => {
-    const params = convertObjectToUrlParams({ donVi_Id: INFO.donVi_Id });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuNhanHang/${value}?${params}`,
+          `lkn_PhieuNhanHang/phieu-nhan-hang-chua-du?id=${value}`,
           "GET",
           null,
           "LIST",
@@ -873,8 +880,8 @@ const VatTuForm = ({ history, match, permission }) => {
               .map((ct) => ({
                 ...ct,
                 soLuongNhap: ct.soLuongNhan,
-                chiTietPhieuNhanHang_Id:
-                  ct.chiTietPhieuNhanHang_Id.toLowerCase(),
+                lkn_ChiTietPhieuNhanHang_Id:
+                  ct.lkn_ChiTietPhieuNhanHang_Id.toLowerCase(),
                 thoiGianSuDung: getDateNow(),
               }));
           setListVatTu(newVatTu || []);

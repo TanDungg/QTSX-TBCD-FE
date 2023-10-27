@@ -146,7 +146,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const [type, setType] = useState("new");
+  const [type, setType] = useState("");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
@@ -447,9 +447,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         editingRecord &&
         editingRecord.lkn_ChiTietBOM_Id === record.lkn_ChiTietBOM_Id;
 
-      return type === "detail" || type === "xacnhan" ? (
-        record.soLuong
-      ) : (
+      return type === "new" || type === "edit" ? (
         <div>
           <Input
             min={0}
@@ -469,6 +467,8 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             <div style={{ color: "red" }}>{errorMessage}</div>
           )}
         </div>
+      ) : (
+        record.soLuong
       );
     }
     return null;
@@ -744,7 +744,9 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       );
     })
       .then((res) => {
-        if (res.status !== 409) getInfo(id);
+        if (res.status !== 409) {
+          goBack();
+        }
       })
       .catch((error) => console.error(error));
   };
@@ -868,7 +870,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_DinhMucVatTu/bom-by-san-pham?${params}`,
+          `lkn_DinhMucVatTu/bom-vat-tu-by-san-pham?${params}`,
           "GET",
           null,
           "LIST",
@@ -1196,7 +1198,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="File đã ký"
-                  name={["deNghiMuaHang", "userDuyet_Id"]}
+                  name={["deNghiMuaHang", "fileXacNhan"]}
                 >
                   {!disableUpload ? (
                     <Upload {...props}>

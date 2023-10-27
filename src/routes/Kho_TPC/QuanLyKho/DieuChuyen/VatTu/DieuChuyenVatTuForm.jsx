@@ -285,87 +285,6 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
     );
   };
 
-  // const renderSoLuongDieuChuyen = (record) => {
-  //   if (record) {
-  //     const isEditing =
-  //       editingRecord &&
-  //       editingRecord.lkn_ChiTietKhoVatTu_Id === record.lkn_ChiTietKhoVatTu_Id;
-
-  //     return type !== "detail" ? (
-  //       <div>
-  //         <Input
-  //           min={0}
-  //           style={{
-  //             textAlign: "center",
-  //             width: "100%",
-  //             borderColor: isEditing && hasError ? "red" : "",
-  //           }}
-  //           className={`input-item ${
-  //             isEditing && hasError ? "input-error" : ""
-  //           }`}
-  //           value={record.soLuongDieuChuyen}
-  //           type="number"
-  //           onChange={(val) => handleInputChange(val, record)}
-  //         />
-  //         {isEditing && hasError && (
-  //           <div style={{ color: "red" }}>{errorMessage}</div>
-  //         )}
-  //       </div>
-  //     ) : (
-  //       record.soLuongDieuChuyen
-  //     );
-  //   }
-  //   return null;
-  // };
-
-  // const handleInputChange = (val, record) => {
-  //   const newData = ListViTriKho.filter((d) => d.vatTu === record.vatTu);
-  //   const data = {
-  //     ...(newData && newData[0]),
-  //     soLuong:
-  //       newData.length !== 0
-  //         ? newData[0].soLuong + record.soLuong
-  //         : record.soLuong,
-  //   };
-
-  //   const sl = val.target.value;
-  //   if (sl === null || sl === "") {
-  //     setHasError(true);
-  //     setErrorMessage("Vui lòng nhập số lượng");
-  //     setFieldTouch(false);
-  //   } else {
-  //     if (sl <= 0) {
-  //       setHasError(true);
-  //       setErrorMessage("Số lượng phải lớn hơn 0");
-  //       setFieldTouch(false);
-  //     } else {
-  //       if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
-  //         setHasError(true);
-  //         setErrorMessage(
-  //           "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho"
-  //         );
-  //         setFieldTouch(false);
-  //       } else {
-  //         setFieldTouch(true);
-  //         setHasError(false);
-  //         setErrorMessage(null);
-  //       }
-  //     }
-  //   }
-  //   setEditingRecord(record);
-
-  //   setListVatTu((prevListVatTu) => {
-  //     return prevListVatTu.map((item) => {
-  //       if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
-  //         return {
-  //           ...item,
-  //           soLuongDieuChuyen: sl ? parseFloat(sl) : 0,
-  //         };
-  //       }
-  //       return item;
-  //     });
-  //   });
-  // };
   const handleInputChange = (val, item) => {
     const soLuongDieuChuyen = val.target.value;
     if (isEmpty(soLuongDieuChuyen) || soLuongDieuChuyen === "0") {
@@ -391,6 +310,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
     });
     setListVatTu(newData);
   };
+
   const renderSoLuongDieuChuyen = (item) => {
     let isEditing = false;
     let message = "";
@@ -406,6 +326,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
           style={{
             textAlign: "center",
             width: "100%",
+            borderColor: isEditing ? "red" : "",
           }}
           className={`input-item`}
           type="number"

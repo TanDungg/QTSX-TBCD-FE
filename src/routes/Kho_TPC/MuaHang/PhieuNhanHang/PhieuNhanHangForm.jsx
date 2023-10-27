@@ -475,6 +475,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     });
     setListVatTu(newData);
   };
+
   const rendersoLuong = (item) => {
     let isEditing = false;
     let message = "";
@@ -484,7 +485,9 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
         message = ct.message;
       }
     });
-    return (
+    return type === "detail" ? (
+      item.soLuongNhan
+    ) : (
       <>
         <Input
           style={{
@@ -507,6 +510,12 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       dataIndex: "key",
       key: "key",
       width: 45,
+      align: "center",
+    },
+    {
+      title: "Sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       align: "center",
     },
     {
@@ -749,17 +758,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết phiếu nhận hàng -{" "}
-        <Tag
-          color={
-            info.isXacNhan === null
-              ? "processing"
-              : info.isXacNhan
-              ? "success"
-              : "error"
-          }
-        >
-          {info.maPhieuYeuCau}
-        </Tag>
+        <Tag style={{ color: "#0469B9" }}>{info.maPhieuNhanHang}</Tag>
       </span>
     );
 
@@ -773,6 +772,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       },
     });
   };
+
   const hanldeSelectPhieu = (val) => {
     ListPhieuMuaHang.forEach((p) => {
       if (val === p.id) {
@@ -791,6 +791,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       }
     });
   };
+
   const props = {
     beforeUpload: (file) => {
       const isPNG =
@@ -1016,6 +1017,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
                         marginBottom: 0,
                       }}
                       icon={<UploadOutlined />}
+                      disabled={type === "detail" ? true : false}
                     >
                       Tải file
                     </Button>
