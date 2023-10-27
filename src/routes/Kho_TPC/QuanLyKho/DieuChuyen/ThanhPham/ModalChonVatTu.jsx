@@ -5,6 +5,7 @@ import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import { ModalDeleteConfirm, Select, Table } from "src/components/Common";
 import { DeleteOutlined } from "@ant-design/icons";
+import { isEmpty } from "lodash";
 
 function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   const { width } = useSelector(({ common }) => common).toJS();
@@ -13,10 +14,8 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   const [ViTriKho, setViTriKho] = useState(null);
   const [VatTu, setVatTu] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
-  const [hasError, setHasError] = useState(false);
   const [DisabledSave, setDisabledSave] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [editingRecord, setEditingRecord] = useState(null);
+  const [editingRecord, setEditingRecord] = useState({});
 
   useEffect(() => {
     if (openModal) {
@@ -66,8 +65,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   };
   const renderSoLuongDieuChuyen = (record) => {
     const isEditing =
-      editingRecord &&
-      editingRecord.lkn_ChiTietKhoVatTu_Id === record.lkn_ChiTietKhoVatTu_Id;
+      editingRecord.lkn_ChiTietKhoBegin_Id === record.lkn_ChiTietKhoBegin_Id;
     return (
       <div>
         <Input
@@ -75,15 +73,15 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
           style={{
             textAlign: "center",
             width: "100%",
-            borderColor: hasError ? "red" : "",
+            borderColor: isEditing ? "red" : "",
           }}
-          className={`input-item ${hasError ? "input-error" : ""}`}
+          className={`input-item ${isEditing ? "input-error" : ""}`}
           value={record.soLuongDieuChuyen}
           type="number"
           onChange={(val) => handleInputChange(val, record)}
         />
-        {isEditing && hasError && (
-          <div style={{ color: "red" }}>{errorMessage}</div>
+        {isEditing && (
+          <div style={{ color: "red" }}>{editingRecord.message}</div>
         )}
       </div>
     );
@@ -91,36 +89,27 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   const handleInputChange = (val, record) => {
     const sl = val.target.value;
-    if (sl === null || sl === "") {
-      setHasError(true);
-      setErrorMessage("Vui lòng nhập số lượng");
+    if (isEmpty(sl) || sl === "0") {
+      record.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+      setEditingRecord(record);
+
+      setDisabledSave(true);
+    } else if (sl > record.soLuong) {
+      record.message =
+        "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho";
+      setEditingRecord(record);
       setDisabledSave(true);
     } else {
-      if (sl <= 0) {
-        setHasError(true);
-        setErrorMessage("Số lượng không được nhỏ hơn 0");
-        setDisabledSave(true);
-      } else {
-        if (sl > VatTu[0].soLuong) {
-          setHasError(true);
-          setErrorMessage(
-            "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho"
-          );
-          setDisabledSave(true);
-        } else {
-          setDisabledSave(false);
-          setHasError(false);
-        }
-      }
+      setEditingRecord({});
+      setDisabledSave(false);
     }
-    setEditingRecord(record);
 
     setVatTu((prevVatTu) => {
       return prevVatTu.map((item) => {
         if (VatTu[0].lkn_ChiTietKhoBegin_Id === item.lkn_ChiTietKhoBegin_Id) {
           return {
             ...item,
-            soLuongDieuChuyen: sl ? parseFloat(sl) : 0,
+            soLuongDieuChuyen: sl,
           };
         }
         return item;

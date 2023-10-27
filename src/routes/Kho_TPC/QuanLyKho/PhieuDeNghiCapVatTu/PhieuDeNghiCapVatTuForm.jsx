@@ -64,8 +64,8 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
   const [info, setInfo] = useState({});
   const [hasError, setHasError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
   const [editingRecord, setEditingRecord] = useState(null);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   useEffect(() => {
     const load = () => {
