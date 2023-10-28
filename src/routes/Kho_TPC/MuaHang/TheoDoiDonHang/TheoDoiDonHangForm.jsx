@@ -78,6 +78,9 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
                 ...data,
                 userThuMua_Id:
                   data.userThuMua_Id && data.userThuMua_Id.toLowerCase(),
+                ngayXacNhanHangVe: data.ngayXacNhanHangVe
+                  ? data.ngayXacNhanHangVe
+                  : getDateNow(),
               };
             }
           );
@@ -198,11 +201,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
               handleNgayXacNhanHangVe(dateString, record)
             }
             placeholder="Chọn ngày"
-            value={
-              record.ngayXacNhanHangVe
-                ? moment(record.ngayXacNhanHangVe, "DD/MM/YYYY")
-                : moment(getDateNow(), "DD/MM/YYYY")
-            }
+            value={moment(record.ngayXacNhanHangVe, "DD/MM/YYYY")}
             disabled={record.soLuongNhan > 0 ? true : false}
           />
         </div>
