@@ -373,7 +373,7 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
     }).then((res) => {
       if (res.status === 409) {
         setDataLoi(res.data);
-        setMessageError(res.data.ghiChuImport);
+        setMessageError("Import không thành công");
       } else {
         setFileName(null);
         setDataView([]);

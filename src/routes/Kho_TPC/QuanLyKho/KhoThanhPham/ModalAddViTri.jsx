@@ -15,7 +15,6 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListKe, setListKe] = useState([]);
   const [SucChua, setSucChua] = useState();
-  const [DisableKe, setDisableKe] = useState(true);
 
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
@@ -23,8 +22,9 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
 
   useEffect(() => {
     if (openModal) {
-      getKe(sanPham.cauTrucKho_Id);
+      getKe(sanPham.cauTrucKho_Id, sanPham.sanPham_Id);
       resetFields();
+      setSucChua(null);
       if (sanPham.ke_Id) {
         setFieldsValue({
           sanPham: {
@@ -46,13 +46,9 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
       ]);
     }
   }, [openModal]);
-  useEffect(() => {
-    if (sanPham && sanPham.ke_Id === getFieldValue("sanPham").ke_Id) {
-      setFieldTouch(false);
-    }
-  }, [fieldTouch]);
-  const getKe = (cauTrucKho_Id) => {
-    const params = convertObjectToUrlParams({ cauTrucKho_Id });
+
+  const getKe = (cauTrucKho_Id, sanPham_Id) => {
+    const params = convertObjectToUrlParams({ cauTrucKho_Id, sanPham_Id });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -69,6 +65,9 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
       .then((res) => {
         if (res && res.data) {
           const newData = res.data.map((k) => {
+            if (k.id === sanPham.ke_Id && sanPham.ke_Id) {
+              setSucChua(k.sucChua);
+            }
             return {
               ...k,
               ke: `${k.tenCTKho} - (Sức chứa: ${k.sucChua}) - (Đang chứa: ${
@@ -130,7 +129,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
     ListKe.forEach((k) => {
       if (val === sanPham.ke_Id && k.id === val) {
         setFieldTouch(false);
-        setDisableKe(true);
+        setSucChua(k.sucChua);
         setFieldsValue({
           sanPham: {
             ke_Id: val,
@@ -139,7 +138,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
         });
       } else if (k.id === val && k.sucChua - k.soLuongDangChua === 0) {
         Helpers.alertWarning(`Kệ ${k.tenCTKho} đã đầy`);
-        setDisableKe(true);
+
         setFieldTouch(false);
         setFieldsValue({
           sanPham: {
@@ -149,7 +148,6 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
         });
       } else if (k.id === val && k.sucChua - k.soLuongDangChua !== 0) {
         setSucChua(k.sucChua - k.soLuongDangChua);
-        setDisableKe(false);
         setFieldTouch(true);
         setFieldsValue({
           sanPham: {
@@ -166,7 +164,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
     if (value && Number(value) > SucChua) {
       return Promise.reject(
         new Error(
-          `Số phải nhỏ hơn hoặc bằng só lượng có thể chứa của kệ ${SucChua}`
+          `Số phải nhỏ hơn hoặc bằng số lượng có thể chứa của kệ ${SucChua}`
         )
       );
     } else if (value && Number(value) > sanPham && sanPham.soLuong) {
@@ -246,11 +244,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
               { validator: validateSoLuong },
             ]}
           >
-            <Input
-              placeholder="Số lượng"
-              type="number"
-              disabled={DisableKe}
-            ></Input>
+            <Input placeholder="Số lượng" type="number"></Input>
           </FormItem>
 
           <FormSubmit disabled={fieldTouch} />
