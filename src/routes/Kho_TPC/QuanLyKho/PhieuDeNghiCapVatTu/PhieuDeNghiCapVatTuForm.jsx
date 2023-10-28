@@ -320,7 +320,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
             getUserLap(INFO, res.data.userLapPhieu_Id, 1);
             setFieldsValue({
               capvattusanxuat: {
-                xuongSanXuat_Id: res.data.xuongSanXuat_Id,
+                phongBan_Id: res.data.phongBan_Id,
                 sanPham_Id: res.data.sanPham_Id,
                 ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
                 ngaySanXuat: moment(res.data.ngaySanXuat, "DD/MM/YYYY"),
@@ -329,7 +329,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                 userKiemTra_Id: res.data.userKiemTra_Id,
               },
             });
-            getListSanPham(res.data.xuongSanXuat_Id, res.data.ngaySanXuat);
+            getListSanPham(res.data.phongBan_Id, res.data.ngaySanXuat);
             const chiTiet =
               res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
               JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu);
@@ -339,7 +339,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
             getUserLap(INFO, res.data.userLapPhieu_Id, 2);
             setFieldsValue({
               capvattukhac: {
-                xuongSanXuat_Id: res.data.xuongSanXuat_Id,
+                phongBan_Id: res.data.phongBan_Id,
                 ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
                 userDuyet_Id: res.data.userDuyet_Id,
                 userKhoVatTu_Id: res.data.userKhoVatTu_Id,
@@ -1010,7 +1010,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                 >
                   <FormItem
                     label="Xưởng sản xuất"
-                    name={["capvattusanxuat", "xuongSanXuat_Id"]}
+                    name={["capvattusanxuat", "phongBan_Id"]}
                     rules={[
                       {
                         type: "string",
@@ -1342,7 +1342,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                 >
                   <FormItem
                     label="Xưởng sản xuất"
-                    name={["capvattukhac", "xuongSanXuat_Id"]}
+                    name={["capvattukhac", "phongBan_Id"]}
                     rules={[
                       {
                         type: "string",

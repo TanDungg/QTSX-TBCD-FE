@@ -885,6 +885,22 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
         <Tag color={"blue"} style={{ fontSize: "14px" }}>
           {info.maPhieuTraHangNCC}
         </Tag>
+        <Tag
+          color={
+            info.isXacNhan === null
+              ? "orange"
+              : info.isXacNhan === true
+              ? "blue"
+              : "error"
+          }
+          style={{ fontSize: "14px" }}
+        >
+          {info.isXacNhan === null
+            ? "Chưa xác nhận"
+            : info.isXacNhan === true
+            ? "Đã xác nhận"
+            : "Đã từ chối"}
+        </Tag>
       </span>
     );
 

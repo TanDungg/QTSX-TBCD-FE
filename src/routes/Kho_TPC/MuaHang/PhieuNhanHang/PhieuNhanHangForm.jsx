@@ -758,7 +758,9 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết phiếu nhận hàng -{" "}
-        <Tag style={{ color: "#0469B9" }}>{info.maPhieuNhanHang}</Tag>
+        <Tag color="blue" style={{ fontSize: "14px" }}>
+          {info.maPhieuNhanHang}
+        </Tag>
       </span>
     );
 
@@ -812,6 +814,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     showUploadList: false,
     maxCount: 1,
   };
+
   const handleViewFile = (file) => {
     if (file.type === "application/pdf") {
       renderPDF(file);
@@ -819,6 +822,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       setOpenImage(true);
     }
   };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />

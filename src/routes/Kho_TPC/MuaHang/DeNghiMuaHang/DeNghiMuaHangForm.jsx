@@ -152,10 +152,10 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
-  const [SanPham_Id, setSanPham_Id] = useState();
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
-  const [SoLuong, setSoLuong] = useState();
+  const [SanPham_Id, setSanPham_Id] = useState(null);
+  const [SoLuong, setSoLuong] = useState(null);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [File, setFile] = useState("");
   const [disableUpload, setDisableUpload] = useState(false);
@@ -843,8 +843,17 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết phiếu đề nghị mua hàng -{" "}
-        <Tag color={info.isXacNhan === true ? "success" : "blue"}>
+        <Tag
+          color={info.isXacNhan === true ? "blue" : "red"}
+          style={{ fontSize: 14 }}
+        >
           {info.maPhieuYeuCau}
+        </Tag>
+        <Tag
+          color={info.isXacNhan === true ? "blue" : "red"}
+          style={{ fontSize: 14 }}
+        >
+          {info.isXacNhan === true ? "Đã xác nhận" : "Đã từ chối"}
         </Tag>
       </span>
     );
@@ -912,8 +921,9 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 chiTiet_Id: "",
               },
             });
-            setSanPham_Id();
-            setSoLuong();
+            setSanPham_Id(null);
+            setSoLuong(null);
+            setDisabledThem(true);
           } else {
             Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
           }

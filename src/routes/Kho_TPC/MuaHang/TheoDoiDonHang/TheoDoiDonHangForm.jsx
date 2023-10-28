@@ -439,9 +439,13 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
     };
   });
 
+  console.log(info);
   const formTitle = (
     <span>
-      Chi tiết theo dõi đơn hàng - <Tag color="green">{info.maPhieuYeuCau}</Tag>
+      Chi tiết theo dõi đơn hàng -{" "}
+      <Tag color="blue" style={{ fontSize: "14px" }}>
+        {info.maPhieuYeuCau}
+      </Tag>
     </span>
   );
 
@@ -622,7 +626,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
           <Table
             bordered
             columns={columns}
-            scroll={{ x: 1500, y: "48vh" }}
+            scroll={{ x: 1500, y: "45vh" }}
             components={components}
             className="gx-table-responsive"
             dataSource={reDataForTable(listVatTu)}
