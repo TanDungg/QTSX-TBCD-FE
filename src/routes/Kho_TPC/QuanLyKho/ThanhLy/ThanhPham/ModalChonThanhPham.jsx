@@ -189,6 +189,11 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       (data) => data.lkn_ChiTietKhoBegin_Id !== item.lkn_ChiTietKhoBegin_Id
     );
     setListVatTu(newData);
+
+    const newDataListVatTu = ListVatTu.filter(
+      (data) => data.lkn_ChiTietKhoBegin_Id === item.lkn_ChiTietKhoBegin_Id
+    );
+    setListViTriKho([...ListViTriKho, ...newDataListVatTu]);
   };
 
   let colListVatTu = [
@@ -315,7 +320,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
                 data={ListViTriKho ? ListViTriKho : []}
                 placeholder="Chọn sản phẩm thanh lý"
                 optionsvalue={["lkn_ChiTietKhoBegin_Id", "vatTu"]}
-                style={{ width: "calc(100% - 100px)" }}
+                style={{ width: "calc(100% - 150px)" }}
                 optionFilterProp={"name"}
                 showSearch
                 onSelect={HandleChonVatTu}

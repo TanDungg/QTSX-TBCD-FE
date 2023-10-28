@@ -178,6 +178,7 @@ const VatTuForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const getUserKy = (info) => {
     const params = convertObjectToUrlParams({
       donviId: info.donVi_Id,
@@ -202,6 +203,7 @@ const VatTuForm = ({ history, match, permission }) => {
       }
     });
   };
+
   const getUserLap = (info, nguoiLap_Id) => {
     const params = convertObjectToUrlParams({
       id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
@@ -276,6 +278,7 @@ const VatTuForm = ({ history, match, permission }) => {
       });
     }
   };
+
   const getMaPhieu = (id) => {
     if (!id) {
       new Promise((resolve, reject) => {
@@ -324,6 +327,7 @@ const VatTuForm = ({ history, match, permission }) => {
       });
     }
   };
+
   const getKho = (id) => {
     if (id) {
       new Promise((resolve, reject) => {
@@ -367,6 +371,7 @@ const VatTuForm = ({ history, match, permission }) => {
       });
     }
   };
+
   /**
    * Lấy thông tin
    *
@@ -395,6 +400,8 @@ const VatTuForm = ({ history, match, permission }) => {
             JSON.parse(res.data.chiTietVatTu).map((data) => {
               return {
                 ...data,
+                lkn_ChiTietPhieuNhanHang_Id:
+                  data.lkn_ChiTietPhieuNhanHang_Id.toLowerCase(),
                 thoiGianSuDung: data.thoiGianSuDung
                   ? data.thoiGianSuDung
                   : null,
@@ -798,46 +805,6 @@ const VatTuForm = ({ history, match, permission }) => {
     const newData = {
       id: id,
       isXacNhan: true,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuDeNghiMuaHang/xac-nhan/${id}`,
-          "PUT",
-          newData,
-          "EDIT",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) goBack();
-      })
-      .catch((error) => console.error(error));
-  };
-  const prop = {
-    type: "confirm",
-    okText: "Xác nhận",
-    cancelText: "Hủy",
-    title: "Xác nhận phiếu đề nghị mua hàng",
-    onOk: hanldeXacNhan,
-  };
-
-  const modalXK = () => {
-    Modal(prop);
-  };
-
-  const hanlde = () => {
-    setActiveModal(true);
-  };
-
-  const save = (val) => {
-    const newData = {
-      id: id,
-      isXacNhan: false,
-      lyDo: val,
     };
     new Promise((resolve, reject) => {
       dispatch(
