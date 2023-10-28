@@ -78,6 +78,9 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
                 ...data,
                 userThuMua_Id:
                   data.userThuMua_Id && data.userThuMua_Id.toLowerCase(),
+                ngayXacNhanHangVe: data.ngayXacNhanHangVe
+                  ? data.ngayXacNhanHangVe
+                  : getDateNow(),
               };
             }
           );
@@ -198,11 +201,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
               handleNgayXacNhanHangVe(dateString, record)
             }
             placeholder="Chọn ngày"
-            value={
-              record.ngayXacNhanHangVe
-                ? moment(record.ngayXacNhanHangVe, "DD/MM/YYYY")
-                : moment(getDateNow(), "DD/MM/YYYY")
-            }
+            value={moment(record.ngayXacNhanHangVe, "DD/MM/YYYY")}
             disabled={record.soLuongNhan > 0 ? true : false}
           />
         </div>
@@ -439,9 +438,13 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
     };
   });
 
+  console.log(info);
   const formTitle = (
     <span>
-      Chi tiết theo dõi đơn hàng - <Tag color="green">{info.maPhieuYeuCau}</Tag>
+      Chi tiết theo dõi đơn hàng -{" "}
+      <Tag color="blue" style={{ fontSize: "14px" }}>
+        {info.maPhieuYeuCau}
+      </Tag>
     </span>
   );
 
@@ -622,7 +625,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
           <Table
             bordered
             columns={columns}
-            scroll={{ x: 1500, y: "48vh" }}
+            scroll={{ x: 1500, y: "45vh" }}
             components={components}
             className="gx-table-responsive"
             dataSource={reDataForTable(listVatTu)}

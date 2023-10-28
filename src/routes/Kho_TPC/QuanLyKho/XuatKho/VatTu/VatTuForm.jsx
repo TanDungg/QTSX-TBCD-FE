@@ -3,7 +3,17 @@ import {
   DeleteOutlined,
   EditOutlined,
 } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Col,
+  DatePicker,
+  Button,
+  Tag,
+  Divider,
+} from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -152,9 +162,9 @@ const VatTuForm = ({ history, match, permission }) => {
                 lkn_ChiTietPhieuDeNghiCapVatTu_Id:
                   data.lkn_ChiTietPhieuDeNghiCapVatTu_Id.toLowerCase(),
                 kho_Id: null,
+                chiTiet_LuuVatTus: [],
               };
             });
-          console.log(newData);
           setListVatTu(newData);
           if (location.state) {
             getListPhieuDeNghiCVT(res.data.phongBan_Id);
@@ -450,6 +460,20 @@ const VatTuForm = ({ history, match, permission }) => {
     });
   };
 
+  const DeleteViTri = (record) => {
+    setListVatTu((prevListVatTu) => {
+      return prevListVatTu.map((item) => {
+        if (record.vatTu_Id === item.vatTu_Id) {
+          return {
+            ...item,
+            chiTiet_LuuVatTus: [],
+          };
+        }
+        return item;
+      });
+    });
+  };
+
   const ThemViTri = (data) => {
     const newData = listVatTu.map((listvattu) => {
       if (listvattu.vatTu_Id.toLowerCase() === data.vatTu_Id.toLowerCase()) {
@@ -471,9 +495,10 @@ const VatTuForm = ({ history, match, permission }) => {
   };
 
   const renderLstViTri = (record) => {
+    console.log(record);
     return (
       <div>
-        {record.chiTiet_LuuVatTus ? (
+        {record.chiTiet_LuuVatTus.length > 0 ? (
           <div>
             {record.chiTiet_LuuVatTus.length !== 0 && (
               <div>
@@ -507,16 +532,26 @@ const VatTuForm = ({ history, match, permission }) => {
                 })}
               </div>
             )}
-
             {type === "detail" || type === "xacnhan" ? null : (
-              <EditOutlined
-                style={{
-                  color: "#0469B9",
-                }}
-                onClick={() => {
-                  HandleChonViTri(record, true);
-                }}
-              />
+              <>
+                <EditOutlined
+                  style={{
+                    color: "#0469B9",
+                  }}
+                  onClick={() => {
+                    HandleChonViTri(record, true);
+                  }}
+                />
+                <Divider type="vertical" />
+                <DeleteOutlined
+                  style={{
+                    color: "#0469B9",
+                  }}
+                  onClick={() => {
+                    DeleteViTri(record);
+                  }}
+                />
+              </>
             )}
           </div>
         ) : (
@@ -535,18 +570,24 @@ const VatTuForm = ({ history, match, permission }) => {
   };
 
   const renderListKho = (record) => {
+    const ListKho = record.lst_kho.map((data) => {
+      return {
+        ...data,
+        id: data.cauTrucKho_Id.toLowerCase(),
+      };
+    });
     if (record) {
       return (
         <div>
           <Select
             className="heading-select slt-search th-select-heading"
-            data={ListKhoVatTu ? ListKhoVatTu : []}
+            data={ListKho ? ListKho : []}
             optionsvalue={["id", "tenCTKho"]}
             style={{ width: "100%" }}
             placeholder="Kho xuất"
             onSelect={(value) => handleSelectKho(value, record)}
             value={record.kho_Id && record.kho_Id}
-            disabled={record.chiTiet_LuuVatTus}
+            disabled={record.chiTiet_LuuVatTus.length > 0}
           />
         </div>
       );
@@ -558,10 +599,7 @@ const VatTuForm = ({ history, match, permission }) => {
     const newData = ListKhoVatTu.filter((data) => data.id === val);
     setListVatTu((prevListVatTu) => {
       return prevListVatTu.map((item) => {
-        if (
-          record.lkn_ChiTietPhieuDeNghiCapVatTu_Id ===
-          item.lkn_ChiTietPhieuDeNghiCapVatTu_Id
-        ) {
+        if (record.vatTu_Id === item.vatTu_Id) {
           return {
             ...item,
             kho_Id: val,

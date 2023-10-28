@@ -866,6 +866,8 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
     return current && current < dayjs().startOf("day");
   };
 
+  console.log(info);
+
   const formTitle =
     type === "new" ? (
       "Tạo phiếu đặt hàng nội bộ "
@@ -874,16 +876,24 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết phiếu đặt hàng nội bộ -{" "}
+        <Tag color={"blue"} style={{ fontSize: "14px" }}>
+          {info.maPhieuYeuCau}
+        </Tag>
         <Tag
           color={
             info.isXacNhan === null
-              ? "processing"
-              : info.isXacNhan
-              ? "success"
+              ? "orange"
+              : info.isXacNhan === true
+              ? "blue"
               : "error"
           }
+          style={{ fontSize: "14px" }}
         >
-          {info.maPhieuYeuCau}
+          {info.isXacNhan === null
+            ? "Chưa xác nhận"
+            : info.isXacNhan === true
+            ? "Đã xác nhận"
+            : "Đã từ chối"}
         </Tag>
       </span>
     );

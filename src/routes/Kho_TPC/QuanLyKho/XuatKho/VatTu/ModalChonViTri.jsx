@@ -20,6 +20,13 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
   useEffect(() => {
     if (openModal) {
       getListViTriKho(itemData.kho_Id, itemData.vatTu_Id);
+      if (itemData.isCheck === true) {
+        setSelectedViTri(itemData.chiTiet_LuuVatTus);
+        const lstKey =
+          itemData.chiTiet_LuuVatTus &&
+          itemData.chiTiet_LuuVatTus.map((data) => data.key);
+        setSelectedKeys(lstKey);
+      }
     }
     return () => {
       dispatch(fetchReset());
@@ -149,6 +156,7 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
         return item;
       });
     });
+
     setSelectedViTri((prevSelectedViTri) => {
       return prevSelectedViTri.map((item) => {
         if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
@@ -305,7 +313,7 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
               className="th-btn-margin-bottom-0"
               type="primary"
               onClick={XacNhanViTri}
-              disabled={DisabledSave}
+              disabled={DisabledSave || SelectedViTri.length === 0}
             >
               Xác nhận
             </Button>

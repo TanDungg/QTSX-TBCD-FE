@@ -506,7 +506,7 @@ const VatTuForm = ({ history, match, permission }) => {
     } else if (Number(soLuongNhap) > item.soLuongNhan) {
       setFieldTouch(false);
       setEditingRecord([...editingRecord, item]);
-      item.message = "Số lượng phải nhỏ hơn";
+      item.message = `Số lượng phải nhỏ hơn ${item.soLuongNhan}`;
     } else {
       const newData = editingRecord.filter(
         (d) =>
