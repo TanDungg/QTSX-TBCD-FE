@@ -34,7 +34,25 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
   const [HangTrung, setHangTrung] = useState([]);
   const [DataLoi, setDataLoi] = useState();
   const [message, setMessageError] = useState([]);
-
+  const renderLoi = (val) => {
+    let check = false;
+    let messageLoi = "";
+    if (DataLoi && DataLoi.length > 0) {
+      DataLoi.forEach((dt) => {
+        if (dt.soLot === val) {
+          check = true;
+          messageLoi = dt.ghiChuImport;
+        }
+      });
+    }
+    return check ? (
+      <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
+        {val}
+      </Popover>
+    ) : (
+      <span>{val}</span>
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -48,6 +66,7 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
       dataIndex: "soLot",
       key: "soLot",
       align: "center",
+      render: (val) => renderLoi(val),
     },
     {
       title: "Mã sản phẩm",
@@ -112,6 +131,10 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
       const worksheet = workbook.Sheets["Import số Lot"];
 
       const checkMau =
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 0, r: 3 }, e: { c: 0, r: 3 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -119,6 +142,10 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "STT" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 1, r: 3 }, e: { c: 1, r: 3 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -126,6 +153,10 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Số Lot" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -133,6 +164,10 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Mã sản phẩm" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -293,8 +328,14 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
       setCheckDanger(true);
       setMessageError("Mã sản phẩm không được rỗng");
       return "red-row";
-    } else if (DataLoi) {
-      if (current.soLot.toString() === DataLoi.soLot) {
+    } else if (DataLoi && DataLoi.length > 0) {
+      let check = false;
+      DataLoi.forEach((dt) => {
+        if (current.soLot.toString() === dt.soLot.toString()) {
+          check = true;
+        }
+      });
+      if (check) {
         setCheckDanger(true);
         return "red-row";
       }

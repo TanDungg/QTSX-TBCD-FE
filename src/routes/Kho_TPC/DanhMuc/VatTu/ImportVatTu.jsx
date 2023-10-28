@@ -34,7 +34,25 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
   const [HangTrung, setHangTrung] = useState([]);
   const [DataLoi, setDataLoi] = useState();
   const [message, setMessageError] = useState([]);
-
+  const renderLoi = (val) => {
+    let check = false;
+    let messageLoi = "";
+    if (DataLoi && DataLoi.length > 0) {
+      DataLoi.forEach((dt) => {
+        if (dt.maVatTu === val) {
+          check = true;
+          messageLoi = dt.ghiChuImport;
+        }
+      });
+    }
+    return check ? (
+      <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
+        {val}
+      </Popover>
+    ) : (
+      <span>{val}</span>
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -49,6 +67,7 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
+      render: (val) => renderLoi(val),
     },
     {
       title: "Tên vật tư",
@@ -143,6 +162,10 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
       const worksheet = workbook.Sheets["Vật tư"];
 
       const checkMau =
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -150,6 +173,10 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "STT" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -157,6 +184,10 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Mã vật tư" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -164,6 +195,10 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Tên vật tư" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -171,6 +206,10 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Mã nhóm vật tư" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -178,6 +217,10 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Thông số" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -185,6 +228,10 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Mã màu sắc" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -192,6 +239,10 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Mã đơn vị tính" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 7, r: 2 }, e: { c: 7, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -199,6 +250,10 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Đơn vị quy đổi" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 8, r: 2 }, e: { c: 8, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -402,8 +457,14 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
       setCheckDanger(true);
       setMessageError("Mã đơn vị tính không được rỗng");
       return "red-row";
-    } else if (DataLoi) {
-      if (current.maVatTu.toString() === DataLoi.maVatTu) {
+    } else if (DataLoi && DataLoi.length > 0) {
+      let check = false;
+      DataLoi.forEach((dt) => {
+        if (current.maVatTu.toString() === dt.maVatTu.toString()) {
+          check = true;
+        }
+      });
+      if (check) {
         setCheckDanger(true);
         return "red-row";
       }

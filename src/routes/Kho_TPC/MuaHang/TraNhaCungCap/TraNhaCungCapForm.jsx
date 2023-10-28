@@ -16,7 +16,7 @@ import {
   Upload,
   Popover,
 } from "antd";
-import { includes, map } from "lodash";
+import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -47,10 +47,8 @@ import {
 import ModalChonVatTu from "./ModalChonVatTu";
 import ModalTuChoi from "./ModalTuChoi";
 import dayjs from "dayjs";
-
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
-
 const TraNhaCungCapForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -63,16 +61,11 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
   const [ListNhaCungCap, setListNhaCungCap] = useState([]);
   const [ListVatTu, setListVatTu] = useState([]);
   const [ListKhoVatTu, setListKhoVatTu] = useState([]);
-  const [Kho, setKho] = useState(null);
   const [ListUser, setListUser] = useState([]);
   const [ListUserDuyet, setListUserDuyet] = useState([]);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(null);
-  const [SoLuongTraNCC, setSoLuongTraNCC] = useState([]);
-  const [hasError, setHasError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [editingRecord, setEditingRecord] = useState(null);
+  const [editingRecord, setEditingRecord] = useState([]);
   const [DisabledSave, setDisabledSave] = useState(true);
-  const [ListViTriKho, setListViTriKho] = useState([]);
   const [DisableFileDinhKem, setDisableFileDinhKem] = useState(false);
   const [FileDinhKem, setFileDinhKem] = useState(null);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
@@ -199,42 +192,6 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const getListViTriKho = (cauTrucKho_Id) => {
-    const params = convertObjectToUrlParams({
-      cauTrucKho_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_ViTriLuuKho/list-vi-tri-luu-kho-vat-tu?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        const newData = res.data.map((data) => {
-          const vitri = `${data.tenKe ? `${data.tenKe}` : ""}${
-            data.tenTang ? ` - ${data.tenTang}` : ""
-          }${data.tenNgan ? ` - ${data.tenNgan}` : ""}`;
-          return {
-            ...data,
-            vatTu: `${data.maVatTu} - ${data.tenVatTu}${
-              vitri ? ` (${vitri})` : ""
-            }`,
-          };
-        });
-        setListViTriKho(newData);
-      } else {
-        setListViTriKho([]);
-      }
-    });
-  };
-
   const getUserLap = (info, nguoiLap_Id) => {
     const params = convertObjectToUrlParams({
       id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
@@ -318,7 +275,6 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
           getUserDuyet(INFO);
           getListKho();
           getUserLap(INFO, res.data.userLap_Id);
-          getListViTriKho();
           setFileDinhKem(res.data.fileDanhGiaChatLuong);
           setFieldsValue({
             tranhacungcap: {
@@ -339,7 +295,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
 
               return {
                 ...data,
-                soLuongTraNCC: data.soLuong,
+                soLuongTraNCC: data.soLuongTraNCC,
                 lkn_ChiTietKhoVatTu_Id: data.lkn_ChiTietKhoVatTu_Id
                   ? data.lkn_ChiTietKhoVatTu_Id.toLowerCase()
                   : createGuid(),
@@ -349,12 +305,6 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
               };
             });
           setListVatTu(newData ? newData : []);
-
-          const newSoLuong = {};
-          newData.forEach((data) => {
-            newSoLuong[data.lkn_ChiTietKhoVatTu_Id] = data.soLuongTraNCC || 0;
-          });
-          setSoLuongTraNCC(newSoLuong);
         }
       })
       .catch((error) => console.error(error));
@@ -422,91 +372,58 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
       </div>
     );
   };
-
-  const renderSoLuongTraNCC = (record) => {
-    if (record) {
-      const isEditing =
-        editingRecord &&
-        editingRecord.lkn_ChiTietKhoVatTu_Id === record.lkn_ChiTietKhoVatTu_Id;
-
-      return type === "detail" || type === "xacnhan" ? (
-        record.soLuongTraNCC
-      ) : (
-        <div>
-          <Input
-            min={0}
-            style={{
-              textAlign: "center",
-              width: "100%",
-              borderColor: isEditing && hasError ? "red" : "",
-            }}
-            className={`input-item ${
-              isEditing && hasError ? "input-error" : ""
-            }`}
-            value={record.soLuongTraNCC}
-            type="number"
-            onChange={(val) => handleInputChange(val, record)}
-          />
-          {isEditing && hasError && (
-            <div style={{ color: "red" }}>{errorMessage}</div>
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const handleInputChange = (val, record) => {
-    const newData = ListViTriKho.filter(
-      (d) =>
-        d.vatTu === record.vatTu && d.cauTrucKho_Id === record.cauTrucKho_Id
-    );
-    const data = {
-      ...(newData && newData[0]),
-      soLuong:
-        newData.length !== 0
-          ? newData[0].soLuong + record.soLuong
-          : record.soLuong,
-    };
-    const sl = val.target.value;
-    if (sl === null || sl === "") {
-      setHasError(true);
-      setErrorMessage("Vui lòng nhập số lượng");
+  const handleInputChange = (val, item) => {
+    const soLuongTraNCC = val.target.value;
+    if (isEmpty(soLuongTraNCC) || Number(soLuongTraNCC) <= 0) {
       setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+    } else if (Number(soLuongTraNCC) > Number(item.soLuong)) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = `Số lượng phải nhỏ hơn số lượng trong kho ${item.soLuong}`;
     } else {
-      if (sl <= 0) {
-        setHasError(true);
-        setErrorMessage("Số lượng xuất phải lớn hơn 0");
-        setFieldTouch(false);
-      } else {
-        if (type === "new" ? sl > record.soLuong : sl > data.soLuong) {
-          setHasError(true);
-          setErrorMessage(
-            "Số lượng trả nhà cung cấp phải nhỏ hơn hoặc bằng số lượng trong kho"
-          );
-          setFieldTouch(false);
-        } else {
-          setFieldTouch(true);
-          setHasError(false);
-          setErrorMessage(null);
-        }
-      }
+      const newData = editingRecord.filter(
+        (d) => d.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
+      );
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
     }
-    setEditingRecord(record);
-
-    setListVatTu((prevListVatTu) => {
-      return prevListVatTu.map((item) => {
-        if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
-          return {
-            ...item,
-            soLuongTraNCC: sl ? parseFloat(sl) : 0,
-          };
-        }
-        return item;
-      });
+    const newData = [...ListVatTu];
+    newData.forEach((ct, index) => {
+      if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+        ct.soLuongTraNCC = soLuongTraNCC;
+      }
     });
+    setListVatTu(newData);
   };
 
+  const renderSoLuongTraNCC = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.soLuongTraNCC}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChange(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -552,7 +469,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "SL điều chuyển",
+      title: "Số lượng",
       key: "soLuongTraNCC",
       align: "center",
       render: (record) => renderSoLuongTraNCC(record),
@@ -847,17 +764,12 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
   };
 
   const handleThemVatTu = (data) => {
+    console.log(data);
     const newListVatTu = [...ListVatTu, ...data];
-    const newSoLuong = {};
-    newListVatTu.forEach((dt) => {
-      newSoLuong[dt.lkn_ChiTietKhoVatTu_Id] = dt.soLuongTraNCC;
-    });
-    setSoLuongTraNCC(newSoLuong);
     setListVatTu(newListVatTu);
     if (type === "edit") {
       setFieldTouch(true);
     }
-    setKho(null);
   };
 
   const propsFileDinhKem = {

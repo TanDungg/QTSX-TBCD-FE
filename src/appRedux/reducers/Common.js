@@ -317,10 +317,10 @@ export default (state = INIT_STATE, action) => {
         return state.set("loading", false);
       } else {
         if (apiType === "IMPORT") {
-          MessageStatus(responseStatus, action.data.ghiChuImport);
+          MessageStatus(responseStatus, "IMPORT không thành công");
           return state
             .set("error", "")
-            .set("message", action.data.ghiChuImport)
+            .set("message", "IMPORT không thành công")
             .set("loading", false)
             .set("loadingSave", false)
             .set("reset", false);

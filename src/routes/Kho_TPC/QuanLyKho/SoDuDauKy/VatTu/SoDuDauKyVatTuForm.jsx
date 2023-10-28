@@ -300,7 +300,7 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
             tenVatTu: res.data.tenVatTu,
             maVatTu: res.data.maVatTu,
             tenDonViTinh: res.data.tenDonViTinh,
-            thoiGianSuDung: data.thoiGianSuDung._i,
+            thoiGianSuDung: data.thoiGianSuDung ? data.thoiGianSuDung._i : null,
           };
 
           setListVatTu([...listVatTu, newData]);

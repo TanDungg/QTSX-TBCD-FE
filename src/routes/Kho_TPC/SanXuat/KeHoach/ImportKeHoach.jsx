@@ -161,6 +161,25 @@ function ImportKeHoach({ match, permission, history }) {
       );
     }
   };
+  const renderLoi = (val) => {
+    let check = false;
+    let messageLoi = "";
+    if (DataLoi && DataLoi.length > 0) {
+      DataLoi.forEach((dt) => {
+        if (dt.maSanPham === val) {
+          check = true;
+          messageLoi = dt.ghiChuImport;
+        }
+      });
+    }
+    return check ? (
+      <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
+        {val}
+      </Popover>
+    ) : (
+      <span>{val}</span>
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -175,6 +194,7 @@ function ImportKeHoach({ match, permission, history }) {
       key: "maSanPham",
       align: "center",
       width: 120,
+      render: (val) => renderLoi(val),
     },
     {
       title: "Tên sản phẩm",
@@ -578,7 +598,7 @@ function ImportKeHoach({ match, permission, history }) {
     }).then((res) => {
       if (res.status === 409) {
         setDataLoi(res.data);
-        setMessageError(res.data.ghiChuImport);
+        setMessageError("Import không thành công");
       } else {
         setFileName("");
         setDataView([]);
@@ -617,8 +637,14 @@ function ImportKeHoach({ match, permission, history }) {
       setCheckDanger(true);
       setMessageError("Mã màu sắc không được rỗng");
       return "red-row";
-    } else if (DataLoi) {
-      if (current.maSanPham.toString() === DataLoi.maSanPham) {
+    } else if (DataLoi && DataLoi.length > 0) {
+      let check = false;
+      DataLoi.forEach((dt) => {
+        if (current.maSanPham.toString() === dt.maSanPham.toString()) {
+          check = true;
+        }
+      });
+      if (check) {
         setCheckDanger(true);
         return "red-row";
       }

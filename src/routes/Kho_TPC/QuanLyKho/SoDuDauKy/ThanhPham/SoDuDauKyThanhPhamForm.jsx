@@ -484,7 +484,7 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
     validateFields()
       .then((values) => {
         if (listVatTu.length === 0) {
-          Helpers.alertError("Danh sách vật tư rỗng");
+          Helpers.alertError("Danh sách sản phẩm rỗng");
         } else {
           saveData(values.dinhmucvattu, val);
         }

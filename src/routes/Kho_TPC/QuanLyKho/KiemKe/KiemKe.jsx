@@ -118,7 +118,9 @@ function KiemKe({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      permission && permission.cof && item.tinhTrang !== "Hoàn thành" ? (
+      permission &&
+      permission.cof &&
+      item.tinhTrang !== "Hoàn thành xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -301,7 +303,7 @@ function KiemKe({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Ban/Phòng",
+      title: "Xưởng",
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
       align: "center",
