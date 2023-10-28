@@ -17,7 +17,11 @@ import {
   Toolbar,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  reDataForTable,
+  removeDuplicates,
+} from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import QRCode from "qrcode.react";
 
@@ -52,7 +56,9 @@ function Ke({ match, history, permission }) {
       fetchStart(`CauTrucKho/ke-thanh-pham?${param}`, "GET", null, "LIST")
     );
   };
+  const { totalRow, totalPages, pageSize } = data;
 
+  let dataList = reDataForTable(data.datalist, page, pageSize);
   /**
    * Tìm kiếm người dùng
    *
@@ -81,19 +87,6 @@ function Ke({ match, history, permission }) {
     if (isEmpty(val.target.value)) {
       loadData(val.target.value, page);
     }
-  };
-  /**
-   * Thêm dấu để phân cấp tiêu đề dựa theo tree (flatlist)
-   *
-   * @param {*} value
-   * @param {*} record
-   * @returns
-   * @memberof ChucNang
-   */
-  const renderTenMenu = (value, record) => {
-    let string = repeat("- ", record.level);
-    string = `${string} ${value}`;
-    return <div>{string}</div>;
   };
 
   /**
@@ -214,15 +207,33 @@ function Ke({ match, history, permission }) {
       title: "Mã kệ",
       key: "maKe",
       dataIndex: "maKe",
-      key: "maKe",
       align: "center",
-      // render: (value, record) => renderTenMenu(value, record),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maKe,
+            value: d.maKe,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maKe.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên kệ",
       dataIndex: "tenKe",
       key: "tenKe",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenKe,
+            value: d.tenKe,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenKe.includes(value),
+      filterSearch: true,
     },
     {
       title: "Sức chứa",
@@ -235,12 +246,32 @@ function Ke({ match, history, permission }) {
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenPhongBan,
+            value: d.tenPhongBan,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenPhongBan.includes(value),
+      filterSearch: true,
     },
     {
       title: "Kho",
       dataIndex: "tenCauTrucKho",
       key: "tenCauTrucKho",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenCauTrucKho,
+            value: d.tenCauTrucKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenCauTrucKho.includes(value),
+      filterSearch: true,
     },
     {
       title: "Mã Barcode",
@@ -268,9 +299,6 @@ function Ke({ match, history, permission }) {
       render: (value) => actionContent(value),
     },
   ];
-  const { totalRow, totalPages, pageSize } = data;
-
-  let dataList = reDataForTable(data.datalist, page, pageSize);
 
   const components = {
     body: {

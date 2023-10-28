@@ -15,6 +15,7 @@ import {
   reDataForTable,
   getLocalStorage,
   getTokenInfo,
+  removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -128,10 +129,7 @@ function KhoVatTu({ match, history, permission }) {
   };
   const { totalRow, totalPageSize } = data;
 
-  let dataList = reDataForTable(
-    data
-    // page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  let dataList = reDataForTable(data);
 
   let renderHead = [
     {
@@ -146,18 +144,48 @@ function KhoVatTu({ match, history, permission }) {
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maVatTu,
+            value: d.maVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenVatTu,
+            value: d.tenVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Ngày nhập kho",
       dataIndex: "ngayNhan",
       key: "ngayNhan",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayNhan,
+            value: d.ngayNhan,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayNhan.includes(value),
+      filterSearch: true,
     },
     {
       title: "Số lượng",
@@ -170,6 +198,16 @@ function KhoVatTu({ match, history, permission }) {
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDonViTinh,
+            value: d.tenDonViTinh,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenDonViTinh.includes(value),
+      filterSearch: true,
     },
 
     {
@@ -177,6 +215,16 @@ function KhoVatTu({ match, history, permission }) {
       dataIndex: "tenKho",
       key: "tenKho",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenKho,
+            value: d.tenKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenKho.includes(value),
+      filterSearch: true,
     },
     {
       title: "Vị trí lưu",

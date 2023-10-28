@@ -6,6 +6,7 @@ import { fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams } from "src/util/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { Select } from "src/components/Common";
+import Helpers from "src/helpers";
 
 const FormItem = Form.Item;
 
@@ -22,7 +23,6 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
 
   useEffect(() => {
     if (openModal) {
-      console.log(sanPham);
       getKe(sanPham.cauTrucKho_Id);
       resetFields();
       if (sanPham.ke_Id) {
@@ -52,7 +52,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-ke-thanh-pham-chua-day?${params}`,
+          `CauTrucKho/ke-thanh-pham-chua-day-hien-thi-so-luong-dang-chua?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -116,8 +116,18 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
   };
   const handleSelectKe = (val) => {
     ListKe.forEach((k) => {
-      if (k.id === val) {
-        setSucChua(k.sucChua);
+      if (k.id === val && k.sucChua - k.soLuongDangChua === 0) {
+        Helpers.alertWarning("Kệ đã đầy");
+        setDisableKe(true);
+        setFieldTouch(false);
+        setFieldsValue({
+          sanPham: {
+            ke_Id: null,
+            soLuong: null,
+          },
+        });
+      } else if (k.id === val && k.sucChua - k.soLuongDangChua !== 0) {
+        setSucChua(k.sucChua - k.soLuongDangChua);
         setDisableKe(false);
         setFieldsValue({
           sanPham: {
@@ -139,7 +149,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
   };
   return (
     <AntModal
-      title="Thêm vật tư"
+      title="Thêm vị trí"
       open={openModal}
       width={`80%`}
       closable={true}
@@ -213,7 +223,6 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
               disabled={DisableKe}
             ></Input>
           </FormItem>
-
           <Row justify={"center"}>
             <Button
               className="th-btn-margin-bottom-0"

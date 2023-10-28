@@ -15,6 +15,7 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataSelectedTable,
+  removeDuplicates,
   treeToFlatlist,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -150,7 +151,8 @@ function NhomVatTu({ history, permission }) {
       </Button>
     );
   };
-
+  let dataList = treeToFlatlist(data);
+  dataList = reDataSelectedTable(dataList);
   let renderHead = [
     {
       title: "STT",
@@ -165,13 +167,32 @@ function NhomVatTu({ history, permission }) {
       key: "maNhomVatTu",
       align: "center",
       render: (value, record) => renderTenMenu(value, record),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maNhomVatTu,
+            value: d.maNhomVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maNhomVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên loại vật tư",
       dataIndex: "tenNhomVatTu",
       key: "tenNhomVatTu",
       align: "center",
-      // render: (icon, record) => renderIcon(icon, record),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maNhomVatTu,
+            value: d.maNhomVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maNhomVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",
@@ -181,8 +202,7 @@ function NhomVatTu({ history, permission }) {
       render: (value) => actionContent(value),
     },
   ];
-  let dataList = treeToFlatlist(data);
-  dataList = reDataSelectedTable(dataList);
+
   /**
    * Tìm kiếm người dùng
    *

@@ -17,7 +17,11 @@ import {
   Toolbar,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  reDataForTable,
+  removeDuplicates,
+} from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import ImportSanPham from "./ImportSanPham";
 import AddChiTiet from "./AddChiTiet";
@@ -287,24 +291,64 @@ function SanPham({ match, history, permission }) {
       dataIndex: "maSanPham",
       key: "maSanPham",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maSanPham,
+            value: d.maSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maSanPham.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên sản phẩm",
       dataIndex: "tenSanPham",
       key: "tenSanPham",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenSanPham,
+            value: d.tenSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenSanPham.includes(value),
+      filterSearch: true,
     },
     {
       title: "Loại sản phẩm",
       dataIndex: "tenLoaiSanPham",
       key: "tenLoaiSanPham",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenLoaiSanPham,
+            value: d.tenLoaiSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenLoaiSanPham.includes(value),
+      filterSearch: true,
     },
     {
       title: "Kích thước",
       dataIndex: "kichThuoc",
       key: "kichThuoc",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.kichThuoc,
+            value: d.kichThuoc,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.kichThuoc.includes(value),
+      filterSearch: true,
     },
     {
       title: "Màu sắc",
@@ -312,12 +356,32 @@ function SanPham({ match, history, permission }) {
       key: "mauSac",
       align: "center",
       render: (val) => renderMauSac(val),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.mauSac,
+            value: d.mauSac,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.mauSac.includes(value),
+      filterSearch: true,
     },
     {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDonViTinh,
+            value: d.tenDonViTinh,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenDonViTinh.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",

@@ -31,6 +31,7 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
+import dayjs from "dayjs";
 import AddSanPhamModal from "./AddSanPhamModal";
 const EditableContext = React.createContext(null);
 
@@ -704,6 +705,9 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       },
     });
   };
+  const disabledDate = (current) => {
+    return current && current > dayjs().startOf("day");
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -811,6 +815,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                 <DatePicker
                   format={"DD/MM/YYYY"}
                   disabled={type === "new" || type === "edit" ? false : true}
+                  disabledDate={disabledDate}
                   allowClear={false}
                   onChange={(date, dateString) => {
                     setFieldsValue({

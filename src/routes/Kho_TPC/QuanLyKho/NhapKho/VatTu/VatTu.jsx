@@ -24,6 +24,7 @@ import {
   getLocalStorage,
   getTokenInfo,
   exportPDF,
+  removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -317,36 +318,96 @@ function VatTu({ match, history, permission }) {
       key: "maPhieuNhapKhoVatTu",
       align: "center",
       render: (val) => renderDetail(val),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maPhieuNhapKhoVatTu,
+            value: d.maPhieuNhapKhoVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maPhieuNhapKhoVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Ngày nhập",
       dataIndex: "ngayNhan",
       key: "ngayNhan",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayNhan,
+            value: d.ngayNhan,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayNhan.includes(value),
+      filterSearch: true,
     },
     {
       title: "Nhà cung cấp",
       dataIndex: "tenNhaCungCap",
       key: "tenNhaCungCap",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNhaCungCap,
+            value: d.tenNhaCungCap,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNhaCungCap.includes(value),
+      filterSearch: true,
     },
     {
       title: "Số hóa đơn",
       dataIndex: "soHoaDon",
       key: "soHoaDon",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.soHoaDon,
+            value: d.soHoaDon,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.soHoaDon.includes(value),
+      filterSearch: true,
     },
     {
       title: "Người nhận",
       dataIndex: "tenNguoiYeuCau",
       key: "tenNguoiYeuCau",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiYeuCau,
+            value: d.tenNguoiYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNguoiYeuCau.includes(value),
+      filterSearch: true,
     },
     {
       title: "Kho",
       dataIndex: "tenCauTrucKho",
       key: "tenCauTrucKho",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenCauTrucKho,
+            value: d.tenCauTrucKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenCauTrucKho.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",

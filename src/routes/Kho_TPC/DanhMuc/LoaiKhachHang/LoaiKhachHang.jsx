@@ -15,6 +15,7 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataSelectedTable,
+  removeDuplicates,
   treeToFlatlist,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -51,7 +52,8 @@ function LoaiKhachHang({ history, permission }) {
       )
     );
   };
-
+  let dataList = treeToFlatlist(data);
+  dataList = reDataSelectedTable(dataList);
   /**
    * Thêm dấu để phân cấp tiêu đề dựa theo tree (flatlist)
    *
@@ -176,12 +178,32 @@ function LoaiKhachHang({ history, permission }) {
       align: "center",
       key: "maLoaiKhachHang",
       render: (value, record) => renderTenLoaiKhachHang(value, record),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maLoaiKhachHang,
+            value: d.maLoaiKhachHang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maLoaiKhachHang.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên loại khách hàng",
       dataIndex: "tenLoaiKhachHang",
       key: "tenLoaiKhachHang",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenLoaiKhachHang,
+            value: d.tenLoaiKhachHang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenLoaiKhachHang.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",
@@ -191,8 +213,7 @@ function LoaiKhachHang({ history, permission }) {
       render: (value) => actionContent(value),
     },
   ];
-  let dataList = treeToFlatlist(data);
-  dataList = reDataSelectedTable(dataList);
+
   /**
    * Tìm kiếm người dùng
    *

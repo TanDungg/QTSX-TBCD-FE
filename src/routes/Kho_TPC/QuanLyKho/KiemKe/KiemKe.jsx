@@ -23,6 +23,7 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -240,10 +241,7 @@ function KiemKe({ match, history, permission }) {
   };
   const { totalRow, pageSize } = data;
 
-  let dataList = reDataForTable(
-    data.datalist,
-    page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  let dataList = reDataForTable(data.datalist, page, pageSize);
 
   const renderDetail = (val) => {
     const detail =
@@ -275,30 +273,80 @@ function KiemKe({ match, history, permission }) {
       key: "maPhieuKiemKe",
       align: "center",
       render: (val) => renderDetail(val),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maPhieuKiemKe,
+            value: d.maPhieuKiemKe,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maPhieuKiemKe.includes(value),
+      filterSearch: true,
     },
     {
       title: "Ngày kiểm kê",
       dataIndex: "ngayKiemKe",
       key: "ngayKiemKe",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayKiemKe,
+            value: d.ngayKiemKe,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayKiemKe.includes(value),
+      filterSearch: true,
     },
     {
       title: "Ban/Phòng",
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenPhongBan,
+            value: d.tenPhongBan,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenPhongBan.includes(value),
+      filterSearch: true,
     },
     {
       title: "Người lập phiếu",
       dataIndex: "tenNguoiLap",
       key: "tenNguoiLap",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiLap,
+            value: d.tenNguoiLap,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNguoiLap.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tình trạng",
       dataIndex: "tinhTrang",
       key: "tinhTrang",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tinhTrang,
+            value: d.tinhTrang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tinhTrang.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",
@@ -432,7 +480,7 @@ function KiemKe({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 800, y: "70vh" }}
+          scroll={{ x: 800, y: "65vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

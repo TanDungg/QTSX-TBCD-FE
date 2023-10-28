@@ -25,6 +25,7 @@ import {
   getLocalStorage,
   getTokenInfo,
   exportPDF,
+  removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -313,36 +314,96 @@ function XuatKhoVatTu({ match, history, permission }) {
       key: "maPhieuXuatKhoVatTu",
       align: "center",
       render: (val) => renderDetail(val),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maPhieuXuatKhoVatTu,
+            value: d.maPhieuXuatKhoVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maPhieuXuatKhoVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Xưởng sản xuất",
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenPhongBan,
+            value: d.tenPhongBan,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenPhongBan.includes(value),
+      filterSearch: true,
     },
     {
       title: "Mã phiếu đề nghị cấp vật tư",
       dataIndex: "maPhieuDeNghiCapVatTu",
       key: "maPhieuDeNghiCapVatTu",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maPhieuDeNghiCapVatTu,
+            value: d.maPhieuDeNghiCapVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maPhieuDeNghiCapVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Người lập",
       dataIndex: "userLapPhieu",
       key: "userLapPhieu",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.userLapPhieu,
+            value: d.userLapPhieu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.userLapPhieu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Ngày xuất kho",
       dataIndex: "ngayXuatKho",
       key: "ngayXuatKho",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayXuatKho,
+            value: d.ngayXuatKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayXuatKho.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tình trạng",
       dataIndex: "tinhTrang",
       key: "tinhTrang",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tinhTrang,
+            value: d.tinhTrang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tinhTrang.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",

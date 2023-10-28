@@ -24,6 +24,7 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -171,40 +172,99 @@ function TheoDoiDonHang({ match, history, permission }) {
     },
     {
       title: "Mã đơn hàng",
-
       key: "maPhieuYeuCau",
       align: "center",
       render: (val) => renderDetail(val),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maPhieuYeuCau,
+            value: d.maPhieuYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maPhieuYeuCau.includes(value),
+      filterSearch: true,
     },
     {
       title: "Ngày yêu cầu",
       dataIndex: "ngayYeuCau",
       key: "ngayYeuCau",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayYeuCau,
+            value: d.ngayYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayYeuCau.includes(value),
+      filterSearch: true,
     },
     {
       title: "Ngày hàng về",
       dataIndex: "ngayHangVe",
       key: "ngayHangVe",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayHangVe,
+            value: d.ngayHangVe,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayHangVe.includes(value),
+      filterSearch: true,
     },
     {
       title: "Người đặt hàng",
       dataIndex: "tenNguoiYeuCau",
       key: "tenNguoiYeuCau",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiYeuCau,
+            value: d.tenNguoiYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNguoiYeuCau.includes(value),
+      filterSearch: true,
     },
     {
       title: "CV Thu mua",
       dataIndex: "tenNguoiYeuCau",
       key: "tenNguoiYeuCau",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiYeuCau,
+            value: d.tenNguoiYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNguoiYeuCau.includes(value),
+      filterSearch: true,
     },
     {
       title: "Số lượng mua",
       dataIndex: "soLuongMua",
       key: "soLuongMua",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.soLuongMua,
+            value: d.soLuongMua,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.soLuongMua.includes(value),
+      filterSearch: true,
     },
     {
       title: "Số lượng nhận",
@@ -223,6 +283,16 @@ function TheoDoiDonHang({ match, history, permission }) {
       dataIndex: "tinhTrang",
       key: "tinhTrang",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tinhTrang,
+            value: d.tinhTrang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tinhTrang.includes(value),
+      filterSearch: true,
     },
   ];
 

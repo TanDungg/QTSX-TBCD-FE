@@ -15,6 +15,7 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
+  removeDuplicates,
   treeToFlatlist,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -46,6 +47,9 @@ function KhachHang({ history, permission }) {
     const param = convertObjectToUrlParams({ keyword, page });
     dispatch(fetchStart(`KhachHang?${param}`, "GET", null, "LIST"));
   };
+  const { totalRow, totalPage, pageSize } = data;
+
+  let dataList = reDataForTable(data.datalist, page, pageSize);
   /**
    * Tìm kiếm khách hàng
    *
@@ -202,9 +206,6 @@ function KhachHang({ history, permission }) {
       </Button>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
-
-  let dataList = reDataForTable(data.datalist, page, pageSize);
 
   let renderHead = [
     {
@@ -219,54 +220,144 @@ function KhachHang({ history, permission }) {
       dataIndex: "maKhachHang",
       key: "maKhachHang",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maKhachHang,
+            value: d.maKhachHang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maKhachHang.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên khách hàng",
       dataIndex: "tenKhachHang",
       key: "tenKhachHang",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenKhachHang,
+            value: d.tenKhachHang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenKhachHang.includes(value),
+      filterSearch: true,
     },
     {
       title: "Loại khách hàng",
       dataIndex: "tenLoaiKhachHang",
       key: "tenLoaiKhachHang",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenLoaiKhachHang,
+            value: d.tenLoaiKhachHang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenLoaiKhachHang.includes(value),
+      filterSearch: true,
     },
     {
       title: "Địa chỉ",
       dataIndex: "diaChi",
       key: "diaChi",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.diaChi,
+            value: d.diaChi,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.diaChi.includes(value),
+      filterSearch: true,
     },
     {
       title: "Số điện thoại",
       dataIndex: "soDienThoai",
       key: "soDienThoai",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.soDienThoai,
+            value: d.soDienThoai,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.soDienThoai.includes(value),
+      filterSearch: true,
     },
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.email,
+            value: d.email,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.email.includes(value),
+      filterSearch: true,
     },
     {
       title: "Mã số thuế",
       dataIndex: "maSoThue",
       key: "maSoThue",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maSoThue,
+            value: d.maSoThue,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maSoThue.includes(value),
+      filterSearch: true,
     },
     {
       title: "Người liên hệ",
       dataIndex: "nguoiLienHe",
       key: "nguoiLienHe",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.nguoiLienHe,
+            value: d.nguoiLienHe,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.nguoiLienHe.includes(value),
+      filterSearch: true,
     },
     {
       title: "Fax",
       dataIndex: "fax",
       key: "fax",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.fax,
+            value: d.fax,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.fax.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",

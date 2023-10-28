@@ -26,6 +26,7 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import ImportSoDuDauKy from "./ImportSoDuDauKy";
@@ -269,16 +270,35 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
     },
     {
       title: "Mã phiếu",
-      // dataIndex: "maPhieuSoDuDauKy",
       key: "maPhieuSoDuDauKy",
       align: "center",
       render: (val) => renderDetail(val),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maPhieuSoDuDauKy,
+            value: d.maPhieuSoDuDauKy,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maPhieuSoDuDauKy.includes(value),
+      filterSearch: true,
     },
     {
       title: "Người lập",
       dataIndex: "tenNguoiLap",
       key: "tenNguoiLap",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiLap,
+            value: d.tenNguoiLap,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNguoiLap.includes(value),
+      filterSearch: true,
     },
     {
       title: "Số lượng",
@@ -291,6 +311,16 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
       dataIndex: "tenCauTrucKho",
       key: "tenCauTrucKho",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenCauTrucKho,
+            value: d.tenCauTrucKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenCauTrucKho.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",

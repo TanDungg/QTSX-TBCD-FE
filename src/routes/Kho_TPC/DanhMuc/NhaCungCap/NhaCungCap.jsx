@@ -11,7 +11,11 @@ import {
   Toolbar,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  reDataForTable,
+  removeDuplicates,
+} from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -186,48 +190,128 @@ function NhaCungCap({ match, history, permission }) {
       dataIndex: "maNhaCungCap",
       key: "maNhaCungCap",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maNhaCungCap,
+            value: d.maNhaCungCap,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maNhaCungCap.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên nhà cung cấp",
       dataIndex: "tenNhaCungCap",
       key: "tenNhaCungCap",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNhaCungCap,
+            value: d.tenNhaCungCap,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNhaCungCap.includes(value),
+      filterSearch: true,
     },
     {
       title: "Loại nhà cung cấp",
       dataIndex: "tenLoaiNhaCungCap",
       key: "tenLoaiNhaCungCap",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenLoaiNhaCungCap,
+            value: d.tenLoaiNhaCungCap,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenLoaiNhaCungCap.includes(value),
+      filterSearch: true,
     },
     {
       title: "Người liên hệ",
       dataIndex: "nguoiLienHe",
       key: "nguoiLienHe",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.nguoiLienHe,
+            value: d.nguoiLienHe,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.nguoiLienHe.includes(value),
+      filterSearch: true,
     },
     {
       title: "Email",
       dataIndex: "email",
       key: "email",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.email,
+            value: d.email,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.email.includes(value),
+      filterSearch: true,
     },
     {
       title: "Số điện thoại",
       dataIndex: "soDienThoai",
       key: "soDienThoai",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.soDienThoai,
+            value: d.soDienThoai,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.soDienThoai.includes(value),
+      filterSearch: true,
     },
     {
       title: "Địa chỉ",
       dataIndex: "diaChi",
       key: "diaChi",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.diaChi,
+            value: d.diaChi,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.diaChi.includes(value),
+      filterSearch: true,
     },
     {
       title: "Mã số thuế",
       dataIndex: "maSoThue",
       key: "maSoThue",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maSoThue,
+            value: d.maSoThue,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maSoThue.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",

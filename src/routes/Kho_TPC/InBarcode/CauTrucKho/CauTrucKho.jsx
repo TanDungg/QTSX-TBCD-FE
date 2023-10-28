@@ -9,6 +9,7 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataSelectedTable,
+  removeDuplicates,
   treeToFlatlist,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -98,7 +99,8 @@ function CauTrucKho({ match, history, permission }) {
       </>
     );
   };
-
+  let dataList = treeToFlatlist(data);
+  dataList = reDataSelectedTable(dataList);
   let renderHead = [
     {
       title: "STT",
@@ -112,18 +114,48 @@ function CauTrucKho({ match, history, permission }) {
       dataIndex: "maCauTrucKho",
       key: "maCauTrucKho",
       render: (value, record) => renderTenMenu(value, record),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maCauTrucKho,
+            value: d.maCauTrucKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maCauTrucKho.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên cấu trúc kho",
       dataIndex: "tenCauTrucKho",
       key: "tenCauTrucKho",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenCauTrucKho,
+            value: d.tenCauTrucKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenCauTrucKho.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên Ban/Phòng",
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenPhongBan,
+            value: d.tenPhongBan,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenPhongBan.includes(value),
+      filterSearch: true,
     },
     {
       title: "Mã Barcode",
@@ -149,8 +181,6 @@ function CauTrucKho({ match, history, permission }) {
       align: "center",
     },
   ];
-  let dataList = treeToFlatlist(data);
-  dataList = reDataSelectedTable(dataList);
 
   const components = {
     body: {

@@ -17,6 +17,7 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -162,10 +163,7 @@ function KhoVatTu({ history, permission }) {
   };
   const { totalRow, pageSize } = data;
 
-  let dataList = reDataForTable(
-    data
-    // page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  let dataList = reDataForTable(data);
 
   let renderHead = [
     {
@@ -180,24 +178,64 @@ function KhoVatTu({ history, permission }) {
       dataIndex: "maSanPham",
       key: "maSanPham",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maSanPham,
+            value: d.maSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maSanPham.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên sản phẩm",
       dataIndex: "tenSanPham",
       key: "tenSanPham",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenSanPham,
+            value: d.tenSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenSanPham.includes(value),
+      filterSearch: true,
     },
     {
       title: "Màu",
       dataIndex: "tenMauSac",
       key: "tenMauSac",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenMauSac,
+            value: d.tenMauSac,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenMauSac.includes(value),
+      filterSearch: true,
     },
     {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDonViTinh,
+            value: d.tenDonViTinh,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenDonViTinh.includes(value),
+      filterSearch: true,
     },
     {
       title: "Số lượng",
@@ -210,12 +248,32 @@ function KhoVatTu({ history, permission }) {
       dataIndex: "ngayNhap",
       key: "ngayNhap",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayNhap,
+            value: d.ngayNhap,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayNhap.includes(value),
+      filterSearch: true,
     },
     {
       title: "Kho",
       dataIndex: "tenKho",
       key: "tenKho",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenKho,
+            value: d.tenKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenKho.includes(value),
+      filterSearch: true,
     },
     {
       title: "Vị trí lưu",
@@ -363,7 +421,7 @@ function KhoVatTu({ history, permission }) {
             };
           }}
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 700, y: "65vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -374,7 +432,7 @@ function KhoVatTu({ history, permission }) {
           }}
           pagination={{
             onChange: handleTableChange,
-            pageSize: pageSize,
+            pageSize: 20,
             total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,

@@ -23,6 +23,7 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -278,30 +279,80 @@ function TraNhaCungCap({ match, history, permission }) {
       key: "maPhieuTraHang",
       align: "center",
       render: (val) => renderDetail(val),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maPhieuTraHang,
+            value: d.maPhieuTraHang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maPhieuTraHang.includes(value),
+      filterSearch: true,
     },
     {
       title: "Ngày yêu cầu",
       dataIndex: "ngayYeuCau",
       key: "ngayYeuCau",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayYeuCau,
+            value: d.ngayYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayYeuCau.includes(value),
+      filterSearch: true,
     },
     {
       title: "Ban/Phòng",
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenPhongBan,
+            value: d.tenPhongBan,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenPhongBan.includes(value),
+      filterSearch: true,
     },
     {
       title: "Người lập phiếu",
       dataIndex: "tenNguoiYeuCau",
       key: "tenNguoiYeuCau",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiYeuCau,
+            value: d.tenNguoiYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNguoiYeuCau.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tình trạng",
       dataIndex: "tinhTrang",
       key: "tinhTrang",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tinhTrang,
+            value: d.tinhTrang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tinhTrang.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",

@@ -17,7 +17,11 @@ import {
   Toolbar,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  reDataForTable,
+  removeDuplicates,
+} from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import QRCode from "qrcode.react";
 
@@ -96,6 +100,7 @@ function Ke({ match, history, permission }) {
       </>
     );
   };
+  let dataList = reDataForTable(data.datalist);
 
   let renderHead = [
     {
@@ -111,13 +116,32 @@ function Ke({ match, history, permission }) {
       dataIndex: "maKe",
       align: "center",
       key: "maKe",
-      // render: (value, record) => renderTenMenu(value, record),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maKe,
+            value: d.maKe,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maKe.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên kệ",
       dataIndex: "tenKe",
       key: "tenKe",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenKe,
+            value: d.tenKe,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenKe.includes(value),
+      filterSearch: true,
     },
     {
       title: "Sức chứa",
@@ -130,12 +154,32 @@ function Ke({ match, history, permission }) {
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenPhongBan,
+            value: d.tenPhongBan,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenPhongBan.includes(value),
+      filterSearch: true,
     },
     {
       title: "Kho",
       dataIndex: "tenCauTrucKho",
       key: "tenCauTrucKho",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenCauTrucKho,
+            value: d.tenCauTrucKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenCauTrucKho.includes(value),
+      filterSearch: true,
     },
     {
       title: "Mã Barcode",
@@ -155,7 +199,6 @@ function Ke({ match, history, permission }) {
       ),
     },
   ];
-  let dataList = reDataForTable(data.datalist);
 
   const components = {
     body: {

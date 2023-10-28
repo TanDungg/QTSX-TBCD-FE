@@ -12,7 +12,11 @@ import {
   Select,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  reDataForTable,
+  removeDuplicates,
+} from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -241,10 +245,7 @@ function DinhMucTonKho({ match, history, permission }) {
   };
   const { totalRow, totalPage, pageSize } = data;
 
-  let dataList = reDataForTable(
-    data.datalist
-    // page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  let dataList = reDataForTable(data.datalist, page, pageSize);
 
   let renderHead = [
     {
@@ -259,36 +260,96 @@ function DinhMucTonKho({ match, history, permission }) {
       key: "maVatTu",
       dataIndex: "maVatTu",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maVatTu,
+            value: d.maVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên vật tư",
       key: "tenVatTu",
       dataIndex: "tenVatTu",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenVatTu,
+            value: d.tenVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Loại định mức tồn kho",
       dataIndex: "tenLoaiDinhMucTonKho",
       key: "tenLoaiDinhMucTonKho",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenLoaiDinhMucTonKho,
+            value: d.tenLoaiDinhMucTonKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenLoaiDinhMucTonKho.includes(value),
+      filterSearch: true,
     },
     {
       title: "SL tồn kho tối thiếu",
       dataIndex: "sLTonKhoToiThieu",
       key: "sLTonKhoToiThieu",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.sLTonKhoToiThieu,
+            value: d.sLTonKhoToiThieu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.sLTonKhoToiThieu.includes(value),
+      filterSearch: true,
     },
     {
       title: "SL tồn kho tối đa",
       dataIndex: "sLTonKhoToiDa",
       key: "sLTonKhoToiDa",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.sLTonKhoToiDa,
+            value: d.sLTonKhoToiDa,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.sLTonKhoToiDa.includes(value),
+      filterSearch: true,
     },
     {
       title: "Người lập",
       dataIndex: "tenNguoiLap",
       key: "tenNguoiLap",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiLap,
+            value: d.tenNguoiLap,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNguoiLap.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",

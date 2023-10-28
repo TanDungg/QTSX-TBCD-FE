@@ -12,7 +12,11 @@ import {
   Toolbar,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  reDataForTable,
+  removeDuplicates,
+} from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -148,7 +152,9 @@ function LoaiNhaCungCap({ match, history, permission }) {
       </Button>
     );
   };
+  const { totalRow, totalPages, pageSize } = data;
 
+  let dataList = reDataForTable(data.datalist, page, pageSize);
   let renderHead = [
     {
       title: "STT",
@@ -162,12 +168,32 @@ function LoaiNhaCungCap({ match, history, permission }) {
       dataIndex: "maLoaiNhaCungCap",
       key: "maLoaiNhaCungCap",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maLoaiNhaCungCap,
+            value: d.maLoaiNhaCungCap,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maLoaiNhaCungCap.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên loại nhà cung cấp",
       dataIndex: "tenLoaiNhaCungCap",
       key: "tenLoaiNhaCungCap",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenLoaiNhaCungCap,
+            value: d.tenLoaiNhaCungCap,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenLoaiNhaCungCap.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",
@@ -177,9 +203,6 @@ function LoaiNhaCungCap({ match, history, permission }) {
       render: (value) => actionContent(value),
     },
   ];
-  const { totalRow, totalPages, pageSize } = data;
-
-  let dataList = reDataForTable(data.datalist, page, pageSize);
 
   /**
    * Tìm kiếm người dùng

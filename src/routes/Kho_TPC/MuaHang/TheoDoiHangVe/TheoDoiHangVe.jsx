@@ -24,6 +24,7 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -132,10 +133,7 @@ function TheoDoiHangVe({ match, history, permission }) {
 
   const { totalRow, pageSize } = data;
 
-  let dataList = reDataForTable(
-    data
-    // page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  let dataList = reDataForTable(data);
 
   let renderHead = [
     {
@@ -153,6 +151,16 @@ function TheoDoiHangVe({ match, history, permission }) {
       align: "center",
       width: 180,
       fixed: "left",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenVatTu,
+            value: d.tenVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Nhóm vật tư",
@@ -160,6 +168,16 @@ function TheoDoiHangVe({ match, history, permission }) {
       key: "tenNhomVatTu",
       align: "center",
       width: 120,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNhomVatTu,
+            value: d.tenNhomVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNhomVatTu.includes(value),
+      filterSearch: true,
     },
 
     {
@@ -168,6 +186,16 @@ function TheoDoiHangVe({ match, history, permission }) {
       key: "hangMucSuDung",
       align: "center",
       width: 100,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.hangMucSuDung,
+            value: d.hangMucSuDung,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.hangMucSuDung.includes(value),
+      filterSearch: true,
     },
     {
       title: "Ngày dự kiến hoàn thành",
@@ -175,6 +203,16 @@ function TheoDoiHangVe({ match, history, permission }) {
       key: "ngayHoanThanhDuKien",
       align: "center",
       width: 140,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayHoanThanhDuKien,
+            value: d.ngayHoanThanhDuKien,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayHoanThanhDuKien.includes(value),
+      filterSearch: true,
     },
     {
       title: "Ngày xác nhận hàng về",
@@ -182,6 +220,16 @@ function TheoDoiHangVe({ match, history, permission }) {
       key: "ngayXacNhanHangVe",
       align: "center",
       width: 140,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayXacNhanHangVe,
+            value: d.ngayXacNhanHangVe,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayXacNhanHangVe.includes(value),
+      filterSearch: true,
     },
     {
       title: "CV Thu mua",
@@ -189,6 +237,16 @@ function TheoDoiHangVe({ match, history, permission }) {
       key: "userThuMua",
       align: "center",
       width: 180,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.userThuMua,
+            value: d.userThuMua,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.userThuMua.includes(value),
+      filterSearch: true,
     },
     {
       title: "Ngày nhận hàng",
@@ -196,6 +254,16 @@ function TheoDoiHangVe({ match, history, permission }) {
       key: "ngayHangVe",
       align: "center",
       width: 140,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayHangVe,
+            value: d.ngayHangVe,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayHangVe.includes(value),
+      filterSearch: true,
     },
     {
       title: "Đơn vị tính",
@@ -203,6 +271,16 @@ function TheoDoiHangVe({ match, history, permission }) {
       key: "tenDonViTinh",
       align: "center",
       width: 80,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDonViTinh,
+            value: d.tenDonViTinh,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenDonViTinh.includes(value),
+      filterSearch: true,
     },
     {
       title: "SL mua",
@@ -238,6 +316,16 @@ function TheoDoiHangVe({ match, history, permission }) {
       key: "ketQua",
       align: "center",
       width: 100,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ketQua,
+            value: d.ketQua,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ketQua.includes(value),
+      filterSearch: true,
     },
     {
       title: "Ghi chú",

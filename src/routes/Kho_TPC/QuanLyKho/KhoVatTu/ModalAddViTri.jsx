@@ -198,7 +198,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu }) {
   };
   return (
     <AntModal
-      title="Thêm vật tư"
+      title="Thêm vị trí"
       open={openModal}
       width={`80%`}
       closable={true}

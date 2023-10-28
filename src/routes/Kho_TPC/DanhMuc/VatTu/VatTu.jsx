@@ -19,7 +19,11 @@ import {
   Toolbar,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  reDataForTable,
+  removeDuplicates,
+} from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -221,12 +225,32 @@ function VatTu({ match, history, permission }) {
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maVatTu,
+            value: d.maVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenVatTu,
+            value: d.tenVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenVatTu.includes(value),
+      filterSearch: true,
     },
 
     {
@@ -234,48 +258,81 @@ function VatTu({ match, history, permission }) {
       dataIndex: "quyCach",
       key: "quyCach",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.quyCach,
+            value: d.quyCach,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.quyCach.includes(value),
+      filterSearch: true,
     },
     {
       title: "Màu sắc",
       dataIndex: "tenMauSac",
       key: "tenMauSac",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenMauSac,
+            value: d.tenMauSac,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenMauSac.includes(value),
+      filterSearch: true,
     },
     {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDonViTinh,
+            value: d.tenDonViTinh,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenDonViTinh.includes(value),
+      filterSearch: true,
     },
     {
       title: "Đơn vị quy đổi",
       dataIndex: "donViQuyDoi",
       key: "donViQuyDoi",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.donViQuyDoi,
+            value: d.donViQuyDoi,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.donViQuyDoi.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tỉ lệ quy đổi",
       dataIndex: "tiLeQuyDoi",
       key: "tiLeQuyDoi",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tiLeQuyDoi,
+            value: d.tiLeQuyDoi,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tiLeQuyDoi.includes(value),
+      filterSearch: true,
     },
-    // {
-    //   title: "Mã Barcode",
-    //   dataIndex: "id",
-    //   key: "id",
-    //   align: "center",
-    //   render: (value) => (
-    //     <div id="myqrcode">
-    //       <Popover content={value}>
-    //         <QRCode
-    //           value={value}
-    //           bordered={false}
-    //           style={{ width: 50, height: 50 }}
-    //         />
-    //       </Popover>
-    //     </div>
-    //   ),
-    // },
     {
       title: "Chức năng",
       key: "action",

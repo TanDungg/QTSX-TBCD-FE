@@ -36,6 +36,7 @@ import {
 } from "src/util/Common";
 import AddVatTuModal from "./AddVatTuModal";
 import ModalTuChoi from "./ModalTuChoi";
+import dayjs from "dayjs";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -915,7 +916,9 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   const handleSelectSanPham = (val) => {
     getListVatTu(Xuong, val);
   };
-
+  const disabledDate = (current) => {
+    return current && current < dayjs().startOf("day");
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -1115,6 +1118,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                   >
                     <DatePicker
                       format={"DD/MM/YYYY"}
+                      disabledDate={disabledDate}
                       allowClear={false}
                       onChange={(date, dateString) => {
                         getListSanPham(Xuong, dateString);

@@ -18,6 +18,7 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -218,24 +219,64 @@ function ThanhLyThanhPham({ match, history, permission }) {
       key: "maPhieuThanhLy",
       align: "center",
       render: (val) => renderDetail(val),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maPhieuThanhLy,
+            value: d.maPhieuThanhLy,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maPhieuThanhLy.includes(value),
+      filterSearch: true,
     },
     {
       title: "Kho thanh lý",
       dataIndex: "tenKhoThanhLy",
       key: "tenKhoThanhLy",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenKhoThanhLy,
+            value: d.tenKhoThanhLy,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenKhoThanhLy.includes(value),
+      filterSearch: true,
     },
     {
       title: "Ngày yêu cầu",
       dataIndex: "ngayYeuCau",
       key: "ngayYeuCau",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayYeuCau,
+            value: d.ngayYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayYeuCau.includes(value),
+      filterSearch: true,
     },
     {
       title: "Người lập",
       dataIndex: "nguoiLapPhieu",
       key: "nguoiLapPhieu",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.nguoiLapPhieu,
+            value: d.nguoiLapPhieu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.nguoiLapPhieu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",

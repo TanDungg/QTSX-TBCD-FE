@@ -15,6 +15,7 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataSelectedTable,
+  removeDuplicates,
   treeToFlatlist,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -156,7 +157,8 @@ function LoaiSanPham({ history, permission }) {
       </Button>
     );
   };
-
+  let dataList = treeToFlatlist(data);
+  dataList = reDataSelectedTable(dataList);
   let renderHead = [
     {
       title: "STT",
@@ -171,13 +173,32 @@ function LoaiSanPham({ history, permission }) {
       key: "maLoaiSanPham",
       align: "center",
       render: (value, record) => renderTenLoaiSanPham(value, record),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maLoaiSanPham,
+            value: d.maLoaiSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maLoaiSanPham.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên loại sản phẩm",
       dataIndex: "tenLoaiSanPham",
       key: "tenLoaiSanPham",
       align: "center",
-      // render: (icon, record) => renderIcon(icon, record),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenLoaiSanPham,
+            value: d.tenLoaiSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenLoaiSanPham.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",
@@ -187,8 +208,7 @@ function LoaiSanPham({ history, permission }) {
       render: (value) => actionContent(value),
     },
   ];
-  let dataList = treeToFlatlist(data);
-  dataList = reDataSelectedTable(dataList);
+
   /**
    * Tìm kiếm người dùng
    *
