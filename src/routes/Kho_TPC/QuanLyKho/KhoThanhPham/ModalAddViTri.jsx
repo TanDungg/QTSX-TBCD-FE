@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams } from "src/util/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import { Select } from "src/components/Common";
+import { FormSubmit, Select } from "src/components/Common";
 import Helpers from "src/helpers";
 
 const FormItem = Form.Item;
@@ -19,7 +19,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
 
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { resetFields, setFieldsValue } = form;
+  const { resetFields, setFieldsValue, getFieldValue } = form;
 
   useEffect(() => {
     if (openModal) {
@@ -46,7 +46,11 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
       ]);
     }
   }, [openModal]);
-
+  useEffect(() => {
+    if (sanPham && sanPham.ke_Id === getFieldValue("sanPham").ke_Id) {
+      setFieldTouch(false);
+    }
+  }, [fieldTouch]);
   const getKe = (cauTrucKho_Id) => {
     const params = convertObjectToUrlParams({ cauTrucKho_Id });
     new Promise((resolve, reject) => {
@@ -64,7 +68,15 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListKe(res.data);
+          const newData = res.data.map((k) => {
+            return {
+              ...k,
+              ke: `${k.tenCTKho} - (Sức chứa: ${k.sucChua}) - (Đang chứa: ${
+                k.soLuongDangChua
+              }) - ${k.sucChua === k.soLuongDangChua ? "Đầy" : "Chưa đầy"}`,
+            };
+          });
+          setListKe(newData);
         } else {
           setListKe([]);
         }
@@ -116,22 +128,35 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
   };
   const handleSelectKe = (val) => {
     ListKe.forEach((k) => {
-      if (k.id === val && k.sucChua - k.soLuongDangChua === 0) {
-        Helpers.alertWarning("Kệ đã đầy");
+      if (val === sanPham.ke_Id && k.id === val) {
+        setFieldTouch(false);
+        setDisableKe(true);
+        setFieldsValue({
+          sanPham: {
+            ke_Id: val,
+            soLuong: k.soLuongDangChua,
+          },
+        });
+      } else if (k.id === val && k.sucChua - k.soLuongDangChua === 0) {
+        Helpers.alertWarning(`Kệ ${k.tenCTKho} đã đầy`);
         setDisableKe(true);
         setFieldTouch(false);
         setFieldsValue({
           sanPham: {
-            ke_Id: null,
-            soLuong: null,
+            ke_Id: sanPham.ke_Id ? sanPham.ke_Id : null,
+            soLuong: k.soLuongDangChua > 0 ? k.soLuongDangChua : null,
           },
         });
       } else if (k.id === val && k.sucChua - k.soLuongDangChua !== 0) {
         setSucChua(k.sucChua - k.soLuongDangChua);
         setDisableKe(false);
+        setFieldTouch(true);
         setFieldsValue({
           sanPham: {
-            soLuong: sanPham.soLuong >= k.sucChua ? k.sucChua : sanPham.soLuong,
+            soLuong:
+              sanPham.soLuong > k.sucChua - k.soLuongDangChua
+                ? k.sucChua - k.soLuongDangChua
+                : sanPham.soLuong,
           },
         });
       }
@@ -141,8 +166,12 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
     if (value && Number(value) > SucChua) {
       return Promise.reject(
         new Error(
-          `Số phải nhỏ hơn hoặc bằng sức chứa của kệ (Sức chứa: ${SucChua})`
+          `Số phải nhỏ hơn hoặc bằng só lượng có thể chứa của kệ ${SucChua}`
         )
+      );
+    } else if (value && Number(value) > sanPham && sanPham.soLuong) {
+      return Promise.reject(
+        new Error(`Số lượng sản phẩm lớn hơn hiện có ${sanPham.soLuong}`)
       );
     }
     return Promise.resolve();
@@ -196,7 +225,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
               className="heading-select slt-search th-select-heading"
               data={ListKe ? ListKe : []}
               placeholder="Chọn kệ"
-              optionsvalue={["id", "tenCTKho"]}
+              optionsvalue={["id", "ke"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
@@ -223,17 +252,8 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
               disabled={DisableKe}
             ></Input>
           </FormItem>
-          <Row justify={"center"}>
-            <Button
-              className="th-btn-margin-bottom-0"
-              style={{ marginTop: 10, marginRight: 15 }}
-              type="primary"
-              htmlType="submit"
-              disabled={!fieldTouch}
-            >
-              Lưu
-            </Button>
-          </Row>
+
+          <FormSubmit disabled={fieldTouch} />
         </Form>
       </div>
     </AntModal>

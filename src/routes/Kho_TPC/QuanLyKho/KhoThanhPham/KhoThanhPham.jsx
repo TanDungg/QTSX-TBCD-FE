@@ -421,7 +421,7 @@ function KhoVatTu({ history, permission }) {
             };
           }}
           bordered
-          scroll={{ x: 700, y: "65vh" }}
+          scroll={{ x: 700, y: "60vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
