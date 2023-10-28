@@ -234,7 +234,9 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
   };
 
   const deleteItemAction = (item) => {
-    const newData = ListVatTu.filter((d) => d.maVatTu !== item.maVatTu);
+    const newData = ListVatTu.filter(
+      (d) => d.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
+    );
     setListVatTu(newData);
     setFieldTouch(true);
   };
@@ -325,6 +327,12 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
+      align: "center",
+    },
+    {
+      title: "Ngày nhập kho",
+      dataIndex: "ngayNhan",
+      key: "ngayNhan",
       align: "center",
     },
     {

@@ -400,7 +400,7 @@ function ThanhLyVatTu({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 700, y: "54vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
