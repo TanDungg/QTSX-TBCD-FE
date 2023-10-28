@@ -414,6 +414,12 @@ const KiemKeForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
+      title: "Đơn vị tính",
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
+      align: "center",
+    },
+    {
       title: "SL trong kho",
       dataIndex: "soLuong",
       key: "soLuong",
@@ -426,10 +432,33 @@ const KiemKeForm = ({ history, match, permission }) => {
       render: (record) => renderSoLuongKiemKe(record),
     },
     {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
-      align: "center",
+      title: `Chênh lệch`,
+      children: [
+        {
+          title: "Thừa",
+          key: `thua`,
+          align: "center",
+          render: (val) => (
+            <span>
+              {val.soLuong - val.soLuongKiemKe < 0
+                ? Math.abs(val.soLuong - val.soLuongKiemKe)
+                : 0}
+            </span>
+          ),
+        },
+        {
+          title: "Thiếu",
+          key: `thieu`,
+          align: "center",
+          render: (val) => (
+            <span>
+              {val.soLuong - val.soLuongKiemKe > 0
+                ? val.soLuong - val.soLuongKiemKe
+                : 0}
+            </span>
+          ),
+        },
+      ],
     },
     {
       title: "Chức năng",
@@ -713,7 +742,7 @@ const KiemKeForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Ban/Phòng"
+                label="Xưởng"
                 name={["kiemkeform", "phongBan_Id"]}
                 rules={[
                   {

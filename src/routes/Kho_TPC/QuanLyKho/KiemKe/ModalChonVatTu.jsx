@@ -201,8 +201,6 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     setVatTu([]);
     openModalFS(false);
   };
-
-  console.log(VatTu);
   return (
     <AntModal
       title={`Chọn vật tư kiểm kê`}
@@ -242,7 +240,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
               <Select
                 className="heading-select slt-search th-select-heading"
                 data={ListVatTuKho ? ListVatTuKho : []}
-                placeholder="Chọn vật tư điều chuyển"
+                placeholder="Chọn vật tư"
                 optionsvalue={["vatTu_Id", "vatTu"]}
                 style={{ width: "calc(100% - 100px)" }}
                 optionFilterProp={"name"}

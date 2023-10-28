@@ -34,7 +34,25 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
   const [HangTrung, setHangTrung] = useState([]);
   const [DataLoi, setDataLoi] = useState();
   const [message, setMessageError] = useState([]);
-
+  const renderLoi = (val) => {
+    let check = false;
+    let messageLoi = "";
+    if (DataLoi && DataLoi.length > 0) {
+      DataLoi.forEach((dt) => {
+        if (dt.maSanPham === val) {
+          check = true;
+          messageLoi = dt.ghiChuImport;
+        }
+      });
+    }
+    return check ? (
+      <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
+        {val}
+      </Popover>
+    ) : (
+      <span>{val}</span>
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -48,6 +66,7 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
       dataIndex: "maSanPham",
       key: "maSanPham",
       align: "center",
+      render: (val) => renderLoi(val),
     },
     {
       title: "Tên sản phẩm",
@@ -130,6 +149,10 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
       const worksheet = workbook.Sheets["Sản phẩm"];
 
       const checkMau =
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -137,6 +160,10 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "STT" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -144,6 +171,10 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Mã sản phẩm" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -151,6 +182,10 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Tên sản phẩm" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -158,6 +193,10 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Mã loại sản phẩm" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -165,6 +204,10 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Kích thước" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -172,6 +215,10 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Mã màu sắc" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -370,8 +417,14 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
       setCheckDanger(true);
       setMessageError("Mã đơn vị tính không được rỗng");
       return "red-row";
-    } else if (DataLoi) {
-      if (current.maSanPham.toString() === DataLoi.maSanPham) {
+    } else if (DataLoi && DataLoi.length > 0) {
+      let check = false;
+      DataLoi.forEach((dt) => {
+        if (current.maSanPham.toString() === dt.maSanPham.toString()) {
+          check = true;
+        }
+      });
+      if (check) {
         setCheckDanger(true);
         return "red-row";
       }

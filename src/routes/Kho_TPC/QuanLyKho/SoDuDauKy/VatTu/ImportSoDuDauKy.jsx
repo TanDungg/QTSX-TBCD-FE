@@ -32,7 +32,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
   const [HangTrung, setHangTrung] = useState([]);
-  const [DataLoi, setDataLoi] = useState();
+  const [DataLoi, setDataLoi] = useState([]);
   const [message, setMessageError] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [Disable, setDisable] = useState(true);
@@ -68,6 +68,25 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
       })
       .catch((error) => console.error(error));
   };
+  const renderMaVatTu = (val) => {
+    let check = false;
+    let messageLoi = "";
+    if (DataLoi && DataLoi.length > 0) {
+      DataLoi.forEach((dt) => {
+        if (dt.maVatTu === val) {
+          check = true;
+          messageLoi = dt.ghiChuImport;
+        }
+      });
+    }
+    return check ? (
+      <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
+        {val}
+      </Popover>
+    ) : (
+      <span>{val}</span>
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -81,6 +100,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
+      render: (val) => renderMaVatTu(val),
     },
     {
       title: "Tên vật tư/Tên sản phẩm",
@@ -158,6 +178,10 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
       const worksheet = workbook.Sheets["Số dư đầu kì"];
 
       const checkMau =
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -165,20 +189,32 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "STT" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã vật tư/Mã sản phẩm" &&
+          .trim() === "Mã sản phẩm/Mã vật tư" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Tên vật tư/Tên sản phẩm" &&
+          .trim() === "Tên sản phẩm/ Tên vật tư" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -186,6 +222,10 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Mã màu sắc" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -193,6 +233,10 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "Số lượng" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -204,8 +248,8 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
           range: 2,
         });
-        const TVT = "Mã vật tư/Mã sản phẩm";
-        const MVT = "Tên vật tư/Tên sản phẩm";
+        const TVT = "Mã sản phẩm/Mã vật tư";
+        const MVT = "Tên sản phẩm/ Tên vật tư";
         const MMS = "Mã màu sắc";
         const SL = "Số lượng";
         const TGSD = "Thời gian sử dụng";
@@ -327,7 +371,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
     }).then((res) => {
       if (res.status === 409) {
         setDataLoi(res.data);
-        setMessageError(res.data.ghiChuImport);
+        setMessageError("Import không thành công");
       } else {
         setFileName(null);
         setDataView([]);
@@ -367,8 +411,14 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
       setCheckDanger(true);
       setMessageError("Số lượng không được rỗng");
       return "red-row";
-    } else if (DataLoi) {
-      if (current.maVatTu.toString() === DataLoi.maVatTu) {
+    } else if (DataLoi && DataLoi.length > 0) {
+      let check = false;
+      DataLoi.forEach((dt) => {
+        if (current.maVatTu.toString() === dt.maVatTu.toString()) {
+          check = true;
+        }
+      });
+      if (check) {
         setCheckDanger(true);
         return "red-row";
       }
