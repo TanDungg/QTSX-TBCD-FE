@@ -484,7 +484,7 @@ const VatTuForm = ({ history, match, permission }) => {
           };
         } else {
           Helpers.alertError(
-            "Số lượng xuất không được lớn hơn số lượng yêu cầu"
+            `Số lượng xuất không được lớn hơn ${listvattu.soLuong}`
           );
         }
       }
@@ -495,7 +495,6 @@ const VatTuForm = ({ history, match, permission }) => {
   };
 
   const renderLstViTri = (record) => {
-    console.log(record);
     return (
       <div>
         {record.chiTiet_LuuVatTus.length > 0 ? (
@@ -748,7 +747,7 @@ const VatTuForm = ({ history, match, permission }) => {
       })
         .then((res) => {
           if (res.status !== 409) {
-            if (saveQuit || type === "taophieuxuat") {
+            if (saveQuit) {
               goBack();
             } else {
               resetFields();
