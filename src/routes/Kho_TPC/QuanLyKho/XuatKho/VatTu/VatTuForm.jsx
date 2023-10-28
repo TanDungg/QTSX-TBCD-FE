@@ -569,12 +569,14 @@ const VatTuForm = ({ history, match, permission }) => {
   };
 
   const renderListKho = (record) => {
-    const ListKho = record.lst_kho.map((data) => {
-      return {
-        ...data,
-        id: data.cauTrucKho_Id.toLowerCase(),
-      };
-    });
+    const ListKho =
+      record.lst_kho &&
+      record.lst_kho.map((data) => {
+        return {
+          ...data,
+          id: data.cauTrucKho_Id.toLowerCase(),
+        };
+      });
     if (record) {
       return (
         <div>

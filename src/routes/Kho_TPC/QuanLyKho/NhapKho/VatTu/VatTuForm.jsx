@@ -390,9 +390,19 @@ const VatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListVatTu(
-            res.data.chiTietVatTu ? JSON.parse(res.data.chiTietVatTu) : []
-          );
+          const newData =
+            res.data.chiTietVatTu &&
+            JSON.parse(res.data.chiTietVatTu).map((data) => {
+              return {
+                ...data,
+                thoiGianSuDung: data.thoiGianSuDung
+                  ? data.thoiGianSuDung
+                  : null,
+              };
+            });
+          console.log(newData);
+
+          setListVatTu(newData ? newData : []);
           getUserLap(INFO, res.data.userNhan_Id);
           getUserKy(INFO);
           setInfo(res.data);
@@ -402,8 +412,12 @@ const VatTuForm = ({ history, match, permission }) => {
           setFieldsValue({
             phieunhapkho: {
               ...res.data,
-              ngayNhan: moment(res.data.ngayNhan, "DD/MM/YYYY"),
-              ngayHoaDon: moment(res.data.ngayHoaDon, "DD/MM/YYYY"),
+              ngayNhan: res.data.ngayNhan
+                ? moment(res.data.ngayNhan, "DD/MM/YYYY")
+                : null,
+              ngayHoaDon: res.data.ngayHoaDon
+                ? moment(res.data.ngayHoaDon, "DD/MM/YYYY")
+                : null,
             },
           });
         }
@@ -473,12 +487,11 @@ const VatTuForm = ({ history, match, permission }) => {
     );
   };
   const renderDatePicker = (val, record) => {
-    console.log(record);
     return (
       <DatePicker
         format={"DD/MM/YYYY"}
         disabled={type === "new" || type === "edit" ? false : true}
-        value={moment(val, "DD/MM/YYYY")}
+        value={val ? moment(val, "DD/MM/YYYY") : null}
         allowClear={false}
         onChange={(date, dateString) => {
           const newVatTu = [...listVatTu];

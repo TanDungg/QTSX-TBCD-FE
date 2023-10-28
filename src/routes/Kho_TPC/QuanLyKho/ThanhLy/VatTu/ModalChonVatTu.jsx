@@ -68,6 +68,8 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             return true;
           }
         });
+        console.log(newData);
+
         setListViTriKhoAdd(newData);
       } else {
         setListViTriKhoAdd([]);
@@ -143,6 +145,12 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       align: "center",
     },
     {
+      title: "Ngày nhập kho",
+      dataIndex: "ngayNhan",
+      key: "ngayNhan",
+      align: "center",
+    },
+    {
       title: "Tên kệ",
       dataIndex: "tenKe",
       key: "tenKe",
@@ -206,6 +214,12 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       (data) => data.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
     );
     setListVatTu(newData);
+
+    const newDataListVatTu = ListVatTu.filter(
+      (data) => data.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id
+    );
+    console.log(newDataListVatTu);
+    setListViTriKhoAdd([...ListViTriKhoAdd, ...newDataListVatTu]);
   };
 
   let colListVatTu = [
@@ -226,6 +240,12 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
+      align: "center",
+    },
+    {
+      title: "Ngày nhập kho",
+      dataIndex: "ngayNhan",
+      key: "ngayNhan",
       align: "center",
     },
     {

@@ -325,13 +325,14 @@ function SoSanhDinhMuc({ permission, history, match }) {
     setDenNgay(dateString[1]);
     setSanPham(null);
     getListSanPham(PhongBan, dateString[0], dateString[1]);
+    getListData(PhongBan, null, dateString[0], dateString[1]);
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Báo cáo thanh lý"}
-        description="Báo cáo thanh lý"
+        title={"Báo cáo so sánh định mức"}
+        description="Báo cáo so sánh định mức"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
