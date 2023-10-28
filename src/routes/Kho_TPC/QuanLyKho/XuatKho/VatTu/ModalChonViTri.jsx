@@ -21,11 +21,13 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
     if (openModal) {
       getListViTriKho(itemData.kho_Id, itemData.vatTu_Id);
       if (itemData.isCheck === true) {
-        setSelectedViTri(itemData.chiTiet_LuuVatTus);
+        setSelectedViTri(
+          itemData.chiTiet_LuuVatTus && itemData.chiTiet_LuuVatTus
+        );
         const lstKey =
           itemData.chiTiet_LuuVatTus &&
           itemData.chiTiet_LuuVatTus.map((data) => data.key);
-        setSelectedKeys(lstKey);
+        setSelectedKeys(lstKey && lstKey);
       }
     }
     return () => {
