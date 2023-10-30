@@ -28236,7 +28236,7 @@ a.gx-btn-outline-orange:disabled {
 }
 /*Base Styles*/
 body {
-  overflow: hidden;
+  overflow: auto;
   -webkit-transition: all 0.3s ease-out;
   -moz-transition: all 0.3s ease-out;
   -ms-transition: all 0.3s ease-out;
@@ -43275,3 +43275,15 @@ textarea.gx-chat-textarea {
   box-shadow: 3px 3px 7px rgba(0, 0, 0, 0.07);
    transform: none;
 } */
+
+.inMa-BarCode{
+  border: 1px solid #333;
+  margin: 12px;
+  margin-left: 5px;
+  margin-bottom: 20px;
+  text-align: center;
+  /* page-break-after: always; */
+}
+.inMa-BarCode:last-child {
+  /* page-break-after: auto; */
+}

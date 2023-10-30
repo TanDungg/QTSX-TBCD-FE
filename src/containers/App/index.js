@@ -41,7 +41,11 @@ import {
   NAV_STYLE_INSIDE_HEADER_HORIZONTAL,
   THEME_TYPE_DARK,
 } from "src/constants/ThemeSetting";
-import { getSessionStorage, getTokenInfo } from "src/util/Common";
+import {
+  getSessionStorage,
+  getTokenInfo,
+  setSessionStorage,
+} from "src/util/Common";
 
 import { messaging } from "src/constants/firebase";
 // import { onMessage } from "firebase/messaging";
@@ -104,9 +108,15 @@ const App = () => {
     link.type = "text/css";
     link.rel = "stylesheet";
     link.href = `/css/${themeColor}.css`; //This line is changed, this comment is for explaination purpose.
-
     link.className = "gx-style";
     document.body.appendChild(link);
+    if (
+      location.pathname === "/in-barcode-kho-tpc/vat-tu/inMa" ||
+      location.pathname === "/in-barcode-kho-tpc/ke/inMa" ||
+      location.pathname === "/in-barcode-kho-tpc/cau-truc-kho/inMa"
+    ) {
+      setSessionStorage("tokenInfo", true);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   async function requestPermission() {
@@ -224,7 +234,6 @@ const App = () => {
 
   useEffect(() => {
     if (themeType === THEME_TYPE_DARK) {
-      console.log("adding dark class");
       document.body.classList.add("dark-theme");
       document.body.classList.add("dark-theme");
       let link = document.createElement("link");
@@ -273,11 +282,6 @@ const App = () => {
           <Route exact path="/signin" component={SignIn} />
           <Route
             exact
-            path="/danh-muc-kho-tpc/vat-tu/inMa"
-            component={InMaQrVatTu}
-          />
-          <Route
-            exact
             path="/in-barcode-kho-tpc/ke/inMa"
             component={InMaQrCauTrucKho}
           />
@@ -285,11 +289,6 @@ const App = () => {
             exact
             path="/in-barcode-kho-tpc/cau-truc-kho/inMa"
             component={InMaQrCauTrucKho}
-          />
-          <Route
-            exact
-            path="/quan-ly-kho-tpc/thong-tin-vat-tu/inMa"
-            component={InMaQrTTVatTu}
           />
           <Route
             exact

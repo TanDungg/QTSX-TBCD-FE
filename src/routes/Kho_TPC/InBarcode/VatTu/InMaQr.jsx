@@ -1,16 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Row, Col } from "antd";
 import QRCode from "qrcode.react";
-import { useLocation, useHistory } from "react-router-dom";
+import { useHistory } from "react-router-dom";
+import { getLocalStorage } from "src/util/Common";
 
 function InMaQr() {
-  const location = useLocation();
   let history = useHistory();
+  const data = getLocalStorage("inMa");
   const [listVatTu, setListVatTu] = useState([]);
   useEffect(() => {
-    if (location.state && location.state.VatTu) {
-      setListVatTu(location.state.VatTu);
+    if (data && data.length > 0) {
+      setListVatTu(data);
     } else {
+      setListVatTu([]);
       history.push("/home");
     }
   }, []);
