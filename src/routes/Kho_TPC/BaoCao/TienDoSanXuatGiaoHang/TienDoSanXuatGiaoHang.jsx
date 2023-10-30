@@ -4,7 +4,7 @@ import { map, isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { reDataForTable } from "src/util/Common";
+import { exportExcel, reDataForTable } from "src/util/Common";
 import {
   EditableTableRow,
   Table,
@@ -122,6 +122,7 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
         if (res && res.data) {
           setListLoaiKeHoach(res.data);
           setLoaiKeHoach(res.data[0].id);
+          setTenKeHoach(res.data[0].tenLoaiKeHoach);
         } else {
           setListLoaiKeHoach([]);
         }
@@ -301,31 +302,32 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
   });
 
   const XuatExcel = () => {
-    // const newData = {
-    //   ctPhieuTonKho: DataXuat,
-    // };
-    // new Promise((resolve, reject) => {
-    //   dispatch(
-    //     fetchStart(
-    //       `lkn_BaoCao/export-file-excel-ton-kho`,
-    //       "POST",
-    //       newData,
-    //       "",
-    //       "",
-    //       resolve,
-    //       reject
-    //     )
-    //   );
-    // }).then((res) => {
-    //   exportExcel(
-    //     `BaoCao${
-    //       TenKeHoach === "Kế hoạch sản xuất"
-    //         ? "KeHoachSanXuat"
-    //         : "KeHoachGiaoHang"
-    //     }`,
-    //     res.data.dataexcel
-    //   );
-    // });
+    const newData = {
+      loaiKeHoach_Id: LoaiKeHoach,
+      list_ChiTiets: DataXuat,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_BaoCao/export-file-excel-tien-do-sx-gh`,
+          "POST",
+          newData,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      exportExcel(
+        `BaoCao${
+          TenKeHoach === "Kế hoạch sản xuất"
+            ? "KeHoachSanXuat"
+            : "KeHoachGiaoHang"
+        }`,
+        res.data.dataexcel
+      );
+    });
   };
 
   const addButtonRender = () => {

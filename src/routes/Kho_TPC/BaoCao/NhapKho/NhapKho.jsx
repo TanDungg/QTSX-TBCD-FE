@@ -428,21 +428,21 @@ function NhapKho({ permission, history, match }) {
   const handleTaoPhieu = () => {
     history.push(`${match.url}/them-moi`);
   };
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<DownloadOutlined />}
-          className="th-btn-margin-bottom-0"
-          type="primary"
-          onClick={handleTaoPhieu}
-          disabled={permission && !permission.add}
-        >
-          Xuất excel
-        </Button>
-      </>
-    );
-  };
+  // const addButtonRender = () => {
+  //   return (
+  //     <>
+  //       <Button
+  //         icon={<DownloadOutlined />}
+  //         className="th-btn-margin-bottom-0"
+  //         type="primary"
+  //         onClick={handleTaoPhieu}
+  //         disabled={permission && !permission.add}
+  //       >
+  //         Xuất excel
+  //       </Button>
+  //     </>
+  //   );
+  // };
 
   const handleOnSelectLoai = (value) => {
     setLoai(value);
@@ -563,7 +563,7 @@ function NhapKho({ permission, history, match }) {
       <ContainerHeader
         title={"Báo cáo nhập kho"}
         description="Báo cáo nhập kho"
-        buttons={addButtonRender()}
+        // buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ marginBottom: 10 }}>
@@ -745,7 +745,7 @@ function NhapKho({ permission, history, match }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 900, y: "55vh" }}
+          scroll={{ x: 900, y: "45vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}

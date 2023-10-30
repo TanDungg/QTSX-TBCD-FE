@@ -35,6 +35,7 @@ import {
 } from "src/util/Common";
 import ModalChonVatTu from "./ModalChonVatTu";
 import ModalTuChoi from "./ModalTuChoi";
+import dayjs from "dayjs";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -63,10 +64,14 @@ const KiemKeForm = ({ history, match, permission }) => {
       if (includes(match.url, "them-moi")) {
         getData();
         if (permission && permission.add) {
+          const datetime = moment();
           setType("new");
           setFieldsValue({
             kiemkeform: {
-              ngayKiemKe: moment(getDateNow(), "DD/MM/YYYY"),
+              ngayKiemKe: moment(
+                datetime.format("DD/MM/YYYY HH:mm"),
+                "DD/MM/YYYY HH:mm"
+              ),
             },
           });
         } else if (permission && !permission.add) {
@@ -254,7 +259,7 @@ const KiemKeForm = ({ history, match, permission }) => {
           setXuong(res.data.phongBan_Id);
           setFieldsValue({
             kiemkeform: {
-              ngayKiemKe: moment(res.data.ngayKiemKe, "DD/MM/YYYY"),
+              ngayKiemKe: moment(res.data.ngayKiemKe, "DD/MM/YYYY HH:mm"),
               phongBan_Id: res.data.phongBan_Id,
               userDuyet2_Id: res.data.userDuyet2_Id,
               userDuyet3_Id: res.data.userDuyet3_Id,
@@ -518,7 +523,7 @@ const KiemKeForm = ({ history, match, permission }) => {
       } else {
         const newData = {
           ...data,
-          ngayKiemKe: data.ngayKiemKe.format("DD/MM/YYYY"),
+          ngayKiemKe: data.ngayKiemKe.format("DD/MM/YYYY HH:mm"),
           chiTiet_PhieuKiemKes: ListVatTu,
         };
         new Promise((resolve, reject) => {
@@ -656,6 +661,10 @@ const KiemKeForm = ({ history, match, permission }) => {
     setListVatTu([]);
   };
 
+  const disabledDate = (current) => {
+    return current && current < dayjs().startOf("day");
+  };
+
   const formTitle =
     type === "new" ? (
       "Tạo phiếu kiểm kê vật tư"
@@ -783,9 +792,11 @@ const KiemKeForm = ({ history, match, permission }) => {
                 ]}
               >
                 <DatePicker
-                  format={"DD/MM/YYYY"}
+                  disabledDate={disabledDate}
+                  showTime
+                  format={"DD/MM/YYYY HH:mm"}
                   allowClear={false}
-                  disabled={true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>

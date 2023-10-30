@@ -324,7 +324,10 @@ function ThanhLy({ permission, history, match }) {
         )
       );
     }).then((res) => {
-      exportExcel("BaoCaoThanhLy", res.data.dataexcel);
+      exportExcel(
+        `BaoCaoThanhLy${Loai === "sanpham" ? "ThanhPham" : "VatTu"}`,
+        res.data.dataexcel
+      );
     });
   };
 

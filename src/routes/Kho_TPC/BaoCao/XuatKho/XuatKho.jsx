@@ -425,21 +425,21 @@ function XuatKho({ permission, history, match }) {
   const handleTaoPhieu = () => {
     history.push(`${match.url}/them-moi`);
   };
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<DownloadOutlined />}
-          className="th-btn-margin-bottom-0"
-          type="primary"
-          onClick={handleTaoPhieu}
-          disabled={permission && !permission.add}
-        >
-          Xuất excel
-        </Button>
-      </>
-    );
-  };
+  // const addButtonRender = () => {
+  //   return (
+  //     <>
+  //       <Button
+  //         icon={<DownloadOutlined />}
+  //         className="th-btn-margin-bottom-0"
+  //         type="primary"
+  //         onClick={handleTaoPhieu}
+  //         disabled={permission && !permission.add}
+  //       >
+  //         Xuất excel
+  //       </Button>
+  //     </>
+  //   );
+  // };
 
   const handleOnSelectLoai = (value) => {
     setLoai(value);
@@ -560,7 +560,7 @@ function XuatKho({ permission, history, match }) {
       <ContainerHeader
         title={"Báo cáo xuất kho"}
         description="Báo cáo xuất kho"
-        buttons={addButtonRender()}
+        // buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ marginBottom: 10 }}>

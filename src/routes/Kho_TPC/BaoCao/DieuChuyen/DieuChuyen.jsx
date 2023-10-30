@@ -388,7 +388,10 @@ function DieuChuyen({ permission, history, match }) {
         )
       );
     }).then((res) => {
-      exportExcel("BaoCaoDieuChuyen", res.data.dataexcel);
+      exportExcel(
+        `BaoCaoDieuChuyen${Loai === "sanpham" ? "ThanhPham" : "VatTu"}`,
+        res.data.dataexcel
+      );
     });
   };
 
