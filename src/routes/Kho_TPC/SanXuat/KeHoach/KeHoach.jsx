@@ -53,6 +53,7 @@ function KeHoach({ match, history, permission }) {
       getVersion(KeHoach, Xuong, Thang, Nam);
     }
   }, [KeHoach, Xuong]);
+
   const refeshData = () => {
     getVersion(KeHoach, Xuong, Thang, Nam);
   };

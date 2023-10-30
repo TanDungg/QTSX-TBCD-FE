@@ -103,7 +103,6 @@ function SoSanhDinhMuc({ permission, history, match }) {
         setListPhongBan(xuong);
         setPhongBan(xuong[0].id);
         getListSanPham(xuong[0].id, TuNgay, DenNgay);
-        getListData(xuong[0].id, null, TuNgay, DenNgay);
       } else {
         setListPhongBan([]);
       }
@@ -130,10 +129,13 @@ function SoSanhDinhMuc({ permission, history, match }) {
       );
     })
       .then((res) => {
-        if (res && res.data) {
+        if (res.data.length !== 0) {
           setListSanPham(res.data);
+          setSanPham(res.data[0].id);
+          getListData(PhongBan_Id, res.data[0].id, TuNgay, DenNgay);
         } else {
           setListSanPham([]);
+          getListData(PhongBan_Id, null, TuNgay, DenNgay);
         }
       })
       .catch((error) => console.error(error));
@@ -312,7 +314,6 @@ function SoSanhDinhMuc({ permission, history, match }) {
     setPhongBan(value);
     setSanPham(null);
     getListSanPham(value, TuNgay, DenNgay);
-    getListData(value, null, TuNgay, DenNgay);
   };
 
   const handleOnSelectSanPham = (value) => {
@@ -325,7 +326,6 @@ function SoSanhDinhMuc({ permission, history, match }) {
     setDenNgay(dateString[1]);
     setSanPham(null);
     getListSanPham(PhongBan, dateString[0], dateString[1]);
-    getListData(PhongBan, null, dateString[0], dateString[1]);
   };
 
   return (

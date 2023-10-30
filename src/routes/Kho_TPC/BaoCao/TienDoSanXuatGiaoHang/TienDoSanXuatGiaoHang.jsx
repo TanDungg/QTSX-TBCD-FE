@@ -1,16 +1,10 @@
 import { DownloadOutlined } from "@ant-design/icons";
-import { Button, Card, Row, Col, DatePicker, Divider } from "antd";
+import { Button, Card, Row, Col } from "antd";
 import { map, isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import {
-  exportExcel,
-  getDateNow,
-  getNamNow,
-  getThangNow,
-  reDataForTable,
-} from "src/util/Common";
+import { reDataForTable } from "src/util/Common";
 import {
   EditableTableRow,
   Table,
@@ -23,9 +17,7 @@ import {
   getTokenInfo,
   getLocalStorage,
 } from "src/util/Common";
-import moment from "moment";
 
-const { RangePicker } = DatePicker;
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function TienDoSanXuatGiaoHang({ permission, history, match }) {
@@ -46,12 +38,17 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
     if (permission && permission.view) {
       getLoaiKeHoach();
       getXuong();
-      getListData(LoaiKeHoach, Xuong, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (LoaiKeHoach !== null && Xuong !== null) {
+      getListData(LoaiKeHoach, Xuong, keyword, page);
+    }
   }, [LoaiKeHoach, Xuong]);
 
   const getListData = (LoaiKeHoach_Id, phongBan_Id, keyword, page) => {
