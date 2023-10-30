@@ -10,14 +10,20 @@ import qs from "querystring";
 import * as FileSaver from "file-saver";
 import * as XLSX from "xlsx";
 import { BASE_URL_API, BASE_URL_APP } from "src/constants/Config";
-//Loại bỏ các đối tượng trung lặp trong mảng
+
+// Loại bỏ các đối tượng trùng lặp và có giá trị null
 export const removeDuplicates = (arr) => {
   const uniqueObjects = [];
   arr.forEach((obj) => {
-    const isDuplicate = uniqueObjects.some((item) => {
-      return item.text === obj.text && item.value === obj.value;
-    });
-    if (!isDuplicate) {
+    const isNull = Object.values(obj).some(
+      (value) => value === "" || value === null || value === undefined
+    );
+    if (
+      !isNull &&
+      !uniqueObjects.some(
+        (item) => item.text === obj.text && item.value === obj.value
+      )
+    ) {
       uniqueObjects.push(obj);
     }
   });
