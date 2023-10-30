@@ -256,7 +256,7 @@ const PhongBanForm = ({ history, match, permission }) => {
           </FormItem>
           <FormItem
             label="Ban/Phòng cha"
-            name={["donvi", "phongBan_Id"]}
+            name={["phongban", "phongBan_Id"]}
             rules={[
               {
                 type: "string",

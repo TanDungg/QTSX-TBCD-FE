@@ -23,6 +23,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 import ImportBoPhan from "./ImportBoPhan";
 import { APP_NAME } from "src/constants/Config";
+import { repeat } from "lodash";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -184,12 +185,16 @@ function BoPhan({ match, permission, history }) {
   };
   let dataList = treeToFlatlist(data);
   dataList = reDataForTable(dataList);
-
+  const renderTenMenu = (value, record) => {
+    let string = repeat("- ", record.level);
+    string = `${string} ${value}`;
+    return <div>{string}</div>;
+  };
   let colValues = [
     {
       title: "STT",
-      dataIndex: "key",
-      key: "key",
+      dataIndex: "stt",
+      key: "stt",
       width: 45,
       align: "center",
     },
@@ -198,6 +203,7 @@ function BoPhan({ match, permission, history }) {
       dataIndex: "maBoPhan",
       key: "maBoPhan",
       align: "center",
+      render: (value, record) => renderTenMenu(value, record),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {

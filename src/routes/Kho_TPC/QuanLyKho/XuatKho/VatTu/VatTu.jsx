@@ -40,7 +40,7 @@ function XuatKhoVatTu({ match, history, permission }) {
   const [page, setPage] = useState(1);
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState(null);
-  const [TuNgay, setTuNgay] = useState(getDateNow(7));
+  const [TuNgay, setTuNgay] = useState(getDateNow(-7));
   const [DenNgay, setDenNgay] = useState(getDateNow());
   const [SelectedDevice, setSelectedDevice] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);

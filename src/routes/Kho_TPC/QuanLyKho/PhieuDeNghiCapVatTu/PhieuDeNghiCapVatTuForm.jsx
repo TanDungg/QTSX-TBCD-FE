@@ -78,7 +78,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
               ? {
                   capvattusanxuat: {
                     ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
-                    ngaySanXuat: moment(getDateNow(-1), "DD/MM/YYYY"),
+                    ngaySanXuat: moment(getDateNow(1), "DD/MM/YYYY"),
                   },
                 }
               : {

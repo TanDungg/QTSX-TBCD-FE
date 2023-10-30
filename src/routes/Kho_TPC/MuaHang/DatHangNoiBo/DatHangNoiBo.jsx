@@ -39,7 +39,7 @@ function DatHangNoiBo({ match, history, permission }) {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [FromDate, setFromDate] = useState(getDateNow(7));
+  const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [SelectedDatHang, setSelectedDatHang] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);

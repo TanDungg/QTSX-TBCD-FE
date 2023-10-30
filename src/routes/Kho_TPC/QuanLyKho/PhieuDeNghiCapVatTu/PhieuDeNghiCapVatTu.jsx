@@ -40,7 +40,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const [page, setPage] = useState(1);
   const [ListPhongBan, setListPhongBan] = useState([]);
   const [PhongBan, setPhongBan] = useState(null);
-  const [TuNgay, setTuNgay] = useState(getDateNow(7));
+  const [TuNgay, setTuNgay] = useState(getDateNow(-7));
   const [DenNgay, setDenNgay] = useState(getDateNow());
   const [SelectedDNCVT, setSelectedDNCVT] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);

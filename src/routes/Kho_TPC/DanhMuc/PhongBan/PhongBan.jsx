@@ -21,6 +21,7 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams, getLocalStorage } from "src/util/Common";
 import ImportPhongBan from "./ImportPhongBan";
+import { repeat } from "lodash";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -179,12 +180,24 @@ function PhongBan({ permission, history }) {
   };
   let dataList = treeToFlatlist(data);
   dataList = reDataForTable(dataList);
-
+  /**
+   * Thêm dấu để phân cấp tiêu đề dựa theo tree (flatlist)
+   *
+   * @param {*} value
+   * @param {*} record
+   * @returns
+   * @memberof ChucNang
+   */
+  const renderTenMenu = (value, record) => {
+    let string = repeat("- ", record.level);
+    string = `${string} ${value}`;
+    return <div>{string}</div>;
+  };
   let colValues = [
     {
       title: "STT",
-      dataIndex: "key",
-      key: "key",
+      dataIndex: "stt",
+      key: "stt",
       width: 45,
       align: "center",
     },
@@ -193,6 +206,7 @@ function PhongBan({ permission, history }) {
       dataIndex: "maPhongBan",
       key: "maPhongBan",
       align: "center",
+      render: (value, record) => renderTenMenu(value, record),
       width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {

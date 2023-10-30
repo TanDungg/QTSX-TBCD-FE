@@ -14,10 +14,12 @@ import {
   TAB_SIZE,
   THEME_TYPE_LITE,
 } from "src/constants/ThemeSetting";
+import { getLocalStorage } from "src/util/Common";
 
 const SidebarLogo = () => {
   const dispatch = useDispatch();
   const { width, themeType } = useSelector(({ settings }) => settings);
+  const MENUINFO = getLocalStorage("menu");
   const { navCollapsed } = useSelector(({ common }) => common).toJS();
   let navStyle = useSelector(({ settings }) => settings.navStyle);
   if (width < TAB_SIZE && navStyle === NAV_STYLE_FIXED) {
@@ -46,7 +48,7 @@ const SidebarLogo = () => {
         </div>
       ) : null}
 
-      <Link to="/home" className="gx-site-logo">
+      <Link to={MENUINFO.Url} className="gx-site-logo">
         {navStyle === NAV_STYLE_NO_HEADER_MINI_SIDEBAR && width >= TAB_SIZE ? (
           <img
             alt="logoIndustries"
