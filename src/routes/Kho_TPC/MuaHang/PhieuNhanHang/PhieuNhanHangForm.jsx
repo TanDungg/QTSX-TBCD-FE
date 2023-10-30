@@ -143,13 +143,11 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
   const [listVatTu, setListVatTu] = useState([]);
   const [ListUserYeuCau, setListUserYeuCau] = useState([]);
   const [ListPhieuMuaHang, setListPhieuMuaHang] = useState([]);
-  const [ListBanPhong, setListBanPhong] = useState([]);
   const [ListCVThuMua, setListCVThuMua] = useState([]);
   const [File, setFile] = useState("");
   const [disableUpload, setDisableUpload] = useState(false);
   const [FileChat, setFileChat] = useState("");
   const [openImage, setOpenImage] = useState(false);
-
   const [editingRecord, setEditingRecord] = useState([]);
 
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
@@ -158,7 +156,6 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
-          getBanPhong(INFO);
           setType("new");
           getCVThuMua(INFO);
           setFieldsValue({
@@ -175,7 +172,6 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getCVThuMua(INFO);
-          getBanPhong(INFO);
           getInfo(id);
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -186,7 +182,6 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getCVThuMua(INFO);
-          getBanPhong(INFO);
           getInfo(id);
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -206,32 +201,6 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const getBanPhong = (info) => {
-    const params = convertObjectToUrlParams({
-      donviid: info.donVi_Id,
-      page: -1,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `PhongBan?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        setListBanPhong(res.data);
-      } else {
-        setListBanPhong([]);
-      }
-    });
-  };
 
   const getCVThuMua = (info) => {
     const params = convertObjectToUrlParams({
@@ -301,6 +270,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       }
     });
   };
+
   const getChiTietPhieuMuaHang = (info, id) => {
     const params = convertObjectToUrlParams({
       donVi_Id: info.donVi_Id,
@@ -706,6 +676,8 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
               resetFields();
               setFieldTouch(false);
               setListVatTu([]);
+              setFile("");
+              setDisableUpload(false);
             }
           } else {
             setFieldTouch(false);

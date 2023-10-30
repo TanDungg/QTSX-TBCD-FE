@@ -407,7 +407,6 @@ const VatTuForm = ({ history, match, permission }) => {
                   : null,
               };
             });
-          console.log(newData);
 
           setListVatTu(newData ? newData : []);
           getUserLap(INFO, res.data.userNhan_Id);
@@ -770,12 +769,13 @@ const VatTuForm = ({ history, match, permission }) => {
         chiTiet_PhieuNhapKhoVatTus: listVatTu.map((vt) => {
           return {
             ...vt,
-            lkn_PhieuNhapKhochiTietPhieuNhanHang_Id: id,
+            lkn_PhieuNhapKhoVatTu_Id: id,
           };
         }),
         ngayHoaDon: nhapkho.ngayHoaDon._i,
         ngayNhan: nhapkho.ngayNhan._i,
       };
+
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(

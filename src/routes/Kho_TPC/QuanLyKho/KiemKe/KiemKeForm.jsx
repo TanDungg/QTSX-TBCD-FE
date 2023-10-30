@@ -785,7 +785,7 @@ const KiemKeForm = ({ history, match, permission }) => {
                 <DatePicker
                   format={"DD/MM/YYYY"}
                   allowClear={false}
-                  disabled={type === "new" ? false : true}
+                  disabled={true}
                 />
               </FormItem>
             </Col>
