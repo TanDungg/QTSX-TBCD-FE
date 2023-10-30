@@ -10,6 +10,7 @@ import {
   convertObjectToUrlParams,
   reDataSelectedTable,
   removeDuplicates,
+  setLocalStorage,
   treeToFlatlist,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -77,10 +78,8 @@ function CauTrucKho({ match, history, permission }) {
   };
 
   const handlePrint = () => {
-    history.push({
-      pathname: `${match.url}/inMa`,
-      state: { CauTrucKho: selectedDevice },
-    });
+    setLocalStorage("inMa", selectedDevice);
+    window.open(`${match.url}/inMa`, "_blank");
   };
   const addButtonRender = () => {
     return (

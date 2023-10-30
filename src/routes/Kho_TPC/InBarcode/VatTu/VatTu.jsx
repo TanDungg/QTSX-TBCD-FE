@@ -3,6 +3,7 @@ import { Card, Button, Row, Col } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { map, find, isEmpty, remove } from "lodash";
+import { Link } from "react-router-dom";
 import {
   Table,
   EditableTableRow,
@@ -16,6 +17,7 @@ import {
   getLocalStorage,
   getTokenInfo,
   removeDuplicates,
+  setLocalStorage,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -105,10 +107,12 @@ function KhoVatTu({ match, history, permission }) {
   };
 
   const handlePrint = () => {
-    history.push({
-      pathname: `${match.url}/inMa`,
-      state: { VatTu: selectedDevice },
-    });
+    // history.push({
+    //   pathname: `${match.url}/inMa`,
+    //   state: { VatTu: selectedDevice },
+    // });
+    setLocalStorage("inMa", selectedDevice);
+    window.open(`${match.url}/inMa`, "_blank");
   };
   const addButtonRender = () => {
     return (
@@ -116,8 +120,8 @@ function KhoVatTu({ match, history, permission }) {
         <Button
           icon={<EditOutlined />}
           className="th-margin-bottom-0"
-          type="primary"
           onClick={handlePrint}
+          type="primary"
           disabled={
             (permission && !permission.add) || selectedDevice.length === 0
           }

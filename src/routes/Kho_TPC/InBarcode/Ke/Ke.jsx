@@ -8,19 +8,15 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, isEmpty, repeat, remove, find } from "lodash";
+import { map, isEmpty, remove, find } from "lodash";
 
-import {
-  ModalDeleteConfirm,
-  Table,
-  EditableTableRow,
-  Toolbar,
-} from "src/components/Common";
+import { Table, EditableTableRow, Toolbar } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
   removeDuplicates,
+  setLocalStorage,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import QRCode from "qrcode.react";
@@ -78,10 +74,8 @@ function Ke({ match, history, permission }) {
   };
 
   const handlePrint = () => {
-    history.push({
-      pathname: `${match.url}/inMa`,
-      state: { Ke: selectedDevice },
-    });
+    setLocalStorage("inMa", selectedDevice);
+    window.open(`${match.url}/inMa`, "_blank");
   };
   const addButtonRender = () => {
     return (
