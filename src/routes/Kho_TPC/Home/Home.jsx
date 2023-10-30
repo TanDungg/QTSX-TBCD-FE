@@ -116,18 +116,17 @@ function Home({ permission, history }) {
         .then((res) => {
           if (res && res.data) {
             const newData = [];
-
             res.data.forEach((x) => {
-              JSON.parse(x.chiTietSanPham).forEach((sp) => {
+              JSON.parse(x.sanPhams).forEach((sp) => {
                 const chiTiet = {};
                 chiTiet.dept = x.tenPhongBan;
                 chiTiet.tenSanPham = sp.tenSanPham;
-                chiTiet.luyKeSX = sp.luyKeSanXuat;
+                chiTiet.luyKeSX = sp.luyKeThucHien;
                 chiTiet.diff = sp.chenhLech;
-                chiTiet.tongKH = sp.keHoachThang;
+                chiTiet.tongKH = sp.tongkeHoach;
                 chiTiet.luyKeKH = sp.luyKeKeHoach;
-                sp.soLuongChiTiet &&
-                  sp.soLuongChiTiet.forEach((ct) => {
+                sp.chiTiets &&
+                  sp.chiTiets.forEach((ct) => {
                     chiTiet[ct.ngay] = ct.soLuong;
                   });
                 newData.push(chiTiet);
@@ -158,7 +157,6 @@ function Home({ permission, history }) {
                   if (firstIndex === -1) {
                     firstIndex = index;
                   }
-
                   lastIndex = index;
                 }
               });
