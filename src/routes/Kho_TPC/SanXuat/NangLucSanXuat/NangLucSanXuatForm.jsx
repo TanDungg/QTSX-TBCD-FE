@@ -27,7 +27,6 @@ const NangLucSanXuatForm = ({ history, match, permission }) => {
   const [ListThietBi, setListThietBi] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const { validateFields, resetFields, setFieldsValue } = form;
-  const [info, setInfo] = useState({});
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
@@ -199,7 +198,6 @@ const NangLucSanXuatForm = ({ history, match, permission }) => {
         if (res && res.data) {
           const data = JSON.parse(res.data.chiTietNLSX)[0];
           getUserLap(INFO, res.data.nguoiLap_Id);
-          setInfo(res.data);
           getSanPham();
           getThietBi();
           setFieldsValue({

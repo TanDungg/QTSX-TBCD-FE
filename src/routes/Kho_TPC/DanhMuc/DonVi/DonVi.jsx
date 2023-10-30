@@ -7,12 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { treeToFlatlist } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { removeDuplicates, reDataForTable } from "src/util/Common";
-import {
-  EditableTableRow,
-  ModalDeleteConfirm,
-  Table,
-  Toolbar,
-} from "src/components/Common";
+import { EditableTableRow, Table, Toolbar } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams, getLocalStorage } from "src/util/Common";
 
@@ -24,7 +19,7 @@ function DonVi({ match, permission, history }) {
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow } = data;
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -59,34 +54,6 @@ function DonVi({ match, permission, history }) {
   const handleTableChange = (pagination) => {
     setPage(pagination);
     getListData(keyword, pagination);
-  };
-
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    const title = "đơn vị";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenDonVi, title);
-  };
-
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    let url = `DonVi/${item.id}`;
-    if (item.isRemove) url = `DonVi/${item.id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        getListData(keyword);
-      })
-      .catch((error) => console.error(error));
   };
 
   /**

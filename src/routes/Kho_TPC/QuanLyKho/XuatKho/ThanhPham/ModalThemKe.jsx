@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { Select } from "src/components/Common";
 import { useDispatch } from "react-redux";
-import { fetchReset, fetchStart } from "src/appRedux/actions";
+import { fetchStart } from "src/appRedux/actions";
 const FormItem = Form.Item;
 
 function ModalThemKe({ openModalFS, openModal, ListKe, addKe }) {

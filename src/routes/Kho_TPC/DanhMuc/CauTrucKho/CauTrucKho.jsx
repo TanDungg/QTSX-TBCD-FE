@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Col, Popover } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, remove, find, isEmpty, repeat } from "lodash";
+import { map, remove, isEmpty, repeat } from "lodash";
 import QRCode from "qrcode.react";
 import {
   ModalDeleteConfirm,
@@ -30,13 +25,12 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function CauTrucKho({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [selectedDevice, setSelectedDevice] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     if (permission && permission.view) {
-      loadData(keyword, page);
+      loadData(keyword, 1);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -60,7 +54,7 @@ function CauTrucKho({ match, history, permission }) {
    *
    */
   const onSearchCauTrucKho = () => {
-    loadData(keyword, page);
+    loadData(keyword, 1);
   };
 
   /**
@@ -71,7 +65,7 @@ function CauTrucKho({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, page);
+      loadData(val.target.value, 1);
     }
   };
   /**

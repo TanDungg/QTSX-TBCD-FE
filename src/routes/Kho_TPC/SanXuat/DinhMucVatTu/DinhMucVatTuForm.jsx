@@ -755,9 +755,6 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
         </Tag>
       </span>
     );
-  const handleSelectLoaiSanPham = (val) => {
-    getSanPham(val);
-  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />

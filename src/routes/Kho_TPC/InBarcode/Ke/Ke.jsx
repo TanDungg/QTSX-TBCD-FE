@@ -1,13 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Popover } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { Card, Button, Col, Popover } from "antd";
+import { PrinterOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import { map, isEmpty, remove, find } from "lodash";
 
 import { Table, EditableTableRow, Toolbar } from "src/components/Common";
@@ -26,14 +20,13 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function Ke({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
 
   const [selectedDevice, setSelectedDevice] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     if (permission && permission.view) {
-      loadData(keyword, page);
+      loadData(keyword, 1);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -58,7 +51,7 @@ function Ke({ match, history, permission }) {
    *
    */
   const onSearchCauTrucKho = () => {
-    loadData(keyword, page);
+    loadData(keyword, 1);
   };
 
   /**
@@ -69,7 +62,7 @@ function Ke({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, page);
+      loadData(val.target.value, 1);
     }
   };
 

@@ -51,7 +51,6 @@ const KiemKeForm = ({ history, match, permission }) => {
   const [ListXuong, setListXuong] = useState(null);
   const [Xuong, setXuong] = useState(null);
   const [ListVatTu, setListVatTu] = useState([]);
-  const [ListKhoVatTu, setListKhoVatTu] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ListUserDuyet, setListUserDuyet] = useState([]);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(null);
@@ -108,7 +107,6 @@ const KiemKeForm = ({ history, match, permission }) => {
   const getData = () => {
     getUserLap(INFO, null);
     getXuong();
-    getListKho();
     getUserDuyet(INFO);
   };
 
@@ -142,30 +140,6 @@ const KiemKeForm = ({ history, match, permission }) => {
         setListXuong([]);
       }
     });
-  };
-
-  const getListKho = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&isThanhPham=false`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListKhoVatTu(res.data);
-        } else {
-          setListKhoVatTu([]);
-        }
-      })
-      .catch((error) => console.error(error));
   };
 
   const getUserLap = (info, nguoiLap_Id) => {
@@ -249,7 +223,6 @@ const KiemKeForm = ({ history, match, permission }) => {
           setInfo(res.data);
           getUserDuyet(INFO);
           getXuong();
-          getListKho();
           getUserLap(INFO, res.data.userLap_Id);
           setXuong(res.data.phongBan_Id);
           setFieldsValue({

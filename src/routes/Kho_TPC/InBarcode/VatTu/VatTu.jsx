@@ -3,7 +3,6 @@ import { Card, Button, Row, Col } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { map, find, isEmpty, remove } from "lodash";
-import { Link } from "react-router-dom";
 import {
   Table,
   EditableTableRow,
@@ -14,8 +13,8 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
-  getLocalStorage,
-  getTokenInfo,
+  // getLocalStorage,
+  // getTokenInfo,
   removeDuplicates,
   setLocalStorage,
 } from "src/util/Common";
@@ -24,7 +23,6 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function KhoVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [keyword, setKeyword] = useState("");
   const [selectedDevice, setSelectedDevice] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
@@ -131,7 +129,7 @@ function KhoVatTu({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, totalPageSize } = data;
+  const { totalRow } = data;
 
   let dataList = reDataForTable(data);
 

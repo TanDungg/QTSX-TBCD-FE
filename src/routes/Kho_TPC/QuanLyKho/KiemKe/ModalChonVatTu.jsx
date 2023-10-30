@@ -1,10 +1,9 @@
-import { Modal as AntModal, Card, Input, Button, Row, Col } from "antd";
+import { Modal as AntModal, Card, Button, Row, Col } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import { ModalDeleteConfirm, Select, Table } from "src/components/Common";
-import Helpers from "src/helpers";
 import { DeleteOutlined } from "@ant-design/icons";
 
 function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {

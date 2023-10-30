@@ -1,6 +1,5 @@
 import {
   DeleteOutlined,
-  PrinterOutlined,
   PlusOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
@@ -35,7 +34,6 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_TWO_COL } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
-  exportPDF,
   getDateNow,
   getLocalStorage,
   getTokenInfo,

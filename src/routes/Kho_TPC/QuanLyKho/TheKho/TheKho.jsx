@@ -248,7 +248,7 @@ function TheKho({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(
     data.datalist
@@ -295,7 +295,8 @@ function TheKho({ match, history, permission }) {
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
       align: "center",
-    },{
+    },
+    {
       title: "Ngày nhập/xuất",
       dataIndex: "kho",
       key: "kho",
@@ -308,24 +309,24 @@ function TheKho({ match, history, permission }) {
       align: "center",
     },
     {
-        title: "Số lượng",
-        dataIndex: "tenNguoiLap",
-        key: "tenNguoiLap",
-        align: "center",
-      },
-      {
-        title: "Vị trí",
-        dataIndex: "tenNguoiLap",
-        key: "tenNguoiLap",
-        align: "center",
-      },
-      {
-        title: "Ngày tạo",
-        dataIndex: "tenNguoiLap",
-        key: "tenNguoiLap",
-        align: "center",
-      },
-      
+      title: "Số lượng",
+      dataIndex: "tenNguoiLap",
+      key: "tenNguoiLap",
+      align: "center",
+    },
+    {
+      title: "Vị trí",
+      dataIndex: "tenNguoiLap",
+      key: "tenNguoiLap",
+      align: "center",
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "tenNguoiLap",
+      key: "tenNguoiLap",
+      align: "center",
+    },
+
     {
       title: "Chức năng",
       key: "action",

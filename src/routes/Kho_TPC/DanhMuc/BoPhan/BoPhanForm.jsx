@@ -13,7 +13,6 @@ const FormItem = Form.Item;
 const initialState = {
   maBoPhan: "",
   tenBoPhan: "",
-  phongBan_Id: "",
   boPhan_Id: "root",
 };
 const BoPhanForm = ({ history, match, permission }) => {
@@ -22,7 +21,7 @@ const BoPhanForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { maBoPhan, tenBoPhan, phongBan_Id, boPhan_Id } = initialState;
+  const { maBoPhan, tenBoPhan, boPhan_Id } = initialState;
   const [phongBanSelect, setPhongBanSelect] = useState([]);
   const [BoPhanSelect, setBoPhanSelect] = useState([]);
 

@@ -28,7 +28,6 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
   const [DataXuat, setDataXuat] = useState([]);
   const [ListLoaiKeHoach, setListLoaiKeHoach] = useState([]);
   const [LoaiKeHoach, setLoaiKeHoach] = useState(null);
-  const [TenKeHoach, setTenKeHoach] = useState(null);
   const [ListXuong, setListXuong] = useState([]);
   const [Xuong, setXuong] = useState(null);
   const [keyword, setKeyword] = useState(null);
@@ -346,8 +345,6 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
 
   const handleOnSelectLoaiKeHoach = (value) => {
     setLoaiKeHoach(value);
-    const newData = ListLoaiKeHoach.filter((data) => data.id === value);
-    setTenKeHoach(newData[0].tenLoaiKeHoach);
     getListData(value, Xuong, keyword, page);
   };
 

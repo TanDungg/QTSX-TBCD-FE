@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Divider, Input } from "antd";
+import { Button, Card, Col, Divider } from "antd";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
@@ -24,7 +24,7 @@ function QuyTrinhSanPham({ match, permission, history }) {
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
-  const { totalRow, totalPages, pageSize } = data;
+  const { totalRow, pageSize } = data;
   useEffect(() => {
     if (permission && permission.view) {
       getListData();

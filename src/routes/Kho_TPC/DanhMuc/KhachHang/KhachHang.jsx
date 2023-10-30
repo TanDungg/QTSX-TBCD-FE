@@ -47,7 +47,7 @@ function KhachHang({ history, permission }) {
     const param = convertObjectToUrlParams({ keyword, page });
     dispatch(fetchStart(`KhachHang?${param}`, "GET", null, "LIST"));
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
   /**
