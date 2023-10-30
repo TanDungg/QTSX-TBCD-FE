@@ -38,7 +38,7 @@ function XuatKho({ permission, history, match }) {
   const [NhomVatTu, setNhomVatTu] = useState(null);
   const [ListXuong, setListXuong] = useState([]);
   const [Xuong, setXuong] = useState(null);
-  const [TuNgay, setTuNgay] = useState(getDateNow(7));
+  const [TuNgay, setTuNgay] = useState(getDateNow(-7));
   const [DenNgay, setDenNgay] = useState(getDateNow());
   const [keyword, setKeyword] = useState(null);
   const [page, setPage] = useState(1);

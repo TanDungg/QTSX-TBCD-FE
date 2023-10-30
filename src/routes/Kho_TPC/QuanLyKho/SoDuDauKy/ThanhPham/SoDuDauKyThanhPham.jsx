@@ -42,7 +42,7 @@ function SoDuDauKyThanhPham({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
   const [DisableModal, setDisableModal] = useState(false);
   const [selectedDevice, setSelectedDevice] = useState([]);
-  const [FromDate, setFromDate] = useState(getDateNow(7));
+  const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListKho, setListKho] = useState([]);

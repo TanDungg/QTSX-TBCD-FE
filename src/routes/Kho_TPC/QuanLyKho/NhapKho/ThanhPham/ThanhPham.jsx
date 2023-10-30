@@ -33,7 +33,7 @@ function ThanhPham({ match, history, permission }) {
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [selectedDevice, setSelectedDevice] = useState([]);
-  const [FromDate, setFromDate] = useState(getDateNow(7));
+  const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListKho, setListKho] = useState([]);

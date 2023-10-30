@@ -207,64 +207,15 @@ export const logOut = async () => {
 /**
  * * lấy ngày tháng năm hiện tại DD/MM/YYYY
  */
-export const getDateNow = (number) => {
+export const getDateNow = (number = 0) => {
   const date = new Date();
-  let day;
-  if (number && number > 0) {
-    day =
-      (date.getDate() <= number
-        ? date.getDate() +
-          getNumberDayOfMonth(date.getMonth(), date.getFullYear()) -
-          (number ? number : 0) +
-          "/" +
-          (date.getMonth().toString().length === 1
-            ? "0" + date.getMonth()
-            : date.getMonth())
-        : date.getDate() -
-          (number ? number : 0) +
-          "/" +
-          ((date.getMonth() + 1).toString().length === 1
-            ? "0" + date.getMonth() + 1
-            : date.getMonth() + 1)) +
-      "/" +
-      date.getFullYear();
-  } else if (number && number < 0) {
-    day =
-      (date.getDate().toString().length === 1 && date.getDate() !== 9
-        ? "0" +
-          date.getDate() +
-          Math.abs(number) +
-          "/" +
-          ((date.getMonth() + 1).toString().length === 1
-            ? "0" + (date.getMonth() + 1)
-            : date.getMonth() + 1)
-        : getNumberDayOfMonth(date.getMonth(), date.getFullYear()) ===
-          date.getDate()
-        ? "01/" +
-          ((date.getMonth() + 2).toString().length === 1
-            ? "0" + (date.getMonth() + 2)
-            : date.getMonth() + 2)
-        : date.getDate() +
-          Math.abs(number) +
-          "/" +
-          ((date.getMonth() + 1).toString().length === 1
-            ? "0" + (date.getMonth() + 1)
-            : date.getMonth() + 1)) +
-      "/" +
-      date.getFullYear();
-  } else {
-    day =
-      (date.getDate().toString().length === 1
-        ? "0" + date.getDate()
-        : date.getDate()) +
-      "/" +
-      ((date.getMonth() + 1).toString().length === 1
-        ? "0" + (date.getMonth() + 1)
-        : date.getMonth() + 1) +
-      "/" +
-      date.getFullYear();
-  }
-  return day.toString();
+  date.setDate(date.getDate() + number);
+
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear().toString();
+
+  return `${day}/${month}/${year}`;
 };
 
 /**
@@ -278,7 +229,6 @@ export const getTimeNow = () => {
   return `${hours}:${minutes}`;
 };
 export function excelSerialNumberToDate(serialNumber) {
-  console.log(serialNumber);
   const checkDate = typeof serialNumber === "number" ? false : true;
   if (!checkDate) {
     const MS_PER_DAY = 24 * 60 * 60 * 1000; // Số mili giây trong một ngày

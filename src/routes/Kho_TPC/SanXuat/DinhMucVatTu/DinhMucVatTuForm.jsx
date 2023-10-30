@@ -458,7 +458,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       }
     });
     setListVatTu(newData);
-    setFieldTouch(false);
+    setFieldTouch(true);
   };
   const renderBatBuoc = (item) => {
     return (

@@ -32,7 +32,7 @@ function SoSanhDinhMuc({ permission, history, match }) {
   const [PhongBan, setPhongBan] = useState(null);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
-  const [TuNgay, setTuNgay] = useState(getDateNow(7));
+  const [TuNgay, setTuNgay] = useState(getDateNow(-7));
   const [DenNgay, setDenNgay] = useState(getDateNow());
 
   useEffect(() => {

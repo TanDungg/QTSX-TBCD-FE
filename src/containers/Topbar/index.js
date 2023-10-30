@@ -117,7 +117,7 @@ const Topbar = () => {
           />
         </div>
       ) : null}
-      <Link to="/home" className="gx-d-block gx-d-lg-none gx-pointer">
+      <Link to={MENUINFO.Url} className="gx-d-block gx-d-lg-none gx-pointer">
         <img
           height={width > 450 ? 36 : 27}
           width={width > 450 ? 160 : 120}
@@ -130,25 +130,27 @@ const Topbar = () => {
           <h3>
             {MENUINFO && MENUINFO.tenPhanMem
               ? MENUINFO.tenPhanMem
-              : "HỆ THỐNG QUẢN LÝ NGUỒN NHÂN LỰC DOANH NGHIỆP (ERP)"}
+              : "QUẢN LÝ NGUỒN NHÂN LỰC DOANH NGHIỆP (ERP)"}
           </h3>
         </div>
       ) : null}
       <ul className="gx-header-notifications gx-ml-auto">
-        <li>
-          <Select
-            className="heading-select slt-search th-select-heading"
-            data={donvi}
-            placeholder="Chọn đơn vị"
-            optionsvalue={["DonVi_Id", "tenDonVi"]}
-            style={{ width: 300 }}
-            onSelect={handleOnSelectDonVi}
-            value={DonVi}
-            defaultValue={donvi.length > 0 && donvi[0].DonVi_Id}
-            optionFilterProp={"name"}
-            showSearch
-          />
-        </li>
+        {width >= 1200 ? (
+          <li>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={donvi}
+              placeholder="Chọn đơn vị"
+              optionsvalue={["DonVi_Id", "tenDonVi"]}
+              style={{ width: 300 }}
+              onSelect={handleOnSelectDonVi}
+              value={DonVi}
+              defaultValue={donvi.length > 0 && donvi[0].DonVi_Id}
+              optionFilterProp={"name"}
+              showSearch
+            />
+          </li>
+        ) : null}
 
         <li className="gx-user-nav">
           <UserInfo isDesktop={width >= TAB_SIZE} />

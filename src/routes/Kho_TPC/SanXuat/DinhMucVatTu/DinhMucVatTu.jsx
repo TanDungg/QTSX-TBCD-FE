@@ -37,7 +37,7 @@ function DinhMucVatTu({ permission, history, match }) {
   const [ListUser, setListUser] = useState([]);
   const [user_Id, setUser_Id] = useState("");
   const [DinhMucVatTu, setDinhMucVatTu] = useState([]);
-  const [FromDate, setFromDate] = useState(getDateNow(7));
+  const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   // const [SelectedDinhMucVatTu, setSelectedDinhMucVatTu] = useState(null);
   // const [selectedKeys, setSelectedKeys] = useState(null);

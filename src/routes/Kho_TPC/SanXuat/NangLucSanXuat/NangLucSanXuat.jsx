@@ -34,7 +34,7 @@ function NangLucSanXuat({ permission, history, match }) {
 
   const [user_Id, setUser_Id] = useState();
   const [NangLucSanXuat, setNangLucSanXuat] = useState([]);
-  const [FromDate, setFromDate] = useState(getDateNow(7));
+  const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [data, setData] = useState([]);
 

@@ -24,7 +24,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 
 function KeHoach({ match, history, permission }) {
   const dispatch = useDispatch();
-  const { loading } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const INFO = getLocalStorage("menu");
   const [listKeHoach, setListKeHoach] = useState([]);
   const [KeHoach, setKeHoach] = useState("");
@@ -353,6 +353,7 @@ function KeHoach({ match, history, permission }) {
       key: "key",
       width: 45,
       align: "center",
+      fixed: width > 768 ? "left" : "none",
     },
     {
       title: "Mã sản phẩm",
@@ -360,6 +361,7 @@ function KeHoach({ match, history, permission }) {
       key: "maSanPham",
       align: "center",
       width: 120,
+      fixed: width > 768 ? "left" : "none",
     },
     {
       title: "Tên sản phẩm",
@@ -367,6 +369,7 @@ function KeHoach({ match, history, permission }) {
       align: "center",
       key: "tenSanPham",
       width: 120,
+      fixed: width > 768 ? "left" : "none",
     },
     {
       title: `Tháng ${Thang} năm ${Nam}`,

@@ -38,7 +38,7 @@ function KiemKe({ match, history, permission }) {
   const [page, setPage] = useState(1);
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState("");
-  const [FromDate, setFromDate] = useState(getDateNow(7));
+  const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
 
