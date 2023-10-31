@@ -43,7 +43,7 @@ function CanBoNhanVien({ match, history, permission }) {
   const [NhanSu, setNhanSu] = useState();
   const [data, setData] = useState([]);
   const { totalRow, totalPage, pageSize } = data;
-
+  const dataList = reDataForTable(data.datalist, page, pageSize);
   useEffect(() => {
     if (permission && permission.view) {
       getDonVi();
@@ -79,24 +79,7 @@ function CanBoNhanVien({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const newData = res.data.datalist.map((dl) => {
-            return {
-              id: dl.id,
-              maNhanVien: dl.maNhanVien,
-              fullName: dl.fullName,
-              email: dl.email,
-              phoneNumber: dl.phoneNumber,
-              tenChucVu: dl.tenChucVu,
-              tenBoPhan: dl.tenBoPhan,
-              tenPhongBan: dl.tenPhongBan,
-              tenDonVi: dl.tenDonVi,
-              tenTapDoan: dl.tenTapDoan,
-              tenDonViTraLuong: dl.tenDonViTraLuong,
-              chiTiet_Id: dl.chiTiet_Id,
-              tapDoan_Id: dl.tapDoan_Id,
-              donVi_Id: dl.donVi_Id,
-            };
-          });
+          const newData = res.data;
           setData(newData);
         } else {
           setData([]);
@@ -266,11 +249,6 @@ function CanBoNhanVien({ match, history, permission }) {
     }
   };
 
-  const dataList = reDataForTable(
-    data,
-    page === 1 ? page : pageSize * (page - 1) + 2
-  );
-
   /**
    * Hiển thị bảng
    *
@@ -321,12 +299,14 @@ function CanBoNhanVien({ match, history, permission }) {
         key: "tenChucVu",
         align: "center",
         filters: removeDuplicates(
-          map(data.datalist, (d) => {
-            return {
-              text: d.tenChucVu,
-              value: d.tenChucVu,
-            };
-          })
+          reDataForTable(
+            map(data.datalist, (d) => {
+              return {
+                text: d.tenChucVu,
+                value: d.tenChucVu,
+              };
+            })
+          )
         ),
         onFilter: (value, record) => record.tenChucVu.includes(value),
         filterSearch: true,
@@ -566,7 +546,7 @@ function CanBoNhanVien({ match, history, permission }) {
           size="small"
           pagination={{
             onChange: handleTableChange,
-            pageSize,
+            pageSize: pageSize,
             total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,

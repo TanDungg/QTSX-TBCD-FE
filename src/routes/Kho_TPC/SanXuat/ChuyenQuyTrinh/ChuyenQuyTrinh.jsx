@@ -19,8 +19,6 @@ import { Link } from "react-router-dom";
 import {
   convertObjectToUrlParams,
   reDataForTable,
-  getLocalStorage,
-  getTokenInfo,
   getDateNow,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";

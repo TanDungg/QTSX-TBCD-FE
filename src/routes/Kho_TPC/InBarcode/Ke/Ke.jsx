@@ -102,7 +102,6 @@ function Ke({ match, history, permission }) {
       key: "maKe",
       dataIndex: "maKe",
       align: "center",
-      key: "maKe",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {

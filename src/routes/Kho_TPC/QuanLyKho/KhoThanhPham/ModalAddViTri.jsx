@@ -1,4 +1,4 @@
-import { Modal as AntModal, Button, Row, Form, Input } from "antd";
+import { Modal as AntModal, Form, Input } from "antd";
 
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -18,7 +18,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, sanPham }) {
 
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { resetFields, setFieldsValue, getFieldValue } = form;
+  const { resetFields, setFieldsValue } = form;
 
   useEffect(() => {
     if (openModal) {

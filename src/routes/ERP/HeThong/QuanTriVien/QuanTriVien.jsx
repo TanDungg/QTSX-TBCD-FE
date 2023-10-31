@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Button, Tag, Avatar, Image, Divider } from "antd";
+import { Card, Button, Tag, Divider } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -228,23 +228,23 @@ function QuanTriVien({ history, permission }) {
       </span>
     );
   };
-  const renderImage = (val) => {
-    if (isEmpty(val) || val === null) {
-      return <Avatar size={50} src={require("assets/images/no-image.png")} />;
-    }
-    return (
-      <Image
-        style={{
-          width: 50,
-          height: 50,
-          objectFit: "fill",
-          borderRadius: "70%",
-        }}
-        preview={{ src: `${val}` }}
-        src={`${val}`}
-      />
-    );
-  };
+  // const renderImage = (val) => {
+  //   if (isEmpty(val) || val === null) {
+  //     return <Avatar size={50} src={require("assets/images/no-image.png")} />;
+  //   }
+  //   return (
+  //     <Image
+  //       style={{
+  //         width: 50,
+  //         height: 50,
+  //         objectFit: "fill",
+  //         borderRadius: "70%",
+  //       }}
+  //       preview={{ src: `${val}` }}
+  //       src={`${val}`}
+  //     />
+  //   );
+  // };
   /**
    * Hiển thị bảng
    *

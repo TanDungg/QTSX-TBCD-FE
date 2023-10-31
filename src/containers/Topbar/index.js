@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Empty } from "antd";
+import { Layout } from "antd";
 import { Link, useHistory } from "react-router-dom";
 
 import { toggleCollapsedSideNav } from "src/appRedux/actions/Setting";
@@ -11,16 +11,10 @@ import {
   NAV_STYLE_MINI_SIDEBAR,
   TAB_SIZE,
 } from "src/constants/ThemeSetting";
-import { fetchStart } from "src/appRedux/actions/Common";
 import { useDispatch, useSelector } from "react-redux";
-import { thongBaoLoad, loadMenu, donViLoad } from "src/appRedux/actions";
+import { loadMenu, donViLoad } from "src/appRedux/actions";
 import { Select } from "src/components/Common";
-import {
-  convertObjectToUrlParams,
-  getLocalStorage,
-  getTokenInfo,
-  setLocalStorage,
-} from "src/util/Common";
+import { getLocalStorage, setLocalStorage } from "src/util/Common";
 const { Header } = Layout;
 const Topbar = () => {
   const { navStyle } = useSelector(({ settings }) => settings);

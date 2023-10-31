@@ -1,10 +1,8 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Divider } from "antd";
+import { Card, Col } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import {
   removeDuplicates,
@@ -29,7 +27,7 @@ function TapDoan({ history, permission }) {
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
-  const { totalRow, totalPages, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -83,33 +81,6 @@ function TapDoan({ history, permission }) {
     if (isEmpty(val.target.value)) {
       getListData(val.target.value, page);
     }
-  };
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    const title = "tập đoàn";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenTapDoan, title);
-  };
-
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    let url = `TapDoan/${item.id}`;
-    if (item.isRemove) url = `TapDoan/${item.id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        getListData(keyword, page);
-      })
-      .catch((error) => console.error(error));
   };
 
   // /**

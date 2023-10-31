@@ -89,7 +89,6 @@ const SoDuDauKyThanhPhamForm = asyncComponent(() =>
   import("./SoDuDauKy/ThanhPham/SoDuDauKyThanhPhamForm")
 );
 const LayoutKho = asyncComponent(() => import("./LayoutKho/LayoutKho"));
-const ViTriLuu = asyncComponent(() => import("./ViTriLuu/ViTriLuu"));
 
 const KhoVatTu = asyncComponent(() => import("./KhoVatTu/KhoVatTu"));
 const KhoThanhPham = asyncComponent(() =>
@@ -409,11 +408,6 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/layout-kho`}
         exact
         component={Auth(LayoutKho, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/vi-tri-luu`}
-        exact
-        component={Auth(ViTriLuu, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/dinh-muc-ton-kho`}

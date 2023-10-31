@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, Row, Col, DatePicker, Tag } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { map, isEmpty, remove } from "lodash";
+import { map, isEmpty } from "lodash";
 import {
   Table,
   EditableTableRow,
@@ -29,10 +29,8 @@ function TheoDoiHangVe({ match, history, permission }) {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [selectedDevice, setSelectedDevice] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
-  const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListNhomVatTu, setListNhomVatTu] = useState([]);
   const [NhomVatTu, setNhomVatTu] = useState("");
   useEffect(() => {
@@ -371,27 +369,6 @@ function TheoDoiHangVe({ match, history, permission }) {
     };
   });
 
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
-
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
   const handleOnSelectNhomVatTu = (val) => {
     setNhomVatTu(val);
     setPage(1);
