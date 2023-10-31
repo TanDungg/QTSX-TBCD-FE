@@ -14,6 +14,7 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  reDataForTable,
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -112,10 +113,11 @@ function TheoDoiHangVe({ match, history, permission }) {
   };
 
   const renderColumn = (record, value) => {
+    console.log(record);
     if (value === "ngayHangVe") {
       return (
         <div>
-          {record.ngayHangVe &&
+          {record.ngayHangVe !== "Chưa xác định" ? (
             JSON.parse(record.ngayHangVe).map((nhv) => {
               return (
                 <Tag
@@ -128,14 +130,25 @@ function TheoDoiHangVe({ match, history, permission }) {
                   {nhv.ngayHangVe}
                 </Tag>
               );
-            })}
+            })
+          ) : (
+            <Tag
+              style={{
+                marginRight: 5,
+                color: "red",
+                fontSize: 13,
+              }}
+            >
+              {record.ngayHangVe}
+            </Tag>
+          )}
         </div>
       );
     }
     if (value === "tenThuMua") {
       return (
         <div>
-          {record.tenThuMua &&
+          {record.tenThuMua !== "Chưa xác định" ? (
             JSON.parse(record.tenThuMua).map((nhv) => {
               return (
                 <Tag
@@ -148,7 +161,18 @@ function TheoDoiHangVe({ match, history, permission }) {
                   {nhv.tenThuMua}
                 </Tag>
               );
-            })}
+            })
+          ) : (
+            <Tag
+              style={{
+                marginRight: 5,
+                color: "red",
+                fontSize: 13,
+              }}
+            >
+              {record.tenThuMua}
+            </Tag>
+          )}
         </div>
       );
     }
@@ -470,7 +494,7 @@ function TheoDoiHangVe({ match, history, permission }) {
           columns={columns}
           components={components}
           className="gx-table-responsive"
-          dataSource={data}
+          dataSource={reDataForTable(data)}
           size="small"
           rowClassName={(record) => {
             return record.isParent ? "editable-row" : "editable-row";
