@@ -372,6 +372,11 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
           res.data.ghiChu = data.ghiChu;
           res.data.dinhMuc = data.dinhMuc;
           res.data.vatTu_Id = res.data.id;
+          if (listVatTu.length === 0) {
+            res.data.isBatBuoc = true;
+          } else {
+            res.data.isBatBuoc = false;
+          }
           setListVatTu([...listVatTu, res.data]);
           setFieldTouch(true);
         }
@@ -450,15 +455,23 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
   };
   const hanldeCheckBox = (val, item) => {
     const newData = [...listVatTu];
+    let count = 0;
     newData.forEach((vt) => {
-      if (vt.vatTu_Id === item.vatTu_Id) {
-        vt.isBatBuoc = true;
-      } else {
-        vt.isBatBuoc = false;
+      if (vt.isBatBuoc) {
+        count += 1;
       }
     });
-    setListVatTu(newData);
-    setFieldTouch(true);
+    if (count === 1 && val.target.checked === false) {
+      Helpers.alertWarning("Trường bắt buộc phải có 1 chọn");
+    } else {
+      newData.forEach((vt) => {
+        if (vt.vatTu_Id === item.vatTu_Id) {
+          vt.isBatBuoc = val.target.checked;
+        }
+      });
+      setListVatTu(newData);
+      setFieldTouch(true);
+    }
   };
   const renderBatBuoc = (item) => {
     return (
@@ -817,38 +830,6 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                 <Input className="input-item" disabled={true} />
               </FormItem>
             </Col>
-            {/* <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Loại sản phẩm"
-                name={["dinhmucvattu", "loaiSanPham_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={listLoaiSanPham ? listLoaiSanPham : []}
-                  placeholder="Chọn loại sản phẩm"
-                  optionsvalue={["id", "tenLoaiSanPham"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  onSelect={handleSelectLoaiSanPham}
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col> */}
             <Col
               xxl={12}
               xl={12}

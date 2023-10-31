@@ -110,7 +110,6 @@ const App = () => {
     link.href = `/css/${themeColor}.css`; //This line is changed, this comment is for explaination purpose.
     link.className = "gx-style";
     document.body.appendChild(link);
-    console.log(location);
     if (
       location &&
       location.pathname &&
