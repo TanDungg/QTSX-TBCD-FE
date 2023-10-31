@@ -237,7 +237,6 @@ function VatTu({ match, history, permission }) {
             lstpnkvtct:
               res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu),
           };
-          console.log(newData);
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
