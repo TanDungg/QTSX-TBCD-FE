@@ -1,5 +1,5 @@
-// export const BASE_URL_API = "https://qlcntt-be.thacoindustries.com";
-export const BASE_URL_API = `http://10.14.7.215:1512`;
+export const BASE_URL_API = "http://erp-api.thacoindustries.com";
+// export const BASE_URL_API = `http://10.14.7.215:1512`;
 // export const BASE_URL_API = `http://10.14.2.34:81`;
 // export const BASE_URL_API = `http://localhost`;
 
@@ -9,7 +9,6 @@ export const LOAI_NCC_NOI_BO = "0657c2ab-cde0-4753-b2c4-5801bb4891fa";
 
 export const APP_NAME = "HỆ THỐNG ERP";
 export const PAGE_SIZE = 20;
-//localhost
 
 export const DEFAULT_FORM_STYLE = {
   labelCol: {
