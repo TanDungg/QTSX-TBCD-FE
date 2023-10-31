@@ -242,7 +242,7 @@ const KiemKeForm = ({ history, match, permission }) => {
 
           const newData =
             res.data.chiTiet_PhieuKiemKes &&
-            JSON.parse(res.data.chiTiet_PhieuKiemKes).map((data) => {
+            res.data.chiTiet_PhieuKiemKes.map((data) => {
               return {
                 ...data,
                 vatTu_Id: data.vatTu_Id.toLowerCase(),
