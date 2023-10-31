@@ -452,7 +452,7 @@ function XuatKho({ permission, history, match }) {
 
   const handleTaoPhieu = () => {
     const newData = {
-      isSanPham: Loai === "sanpham" ? true : false,
+      isThanhPham: Loai === "sanpham" ? true : false,
       ctPhieuXuatKho: DataXuat,
     };
     new Promise((resolve, reject) => {
