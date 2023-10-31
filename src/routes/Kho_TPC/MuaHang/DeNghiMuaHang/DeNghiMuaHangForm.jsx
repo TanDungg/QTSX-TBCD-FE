@@ -888,16 +888,32 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       <span>
         Chi tiết phiếu đề nghị mua hàng -{" "}
         <Tag
-          color={info.isXacNhan === true ? "blue" : "red"}
+          color={
+            info.isXacNhan === null
+              ? "orange"
+              : info.isXacNhan === true
+              ? "blue"
+              : "red"
+          }
           style={{ fontSize: 14 }}
         >
           {info.maPhieuYeuCau}
         </Tag>
         <Tag
-          color={info.isXacNhan === true ? "blue" : "red"}
+          color={
+            info.isXacNhan === null
+              ? "orange"
+              : info.isXacNhan === true
+              ? "blue"
+              : "red"
+          }
           style={{ fontSize: 14 }}
         >
-          {info.isXacNhan === true ? "Đã xác nhận" : "Đã từ chối"}
+          {info.isXacNhan === null
+            ? "Chưa xác nhận"
+            : info.isXacNhan === true
+            ? "Đã xác nhận"
+            : "Đã từ chối"}
         </Tag>
       </span>
     );
