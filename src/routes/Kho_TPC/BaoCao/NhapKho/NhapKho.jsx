@@ -27,6 +27,7 @@ function NhapKho({ permission, history, match }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
+  const [DataXuat, setDataXuat] = useState([]);
   const [Loai, setLoai] = useState("sanpham");
   const [ListKho, setListKho] = useState([]);
   const [Kho_Id, setKho_Id] = useState(null);
@@ -100,6 +101,35 @@ function NhapKho({ permission, history, match }) {
       .then((res) => {
         if (res && res.data) {
           setData(res.data);
+        }
+      })
+      .catch((error) => console.error(error));
+    let paramxuat = convertObjectToUrlParams({
+      keyword,
+      Kho_Id,
+      loaiVT_nhomSP,
+      phongBan_Id,
+      tungay,
+      denngay,
+      page: -1,
+      IsSanPham,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_BaoCao/bao-cao-nhap-kho?${paramxuat}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setDataXuat(res.data);
         }
       })
       .catch((error) => console.error(error));
@@ -427,9 +457,9 @@ function NhapKho({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_BaoCao/export-file-excel-thanh-ly`,
+          `lkn_BaoCao/export-file-excel-bc-nhap-kho`,
           "POST",
-          Data,
+          DataXuat,
           "",
           "",
           resolve,
@@ -444,21 +474,21 @@ function NhapKho({ permission, history, match }) {
     });
   };
 
-  // const addButtonRender = () => {
-  //   return (
-  //     <>
-  //       <Button
-  //         icon={<DownloadOutlined />}
-  //         className="th-btn-margin-bottom-0"
-  //         type="primary"
-  //         onClick={handleTaoPhieu}
-  //         disabled={permission && !permission.add}
-  //       >
-  //         Xuất excel
-  //       </Button>
-  //     </>
-  //   );
-  // };
+  const addButtonRender = () => {
+    return (
+      <>
+        <Button
+          icon={<DownloadOutlined />}
+          className="th-btn-margin-bottom-0"
+          type="primary"
+          onClick={handleTaoPhieu}
+          disabled={permission && !permission.add}
+        >
+          Xuất excel
+        </Button>
+      </>
+    );
+  };
 
   const handleOnSelectLoai = (value) => {
     setLoai(value);
@@ -579,7 +609,7 @@ function NhapKho({ permission, history, match }) {
       <ContainerHeader
         title={"Báo cáo nhập kho"}
         description="Báo cáo nhập kho"
-        // buttons={addButtonRender()}
+        buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ marginBottom: 10 }}>
