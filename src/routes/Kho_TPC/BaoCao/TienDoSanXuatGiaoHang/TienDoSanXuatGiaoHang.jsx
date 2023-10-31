@@ -28,6 +28,7 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
   const [DataXuat, setDataXuat] = useState([]);
   const [ListLoaiKeHoach, setListLoaiKeHoach] = useState([]);
   const [LoaiKeHoach, setLoaiKeHoach] = useState(null);
+  const [TenKeHoach, setTenKeHoach] = useState(null);
   const [ListXuong, setListXuong] = useState([]);
   const [Xuong, setXuong] = useState(null);
   const [keyword, setKeyword] = useState(null);

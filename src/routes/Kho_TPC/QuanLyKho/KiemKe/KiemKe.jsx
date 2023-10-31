@@ -5,7 +5,6 @@ import {
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
-  DownCircleOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -251,19 +250,13 @@ function KiemKe({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const newData = {
-            ...res.data,
-            chiTietKiemKe:
-              res.data.chiTiet_PhieuKiemKes !== null &&
-              JSON.parse(res.data.chiTiet_PhieuKiemKes),
-          };
-          console.log(newData);
+          console.log(res.data);
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
                 `lkn_PhieuKiemKe/export-file-excel-kiem-ke`,
                 "POST",
-                newData,
+                res.data,
                 "",
                 "",
                 resolve,

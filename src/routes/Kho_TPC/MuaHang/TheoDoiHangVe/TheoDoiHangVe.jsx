@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Row, Col, DatePicker } from "antd";
+import { Card, Row, Col, DatePicker, Tag } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { map, isEmpty, remove } from "lodash";
 import {
@@ -11,7 +11,6 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
-  reDataForTable,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
@@ -22,6 +21,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
+
 function TheoDoiHangVe({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();

@@ -43284,6 +43284,8 @@ textarea.gx-chat-textarea {
   text-align: center;
   /* page-break-after: always; */
 }
-.inMa-BarCode:last-child {
-  /* page-break-after: auto; */
+@media print {
+  .print-page {
+    page-break-before: always;
+  }
 }

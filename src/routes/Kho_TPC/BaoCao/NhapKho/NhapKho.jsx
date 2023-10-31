@@ -4,7 +4,7 @@ import { map, isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { getDateNow, reDataForTable } from "src/util/Common";
+import { exportExcel, getDateNow, reDataForTable } from "src/util/Common";
 import {
   EditableTableRow,
   Table,
@@ -424,8 +424,26 @@ function NhapKho({ permission, history, match }) {
   });
 
   const handleTaoPhieu = () => {
-    history.push(`${match.url}/them-moi`);
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_BaoCao/export-file-excel-thanh-ly`,
+          "POST",
+          Data,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      exportExcel(
+        `BaoCaoNhapKho${Loai === "sanpham" ? "ThanhPham" : "VatTu"}`,
+        res.data.dataexcel
+      );
+    });
   };
+
   // const addButtonRender = () => {
   //   return (
   //     <>
