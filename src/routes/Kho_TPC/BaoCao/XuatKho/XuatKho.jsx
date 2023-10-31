@@ -316,7 +316,7 @@ function XuatKho({ permission, history, match }) {
       ),
       onFilter: (value, record) =>
         Loai === "sanpham"
-          ? record.tenLoaiSanPham
+          ? record.tenLoaiSanPham.includes(value)
           : record.tenNhomVatTu.includes(value),
       filterSearch: true,
     },
@@ -334,7 +334,9 @@ function XuatKho({ permission, history, match }) {
         })
       ),
       onFilter: (value, record) =>
-        Loai === "sanpham" ? record.maSanPham : record.maVatTu.includes(value),
+        Loai === "sanpham"
+          ? record.maSanPham.includes(value)
+          : record.maVatTu.includes(value),
       filterSearch: true,
     },
     {
@@ -352,7 +354,7 @@ function XuatKho({ permission, history, match }) {
       ),
       onFilter: (value, record) =>
         Loai === "sanpham"
-          ? record.tenSanPham
+          ? record.tenSanPham.includes(value)
           : record.tenVatTu.includes(value),
       filterSearch: true,
     },

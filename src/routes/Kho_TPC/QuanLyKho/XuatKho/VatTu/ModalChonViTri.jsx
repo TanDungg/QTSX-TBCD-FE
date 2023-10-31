@@ -4,14 +4,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import { Table } from "src/components/Common";
+import { isEmpty } from "lodash";
 
 function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
   const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [ListViTriKho, setListViTriKho] = useState([]);
-  const [hasError, setHasError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [editingRecord, setEditingRecord] = useState(null);
+  const [editingRecord, setEditingRecord] = useState([]);
   const [DisabledSave, setDisabledSave] = useState(true);
   const [SelectedViTri, setSelectedViTri] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
@@ -89,87 +88,62 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
     });
   };
 
-  const renderSoLuongXuat = (record) => {
-    if (record) {
-      const isEditing =
-        editingRecord &&
-        editingRecord.lkn_ChiTietKhoVatTu_Id === record.lkn_ChiTietKhoVatTu_Id;
-      return (
-        <div>
-          <Input
-            min={0}
-            style={{
-              textAlign: "center",
-              width: "100%",
-              borderColor: isEditing && hasError ? "red" : "",
-            }}
-            className={`input-item ${
-              isEditing && hasError ? "input-error" : ""
-            }`}
-            value={record.soLuongThucXuat}
-            type="number"
-            step="0.0001"
-            onChange={(val) => handleInputChange(val, record)}
-          />
-          {isEditing && hasError && (
-            <div style={{ color: "red" }}>{errorMessage}</div>
-          )}
-        </div>
-      );
-    }
-    return null;
-  };
-
-  const handleInputChange = (val, record) => {
-    const sl = val.target.value;
-    if (sl === null || sl === "") {
-      setHasError(true);
-      setErrorMessage("Vui lòng nhập số lượng");
+  const handleInputChange = (val, item) => {
+    const soLuong = val.target.value;
+    if (isEmpty(soLuong) || Number(soLuong) <= 0) {
       setDisabledSave(true);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
     } else {
-      if (sl < 0) {
-        setHasError(true);
-        setErrorMessage("Số lượng xuất phải lớn hơn hoặc bằng 0");
+      const newData =
+        editingRecord &&
+        editingRecord.filter(
+          (d) => d.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
+        );
+      if (newData.length !== 0) {
         setDisabledSave(true);
       } else {
-        if (sl > record.soLuong) {
-          setHasError(true);
-          setErrorMessage(
-            "Số lượng xuất phải nhỏ hơn hoặc bằng số lượng trong kho"
-          );
-          setDisabledSave(true);
-        } else {
-          setDisabledSave(false);
-          setHasError(false);
-          setErrorMessage(null);
-        }
+        setDisabledSave(false);
       }
+      setEditingRecord(newData);
     }
-    setEditingRecord(record);
+    const newData = [...ListViTriKho];
 
-    setListViTriKho((prevListViTriKho) => {
-      return prevListViTriKho.map((item) => {
-        if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
-          return {
-            ...item,
-            soLuongThucXuat: sl ? parseFloat(sl) : 0,
-          };
-        }
-        return item;
-      });
+    newData.forEach((ct, index) => {
+      if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+        ct.soLuongThucXuat = soLuong;
+      }
     });
+    setListViTriKho(newData);
+  };
 
-    setSelectedViTri((prevSelectedViTri) => {
-      return prevSelectedViTri.map((item) => {
-        if (record.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
-          return {
-            ...item,
-            soLuongThucXuat: sl ? parseFloat(sl) : 0,
-          };
+  const renderSoLuongXuat = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord &&
+      editingRecord.forEach((ct) => {
+        if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+          isEditing = true;
+          message = ct.message;
         }
-        return item;
       });
-    });
+
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+            borderColor: isEditing ? "red" : "",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.soLuongThucXuat}
+          onChange={(val) => handleInputChange(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
   };
 
   let colListViTri = [
@@ -232,7 +206,7 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
 
   const XacNhanViTri = () => {
     const SoLuong = SelectedViTri.reduce(
-      (tong, vitri) => tong + vitri.soLuongThucXuat,
+      (tong, vitri) => tong + Number(vitri.soLuongThucXuat || 0),
       0
     );
 

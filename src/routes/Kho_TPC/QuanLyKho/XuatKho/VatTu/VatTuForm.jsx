@@ -163,7 +163,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 chiTiet_LuuVatTus: [],
               };
             });
-          setListVatTu(newData);
+          setListVatTu(newData && newData);
           if (location.state) {
             getListPhieuDeNghiCVT(res.data.phongBan_Id);
             setFieldsValue({
@@ -1210,7 +1210,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
             ) : null}
-            {info.lyDoTuChoi ? (
+            {info && info.lyDoTuChoi ? (
               <Col
                 xxl={12}
                 xl={12}
