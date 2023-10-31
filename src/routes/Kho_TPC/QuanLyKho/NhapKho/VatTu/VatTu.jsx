@@ -241,7 +241,7 @@ function VatTu({ match, history, permission }) {
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `lkn_PhieuXuatKhoVatTu/export-pdf-nhap-kho`,
+                `lkn_PhieuNhapKhoVatTu/export-pdf-nhap-kho`,
                 "POST",
                 newData,
                 "",

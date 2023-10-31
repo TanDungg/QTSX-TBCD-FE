@@ -59,7 +59,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [ActiveModal, setActiveModal] = useState(false);
   const [NgaySanXuat, setNgaySanXuat] = useState(
-    moment(getDateNow(-1), "DD/MM/YYYY")
+    moment(getDateNow(1), "DD/MM/YYYY")
   );
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
   const [info, setInfo] = useState({});
@@ -169,6 +169,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       nam: ngay[2],
       loaiKeHoach_Id: "3adecca0-3fe1-4433-b93b-0137dc3dfdce",
     });
+    console.log(params);
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -910,7 +911,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       },
     });
     setListVatTu([]);
-    getListSanPham(val, NgaySanXuat._i);
+    getListSanPham(val, NgaySanXuat.format("DD/MM/YYYY"));
   };
 
   const handleSelectSanPham = (val) => {

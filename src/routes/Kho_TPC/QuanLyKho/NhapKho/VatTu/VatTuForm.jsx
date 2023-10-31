@@ -136,6 +136,7 @@ const VatTuForm = ({ history, match, permission }) => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
+          const datetime = moment();
           setType("new");
           getUserLap(INFO);
           getNhaCungCap();
@@ -144,7 +145,10 @@ const VatTuForm = ({ history, match, permission }) => {
           getMaPhieu();
           setFieldsValue({
             phieunhapkho: {
-              ngayNhan: moment(getDateNow(), "DD/MM/YYYY"),
+              ngayNhan: moment(
+                datetime.format("DD/MM/YYYY HH:mm:ss"),
+                "DD/MM/YYYY HH:mm:ss"
+              ),
               ngayHoaDon: moment(getDateNow(), "DD/MM/YYYY"),
             },
           });
@@ -416,7 +420,7 @@ const VatTuForm = ({ history, match, permission }) => {
             phieunhapkho: {
               ...res.data,
               ngayNhan: res.data.ngayNhan
-                ? moment(res.data.ngayNhan, "DD/MM/YYYY")
+                ? moment(res.data.ngayNhan, "DD/MM/YYYY HH:mm:ss")
                 : null,
               ngayHoaDon: res.data.ngayHoaDon
                 ? moment(res.data.ngayHoaDon, "DD/MM/YYYY")
@@ -746,7 +750,7 @@ const VatTuForm = ({ history, match, permission }) => {
               getMaPhieu();
               setFieldsValue({
                 phieunhapkho: {
-                  ngayNhan: moment(getDateNow(), "DD/MM/YYYY"),
+                  ngayNhan: moment(getDateNow(), "DD/MM/YYYY HH:mm:ss"),
                   ngayHoaDon: moment(getDateNow(), "DD/MM/YYYY"),
                 },
               });
@@ -900,13 +904,14 @@ const VatTuForm = ({ history, match, permission }) => {
                 ]}
               >
                 <DatePicker
-                  format={"DD/MM/YYYY"}
+                  format={"DD/MM/YYYY HH:mm:ss"}
                   disabled={true}
+                  showTime
                   allowClear={false}
                   onChange={(date, dateString) => {
                     setFieldsValue({
                       phieunhapkho: {
-                        ngayNhan: moment(dateString, "DD/MM/YYYY"),
+                        ngayNhan: moment(dateString, "DD/MM/YYYY HH:mm:ss"),
                       },
                     });
                   }}
