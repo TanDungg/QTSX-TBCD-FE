@@ -454,6 +454,7 @@ function NhapKho({ permission, history, match }) {
   });
 
   const handleTaoPhieu = () => {
+    console.log(DataXuat);
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
