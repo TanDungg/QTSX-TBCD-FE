@@ -3,7 +3,7 @@ import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit, Select } from "src/components/Common";
+import { FormSubmit, Select, TreeSelect } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 
@@ -22,7 +22,8 @@ const BoPhanForm = ({ history, match, permission }) => {
   const [form] = Form.useForm();
   const { maBoPhan, tenBoPhan, phongBan_Id } = initialState;
   const [phongBanSelect, setPhongBanSelect] = useState([]);
-
+  const [BoPhanSelect, setBoPhanSelect] = useState([]);
+  const [listDonVi, setListDonVi] = useState([]);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
@@ -31,6 +32,7 @@ const BoPhanForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           getData();
           setType("new");
+          getBoPhan();
         } else if (permission && !permission.add) {
           history.push("/home");
         }
@@ -39,6 +41,7 @@ const BoPhanForm = ({ history, match, permission }) => {
           setType("edit");
           const { id } = match.params;
           setId(id);
+          getBoPhan();
           getInfo();
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -73,6 +76,28 @@ const BoPhanForm = ({ history, match, permission }) => {
           });
         });
         setPhongBanSelect(newData);
+      }
+    });
+  };
+  const getBoPhan = (phongBan_Id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `BoPhan/bo-phan-tree`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        const newlist = { id: "root", tenBoPhan: "Root", children: [] };
+        setBoPhanSelect([newlist, ...res.data]);
+      } else {
+        setBoPhanSelect([]);
       }
     });
   };
@@ -232,6 +257,26 @@ const BoPhanForm = ({ history, match, permission }) => {
             <Input className="input-item" placeholder="Nhập tên bộ phận" />
           </FormItem>
           <FormItem
+            label="Đơn vị"
+            name={["bophan", "donVi_Id"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
+          >
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={listDonVi ? listDonVi : []}
+              placeholder="Chọn đơn vị"
+              optionsvalue={["id", "name"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+            />
+          </FormItem>
+          <FormItem
             label="Phòng ban"
             name={["bophan", "phongBan_Id"]}
             rules={[
@@ -250,6 +295,25 @@ const BoPhanForm = ({ history, match, permission }) => {
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
+            />
+          </FormItem>
+          <FormItem
+            label="Bộ phận cha"
+            name={["bophan", "boPhan_Id"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
+          >
+            <TreeSelect
+              className="tree-select-item"
+              datatreeselect={BoPhanSelect}
+              name="CauTrucKho"
+              options={["id", "tenBoPhan", "children"]}
+              placeholder="Chọn bộ phận cha"
+              style={{ width: "100%" }}
             />
           </FormItem>
           <FormSubmit

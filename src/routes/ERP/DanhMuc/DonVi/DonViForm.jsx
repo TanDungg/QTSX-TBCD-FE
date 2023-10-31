@@ -153,6 +153,9 @@ const DonViForm = ({ history, match, permission }) => {
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
       const newData = user;
+      newData.donVi_Id === "root"
+        ? (newData.donVi_Id = null)
+        : (newData.donVi_Id = newData.donVi_Id);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(`DonVi`, "POST", newData, "ADD", "", resolve, reject)
@@ -179,6 +182,9 @@ const DonViForm = ({ history, match, permission }) => {
     if (type === "edit") {
       delete info.tapDoan;
       var newData = { ...info, ...user };
+      newData.donVi_Id === "root"
+        ? (newData.donVi_Id = null)
+        : (newData.donVi_Id = newData.donVi_Id);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(`DonVi/${id}`, "PUT", newData, "EDIT", "", resolve, reject)

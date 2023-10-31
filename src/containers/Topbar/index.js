@@ -25,11 +25,11 @@ const { Header } = Layout;
 const Topbar = () => {
   const { navStyle } = useSelector(({ settings }) => settings);
   const { navCollapsed, width } = useSelector(({ common }) => common).toJS();
-  const { thongbao } = useSelector(({ thongbao }) => thongbao);
+  // const { thongbao } = useSelector(({ thongbao }) => thongbao);
   const { donvi } = useSelector(({ donvi }) => donvi);
   const [DonVi, setDonVi] = useState("");
   const MENUINFO = getLocalStorage("menu");
-  const INFO = getTokenInfo();
+  // const INFO = getTokenInfo();
   const history = useHistory();
 
   useEffect(() => {
@@ -46,39 +46,39 @@ const Topbar = () => {
       setLocalStorage("menu", menuInfo);
     }
   }, [donvi]);
-  const setDefaut = (user_Id, role_Id) => {
-    const param = convertObjectToUrlParams({
-      user_Id,
-      role_Id,
-    });
-    dispatch(
-      fetchStart(
-        `PhanMem/default-phan-mem-for-user?${param}`,
-        "POST",
-        null,
-        "DETAIL",
-        ""
-      )
-    );
-  };
-  const renderThongBao = (
-    // thongbao.length > 0 ? (
-    //   thongbao.map((tb) => {
-    //     return (a
-    //       <Link
-    //         to={{
-    //           pathname: tb.url,
-    //         }}
-    //         className="gx-notification"
-    //         onClick={() => handleClick(tb.id)}
-    //       >
-    //         {tb.body}
-    //       </Link>
-    //     );
-    //   })
-    // ) : (
-    <Empty />
-  );
+  // const setDefaut = (user_Id, role_Id) => {
+  //   const param = convertObjectToUrlParams({
+  //     user_Id,
+  //     role_Id,
+  //   });
+  //   dispatch(
+  //     fetchStart(
+  //       `PhanMem/default-phan-mem-for-user?${param}`,
+  //       "POST",
+  //       null,
+  //       "DETAIL",
+  //       ""
+  //     )
+  //   );
+  // };
+  // const renderThongBao = (
+  //   thongbao.length > 0 ? (
+  //     thongbao.map((tb) => {
+  //       return (a
+  //         <Link
+  //           to={{
+  //             pathname: tb.url,
+  //           }}
+  //           className="gx-notification"
+  //           onClick={() => handleClick(tb.id)}
+  //         >
+  //           {tb.body}
+  //         </Link>
+  //       );
+  //     })
+  //   ) : (
+  //   <Empty />
+  // );
   // );
   const handleOnSelectDonVi = (val) => {
     setDonVi(val);
@@ -93,18 +93,18 @@ const Topbar = () => {
     history.push("/home");
   };
   const dispatch = useDispatch();
-  const content = (
-    <div
-      style={{
-        width: "100%",
-        display: "flex",
-        flexDirection: "column",
-        fontSize: 12,
-      }}
-    >
-      {renderThongBao}
-    </div>
-  );
+  // const content = (
+  //   <div
+  //     style={{
+  //       width: "100%",
+  //       display: "flex",
+  //       flexDirection: "column",
+  //       fontSize: 12,
+  //     }}
+  //   >
+  //     {renderThongBao}
+  //   </div>
+  // );
   return (
     <Header>
       {navStyle === NAV_STYLE_DRAWER ||

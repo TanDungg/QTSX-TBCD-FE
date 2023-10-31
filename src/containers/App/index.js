@@ -110,10 +110,13 @@ const App = () => {
     link.href = `/css/${themeColor}.css`; //This line is changed, this comment is for explaination purpose.
     link.className = "gx-style";
     document.body.appendChild(link);
+    console.log(location);
     if (
-      location.pathname === "/in-barcode-kho-tpc/vat-tu/inMa" ||
-      location.pathname === "/in-barcode-kho-tpc/ke/inMa" ||
-      location.pathname === "/in-barcode-kho-tpc/cau-truc-kho/inMa"
+      location &&
+      location.pathname &&
+      (location.pathname === "/in-barcode-kho-tpc/vat-tu/inMa" ||
+        location.pathname === "/in-barcode-kho-tpc/ke/inMa" ||
+        location.pathname === "/in-barcode-kho-tpc/cau-truc-kho/inMa")
     ) {
       setSessionStorage("tokenInfo", true);
     }
