@@ -306,6 +306,22 @@ function DinhMucVatTu({ permission, history, match }) {
       filterSearch: true,
     },
     {
+      title: "Sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenSanPham,
+            value: d.tenSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenSanPham.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Ngày yêu cầu",
       dataIndex: "ngayYeuCau",
       key: "ngayYeuCau",

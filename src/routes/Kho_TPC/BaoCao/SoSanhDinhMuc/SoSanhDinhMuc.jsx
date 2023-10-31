@@ -289,21 +289,21 @@ function SoSanhDinhMuc({ permission, history, match }) {
     });
   };
 
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<DownloadOutlined />}
-          className="th-btn-margin-bottom-0"
-          type="primary"
-          onClick={XuatExcel}
-          disabled={(permission && !permission.add) || DataXuat.length === 0}
-        >
-          Xuất excel
-        </Button>
-      </>
-    );
-  };
+  // const addButtonRender = () => {
+  //   return (
+  //     <>
+  //       <Button
+  //         icon={<DownloadOutlined />}
+  //         className="th-btn-margin-bottom-0"
+  //         type="primary"
+  //         onClick={XuatExcel}
+  //         disabled={(permission && !permission.add) || DataXuat.length === 0}
+  //       >
+  //         Xuất excel
+  //       </Button>
+  //     </>
+  //   );
+  // };
 
   const handleOnSelectPhongBan = (value) => {
     setPhongBan(value);
@@ -328,7 +328,7 @@ function SoSanhDinhMuc({ permission, history, match }) {
       <ContainerHeader
         title={"Báo cáo so sánh định mức"}
         description="Báo cáo so sánh định mức"
-        buttons={addButtonRender()}
+        // buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ marginBottom: 10 }}>

@@ -38,7 +38,7 @@ function KiemKe({ match, history, permission }) {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
-  const [ListKho, setListKho] = useState([]);
+  const [ListPhongBan, setListPhongBan] = useState([]);
   const [Kho, setKho] = useState("");
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
@@ -48,7 +48,7 @@ function KiemKe({ match, history, permission }) {
 
   useEffect(() => {
     if (permission && permission.view) {
-      getKho();
+      getPhongBan();
       getListData(keyword, Kho, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
@@ -74,11 +74,11 @@ function KiemKe({ match, history, permission }) {
     dispatch(fetchStart(`lkn_PhieuKiemKe?${param}`, "GET", null, "LIST"));
   };
 
-  const getKho = () => {
+  const getPhongBan = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
+          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -90,9 +90,15 @@ function KiemKe({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListKho(res.data);
+          const xuongsx = [];
+          res.data.forEach((x) => {
+            if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+              xuongsx.push(x);
+            }
+          });
+          setListPhongBan(xuongsx);
         } else {
-          setListKho([]);
+          setListPhongBan([]);
         }
       })
       .catch((error) => console.error(error));
@@ -497,12 +503,12 @@ function KiemKe({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Kho:</h5>
+            <h5>Xưởng sản xuất:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListKho ? ListKho : []}
-              placeholder="Chọn Kho"
-              optionsvalue={["id", "tenCTKho"]}
+              data={ListPhongBan ? ListPhongBan : []}
+              placeholder="Chọn xưởng sản xuất"
+              optionsvalue={["id", "tenPhongBan"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
