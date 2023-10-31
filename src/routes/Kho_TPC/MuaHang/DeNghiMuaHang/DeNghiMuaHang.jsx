@@ -126,10 +126,7 @@ function DeNghiMuaHang({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      permission &&
-      permission.cof &&
-      item.userYeuCau_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
+      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -256,6 +253,7 @@ function DeNghiMuaHang({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
+
   const handlePrint = () => {
     const params = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id,
