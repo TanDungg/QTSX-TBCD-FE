@@ -119,7 +119,10 @@ const Topbar = () => {
           />
         </div>
       ) : null}
-      <Link to={MENUINFO.Url} className="gx-d-block gx-d-lg-none gx-pointer">
+      <Link
+        to={MENUINFO ? MENUINFO.Url : ""}
+        className="gx-d-block gx-d-lg-none gx-pointer"
+      >
         <img
           height={width > 450 ? 36 : 27}
           width={width > 450 ? 160 : 120}

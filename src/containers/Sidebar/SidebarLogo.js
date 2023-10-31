@@ -48,7 +48,7 @@ const SidebarLogo = () => {
         </div>
       ) : null}
 
-      <Link to={MENUINFO.Url} className="gx-site-logo">
+      <Link to={MENUINFO ? MENUINFO.Ur : ""} className="gx-site-logo">
         {navStyle === NAV_STYLE_NO_HEADER_MINI_SIDEBAR && width >= TAB_SIZE ? (
           <img
             alt="logoIndustries"

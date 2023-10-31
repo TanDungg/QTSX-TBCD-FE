@@ -119,7 +119,7 @@ function PhieuNhanHang({ match, history, permission }) {
       permission.edit &&
       item.createdBy === INFO.user_Id &&
       moment(item.ngayTaoPhieu, "DD/MM/YYYY") >=
-        moment(getDateNow(1), "DD/MM/YYYY") ? (
+        moment(getDateNow(-1), "DD/MM/YYYY") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -139,7 +139,7 @@ function PhieuNhanHang({ match, history, permission }) {
       permission.del &&
       item.createdBy === INFO.user_Id &&
       moment(item.ngayTaoPhieu, "DD/MM/YYYY") >=
-        moment(getDateNow(1), "DD/MM/YYYY")
+        moment(getDateNow(-1), "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (

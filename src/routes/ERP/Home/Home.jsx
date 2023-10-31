@@ -29,11 +29,13 @@ function Home({ permission, history }) {
         : ""
     );
     return () => dispatch(fetchReset());
-  }, [dispatch]);
+  }, [donvi]);
   const getInfo = () => {
     dispatch(
       fetchStart(
-        `PhanMem/phan-mem-by-user?user_Id=${TOKENINFO.id}&&donVi_Id=${MENUINFO.donVi_Id}`,
+        `PhanMem/phan-mem-by-user?user_Id=${TOKENINFO.id}&&donVi_Id=${
+          MENUINFO ? MENUINFO.donVi_Id : ""
+        }`,
         "GET",
         null,
         "LIST"

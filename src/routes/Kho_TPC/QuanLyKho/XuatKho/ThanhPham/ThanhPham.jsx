@@ -105,7 +105,7 @@ function ThanhPham({ match, history, permission }) {
       permission &&
       permission.edit &&
       item.userLap_Id === INFO.user_Id &&
-      moment(getDateNow(2), "DD/MM/YYYY") <=
+      moment(getDateNow(-1), "DD/MM/YYYY") <=
         moment(item.ngayXuatKho, "DD/MM/YYYY") ? (
         <Link
           to={{
@@ -125,7 +125,7 @@ function ThanhPham({ match, history, permission }) {
       permission &&
       permission.del &&
       item.userLap_Id === INFO.user_Id &&
-      moment(getDateNow(2), "DD/MM/YYYY") <=
+      moment(getDateNow(-1), "DD/MM/YYYY") <=
         moment(item.ngayXuatKho, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };

@@ -105,7 +105,11 @@ function ThanhLyThanhPham({ match, history, permission }) {
 
   const actionContent = (item) => {
     const editItem =
-      permission && permission.edit && item.userLap_Id === INFO.user_Id ? (
+      permission &&
+      permission.edit &&
+      item.userLap_Id === INFO.user_Id &&
+      moment(getDateNow(-1), "DD/MM/YYYY") <=
+        moment(item.ngayXuatKho, "DD/MM/YYYY") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -122,7 +126,11 @@ function ThanhLyThanhPham({ match, history, permission }) {
       );
 
     const deleteVal =
-      permission && permission.del && item.userLap_Id === INFO.user_Id
+      permission &&
+      permission.del &&
+      item.userLap_Id === INFO.user_Id &&
+      moment(getDateNow(-1), "DD/MM/YYYY") <=
+        moment(item.ngayXuatKho, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
 

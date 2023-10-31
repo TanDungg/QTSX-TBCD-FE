@@ -123,7 +123,7 @@ function VatTu({ match, history, permission }) {
       permission &&
       permission.edit &&
       item.userNhan_Id === INFO.user_Id &&
-      moment(getDateNow(1), "DD/MM/YYYY") <=
+      moment(getDateNow(-1), "DD/MM/YYYY") <=
         moment(item.ngayNhan, "DD/MM/YYYY") ? (
         <Link
           to={{
@@ -143,7 +143,8 @@ function VatTu({ match, history, permission }) {
       permission &&
       permission.del &&
       item.userNhan_Id === INFO.user_Id &&
-      moment(getDateNow(2), "DD/MM/YYYY") <= moment(item.ngayNhan, "DD/MM/YYYY")
+      moment(getDateNow(-1), "DD/MM/YYYY") <=
+        moment(item.ngayNhan, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
