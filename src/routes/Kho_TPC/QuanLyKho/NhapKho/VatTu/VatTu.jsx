@@ -237,10 +237,11 @@ function VatTu({ match, history, permission }) {
             lstpnkvtct:
               res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu),
           };
+          console.log(newData);
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `lkn_PhieuXuatKhoVatTu/export-pdf-nhap-kho`,
+                `lkn_PhieuNhapKhoVatTu/export-pdf-nhap-kho`,
                 "POST",
                 newData,
                 "",
