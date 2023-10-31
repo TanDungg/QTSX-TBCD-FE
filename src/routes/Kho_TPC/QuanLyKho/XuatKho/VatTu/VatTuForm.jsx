@@ -361,6 +361,7 @@ const VatTuForm = ({ history, match, permission }) => {
             phieuxuatkhovattu: {
               phongBan_Id: res.data.xuongSanXuat_Id,
               phieuDeNghiCapVatTu_Id: res.data.phieuDeNghiCapVatTu_Id,
+              maPhieuDeNghiCapVatTu: res.data.maPhieuDeNghiCapVatTu,
               tenSanPham: res.data.tenSanPham,
               ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               ngayXuatKho: moment(res.data.ngayXuatKho, "DD/MM/YYYY"),
@@ -772,6 +773,7 @@ const VatTuForm = ({ history, match, permission }) => {
       const newData = {
         ...data,
         id: id,
+        phieuDeNghiCapVatTu_Id: info.phieuDeNghiCapVatTu_Id,
         ngayYeuCau: data.ngayYeuCau.format("DD/MM/YYYY"),
         chiTiet_ChiTietPhieuXuatKhoVatTus: listVatTu,
       };
@@ -1016,28 +1018,43 @@ const VatTuForm = ({ history, match, permission }) => {
               xs={24}
               style={{ marginBottom: 8 }}
             >
-              <FormItem
-                label="Phiếu đề nghị CVT"
-                name={["phieuxuatkhovattu", "phieuDeNghiCapVatTu_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListPhieuDeNghiCVT ? ListPhieuDeNghiCVT : []}
-                  optionsvalue={["id", "maPhieuDeNghiCapVatTu"]}
-                  style={{ width: "100%" }}
-                  placeholder="Phiếu đề nghị cấp vật tư"
-                  showSearch
-                  optionFilterProp={"name"}
-                  onSelect={handleSelectListVatTu}
-                  disabled={type === "new" ? false : true}
-                />
-              </FormItem>
+              {type === "new" || type === "taophieuxuat" ? (
+                <FormItem
+                  label="Phiếu đề nghị CVT"
+                  name={["phieuxuatkhovattu", "phieuDeNghiCapVatTu_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListPhieuDeNghiCVT ? ListPhieuDeNghiCVT : []}
+                    optionsvalue={["id", "maPhieuDeNghiCapVatTu"]}
+                    style={{ width: "100%" }}
+                    placeholder="Phiếu đề nghị cấp vật tư"
+                    showSearch
+                    optionFilterProp={"name"}
+                    onSelect={handleSelectListVatTu}
+                    disabled={type === "new" ? false : true}
+                  />
+                </FormItem>
+              ) : (
+                <FormItem
+                  label="Phiếu đề nghị CVT"
+                  name={["phieuxuatkhovattu", "maPhieuDeNghiCapVatTu"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Input className="input-item" disabled={true} />
+                </FormItem>
+              )}
             </Col>
             <Col
               xxl={12}
