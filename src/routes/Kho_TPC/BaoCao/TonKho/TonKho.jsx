@@ -282,7 +282,7 @@ function TonKho({ permission, history, match }) {
       );
     }).then((res) => {
       exportExcel(
-        `BaoCaoTonKho${Loai === "sanpham" ? "SanPham" : "VatTu"}`,
+        `BaoCaoTonKho${Loai === "sanpham" ? "ThanhPham" : "VatTu"}`,
         res.data.dataexcel
       );
     });
@@ -312,7 +312,13 @@ function TonKho({ permission, history, match }) {
   const handleChangeThang = (month) => {
     setThang(month.format("MM"));
     setNam(month.format("yyyy"));
-    getListData(keyword, month.format("MM"), month.format("yyyy"), page);
+    getListData(
+      keyword,
+      month.format("MM"),
+      month.format("yyyy"),
+      page,
+      Loai === "sanpham" ? true : false
+    );
   };
 
   return (

@@ -5,6 +5,8 @@ import {
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
+  DownCircleOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -24,6 +26,7 @@ import {
   getLocalStorage,
   getTokenInfo,
   removeDuplicates,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -41,6 +44,8 @@ function KiemKe({ match, history, permission }) {
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
+  const [SelectedKiemKe, setSelectedKiemKe] = useState([]);
+  const [SelectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -120,7 +125,8 @@ function KiemKe({ match, history, permission }) {
     const detailItem =
       permission &&
       permission.cof &&
-      item.tinhTrang !== "Hoàn thành xác nhận" ? (
+      item.userLap_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -226,6 +232,54 @@ function KiemKe({ match, history, permission }) {
     });
   };
 
+  const handlePrint = () => {
+    const params = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuKiemKe/${SelectedKiemKe[0].id}?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newData = {
+            ...res.data,
+            chiTietKiemKe:
+              res.data.chiTiet_PhieuKiemKes !== null &&
+              JSON.parse(res.data.chiTiet_PhieuKiemKes),
+          };
+          console.log(newData);
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `lkn_PhieuKiemKe/export-file-excel-kiem-ke`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportExcel("PhieuKiemKe", res.data.dataexcel);
+            setSelectedKiemKe([]);
+            setSelectedKeys([]);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -237,6 +291,17 @@ function KiemKe({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
+        </Button>
+        <Button
+          icon={<DownloadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handlePrint}
+          disabled={
+            (permission && !permission.print) || SelectedKeys.length === 0
+          }
+        >
+          Xuất excel
         </Button>
       </>
     );
@@ -400,6 +465,26 @@ function KiemKe({ match, history, permission }) {
     getListData(keyword, Kho, dateString[0], dateString[1], 1);
   };
 
+  const rowSelection = {
+    selectedRowKeys: SelectedKeys,
+    selectedRows: SelectedKiemKe,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        SelectedKiemKe.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectedKiemKe[0].key)
+          : [...selectedRows];
+
+      const key =
+        SelectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
+          : [...selectedRowKeys];
+
+      setSelectedKiemKe(row);
+      setSelectedKeys(key);
+    },
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -497,6 +582,13 @@ function KiemKe({ match, history, permission }) {
             total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,
+          }}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: SelectedKeys,
           }}
           loading={loading}
         />

@@ -233,7 +233,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
             nguoiNhanHang: res.data.userLapPhieu,
             boPhan: res.data.tenPhongBan,
             lst_ChiTietPhieuDeNghiCapVatTu:
-              res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
+              res.data.lst_ChiTietPhieuDeNghiCapVatTu !== null &&
               JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu),
           };
           new Promise((resolve, reject) => {

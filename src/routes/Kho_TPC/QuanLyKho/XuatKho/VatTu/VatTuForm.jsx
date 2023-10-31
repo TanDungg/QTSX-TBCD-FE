@@ -569,7 +569,6 @@ const VatTuForm = ({ history, match, permission }) => {
   };
 
   const renderListKho = (record) => {
-    console.log(record);
     const ListKho =
       record.lst_kho &&
       record.lst_kho.map((data) => {

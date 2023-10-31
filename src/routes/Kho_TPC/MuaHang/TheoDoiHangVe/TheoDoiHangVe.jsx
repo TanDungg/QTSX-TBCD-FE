@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Row, Col, DatePicker } from "antd";
+import { Card, Row, Col, DatePicker, Tag } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { map, isEmpty, remove } from "lodash";
 import {
@@ -11,7 +11,6 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
-  reDataForTable,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
@@ -111,20 +110,48 @@ function TheoDoiHangVe({ match, history, permission }) {
     }
   };
 
-  /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    loadData(keyword, NhomVatTu, FromDate, ToDate, pagination);
+  const renderColumn = (record, value) => {
+    if (value === "ngayHangVe") {
+      return (
+        <div>
+          {record.ngayHangVe &&
+            JSON.parse(record.ngayHangVe).map((nhv) => {
+              return (
+                <Tag
+                  style={{
+                    marginRight: 5,
+                    color: "#0469B9",
+                    fontSize: 13,
+                  }}
+                >
+                  {nhv.ngayHangVe}
+                </Tag>
+              );
+            })}
+        </div>
+      );
+    }
+    if (value === "tenThuMua") {
+      return (
+        <div>
+          {record.tenThuMua &&
+            JSON.parse(record.tenThuMua).map((nhv) => {
+              return (
+                <Tag
+                  style={{
+                    marginRight: 5,
+                    color: "#0469B9",
+                    fontSize: 13,
+                  }}
+                >
+                  {nhv.tenThuMua}
+                </Tag>
+              );
+            })}
+        </div>
+      );
+    }
   };
-
-  const { totalRow, pageSize } = data;
-
-  let dataList = reDataForTable(data);
 
   let renderHead = [
     {
@@ -143,7 +170,7 @@ function TheoDoiHangVe({ match, history, permission }) {
       width: 180,
       fixed: "left",
       filters: removeDuplicates(
-        map(dataList, (d) => {
+        map(data, (d) => {
           return {
             text: d.tenVatTu,
             value: d.tenVatTu,
@@ -160,7 +187,7 @@ function TheoDoiHangVe({ match, history, permission }) {
       align: "center",
       width: 120,
       filters: removeDuplicates(
-        map(dataList, (d) => {
+        map(data, (d) => {
           return {
             text: d.tenNhomVatTu,
             value: d.tenNhomVatTu,
@@ -178,7 +205,7 @@ function TheoDoiHangVe({ match, history, permission }) {
       align: "center",
       width: 100,
       filters: removeDuplicates(
-        map(dataList, (d) => {
+        map(data, (d) => {
           return {
             text: d.hangMucSuDung,
             value: d.hangMucSuDung,
@@ -195,7 +222,7 @@ function TheoDoiHangVe({ match, history, permission }) {
       align: "center",
       width: 140,
       filters: removeDuplicates(
-        map(dataList, (d) => {
+        map(data, (d) => {
           return {
             text: d.ngayHoanThanhDuKien,
             value: d.ngayHoanThanhDuKien,
@@ -211,59 +238,29 @@ function TheoDoiHangVe({ match, history, permission }) {
       key: "ngayXacNhanHangVe",
       align: "center",
       width: 140,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.ngayXacNhanHangVe,
-            value: d.ngayXacNhanHangVe,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.ngayXacNhanHangVe.includes(value),
-      filterSearch: true,
     },
     {
       title: "CV Thu mua",
-      dataIndex: "userThuMua",
-      key: "userThuMua",
+      key: "tenThuMua",
       align: "center",
       width: 180,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.userThuMua,
-            value: d.userThuMua,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.userThuMua.includes(value),
-      filterSearch: true,
+      render: (record) => renderColumn(record, "tenThuMua"),
     },
     {
       title: "Ngày nhận hàng",
-      dataIndex: "ngayHangVe",
       key: "ngayHangVe",
       align: "center",
       width: 140,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.ngayHangVe,
-            value: d.ngayHangVe,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.ngayHangVe.includes(value),
-      filterSearch: true,
+      render: (record) => renderColumn(record, "ngayHangVe"),
     },
     {
-      title: "Đơn vị tính",
+      title: "ĐVT",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
       align: "center",
       width: 80,
       filters: removeDuplicates(
-        map(dataList, (d) => {
+        map(data, (d) => {
           return {
             text: d.tenDonViTinh,
             value: d.tenDonViTinh,
@@ -308,7 +305,7 @@ function TheoDoiHangVe({ match, history, permission }) {
       align: "center",
       width: 100,
       filters: removeDuplicates(
-        map(dataList, (d) => {
+        map(data, (d) => {
           return {
             text: d.ketQua,
             value: d.ketQua,
@@ -468,22 +465,16 @@ function TheoDoiHangVe({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 1200, y: "65vh" }}
+          scroll={{ x: 1200, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
-          dataSource={dataList}
+          dataSource={data}
           size="small"
           rowClassName={(record) => {
             return record.isParent ? "editable-row" : "editable-row";
           }}
-          pagination={{
-            onChange: handleTableChange,
-            pageSize: 20,
-            total: totalRow,
-            showSizeChanger: false,
-            showQuickJumper: true,
-          }}
+          pagination={false}
           loading={loading}
         />
       </Card>
