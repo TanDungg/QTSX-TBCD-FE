@@ -108,6 +108,7 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
             }`}
             value={record.soLuongThucXuat}
             type="number"
+            step="0.0001"
             onChange={(val) => handleInputChange(val, record)}
           />
           {isEditing && hasError && (
