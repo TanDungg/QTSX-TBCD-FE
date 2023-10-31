@@ -423,32 +423,32 @@ const VatTuForm = ({ history, match, permission }) => {
     }
   };
 
-  const deleteItemFunc = (item) => {
-    const title = "vật tư";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
-  };
+  // const deleteItemFunc = (item) => {
+  //   const title = "vật tư";
+  //   ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
+  // };
 
-  const deleteItemAction = (item) => {
-    const newData = listVatTu.filter((d) => d.maVatTu !== item.maVatTu);
-    setListVatTu(newData);
-    setFieldTouch(true);
-  };
+  // const deleteItemAction = (item) => {
+  //   const newData = listVatTu.filter((d) => d.maVatTu !== item.maVatTu);
+  //   setListVatTu(newData);
+  //   setFieldTouch(true);
+  // };
 
-  const actionContent = (item) => {
-    const deleteItemVal =
-      permission && permission.del && (type === "new" || type === "edit")
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        <React.Fragment>
-          <a {...deleteItemVal} title="Xóa">
-            <DeleteOutlined />
-          </a>
-        </React.Fragment>
-      </div>
-    );
-  };
+  // const actionContent = (item) => {
+  //   const deleteItemVal =
+  //     permission && permission.del && type === "new"
+  //       ? { onClick: () => deleteItemFunc(item) }
+  //       : { disabled: true };
+  //   return (
+  //     <div>
+  //       <React.Fragment>
+  //         <a {...deleteItemVal} title="Xóa">
+  //           <DeleteOutlined />
+  //         </a>
+  //       </React.Fragment>
+  //     </div>
+  //   );
+  // };
 
   const HandleChonViTri = (record, check) => {
     setActiveModalChonViTri(true);
@@ -677,13 +677,13 @@ const VatTuForm = ({ history, match, permission }) => {
       key: "ghiChu",
       align: "center",
     },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-    },
+    // {
+    //   title: "Chức năng",
+    //   key: "action",
+    //   align: "center",
+    //   width: 80,
+    // render: (value) => actionContent(value),
+    // },
   ];
 
   const components = {
