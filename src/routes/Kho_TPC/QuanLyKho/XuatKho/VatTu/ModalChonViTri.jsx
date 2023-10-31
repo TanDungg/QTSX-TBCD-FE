@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import { Table } from "src/components/Common";
-import { find, remove } from "lodash";
 
 function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
   const { width } = useSelector(({ common }) => common).toJS();

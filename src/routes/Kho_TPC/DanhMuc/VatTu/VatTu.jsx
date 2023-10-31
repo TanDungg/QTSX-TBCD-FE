@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Popover, Col } from "antd";
+import { Card, Button, Divider, Col } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   ImportOutlined,
-  PrinterOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
-import QRCode from "qrcode.react";
+import { map, isEmpty, remove } from "lodash";
 import ImportVatTu from "./ImportVatTu";
 import {
   ModalDeleteConfirm,

@@ -15,8 +15,8 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import {
   convertObjectToUrlParams,
-  getTokenInfo,
-  getLocalStorage,
+  // getTokenInfo,
+  // getLocalStorage,
 } from "src/util/Common";
 import moment from "moment";
 const { RangePicker } = DatePicker;
@@ -26,7 +26,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function NangLucSanXuat({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  // const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [ListNguoiLap, setListNguoiLap] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);

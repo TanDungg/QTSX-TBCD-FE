@@ -54,6 +54,8 @@ function Home({ permission, history }) {
     setDonVi(val);
     const menu = getLocalStorage("menu");
     menu.donVi_Id = val;
+    menu.phanMem_Id = null;
+    menu.Url = null;
     menu.tenPhanMem = "QUẢN LÝ NGUỒN NHÂN LỰC DOANH NGHIỆP (ERP)";
     setLocalStorage("menu", menu);
     dispatch(loadMenu());

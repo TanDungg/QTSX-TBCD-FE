@@ -74,5 +74,4 @@ export const messages = {
   TU_CHOI_THANH_CONG: "Từ chối thành công",
   NHAN_HANG_THANH_CONG: "Lập phiếu nhận hàng thành công",
   QUY_TRINH_THANH_CONG: "Cập nhật quy trình thành công",
-  TU_CHOI_THANH_CONG: "Từ chối phiếu thành công",
 };

@@ -1,24 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { Card, Row, Col } from "antd";
-import { repeat, map, filter, forEach, isEmpty, find } from "lodash";
+import { map, forEach, isEmpty } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 
 import { CheckBox, Table } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import {
-  reDataSelectedTable,
-  newTreeToFlatlist,
-  fillTreeWithValue,
-  reDataForTable,
-} from "src/util/Common";
+import { reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 
 function QuyTrinh({ history, permission, location, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const [id, setId] = useState(undefined);
-  const [listPermission, setListPermission] = useState([]);
-  const [listPermissionFlat, setListPermissionFlat] = useState([]);
   const [listChiTiet, setListChiTiet] = useState([]);
   const [listQuyTrinh, setListQuyTrinh] = useState([]);
   const [name, setName] = useState("");
@@ -33,7 +26,7 @@ function QuyTrinh({ history, permission, location, match }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         id && getChiTiet(id);
         if (itemData) {
-          const { id, description } = itemData;
+          const { id } = itemData;
           setId(id);
         } else {
           setId(id);

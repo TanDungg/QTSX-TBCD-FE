@@ -31,7 +31,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  // const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [ListSoLot, setListSoLot] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
   const [XuongSanXuat, setXuongSanXuat] = useState(null);

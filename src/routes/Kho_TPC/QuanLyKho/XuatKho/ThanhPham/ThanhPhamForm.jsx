@@ -1,8 +1,4 @@
-import {
-  DeleteOutlined,
-  PrinterOutlined,
-  ShoppingCartOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, ShoppingCartOutlined } from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -30,7 +26,6 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
-  exportPDF,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
@@ -473,46 +468,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       }),
     };
   });
-
-  const handlePrint = () => {
-    const newData = {
-      ...info,
-      lstpxktpct: info.chiTietThanhPham && JSON.parse(info.chiTietThanhPham),
-    };
-    console.log(newData);
-
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuXuatKhoThanhPham/export-pdf`,
-          "POST",
-          newData,
-          "",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      exportPDF("PhieuXuatKhoThanhPham", res.data.datapdf);
-    });
-  };
-
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
-        >
-          In phiếu
-        </Button>
-      </>
-    );
-  };
 
   const onFinish = (values) => {
     saveData(values.phieunhapkho);

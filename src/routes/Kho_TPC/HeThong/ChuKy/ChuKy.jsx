@@ -1,10 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Card, Upload, Row, Col, Button, Modal } from "antd";
-import { UploadOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { useDispatch, useSelector } from "react-redux";
-import { ModalDeleteConfirm } from "src/components/Common";
-import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import Helper from "src/helpers";
+import { PlusOutlined } from "@ant-design/icons";
+import { useDispatch } from "react-redux";
+import { fetchStart } from "src/appRedux/actions/Common";
 import { BASE_URL_API } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
 import {

@@ -39,10 +39,7 @@ function DinhMucVatTu({ permission, history, match }) {
   const [DinhMucVatTu, setDinhMucVatTu] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
-  // const [SelectedDinhMucVatTu, setSelectedDinhMucVatTu] = useState(null);
-  // const [selectedKeys, setSelectedKeys] = useState(null);
   const [keyword, setKeyword] = useState("");
-  const [data, setData] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -176,12 +173,9 @@ function DinhMucVatTu({ permission, history, match }) {
     });
     return uniqueObjects;
   }
-  const { totalRow, pageSize } = data;
+  const { totalRow, pageSize } = DinhMucVatTu;
   //Lấy thông tin thiết bị
-  const dataList = reDataForTable(
-    DinhMucVatTu.datalist,
-    page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  const dataList = reDataForTable(DinhMucVatTu.datalist, page, pageSize);
   /**
    * deleteItemFunc: Remove item from list
    * @param {object} item

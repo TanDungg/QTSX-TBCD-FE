@@ -28,7 +28,11 @@ import {
 import NoHeaderNotification from "../Topbar/NoHeaderNotification/index";
 import { useRouteMatch } from "react-router-dom";
 import { getTokenInfo } from "src/util/Common";
-import { loadMenu, thongBaoLoad, donViLoad } from "src/appRedux/actions";
+import {
+  loadMenu,
+  //  thongBaoLoad
+  donViLoad,
+} from "src/appRedux/actions";
 
 const { Content, Footer } = Layout;
 

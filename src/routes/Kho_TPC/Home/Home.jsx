@@ -1,8 +1,5 @@
-import { EyeOutlined } from "@ant-design/icons";
 import { Card, Tabs } from "antd";
-import { Column, G2 } from "@ant-design/plots";
-
-import isEmpty from "lodash/isEmpty";
+import { Column } from "@ant-design/plots";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,9 +10,6 @@ import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { reDataForTable } from "src/util/Common";
 
 import { EditableTableRow, Table } from "src/components/Common";
-
-import { convertObjectToUrlParams } from "src/util/Common";
-
 require("dotenv").config();
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -45,7 +39,7 @@ function Home({ permission, history }) {
   }, [load]);
 
   const loadData = (number) => {
-    if (number == 1) {
+    if (number === 1) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -64,10 +58,10 @@ function Home({ permission, history }) {
             const dataPlot = [];
             map(res.data, (d) => {
               if (
-                d.soLuongKHSX == 0 &&
-                d.soLuongKHGH == 0 &&
-                d.soLuongTTGH == 0 &&
-                d.soLuongTTSX == 0
+                d.soLuongKHSX === 0 &&
+                d.soLuongKHGH === 0 &&
+                d.soLuongTTGH === 0 &&
+                d.soLuongTTSX === 0
               ) {
               } else {
                 const newData = [
@@ -99,7 +93,7 @@ function Home({ permission, history }) {
           }
         })
         .catch((error) => console.error(error));
-    } else if (number == 2) {
+    } else if (number === 2) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -116,18 +110,17 @@ function Home({ permission, history }) {
         .then((res) => {
           if (res && res.data) {
             const newData = [];
-
             res.data.forEach((x) => {
-              JSON.parse(x.chiTietSanPham).forEach((sp) => {
+              JSON.parse(x.sanPhams).forEach((sp) => {
                 const chiTiet = {};
                 chiTiet.dept = x.tenPhongBan;
                 chiTiet.tenSanPham = sp.tenSanPham;
-                chiTiet.luyKeSX = sp.luyKeSanXuat;
+                chiTiet.luyKeSX = sp.luyKeThucHien;
                 chiTiet.diff = sp.chenhLech;
-                chiTiet.tongKH = sp.keHoachThang;
+                chiTiet.tongKH = sp.tongkeHoach;
                 chiTiet.luyKeKH = sp.luyKeKeHoach;
-                sp.soLuongChiTiet &&
-                  sp.soLuongChiTiet.forEach((ct) => {
+                sp.chiTiets &&
+                  sp.chiTiets.forEach((ct) => {
                     chiTiet[ct.ngay] = ct.soLuong;
                   });
                 newData.push(chiTiet);
@@ -158,7 +151,6 @@ function Home({ permission, history }) {
                   if (firstIndex === -1) {
                     firstIndex = index;
                   }
-
                   lastIndex = index;
                 }
               });
@@ -173,7 +165,7 @@ function Home({ permission, history }) {
           }
         })
         .catch((error) => console.error(error));
-    } else if (number == 3) {
+    } else if (number === 3) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -242,7 +234,7 @@ function Home({ permission, history }) {
           }
         })
         .catch((error) => console.error(error));
-    } else if (number == 4) {
+    } else if (number === 4) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -343,7 +335,7 @@ function Home({ permission, history }) {
   //   const tu = val.toString().split("/")[0];
   //   const mau = val.toString().split("/")[1];
   //   if (!isEmpty(val.toString())) {
-  //     if (val == "-" || val == "0/0") {
+  //     if (val ==="-" || val ==="0/0") {
   //       return (
   //         <div
   //           style={{

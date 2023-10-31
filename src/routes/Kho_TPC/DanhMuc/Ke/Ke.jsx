@@ -1,14 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Col, Popover } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, isEmpty, repeat, remove, find } from "lodash";
+import { map, isEmpty } from "lodash";
 
 import {
   ModalDeleteConfirm,
@@ -32,9 +27,6 @@ function Ke({ match, history, permission }) {
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-
-  const [selectedDevice, setSelectedDevice] = useState([]);
-  const [selectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     if (permission && permission.view) {
       loadData(keyword, page);
@@ -56,7 +48,7 @@ function Ke({ match, history, permission }) {
       fetchStart(`CauTrucKho/ke-thanh-pham?${param}`, "GET", null, "LIST")
     );
   };
-  const { totalRow, totalPages, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
   /**
@@ -164,12 +156,7 @@ function Ke({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handlePrint = () => {
-    history.push({
-      pathname: `${match.url}/inMa`,
-      state: { VatTu: selectedDevice },
-    });
-  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -182,15 +169,6 @@ function Ke({ match, history, permission }) {
         >
           Thêm mới
         </Button>
-        {/* <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
-        >
-          In Barcode
-        </Button> */}
       </>
     );
   };
@@ -322,27 +300,6 @@ function Ke({ match, history, permission }) {
     };
   });
 
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
-
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -413,26 +370,6 @@ function Ke({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
-          // rowSelection={{
-          //   type: "checkbox",
-          //   ...rowSelection,
-          //   preserveSelectedRowKeys: true,
-          //   selectedRowKeys: selectedKeys,
-          //   getCheckboxProps: (record) => ({}),
-          // }}
-          // onRow={(record, rowIndex) => {
-          //   return {
-          //     onClick: (e) => {
-          //       const found = find(selectedKeys, (k) => k === record.key);
-          //       if (found === undefined) {
-          //         setSelectedDevice([...selectedDevice, record]);
-          //         setSelectedKeys([...selectedKeys, record.key]);
-          //       } else {
-          //         hanldeRemoveSelected(record);
-          //       }
-          //     },
-          //   };
-          // }}
         />
       </Card>
     </div>

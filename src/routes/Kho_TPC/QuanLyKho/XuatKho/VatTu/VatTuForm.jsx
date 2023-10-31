@@ -65,7 +65,6 @@ const VatTuForm = ({ history, match, permission }) => {
   const [NgayYeuCau, setNgayYeuCau] = useState(
     moment(getDateNow(), "DD/MM/YYYY")
   );
-  const [PhieuDeNghiCVT, setPhieuDeNghiCVT] = useState([]);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState([]);
 
@@ -153,7 +152,6 @@ const VatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setPhieuDeNghiCVT(res.data);
           const newData =
             res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
             JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu).map((data) => {
@@ -512,6 +510,8 @@ const VatTuForm = ({ history, match, permission }) => {
                           {vt.viTri}
                         </Tag>
                       );
+                    } else {
+                      return null;
                     }
                   } else {
                     return (

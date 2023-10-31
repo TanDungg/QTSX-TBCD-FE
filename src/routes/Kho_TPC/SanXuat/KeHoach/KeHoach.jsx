@@ -1,8 +1,8 @@
 import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
-import { Card, Row, Col, DatePicker, Form, Input, Button, Popover } from "antd";
+import { Card, Row, Col, DatePicker, Button, Popover } from "antd";
 
 import map from "lodash/map";
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Select } from "src/components/Common";
 import { getNamNow, getNumberDayOfMonth, getThangNow } from "src/util/Common";
@@ -18,7 +18,6 @@ import ContainerHeader from "src/components/ContainerHeader";
 import EditKeHoach from "./EditKeHoach";
 import { convertObjectToUrlParams } from "src/util/Common";
 import moment from "moment";
-import LoaiKeHoach from "../../DanhMuc/LoaiKeHoach/LoaiKeHoach";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -35,7 +34,6 @@ function KeHoach({ match, history, permission }) {
   const [Thang, setThang] = useState(getThangNow());
   const [Nam, setNam] = useState(getNamNow());
   const [ActiveEditKeHoach, setActiveEditKeHoach] = useState(false);
-  const [loaiXe, setLoaiXe] = useState("");
   const [Version, setVersion] = useState("");
   const [dataEdit, setDataEdit] = useState({});
   useEffect(() => {
@@ -331,14 +329,15 @@ function KeHoach({ match, history, permission }) {
               VersionSelect.length > 0 &&
               Version === VersionSelect[0].version_Id) ||
             Number(val.thang) > new Date().getMonth() + 1 ? (
-              <a
+              <span
+                style={{ color: "#0469b9", cursor: "pointer" }}
                 onClick={() => {
                   setDataEdit(val);
                   setActiveEditKeHoach(true);
                 }}
               >
                 {val.soLuong}
-              </a>
+              </span>
             ) : (
               <span>{val.soLuong}</span>
             )}
@@ -443,9 +442,9 @@ function KeHoach({ match, history, permission }) {
     setNam(Nam);
     getVersion(KeHoach, Xuong, Thang, Nam);
   };
-  const { totalPages, totalRow } = data;
+  const { totalRow } = data;
   const handleClearVersion = (value) => {
-    getListData(KeHoach, loaiXe, Thang, Nam);
+    getListData(KeHoach, Xuong, Thang, Nam);
     setVersion(null);
   };
   const handleImport = () => {

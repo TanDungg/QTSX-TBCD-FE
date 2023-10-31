@@ -1,4 +1,4 @@
-import { Modal as AntModal, Form, Card, Input, Button, Tag } from "antd";
+import { Modal as AntModal, Form, Card, Input, Button } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { DEFAULT_FORM_MODAL } from "src/constants/Config";

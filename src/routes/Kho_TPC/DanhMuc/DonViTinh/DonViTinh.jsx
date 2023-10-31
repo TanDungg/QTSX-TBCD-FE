@@ -24,7 +24,7 @@ function DonViTinh({ permission, history }) {
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
-  const { totalRow, totalPages, pageSize } = data;
+  const { totalRow, pageSize } = data;
   useEffect(() => {
     if (permission && permission.view) {
       getListData(keyword, page);

@@ -3,7 +3,7 @@ import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, isEmpty, remove } from "lodash";
+import { map, isEmpty } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,

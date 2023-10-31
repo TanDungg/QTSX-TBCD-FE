@@ -21,12 +21,9 @@ function GiaoHangTheoKeHoach({ permission, history, match }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
-  const [ListUser, setListUser] = useState([]);
   const [user_Id, setUser_Id] = useState("");
   const [DinhMucVatTu, setDinhMucVatTu] = useState([]);
   const [keyword, setKeyword] = useState("");
-  const [data, setData] = useState([]);
-  const [loai, setLoai] = useState(true);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -93,18 +90,14 @@ function GiaoHangTheoKeHoach({ permission, history, match }) {
       .then((res) => {
         if (res && res.data) {
           if (permission && permission.cof) {
-            setListUser(res.data);
           } else {
             res.data.forEach((us) => {
               if (us.nguoiLap_Id === INFO.user_Id) {
-                setListUser([us]);
                 setUser_Id(us.nguoiLap_Id);
                 getDinhMucVatTu(keyword, us.nguoiLap_Id, page);
               }
             });
           }
-        } else {
-          setListUser([]);
         }
       })
       .catch((error) => console.error(error));
@@ -154,13 +147,10 @@ function GiaoHangTheoKeHoach({ permission, history, match }) {
     });
     return uniqueObjects;
   }
-  const { totalRow, pageSize } = data;
+  const { totalRow, pageSize } = DinhMucVatTu;
 
   //Lấy thông tin thiết bị
-  const dataList = reDataForTable(
-    DinhMucVatTu.datalist,
-    page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  const dataList = reDataForTable(DinhMucVatTu.datalist, page, pageSize);
 
   const renderDetail = (val) => {
     const detail =

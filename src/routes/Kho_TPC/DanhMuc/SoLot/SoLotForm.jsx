@@ -12,7 +12,6 @@ import { convertObjectToUrlParams } from "src/util/Common";
 const FormItem = Form.Item;
 
 const initialState = {
-  maLot: "",
   tenLot: "",
 };
 const LotForm = ({ history, match, permission }) => {
@@ -22,7 +21,7 @@ const LotForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [ListSanPham, setListSanPham] = useState([]);
   const [form] = Form.useForm();
-  const { maLot, tenLot } = initialState;
+  const { tenLot } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
 

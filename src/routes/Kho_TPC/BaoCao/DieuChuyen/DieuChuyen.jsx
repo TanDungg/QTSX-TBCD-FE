@@ -1,24 +1,18 @@
 import { DownloadOutlined } from "@ant-design/icons";
-import { Button, Card, Row, Col, DatePicker, Divider } from "antd";
-import { map, remove, find, isEmpty } from "lodash";
+import { Button, Card, Row, Col, DatePicker } from "antd";
+import { map, isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { exportExcel, getDateNow, reDataForTable } from "src/util/Common";
-import { Link } from "react-router-dom";
 import {
   EditableTableRow,
   Table,
   Select,
   Toolbar,
-  ModalDeleteConfirm,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import {
-  convertObjectToUrlParams,
-  getTokenInfo,
-  getLocalStorage,
-} from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 import moment from "moment";
 const { RangePicker } = DatePicker;
 
@@ -27,7 +21,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function DieuChuyen({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  // const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
   const [DataXuat, setDataXuat] = useState([]);
   const [Loai, setLoai] = useState("sanpham");

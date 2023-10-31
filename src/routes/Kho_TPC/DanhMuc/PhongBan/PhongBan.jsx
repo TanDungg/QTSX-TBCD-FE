@@ -289,21 +289,10 @@ function PhongBan({ permission, history }) {
       pathname: "/danh-muc-kho-tpc/ban-phong/them-moi",
     });
   };
-  const handleImport = () => {
-    setActiveModal(true);
-  };
+
   const addButtonRender = () => {
     return (
       <>
-        {/* <Button
-          icon={<UploadOutlined />}
-          className="th-btn-margin-bottom-0"
-          type="primary"
-          onClick={handleImport}
-          disabled={permission && !permission.add}
-        >
-          Import
-        </Button> */}
         <Button
           icon={<PlusOutlined />}
           className="th-btn-margin-bottom-0"

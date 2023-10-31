@@ -268,15 +268,6 @@ function Lot({ match, permission, history }) {
       }),
     };
   });
-
-  /**
-   * Redirect to create new organization
-   *
-   * @memberof ChucNang
-   */
-  const handleClearSearch = () => {
-    getListData(null, 1);
-  };
   const handleRedirect = () => {
     history.push({
       pathname: `${match.url}/them-moi`,

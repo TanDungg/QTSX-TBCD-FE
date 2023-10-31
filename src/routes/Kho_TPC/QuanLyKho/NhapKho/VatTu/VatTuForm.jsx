@@ -1,5 +1,5 @@
-import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
+import { DeleteOutlined } from "@ant-design/icons";
+import { Card, Form, Input, Row, Col, DatePicker, Tag } from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -11,17 +11,15 @@ import {
   Select,
   Table,
   ModalDeleteConfirm,
-  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { BASE_URL_APP, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
   reDataForTable,
-  setLocalStorage,
 } from "src/util/Common";
 const EditableContext = React.createContext(null);
 
@@ -129,7 +127,6 @@ const VatTuForm = ({ history, match, permission }) => {
   const [ListUser, setListUser] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [ListMaPhieu, setListMaPhieu] = useState([]);
-  const [ActiveModal, setActiveModal] = useState(false);
   const [editingRecord, setEditingRecord] = useState([]);
 
   const [ListUserKy, setListUserKy] = useState([]);
@@ -799,30 +796,6 @@ const VatTuForm = ({ history, match, permission }) => {
         })
         .catch((error) => console.error(error));
     }
-  };
-
-  const hanldeXacNhan = () => {
-    const newData = {
-      id: id,
-      isXacNhan: true,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuDeNghiMuaHang/xac-nhan/${id}`,
-          "PUT",
-          newData,
-          "EDIT",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) goBack();
-      })
-      .catch((error) => console.error(error));
   };
 
   const formTitle =

@@ -243,7 +243,7 @@ function VaiTro({ history, permission }) {
     getListData(val);
     setPhanMem(val);
   };
-  const { totalRow, pageSize } = data;
+  // const { totalRow, pageSize } = data;
   const dataList = reDataForTable(data ? data : []);
   return (
     <div className="gx-main-content">

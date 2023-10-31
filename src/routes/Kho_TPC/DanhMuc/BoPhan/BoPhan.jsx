@@ -22,7 +22,6 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 import ImportBoPhan from "./ImportBoPhan";
-import { APP_NAME } from "src/constants/Config";
 import { repeat } from "lodash";
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -33,8 +32,7 @@ function BoPhan({ match, permission, history }) {
   const INFO = getLocalStorage("menu");
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
-  const [page, setPage] = useState(1);
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow } = data;
   const [ActiveModal, setActiveModal] = useState(false);
 
   useEffect(() => {
@@ -104,7 +102,7 @@ function BoPhan({ match, permission, history }) {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        getListData("", page);
+        getListData("");
       })
       .catch((error) => console.error(error));
   };
@@ -290,22 +288,10 @@ function BoPhan({ match, permission, history }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handleImport = () => {
-    setActiveModal(true);
-  };
 
   const addButtonRender = () => {
     return (
       <>
-        {/* <Button
-          icon={<UploadOutlined />}
-          className="th-btn-margin-bottom-0"
-          type="primary"
-          onClick={handleImport}
-          disabled={permission && !permission.add}
-        >
-          Import
-        </Button> */}
         <Button
           icon={<PlusOutlined />}
           className="th-btn-margin-bottom-0"
@@ -319,7 +305,7 @@ function BoPhan({ match, permission, history }) {
     );
   };
   const refeshData = () => {
-    getListData(keyword, page);
+    getListData(keyword);
   };
   return (
     <div className="gx-main-content">

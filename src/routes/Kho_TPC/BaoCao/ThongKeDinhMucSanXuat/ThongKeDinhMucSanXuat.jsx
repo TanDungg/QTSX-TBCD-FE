@@ -1,5 +1,5 @@
 import { DownloadOutlined } from "@ant-design/icons";
-import { Button, Card, Row, Col, DatePicker, Divider } from "antd";
+import { Button, Card, Row, Col, DatePicker } from "antd";
 import { map, isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -14,8 +14,8 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import {
   convertObjectToUrlParams,
-  getTokenInfo,
-  getLocalStorage,
+  // getTokenInfo,
+  // getLocalStorage,
 } from "src/util/Common";
 import moment from "moment";
 
@@ -25,7 +25,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function ThongKeDinhMucSanXuat({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  // const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
   const [DataXuat, setDataXuat] = useState([]);
   const [Loai, setLoai] = useState("sanpham");

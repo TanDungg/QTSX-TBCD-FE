@@ -307,7 +307,7 @@ function DatHangNoiBo({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
 

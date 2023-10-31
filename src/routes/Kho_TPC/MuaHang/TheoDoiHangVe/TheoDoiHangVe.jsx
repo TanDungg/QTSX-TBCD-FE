@@ -1,17 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-} from "@ant-design/icons";
+import { Card, Row, Col, DatePicker } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty, remove } from "lodash";
 import {
-  ModalDeleteConfirm,
   Table,
   EditableTableRow,
   Toolbar,

@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { Card, Row, Col, DatePicker } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, isEmpty, remove } from "lodash";
+import { map, isEmpty } from "lodash";
 import {
-  ModalDeleteConfirm,
   Table,
   EditableTableRow,
   Toolbar,
@@ -37,10 +29,8 @@ function TheoDoiDonHang({ match, history, permission }) {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [selectedDevice, setSelectedDevice] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
-  const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListBanPhong, setListBanPhong] = useState([]);
   const [LoaiDonHang, setLoaiDonHang] = useState("");
 
@@ -317,17 +307,6 @@ function TheoDoiDonHang({ match, history, permission }) {
       }),
     };
   });
-
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
 
   const handleOnSelectBanPhong = (val) => {
     setBanPhong(val);

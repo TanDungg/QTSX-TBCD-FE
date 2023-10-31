@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Row, Col, DatePicker } from "antd";
+import { Card, Button, Row, Col } from "antd";
 import { EditOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import ModalAddViTri from "./ModalAddViTri";
@@ -14,15 +14,12 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
-  getDateNow,
   getLocalStorage,
   getTokenInfo,
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import moment from "moment";
 const { EditableRow, EditableCell } = EditableTableRow;
-const { RangePicker } = DatePicker;
 function KhoVatTu({ history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
