@@ -5,6 +5,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   PrinterOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -25,12 +26,14 @@ import {
   getTokenInfo,
   exportPDF,
   removeDuplicates,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
+
 function VatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
@@ -41,6 +44,7 @@ function VatTu({ match, history, permission }) {
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [selectedKeys, setSelectedKeys] = useState([]);
+  const [DataXuatExcel, setDataXuatExcel] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState("");
   useEffect(() => {
@@ -69,7 +73,37 @@ function VatTu({ match, history, permission }) {
       donVi_Id: INFO.donVi_Id,
     });
     dispatch(fetchStart(`lkn_PhieuNhapKhoVatTu?${param}`, "GET", null, "LIST"));
+    const paramXuat = convertObjectToUrlParams({
+      cauTrucKho_Id,
+      tuNgay,
+      denNgay,
+      keyword,
+      page: -1,
+      donVi_Id: INFO.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuNhapKhoVatTu?${paramXuat}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setDataXuatExcel(res.data);
+        } else {
+          setDataXuatExcel([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
+
   const getKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -260,6 +294,57 @@ function VatTu({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
+  const handleXuatExcel = () => {
+    const params = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+    });
+    const fetchAllData = DataXuatExcel.map((data) => {
+      return new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `lkn_PhieuNhapKhoVatTu/${data.id}?${params}`,
+            "GET",
+            null,
+            "DETAIL",
+            "",
+            resolve,
+            reject
+          )
+        );
+      });
+    });
+
+    Promise.all(fetchAllData)
+      .then((responses) => {
+        const DataXuat = responses.map((res) => {
+          if (res && res.data) {
+            return {
+              ...res.data,
+              chiTietVatTu: res.data.chiTietVatTu
+                ? JSON.parse(res.data.chiTietVatTu)
+                : null,
+            };
+          }
+        });
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `lkn_PhieuNhapKhoVatTu/export-file-excel-nhap-kho`,
+              "POST",
+              DataXuat,
+              "",
+              "",
+              resolve,
+              reject
+            )
+          );
+        }).then((res) => {
+          exportExcel("PhieuNhapKhoVatTu", res.data.dataexcel);
+        });
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -282,6 +367,15 @@ function VatTu({ match, history, permission }) {
           }
         >
           In phiếu
+        </Button>
+        <Button
+          icon={<DownloadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleXuatExcel}
+          disabled={data.length === 0}
+        >
+          Xuất excel
         </Button>
       </>
     );
