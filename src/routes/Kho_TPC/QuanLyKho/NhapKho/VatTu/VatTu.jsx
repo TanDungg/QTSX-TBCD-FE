@@ -342,32 +342,6 @@ function VatTu({ match, history, permission }) {
         });
       })
       .catch((error) => console.error(error));
-
-    // const DataXuat = DataXuatExcel.map((data) => {
-    //   new Promise((resolve, reject) => {
-    //     dispatch(
-    //       fetchStart(
-    //         `lkn_PhieuNhapKhoVatTu/${data.id}?${params}`,
-    //         "GET",
-    //         null,
-    //         "DETAIL",
-    //         "",
-    //         resolve,
-    //         reject
-    //       )
-    //     );
-    //   })
-    //     .then((res) => {
-    //       if (res && res.data) {
-    //         return {
-    //           ...res.data,
-    //           chiTietVatTu:
-    //             res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu),
-    //         };
-    //       }
-    //     })
-    //     .catch((error) => console.error(error));
-    // });
   };
 
   const addButtonRender = () => {

@@ -6,15 +6,15 @@ import {
   DeleteOutlined,
   CheckCircleOutlined,
   PrinterOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
   EditableTableRow,
-  Toolbar,
   Select,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
@@ -26,6 +26,7 @@ import {
   getTokenInfo,
   exportPDF,
   removeDuplicates,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -38,6 +39,7 @@ function XuatKhoVatTu({ match, history, permission }) {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
+  const [DataXuatExcel, setDataXuatExcel] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState(null);
   const [TuNgay, setTuNgay] = useState(getDateNow(-7));
@@ -68,6 +70,33 @@ function XuatKhoVatTu({ match, history, permission }) {
       page,
     });
     dispatch(fetchStart(`lkn_PhieuXuatKhoVatTu?${param}`, "GET", null, "LIST"));
+    const paramXuat = convertObjectToUrlParams({
+      PhongBan_Id,
+      tuNgay,
+      denNgay,
+      page: -1,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuXuatKhoVatTu?${paramXuat}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setDataXuatExcel(res.data);
+        } else {
+          setDataXuatExcel([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   const getKho = () => {
@@ -209,76 +238,6 @@ function XuatKhoVatTu({ match, history, permission }) {
   const handleTableChange = (pagination) => {
     setPage(pagination);
     getListData(Kho, TuNgay, DenNgay, pagination);
-  };
-
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
-  };
-
-  const handlePrint = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuXuatKhoVatTu/${SelectedDevice[0].id}?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const listVatTu =
-            res.data.chiTiet_PhieuXuatKhoVatTus &&
-            JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus).map((list) => {
-              const SoLuong = list.chiTiet_LuuVatTus.reduce(
-                (tong, sl) => tong + sl.soLuongThucXuat,
-                0
-              );
-              return {
-                ...list,
-                soLuongThucXuat: SoLuong,
-              };
-            });
-          const newData = {
-            ...res.data,
-            boPhan: res.data.tenPhongBan,
-            lstpxkvtct: listVatTu,
-          };
-
-          new Promise((resolve, reject) => {
-            dispatch(
-              fetchStart(
-                `lkn_PhieuXuatKhoVatTu/export-pdf`,
-                "POST",
-                newData,
-                "",
-                "",
-                resolve,
-                reject
-              )
-            );
-          }).then((res) => {
-            exportPDF("PhieuXuatKhoVatTu", res.data.datapdf);
-            setSelectedDevice([]);
-            setSelectedKeys([]);
-          });
-        }
-      })
-      .catch((error) => console.error(error));
   };
 
   const { totalRow, pageSize } = data;
@@ -436,6 +395,127 @@ function XuatKhoVatTu({ match, history, permission }) {
     };
   });
 
+  /**
+   * Chuyển tới trang thêm mới chức năng
+   *
+   * @memberof ChucNang
+   */
+  const handleRedirect = () => {
+    history.push({
+      pathname: `${match.url}/them-moi`,
+    });
+  };
+
+  const handlePrint = () => {
+    const params = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuXuatKhoVatTu/${SelectedDevice[0].id}?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const listVatTu =
+            res.data.chiTiet_PhieuXuatKhoVatTus &&
+            JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus).map((list) => {
+              const SoLuong = list.chiTiet_LuuVatTus.reduce(
+                (tong, sl) => tong + sl.soLuongThucXuat,
+                0
+              );
+              return {
+                ...list,
+                soLuongThucXuat: SoLuong,
+              };
+            });
+          const newData = {
+            ...res.data,
+            boPhan: res.data.tenPhongBan,
+            lstpxkvtct: listVatTu,
+          };
+
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `lkn_PhieuXuatKhoVatTu/export-pdf`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportPDF("PhieuXuatKhoVatTu", res.data.datapdf);
+            setSelectedDevice([]);
+            setSelectedKeys([]);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const handleXuatExcel = () => {
+    const params = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+    });
+    const fetchAllData = DataXuatExcel.map((data) => {
+      return new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `lkn_PhieuXuatKhoVatTu/${data.id}?${params}`,
+            "GET",
+            null,
+            "DETAIL",
+            "",
+            resolve,
+            reject
+          )
+        );
+      });
+    });
+
+    Promise.all(fetchAllData)
+      .then((responses) => {
+        const DataXuat = responses.map((res) => {
+          if (res && res.data) {
+            return {
+              ...res.data,
+              chiTiet_PhieuXuatKhoVatTus: res.data.chiTiet_PhieuXuatKhoVatTus
+                ? JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus)
+                : null,
+            };
+          }
+        });
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `lkn_PhieuXuatKhoVatTu/export-file-excel-xuat-kho`,
+              "POST",
+              DataXuat,
+              "",
+              "",
+              resolve,
+              reject
+            )
+          );
+        }).then((res) => {
+          exportExcel("PhieuXuatKhoVatTu", res.data.dataexcel);
+        });
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -462,6 +542,15 @@ function XuatKhoVatTu({ match, history, permission }) {
           }
         >
           In phiếu
+        </Button>
+        <Button
+          icon={<DownloadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleXuatExcel}
+          disabled={data.length === 0}
+        >
+          Xuất excel
         </Button>
       </>
     );
