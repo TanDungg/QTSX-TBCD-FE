@@ -36,7 +36,6 @@ function NangLucSanXuat({ permission, history, match }) {
   const [NangLucSanXuat, setNangLucSanXuat] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
-  const [data, setData] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -157,12 +156,9 @@ function NangLucSanXuat({ permission, history, match }) {
     });
     return uniqueObjects;
   }
-  const { totalRow, pageSize } = data;
+  const { totalRow, pageSize } = NangLucSanXuat;
   //Lấy thông tin thiết bị
-  const dataList = reDataForTable(
-    NangLucSanXuat.datalist,
-    page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  const dataList = reDataForTable(NangLucSanXuat.datalist, page, pageSize);
   /**
    * deleteItemFunc: Remove item from list
    * @param {object} item

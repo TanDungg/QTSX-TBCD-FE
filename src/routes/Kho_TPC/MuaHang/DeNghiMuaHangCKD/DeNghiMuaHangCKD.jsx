@@ -7,7 +7,6 @@ import {
   EyeOutlined,
   EyeInvisibleOutlined,
   PrinterOutlined,
-  RetweetOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -143,22 +142,6 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
           <EyeInvisibleOutlined />
         </span>
       );
-    const kyItem =
-      permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/quy-trinh`,
-            state: { itemData: item },
-          }}
-          title="Quy trình"
-        >
-          <RetweetOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Quy trình">
-          <RetweetOutlined />
-        </span>
-      );
     const editItem =
       permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
@@ -183,8 +166,6 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
       <div>
         {detailItem}
         <Divider type="vertical" />
-        {/* {kyItem}
-        <Divider type="vertical" /> */}
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -274,12 +255,9 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
-  let dataList = reDataForTable(
-    data.datalist
-    // page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  let dataList = reDataForTable(data.datalist, page, pageSize);
   const renderDetail = (val) => {
     const detail =
       permission && permission.view ? (

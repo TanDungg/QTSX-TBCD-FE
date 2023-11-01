@@ -3,7 +3,7 @@ import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, isEmpty, remove } from "lodash";
+import { map, isEmpty } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -31,10 +31,8 @@ function CKD({ match, history, permission }) {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [selectedDevice, setSelectedDevice] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
-  const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState("");
   useEffect(() => {
@@ -44,7 +42,6 @@ function CKD({ match, history, permission }) {
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
-
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -214,7 +211,6 @@ function CKD({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handlePrint = () => {};
   const addButtonRender = () => {
     return (
       <>
@@ -239,7 +235,7 @@ function CKD({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
 
@@ -378,28 +374,6 @@ function CKD({ match, history, permission }) {
       }),
     };
   });
-
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
-
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
   const handleOnSelectKho = (val) => {
     setKho(val);
     setPage(1);

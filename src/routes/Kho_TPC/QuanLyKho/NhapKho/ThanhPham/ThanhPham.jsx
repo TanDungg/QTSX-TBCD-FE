@@ -209,7 +209,6 @@ function ThanhPham({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handlePrint = () => {};
   const addButtonRender = () => {
     return (
       <>
@@ -235,7 +234,7 @@ function ThanhPham({ match, history, permission }) {
     );
   };
 
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
 

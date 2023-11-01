@@ -174,8 +174,6 @@ function ThanhPham({ match, history, permission }) {
     });
   };
 
-  const handlePrint = () => {};
-
   const addButtonRender = () => {
     return (
       <>
@@ -188,19 +186,10 @@ function ThanhPham({ match, history, permission }) {
         >
           Tạo phiếu
         </Button>
-        {/* <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
-        >
-          In phiếu
-        </Button> */}
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
 

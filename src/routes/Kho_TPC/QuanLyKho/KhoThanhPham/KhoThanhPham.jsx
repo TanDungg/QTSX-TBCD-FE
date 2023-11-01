@@ -158,7 +158,7 @@ function KhoVatTu({ history, permission }) {
       </>
     );
   };
-  const { totalRow, pageSize } = data;
+  const { totalRow } = data;
 
   let dataList = reDataForTable(data);
 

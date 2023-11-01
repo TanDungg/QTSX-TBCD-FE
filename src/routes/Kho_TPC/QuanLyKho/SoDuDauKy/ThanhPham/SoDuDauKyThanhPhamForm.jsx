@@ -11,7 +11,6 @@ import {
   Select,
   Table,
   ModalDeleteConfirm,
-  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_DMVT } from "src/constants/Config";
@@ -272,31 +271,6 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
         ""
       )}`
     );
-  };
-  const getDetailVatTu = (data) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `VatTu/${data.vatTu_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          res.data.ghiChu = data.ghiChu;
-          res.data.soLuong = data.soLuong;
-          res.data.vatTu_Id = res.data.id;
-          setListVatTu([...listVatTu, res.data]);
-          setFieldTouch(true);
-        }
-      })
-      .catch((error) => console.error(error));
   };
   const getDetailSanPham = (data) => {
     setListVatTu([...listVatTu, data]);
@@ -562,16 +536,6 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
     }
   };
 
-  const addVatTu = (data) => {
-    let check = false;
-    listVatTu.forEach((dl) => {
-      if (dl.vatTu_Id.toLowerCase() === data.vatTu_Id) {
-        check = true;
-        Helpers.alertError(`Vật tư đã được thêm`);
-      }
-    });
-    !check && getDetailVatTu(data);
-  };
   const addSanPham = (data) => {
     let check = false;
     listVatTu.forEach((dl) => {

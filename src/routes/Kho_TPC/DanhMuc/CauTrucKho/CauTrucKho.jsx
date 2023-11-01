@@ -3,7 +3,7 @@ import { Card, Button, Divider, Col, Popover } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, remove, isEmpty, repeat } from "lodash";
+import { map, isEmpty, repeat } from "lodash";
 import QRCode from "qrcode.react";
 import {
   ModalDeleteConfirm,
@@ -26,8 +26,6 @@ function CauTrucKho({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [keyword, setKeyword] = useState("");
-  const [selectedDevice, setSelectedDevice] = useState([]);
-  const [selectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     if (permission && permission.view) {
       loadData(keyword, 1);
@@ -163,12 +161,6 @@ function CauTrucKho({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handlePrint = () => {
-    history.push({
-      pathname: `${match.url}/inMa`,
-      state: { VatTu: selectedDevice },
-    });
-  };
   const addButtonRender = () => {
     return (
       <>
@@ -181,15 +173,6 @@ function CauTrucKho({ match, history, permission }) {
         >
           Thêm mới
         </Button>
-        {/* <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
-        >
-          In Barcode
-        </Button> */}
       </>
     );
   };
@@ -305,27 +288,7 @@ function CauTrucKho({ match, history, permission }) {
       }),
     };
   });
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
 
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
   return (
     <div className="gx-main-content">
       <ContainerHeader

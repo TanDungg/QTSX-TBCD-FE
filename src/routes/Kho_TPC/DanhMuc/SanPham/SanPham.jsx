@@ -24,7 +24,6 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import ImportSanPham from "./ImportSanPham";
-import AddChiTiet from "./AddChiTiet";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function SanPham({ match, history, permission }) {
@@ -33,9 +32,6 @@ function SanPham({ match, history, permission }) {
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [ActiveModal, setActiveModal] = useState(false);
-  const [ActiveModalAddChiTiet, setActiveModalAddChiTiet] = useState(false);
-  const [infoSanPham, setInfoSanPham] = useState({});
-  const [type, setType] = useState("add");
   useEffect(() => {
     if (permission && permission.view) {
       loadData(keyword, page);
@@ -254,7 +250,7 @@ function SanPham({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
   /**
@@ -572,13 +568,6 @@ function SanPham({ match, history, permission }) {
         openModal={ActiveModal}
         openModalFS={setActiveModal}
         refesh={refeshData}
-      />
-      <AddChiTiet
-        openModal={ActiveModalAddChiTiet}
-        openModalFS={setActiveModalAddChiTiet}
-        sanPham={infoSanPham}
-        type={type}
-        refesh={() => loadData(keyword, page)}
       />
     </div>
   );

@@ -24,6 +24,7 @@ const Topbar = () => {
   const [DonVi, setDonVi] = useState("");
   const MENUINFO = getLocalStorage("menu");
   // const INFO = getTokenInfo();
+  console.log(MENUINFO.Url);
   const history = useHistory();
 
   useEffect(() => {
@@ -114,7 +115,7 @@ const Topbar = () => {
         </div>
       ) : null}
       <Link
-        to={MENUINFO ? MENUINFO.Url : ""}
+        to={MENUINFO ? "/" + MENUINFO.Url : ""}
         className="gx-d-block gx-d-lg-none gx-pointer"
       >
         <img

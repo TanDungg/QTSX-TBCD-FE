@@ -7,8 +7,6 @@ import { Input, Select, FormSubmit } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
-import tree from "src/components/Common/Tree_Old";
-
 const FormItem = Form.Item;
 
 const initialState = {
@@ -20,11 +18,10 @@ const initialState = {
 function SanPhamForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-  const { loading, item } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
 
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
-  const [listMenu, setListMenu] = useState([]);
   const [LoaiSanPhamSelect, setLoaiSanPhamSelect] = useState([]);
   const [MauSacSelect, setMauSacSelect] = useState([]);
   const [DonViTinhSelect, setDonViTinhSelect] = useState([]);

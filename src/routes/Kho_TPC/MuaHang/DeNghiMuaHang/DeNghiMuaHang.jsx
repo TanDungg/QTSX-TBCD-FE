@@ -5,12 +5,11 @@ import {
   EditOutlined,
   DeleteOutlined,
   PrinterOutlined,
-  RetweetOutlined,
   CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -141,22 +140,6 @@ function DeNghiMuaHang({ match, history, permission }) {
           <CheckCircleOutlined />
         </span>
       );
-    const kyItem =
-      permission && permission.edit && item.userYeuCau_Id === INFO.user_Id ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/quy-trinh`,
-            state: { itemData: item },
-          }}
-          title="Quy trình"
-        >
-          <RetweetOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Quy trình">
-          <RetweetOutlined />
-        </span>
-      );
     const editItem =
       permission &&
       permission.edit &&
@@ -187,8 +170,6 @@ function DeNghiMuaHang({ match, history, permission }) {
       <div>
         {detailItem}
         <Divider type="vertical" />
-        {/* {kyItem}
-        <Divider type="vertical" /> */}
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -324,7 +305,7 @@ function DeNghiMuaHang({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
 

@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, isEmpty, remove } from "lodash";
+import { map, isEmpty } from "lodash";
 import ImportVatTu from "./ImportVatTu";
 import {
   ModalDeleteConfirm,
@@ -32,8 +32,6 @@ function VatTu({ match, history, permission }) {
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [ActiveModal, setActiveModal] = useState(false);
-  const [selectedDevice, setSelectedDevice] = useState([]);
-  const [selectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     if (permission && permission.view) {
       loadData(keyword, page);
@@ -167,12 +165,6 @@ function VatTu({ match, history, permission }) {
   const refeshData = () => {
     loadData(keyword, page);
   };
-  const handlePrint = () => {
-    history.push({
-      pathname: `${match.url}/inMa`,
-      state: { VatTu: selectedDevice },
-    });
-  };
   const addButtonRender = () => {
     return (
       <>
@@ -185,15 +177,6 @@ function VatTu({ match, history, permission }) {
         >
           Import
         </Button>
-        {/* <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
-        >
-          In Barcode
-        </Button> */}
         <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
@@ -206,7 +189,7 @@ function VatTu({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, totalPage, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
 
@@ -362,27 +345,6 @@ function VatTu({ match, history, permission }) {
     };
   });
 
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
-
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -435,26 +397,6 @@ function VatTu({ match, history, permission }) {
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
-          // rowSelection={{
-          //   type: "checkbox",
-          //   ...rowSelection,
-          //   preserveSelectedRowKeys: true,
-          //   selectedRowKeys: selectedKeys,
-          //   getCheckboxProps: (record) => ({}),
-          // }}
-          // onRow={(record, rowIndex) => {
-          //   return {
-          //     onClick: (e) => {
-          //       const found = find(selectedKeys, (k) => k === record.key);
-          //       if (found === undefined) {
-          //         setSelectedDevice([...selectedDevice, record]);
-          //         setSelectedKeys([...selectedKeys, record.key]);
-          //       } else {
-          //         hanldeRemoveSelected(record);
-          //       }
-          //     },
-          //   };
-          // }}
           bordered
           scroll={{ x: 700, y: "70vh" }}
           columns={columns}

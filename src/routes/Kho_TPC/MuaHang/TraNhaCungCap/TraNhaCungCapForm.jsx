@@ -14,7 +14,6 @@ import {
   Tag,
   Divider,
   Upload,
-  Popover,
 } from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
@@ -46,7 +45,6 @@ import {
 } from "src/util/Common";
 import ModalChonVatTu from "./ModalChonVatTu";
 import ModalTuChoi from "./ModalTuChoi";
-import dayjs from "dayjs";
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 const TraNhaCungCapForm = ({ history, match, permission }) => {
@@ -780,10 +778,6 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
     },
     showUploadList: false,
     maxCount: 1,
-  };
-
-  const disabledDate = (current) => {
-    return current && current < dayjs().startOf("day");
   };
 
   const formTitle =

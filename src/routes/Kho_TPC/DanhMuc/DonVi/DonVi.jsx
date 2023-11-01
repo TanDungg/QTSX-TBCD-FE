@@ -197,37 +197,10 @@ function DonVi({ match, permission, history }) {
       getListData(val.target.value, page);
     }
   };
-
-  /**
-   * Redirect to create new organization
-   *
-   * @memberof ChucNang
-   */
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
-  };
-
   const handleClearSearch = () => {
     getListData(null, 1);
   };
 
-  // const addButtonRender = () => {
-  //   return (
-  //     <>
-  //       <Button
-  //         icon={<PlusOutlined />}
-  //         className="th-btn-margin-bottom-0"
-  //         type="primary"
-  //         onClick={handleRedirect}
-  //         disabled={permission && !permission.add}
-  //       >
-  //         Thêm mới
-  //       </Button>
-  //     </>
-  //   );
-  // };
   return (
     <div className="gx-main-content">
       <ContainerHeader

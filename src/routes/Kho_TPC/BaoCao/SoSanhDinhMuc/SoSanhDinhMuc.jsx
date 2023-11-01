@@ -1,10 +1,9 @@
-import { DownloadOutlined } from "@ant-design/icons";
-import { Button, Card, Row, Col, DatePicker } from "antd";
+import { Card, Row, Col, DatePicker } from "antd";
 import { map } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { exportExcel, getDateNow, reDataForTable } from "src/util/Common";
+import { getDateNow, reDataForTable } from "src/util/Common";
 import { EditableTableRow, Table, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import {
@@ -22,7 +21,6 @@ function SoSanhDinhMuc({ permission, history, match }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
-  const [DataXuat, setDataXuat] = useState([]);
   const [ListPhongBan, setListPhongBan] = useState([]);
   const [PhongBan, setPhongBan] = useState(null);
   const [ListSanPham, setListSanPham] = useState([]);
@@ -270,40 +268,6 @@ function SoSanhDinhMuc({ permission, history, match }) {
       }),
     };
   });
-
-  const XuatExcel = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_BaoCao/export-file-excel-thanh-ly`,
-          "POST",
-          DataXuat,
-          "",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      exportExcel("BaoCaoThanhLy", res.data.dataexcel);
-    });
-  };
-
-  // const addButtonRender = () => {
-  //   return (
-  //     <>
-  //       <Button
-  //         icon={<DownloadOutlined />}
-  //         className="th-btn-margin-bottom-0"
-  //         type="primary"
-  //         onClick={XuatExcel}
-  //         disabled={(permission && !permission.add) || DataXuat.length === 0}
-  //       >
-  //         Xuất excel
-  //       </Button>
-  //     </>
-  //   );
-  // };
 
   const handleOnSelectPhongBan = (value) => {
     setPhongBan(value);

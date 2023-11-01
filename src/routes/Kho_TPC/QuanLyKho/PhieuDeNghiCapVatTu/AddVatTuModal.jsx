@@ -1,4 +1,4 @@
-import { Modal as AntModal, Button, Row, Form, Input, Col } from "antd";
+import { Modal as AntModal, Button, Row, Form, Input } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
@@ -13,7 +13,7 @@ function AddVatTuModal({ openModalFS, openModal, addVatTu }) {
   const [listVatTu, setListVatTu] = useState([]);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { validateFields, resetFields, setFieldsValue } = form;
+  const { validateFields, resetFields } = form;
 
   useEffect(() => {
     if (openModal) {

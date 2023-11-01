@@ -8,7 +8,6 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { includes } from "lodash";
 import { ModalDeleteConfirm, Table, Select } from "src/components/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import {
@@ -210,7 +209,7 @@ function VaiTro({ match, history, permission }) {
     getListData(val);
     setPhanMem(val);
   };
-  const { totalRow, pageSize } = data;
+  // const { totalRow, pageSize } = data;
   const dataList = reDataForTable(data ? data : []);
   return (
     <div className="gx-main-content">

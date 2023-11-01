@@ -147,7 +147,10 @@ function KiemKe({ match, history, permission }) {
         </span>
       );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
+      permission &&
+      permission.edit &&
+      item.userLap_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -165,7 +168,7 @@ function KiemKe({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
-      !item.isUsed &&
+      item.userLap_Id === INFO.user_Id &&
       item.tinhTrang === "Chưa xác nhận"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };

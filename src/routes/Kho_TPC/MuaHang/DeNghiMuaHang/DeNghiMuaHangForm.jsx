@@ -995,6 +995,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   };
 
   const props = {
+    accept: ".pdf, .png, .jpg, .jpeg",
     beforeUpload: (file) => {
       const isPNG =
         file.type === "image/png" ||
@@ -1328,7 +1329,11 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                     </span>
                   ) : (
                     <span>
-                      <a target="_blank" href={BASE_URL_API + File}>
+                      <a
+                        target="_blank"
+                        href={BASE_URL_API + File}
+                        rel="noopener noreferrer"
+                      >
                         {File.split("/")[5]}{" "}
                       </a>
                       {type === "UploadFile" &&

@@ -299,14 +299,12 @@ function CanBoNhanVien({ match, history, permission }) {
         key: "tenChucVu",
         align: "center",
         filters: removeDuplicates(
-          reDataForTable(
-            map(data.datalist, (d) => {
-              return {
-                text: d.tenChucVu,
-                value: d.tenChucVu,
-              };
-            })
-          )
+          map(data.datalist, (d) => {
+            return {
+              text: d.tenChucVu,
+              value: d.tenChucVu,
+            };
+          })
         ),
         onFilter: (value, record) => record.tenChucVu.includes(value),
         filterSearch: true,

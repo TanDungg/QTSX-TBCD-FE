@@ -196,8 +196,8 @@ function PhongBan({ permission, history }) {
   let colValues = [
     {
       title: "STT",
-      dataIndex: "stt",
-      key: "stt",
+      dataIndex: "key",
+      key: "key",
       width: 45,
       align: "center",
     },

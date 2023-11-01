@@ -148,15 +148,15 @@ function CanBoNhanVien({ match, history, permission }) {
           <EditOutlined />
         </span>
       );
-    const nhanSuNghiItemVal =
-      permission && permission.edit
-        ? {
-            onClick: () => {
-              setIsModalOpen(true);
-              setNhanSuNghi(item);
-            },
-          }
-        : { disabled: true };
+    // const nhanSuNghiItemVal =
+    //   permission && permission.edit
+    //     ? {
+    //         onClick: () => {
+    //           setIsModalOpen(true);
+    //           setNhanSuNghi(item);
+    //         },
+    //       }
+    //     : { disabled: true };
     const deleteItemVal =
       permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }

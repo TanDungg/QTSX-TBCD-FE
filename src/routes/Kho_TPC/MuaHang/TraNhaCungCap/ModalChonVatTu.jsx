@@ -10,7 +10,6 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [ListViTriKho, setListViTriKho] = useState([]);
-  const [Kho, setKho] = useState(null);
   const [ViTriKho, setViTriKho] = useState(null);
   const [ListKhoVatTu, setListKhoVatTu] = useState([]);
   const [KhoVatTu, setKhoVatTu] = useState(null);
@@ -18,7 +17,6 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   const [ListVatTu, setListVatTu] = useState([]);
   const [hasError, setHasError] = useState(false);
   const [errorMessage, setErrorMessage] = useState(null);
-  const [editingRecord, setEditingRecord] = useState(null);
   const [DisabledSave, setDisabledSave] = useState(true);
 
   useEffect(() => {
@@ -74,8 +72,6 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     }).then((res) => {
       if (res && res.data) {
         const newKho = ListKhoVatTu.filter((d) => d.id === cauTrucKho_Id);
-        setKho(newKho[0]);
-
         const newData = res.data
           .filter((data) => data.soLuong > 0)
           .map((data) => {

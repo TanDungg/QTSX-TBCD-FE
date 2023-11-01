@@ -1,17 +1,12 @@
 import { DownloadOutlined } from "@ant-design/icons";
 import { Button, Card, Row, Col } from "antd";
-import { map, isEmpty } from "lodash";
+import { map } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { reDataForTable } from "src/util/Common";
 import { Link } from "react-router-dom";
-import {
-  EditableTableRow,
-  Table,
-  Select,
-  Toolbar,
-} from "src/components/Common";
+import { EditableTableRow, Table, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import {
   convertObjectToUrlParams,
@@ -30,8 +25,6 @@ function TraCuuSanPham({ permission, history, match }) {
   const [user_Id, setUser_Id] = useState("");
   const [DinhMucVatTu, setDinhMucVatTu] = useState([]);
   const [keyword, setKeyword] = useState("");
-  const [data, setData] = useState([]);
-  const [loai, setLoai] = useState(true);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -114,27 +107,6 @@ function TraCuuSanPham({ permission, history, match }) {
       })
       .catch((error) => console.error(error));
   };
-
-  /**
-   * Thay đổi keyword
-   *
-   * @param {*} val
-   */
-  const onChangeKeyword = (val) => {
-    setPage(1);
-    setKeyword(val.target.value);
-    if (isEmpty(val.target.value)) {
-      getDinhMucVatTu(val.target.value, user_Id, page);
-    }
-  };
-
-  /**
-   * Tìm kiếm người dùng
-   *
-   */
-  const onSearchPhieu = () => {
-    getDinhMucVatTu(keyword, user_Id, page);
-  };
   /**
    * handleTableChange
    *
@@ -159,13 +131,10 @@ function TraCuuSanPham({ permission, history, match }) {
     });
     return uniqueObjects;
   }
-  const { totalRow, pageSize } = data;
+  const { totalRow, pageSize } = DinhMucVatTu;
 
   //Lấy thông tin thiết bị
-  const dataList = reDataForTable(
-    DinhMucVatTu.datalist,
-    page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  const dataList = reDataForTable(DinhMucVatTu.datalist, page, pageSize);
 
   const renderDetail = (val) => {
     const detail =

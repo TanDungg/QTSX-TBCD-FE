@@ -135,7 +135,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const [ListMauSac, setListMauSac] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
@@ -265,29 +264,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       }
     });
   };
-  const getMauSac = (sanPham_Id) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `SanPham/${sanPham_Id}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListMauSac(JSON.parse(res.data.mauSac));
-        } else {
-          setListMauSac([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
+
   /**
    * Lấy thông tin
    *
@@ -316,7 +293,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           setInfo(res.data);
           getXuong();
           getKho(res.data.phongBan_Id);
-          getMauSac(JSON.parse(res.data.chiTietThanhPham)[0].sanPham_Id);
           setFieldsValue({
             phieunhapkho: {
               ...res.data,

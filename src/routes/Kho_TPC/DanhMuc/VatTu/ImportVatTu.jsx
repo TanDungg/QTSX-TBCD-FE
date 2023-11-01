@@ -380,6 +380,7 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
   };
 
   const props = {
+    accept: ".xls, .xlsx",
     beforeUpload: (file) => {
       const isPNG =
         file.type ===

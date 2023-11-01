@@ -10,12 +10,7 @@ import {
   getLocalStorage,
   treeToFlatlist,
 } from "src/util/Common";
-import {
-  EditableTableRow,
-  ModalDeleteConfirm,
-  Table,
-  Toolbar,
-} from "src/components/Common";
+import { EditableTableRow, Table, Toolbar } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 
@@ -205,34 +200,12 @@ function TapDoan({ history, permission }) {
   const handleClearSearch = () => {
     getListData(null, 1);
   };
-  const handleRedirect = () => {
-    history.push({
-      pathname: "/danh-muc-erp/tap-doan/them-moi",
-    });
-  };
-
-  // const addButtonRender = () => {
-  //   return (
-  //     <>
-  //       <Button
-  //         icon={<PlusOutlined />}
-  //         className="th-btn-margin-bottom-0"
-  //         type="primary"
-  //         onClick={handleRedirect}
-  //         disabled={permission && !permission.add}
-  //       >
-  //         Thêm mới
-  //       </Button>
-  //     </>
-  //   );
-  // };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
         title={"Danh mục tập đoàn"}
         description="Danh sách tập đoàn"
-        // buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
         <Col

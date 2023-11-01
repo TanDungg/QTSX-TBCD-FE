@@ -519,6 +519,7 @@ const KiemKeForm = ({ history, match, permission }) => {
               } else {
                 resetFields();
                 setFieldTouch(false);
+                setXuong("");
                 getData();
                 setFieldsValue({
                   kiemkeform: {

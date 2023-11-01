@@ -152,7 +152,6 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
   const [listVatTu, setListVatTu] = useState([]);
   const [ListNhaCungCap, setListNhaCungCap] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
-  const [ListUser, setListUser] = useState([]);
   const [disableUpload, setDisableUpload] = useState(false);
   const [FileChat, setFileChat] = useState("");
   const [File, setFile] = useState("");
@@ -236,13 +235,11 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUser([res.data]);
         setFieldsValue({
           dathangnoibo: {
             userYeuCau_Id: res.data.Id,
           },
         });
-      } else {
       }
     });
   };
@@ -334,7 +331,6 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          const data = res.data;
           setListVatTu(
             JSON.parse(res.data.chiTietVatTu)
               ? JSON.parse(res.data.chiTietVatTu)
@@ -379,30 +375,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       )}`
     );
   };
-  const getDetailVatTu = (data) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `VatTu/${data.vatTu_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          res.data.ghiChu = data.ghiChu;
-          res.data.dinhMuc = data.dinhMuc;
-          res.data.vatTu_Id = res.data.id;
-          setListVatTu([...listVatTu, res.data]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
+
   /**
    * deleteItemFunc: Remove item from list
    * @param {object} item
@@ -924,6 +897,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
   const props = {
+    accept: ".pdf, .png, .jpg, .jpeg",
     beforeUpload: (file) => {
       const isPNG =
         file.type === "image/png" ||
@@ -1549,7 +1523,11 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                       </span>
                     ) : (
                       <span>
-                        <a target="_blank" href={BASE_URL_API + File}>
+                        <a
+                          target="_blank"
+                          href={BASE_URL_API + File}
+                          rel="noopener noreferrer"
+                        >
                           {File.split("/")[5]}{" "}
                         </a>
                         {type === "UploadFile" &&

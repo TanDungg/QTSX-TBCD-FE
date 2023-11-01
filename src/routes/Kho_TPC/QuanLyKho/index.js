@@ -3,12 +3,6 @@ import { Route, Switch } from "react-router-dom";
 import asyncComponent from "util/asyncComponent";
 import Auth from "helpers/Auth";
 
-const ThongTinVatTu = asyncComponent(() =>
-  import("./ThongTinVatTu/ThongTinVatTu")
-);
-const ThongTinVatTuForm = asyncComponent(() =>
-  import("./ThongTinVatTu/ThongTinVatTuForm")
-);
 const PhieuDeNghiCapVatTu = asyncComponent(() =>
   import("./PhieuDeNghiCapVatTu/PhieuDeNghiCapVatTu")
 );
@@ -74,8 +68,6 @@ const ThanhLyThanhPhamForm = asyncComponent(() =>
 const KiemKe = asyncComponent(() => import("./KiemKe/KiemKe"));
 const KiemKeForm = asyncComponent(() => import("./KiemKe/KiemKeForm"));
 
-const TheKho = asyncComponent(() => import("./TheKho/TheKho"));
-const TheKhoForm = asyncComponent(() => import("./TheKho/TheKhoForm"));
 const SoDuDauKyVatTu = asyncComponent(() =>
   import("./SoDuDauKy/VatTu/SoDuDauKyVatTu")
 );
@@ -99,21 +91,6 @@ const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
     <Switch>
-      <Route
-        path={`${match.url}/thong-tin-vat-tu`}
-        exact
-        component={Auth(ThongTinVatTu, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/thong-tin-vat-tu/them-moi`}
-        exact
-        component={Auth(ThongTinVatTuForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/thong-tin-vat-tu/:id/chinh-sua`}
-        exact
-        component={Auth(ThongTinVatTuForm, menus, pathname, permission)}
-      />
       <Route
         path={`${match.url}/phieu-de-nghi-cap-vat-tu`}
         exact
@@ -348,21 +325,6 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/kiem-ke/:id/xac-nhan`}
         exact
         component={Auth(KiemKeForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/the-kho`}
-        exact
-        component={Auth(TheKho, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/the-kho/them-moi`}
-        exact
-        component={Auth(TheKhoForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/the-kho/:id/chinh-sua`}
-        exact
-        component={Auth(TheKhoForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/so-du-dau-ky/vat-tu`}

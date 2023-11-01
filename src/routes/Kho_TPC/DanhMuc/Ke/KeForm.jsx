@@ -19,7 +19,7 @@ const initialState = {
 function KeForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-  const { loading, item } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = getLocalStorage("menu");
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);

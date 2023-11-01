@@ -40,7 +40,6 @@ const LoaiDinhMucTonKhoForm = asyncComponent(() =>
   import("./LoaiDinhMucTonKho/LoaiDinhMucTonKhoForm")
 );
 const SanPham = asyncComponent(() => import("./SanPham/SanPham"));
-const QuyTrinhSP = asyncComponent(() => import("./SanPham/QuyTrinh"));
 
 const SanPhamForm = asyncComponent(() => import("./SanPham/SanPhamForm"));
 const VatTu = asyncComponent(() => import("./VatTu/VatTu"));
@@ -257,11 +256,6 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/san-pham/:id/chinh-sua`}
         exact
         component={Auth(SanPhamForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/san-pham/:id/quy-trinh`}
-        exact
-        component={Auth(QuyTrinhSP, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/vat-tu`}

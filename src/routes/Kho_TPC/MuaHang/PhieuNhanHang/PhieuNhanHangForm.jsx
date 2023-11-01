@@ -11,7 +11,7 @@ import {
   Upload,
   Image,
 } from "antd";
-import { includes, isEmpty, map, set } from "lodash";
+import { includes, isEmpty, map } from "lodash";
 import Helper from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState, useRef, useContext } from "react";
@@ -22,7 +22,6 @@ import {
   Select,
   Table,
   ModalDeleteConfirm,
-  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API, DEFAULT_FORM_TWO_COL } from "src/constants/Config";
@@ -150,7 +149,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
   const [openImage, setOpenImage] = useState(false);
   const [editingRecord, setEditingRecord] = useState([]);
 
-  const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
+  const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
     const load = () => {
@@ -1042,7 +1041,11 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
                   </span>
                 ) : (
                   <span>
-                    <a target="_blank" href={BASE_URL_API + File}>
+                    <a
+                      target="_blank"
+                      href={BASE_URL_API + File}
+                      rel="noopener noreferrer"
+                    >
                       {File.split("/")[5]}{" "}
                     </a>
                     {(type === "new" || type === "edit") && (

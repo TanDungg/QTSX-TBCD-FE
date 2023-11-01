@@ -7,7 +7,6 @@ import { Input, Select, FormSubmit } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
-import tree from "src/components/Common/Tree_Old";
 
 const FormItem = Form.Item;
 

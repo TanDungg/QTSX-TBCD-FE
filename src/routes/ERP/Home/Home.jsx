@@ -16,7 +16,7 @@ function Home({ permission, history }) {
   const TOKENINFO = getTokenInfo();
   const MENUINFO = getLocalStorage("menu");
   const { donvi } = useSelector(({ donvi }) => donvi);
-  const { data } = useSelector(({ common }) => common).toJS();
+  const { data, width } = useSelector(({ common }) => common).toJS();
   const [DonVi, setDonVi] = useState("");
   const dispatch = useDispatch();
   useEffect(() => {
@@ -49,6 +49,7 @@ function Home({ permission, history }) {
     menuInfo.tenPhanMem = dt.tenPhanMem;
     menuInfo.tapDoan_Id = dt.TapDoan_Id;
     menuInfo.Url = dt.Url;
+    history.push(dt.Url);
     setLocalStorage("menu", menuInfo);
     dispatch(loadMenu());
   };
@@ -71,23 +72,25 @@ function Home({ permission, history }) {
         // buttons={addButtonRender()}
       />
       <Card style={{ minHeight: "77vh" }}>
-        <Row style={{ marginBottom: 10 }}>
-          <Col xl={12} xs={24}>
-            <h5>Đơn vị:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={donvi}
-              placeholder="Chọn đơn vị"
-              optionsvalue={["DonVi_Id", "tenDonVi"]}
-              style={{ width: "100%" }}
-              onSelect={handleOnSelectDonVi}
-              value={DonVi}
-              defaultValue={donvi.length > 0 && donvi[0].DonVi_Id}
-              optionFilterProp={"name"}
-              showSearch
-            />
-          </Col>
-        </Row>
+        {width < 1200 && (
+          <Row style={{ marginBottom: 10 }}>
+            <Col xl={12} xs={24}>
+              <h5>Đơn vị:</h5>
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={donvi}
+                placeholder="Chọn đơn vị"
+                optionsvalue={["DonVi_Id", "tenDonVi"]}
+                style={{ width: "100%" }}
+                onSelect={handleOnSelectDonVi}
+                value={DonVi}
+                defaultValue={donvi.length > 0 && donvi[0].DonVi_Id}
+                optionFilterProp={"name"}
+                showSearch
+              />
+            </Col>
+          </Row>
+        )}
         <Row>
           {data &&
             data.map((dt) => {

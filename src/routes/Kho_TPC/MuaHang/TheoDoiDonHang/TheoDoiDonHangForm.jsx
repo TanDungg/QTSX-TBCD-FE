@@ -1,7 +1,7 @@
-import { DeleteOutlined, PrinterOutlined } from "@ant-design/icons";
+import { PrinterOutlined } from "@ant-design/icons";
 import { Card, Row, Col, Tag, Button, DatePicker, Space } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { includes, map } from "lodash";
+import { map } from "lodash";
 import React, { useEffect, useState } from "react";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { Table, EditableTableRow, Select } from "src/components/Common";

@@ -11,14 +11,11 @@ import {
 import { ConfigProvider } from "antd";
 import { IntlProvider } from "react-intl";
 import moment from "moment";
-import { fetchStart } from "src/appRedux/actions/Common";
 import "moment/locale/vi";
 
 import AppLocale from "src/lngProvider";
 import MainApp from "./MainApp";
 import SignIn from "../SignIn";
-import InMaQrVatTu from "src/routes/Kho_TPC/DanhMuc/VatTu/InMaQr";
-import InMaQrTTVatTu from "src/routes/Kho_TPC/QuanLyKho/ThongTinVatTu/InMaQr";
 import InMaQrThongTinVatTu from "src/routes/Kho_TPC/InBarcode/VatTu/InMaQr";
 import InMaQrCauTrucKho from "src/routes/Kho_TPC/InBarcode/CauTrucKho/InMaQr";
 
@@ -47,9 +44,9 @@ import {
   setSessionStorage,
 } from "src/util/Common";
 
-import { messaging } from "src/constants/firebase";
+// import { messaging } from "src/constants/firebase";
 // import { onMessage } from "firebase/messaging";
-import { getToken } from "firebase/messaging";
+// import { getToken } from "firebase/messaging";
 // import { thongBaoLoad } from "src/appRedux/actions";
 
 const RestrictedRoute = ({
@@ -121,28 +118,28 @@ const App = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  async function requestPermission() {
-    const permission = await Notification.requestPermission();
-    if (permission === "granted") {
-      // Generate Token
-      const token = await getToken(messaging, {
-        vapidKey:
-          "BGJz6YC8lH2J-rNLlHhzr1iY8wc1N_4mhLHi6tilbf8BrJ3NOYq63MNhxeUDSyoubtnnxt7NX2LAczGrBm8_Uac",
-      });
-      dispatch(
-        fetchStart(
-          `TokenGen/store-token`,
-          "POST",
-          { user_Id: info.id, token: token },
-          "DETAIL",
-          ""
-        )
-      );
-      // Send this token  to server ( db)
-    } else if (permission === "denied") {
-      // alert("You denied for the notification");
-    }
-  }
+  // async function requestPermission() {
+  //   const permission = await Notification.requestPermission();
+  //   if (permission === "granted") {
+  //     // Generate Token
+  //     const token = await getToken(messaging, {
+  //       vapidKey:
+  //         "BGJz6YC8lH2J-rNLlHhzr1iY8wc1N_4mhLHi6tilbf8BrJ3NOYq63MNhxeUDSyoubtnnxt7NX2LAczGrBm8_Uac",
+  //     });
+  //     dispatch(
+  //       fetchStart(
+  //         `TokenGen/store-token`,
+  //         "POST",
+  //         { user_Id: info.id, token: token },
+  //         "DETAIL",
+  //         ""
+  //       )
+  //     );
+  //     // Send this token  to server ( db)
+  //   } else if (permission === "denied") {
+  //     // alert("You denied for the notification");
+  //   }
+  // }
 
   // useEffect(() => {
   //   function handleServiceWorkerMessage(event) {

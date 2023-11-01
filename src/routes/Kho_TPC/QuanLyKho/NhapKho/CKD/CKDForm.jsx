@@ -11,7 +11,6 @@ import {
   Select,
   Table,
   ModalDeleteConfirm,
-  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
@@ -228,12 +227,11 @@ const CKDForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const [ListXuong, setListXuong] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [ListSoLot, setListSoLot] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
-  const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
+  const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   const [editingRecord, setEditingRecord] = useState(null);
   const [editingRecordCT, setEditingRecordCT] = useState([]);
@@ -244,7 +242,6 @@ const CKDForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           getUserLap(INFO);
           setType("new");
-          getXuong();
           getLot();
           getKho();
           setFieldsValue({
@@ -342,33 +339,6 @@ const CKDForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
-  const getXuong = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        const xuong = [];
-        res.data.forEach((x) => {
-          if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
-            xuong.push(x);
-          }
-        });
-        setListXuong(xuong);
-      } else {
-        setListXuong([]);
-      }
-    });
-  };
   const getLot = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -430,7 +400,6 @@ const CKDForm = ({ history, match, permission }) => {
           setInfo(res.data);
           getLot();
           getKho();
-          getXuong();
           setListSanPham([
             {
               maSanPham: res.data.maSanPham,
@@ -948,15 +917,6 @@ const CKDForm = ({ history, match, permission }) => {
     //     });
     //   }
     // });
-  };
-  const hanldeBlurSoLuong = (sl) => {
-    if (sl !== "") {
-      const newData = [...ListSanPham];
-      newData.forEach((sp, index) => {
-        newData[index].soLuongNhap = Number(sp.soLuongChiTiet) * Number(sl);
-      });
-      setListSanPham(newData);
-    }
   };
   return (
     <div className="gx-main-content">

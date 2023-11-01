@@ -152,7 +152,7 @@ function LoaiNhaCungCap({ match, history, permission }) {
       </Button>
     );
   };
-  const { totalRow, totalPages, pageSize } = data;
+  const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
   let renderHead = [

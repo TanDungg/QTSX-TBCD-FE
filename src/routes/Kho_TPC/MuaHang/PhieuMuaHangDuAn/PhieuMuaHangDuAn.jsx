@@ -4,13 +4,12 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
+  CheckCircleOutlined,
   PrinterOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -25,21 +24,24 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  exportPDF,
+  removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function TheKho({ match, history, permission }) {
+
+function PhieuMuaHangDuAn({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [selectedDevice, setSelectedDevice] = useState([]);
-  const [FromDate, setFromDate] = useState(getDateNow(7));
+  const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
+  const [SelectedDatHang, setSelectedDatHang] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListBanPhong, setListBanPhong] = useState([]);
   const [BanPhong, setBanPhong] = useState("");
@@ -68,7 +70,9 @@ function TheKho({ match, history, permission }) {
       page,
       donVi_Id: INFO.donVi_Id,
     });
-    dispatch(fetchStart(`lkn_PhieuDatHangNoiBo?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(`lkn_PhieuMuaHangTheoDuAn?${param}`, "GET", null, "LIST")
+    );
   };
   const getBanPhong = () => {
     new Promise((resolve, reject) => {
@@ -120,7 +124,10 @@ function TheKho({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
+      permission &&
+      permission.cof &&
+      item.tinhTrang === "Chưa xác nhận" &&
+      item.fileXacNhan ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -128,15 +135,18 @@ function TheKho({ match, history, permission }) {
           }}
           title="Xác nhận"
         >
-          <EyeOutlined />
+          <CheckCircleOutlined />
         </Link>
       ) : (
         <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
+          <CheckCircleOutlined />
         </span>
       );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
+      permission &&
+      permission.edit &&
+      !item.fileXacNhan &&
+      item.userYeuCau_Id === INFO.user_Id ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -152,7 +162,10 @@ function TheKho({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
+      permission &&
+      permission.del &&
+      !item.fileXacNhan &&
+      INFO.user_Id === item.userYeuCau_Id
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -189,7 +202,7 @@ function TheKho({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDatHangNoiBo/${item.id}`;
+    let url = `lkn_PhieuDatHangNoiBo?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -223,7 +236,52 @@ function TheKho({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handlePrint = () => {};
+
+  const handlePrint = () => {
+    const params = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuMuaHangTheoDuAn/${SelectedDatHang[0].id}?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newData = {
+            ...res.data,
+            lsddhct: res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu),
+          };
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `lkn_PhieuMuaHangTheoDuAn/export-pdf`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportPDF("PhieuMuaHangTheoDuAn", res.data.datapdf);
+            setSelectedDatHang([]);
+            setSelectedKeys([]);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -241,7 +299,9 @@ function TheKho({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
-          disabled={permission && !permission.print}
+          disabled={
+            (permission && !permission.print) || SelectedDatHang.length === 0
+          }
         >
           In phiếu
         </Button>
@@ -250,10 +310,8 @@ function TheKho({ match, history, permission }) {
   };
   const { totalRow, pageSize } = data;
 
-  let dataList = reDataForTable(
-    data.datalist
-    // page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  let dataList = reDataForTable(data.datalist, page, pageSize);
+
   const renderDetail = (val) => {
     const detail =
       permission && permission.view ? (
@@ -279,52 +337,100 @@ function TheKho({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã thẻ kho",
+      title: "Mã đơn hàng",
       key: "maPhieuYeuCau",
       align: "center",
       render: (val) => renderDetail(val),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maPhieuYeuCau,
+            value: d.maPhieuYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maPhieuYeuCau.includes(value),
+      filterSearch: true,
     },
     {
-      title: "Tên vật tư",
-      dataIndex: "ngayXuat",
-      key: "ngayXuat",
+      title: "Ngày yêu cầu",
+      dataIndex: "ngayYeuCau",
+      key: "ngayYeuCau",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayYeuCau,
+            value: d.ngayYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayYeuCau.includes(value),
+      filterSearch: true,
     },
     {
-      title: "Loại phiếu",
+      title: "Ban/Phòng",
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenPhongBan,
+            value: d.tenPhongBan,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenPhongBan.includes(value),
+      filterSearch: true,
     },
     {
-      title: "Ngày nhập/xuất",
-      dataIndex: "kho",
-      key: "kho",
+      title: "Người đặt hàng",
+      dataIndex: "tenNguoiYeuCau",
+      key: "tenNguoiYeuCau",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiYeuCau,
+            value: d.tenNguoiYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNguoiYeuCau.includes(value),
+      filterSearch: true,
     },
     {
-      title: "Nội dung",
-      dataIndex: "tenNguoiLap",
-      key: "tenNguoiLap",
+      title: "Dự kiến hoàn thành",
+      dataIndex: "ngayHoanThanhDukien",
+      key: "ngayHoanThanhDukien",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayHoanThanhDukien,
+            value: d.ngayHoanThanhDukien,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayHoanThanhDukien.includes(value),
+      filterSearch: true,
     },
     {
-      title: "Số lượng",
-      dataIndex: "tenNguoiLap",
-      key: "tenNguoiLap",
+      title: "Tình trạng",
+      dataIndex: "tinhTrang",
+      key: "tinhTrang",
       align: "center",
-    },
-    {
-      title: "Vị trí",
-      dataIndex: "tenNguoiLap",
-      key: "tenNguoiLap",
-      align: "center",
-    },
-    {
-      title: "Ngày tạo",
-      dataIndex: "tenNguoiLap",
-      key: "tenNguoiLap",
-      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tinhTrang,
+            value: d.tinhTrang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tinhTrang.includes(value),
+      filterSearch: true,
     },
 
     {
@@ -358,59 +464,69 @@ function TheKho({ match, history, permission }) {
     };
   });
 
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
-
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
   const handleOnSelectBanPhong = (val) => {
     setBanPhong(val);
     setPage(1);
     loadData(keyword, val, FromDate, ToDate, 1);
   };
+
   const handleClearBanPhong = (val) => {
     setBanPhong("");
     setPage(1);
     loadData(keyword, "", FromDate, ToDate, 1);
   };
+
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
     loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
   };
+
+  const rowSelection = {
+    selectedRowKeys: selectedKeys,
+    selectedRows: SelectedDatHang,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        SelectedDatHang.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectedDatHang[0].key)
+          : [...selectedRows];
+
+      const key =
+        selectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
+          : [...selectedRowKeys];
+
+      setSelectedDatHang(row);
+      setSelectedKeys(key);
+    },
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Danh sách thẻ kho"
-        description="Danh sách thẻ kho"
+        title="Phiếu mua hàng theo dự án"
+        description="Danh sách phiếu mua hàng theo dự án"
         buttons={addButtonRender()}
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
-            <h5>Loại phiếu:</h5>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Ban/Phòng:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListBanPhong ? ListBanPhong : []}
-              placeholder="Chọn loại phiếu"
+              placeholder="Chọn Ban/Phòng"
               optionsvalue={["id", "tenPhongBan"]}
               style={{ width: "100%" }}
               showSearch
@@ -422,8 +538,15 @@ function TheKho({ match, history, permission }) {
               onClear={handleClearBanPhong}
             />
           </Col>
-
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Ngày:</h5>
             <RangePicker
               format={"DD/MM/YYYY"}
@@ -435,7 +558,15 @@ function TheKho({ match, history, permission }) {
               allowClear={false}
             />
           </Col>
-          <Col xl={6} lg={24} md={24} xs={24}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Tìm kiếm:</h5>
             <Toolbar
               count={1}
@@ -452,36 +583,14 @@ function TheKho({ match, history, permission }) {
           </Col>
         </Row>
         <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            preserveSelectedRowKeys: true,
-            selectedRowKeys: selectedKeys,
-            getCheckboxProps: (record) => ({}),
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setSelectedDevice([record]);
-                  setSelectedKeys([record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            };
-          }}
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 1000, y: "70vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}
           size="small"
-          rowClassName={(record) => {
-            return record.isParent ? "editable-row" : "editable-row";
-          }}
+          rowClassName={"editable-row"}
           pagination={{
             onChange: handleTableChange,
             pageSize: pageSize,
@@ -490,10 +599,17 @@ function TheKho({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: selectedKeys,
+          }}
         />
       </Card>
     </div>
   );
 }
 
-export default TheKho;
+export default PhieuMuaHangDuAn;
