@@ -113,7 +113,6 @@ function TheoDoiHangVe({ match, history, permission }) {
   };
 
   const renderColumn = (record, value) => {
-    console.log(record);
     if (value === "ngayHangVe") {
       return (
         <div>
@@ -145,23 +144,19 @@ function TheoDoiHangVe({ match, history, permission }) {
         </div>
       );
     }
-    if (value === "tenThuMua") {
+    if (value === "userThuMua") {
       return (
         <div>
-          {record.tenThuMua !== "Chưa xác định" ? (
-            JSON.parse(record.tenThuMua).map((nhv) => {
-              return (
-                <Tag
-                  style={{
-                    marginRight: 5,
-                    color: "#0469B9",
-                    fontSize: 13,
-                  }}
-                >
-                  {nhv.tenThuMua}
-                </Tag>
-              );
-            })
+          {record.userThuMua !== null ? (
+            <Tag
+              style={{
+                marginRight: 5,
+                color: "#0469B9",
+                fontSize: 13,
+              }}
+            >
+              {record.userThuMua}
+            </Tag>
           ) : (
             <Tag
               style={{
@@ -170,7 +165,7 @@ function TheoDoiHangVe({ match, history, permission }) {
                 fontSize: 13,
               }}
             >
-              {record.tenThuMua}
+              Chưa xác định
             </Tag>
           )}
         </div>
@@ -266,10 +261,10 @@ function TheoDoiHangVe({ match, history, permission }) {
     },
     {
       title: "CV Thu mua",
-      key: "tenThuMua",
+      key: "userThuMua",
       align: "center",
       width: 180,
-      render: (record) => renderColumn(record, "tenThuMua"),
+      render: (record) => renderColumn(record, "userThuMua"),
     },
     {
       title: "Ngày nhận hàng",
