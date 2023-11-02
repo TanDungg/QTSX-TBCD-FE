@@ -38,6 +38,7 @@ import {
   getLocalStorage,
   getTokenInfo,
   reDataForTable,
+  removeDuplicates,
   renderPDF,
 } from "src/util/Common";
 import ModalTuChoi from "./ModalTuChoi";
@@ -564,24 +565,64 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       dataIndex: "tenSanPham",
       key: "tenSanPham",
       align: "center",
+      filters: removeDuplicates(
+        map(listVatTu, (d) => {
+          return {
+            text: d.tenSanPham,
+            value: d.tenSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenSanPham.includes(value),
+      filterSearch: true,
     },
     {
       title: "Mã vật tư",
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
+      filters: removeDuplicates(
+        map(listVatTu, (d) => {
+          return {
+            text: d.maVatTu,
+            value: d.maVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
       align: "center",
+      filters: removeDuplicates(
+        map(listVatTu, (d) => {
+          return {
+            text: d.tenVatTu,
+            value: d.tenVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Nhóm vật tư",
       dataIndex: "tenNhomVatTu",
       key: "tenNhomVatTu",
       align: "center",
+      filters: removeDuplicates(
+        map(listVatTu, (d) => {
+          return {
+            text: d.tenNhomVatTu,
+            value: d.tenNhomVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNhomVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Đơn vị tính",

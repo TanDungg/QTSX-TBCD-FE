@@ -24,7 +24,6 @@ const Topbar = () => {
   const [DonVi, setDonVi] = useState("");
   const MENUINFO = getLocalStorage("menu");
   // const INFO = getTokenInfo();
-  console.log(MENUINFO.Url);
   const history = useHistory();
 
   useEffect(() => {

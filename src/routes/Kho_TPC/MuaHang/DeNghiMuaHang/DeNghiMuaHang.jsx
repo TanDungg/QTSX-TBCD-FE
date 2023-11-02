@@ -254,10 +254,25 @@ function DeNghiMuaHang({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
+          const result = JSON.parse(res.data.chiTietVatTu).reduce(
+            (acc, current) => {
+              const existingItem = acc.find(
+                (item) => item.maVatTu === current.maVatTu
+              );
+              if (existingItem) {
+                existingItem.soLuong =
+                  Number(existingItem.soLuong) + Number(current.soLuong);
+              } else {
+                acc.push(current);
+              }
+              return acc;
+            },
+            []
+          );
+
           const newData = {
             ...res.data,
-            lstpdncvtct:
-              res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu),
+            lstpdncvtct: result,
           };
           new Promise((resolve, reject) => {
             dispatch(

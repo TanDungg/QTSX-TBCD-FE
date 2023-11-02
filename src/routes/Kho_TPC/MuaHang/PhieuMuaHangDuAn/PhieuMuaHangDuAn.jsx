@@ -26,6 +26,7 @@ import {
   getTokenInfo,
   exportPDF,
   removeDuplicates,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -238,48 +239,23 @@ function PhieuMuaHangDuAn({ match, history, permission }) {
   };
 
   const handlePrint = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuMuaHangTheoDuAn/${SelectedDatHang[0].id}?${params}`,
-          "GET",
+          `lkn_PhieuMuaHangTheoDuAn/export-file-excel-mua-hang-theo-du-an?id=${SelectedDatHang[0].id}`,
+          "POST",
           null,
-          "DETAIL",
+          "",
           "",
           resolve,
           reject
         )
       );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const newData = {
-            ...res.data,
-            lsddhct: res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu),
-          };
-          new Promise((resolve, reject) => {
-            dispatch(
-              fetchStart(
-                `lkn_PhieuMuaHangTheoDuAn/export-pdf`,
-                "POST",
-                newData,
-                "",
-                "",
-                resolve,
-                reject
-              )
-            );
-          }).then((res) => {
-            exportPDF("PhieuMuaHangTheoDuAn", res.data.datapdf);
-            setSelectedDatHang([]);
-            setSelectedKeys([]);
-          });
-        }
-      })
-      .catch((error) => console.error(error));
+    }).then((res) => {
+      exportExcel("PhieuMuaHangTheoDuAn", res.data.dataexcel);
+      setSelectedDatHang([]);
+      setSelectedKeys([]);
+    });
   };
 
   const addButtonRender = () => {

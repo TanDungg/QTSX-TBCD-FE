@@ -26,7 +26,6 @@ import {
   setThemeType,
 } from "src/appRedux/actions/Setting";
 import { defaultValidateMessages } from "src/util/ValidatorMessage";
-
 import {
   LAYOUT_TYPE_BOXED,
   LAYOUT_TYPE_FRAMED,
