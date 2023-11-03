@@ -155,6 +155,9 @@ const PhongBanForm = ({ history, match, permission }) => {
 
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
+      user.phongBan_Id === "root"
+        ? (user.phongBan_Id = null)
+        : (user.phongBan_Id = user.phongBan_Id);
       const newData = user;
       new Promise((resolve, reject) => {
         dispatch(
@@ -180,7 +183,9 @@ const PhongBanForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      delete info.donVi;
+      user.phongBan_Id === "root"
+        ? (user.phongBan_Id = null)
+        : (user.phongBan_Id = user.phongBan_Id);
       var newData = { ...info, ...user };
       new Promise((resolve, reject) => {
         dispatch(

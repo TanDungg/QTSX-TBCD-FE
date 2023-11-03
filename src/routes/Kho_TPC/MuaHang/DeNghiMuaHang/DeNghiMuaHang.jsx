@@ -237,12 +237,13 @@ function DeNghiMuaHang({ match, history, permission }) {
 
   const handlePrint = () => {
     const params = convertObjectToUrlParams({
+      id: SelectedMuaHang[0].id,
       donVi_Id: INFO.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuDeNghiMuaHang/${SelectedMuaHang[0].id}?${params}`,
+          `lkn_PhieuDeNghiMuaHang/data-pdf-phieu-mua-hang-by-id?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -254,7 +255,7 @@ function DeNghiMuaHang({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const result = JSON.parse(res.data.chiTietVatTu).reduce(
+          const result = JSON.parse(res.data.lstpdncvtct).reduce(
             (acc, current) => {
               const existingItem = acc.find(
                 (item) => item.maVatTu === current.maVatTu
@@ -262,6 +263,9 @@ function DeNghiMuaHang({ match, history, permission }) {
               if (existingItem) {
                 existingItem.soLuong =
                   Number(existingItem.soLuong) + Number(current.soLuong);
+                existingItem.soLuongTheoDinhMuc =
+                  Number(existingItem.soLuongTheoDinhMuc) +
+                  Number(current.soLuongTheoDinhMuc);
               } else {
                 acc.push(current);
               }
@@ -269,10 +273,9 @@ function DeNghiMuaHang({ match, history, permission }) {
             },
             []
           );
-
           const newData = {
             ...res.data,
-            lstpdncvtct: result,
+            chiTietVatTu: result,
           };
           new Promise((resolve, reject) => {
             dispatch(

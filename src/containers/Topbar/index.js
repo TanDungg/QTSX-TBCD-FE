@@ -78,7 +78,7 @@ const Topbar = () => {
     setDonVi(val);
     const menu = getLocalStorage("menu");
     menu.donVi_Id = val;
-    menu.tenPhanMem = "HỆ THỐNG QUẢN LÝ NGUỒN NHÂN LỰC DOANH NGHIỆP (ERP)";
+    menu.tenPhanMem = "QUẢN LÝ NGUỒN NHÂN LỰC DOANH NGHIỆP (ERP)";
     menu.phanMem_Id = null;
     menu.Url = null;
     setLocalStorage("menu", menu);

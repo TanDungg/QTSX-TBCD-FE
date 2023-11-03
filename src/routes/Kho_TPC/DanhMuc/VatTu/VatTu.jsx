@@ -233,7 +233,22 @@ function VatTu({ match, history, permission }) {
       onFilter: (value, record) => record.tenVatTu.includes(value),
       filterSearch: true,
     },
-
+    {
+      title: "Nhóm vật tư",
+      dataIndex: "tenNhomVatTu",
+      key: "tenNhomVatTu",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNhomVatTu,
+            value: d.tenNhomVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNhomVatTu.includes(value),
+      filterSearch: true,
+    },
     {
       title: "Thông số",
       dataIndex: "quyCach",

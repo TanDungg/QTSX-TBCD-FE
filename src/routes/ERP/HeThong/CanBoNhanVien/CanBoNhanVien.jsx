@@ -211,7 +211,6 @@ function CanBoNhanVien({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    console.log(item);
     const params = convertObjectToUrlParams({
       chiTiet_Id: item.chiTiet_Id,
       user_Id: item.id,
