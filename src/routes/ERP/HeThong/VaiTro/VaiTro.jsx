@@ -248,8 +248,8 @@ function VaiTro({ history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phân quyền"
-        description="Tại đây bạn có thể phân quyền"
+        title="Vai trò"
+        description="Vai trò"
         buttons={
           <Button
             icon={<PlusOutlined />}

@@ -228,7 +228,7 @@ function VaiTroForm({ history, match, permission }) {
     history.push("/he-thong-erp/vai-tro");
   };
 
-  const formTitle = type === "new" ? "Thêm mới quyền" : "Chỉnh sửa quyền";
+  const formTitle = type === "new" ? "Thêm mới vai trò" : "Chỉnh sửa vai trò";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />

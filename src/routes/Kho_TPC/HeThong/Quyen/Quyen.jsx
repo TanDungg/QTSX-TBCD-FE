@@ -254,12 +254,12 @@ function Quyen({ history, permission, location, match }) {
 
   let flatData = newTreeToFlatlist(listPermission, "id");
   flatData = reDataSelectedTable(flatData);
-  const titleCard = name ? `Phân quyền - ${name}` : `Phân quyền`;
+  const titleCard = name ? `Vai trò - ${name}` : `Vai trò`;
   return (
     <div className="gx-main-content">
       <ContainerHeader
         title={titleCard}
-        description="Chi tiết phân quyền"
+        description="Chi tiết vai trò"
         back={redirectToVaiTro}
       />
       <Card className="th-card-margin-bottom">
