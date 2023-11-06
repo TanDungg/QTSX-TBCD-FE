@@ -13,7 +13,7 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-function LayoutKho({ history, permission }) {
+function LayoutKhoVatTu({ history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -433,4 +433,4 @@ function LayoutKho({ history, permission }) {
   );
 }
 
-export default LayoutKho;
+export default LayoutKhoVatTu;

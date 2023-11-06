@@ -80,7 +80,12 @@ const SoDuDauKyThanhPham = asyncComponent(() =>
 const SoDuDauKyThanhPhamForm = asyncComponent(() =>
   import("./SoDuDauKy/ThanhPham/SoDuDauKyThanhPhamForm")
 );
-const LayoutKho = asyncComponent(() => import("./LayoutKho/LayoutKho"));
+const LayoutKhoVatTu = asyncComponent(() =>
+  import("./LayoutKhoVatTu/LayoutKhoVatTu")
+);
+const LayoutKhoThanhPham = asyncComponent(() =>
+  import("./LayoutKhoThanhPham/LayoutKhoThanhPham")
+);
 
 const KhoVatTu = asyncComponent(() => import("./KhoVatTu/KhoVatTu"));
 const KhoThanhPham = asyncComponent(() =>
@@ -367,9 +372,14 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(SoDuDauKyThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/layout-kho`}
+        path={`${match.url}/layout-kho-vat-tu`}
         exact
-        component={Auth(LayoutKho, menus, pathname, permission)}
+        component={Auth(LayoutKhoVatTu, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/layout-kho-thanh-pham`}
+        exact
+        component={Auth(LayoutKhoThanhPham, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/dinh-muc-ton-kho`}

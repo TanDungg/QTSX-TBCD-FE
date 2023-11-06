@@ -185,7 +185,7 @@ function CauTrucKhoForm({ match, permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `CauTrucKho?isThanhPham=${newUser.isThanhPham}`,
+            `CauTrucKho?isThanhPham=${false}`,
             "POST",
             newUser,
             "ADD",
@@ -217,7 +217,7 @@ function CauTrucKhoForm({ match, permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `CauTrucKho/${id}?isThanhPham=${editUser.isThanhPham}`,
+            `CauTrucKho/${id}?isThanhPham=${false}`,
             "PUT",
             editUser,
             "EDIT",
@@ -258,7 +258,9 @@ function CauTrucKhoForm({ match, permission, history }) {
   };
 
   const formTitle =
-    type === "new" ? "Thêm mới cấu trúc kho" : "Chỉnh sửa cấu trúc kho";
+    type === "new"
+      ? "Thêm mới cấu trúc kho vật tư"
+      : "Chỉnh sửa cấu trúc kho vật tư";
 
   return (
     <div className="gx-main-content">
@@ -381,14 +383,14 @@ function CauTrucKhoForm({ match, permission, history }) {
                 disabled={disableViTri}
               />
             </FormItem>
-            <FormItem
+            {/* <FormItem
               label="Kho thành phẩm"
               name={["CauTrucKho", "isThanhPham"]}
               valuePropName="checked"
               initialValue={isActive}
             >
               <Switch disabled={!disableViTri} />
-            </FormItem>
+            </FormItem> */}
             <FormSubmit
               goBack={goBack}
               saveAndClose={saveAndClose}
