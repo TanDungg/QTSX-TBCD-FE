@@ -338,7 +338,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = ListSanPham.filter((d) => d.ke_Id !== item.ke_Id);
+    const newData = ListSanPham.filter((d) => d.chiTietKho_Id !== item.chiTietKho_Id);
     setFieldTouch(true);
     setListSanPham(newData);
   };
@@ -563,6 +563,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     );
   const addSanPham = (vaL) => {
     console.log(vaL);
+
     let check = false;
     ListSanPham.forEach((sp) => {
       if (sp.chiTietKho_Id === vaL.chiTietKho_Id) check = true;

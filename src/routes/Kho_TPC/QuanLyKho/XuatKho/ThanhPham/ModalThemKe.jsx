@@ -80,7 +80,6 @@ function ModalThemKe({ openModalFS, openModal, addKe, cauTrucKho_Id }) {
         const newData = values.addKe;
         listLot.forEach((l) => {
           if (l.id === newData.lot_Id) {
-            newData.sanPham_Id = l.sanPham_Id;
             newData.soLot = l.soLot;
           }
         });
@@ -89,9 +88,16 @@ function ModalThemKe({ openModalFS, openModal, addKe, cauTrucKho_Id }) {
             newData.tenKe = k.tenKe;
             newData.tenNgan = k.tenNgan;
             newData.tenTang = k.tenTang;
+            newData.tenMauSac = k.tenMauSac;
+            newData.mauSac_Id = k.mauSac_Id;
             newData.ke_Id = k.ke_Id;
             newData.ngan_Id = k.ngan_Id;
-            newData.tang_Id = k.tang_Id;
+            newData.tang_Id = k.tang_Id;            
+            newData.sanPham_Id = k.sanPham_Id;
+            newData.tenSanPham = k.tenSanPham;
+            newData.maSanPham = k.maSanPham;
+            newData.tenDonViTinh = k.tenDonViTinh;
+            newData.soLuongXuat = k.soLuong;
           }
         });
         console.log(newData);
@@ -181,7 +187,7 @@ function ModalThemKe({ openModalFS, openModal, addKe, cauTrucKho_Id }) {
           </FormItem>
           <FormItem
             label="Vị trí"
-            name={["addKe", "ke_Id"]}
+            name={["addKe", "chiTietKho_Id"]}
             rules={[
               {
                 type: "string",
