@@ -4,26 +4,34 @@ import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { Select } from "src/components/Common";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions";
+import { convertObjectToUrlParams } from "src/util/Common";
 const FormItem = Form.Item;
 
-function ModalThemKe({ openModalFS, openModal, ListKe, addKe }) {
+function ModalThemKe({ openModalFS, openModal, addKe, cauTrucKho_Id }) {
   const [fieldTouch, setFieldTouch] = useState(false);
   const dispatch = useDispatch();
 
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [listLot, setListLot] = useState([]);
+  const [listKe, setListKe] = useState([]);
+
   const [ListSanPham, setListSanPham] = useState([]);
 
   useEffect(() => {
     if (openModal) {
+      getLot();
     }
   }, [openModal]);
-  const getSanPham = (ke_id) => {
+  const getViTri = (cauTrucKho_Id, sanPham_Id) => {
+    const params = convertObjectToUrlParams({
+      cauTrucKho_Id,
+      sanPham_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_ViTriLuuKho/list-thanh-pham-in-ke-kho?ke_Id=${ke_id}`,
+          `lkn_ViTriLuuKho/list-vi-tri-luu-kho-thanh-pham_da-nhap-ke-tang-ngan?${params}`,
           "GET",
           null,
           "LIST",
@@ -35,33 +43,26 @@ function ModalThemKe({ openModalFS, openModal, ListKe, addKe }) {
     })
       .then((res) => {
         if (res && res.data) {
-          res.data[0].soLuongXuat = res.data[0].soLuong;
-          setListSanPham(res.data);
-          setFieldsValue({
-            addKe: {
-              tenSanPham: res.data[0].tenSanPham,
-              lot_Id: null,
-            },
+          const newData = res.data.map((vt) => {
+            return {
+              ...vt,
+              name:
+                vt.tenKe +
+                (vt.tenTang ? " - " + vt.tenTang : "") +
+                (vt.tenNgan ? " - " + vt.tenNgan : ""),
+            };
           });
-          getLot(res.data[0].sanPham_Id);
+          setListKe(newData);
         } else {
-          setListSanPham([]);
+          setListKe([]);
         }
       })
       .catch((error) => console.error(error));
   };
-  const getLot = (sanPham_Id) => {
+  const getLot = () => {
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(
-          `Lot/getlist-lot-by-san-pham?sanPham_Id=${sanPham_Id}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
+        fetchStart(`Lot?page=${-1}`, "GET", null, "LIST", "", resolve, reject)
       );
     })
       .then((res) => {
@@ -76,13 +77,25 @@ function ModalThemKe({ openModalFS, openModal, ListKe, addKe }) {
   const handleSubmit = () => {
     validateFields()
       .then((values) => {
+        const newData = values.addKe;
         listLot.forEach((l) => {
-          if (l.id === values.addKe.lot_Id) {
-            ListSanPham[0].lot_Id = l.id;
-            ListSanPham[0].soLot = l.soLot;
+          if (l.id === newData.lot_Id) {
+            newData.sanPham_Id = l.sanPham_Id;
+            newData.soLot = l.soLot;
           }
         });
-        addKe(ListSanPham);
+        listKe.forEach((k) => {
+          if (k.chiTietKho_Id === newData.chiTietKho_Id) {
+            newData.tenKe = k.tenKe;
+            newData.tenNgan = k.tenNgan;
+            newData.tenTang = k.tenTang;
+            newData.ke_Id = k.ke_Id;
+            newData.ngan_Id = k.ngan_Id;
+            newData.tang_Id = k.tang_Id;
+          }
+        });
+        console.log(newData);
+        addKe(newData);
         openModalFS(false);
         resetFields();
       })
@@ -102,9 +115,20 @@ function ModalThemKe({ openModalFS, openModal, ListKe, addKe }) {
   const onFinish = (values) => {
     // saveData(values.bophan);
   };
-  const handleSelectKe = (val) => {
-    getSanPham(val);
+  const handleSelectLot = (val) => {
+    listLot.forEach((l) => {
+      if (l.id === val) {
+        getViTri(cauTrucKho_Id, l.sanPham_Id);
+        setFieldsValue({
+          addKe: {
+            lot_Id: val,
+            tenSanPham: l.tenSanPham,
+          },
+        });
+      }
+    });
   };
+
   return (
     <AntModal
       title="Chọn Kệ"
@@ -123,8 +147,8 @@ function ModalThemKe({ openModalFS, openModal, ListKe, addKe }) {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Kệ"
-            name={["addKe", "ke_Id"]}
+            label="Lot"
+            name={["addKe", "lot_Id"]}
             rules={[
               {
                 type: "string",
@@ -134,13 +158,13 @@ function ModalThemKe({ openModalFS, openModal, ListKe, addKe }) {
           >
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListKe}
-              placeholder="Chọn Kệ"
-              optionsvalue={["ke_Id", "tenKe"]}
+              data={listLot}
+              placeholder="Chọn Lot"
+              optionsvalue={["id", "soLot"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
-              onSelect={handleSelectKe}
+              onSelect={handleSelectLot}
             />
           </FormItem>
           <FormItem
@@ -156,8 +180,8 @@ function ModalThemKe({ openModalFS, openModal, ListKe, addKe }) {
             <Input disabled={true} placeholder="Sản phẩm" />
           </FormItem>
           <FormItem
-            label="Lot"
-            name={["addKe", "lot_Id"]}
+            label="Vị trí"
+            name={["addKe", "ke_Id"]}
             rules={[
               {
                 type: "string",
@@ -167,9 +191,9 @@ function ModalThemKe({ openModalFS, openModal, ListKe, addKe }) {
           >
             <Select
               className="heading-select slt-search th-select-heading"
-              data={listLot}
-              placeholder="Chọn Lot"
-              optionsvalue={["id", "soLot"]}
+              data={listKe}
+              placeholder="Chọn Kệ"
+              optionsvalue={["chiTietKho_Id", "name"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"

@@ -19,6 +19,7 @@ import {
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import ModalAddViTriCauTruc from "./ModalAddViTriCauTruc";
 const { EditableRow, EditableCell } = EditableTableRow;
 function KhoVatTu({ history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
@@ -31,6 +32,7 @@ function KhoVatTu({ history, permission }) {
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState("");
   const [ActiveModal, setActiveModal] = useState(false);
+  const [ActiveModalViTriCauTruc, setActiveModalViTriCauTruc] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -72,7 +74,7 @@ function KhoVatTu({ history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=true`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=101&&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -144,17 +146,19 @@ function KhoVatTu({ history, permission }) {
             (permission && !permission.add) || ListVatTuSelected.length === 0
           }
         >
-          Vị trí
+          Vị trí theo kệ
         </Button>
-        {/* <Button
+        <Button
           icon={<EditOutlined />}
           className="th-margin-bottom-0"
           type="primary"
-          onClick={handlePrint}
-          disabled={permission && !permission.print}
+          onClick={() => setActiveModalViTriCauTruc(true)}
+          disabled={
+            (permission && !permission.add) || ListVatTuSelected.length === 0
+          }
         >
-          Chỉnh sửa vị trí
-        </Button> */}
+          Vị trí theo cấu trúc
+        </Button>
       </>
     );
   };
@@ -242,18 +246,18 @@ function KhoVatTu({ history, permission }) {
     },
     {
       title: "Ngày nhập kho",
-      dataIndex: "ngayNhap",
-      key: "ngayNhap",
+      dataIndex: "ngayNhan",
+      key: "ngayNhan",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayNhap,
-            value: d.ngayNhap,
+            text: d.ngayNhan,
+            value: d.ngayNhan,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayNhap.includes(value),
+      onFilter: (value, record) => record.ngayNhan.includes(value),
       filterSearch: true,
     },
     {
@@ -274,9 +278,16 @@ function KhoVatTu({ history, permission }) {
     },
     {
       title: "Vị trí lưu",
-      dataIndex: "tenKe",
       key: "tenKe",
       align: "center",
+      render: (val) => (
+        <span>
+          {val.tenKe &&
+            `${val.tenKe}${val.tenTang ? " - " + val.tenTang : ""}${
+              val.tenNgan ? " - " + val.tenNgan : ""
+            }`}
+        </span>
+      ),
     },
   ];
 
@@ -440,6 +451,12 @@ function KhoVatTu({ history, permission }) {
       <ModalAddViTri
         openModal={ActiveModal}
         openModalFS={setActiveModal}
+        sanPham={ListVatTuSelected[0]}
+        refesh={refesh}
+      />
+      <ModalAddViTriCauTruc
+        openModal={ActiveModalViTriCauTruc}
+        openModalFS={setActiveModalViTriCauTruc}
         sanPham={ListVatTuSelected[0]}
         refesh={refesh}
       />

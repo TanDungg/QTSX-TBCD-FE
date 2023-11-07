@@ -136,7 +136,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   const [ListUser, setListUser] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
-  const [ListKe, setListKe] = useState([]);
+  const [Kho, setKho] = useState("");
 
   const [ListSanPham, setListSanPham] = useState([]);
   const [ActiveModal, setActiveModal] = useState(false);
@@ -230,7 +230,10 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       if (res && res.data) {
         const xuong = [];
         res.data.forEach((x) => {
-          if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+          if (
+            x.tenPhongBan.toLowerCase().includes("xưởng") ||
+            x.tenPhongBan.toLowerCase().includes("kho")
+          ) {
             xuong.push(x);
           }
         });
@@ -244,7 +247,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-phong-ban?thuTu=1&&phongBan_Id=${phongBan_Id}&&isThanhPham=true`,
+          `CauTrucKho/cau-truc-kho-by-phong-ban?thuTu=101&&phongBan_Id=${phongBan_Id}&&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -262,29 +265,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     });
   };
 
-  const getKe = (cauTrucKho_Id) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_ViTriLuuKho/list-vi-tri-luu-kho-thanh-pham_da-nhap-ke?cauTrucKho_Id=${cauTrucKho_Id}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListKe(res.data);
-        } else {
-          setListKe([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
   /**
    * Lấy thông tin
    *
@@ -397,10 +377,15 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Kệ",
-      dataIndex: "tenKe",
+      title: "Vị trí",
+      // dataIndex: "tenKe",
       key: "tenKe",
       align: "center",
+      render: (val) => (
+        <span>{`${val.tenKe}${val.tenTang ? " - " + val.tenTang : ""}${
+          val.tenNgan ? " - " + val.tenNgan : ""
+        }`}</span>
+      ),
     },
     {
       title: "Mã sản phẩm",
@@ -577,15 +562,16 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       </span>
     );
   const addSanPham = (vaL) => {
+    console.log(vaL);
     let check = false;
     ListSanPham.forEach((sp) => {
-      if (sp.ke_Id === vaL[0].ke_Id) check = true;
+      if (sp.chiTietKho_Id === vaL.chiTietKho_Id) check = true;
     });
     if (!check) {
-      setListSanPham([...ListSanPham, ...vaL]);
+      setListSanPham([...ListSanPham, vaL]);
       setFieldTouch(true);
     } else {
-      Helpers.alertWarning("Kệ đã được thêm");
+      Helpers.alertWarning("Sản phẩm theo vị trí trên đã được thêm");
     }
   };
 
@@ -599,7 +585,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     });
   };
   const handleSelectKho = (val) => {
-    getKe(val);
+    setKho(val);
   };
   return (
     <div className="gx-main-content">
@@ -748,24 +734,26 @@ const ThanhPhamForm = ({ history, match, permission }) => {
               </FormItem>
             </Col> */}
             {type === "new" ? (
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-                align="center"
-              >
-                <Button
-                  icon={<ShoppingCartOutlined />}
-                  type="primary"
-                  onClick={() => setActiveModal(true)}
+              <>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                  align="center"
                 >
-                  Chọn kệ
-                </Button>
-              </Col>
+                  <Button
+                    icon={<ShoppingCartOutlined />}
+                    type="primary"
+                    onClick={() => setActiveModal(true)}
+                  >
+                    Chọn sản phẩm
+                  </Button>
+                </Col>
+              </>
             ) : null}
           </Row>
           <Divider />
@@ -792,8 +780,8 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         <ModalThemKe
           openModal={ActiveModal}
           openModalFS={setActiveModal}
-          ListKe={ListKe}
           addKe={addSanPham}
+          cauTrucKho_Id={Kho}
         />
       </Card>
     </div>

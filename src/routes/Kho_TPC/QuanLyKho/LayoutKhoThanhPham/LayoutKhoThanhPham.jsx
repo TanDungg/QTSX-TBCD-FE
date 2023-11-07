@@ -38,7 +38,7 @@ function LayoutKhoThanhPham({ history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=true`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=101&&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -59,7 +59,7 @@ function LayoutKhoThanhPham({ history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_ViTriLuuKho/vi-tri-luu-kho-tree?kho_Id=${val}`,
+          `lkn_ViTriLuuKho/vi-tri-luu-kho-thanh-pham-tree?kho_Id=${val}`,
           "GET",
           null,
           "DETAIL",
@@ -114,14 +114,14 @@ function LayoutKhoThanhPham({ history, permission }) {
     },
     {
       title: "Mã sản phẩm",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
       align: "center",
     },
     {
       title: "Tên sản phẩm",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       align: "center",
     },
     {
@@ -144,12 +144,12 @@ function LayoutKhoThanhPham({ history, permission }) {
         );
       },
     },
-    {
-      title: "Hạn sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
-      align: "center",
-    },
+    // {
+    //   title: "Hạn sử dụng",
+    //   dataIndex: "thoiGianSuDung",
+    //   key: "thoiGianSuDung",
+    //   align: "center",
+    // },
   ];
   const components = {
     body: {
@@ -248,7 +248,8 @@ function LayoutKhoThanhPham({ history, permission }) {
                             backgroundColor:
                               focusKe === ke.id
                                 ? "#5cdbd3"
-                                : ke.children.length === 0 && ke.chiTietVatTu
+                                : ke.children.length === 0 &&
+                                  ke.chiTietThanhPham
                                 ? "#ff4d4f"
                                 : "#ccc",
                           }}
@@ -256,7 +257,7 @@ function LayoutKhoThanhPham({ history, permission }) {
                             if (ke.children.length === 0) {
                               setFocusKe(ke.id);
                               setFocusNgan("");
-                              handleViewThongTin(ke.chiTietVatTu);
+                              handleViewThongTin(ke.chiTietThanhPham);
                             }
                           }}
                         >
@@ -316,7 +317,7 @@ function LayoutKhoThanhPham({ history, permission }) {
                                                 backgroundColor:
                                                   focusNgan === ngan.id
                                                     ? "#5cdbd3"
-                                                    : ngan.chiTietVatTu
+                                                    : ngan.chiTietThanhPham
                                                     ? "#ff4d4f"
                                                     : "#ccc",
                                                 border: "1px solid #333",
@@ -324,7 +325,7 @@ function LayoutKhoThanhPham({ history, permission }) {
                                               }}
                                               onClick={() => {
                                                 handleViewThongTin(
-                                                  ngan.chiTietVatTu
+                                                  ngan.chiTietThanhPham
                                                 );
                                                 setFocusNgan(ngan.id);
                                                 setFocusKe("");

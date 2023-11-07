@@ -14,6 +14,7 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
+  reDataForTable,
   reDataSelectedTable,
   removeDuplicates,
   treeToFlatlist,
@@ -22,7 +23,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function CauTrucKho({ match, history, permission }) {
+function CauTrucKhoVatTu({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [keyword, setKeyword] = useState("");
@@ -140,13 +141,12 @@ function CauTrucKho({ match, history, permission }) {
    */
   const deleteItemAction = (item) => {
     let url = `CauTrucKho/${item.id}`;
-    if (item.isRemove) url = `CauTrucKho/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
-        loadData();
+        loadData(keyword, 1);
       })
       .catch((error) => console.error(error));
   };
@@ -178,6 +178,7 @@ function CauTrucKho({ match, history, permission }) {
   };
   let dataList = treeToFlatlist(data);
   dataList = reDataSelectedTable(dataList);
+  // let dataList = data;
 
   let renderHead = [
     {
@@ -288,12 +289,245 @@ function CauTrucKho({ match, history, permission }) {
       }),
     };
   });
-
+  // const actionContentChiTiet = (item) => {
+  //   const deleteItemVal = "";
+  //   // permission && permission.del && (type === "new" || type === "edit");
+  //   // ? { onClick: () => deleteItemFuncChiTiet(item) }
+  //   // :
+  //   // {
+  //   //   disabled: true;
+  //   // }
+  //   return (
+  //     <div>
+  //       <React.Fragment>
+  //         <a {...deleteItemVal} title="Xóa">
+  //           <DeleteOutlined />
+  //         </a>
+  //       </React.Fragment>
+  //     </div>
+  //   );
+  // };
+  // let renderKe = [
+  //   {
+  //     title: "STT",
+  //     dataIndex: "key",
+  //     key: "key",
+  //     align: "center",
+  //     width: 45,
+  //   },
+  //   {
+  //     title: "Mã kệ",
+  //     dataIndex: "maCauTrucKho",
+  //     key: "maCauTrucKho",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Tên kệ",
+  //     dataIndex: "tenCauTrucKho",
+  //     key: "tenCauTrucKho",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Tên Ban/Phòng",
+  //     dataIndex: "tenPhongBan",
+  //     key: "tenPhongBan",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Mã barcode",
+  //     dataIndex: "qrCode",
+  //     align: "center",
+  //     key: "qrCode",
+  //     render: (value) => (
+  //       <div id="myqrcode">
+  //         <Popover content={value}>
+  //           <QRCode
+  //             value={value}
+  //             bordered={false}
+  //             style={{ width: 50, height: 50 }}
+  //           />
+  //         </Popover>
+  //       </div>
+  //     ),
+  //   },
+  //   {
+  //     title: "Vị trí",
+  //     dataIndex: "viTri",
+  //     key: "viTri",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Chức năng",
+  //     key: "action",
+  //     align: "center",
+  //     width: 100,
+  //     render: (value) => actionContentChiTiet(value),
+  //   },
+  // ];
+  // const columnKe = map(renderKe, (col) => {
+  //   if (!col.editable) {
+  //     return col;
+  //   }
+  //   return {
+  //     ...col,
+  //     onCell: (record) => ({
+  //       record,
+  //       editable: col.editable,
+  //       dataIndex: col.dataIndex,
+  //       title: col.title,
+  //       info: col.info,
+  //     }),
+  //   };
+  // });
+  // let renderTang = [
+  //   {
+  //     title: "STT",
+  //     dataIndex: "key",
+  //     key: "key",
+  //     align: "center",
+  //     width: 45,
+  //   },
+  //   {
+  //     title: "Mã tầng",
+  //     dataIndex: "maCauTrucKho",
+  //     key: "maCauTrucKho",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Tên tầng",
+  //     dataIndex: "tenCauTrucKho",
+  //     key: "tenCauTrucKho",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Tên Ban/Phòng",
+  //     dataIndex: "tenPhongBan",
+  //     key: "tenPhongBan",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Mã barcode",
+  //     dataIndex: "qrCode",
+  //     align: "center",
+  //     key: "qrCode",
+  //     render: (value) => (
+  //       <div id="myqrcode">
+  //         <Popover content={value}>
+  //           <QRCode
+  //             value={value}
+  //             bordered={false}
+  //             style={{ width: 50, height: 50 }}
+  //           />
+  //         </Popover>
+  //       </div>
+  //     ),
+  //   },
+  //   {
+  //     title: "Vị trí",
+  //     dataIndex: "viTri",
+  //     key: "viTri",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Chức năng",
+  //     key: "action",
+  //     align: "center",
+  //     width: 100,
+  //     render: (value) => actionContentChiTiet(value),
+  //   },
+  // ];
+  // const columnTang = map(renderTang, (col) => {
+  //   if (!col.editable) {
+  //     return col;
+  //   }
+  //   return {
+  //     ...col,
+  //     onCell: (record) => ({
+  //       record,
+  //       editable: col.editable,
+  //       dataIndex: col.dataIndex,
+  //       title: col.title,
+  //       info: col.info,
+  //     }),
+  //   };
+  // });
+  // let renderNgan = [
+  //   {
+  //     title: "STT",
+  //     dataIndex: "key",
+  //     key: "key",
+  //     align: "center",
+  //     width: 45,
+  //   },
+  //   {
+  //     title: "Mã ngăn",
+  //     dataIndex: "maCauTrucKho",
+  //     key: "maCauTrucKho",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Tên ngăn",
+  //     dataIndex: "tenCauTrucKho",
+  //     key: "tenCauTrucKho",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Tên Ban/Phòng",
+  //     dataIndex: "tenPhongBan",
+  //     key: "tenPhongBan",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Mã barcode",
+  //     dataIndex: "qrCode",
+  //     align: "center",
+  //     key: "qrCode",
+  //     render: (value) => (
+  //       <div id="myqrcode">
+  //         <Popover content={value}>
+  //           <QRCode
+  //             value={value}
+  //             bordered={false}
+  //             style={{ width: 50, height: 50 }}
+  //           />
+  //         </Popover>
+  //       </div>
+  //     ),
+  //   },
+  //   {
+  //     title: "Vị trí",
+  //     dataIndex: "viTri",
+  //     key: "viTri",
+  //     align: "center",
+  //   },
+  //   {
+  //     title: "Chức năng",
+  //     key: "action",
+  //     align: "center",
+  //     width: 100,
+  //     render: (value) => actionContentChiTiet(value),
+  //   },
+  // ];
+  // const columnNgan = map(renderNgan, (col) => {
+  //   if (!col.editable) {
+  //     return col;
+  //   }
+  //   return {
+  //     ...col,
+  //     onCell: (record) => ({
+  //       record,
+  //       editable: col.editable,
+  //       dataIndex: col.dataIndex,
+  //       title: col.title,
+  //       info: col.info,
+  //     }),
+  //   };
+  // });
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Cấu trúc kho"
-        description="Danh sách cấu trúc kho"
+        title="Cấu trúc kho vật tư"
+        description="Danh sách cấu trúc kho vật tư"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -353,25 +587,56 @@ function CauTrucKho({ match, history, permission }) {
           }}
           pagination={false}
           loading={loading}
-          // rowSelection={{
-          //   type: "checkbox",
-          //   ...rowSelection,
-          //   preserveSelectedRowKeys: true,
-          //   selectedRowKeys: selectedKeys,
-          //   getCheckboxProps: (record) => ({}),
-          // }}
-          // onRow={(record, rowIndex) => {
-          //   return {
-          //     onClick: (e) => {
-          //       const found = find(selectedKeys, (k) => k === record.key);
-          //       if (found === undefined) {
-          //         setSelectedDevice([...selectedDevice, record]);
-          //         setSelectedKeys([...selectedKeys, record.key]);
-          //       } else {
-          //         hanldeRemoveSelected(record);
-          //       }
-          //     },
-          //   };
+          // expandable={{
+          //   expandedRowRender: (record) => (
+          //     <Table
+          //       style={{ marginLeft: "80px", width: "80%" }}
+          //       bordered
+          //       columns={columnKe}
+          //       scroll={{ x: 500 }}
+          //       components={components}
+          //       className="gx-table-responsive th-F1D065-head"
+          //       dataSource={reDataForTable(record.children)}
+          //       size="small"
+          //       rowClassName={"editable-row"}
+          //       // loading={loading}
+          //       pagination={false}
+          //       expandable={{
+          //         expandedRowRender: (record) => (
+          //           <Table
+          //             style={{ marginLeft: "80px", width: "80%" }}
+          //             bordered
+          //             columns={columnTang}
+          //             scroll={{ x: 500 }}
+          //             components={components}
+          //             className="gx-table-responsive th-F1D065-head"
+          //             dataSource={reDataForTable(record.children)}
+          //             size="small"
+          //             rowClassName={"editable-row"}
+          //             // loading={loading}
+          //             pagination={false}
+          //             expandable={{
+          //               expandedRowRender: (record) => (
+          //                 <Table
+          //                   style={{ marginLeft: "80px", width: "80%" }}
+          //                   bordered
+          //                   columns={columnNgan}
+          //                   scroll={{ x: 500 }}
+          //                   components={components}
+          //                   className="gx-table-responsive th-F1D065-head"
+          //                   dataSource={reDataForTable(record.children)}
+          //                   size="small"
+          //                   rowClassName={"editable-row"}
+          //                   // loading={loading}
+          //                   pagination={false}
+          //                 />
+          //               ),
+          //             }}
+          //           />
+          //         ),
+          //       }}
+          //     />
+          //   ),
           // }}
         />
       </Card>
@@ -379,4 +644,4 @@ function CauTrucKho({ match, history, permission }) {
   );
 }
 
-export default CauTrucKho;
+export default CauTrucKhoVatTu;

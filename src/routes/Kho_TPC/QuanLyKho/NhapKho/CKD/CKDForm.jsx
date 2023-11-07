@@ -658,6 +658,59 @@ const CKDForm = ({ history, match, permission }) => {
       cell: EditableCell,
     },
   };
+
+  const handleSave = (row) => {
+    const newData = [...ListSanPham];
+    const index = newData.findIndex(
+      (item) => row.sanPham_Id === item.sanPham_Id
+    );
+    const item = newData[index];
+    newData.splice(index, 1, {
+      ...item,
+      ...row,
+    });
+    newData[0].chiTiet_PhieuNhapKhoCKDs.forEach((ct, index) => {
+      newData[0].chiTiet_PhieuNhapKhoCKDs[index].soLuongNhap =
+        ct.dinhMuc * newData[0].soLuongNhap;
+    });
+    setFieldTouch(true);
+    setListSanPham(newData);
+  };
+  const columns = map(colValues, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+        handleSave: handleSave,
+      }),
+    };
+  });
+  const handleSaveChiTiet = (row) => {
+    const newData = [...ListSanPham];
+    const chiTiet_PhieuNhapKhoCKDs = newData[0].chiTiet_PhieuNhapKhoCKDs;
+    const index = chiTiet_PhieuNhapKhoCKDs.findIndex(
+      (item) => row.vatTu_Id === item.vatTu_Id
+    );
+    const item = chiTiet_PhieuNhapKhoCKDs[index];
+    chiTiet_PhieuNhapKhoCKDs.splice(index, 1, {
+      ...item,
+      ...row,
+    });
+    setFieldTouch(true);
+    setListSanPham([
+      {
+        ...newData[0],
+        chiTiet_PhieuNhapKhoCKDs,
+      },
+    ]);
+  };
   let renderChiTiet = [
     {
       title: "STT",
@@ -711,58 +764,6 @@ const CKDForm = ({ history, match, permission }) => {
       render: (value) => actionContentChiTiet(value),
     },
   ];
-  const handleSave = (row) => {
-    const newData = [...ListSanPham];
-    const index = newData.findIndex(
-      (item) => row.sanPham_Id === item.sanPham_Id
-    );
-    const item = newData[index];
-    newData.splice(index, 1, {
-      ...item,
-      ...row,
-    });
-    newData[0].chiTiet_PhieuNhapKhoCKDs.forEach((ct, index) => {
-      newData[0].chiTiet_PhieuNhapKhoCKDs[index].soLuongNhap =
-        ct.dinhMuc * newData[0].soLuongNhap;
-    });
-    setFieldTouch(true);
-    setListSanPham(newData);
-  };
-  const columns = map(colValues, (col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-        handleSave: handleSave,
-      }),
-    };
-  });
-  const handleSaveChiTiet = (row) => {
-    const newData = [...ListSanPham];
-    const chiTiet_PhieuNhapKhoCKDs = newData[0].chiTiet_PhieuNhapKhoCKDs;
-    const index = chiTiet_PhieuNhapKhoCKDs.findIndex(
-      (item) => row.vatTu_Id === item.vatTu_Id
-    );
-    const item = chiTiet_PhieuNhapKhoCKDs[index];
-    chiTiet_PhieuNhapKhoCKDs.splice(index, 1, {
-      ...item,
-      ...row,
-    });
-    setFieldTouch(true);
-    setListSanPham([
-      {
-        ...newData[0],
-        chiTiet_PhieuNhapKhoCKDs,
-      },
-    ]);
-  };
   const columnChilden = map(renderChiTiet, (col) => {
     if (!col.editable) {
       return col;

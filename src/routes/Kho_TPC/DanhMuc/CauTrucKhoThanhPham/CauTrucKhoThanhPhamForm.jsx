@@ -15,10 +15,10 @@ const initialState = {
   maCauTrucKho: "",
   tenCauTrucKho: "",
   cauTrucKho_Id: "root",
-  isActive: false,
+  isActive: true,
 };
 
-function CauTrucKhoForm({ match, permission, history }) {
+function CauTrucKhoThanhPhamForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { loading, item } = useSelector(({ common }) => common).toJS();
@@ -136,7 +136,7 @@ function CauTrucKhoForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-tree?${params}`,
+          `CauTrucKho/cau-truc-kho-thanh-pham-tree?${params}`,
           "GET",
           null,
           "LIST",
@@ -179,13 +179,16 @@ function CauTrucKhoForm({ match, permission, history }) {
 
   const saveData = (CauTrucKho, saveQuit = false) => {
     if (type === "new") {
+      CauTrucKho.viTri === undefined
+        ? (CauTrucKho.viTri = 0)
+        : (CauTrucKho.viTri = CauTrucKho.viTri);
       const newUser = CauTrucKho;
       newUser.cauTrucKho_Id =
         newUser.cauTrucKho_Id === "root" ? null : newUser.cauTrucKho_Id;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `CauTrucKho?isThanhPham=${false}`,
+            `CauTrucKho/kho-thanh-pham?isThanhPham=${true}`,
             "POST",
             newUser,
             "ADD",
@@ -217,7 +220,7 @@ function CauTrucKhoForm({ match, permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `CauTrucKho/${id}?isThanhPham=${false}`,
+            `CauTrucKho/kho-thanh-pham/${id}?isThanhPham=${true}`,
             "PUT",
             editUser,
             "EDIT",
@@ -259,8 +262,8 @@ function CauTrucKhoForm({ match, permission, history }) {
 
   const formTitle =
     type === "new"
-      ? "Thêm mới cấu trúc kho vật tư"
-      : "Chỉnh sửa cấu trúc kho vật tư";
+      ? "Thêm mới cấu trúc kho thành phẩm"
+      : "Chỉnh sửa cấu trúc kho thành phẩm";
 
   return (
     <div className="gx-main-content">
@@ -369,6 +372,17 @@ function CauTrucKhoForm({ match, permission, history }) {
               />
             </FormItem>
             <FormItem
+              label="Sức chứa"
+              name={["CauTrucKho", "sucChua"]}
+              rules={[]}
+            >
+              <Input
+                className="input-item"
+                placeholder="Nhập sức chứa"
+                type="number"
+              />
+            </FormItem>
+            <FormItem
               label="Vị trí"
               name={["CauTrucKho", "viTri"]}
               rules={[
@@ -383,14 +397,14 @@ function CauTrucKhoForm({ match, permission, history }) {
                 disabled={disableViTri}
               />
             </FormItem>
-            {/* <FormItem
-              label="Kho thành phẩm"
-              name={["CauTrucKho", "isThanhPham"]}
+            <FormItem
+              label="Cố định"
+              name={["CauTrucKho", "isCoDinh"]}
               valuePropName="checked"
               initialValue={isActive}
             >
-              <Switch disabled={!disableViTri} />
-            </FormItem> */}
+              <Switch />
+            </FormItem>
             <FormSubmit
               goBack={goBack}
               saveAndClose={saveAndClose}
@@ -403,4 +417,4 @@ function CauTrucKhoForm({ match, permission, history }) {
   );
 }
 
-export default CauTrucKhoForm;
+export default CauTrucKhoThanhPhamForm;
