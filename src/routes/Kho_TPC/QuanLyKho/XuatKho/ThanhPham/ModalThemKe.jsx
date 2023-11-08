@@ -85,6 +85,7 @@ function ModalThemKe({ openModalFS, openModal, addKe, cauTrucKho_Id }) {
         });
         listKe.forEach((k) => {
           if (k.chiTietKho_Id === newData.chiTietKho_Id) {
+            newData.lkn_ChiTietKhoThanhPham_Id = k.chiTietKho_Id;
             newData.tenKe = k.tenKe;
             newData.tenNgan = k.tenNgan;
             newData.tenTang = k.tenTang;
@@ -92,15 +93,17 @@ function ModalThemKe({ openModalFS, openModal, addKe, cauTrucKho_Id }) {
             newData.mauSac_Id = k.mauSac_Id;
             newData.ke_Id = k.ke_Id;
             newData.ngan_Id = k.ngan_Id;
-            newData.tang_Id = k.tang_Id;            
+            newData.tang_Id = k.tang_Id;
             newData.sanPham_Id = k.sanPham_Id;
             newData.tenSanPham = k.tenSanPham;
             newData.maSanPham = k.maSanPham;
             newData.tenDonViTinh = k.tenDonViTinh;
             newData.soLuongXuat = k.soLuong;
+            newData.soLuongXuat = k.soLuong;
+            newData.lkn_PhieuNhapKhoThanhPham_Id =
+              k.lkn_PhieuNhapKhoThanhPham_Id;
           }
         });
-        console.log(newData);
         addKe(newData);
         openModalFS(false);
         resetFields();

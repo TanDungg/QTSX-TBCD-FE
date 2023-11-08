@@ -131,10 +131,17 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       align: "center",
     },
     {
-      title: "Kệ",
-      dataIndex: "tenKe",
+      title: "Vị trí",
       key: "tenKe",
       align: "center",
+      render: (val) => (
+        <span>
+          {val.tenKe &&
+            `${val.tenKe}${val.tenTang ? " - " + val.tenTang : ""}${
+              val.tenNgan ? " - " + val.tenNgan : ""
+            }`}
+        </span>
+      ),
     },
     {
       title: "SL trong kho",
@@ -199,10 +206,17 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       align: "center",
     },
     {
-      title: "Kệ",
-      dataIndex: "tenKe",
+      title: "Vị trí",
       key: "tenKe",
       align: "center",
+      render: (val) => (
+        <span>
+          {val.tenKe &&
+            `${val.tenKe}${val.tenTang ? " - " + val.tenTang : ""}${
+              val.tenNgan ? " - " + val.tenNgan : ""
+            }`}
+        </span>
+      ),
     },
     {
       title: "Số lượng điều chuyển",

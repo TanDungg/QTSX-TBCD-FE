@@ -10,7 +10,7 @@ import {
   Divider,
   Button,
 } from "antd";
-import { includes, map } from "lodash";
+import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState, useRef, useContext } from "react";
@@ -28,6 +28,7 @@ import {
   convertObjectToUrlParams,
   getDateNow,
   getLocalStorage,
+  getTimeNow,
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
@@ -139,7 +140,12 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   const [Kho, setKho] = useState("");
 
   const [ListSanPham, setListSanPham] = useState([]);
+  const [ListSoLuong, setListSoLuong] = useState([]);
+
   const [ActiveModal, setActiveModal] = useState(false);
+  const [DisableThemSanPham, setDisableThemSanPham] = useState(true);
+
+  const [editingRecord, setEditingRecord] = useState([]);
 
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
@@ -152,7 +158,10 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           getXuong();
           setFieldsValue({
             phieunhapkho: {
-              ngayXuatKho: moment(getDateNow(), "DD/MM/YYYY"),
+              ngayXuatKho: moment(
+                `${getDateNow()} ${getTimeNow()}`,
+                "DD/MM/YYYY HH:mm"
+              ),
             },
           });
         } else if (permission && !permission.add) {
@@ -293,6 +302,14 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           setInfo(res.data);
           getXuong();
           getKho(res.data.phongBan_Id);
+          setListSoLuong(
+            JSON.parse(res.data.chiTietThanhPham).map((sp) => {
+              return {
+                chiTietKho_Id: sp.chiTietKho_Id,
+                soLuongXuat: sp.soLuong,
+              };
+            })
+          );
           setFieldsValue({
             phieunhapkho: {
               ...res.data,
@@ -338,7 +355,9 @@ const ThanhPhamForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = ListSanPham.filter((d) => d.chiTietKho_Id !== item.chiTietKho_Id);
+    const newData = ListSanPham.filter(
+      (d) => d.chiTietKho_Id !== item.chiTietKho_Id
+    );
     setFieldTouch(true);
     setListSanPham(newData);
   };
@@ -367,7 +386,70 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       </div>
     );
   };
-
+  const handleInputChange = (val, item) => {
+    const soLuongNhap = val.target.value;
+    let soLuongXuatDefaut = 0;
+    ListSoLuong.forEach((sl) => {
+      if (sl.chiTietKho_Id === item.chiTietKho_Id) {
+        soLuongXuatDefaut = Number(sl.soLuongXuat);
+      }
+    });
+    if (isEmpty(soLuongNhap) || Number(soLuongNhap) <= 0) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+    } else if (Number(soLuongNhap) > soLuongXuatDefaut) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = `Số lượng xuất phải nhỏ hơn hoặc bằng ${soLuongXuatDefaut}`;
+    } else {
+      const newData = editingRecord.filter(
+        (d) => d.chiTietKho_Id !== item.chiTietKho_Id
+      );
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
+    }
+    const newData = [...ListSanPham];
+    newData.forEach((ct, index) => {
+      if (ct.chiTietKho_Id === item.chiTietKho_Id) {
+        ct.soLuongXuat = soLuongNhap;
+      }
+    });
+    setListSanPham(newData);
+  };
+  const rendersoLuong = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.chiTietKho_Id === item.chiTietKho_Id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    const disable =
+      item.ke_Id &&
+      item.tang_Id &&
+      item.ngan_Id &&
+      (type === "new" || type === "edit")
+        ? false
+        : true;
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.soLuongXuat}
+          disabled={disable}
+          onChange={(val) => handleInputChange(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -419,9 +501,9 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng",
-      dataIndex: "soLuongXuat",
       key: "soLuongXuat",
       align: "center",
+      render: (record) => rendersoLuong(record),
     },
     {
       title: "Chức năng",
@@ -521,7 +603,12 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         id: id,
         ...info,
         ...nhapkho,
-        chiTiet_PhieuXuatKhoThanhPhams: ListSanPham,
+        chiTiet_PhieuXuatKhoThanhPhams: ListSanPham.map((sp) => {
+          return {
+            ...sp,
+            lkn_PhieuNhapKhoThanhPham_Id: id,
+          };
+        }),
         ngayXuatKho: nhapkho.ngayXuatKho._i,
         ngayYeuCau: nhapkho.ngayXuatKho._i,
       };
@@ -562,13 +649,18 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       </span>
     );
   const addSanPham = (vaL) => {
-    console.log(vaL);
-
     let check = false;
     ListSanPham.forEach((sp) => {
       if (sp.chiTietKho_Id === vaL.chiTietKho_Id) check = true;
     });
     if (!check) {
+      setListSoLuong([
+        ...ListSoLuong,
+        {
+          chiTietKho_Id: vaL.chiTietKho_Id,
+          soLuongXuat: vaL.soLuongXuat,
+        },
+      ]);
       setListSanPham([...ListSanPham, vaL]);
       setFieldTouch(true);
     } else {
@@ -578,6 +670,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
 
   const dataList = reDataForTable(ListSanPham);
   const hanldeSelectXuong = (val) => {
+    setDisableThemSanPham(true);
     getKho(val);
     setFieldsValue({
       phieunhapkho: {
@@ -587,6 +680,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   };
   const handleSelectKho = (val) => {
     setKho(val);
+    setDisableThemSanPham(false);
   };
   return (
     <div className="gx-main-content">
@@ -640,7 +734,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
             </Col>
             <Col span={12}>
               <FormItem
-                label="Xưởng sản xuất"
+                label="Bộ phận"
                 name={["phieunhapkho", "phongBan_Id"]}
                 rules={[
                   {
@@ -652,7 +746,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListXuong}
-                  placeholder="Chọn xưởng sản xuất"
+                  placeholder="Chọn bộ phận"
                   optionsvalue={["id", "tenPhongBan"]}
                   style={{ width: "100%" }}
                   showSearch
@@ -697,13 +791,13 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                 ]}
               >
                 <DatePicker
-                  format={"DD/MM/YYYY"}
+                  format={"DD/MM/YYYY HH:mm"}
                   disabled={true}
                   allowClear={false}
                   onChange={(date, dateString) => {
                     setFieldsValue({
                       phieunhapkho: {
-                        ngayXuatKho: moment(dateString, "DD/MM/YYYY"),
+                        ngayXuatKho: moment(dateString, "DD/MM/YYYY HH:mm"),
                       },
                     });
                   }}
@@ -750,6 +844,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                     icon={<ShoppingCartOutlined />}
                     type="primary"
                     onClick={() => setActiveModal(true)}
+                    disabled={DisableThemSanPham}
                   >
                     Chọn sản phẩm
                   </Button>

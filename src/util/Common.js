@@ -232,7 +232,7 @@ export const getTimeNow = () => {
   const hours = time.getHours().toString().padStart(2, "0");
   const minutes = time.getMinutes().toString().padStart(2, "0");
   // const seconds = time.getSeconds().toString().padStart(2, "0");
-  return `${hours}:${minutes}`;
+  return `${hours}:${minutes}}`;
 };
 export function excelSerialNumberToDate(serialNumber) {
   const checkDate = typeof serialNumber === "number" ? false : true;

@@ -384,10 +384,17 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Kệ",
-      dataIndex: "tenKe",
+      title: "Vị trí",
       key: "tenKe",
       align: "center",
+      render: (val) => (
+        <span>
+          {val.tenKe &&
+            `${val.tenKe}${val.tenTang ? " - " + val.tenTang : ""}${
+              val.tenNgan ? " - " + val.tenNgan : ""
+            }`}
+        </span>
+      ),
     },
     {
       title: "SL điều chuyển",

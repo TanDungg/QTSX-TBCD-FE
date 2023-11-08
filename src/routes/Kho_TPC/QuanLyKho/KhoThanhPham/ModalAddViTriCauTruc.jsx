@@ -24,6 +24,8 @@ function ModalAddViTriCauTruc({ openModalFS, openModal, refesh, sanPham }) {
       getKe(sanPham.cauTrucKho_Id, 102);
       resetFields();
       if (sanPham.ke_Id && sanPham.tang_Id && sanPham.ngan_Id) {
+        getKe(sanPham.ke_Id, 103);
+        getKe(sanPham.tang_Id, 104);
         setFieldsValue({
           sanPham: {
             ke_Id: sanPham.ke_Id,

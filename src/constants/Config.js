@@ -1,8 +1,8 @@
 // export const BASE_URL_API = "http://erp-api.thacoindustries.com";
-// export const BASE_URL_API = `http://10.14.7.215:1512`;
+export const BASE_URL_API = `http://10.14.7.215:1512`;
 // export const BASE_URL_API = `http://10.14.2.34:81`;
 
-export const BASE_URL_API = `http://localhost:81`;
+// export const BASE_URL_API = `http://localhost:81`;
 
 export const BASE_URL_APP = `${window.location.origin.toString()}`;
 // export const BASE_URL_APP = `http://localhost:4000`;
