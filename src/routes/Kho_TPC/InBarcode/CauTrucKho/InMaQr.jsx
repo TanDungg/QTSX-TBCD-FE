@@ -16,7 +16,6 @@ function InMaQr() {
       history.push("/home");
     }
   }, []);
-  console.log(CauTrucKho);
 
   return (
     <Row justify={"center"} style={{ width: "100%" }}>
