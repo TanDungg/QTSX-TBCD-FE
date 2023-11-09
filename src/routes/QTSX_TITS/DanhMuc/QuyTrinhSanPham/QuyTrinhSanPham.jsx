@@ -16,23 +16,18 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import {
-  convertObjectToUrlParams,
-  getLocalStorage,
-  getTokenInfo,
-} from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-function DonViTinh({ permission, history }) {
+function QuyTrinhSanPham({ match, permission, history }) {
   const dispatch = useDispatch();
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const { totalRow, pageSize } = data;
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(keyword, page);
+      getListData();
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -50,14 +45,9 @@ function DonViTinh({ permission, history }) {
    * @param page Trang
    * @param pageSize
    */
-  const getListData = (keyword, page, pageSize) => {
-    let param = convertObjectToUrlParams({
-      pageSize,
-      page,
-      keyword,
-      DonVi_Id: INFO.donVi_Id,
-    });
-    dispatch(fetchStart(`DonViTinh?${param}`, "GET", null, "LIST"));
+  const getListData = (keyword, page) => {
+    let param = convertObjectToUrlParams({ page, keyword });
+    dispatch(fetchStart(`lkn_QuyTrinhSX?${param}`, "GET", null, "LIST"));
   };
 
   /**
@@ -75,8 +65,8 @@ function DonViTinh({ permission, history }) {
    * Tìm kiếm người dùng
    *
    */
-  const onSearchNguoiDung = () => {
-    getListData(keyword, page, pageSize);
+  const onSearchSoLot = () => {
+    getListData(keyword, page);
   };
 
   /**
@@ -87,7 +77,7 @@ function DonViTinh({ permission, history }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, page, pageSize);
+      getListData(val.target.value, page);
     }
   };
   /**
@@ -97,8 +87,8 @@ function DonViTinh({ permission, history }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "đơn vị tính";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenDonViTinh, title);
+    const title = "quy trình sản xuất";
+    ModalDeleteConfirm(deleteItemAction, item, item.maQuyTrinhSX, title);
   };
 
   /**
@@ -107,8 +97,7 @@ function DonViTinh({ permission, history }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `DonViTinh/${item.id}`;
-    if (item.isRemove) url = `DonViTinh/${item.id}`;
+    let url = `lkn_QuyTrinhSX/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -129,7 +118,7 @@ function DonViTinh({ permission, history }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/don-vi-tinh/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -171,12 +160,9 @@ function DonViTinh({ permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `DonViTinh/${item.id}`,
+            `lkn_QuyTrinhSX/thu-tu?id=${item.id}&&ThuTu=${row.thuTu}`,
             "PUT",
-            {
-              ...item,
-              thuTu: row.thuTu,
-            },
+            null,
             "EDIT",
             "",
             resolve,
@@ -193,7 +179,10 @@ function DonViTinh({ permission, history }) {
     }
   };
 
-  let dataList = reDataForTable(data.datalist, page, pageSize);
+  const dataList = reDataForTable(
+    data,
+    page === 1 ? page : pageSize * (page - 1) + 2
+  );
 
   let colValues = [
     {
@@ -204,36 +193,61 @@ function DonViTinh({ permission, history }) {
       align: "center",
     },
     {
-      title: "Mã đơn vị tính",
-      dataIndex: "maDonViTinh",
-      key: "maDonViTinh",
+      title: "Mã quy trình",
+      dataIndex: "maQuyTrinhSX",
+      key: "maQuyTrinhSX",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maDonViTinh,
-            value: d.maDonViTinh,
+            text: d.maQuyTrinhSX,
+            value: d.maQuyTrinhSX,
           };
         })
       ),
-      onFilter: (value, record) => record.maDonViTinh.includes(value),
+      onFilter: (value, record) => record.maQuyTrinhSX.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
+      title: "Tên quy trình",
+      dataIndex: "tenQuyTrinhSX",
+      key: "tenQuyTrinhSX",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenDonViTinh,
-            value: d.tenDonViTinh,
+            text: d.tenQuyTrinhSX,
+            value: d.tenQuyTrinhSX,
           };
         })
       ),
-      onFilter: (value, record) => record.tenDonViTinh.includes(value),
+      onFilter: (value, record) => record.tenQuyTrinhSX.includes(value),
       filterSearch: true,
+    },
+    {
+      title: "Ban/Phòng",
+      dataIndex: "tenPhongBan",
+      key: "tenPhongBan",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenPhongBan,
+            value: d.tenPhongBan,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenPhongBan.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Thứ tự",
+      dataIndex: "thuTu",
+      key: "thuTu",
+      editable: permission && permission.edit,
+      width: 80,
+      align: "center",
+      info: { type: "number", required: true },
     },
     {
       title: "Chức năng",
@@ -267,39 +281,33 @@ function DonViTinh({ permission, history }) {
     };
   });
 
-  /**
-   * Redirect to create new organization
-   *
-   * @memberof ChucNang
-   */
-  const handleClearSearch = () => {
-    getListData(null, 1);
-  };
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-kho-tpc/don-vi-tinh/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
 
   const addButtonRender = () => {
     return (
-      <Button
-        icon={<PlusOutlined />}
-        className="th-btn-margin-bottom-0"
-        type="primary"
-        onClick={handleRedirect}
-        disabled={permission && !permission.add}
-      >
-        Thêm mới
-      </Button>
+      <>
+        <Button
+          icon={<PlusOutlined />}
+          className="th-btn-margin-bottom-0"
+          type="primary"
+          onClick={handleRedirect}
+          disabled={permission && !permission.add}
+        >
+          Thêm mới
+        </Button>
+      </>
     );
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Đơn vị tính"}
-        description="Danh sách Đơn vị tính"
+        title={"Quy trình sản xuất"}
+        description="Danh sách quy trình sản xuất"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -336,11 +344,10 @@ function DonViTinh({ permission, history }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchNguoiDung,
-                onSearch: onSearchNguoiDung,
+                onPressEnter: onSearchSoLot,
+                onSearch: onSearchSoLot,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
-                onClear: { handleClearSearch },
               }}
             />
           </div>
@@ -370,4 +377,4 @@ function DonViTinh({ permission, history }) {
   );
 }
 
-export default DonViTinh;
+export default QuyTrinhSanPham;

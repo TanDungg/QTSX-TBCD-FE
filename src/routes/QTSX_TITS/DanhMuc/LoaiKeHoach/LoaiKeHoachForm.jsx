@@ -7,23 +7,22 @@ import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import { getLocalStorage, getTokenInfo } from "src/util/Common";
+
 const FormItem = Form.Item;
 
 const initialState = {
-  maDonViTinh: "",
-  tenDonViTinh: "",
+  maLoaiKeHoach: "",
+  tenLoaiKeHoach: "",
 };
-const DonViTinhForm = ({ history, match, permission }) => {
+const LoaiKeHoachForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { maDonViTinh, tenDonViTinh } = initialState;
+  const { maLoaiKeHoach, tenLoaiKeHoach } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
 
   useEffect(() => {
     const load = () => {
@@ -60,7 +59,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `DonViTinh/${id}`,
+          `lkn_LoaiKeHoach/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -73,7 +72,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            donvitinh: res.data,
+            LoaiKeHoach: res.data,
           });
         }
         setInfo(res.data);
@@ -82,7 +81,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
   };
 
   /**
-   * Quay lại trang người dùng
+   * Quay lại trang loại kế hoạch
    *
    */
   const goBack = () => {
@@ -100,13 +99,13 @@ const DonViTinhForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.donvitinh);
+    saveData(values.LoaiKeHoach);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.donvitinh, true);
+        saveData(values.LoaiKeHoach, true);
       })
       .catch((error) => {
         console.log("error", error);
@@ -115,11 +114,18 @@ const DonViTinhForm = ({ history, match, permission }) => {
 
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
-      user.donVi_Id = INFO.donVi_Id;
       const newData = user;
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`DonViTinh`, "POST", newData, "ADD", "", resolve, reject)
+          fetchStart(
+            `lkn_LoaiKeHoach`,
+            "POST",
+            newData,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
         );
       })
         .then((res) => {
@@ -145,7 +151,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `DonViTinh/${id}`,
+            `lkn_LoaiKeHoach/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -168,7 +174,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
   };
 
   const formTitle =
-    type === "new" ? "Thêm mới đơn vị tính" : "Chỉnh sửa đơn vị tính";
+    type === "new" ? "Thêm mới loại kế hoạch" : "Chỉnh sửa loại kế hoạch";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -181,8 +187,8 @@ const DonViTinhForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã đơn vị tính"
-            name={["donvitinh", "maDonViTinh"]}
+            label="Mã loại kế hoạch"
+            name={["LoaiKeHoach", "maLoaiKeHoach"]}
             rules={[
               {
                 type: "string",
@@ -190,16 +196,16 @@ const DonViTinhForm = ({ history, match, permission }) => {
               },
               {
                 max: 50,
-                message: "Mã đơn vị tính không được quá 50 ký tự",
+                message: "Mã loại kế hoạch không được quá 50 ký tự",
               },
             ]}
-            initialValue={maDonViTinh}
+            initialValue={maLoaiKeHoach}
           >
-            <Input className="input-item" placeholder="Nhập mã đơn vị tính" />
+            <Input className="input-item" placeholder="Nhập mã loại kế hoạch" />
           </FormItem>
           <FormItem
-            label="Tên đơn vị tính"
-            name={["donvitinh", "tenDonViTinh"]}
+            label="Tên loại kế hoạch"
+            name={["LoaiKeHoach", "tenLoaiKeHoach"]}
             rules={[
               {
                 type: "string",
@@ -207,12 +213,15 @@ const DonViTinhForm = ({ history, match, permission }) => {
               },
               {
                 max: 250,
-                message: "Tên đơn vị tính không được quá 250 ký tự",
+                message: "Tên loại kế hoạch không được quá 250 ký tự",
               },
             ]}
-            initialValue={tenDonViTinh}
+            initialValue={tenLoaiKeHoach}
           >
-            <Input className="input-item" placeholder="Nhập tên đơn vị tính" />
+            <Input
+              className="input-item"
+              placeholder="Nhập tên loại kế hoạch"
+            />
           </FormItem>
           <FormSubmit
             goBack={goBack}
@@ -225,4 +234,4 @@ const DonViTinhForm = ({ history, match, permission }) => {
   );
 };
 
-export default DonViTinhForm;
+export default LoaiKeHoachForm;

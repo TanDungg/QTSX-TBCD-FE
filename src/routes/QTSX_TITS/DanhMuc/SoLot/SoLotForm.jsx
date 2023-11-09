@@ -4,32 +4,33 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit } from "src/components/Common";
+import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import { getLocalStorage, getTokenInfo } from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
+
 const FormItem = Form.Item;
 
 const initialState = {
-  maDonViTinh: "",
-  tenDonViTinh: "",
+  tenLot: "",
 };
-const DonViTinhForm = ({ history, match, permission }) => {
+const LotForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
+  const [ListSanPham, setListSanPham] = useState([]);
   const [form] = Form.useForm();
-  const { maDonViTinh, tenDonViTinh } = initialState;
+  const { tenLot } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
 
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
           setType("new");
+          getSanPham();
         } else if (permission && !permission.add) {
           history.push("/home");
         }
@@ -39,6 +40,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
           // Get info
           const { id } = match.params;
           setId(id);
+          getSanPham();
           getInfo();
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -49,18 +51,12 @@ const DonViTinhForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  /**
-   * Lấy thông tin
-   *
-   */
-  const getInfo = () => {
-    const { id } = match.params;
-    setId(id);
+  const getSanPham = () => {
+    const params = convertObjectToUrlParams({ page: -1 });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `DonViTinh/${id}`,
+          `SanPham?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -72,8 +68,27 @@ const DonViTinhForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
+          setListSanPham(res.data);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  /**
+   * Lấy thông tin
+   *
+   */
+  const getInfo = () => {
+    const { id } = match.params;
+    setId(id);
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(`Lot/${id}`, "GET", null, "DETAIL", "", resolve, reject)
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
           setFieldsValue({
-            donvitinh: res.data,
+            Lot: res.data,
           });
         }
         setInfo(res.data);
@@ -82,7 +97,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
   };
 
   /**
-   * Quay lại trang người dùng
+   * Quay lại trang lot
    *
    */
   const goBack = () => {
@@ -100,13 +115,13 @@ const DonViTinhForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.donvitinh);
+    saveData(values.Lot);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.donvitinh, true);
+        saveData(values.Lot, true);
       })
       .catch((error) => {
         console.log("error", error);
@@ -115,11 +130,10 @@ const DonViTinhForm = ({ history, match, permission }) => {
 
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
-      user.donVi_Id = INFO.donVi_Id;
       const newData = user;
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`DonViTinh`, "POST", newData, "ADD", "", resolve, reject)
+          fetchStart(`Lot`, "POST", newData, "ADD", "", resolve, reject)
         );
       })
         .then((res) => {
@@ -144,15 +158,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
       const newData = { ...info, ...user };
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(
-            `DonViTinh/${id}`,
-            "PUT",
-            newData,
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
+          fetchStart(`Lot/${id}`, "PUT", newData, "EDIT", "", resolve, reject)
         );
       })
         .then((res) => {
@@ -167,8 +173,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle =
-    type === "new" ? "Thêm mới đơn vị tính" : "Chỉnh sửa đơn vị tính";
+  const formTitle = type === "new" ? "Thêm mới số lot" : "Chỉnh sửa số lot";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -181,25 +186,8 @@ const DonViTinhForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã đơn vị tính"
-            name={["donvitinh", "maDonViTinh"]}
-            rules={[
-              {
-                type: "string",
-                required: true,
-              },
-              {
-                max: 50,
-                message: "Mã đơn vị tính không được quá 50 ký tự",
-              },
-            ]}
-            initialValue={maDonViTinh}
-          >
-            <Input className="input-item" placeholder="Nhập mã đơn vị tính" />
-          </FormItem>
-          <FormItem
-            label="Tên đơn vị tính"
-            name={["donvitinh", "tenDonViTinh"]}
+            label="Số lot"
+            name={["Lot", "soLot"]}
             rules={[
               {
                 type: "string",
@@ -207,12 +195,49 @@ const DonViTinhForm = ({ history, match, permission }) => {
               },
               {
                 max: 250,
-                message: "Tên đơn vị tính không được quá 250 ký tự",
+                message: "Số lot không được quá 250 ký tự",
               },
             ]}
-            initialValue={tenDonViTinh}
+            initialValue={tenLot}
           >
-            <Input className="input-item" placeholder="Nhập tên đơn vị tính" />
+            <Input className="input-item" placeholder="Nhập số lot" />
+          </FormItem>
+          <FormItem
+            label="Sản phẩm"
+            name={["Lot", "sanPham_Id"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
+          >
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListSanPham ? ListSanPham : []}
+              placeholder="Chọn sản phẩm"
+              optionsvalue={["id", "tenSanPham"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+            />
+          </FormItem>
+          <FormItem
+            label="Số lượng"
+            name={["Lot", "soLuong"]}
+            rules={[
+              {
+                pattern: /^[1-9]\d*$/,
+                message: "Số lượng phải lớn hơn 0!",
+              },
+            ]}
+            initialValue={tenLot}
+          >
+            <Input
+              className="input-item"
+              type="number"
+              placeholder="Nhập số lượng"
+            />
           </FormItem>
           <FormSubmit
             goBack={goBack}
@@ -225,4 +250,4 @@ const DonViTinhForm = ({ history, match, permission }) => {
   );
 };
 
-export default DonViTinhForm;
+export default LotForm;

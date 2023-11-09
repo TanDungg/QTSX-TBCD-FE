@@ -4,31 +4,36 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit } from "src/components/Common";
+import { FormSubmit, Select, TreeSelect } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import { getLocalStorage, getTokenInfo } from "src/util/Common";
+import { getLocalStorage } from "src/util/Common";
+
 const FormItem = Form.Item;
 
 const initialState = {
-  maDonViTinh: "",
-  tenDonViTinh: "",
+  maPhongBan: "",
+  tenPhongBan: "",
+  donVi_Id: "",
+  phongBan_Id: "root",
 };
-const DonViTinhForm = ({ history, match, permission }) => {
+const PhongBanForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { maDonViTinh, tenDonViTinh } = initialState;
+  const { maPhongBan, tenPhongBan, donVi_Id, phongBan_Id } = initialState;
+  const [donViSelect, setDonViSelect] = useState([]);
+  const [PhongBanTree, setPhongBanTree] = useState([]);
+  const INFO = getLocalStorage("menu");
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
+          getData();
           setType("new");
         } else if (permission && !permission.add) {
           history.push("/home");
@@ -36,7 +41,6 @@ const DonViTinhForm = ({ history, match, permission }) => {
       } else {
         if (permission && permission.edit) {
           setType("edit");
-          // Get info
           const { id } = match.params;
           setId(id);
           getInfo();
@@ -50,17 +54,11 @@ const DonViTinhForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Lấy thông tin
-   *
-   */
-  const getInfo = () => {
-    const { id } = match.params;
-    setId(id);
+  const getData = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `DonViTinh/${id}`,
+          `DonVi/don-vi-tree?donviid=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -72,15 +70,57 @@ const DonViTinhForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setFieldsValue({
-            donvitinh: res.data,
-          });
+          setDonViSelect(res.data);
         }
-        setInfo(res.data);
+      })
+      .catch((error) => console.error(error));
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `PhongBan/phong-ban-tree?donviid=${INFO.donVi_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const root = { id: "root", tenPhongBan: "Root", children: [] };
+          setPhongBanTree([root, ...res.data]);
+        } else {
+          setPhongBanTree([]);
+        }
       })
       .catch((error) => console.error(error));
   };
-
+  /**
+   * Lấy thông tin
+   *
+   */
+  const getInfo = () => {
+    const { id } = match.params;
+    getData();
+    setId(id);
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(`PhongBan/${id}`, "GET", null, "DETAIL", "", resolve, reject)
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const data = res.data;
+          setFieldsValue({
+            phongban: data,
+          });
+          setInfo(res.data);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   /**
    * Quay lại trang người dùng
    *
@@ -100,13 +140,13 @@ const DonViTinhForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.donvitinh);
+    saveData(values.phongban);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.donvitinh, true);
+        saveData(values.phongban, true);
       })
       .catch((error) => {
         console.log("error", error);
@@ -115,11 +155,13 @@ const DonViTinhForm = ({ history, match, permission }) => {
 
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
-      user.donVi_Id = INFO.donVi_Id;
+      user.phongBan_Id === "root"
+        ? (user.phongBan_Id = null)
+        : (user.phongBan_Id = user.phongBan_Id);
       const newData = user;
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`DonViTinh`, "POST", newData, "ADD", "", resolve, reject)
+          fetchStart(`PhongBan`, "POST", newData, "ADD", "", resolve, reject)
         );
       })
         .then((res) => {
@@ -141,11 +183,14 @@ const DonViTinhForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const newData = { ...info, ...user };
+      user.phongBan_Id === "root"
+        ? (user.phongBan_Id = null)
+        : (user.phongBan_Id = user.phongBan_Id);
+      var newData = { ...info, ...user };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `DonViTinh/${id}`,
+            `PhongBan/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -168,7 +213,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
   };
 
   const formTitle =
-    type === "new" ? "Thêm mới đơn vị tính" : "Chỉnh sửa đơn vị tính";
+    type === "new" ? "Thêm mới Ban/Phòng" : "Chỉnh sửa Ban/Phòng";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -181,8 +226,8 @@ const DonViTinhForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã đơn vị tính"
-            name={["donvitinh", "maDonViTinh"]}
+            label="Mã Ban/Phòng"
+            name={["phongban", "maPhongBan"]}
             rules={[
               {
                 type: "string",
@@ -190,16 +235,16 @@ const DonViTinhForm = ({ history, match, permission }) => {
               },
               {
                 max: 50,
-                message: "Mã đơn vị tính không được quá 50 ký tự",
+                message: "Mã Ban/Phòng không được quá 50 ký tự",
               },
             ]}
-            initialValue={maDonViTinh}
+            initialValue={maPhongBan}
           >
-            <Input className="input-item" placeholder="Nhập mã đơn vị tính" />
+            <Input className="input-item" placeholder="Nhập mã Ban/Phòng" />
           </FormItem>
           <FormItem
-            label="Tên đơn vị tính"
-            name={["donvitinh", "tenDonViTinh"]}
+            label="Tên Ban/Phòng"
+            name={["phongban", "tenPhongBan"]}
             rules={[
               {
                 type: "string",
@@ -207,12 +252,52 @@ const DonViTinhForm = ({ history, match, permission }) => {
               },
               {
                 max: 250,
-                message: "Tên đơn vị tính không được quá 250 ký tự",
+                message: "Tên Ban/Phong không được quá 250 ký tự",
               },
             ]}
-            initialValue={tenDonViTinh}
+            initialValue={tenPhongBan}
           >
-            <Input className="input-item" placeholder="Nhập tên đơn vị tính" />
+            <Input className="input-item" placeholder="Nhập tên Ban/Phong" />
+          </FormItem>
+          <FormItem
+            label="Ban/Phòng cha"
+            name={["phongban", "phongBan_Id"]}
+            rules={[
+              {
+                type: "string",
+              },
+            ]}
+            initialValue={phongBan_Id}
+          >
+            <TreeSelect
+              className="tree-select-item"
+              datatreeselect={PhongBanTree ? PhongBanTree : []}
+              name="menu"
+              options={["id", "tenPhongBan", "children"]}
+              placeholder="Ban/Phòng cha"
+              style={{ width: "100%" }}
+            />
+          </FormItem>
+          <FormItem
+            label="Đơn vị"
+            name={["phongban", "donVi_Id"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
+            initialValue={donVi_Id}
+          >
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={donViSelect ? donViSelect : []}
+              placeholder="Chọn đơn vị"
+              optionsvalue={["id", "tenDonVi"]}
+              style={{ width: "100%" }}
+              optionFilterProp="name"
+              showSearch
+            />
           </FormItem>
           <FormSubmit
             goBack={goBack}
@@ -225,4 +310,4 @@ const DonViTinhForm = ({ history, match, permission }) => {
   );
 };
 
-export default DonViTinhForm;
+export default PhongBanForm;

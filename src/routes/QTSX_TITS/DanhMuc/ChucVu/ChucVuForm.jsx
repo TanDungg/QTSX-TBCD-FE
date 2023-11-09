@@ -1,31 +1,31 @@
 import { Card, Form, Input } from "antd";
 import includes from "lodash/includes";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch } from "react-redux";
-
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import { getLocalStorage, getTokenInfo } from "src/util/Common";
+
 const FormItem = Form.Item;
 
 const initialState = {
-  maDonViTinh: "",
-  tenDonViTinh: "",
+  maChucVu: "",
+  tenChucVu: "",
 };
-const DonViTinhForm = ({ history, match, permission }) => {
+const ChucVuForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { maDonViTinh, tenDonViTinh } = initialState;
+  const { maChucVu, tenChucVu } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  const ref = useRef(null);
 
   useEffect(() => {
+    ref.current.focus();
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
@@ -59,24 +59,16 @@ const DonViTinhForm = ({ history, match, permission }) => {
     setId(id);
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(
-          `DonViTinh/${id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
+        fetchStart(`ChucVu/${id}`, "GET", null, "DETAIL", "", resolve, reject)
       );
     })
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            donvitinh: res.data,
+            chucvu: res.data[0],
           });
+          setInfo(res.data[0]);
         }
-        setInfo(res.data);
       })
       .catch((error) => console.error(error));
   };
@@ -100,13 +92,13 @@ const DonViTinhForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.donvitinh);
+    saveData(values.chucvu);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.donvitinh, true);
+        saveData(values.chucvu, true);
       })
       .catch((error) => {
         console.log("error", error);
@@ -115,11 +107,10 @@ const DonViTinhForm = ({ history, match, permission }) => {
 
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
-      user.donVi_Id = INFO.donVi_Id;
       const newData = user;
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`DonViTinh`, "POST", newData, "ADD", "", resolve, reject)
+          fetchStart(`ChucVu`, "POST", newData, "ADD", "", resolve, reject)
         );
       })
         .then((res) => {
@@ -141,11 +132,11 @@ const DonViTinhForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const newData = { ...info, ...user };
+      var newData = { ...info, ...user };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `DonViTinh/${id}`,
+            `ChucVu/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -167,8 +158,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle =
-    type === "new" ? "Thêm mới đơn vị tính" : "Chỉnh sửa đơn vị tính";
+  const formTitle = type === "new" ? "Thêm mới chức vụ" : "Chỉnh sửa chức vụ";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -181,8 +171,8 @@ const DonViTinhForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã đơn vị tính"
-            name={["donvitinh", "maDonViTinh"]}
+            label="Mã chức vụ"
+            name={["chucvu", "maChucVu"]}
             rules={[
               {
                 type: "string",
@@ -190,16 +180,20 @@ const DonViTinhForm = ({ history, match, permission }) => {
               },
               {
                 max: 50,
-                message: "Mã đơn vị tính không được quá 50 ký tự",
+                message: "Mã chức vụ không được quá 50 ký tự",
               },
             ]}
-            initialValue={maDonViTinh}
+            initialValue={maChucVu}
           >
-            <Input className="input-item" placeholder="Nhập mã đơn vị tính" />
+            <Input
+              className="input-item"
+              placeholder="Nhập mã chức vụ"
+              ref={ref}
+            />
           </FormItem>
           <FormItem
-            label="Tên đơn vị tính"
-            name={["donvitinh", "tenDonViTinh"]}
+            label="Tên chức vụ"
+            name={["chucvu", "tenChucVu"]}
             rules={[
               {
                 type: "string",
@@ -207,12 +201,12 @@ const DonViTinhForm = ({ history, match, permission }) => {
               },
               {
                 max: 250,
-                message: "Tên đơn vị tính không được quá 250 ký tự",
+                message: "Tên chức vụ không được quá 250 ký tự",
               },
             ]}
-            initialValue={tenDonViTinh}
+            initialValue={tenChucVu}
           >
-            <Input className="input-item" placeholder="Nhập tên đơn vị tính" />
+            <Input className="input-item" placeholder="Nhập tên chức vụ" />
           </FormItem>
           <FormSubmit
             goBack={goBack}
@@ -225,4 +219,4 @@ const DonViTinhForm = ({ history, match, permission }) => {
   );
 };
 
-export default DonViTinhForm;
+export default ChucVuForm;

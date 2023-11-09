@@ -165,6 +165,8 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   const [editingRecord, setEditingRecord] = useState([]);
+  const [ListXuong, setListXuong] = useState([]);
+  const [Xuong, setXuong] = useState(null);
 
   useEffect(() => {
     const load = () => {
@@ -172,8 +174,8 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           getUserLap(INFO);
           setType("new");
-          getSanPham();
           getUserKy(INFO);
+          getXuong();
           setFieldsValue({
             deNghiMuaHang: {
               ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
@@ -188,6 +190,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           setType("edit");
           const { id } = match.params;
           setId(id);
+          getXuong();
           getInfo(id);
           getUserKy(INFO);
         } else if (permission && !permission.edit) {
@@ -219,7 +222,33 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  const getXuong = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        const xuong = [];
+        res.data.forEach((x) => {
+          if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+            xuong.push(x);
+          }
+        });
+        setListXuong(xuong);
+      } else {
+        setListXuong([]);
+      }
+    });
+  };
   const getUserLap = (info, nguoiLap_Id) => {
     const params = convertObjectToUrlParams({
       id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
@@ -275,7 +304,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     });
   };
 
-  const getSanPham = (id) => {
+  const getSanPham = (id, phongBan_Id) => {
     if (id) {
       new Promise((resolve, reject) => {
         dispatch(
@@ -300,7 +329,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `SanPham?page=-1`,
+            `lkn_DinhMucVatTu/list-san-pham-bom-theo-phong-ban?PhongBan_Id=${phongBan_Id}`,
             "GET",
             null,
             "DETAIL",
@@ -346,7 +375,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           const vattu =
             res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu);
           setListVatTu(vattu);
-
           getUserLap(INFO, res.data.userYeuCau_Id);
           res.data.userYeuCau_Id === INFO.user_Id &&
             check &&
@@ -355,7 +383,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             setFile(res.data.fileXacNhan);
             setDisableUpload(true);
           }
-          getSanPham(res.data.sanPham_Id);
           setFieldsValue({
             deNghiMuaHang: {
               sanPham_Id: res.data.sanPham_Id,
@@ -974,9 +1001,15 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       }
     }
   };
-
+  const hanleOnSelectXuong = (val) => {
+    setXuong(val);
+    getSanPham(null, val);
+  };
   const hanldeThem = () => {
-    const params = convertObjectToUrlParams({ SanPham_Id: SanPham_Id });
+    const params = convertObjectToUrlParams({
+      SanPham_Id: SanPham_Id,
+      phongBan_Id: Xuong,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -1017,13 +1050,14 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             setListSanPham(newListSanPham);
             setFieldsValue({
               sanPham: {
-                sanPham_Id: "",
-                soLuong: "",
-                chiTiet_Id: "",
+                phongBan_Id: null,
+                sanPham_Id: null,
+                soLuong: null,
               },
             });
             setSanPham_Id(null);
             setSoLuong(null);
+            setXuong(null);
             setDisabledThem(true);
           } else {
             Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
@@ -1405,6 +1439,37 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
+                  label="Xưởng"
+                  name={["sanPham", "phongBan_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListXuong ? ListXuong : []}
+                    placeholder="Chọn xưởng"
+                    optionsvalue={["id", "tenPhongBan"]}
+                    style={{ width: "100%" }}
+                    onSelect={hanleOnSelectXuong}
+                    showSearch
+                    optionFilterProp="name"
+                    disabled={type === "new" || type === "edit" ? false : true}
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
                   label="Sản phẩm"
                   name={["sanPham", "sanPham_Id"]}
                   rules={[
@@ -1417,7 +1482,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                     className="heading-select slt-search th-select-heading"
                     data={ListSanPham ? ListSanPham : []}
                     placeholder="Chọn sản phẩm"
-                    optionsvalue={["id", "tenSanPham"]}
+                    optionsvalue={["sanPham_Id", "tenSanPham"]}
                     style={{ width: "100%" }}
                     onSelect={hanldeSelectSanPham}
                     showSearch
@@ -1457,8 +1522,8 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
               </Col>
               {type === "new" || type === "edit" ? (
                 <Col
-                  xxl={24}
-                  xl={24}
+                  xxl={12}
+                  xl={12}
                   lg={24}
                   md={24}
                   sm={24}
@@ -1469,7 +1534,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                     icon={<PlusOutlined />}
                     type="primary"
                     onClick={hanldeThem}
-                    disabled={!SanPham_Id || DisabledThem}
+                    disabled={!SanPham_Id || !Xuong || DisabledThem}
                   >
                     Thêm
                   </Button>

@@ -138,7 +138,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
 
-  // const [listLoaiSanPham, setListLoaiSanPham] = useState([]);
+  const [ListXuong, setListXuong] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
@@ -155,7 +155,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
           getUserLap(INFO);
           getUserKy(INFO);
           setType("new");
-          // getLoaiSanPham();
+          getXuong();
           getSanPham();
           setFieldsValue({
             dinhmucvattu: {
@@ -228,6 +228,33 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
           },
         });
       } else {
+      }
+    });
+  };
+  const getXuong = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        const xuong = [];
+        res.data.forEach((x) => {
+          if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+            xuong.push(x);
+          }
+        });
+        setListXuong(xuong);
+      } else {
+        setListXuong([]);
       }
     });
   };
@@ -828,6 +855,37 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                 ]}
               >
                 <Input className="input-item" disabled={true} />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Xưởng"
+                name={["dinhmucvattu", "phongBan_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListXuong ? ListXuong : []}
+                  placeholder="Chọn xưởng"
+                  optionsvalue={["id", "tenPhongBan"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
               </FormItem>
             </Col>
             <Col

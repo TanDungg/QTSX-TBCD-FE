@@ -16,18 +16,13 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import {
-  convertObjectToUrlParams,
-  getLocalStorage,
-  getTokenInfo,
-} from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-function DonViTinh({ permission, history }) {
+function LoaiDinhMucTonKho({ permission, history }) {
   const dispatch = useDispatch();
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const { totalRow, pageSize } = data;
   useEffect(() => {
@@ -50,14 +45,9 @@ function DonViTinh({ permission, history }) {
    * @param page Trang
    * @param pageSize
    */
-  const getListData = (keyword, page, pageSize) => {
-    let param = convertObjectToUrlParams({
-      pageSize,
-      page,
-      keyword,
-      DonVi_Id: INFO.donVi_Id,
-    });
-    dispatch(fetchStart(`DonViTinh?${param}`, "GET", null, "LIST"));
+  const getListData = (keyword, page) => {
+    let param = convertObjectToUrlParams({ page, keyword });
+    dispatch(fetchStart(`LoaiDinhMucTonKho?${param}`, "GET", null, "LIST"));
   };
 
   /**
@@ -76,7 +66,7 @@ function DonViTinh({ permission, history }) {
    *
    */
   const onSearchNguoiDung = () => {
-    getListData(keyword, page, pageSize);
+    getListData(keyword, page);
   };
 
   /**
@@ -87,7 +77,7 @@ function DonViTinh({ permission, history }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, page, pageSize);
+      getListData(val.target.value, page);
     }
   };
   /**
@@ -97,8 +87,13 @@ function DonViTinh({ permission, history }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "đơn vị tính";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenDonViTinh, title);
+    const title = "loại định mức tồn kho";
+    ModalDeleteConfirm(
+      deleteItemAction,
+      item,
+      item.tenLoaiDinhMucTonKho,
+      title
+    );
   };
 
   /**
@@ -107,8 +102,7 @@ function DonViTinh({ permission, history }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `DonViTinh/${item.id}`;
-    if (item.isRemove) url = `DonViTinh/${item.id}`;
+    let url = `LoaiDinhMucTonKho/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -129,7 +123,7 @@ function DonViTinh({ permission, history }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/don-vi-tinh/${item.id}/chinh-sua`,
+            pathname: `/danh-muc-kho-tpc/loai-dinh-muc-ton-kho/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -171,7 +165,7 @@ function DonViTinh({ permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `DonViTinh/${item.id}`,
+            `LoaiDinhMucTonKho/${item.id}`,
             "PUT",
             {
               ...item,
@@ -204,35 +198,35 @@ function DonViTinh({ permission, history }) {
       align: "center",
     },
     {
-      title: "Mã đơn vị tính",
-      dataIndex: "maDonViTinh",
-      key: "maDonViTinh",
+      title: "Mã loại định mức tồn kho",
+      dataIndex: "maLoaiDinhMucTonKho",
+      key: "maLoaiDinhMucTonKho",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maDonViTinh,
-            value: d.maDonViTinh,
+            text: d.maLoaiDinhMucTonKho,
+            value: d.maLoaiDinhMucTonKho,
           };
         })
       ),
-      onFilter: (value, record) => record.maDonViTinh.includes(value),
+      onFilter: (value, record) => record.maLoaiDinhMucTonKho.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
+      title: "Tên loại định mức tồn kho",
+      dataIndex: "tenLoaiDinhMucTonKho",
+      key: "tenLoaiDinhMucTonKho",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenDonViTinh,
-            value: d.tenDonViTinh,
+            text: d.tenLoaiDinhMucTonKho,
+            value: d.tenLoaiDinhMucTonKho,
           };
         })
       ),
-      onFilter: (value, record) => record.tenDonViTinh.includes(value),
+      onFilter: (value, record) => record.tenLoaiDinhMucTonKho.includes(value),
       filterSearch: true,
     },
     {
@@ -277,7 +271,7 @@ function DonViTinh({ permission, history }) {
   };
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-kho-tpc/don-vi-tinh/them-moi",
+      pathname: "/danh-muc-kho-tpc/loai-dinh-muc-ton-kho/them-moi",
     });
   };
 
@@ -298,8 +292,8 @@ function DonViTinh({ permission, history }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Đơn vị tính"}
-        description="Danh sách Đơn vị tính"
+        title={"Loại định mức tồn kho"}
+        description="Danh sách Loại định mức tồn kho"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -370,4 +364,4 @@ function DonViTinh({ permission, history }) {
   );
 }
 
-export default DonViTinh;
+export default LoaiDinhMucTonKho;

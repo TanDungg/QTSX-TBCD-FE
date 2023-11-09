@@ -7,23 +7,22 @@ import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import { getLocalStorage, getTokenInfo } from "src/util/Common";
+
 const FormItem = Form.Item;
 
 const initialState = {
-  maDonViTinh: "",
-  tenDonViTinh: "",
+  maThietBi: "",
+  tenThietBi: "",
 };
-const DonViTinhForm = ({ history, match, permission }) => {
+const ThietBiForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { maDonViTinh, tenDonViTinh } = initialState;
+  const { maThietBi, tenThietBi } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
 
   useEffect(() => {
     const load = () => {
@@ -59,21 +58,13 @@ const DonViTinhForm = ({ history, match, permission }) => {
     setId(id);
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(
-          `DonViTinh/${id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
+        fetchStart(`ThietBi/${id}`, "GET", null, "DETAIL", "", resolve, reject)
       );
     })
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            donvitinh: res.data,
+            ThietBi: res.data,
           });
         }
         setInfo(res.data);
@@ -100,13 +91,13 @@ const DonViTinhForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.donvitinh);
+    saveData(values.ThietBi);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.donvitinh, true);
+        saveData(values.ThietBi, true);
       })
       .catch((error) => {
         console.log("error", error);
@@ -115,11 +106,10 @@ const DonViTinhForm = ({ history, match, permission }) => {
 
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
-      user.donVi_Id = INFO.donVi_Id;
       const newData = user;
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`DonViTinh`, "POST", newData, "ADD", "", resolve, reject)
+          fetchStart(`ThietBi`, "POST", newData, "ADD", "", resolve, reject)
         );
       })
         .then((res) => {
@@ -145,7 +135,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `DonViTinh/${id}`,
+            `ThietBi/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -167,8 +157,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle =
-    type === "new" ? "Thêm mới đơn vị tính" : "Chỉnh sửa đơn vị tính";
+  const formTitle = type === "new" ? "Thêm mới thiết bị" : "Chỉnh sửa thiết bị";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -181,8 +170,8 @@ const DonViTinhForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã đơn vị tính"
-            name={["donvitinh", "maDonViTinh"]}
+            label="Mã thiết bị"
+            name={["ThietBi", "maThietBi"]}
             rules={[
               {
                 type: "string",
@@ -190,16 +179,16 @@ const DonViTinhForm = ({ history, match, permission }) => {
               },
               {
                 max: 50,
-                message: "Mã đơn vị tính không được quá 50 ký tự",
+                message: "Mã thiết bị không được quá 50 ký tự",
               },
             ]}
-            initialValue={maDonViTinh}
+            initialValue={maThietBi}
           >
-            <Input className="input-item" placeholder="Nhập mã đơn vị tính" />
+            <Input className="input-item" placeholder="Nhập mã thiết bị" />
           </FormItem>
           <FormItem
-            label="Tên đơn vị tính"
-            name={["donvitinh", "tenDonViTinh"]}
+            label="Tên thiết bị"
+            name={["ThietBi", "tenThietBi"]}
             rules={[
               {
                 type: "string",
@@ -207,12 +196,12 @@ const DonViTinhForm = ({ history, match, permission }) => {
               },
               {
                 max: 250,
-                message: "Tên đơn vị tính không được quá 250 ký tự",
+                message: "Tên thiết bị không được quá 250 ký tự",
               },
             ]}
-            initialValue={tenDonViTinh}
+            initialValue={tenThietBi}
           >
-            <Input className="input-item" placeholder="Nhập tên đơn vị tính" />
+            <Input className="input-item" placeholder="Nhập tên thiết bị" />
           </FormItem>
           <FormSubmit
             goBack={goBack}
@@ -225,4 +214,4 @@ const DonViTinhForm = ({ history, match, permission }) => {
   );
 };
 
-export default DonViTinhForm;
+export default ThietBiForm;

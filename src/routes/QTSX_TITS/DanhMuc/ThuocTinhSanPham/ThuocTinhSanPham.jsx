@@ -16,20 +16,15 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import {
-  convertObjectToUrlParams,
-  getLocalStorage,
-  getTokenInfo,
-} from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-function DonViTinh({ permission, history }) {
+function ThuocTinhSanPham({ permission, history }) {
   const dispatch = useDispatch();
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
-  const { totalRow, pageSize } = data;
+  const { totalRow, totalPages, pageSize } = data;
   useEffect(() => {
     if (permission && permission.view) {
       getListData(keyword, page);
@@ -51,12 +46,7 @@ function DonViTinh({ permission, history }) {
    * @param pageSize
    */
   const getListData = (keyword, page, pageSize) => {
-    let param = convertObjectToUrlParams({
-      pageSize,
-      page,
-      keyword,
-      DonVi_Id: INFO.donVi_Id,
-    });
+    let param = convertObjectToUrlParams({ pageSize, page, keyword });
     dispatch(fetchStart(`DonViTinh?${param}`, "GET", null, "LIST"));
   };
 
@@ -75,7 +65,7 @@ function DonViTinh({ permission, history }) {
    * Tìm kiếm người dùng
    *
    */
-  const onSearchNguoiDung = () => {
+  const onSearchThuocTinhSP = () => {
     getListData(keyword, page, pageSize);
   };
 
@@ -129,7 +119,7 @@ function DonViTinh({ permission, history }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/don-vi-tinh/${item.id}/chinh-sua`,
+            pathname: `/danh-muc/don-vi-tinh/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -193,7 +183,10 @@ function DonViTinh({ permission, history }) {
     }
   };
 
-  let dataList = reDataForTable(data.datalist, page, pageSize);
+  const dataList = reDataForTable(
+    data.datalist,
+    page === 1 ? page : pageSize * (page - 1) + 2
+  );
 
   let colValues = [
     {
@@ -204,7 +197,7 @@ function DonViTinh({ permission, history }) {
       align: "center",
     },
     {
-      title: "Mã đơn vị tính",
+      title: "Mã thuộc tính sản phẩm",
       dataIndex: "maDonViTinh",
       key: "maDonViTinh",
       align: "center",
@@ -220,7 +213,7 @@ function DonViTinh({ permission, history }) {
       filterSearch: true,
     },
     {
-      title: "Tên đơn vị tính",
+      title: "Tên thuộc tính sản phẩm",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
       align: "center",
@@ -277,7 +270,7 @@ function DonViTinh({ permission, history }) {
   };
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-kho-tpc/don-vi-tinh/them-moi",
+      pathname: "/danh-muc/thuoc-tinh-san-pham/them-moi",
     });
   };
 
@@ -298,8 +291,8 @@ function DonViTinh({ permission, history }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Đơn vị tính"}
-        description="Danh sách Đơn vị tính"
+        title={"Thuộc tính sản phẩm"}
+        description="Danh sách Thuộc tính sản phẩm"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -336,8 +329,8 @@ function DonViTinh({ permission, history }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchNguoiDung,
-                onSearch: onSearchNguoiDung,
+                onPressEnter: onSearchThuocTinhSP,
+                onSearch: onSearchThuocTinhSP,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
                 onClear: { handleClearSearch },
@@ -362,6 +355,10 @@ function DonViTinh({ permission, history }) {
             total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,
+            showTotal: (total) =>
+              totalRow <= total
+                ? `Hiển thị ${dataList.length} trong tổng ${totalRow}`
+                : `Tổng ${totalPages}`,
           }}
           loading={loading}
         />
@@ -370,4 +367,4 @@ function DonViTinh({ permission, history }) {
   );
 }
 
-export default DonViTinh;
+export default ThuocTinhSanPham;

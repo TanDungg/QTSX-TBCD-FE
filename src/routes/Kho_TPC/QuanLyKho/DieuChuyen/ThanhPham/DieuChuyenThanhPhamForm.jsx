@@ -138,7 +138,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=101&isThanhPham=true`,
+          `CauTrucKho/cau-truc-kho-vat-tu-san-pham`,
           "GET",
           null,
           "DETAIL",

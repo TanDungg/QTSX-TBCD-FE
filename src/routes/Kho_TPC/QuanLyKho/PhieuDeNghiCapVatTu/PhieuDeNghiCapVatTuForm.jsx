@@ -26,7 +26,10 @@ import {
   EditableTableRow,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_DENGHI_CVT } from "src/constants/Config";
+import {
+  DEFAULT_FORM_DENGHI_CVT,
+  LOAI_KE_HOACH_SAN_XUAT,
+} from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -167,7 +170,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       ngay: ngay[0],
       thang: ngay[1],
       nam: ngay[2],
-      loaiKeHoach_Id: "3adecca0-3fe1-4433-b93b-0137dc3dfdce",
+      loaiKeHoach_Id: LOAI_KE_HOACH_SAN_XUAT,
     });
     console.log(params);
     new Promise((resolve, reject) => {

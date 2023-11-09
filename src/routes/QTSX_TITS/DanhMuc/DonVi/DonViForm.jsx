@@ -4,31 +4,35 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit } from "src/components/Common";
+import { FormSubmit, Select, TreeSelect } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import { getLocalStorage, getTokenInfo } from "src/util/Common";
+
 const FormItem = Form.Item;
 
 const initialState = {
-  maDonViTinh: "",
-  tenDonViTinh: "",
+  maDonVi: "",
+  tenDonVi: "",
+  tapDoan_Id: "",
+  donVi_Id: "root",
 };
-const DonViTinhForm = ({ history, match, permission }) => {
+const DonViForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { maDonViTinh, tenDonViTinh } = initialState;
+  const { maDonVi, tenDonVi, tapDoan_Id, donVi_Id } = initialState;
+  const [tapDoanSelect, setTapDoanSelect] = useState([]);
+  const [DonViSelect, setDonViSelect] = useState([]);
+
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
+          getData();
           setType("new");
         } else if (permission && !permission.add) {
           history.push("/home");
@@ -36,7 +40,6 @@ const DonViTinhForm = ({ history, match, permission }) => {
       } else {
         if (permission && permission.edit) {
           setType("edit");
-          // Get info
           const { id } = match.params;
           setId(id);
           getInfo();
@@ -50,17 +53,11 @@ const DonViTinhForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Lấy thông tin
-   *
-   */
-  const getInfo = () => {
-    const { id } = match.params;
-    setId(id);
+  const getData = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `DonViTinh/${id}`,
+          `TapDoan?page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -72,17 +69,57 @@ const DonViTinhForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setFieldsValue({
-            donvitinh: res.data,
-          });
+          setTapDoanSelect(res.data);
         }
-        setInfo(res.data);
+      })
+      .catch((error) => console.error(error));
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `DonVi/don-vi-tree?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setDonViSelect(res.data);
+        }
       })
       .catch((error) => console.error(error));
   };
 
   /**
-   * Quay lại trang người dùng
+   * Lấy thông tin
+   *
+   */
+  const getInfo = () => {
+    const { id } = match.params;
+    getData();
+    setId(id);
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(`DonVi/${id}`, "GET", null, "DETAIL", "", resolve, reject)
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const data = res.data;
+          setFieldsValue({
+            donvi: data,
+          });
+          setInfo(...res.data, res.data.tapDoan);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  /**
+   * Quay lại trang đươn vị
    *
    */
   const goBack = () => {
@@ -100,13 +137,13 @@ const DonViTinhForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.donvitinh);
+    saveData(values.donvi);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.donvitinh, true);
+        saveData(values.donvi, true);
       })
       .catch((error) => {
         console.log("error", error);
@@ -115,11 +152,10 @@ const DonViTinhForm = ({ history, match, permission }) => {
 
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
-      user.donVi_Id = INFO.donVi_Id;
       const newData = user;
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`DonViTinh`, "POST", newData, "ADD", "", resolve, reject)
+          fetchStart(`DonVi`, "POST", newData, "ADD", "", resolve, reject)
         );
       })
         .then((res) => {
@@ -141,18 +177,11 @@ const DonViTinhForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const newData = { ...info, ...user };
+      delete info.tapDoan;
+      var newData = { ...info, ...user };
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(
-            `DonViTinh/${id}`,
-            "PUT",
-            newData,
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
+          fetchStart(`DonVi/${id}`, "PUT", newData, "EDIT", "", resolve, reject)
         );
       })
         .then((res) => {
@@ -167,8 +196,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle =
-    type === "new" ? "Thêm mới đơn vị tính" : "Chỉnh sửa đơn vị tính";
+  const formTitle = type === "new" ? "Thêm mới đơn vị" : "Chỉnh sửa đơn vị";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -181,8 +209,8 @@ const DonViTinhForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã đơn vị tính"
-            name={["donvitinh", "maDonViTinh"]}
+            label="Mã đơn vị"
+            name={["donvi", "maDonVi"]}
             rules={[
               {
                 type: "string",
@@ -190,16 +218,16 @@ const DonViTinhForm = ({ history, match, permission }) => {
               },
               {
                 max: 50,
-                message: "Mã đơn vị tính không được quá 50 ký tự",
+                message: "Mã đơn vị không được quá 50 ký tự",
               },
             ]}
-            initialValue={maDonViTinh}
+            initialValue={maDonVi}
           >
-            <Input className="input-item" placeholder="Nhập mã đơn vị tính" />
+            <Input className="input-item" placeholder="Nhập mã đơn vị" />
           </FormItem>
           <FormItem
-            label="Tên đơn vị tính"
-            name={["donvitinh", "tenDonViTinh"]}
+            label="Tên đơn vị"
+            name={["donvi", "tenDonVi"]}
             rules={[
               {
                 type: "string",
@@ -207,12 +235,52 @@ const DonViTinhForm = ({ history, match, permission }) => {
               },
               {
                 max: 250,
-                message: "Tên đơn vị tính không được quá 250 ký tự",
+                message: "Tên đơn vị không được quá 250 ký tự",
               },
             ]}
-            initialValue={tenDonViTinh}
+            initialValue={tenDonVi}
           >
-            <Input className="input-item" placeholder="Nhập tên đơn vị tính" />
+            <Input className="input-item" placeholder="Nhập tên đơn vị" />
+          </FormItem>
+          <FormItem
+            label="Đơn vị cha"
+            name={["donvi", "donVi_Id"]}
+            rules={[
+              {
+                type: "string",
+              },
+            ]}
+            initialValue={donVi_Id}
+          >
+            <TreeSelect
+              className="tree-select-item"
+              datatreeselect={DonViSelect ? DonViSelect : []}
+              name="menu"
+              options={["id", "tenDonVi", "children"]}
+              placeholder="Đơn vị cha"
+              style={{ width: "100%" }}
+            />
+          </FormItem>
+          <FormItem
+            label="Tập đoàn"
+            name={["donvi", "tapDoan_Id"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
+            initialValue={tapDoan_Id}
+          >
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={tapDoanSelect ? tapDoanSelect : []}
+              placeholder="Chọn tập đoàn"
+              optionsvalue={["id", "tenTapDoan"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+            />
           </FormItem>
           <FormSubmit
             goBack={goBack}
@@ -225,4 +293,4 @@ const DonViTinhForm = ({ history, match, permission }) => {
   );
 };
 
-export default DonViTinhForm;
+export default DonViForm;

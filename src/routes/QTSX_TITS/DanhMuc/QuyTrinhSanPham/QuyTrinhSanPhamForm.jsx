@@ -4,32 +4,30 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit } from "src/components/Common";
+import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { getLocalStorage, getTokenInfo } from "src/util/Common";
 const FormItem = Form.Item;
 
-const initialState = {
-  maDonViTinh: "",
-  tenDonViTinh: "",
-};
-const DonViTinhForm = ({ history, match, permission }) => {
+const QuyTrinhSanPhamForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
+  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
+  const [ListXuong, setListXuong] = useState([]);
   const [form] = Form.useForm();
-  const { maDonViTinh, tenDonViTinh } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
 
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
           setType("new");
+          getXuong();
         } else if (permission && !permission.add) {
           history.push("/home");
         }
@@ -39,6 +37,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
           // Get info
           const { id } = match.params;
           setId(id);
+          getXuong();
           getInfo();
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -49,7 +48,35 @@ const DonViTinhForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  const getXuong = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const xuong = [];
+          res.data.forEach((x) => {
+            if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+              xuong.push(x);
+            }
+          });
+          setListXuong(xuong);
+        } else {
+          setListXuong([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   /**
    * Lấy thông tin
    *
@@ -60,7 +87,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `DonViTinh/${id}`,
+          `lkn_QuyTrinhSX/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -73,7 +100,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            donvitinh: res.data,
+            quytrinh: res.data,
           });
         }
         setInfo(res.data);
@@ -82,7 +109,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
   };
 
   /**
-   * Quay lại trang người dùng
+   * Quay lại trang lot
    *
    */
   const goBack = () => {
@@ -100,13 +127,13 @@ const DonViTinhForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.donvitinh);
+    saveData(values.quytrinh);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.donvitinh, true);
+        saveData(values.quytrinh, true);
       })
       .catch((error) => {
         console.log("error", error);
@@ -115,11 +142,18 @@ const DonViTinhForm = ({ history, match, permission }) => {
 
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
-      user.donVi_Id = INFO.donVi_Id;
       const newData = user;
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`DonViTinh`, "POST", newData, "ADD", "", resolve, reject)
+          fetchStart(
+            `lkn_QuyTrinhSX`,
+            "POST",
+            newData,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
         );
       })
         .then((res) => {
@@ -145,7 +179,7 @@ const DonViTinhForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `DonViTinh/${id}`,
+            `lkn_QuyTrinhSX?id=${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -168,7 +202,9 @@ const DonViTinhForm = ({ history, match, permission }) => {
   };
 
   const formTitle =
-    type === "new" ? "Thêm mới đơn vị tính" : "Chỉnh sửa đơn vị tính";
+    type === "new"
+      ? "Thêm mới quy trình sản xuất"
+      : "Chỉnh sửa quy trình sản xuất";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -181,38 +217,48 @@ const DonViTinhForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã đơn vị tính"
-            name={["donvitinh", "maDonViTinh"]}
+            label="Mã quy trình"
+            name={["quytrinh", "maQuyTrinhSX"]}
             rules={[
               {
                 type: "string",
                 required: true,
               },
-              {
-                max: 50,
-                message: "Mã đơn vị tính không được quá 50 ký tự",
-              },
             ]}
-            initialValue={maDonViTinh}
           >
-            <Input className="input-item" placeholder="Nhập mã đơn vị tính" />
+            <Input className="input-item" placeholder="Mã quy trình" />
           </FormItem>
           <FormItem
-            label="Tên đơn vị tính"
-            name={["donvitinh", "tenDonViTinh"]}
+            label="Tên quy trình"
+            name={["quytrinh", "tenQuyTrinhSX"]}
             rules={[
               {
                 type: "string",
                 required: true,
               },
+            ]}
+          >
+            <Input className="input-item" placeholder="Tên quy trình" />
+          </FormItem>
+          <FormItem
+            label="Xưởng"
+            name={["quytrinh", "phongBan_Id"]}
+            rules={[
               {
-                max: 250,
-                message: "Tên đơn vị tính không được quá 250 ký tự",
+                type: "string",
+                required: true,
               },
             ]}
-            initialValue={tenDonViTinh}
           >
-            <Input className="input-item" placeholder="Nhập tên đơn vị tính" />
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListXuong ? ListXuong : []}
+              placeholder="Chọn xưởng"
+              optionsvalue={["id", "tenPhongBan"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+            />
           </FormItem>
           <FormSubmit
             goBack={goBack}
@@ -225,4 +271,4 @@ const DonViTinhForm = ({ history, match, permission }) => {
   );
 };
 
-export default DonViTinhForm;
+export default QuyTrinhSanPhamForm;

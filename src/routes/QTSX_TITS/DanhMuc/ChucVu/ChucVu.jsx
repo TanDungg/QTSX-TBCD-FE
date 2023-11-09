@@ -1,14 +1,12 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider } from "antd";
-import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { treeToFlatlist } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { reDataForTable, removeDuplicates } from "src/util/Common";
+import { removeDuplicates, reDataForTable } from "src/util/Common";
 import {
   EditableTableRow,
   ModalDeleteConfirm,
@@ -16,20 +14,17 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import {
-  convertObjectToUrlParams,
-  getLocalStorage,
-  getTokenInfo,
-} from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-function DonViTinh({ permission, history }) {
+
+function ChucVu({ history, permission }) {
   const dispatch = useDispatch();
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
-  const { totalRow, pageSize } = data;
+  const { totalRow, totalPages, pageSize } = data;
+
   useEffect(() => {
     if (permission && permission.view) {
       getListData(keyword, page);
@@ -37,9 +32,8 @@ function DonViTinh({ permission, history }) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   /**
    * Get menu list
    *
@@ -50,14 +44,9 @@ function DonViTinh({ permission, history }) {
    * @param page Trang
    * @param pageSize
    */
-  const getListData = (keyword, page, pageSize) => {
-    let param = convertObjectToUrlParams({
-      pageSize,
-      page,
-      keyword,
-      DonVi_Id: INFO.donVi_Id,
-    });
-    dispatch(fetchStart(`DonViTinh?${param}`, "GET", null, "LIST"));
+  const getListData = (keyword, page) => {
+    let param = convertObjectToUrlParams({ page, keyword });
+    dispatch(fetchStart(`ChucVu?${param}`, "GET", null, "LIST"));
   };
 
   /**
@@ -66,7 +55,6 @@ function DonViTinh({ permission, history }) {
    * Fetch dữ liệu dựa theo thay đổi trang
    * @param {number} pagination
    */
-
   const handleTableChange = (pagination) => {
     setPage(pagination);
     getListData(keyword, pagination);
@@ -76,7 +64,7 @@ function DonViTinh({ permission, history }) {
    *
    */
   const onSearchNguoiDung = () => {
-    getListData(keyword, page, pageSize);
+    getListData(keyword, page);
   };
 
   /**
@@ -87,7 +75,7 @@ function DonViTinh({ permission, history }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, page, pageSize);
+      getListData(val.target.value, page);
     }
   };
   /**
@@ -97,8 +85,8 @@ function DonViTinh({ permission, history }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "đơn vị tính";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenDonViTinh, title);
+    const title = "chức vụ";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenChucVu, title);
   };
 
   /**
@@ -107,8 +95,8 @@ function DonViTinh({ permission, history }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `DonViTinh/${item.id}`;
-    if (item.isRemove) url = `DonViTinh/${item.id}`;
+    let url = `ChucVu/${item.id}`;
+    if (item.isRemove) url = `ChucVu/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -129,7 +117,7 @@ function DonViTinh({ permission, history }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/don-vi-tinh/${item.id}/chinh-sua`,
+            pathname: `/danh-muc-erp/chuc-vu/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -158,42 +146,10 @@ function DonViTinh({ permission, history }) {
     );
   };
 
-  /**
-   * Save item from table
-   * @param {object} row
-   * @memberof ChucNang
-   */
-  const handleSave = async (row) => {
-    const dataValue = treeToFlatlist(data);
-    // Check data not change
-    const item = find(dataValue, (item) => item.id === row.id);
-    if (!isEmpty(item)) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `DonViTinh/${item.id}`,
-            "PUT",
-            {
-              ...item,
-              thuTu: row.thuTu,
-            },
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.status === 204) {
-            getListData(keyword, page);
-          }
-        })
-        .catch((error) => console.error(error));
-    }
-  };
-
-  let dataList = reDataForTable(data.datalist, page, pageSize);
+  const dataList = reDataForTable(
+    data.datalist,
+    page === 1 ? page : pageSize * (page - 1) + 2
+  );
 
   let colValues = [
     {
@@ -204,37 +160,38 @@ function DonViTinh({ permission, history }) {
       align: "center",
     },
     {
-      title: "Mã đơn vị tính",
-      dataIndex: "maDonViTinh",
-      key: "maDonViTinh",
+      title: "Mã chức vụ",
+      dataIndex: "maChucVu",
+      key: "maChucVu",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maDonViTinh,
-            value: d.maDonViTinh,
+            text: d.maChucVu,
+            value: d.maChucVu,
           };
         })
       ),
-      onFilter: (value, record) => record.maDonViTinh.includes(value),
+      onFilter: (value, record) => record.maChucVu.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
+      title: "Tên chức vụ",
+      dataIndex: "tenChucVu",
+      key: "tenChucVu",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenDonViTinh,
-            value: d.tenDonViTinh,
+            text: d.tenChucVu,
+            value: d.tenChucVu,
           };
         })
       ),
-      onFilter: (value, record) => record.tenDonViTinh.includes(value),
+      onFilter: (value, record) => record.tenChucVu.includes(value),
       filterSearch: true,
     },
+
     {
       title: "Chức năng",
       key: "action",
@@ -262,7 +219,6 @@ function DonViTinh({ permission, history }) {
         dataIndex: col.dataIndex,
         title: col.title,
         info: col.info,
-        handleSave: handleSave,
       }),
     };
   });
@@ -272,34 +228,35 @@ function DonViTinh({ permission, history }) {
    *
    * @memberof ChucNang
    */
+  const handleRedirect = () => {
+    history.push({
+      pathname: "/danh-muc-erp/chuc-vu/them-moi",
+    });
+  };
   const handleClearSearch = () => {
     getListData(null, 1);
   };
-  const handleRedirect = () => {
-    history.push({
-      pathname: "/danh-muc-kho-tpc/don-vi-tinh/them-moi",
-    });
-  };
-
   const addButtonRender = () => {
     return (
-      <Button
-        icon={<PlusOutlined />}
-        className="th-btn-margin-bottom-0"
-        type="primary"
-        onClick={handleRedirect}
-        disabled={permission && !permission.add}
-      >
-        Thêm mới
-      </Button>
+      <>
+        <Button
+          icon={<PlusOutlined />}
+          className="th-btn-margin-bottom-0"
+          type="primary"
+          onClick={handleRedirect}
+          disabled={permission && !permission.add}
+        >
+          Thêm mới
+        </Button>
+      </>
     );
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Đơn vị tính"}
-        description="Danh sách Đơn vị tính"
+        title={"Danh mục chức vụ"}
+        description="Danh sách chức vụ"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -350,7 +307,7 @@ function DonViTinh({ permission, history }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 300, y: "55vh" }}
+          scroll={{ x: 600, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}
@@ -362,6 +319,10 @@ function DonViTinh({ permission, history }) {
             total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,
+            showTotal: (total) =>
+              totalRow <= total
+                ? `Hiển thị ${dataList.length} trong tổng ${totalRow}`
+                : `Tổng ${totalPages}`,
           }}
           loading={loading}
         />
@@ -370,4 +331,4 @@ function DonViTinh({ permission, history }) {
   );
 }
 
-export default DonViTinh;
+export default ChucVu;
