@@ -8,7 +8,6 @@ export const BASE_URL_APP = `${window.location.origin.toString()}`;
 // export const BASE_URL_APP = `http://localhost:4000`;
 export const LOAI_NCC_NOI_BO = "0657c2ab-cde0-4753-b2c4-5801bb4891fa";
 export const LOAI_KE_HOACH_SAN_XUAT = "3adecca0-3fe1-4433-b93b-0137dc3dfdce";
-
 export const APP_NAME = "HỆ THỐNG ERP";
 export const PAGE_SIZE = 20;
 
