@@ -27,8 +27,8 @@ function InMaQr() {
               key={index}
               className={"print-page"}
               style={{
-                width: "220px",
-                height: "120px",
+                width: "45mm",
+                height: "28mm",
                 margin: 10,
                 border: "1px solid #000",
                 borderRadius: 5,
@@ -48,14 +48,16 @@ function InMaQr() {
                   marginLeft: 8,
                 }}
               >
-                <span style={{ fontSize: 13, fontWeight: "bold" }}>
+                <span
+                  style={{ fontSize: 10, fontWeight: "bold", marginBottom: 3 }}
+                >
                   Vị trí kho:
                 </span>
                 <QRCode
                   value={d && d.id}
-                  style={{ width: 70, height: 70, marginBottom: 3 }}
+                  style={{ width: 50, height: 50, marginBottom: 3 }}
                 />
-                <span style={{ fontSize: 13, fontWeight: "bold" }}>
+                <span style={{ fontSize: 12, fontWeight: "bold" }}>
                   {d && d.stt}
                 </span>
               </div>
@@ -71,7 +73,7 @@ function InMaQr() {
               >
                 <span
                   style={{
-                    fontSize: 13,
+                    fontSize: 11,
                     whiteSpace: "break-spaces",
                     wordBreak: "break-all",
                     padding: "0px 5px",
@@ -82,7 +84,7 @@ function InMaQr() {
                 </span>
                 <span
                   style={{
-                    fontSize: 15,
+                    fontSize: 13,
                     fontWeight: "bold",
                     margin: 2,
                     whiteSpace: "break-spaces",
@@ -93,7 +95,7 @@ function InMaQr() {
                 </span>
                 <span
                   style={{
-                    fontSize: 13,
+                    fontSize: 11,
                     fontWeight: "bold",
                     marginBottom: 2,
                     whiteSpace: "break-spaces",
