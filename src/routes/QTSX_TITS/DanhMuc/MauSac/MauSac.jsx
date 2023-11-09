@@ -47,7 +47,7 @@ function MauSac({ permission, history }) {
    */
   const getListData = (keyword, page) => {
     let param = convertObjectToUrlParams({ page, keyword });
-    dispatch(fetchStart(`MauSac?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`tits_qtsx_MauSac?${param}`, "GET", null, "LIST"));
   };
 
   /**

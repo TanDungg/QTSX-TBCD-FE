@@ -47,7 +47,7 @@ function ChungTu({ match, permission, history }) {
    */
   const getListData = (keyword, page) => {
     let param = convertObjectToUrlParams({ page, keyword });
-    dispatch(fetchStart(`MauSac?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`tits_qtsx_ChungTu?${param}`, "GET", null, "LIST"));
   };
 
   /**
