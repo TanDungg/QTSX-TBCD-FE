@@ -40,7 +40,12 @@ function CauTrucKho({ match, history, permission }) {
   const loadData = (keyword, page) => {
     const param = convertObjectToUrlParams({ keyword, page });
     dispatch(
-      fetchStart(`CauTrucKho/cau-truc-kho-tree?${param}`, "GET", null, "LIST")
+      fetchStart(
+        `CauTrucKho/cau-truc-kho-thanh-pham-tree?${param}`,
+        "GET",
+        null,
+        "LIST"
+      )
     );
   };
 
@@ -226,8 +231,8 @@ function CauTrucKho({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="In Barcode cấu trúc kho vật tư"
-        description="In Barcode cấu trúc kho vật tư"
+        title="In Barcode cấu trúc kho thành phẩm"
+        description="In Barcode cấu trúc kho thành phẩm"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">

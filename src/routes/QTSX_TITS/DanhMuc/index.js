@@ -99,7 +99,8 @@ const NhomThietBiForm = asyncComponent(() =>
 );
 
 // const Home = asyncComponent(() => import("../Home"));
-
+const ChungTu = asyncComponent(() => import("./ChungTu/ChungTu"));
+const ChungTuForm = asyncComponent(() => import("./ChungTu/ChungTuForm"));
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -179,7 +180,6 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(ChucVuForm, menus, pathname, permission)}
       />
-
       <Route
         path={`${match.url}/don-vi-tinh`}
         exact
@@ -480,7 +480,21 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(NhomThietBiForm, menus, pathname, permission)}
       />
-
+      <Route
+        path={`${match.url}/chung-tu`}
+        exact
+        component={Auth(ChungTu, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/chung-tu/them-moi`}
+        exact
+        component={Auth(ChungTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/chung-tu/:id/chinh-sua`}
+        exact
+        component={Auth(ChungTuForm, menus, pathname, permission)}
+      />
       {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
     </Switch>
   );

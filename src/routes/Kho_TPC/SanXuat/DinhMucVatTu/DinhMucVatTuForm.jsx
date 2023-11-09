@@ -351,8 +351,10 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
           getUserLap(INFO, res.data.nguoiLap_Id);
           setInfo(res.data);
           getSanPham();
+          getXuong();
           setFieldsValue({
             dinhmucvattu: {
+              phongBan_Id: res.data.phongBan_Id,
               sanPham_Id: res.data.sanPham_Id,
               ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               nguoiKy_Id: res.data.nguoiKy_Id,

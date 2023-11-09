@@ -110,8 +110,9 @@ const App = () => {
       location &&
       location.pathname &&
       (location.pathname === "/in-barcode-kho-tpc/vat-tu/inMa" ||
-        location.pathname === "/in-barcode-kho-tpc/ke/inMa" ||
-        location.pathname === "/in-barcode-kho-tpc/cau-truc-kho/inMa")
+        location.pathname === "/in-barcode-kho-tpc/cau-truc-kho-vat-tu/inMa" ||
+        location.pathname ===
+          "/in-barcode-kho-tpc/cau-truc-kho-thanh-pham/inMa")
     ) {
       setSessionStorage("tokenInfo", true);
     }
@@ -280,12 +281,12 @@ const App = () => {
           <Route exact path="/signin" component={SignIn} />
           <Route
             exact
-            path="/in-barcode-kho-tpc/ke/inMa"
+            path="/in-barcode-kho-tpc/cau-truc-kho-thanh-pham/inMa"
             component={InMaQrCauTrucKho}
           />
           <Route
             exact
-            path="/in-barcode-kho-tpc/cau-truc-kho/inMa"
+            path="/in-barcode-kho-tpc/cau-truc-kho-vat-tu/inMa"
             component={InMaQrCauTrucKho}
           />
           <Route
