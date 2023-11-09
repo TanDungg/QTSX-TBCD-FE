@@ -26,9 +26,9 @@ function InMaQr() {
               key={index}
               className={"print-page"}
               style={{
-                width: "45mm",
+                width: "50mm",
                 height: "28mm",
-                margin: 10,
+                margin: 5,
                 border: "1px solid #000",
                 borderRadius: 5,
                 color: "#000",
@@ -43,13 +43,13 @@ function InMaQr() {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  marginTop: 10,
-                  marginLeft: 8,
+                  marginTop: 5,
+                  marginLeft: 5,
                 }}
               >
                 <QRCode
                   value={d && d.lkn_ChiTietKhoVatTu_Id}
-                  style={{ width: 50, height: 50, marginBottom: 3 }}
+                  style={{ width: 55, height: 55, marginBottom: 3 }}
                 />
                 <span style={{ fontSize: 10, fontWeight: "bold" }}>
                   {d && d.thoiGianSuDung}
@@ -62,7 +62,7 @@ function InMaQr() {
                   flexDirection: "column",
                   alignItems: "center",
                   textAlign: "center",
-                  marginLeft: "5px",
+                  marginLeft: 5,
                 }}
               >
                 <span
@@ -81,6 +81,7 @@ function InMaQr() {
                     fontSize: 12,
                     fontWeight: "bold",
                     marginBottom: 2,
+                    textTransform: "uppercase",
                   }}
                 >
                   {d && d.tenVatTu}

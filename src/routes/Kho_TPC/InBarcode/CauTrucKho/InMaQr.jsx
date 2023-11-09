@@ -26,9 +26,9 @@ function InMaQr() {
               key={index}
               className={"print-page"}
               style={{
-                width: "45mm",
+                width: "50mm",
                 height: "28mm",
-                margin: 10,
+                margin: 5,
                 border: "1px solid #000",
                 borderRadius: 5,
                 color: "#000",
@@ -44,7 +44,7 @@ function InMaQr() {
                   flexDirection: "column",
                   alignItems: "center",
                   marginTop: 5,
-                  marginLeft: 8,
+                  marginLeft: 5,
                 }}
               >
                 <span style={{ fontSize: 10, fontWeight: "bold" }}>
@@ -52,9 +52,9 @@ function InMaQr() {
                 </span>
                 <QRCode
                   value={d && d.id}
-                  style={{ width: 50, height: 50, marginBottom: 3 }}
+                  style={{ width: 55, height: 55, marginBottom: 3 }}
                 />
-                <span style={{ fontSize: 12, fontWeight: "bold" }}>
+                <span style={{ fontSize: 11, fontWeight: "bold" }}>
                   {d && d.stt}
                 </span>
               </div>
@@ -65,7 +65,6 @@ function InMaQr() {
                   flexDirection: "column",
                   alignItems: "center",
                   textAlign: "center",
-                  marginLeft: "5px",
                 }}
               >
                 <span
@@ -84,8 +83,8 @@ function InMaQr() {
                     fontSize: 11,
                     fontWeight: "bold",
                     margin: 2,
-                    whiteSpace: "break-spaces",
-                    wordBreak: "break-all",
+                    // whiteSpace: "break-spaces",
+                    // wordBreak: "break-all",
                   }}
                 >
                   {d && d.tenCauTrucKho}
@@ -95,8 +94,9 @@ function InMaQr() {
                     fontSize: 13,
                     fontWeight: "bold",
                     marginBottom: 2,
-                    whiteSpace: "break-spaces",
-                    wordBreak: "break-all",
+                    textTransform: "uppercase",
+                    // whiteSpace: "break-spaces",
+                    // wordBreak: "break-all",
                   }}
                 >
                   {d && d.tenPhongBan}
