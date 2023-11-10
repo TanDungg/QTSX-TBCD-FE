@@ -118,7 +118,7 @@ function ThietBi({ permission, history }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/thiet-bi/${item.id}/chinh-sua`,
+            pathname: `/danh-muc-qtsx-tits/thiet-bi/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -225,6 +225,86 @@ function ThietBi({ permission, history }) {
       filterSearch: true,
     },
     {
+      title: "Nhóm thiết bị",
+      dataIndex: "tenNhomThietBi",
+      key: "tenNhomThietBi",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNhomThietBi,
+            value: d.tenNhomThietBi,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNhomThietBi.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Trạm",
+      dataIndex: "tenTram",
+      key: "tenTram",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenTram,
+            value: d.tenTram,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenTram.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Module",
+      dataIndex: "module",
+      key: "module",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.module,
+            value: d.module,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.module.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Số seri",
+      dataIndex: "soSeri",
+      key: "soSeri",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.soSeri,
+            value: d.soSeri,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.soSeri.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Địa chỉ IP",
+      dataIndex: "diaChiIp",
+      key: "diaChiIp",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.diaChiIp,
+            value: d.diaChiIp,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.diaChiIp.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Chức năng",
       key: "action",
       align: "center",
@@ -266,7 +346,7 @@ function ThietBi({ permission, history }) {
   };
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-kho-tpc/thiet-bi/them-moi",
+      pathname: "/danh-muc-qtsx-tits/thiet-bi/them-moi",
     });
   };
 

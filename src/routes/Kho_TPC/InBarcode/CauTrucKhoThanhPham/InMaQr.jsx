@@ -26,9 +26,9 @@ function InMaQr() {
               key={index}
               className={"print-page"}
               style={{
-                width: "50mm",
+                width: "45mm",
                 height: "28mm",
-                margin: 5,
+                margin: 10,
                 border: "1px solid #000",
                 borderRadius: 5,
                 color: "#000",
@@ -52,7 +52,7 @@ function InMaQr() {
                 </span>
                 <QRCode
                   value={d && d.id}
-                  style={{ width: 55, height: 55, marginBottom: 3 }}
+                  style={{ width: 50, height: 50, marginBottom: 3 }}
                 />
                 <span style={{ fontSize: 11, fontWeight: "bold" }}>
                   {d && d.stt}
@@ -91,7 +91,7 @@ function InMaQr() {
                 </span>
                 <span
                   style={{
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: "bold",
                     marginBottom: 2,
                     textTransform: "uppercase",
