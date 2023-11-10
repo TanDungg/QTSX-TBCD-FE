@@ -44,7 +44,12 @@ function CauTrucKhoVatTu({ match, history, permission }) {
   const loadData = (keyword, page) => {
     const param = convertObjectToUrlParams({ keyword, page });
     dispatch(
-      fetchStart(`CauTrucKho/cau-truc-kho-tree?${param}`, "GET", null, "LIST")
+      fetchStart(
+        `tits_qtsx_CauTrucKho/cau-truc-kho-vat-tu-tree?${param}`,
+        "GET",
+        null,
+        "LIST"
+      )
     );
   };
 
