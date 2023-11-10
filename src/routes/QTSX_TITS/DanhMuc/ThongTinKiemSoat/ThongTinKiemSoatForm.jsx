@@ -1,6 +1,6 @@
 import { Card, Form, Input } from "antd";
 import includes from "lodash/includes";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { fetchReset, fetchStart } from "src/appRedux/actions";
@@ -11,22 +11,20 @@ import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 const FormItem = Form.Item;
 
 const initialState = {
-  maNhomThietBi: "",
-  tenNhomThietBi: "",
+  maThongTinKiemSoat: "",
+  tenThongTinKiemSoat: "",
 };
-const NhomThietBiForm = ({ history, match, permission }) => {
+const ThongTinKiemSoatForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { maNhomThietBi, tenNhomThietBi } = initialState;
+  const { maThongTinKiemSoat, tenThongTinKiemSoat } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
-  const ref = useRef(null);
 
   useEffect(() => {
-    ref.current.focus();
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
@@ -61,7 +59,7 @@ const NhomThietBiForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_NhomThietBi/${id}`,
+          `tits_qtsx_ThongTinKiemSoat/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -74,10 +72,10 @@ const NhomThietBiForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            nhomthietbi: res.data,
+            ThongTinKiemSoat: res.data,
           });
-          setInfo(res.data);
         }
+        setInfo(res.data);
       })
       .catch((error) => console.error(error));
   };
@@ -101,13 +99,13 @@ const NhomThietBiForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.nhomthietbi);
+    saveData(values.ThongTinKiemSoat);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.nhomthietbi, true);
+        saveData(values.ThongTinKiemSoat, true);
       })
       .catch((error) => {
         console.log("error", error);
@@ -120,7 +118,7 @@ const NhomThietBiForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_NhomThietBi`,
+            `tits_qtsx_ThongTinKiemSoat`,
             "POST",
             newData,
             "ADD",
@@ -149,11 +147,11 @@ const NhomThietBiForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...info, ...user };
+      const newData = { ...info, ...user };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_NhomThietBi/${id}`,
+            `tits_qtsx_ThongTinKiemSoat/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -176,7 +174,9 @@ const NhomThietBiForm = ({ history, match, permission }) => {
   };
 
   const formTitle =
-    type === "new" ? "Thêm mới nhóm thiết bị" : "Chỉnh sửa nhóm thiết bị";
+    type === "new"
+      ? "Thêm mới thông tin kiểm soát"
+      : "Chỉnh sửa thông tin kiểm soát";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -189,8 +189,8 @@ const NhomThietBiForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã nhóm thiết bị"
-            name={["nhomthietbi", "maNhomThietBi"]}
+            label="Mã thông tin kiểm soát"
+            name={["ThongTinKiemSoat", "maThongTinKiemSoat"]}
             rules={[
               {
                 type: "string",
@@ -198,20 +198,19 @@ const NhomThietBiForm = ({ history, match, permission }) => {
               },
               {
                 max: 50,
-                message: "Mã nhóm thiết bị không được quá 50 ký tự",
+                message: "Mã thông tin kiểm soát không được quá 50 ký tự",
               },
             ]}
-            initialValue={maNhomThietBi}
+            initialValue={maThongTinKiemSoat}
           >
             <Input
               className="input-item"
-              placeholder="Nhập mã nhóm thiết bị"
-              ref={ref}
+              placeholder="Nhập mã thông tin kiểm soát"
             />
           </FormItem>
           <FormItem
-            label="Tên nhóm thiết bị"
-            name={["nhomthietbi", "tenNhomThietBi"]}
+            label="Tên thông tin kiểm soát"
+            name={["ThongTinKiemSoat", "tenThongTinKiemSoat"]}
             rules={[
               {
                 type: "string",
@@ -219,14 +218,14 @@ const NhomThietBiForm = ({ history, match, permission }) => {
               },
               {
                 max: 250,
-                message: "Tên nhóm thiết bị không được quá 250 ký tự",
+                message: "Tên thông tin kiểm soát không được quá 250 ký tự",
               },
             ]}
-            initialValue={tenNhomThietBi}
+            initialValue={tenThongTinKiemSoat}
           >
             <Input
               className="input-item"
-              placeholder="Nhập tên nhóm thiết bị"
+              placeholder="Nhập tên thông tin kiểm soát"
             />
           </FormItem>
           <FormSubmit
@@ -240,4 +239,4 @@ const NhomThietBiForm = ({ history, match, permission }) => {
   );
 };
 
-export default NhomThietBiForm;
+export default ThongTinKiemSoatForm;

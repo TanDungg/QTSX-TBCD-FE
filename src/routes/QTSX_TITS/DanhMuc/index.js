@@ -101,6 +101,12 @@ const NhomThietBiForm = asyncComponent(() =>
 // const Home = asyncComponent(() => import("../Home"));
 const ChungTu = asyncComponent(() => import("./ChungTu/ChungTu"));
 const ChungTuForm = asyncComponent(() => import("./ChungTu/ChungTuForm"));
+const ThongTinKiemSoat = asyncComponent(() =>
+  import("./ThongTinKiemSoat/ThongTinKiemSoat")
+);
+const ThongTinKiemSoatForm = asyncComponent(() =>
+  import("./ThongTinKiemSoat/ThongTinKiemSoatForm")
+);
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (

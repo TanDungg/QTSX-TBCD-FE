@@ -20,14 +20,15 @@ import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function NhomThietBi({ history, permission }) {
+function NhomThietBi({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [keyword, setKeyword] = useState("");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (permission && permission.view) {
-      loadData(keyword);
+      loadData(keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -40,11 +41,20 @@ function NhomThietBi({ history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword) => {
-    const param = convertObjectToUrlParams({ keyword });
-    dispatch(fetchStart(`NhomThietBi?${param}`, "GET", null, "LIST"));
+  const loadData = (keyword, page) => {
+    const param = convertObjectToUrlParams({ keyword, page });
+    dispatch(fetchStart(`tits_qtsx_NhomThietBi?${param}`, "GET", null, "LIST"));
   };
-
+  /**
+   * handleTableChange
+   *
+   * Fetch dữ liệu dựa theo thay đổi trang
+   * @param {number} pagination
+   */
+  const handleTableChange = (pagination) => {
+    setPage(pagination);
+    loadData(keyword, pagination);
+  };
   /**
    * ActionContent: Hành động trên bảng
    * @param {*} item
@@ -56,7 +66,7 @@ function NhomThietBi({ history, permission }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/nhom-thiet-bi/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
           title="Sửa"
@@ -104,13 +114,13 @@ function NhomThietBi({ history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `NhomThietBi/${item.id}`;
+    let url = `tits_qtsx_NhomThietBi/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
-        loadData();
+        loadData(keyword, page);
       })
       .catch((error) => console.error(error));
   };
@@ -122,7 +132,7 @@ function NhomThietBi({ history, permission }) {
    */
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-qtsx-tits/nhom-thiet-bi/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
 
@@ -139,14 +149,14 @@ function NhomThietBi({ history, permission }) {
       </Button>
     );
   };
-
-  const dataList = reDataForTable(data);
+  const { pageSize, totalRow } = data;
+  const dataList = reDataForTable(data.datalist, page, pageSize);
 
   let renderHead = [
     {
       title: "STT",
-      dataIndex: "stt",
-      key: "stt",
+      dataIndex: "key",
+      key: "key",
       align: "center",
       width: 45,
     },
@@ -196,7 +206,8 @@ function NhomThietBi({ history, permission }) {
    *
    */
   const onSearchNhomThietBi = () => {
-    loadData(keyword);
+    setPage(1);
+    loadData(keyword, 1);
   };
 
   /**
@@ -207,7 +218,7 @@ function NhomThietBi({ history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value);
+      loadData(val.target.value, page);
     }
   };
   const components = {
@@ -293,7 +304,9 @@ function NhomThietBi({ history, permission }) {
           size="small"
           rowClassName={"editable-row"}
           pagination={{
-            pageSize: 20,
+            onChange: handleTableChange,
+            pageSize: pageSize,
+            totalRow: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,
           }}

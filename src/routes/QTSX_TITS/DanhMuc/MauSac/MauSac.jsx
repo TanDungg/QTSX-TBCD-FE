@@ -19,7 +19,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-function MauSac({ permission, history }) {
+function MauSac({ match, permission, history }) {
   const dispatch = useDispatch();
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
@@ -47,7 +47,7 @@ function MauSac({ permission, history }) {
    */
   const getListData = (keyword, page) => {
     let param = convertObjectToUrlParams({ page, keyword });
-    dispatch(fetchStart(`MauSac?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`tits_qtsx_MauSac?${param}`, "GET", null, "LIST"));
   };
 
   /**
@@ -87,8 +87,8 @@ function MauSac({ permission, history }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "màu sắc";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenMauSac, title);
+    const title = "màu";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenMau, title);
   };
 
   /**
@@ -97,7 +97,7 @@ function MauSac({ permission, history }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `MauSac/${item.id}`;
+    let url = `tits_qtsx_MauSac/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -118,7 +118,7 @@ function MauSac({ permission, history }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/mau-sac/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -160,7 +160,7 @@ function MauSac({ permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `MauSac/${item.id}`,
+            `tits_qtsx_MauSac/${item.id}`,
             "PUT",
             {
               ...item,
@@ -193,35 +193,35 @@ function MauSac({ permission, history }) {
       align: "center",
     },
     {
-      title: "Mã màu sắc",
-      dataIndex: "maMauSac",
-      key: "maMauSac",
+      title: "Mã màu",
+      dataIndex: "maMau",
+      key: "maMau",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maMauSac,
-            value: d.maMauSac,
+            text: d.maMau,
+            value: d.maMau,
           };
         })
       ),
-      onFilter: (value, record) => record.maMauSac.includes(value),
+      onFilter: (value, record) => record.maMau.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên màu sắc",
-      dataIndex: "tenMauSac",
-      key: "tenMauSac",
+      title: "Tên màu",
+      dataIndex: "maMau",
+      key: "maMau",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenMauSac,
-            value: d.tenMauSac,
+            text: d.maMau,
+            value: d.maMau,
           };
         })
       ),
-      onFilter: (value, record) => record.tenMauSac.includes(value),
+      onFilter: (value, record) => record.maMau.includes(value),
       filterSearch: true,
     },
     {
@@ -266,7 +266,7 @@ function MauSac({ permission, history }) {
   };
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-kho-tpc/mau-sac/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
 
@@ -287,8 +287,8 @@ function MauSac({ permission, history }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Màu sắc"}
-        description="Danh sách Màu sắc"
+        title={"Màu"}
+        description="Danh sách màu"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">

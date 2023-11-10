@@ -11,8 +11,8 @@ import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 const FormItem = Form.Item;
 
 const initialState = {
-  maMauSac: "",
-  tenMauSac: "",
+  maChungTu: "",
+  tenChungTu: "",
 };
 const ChungTuForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
@@ -20,10 +20,9 @@ const ChungTuForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { maMauSac, tenMauSac } = initialState;
+  const { maChungTu, tenChungTu } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
-  const [ListKho, setListKho] = useState([]);
 
   useEffect(() => {
     const load = () => {
@@ -59,13 +58,21 @@ const ChungTuForm = ({ history, match, permission }) => {
     setId(id);
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(`MauSac/${id}`, "GET", null, "DETAIL", "", resolve, reject)
+        fetchStart(
+          `tits_qtsx_ChungTu/${id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
       );
     })
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            MauSac: res.data,
+            chungTu: res.data,
           });
         }
         setInfo(res.data);
@@ -92,13 +99,13 @@ const ChungTuForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.MauSac);
+    saveData(values.chungTu);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.MauSac, true);
+        saveData(values.chungTu, true);
       })
       .catch((error) => {
         console.log("error", error);
@@ -110,7 +117,15 @@ const ChungTuForm = ({ history, match, permission }) => {
       const newData = user;
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`MauSac`, "POST", newData, "ADD", "", resolve, reject)
+          fetchStart(
+            `tits_qtsx_ChungTu`,
+            "POST",
+            newData,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
         );
       })
         .then((res) => {
@@ -136,7 +151,7 @@ const ChungTuForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `MauSac/${id}`,
+            `tits_qtsx_ChungTu/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -172,7 +187,7 @@ const ChungTuForm = ({ history, match, permission }) => {
         >
           <FormItem
             label="Mã số chứng từ"
-            name={["chungTu", "maMauSac"]}
+            name={["chungTu", "maChungTu"]}
             rules={[
               {
                 type: "string",
@@ -180,16 +195,16 @@ const ChungTuForm = ({ history, match, permission }) => {
               },
               {
                 max: 50,
-                message: "Mã số chứng từ không được quá 50 ký tự",
+                message: "Mã  chứng từ không được quá 50 ký tự",
               },
             ]}
-            initialValue={maMauSac}
+            initialValue={maChungTu}
           >
-            <Input className="input-item" placeholder="Nhập mã số chứng từ" />
+            <Input className="input-item" placeholder="Nhập mã chứng từ" />
           </FormItem>
           <FormItem
             label="Tên số chứng từ"
-            name={["chungTu", "tenMauSac"]}
+            name={["chungTu", "tenChungTu"]}
             rules={[
               {
                 type: "string",
@@ -197,32 +212,12 @@ const ChungTuForm = ({ history, match, permission }) => {
               },
               {
                 max: 250,
-                message: "Tên số chứng từ không được quá 250 ký tự",
+                message: "Tên chứng từ không được quá 250 ký tự",
               },
             ]}
-            initialValue={tenMauSac}
+            initialValue={tenChungTu}
           >
-            <Input className="input-item" placeholder="Nhập tên màu sắc" />
-          </FormItem>
-          <FormItem
-            label="Kho"
-            name={["chungTu", "cauTrucKho_Id"]}
-            rules={[
-              {
-                type: "string",
-                required: true,
-              },
-            ]}
-          >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListKho ? ListKho : []}
-              placeholder="Chọn kho"
-              optionsvalue={["id", "tenDonViTinh"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-            />
+            <Input className="input-item" placeholder="Nhập tên chứng từ" />
           </FormItem>
           <FormSubmit
             goBack={goBack}

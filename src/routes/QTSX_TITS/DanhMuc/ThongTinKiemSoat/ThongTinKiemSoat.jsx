@@ -19,7 +19,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-function ChungTu({ match, permission, history }) {
+function ThongTinKiemSoat({ match, permission, history }) {
   const dispatch = useDispatch();
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
@@ -47,7 +47,9 @@ function ChungTu({ match, permission, history }) {
    */
   const getListData = (keyword, page) => {
     let param = convertObjectToUrlParams({ page, keyword });
-    dispatch(fetchStart(`tits_qtsx_ChungTu?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(`tits_qtsx_ThongTinKiemSoat?${param}`, "GET", null, "LIST")
+    );
   };
 
   /**
@@ -87,8 +89,8 @@ function ChungTu({ match, permission, history }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "chứng từ";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenChungTu, title);
+    const title = "thông tin kiểm soát";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenThongTinKiemSoat, title);
   };
 
   /**
@@ -97,7 +99,7 @@ function ChungTu({ match, permission, history }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_ChungTu/${item.id}`;
+    let url = `tits_qtsx_ThongTinKiemSoat/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -160,7 +162,7 @@ function ChungTu({ match, permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `MauSac/${item.id}`,
+            `tits_qtsx_ThongTinKiemSoat/${item.id}`,
             "PUT",
             {
               ...item,
@@ -193,35 +195,35 @@ function ChungTu({ match, permission, history }) {
       align: "center",
     },
     {
-      title: "Mã số chừng từ",
-      dataIndex: "maChungTu",
-      key: "maChungTu",
+      title: "Mã thông tin kiểm soát",
+      dataIndex: "maThongTinKiemSoat",
+      key: "maThongTinKiemSoat",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maChungTu,
-            value: d.maChungTu,
+            text: d.maThongTinKiemSoat,
+            value: d.maThongTinKiemSoat,
           };
         })
       ),
-      onFilter: (value, record) => record.maChungTu.includes(value),
+      onFilter: (value, record) => record.maThongTinKiemSoat.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên số chừng từ",
-      dataIndex: "tenChungTu",
-      key: "tenChungTu",
+      title: "Tên thông tin kiếm soát",
+      dataIndex: "tenThongTinKiemSoat",
+      key: "tenThongTinKiemSoat",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenChungTu,
-            value: d.tenChungTu,
+            text: d.tenThongTinKiemSoat,
+            value: d.tenThongTinKiemSoat,
           };
         })
       ),
-      onFilter: (value, record) => record.tenChungTu.includes(value),
+      onFilter: (value, record) => record.tenThongTinKiemSoat.includes(value),
       filterSearch: true,
     },
     {
@@ -287,8 +289,8 @@ function ChungTu({ match, permission, history }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Chứng từ"}
-        description="Danh sách Chứng từ"
+        title={"Thông tin kiếm soát"}
+        description="Danh sách thông tin kiếm soát"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -359,4 +361,4 @@ function ChungTu({ match, permission, history }) {
   );
 }
 
-export default ChungTu;
+export default ThongTinKiemSoat;
