@@ -19,7 +19,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-function MauSac({ permission, history }) {
+function MauSac({ match, permission, history }) {
   const dispatch = useDispatch();
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
@@ -118,7 +118,7 @@ function MauSac({ permission, history }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/mau-sac/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -266,7 +266,7 @@ function MauSac({ permission, history }) {
   };
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-kho-tpc/mau-sac/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
 
