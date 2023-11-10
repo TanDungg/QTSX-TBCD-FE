@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Card, Form, Spin } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
-import { Input, Select, FormSubmit } from "src/components/Common";
+import { Input, FormSubmit } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -10,7 +10,10 @@ const FormItem = Form.Item;
 const initialState = {
   maNhaCungCap: "",
   tenNhaCungCap: "",
-  loaiNhaCungCap_Id: "",
+  nguoiLienHe: "",
+  sdt: "",
+  diaChi: "",
+  maSoThue: "",
 };
 
 function NhaCungCapForm({ match, permission, history }) {
@@ -19,8 +22,9 @@ function NhaCungCapForm({ match, permission, history }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
-  const [LoaiNhaCungCapSelect, setLoaiNhaCungCapSelect] = useState([]);
   const [fieldTouch, setFieldTouch] = useState(false);
+  const { maNhaCungCap, tenNhaCungCap, nguoiLienHe, sdt, diaChi, maSoThue } =
+    initialState;
   const { setFieldsValue, validateFields, resetFields } = form;
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
@@ -28,7 +32,6 @@ function NhaCungCapForm({ match, permission, history }) {
         history.push("/home");
       } else {
         setType("new");
-        getLoaiNhaCungCap();
       }
     } else {
       if (permission && !permission.edit) {
@@ -38,7 +41,6 @@ function NhaCungCapForm({ match, permission, history }) {
           setType("edit");
           setId(match.params.id);
           getInfo(match.params.id);
-          getLoaiNhaCungCap();
         }
       }
     }
@@ -57,7 +59,7 @@ function NhaCungCapForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `NhaCungCap/${id}`,
+          `tits_qtsx_NhaCungCap/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -70,7 +72,7 @@ function NhaCungCapForm({ match, permission, history }) {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            NhaCungCap: res.data,
+            nhacungcap: res.data,
           });
         }
       })
@@ -78,41 +80,12 @@ function NhaCungCapForm({ match, permission, history }) {
   };
 
   /**
-   * Lấy danh sách menu
-   *
-   */
-  const getLoaiNhaCungCap = async () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          "lkn_LoaiNhaCungCap?page=-1",
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setLoaiNhaCungCapSelect(res.data);
-        } else {
-          setLoaiNhaCungCapSelect([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const { maNhaCungCap, tenNhaCungCap, loaiNhaCungCap_Id } = initialState;
-  /**
    * Khi submit
    *
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.NhaCungCap);
+    saveData(values.nhacungcap);
   };
   /**
    * Lưu và thoát
@@ -128,14 +101,14 @@ function NhaCungCapForm({ match, permission, history }) {
       });
   };
 
-  const saveData = (NhaCungCap, saveQuit = false) => {
+  const saveData = (nhacungcap, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `NhaCungCap`,
+            `tits_qtsx_NhaCungCap`,
             "POST",
-            NhaCungCap,
+            nhacungcap,
             "ADD",
             "",
             resolve,
@@ -156,13 +129,13 @@ function NhaCungCapForm({ match, permission, history }) {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      NhaCungCap.id = id;
+      nhacungcap.id = id;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `NhaCungCap/${id}`,
+            `tits_qtsx_NhaCungCap/${id}`,
             "PUT",
-            NhaCungCap,
+            nhacungcap,
             "EDIT",
             "",
             resolve,
@@ -214,7 +187,7 @@ function NhaCungCapForm({ match, permission, history }) {
           >
             <FormItem
               label="Mã nhà cung cấp"
-              name={["NhaCungCap", "maNhaCungCap"]}
+              name={["nhacungcap", "maNhaCungCap"]}
               rules={[
                 {
                   type: "string",
@@ -234,7 +207,7 @@ function NhaCungCapForm({ match, permission, history }) {
             </FormItem>
             <FormItem
               label="Tên nhà cung cấp"
-              name={["NhaCungCap", "tenNhaCungCap"]}
+              name={["nhacungcap", "tenNhaCungCap"]}
               rules={[
                 {
                   type: "string",
@@ -253,53 +226,21 @@ function NhaCungCapForm({ match, permission, history }) {
               />
             </FormItem>
             <FormItem
-              label="Loại nhà cung cấp"
-              name={["NhaCungCap", "loaiNhaCungCap_Id"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-              ]}
-              initialValue={loaiNhaCungCap_Id}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={LoaiNhaCungCapSelect ? LoaiNhaCungCapSelect : []}
-                placeholder="Chọn loại nhà cung cấp"
-                optionsvalue={["id", "tenLoaiNhaCungCap"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp="name"
-              />
-            </FormItem>
-            <FormItem
               label="Người liên hệ"
-              name={["NhaCungCap", "nguoiLienHe"]}
+              name={["nhacungcap", "nguoiLienHe"]}
               rules={[
                 {
                   type: "string",
                   required: true,
                 },
               ]}
+              initialValue={nguoiLienHe}
             >
-              <Input placeholder="Nhập Người liên hệ"></Input>
-            </FormItem>
-            <FormItem
-              label="Email"
-              name={["NhaCungCap", "email"]}
-              rules={[
-                {
-                  type: "email",
-                  required: true,
-                },
-              ]}
-            >
-              <Input placeholder="Nhập Email"></Input>
+              <Input placeholder="Nhập người liên hệ"></Input>
             </FormItem>
             <FormItem
               label="Số điện thoại"
-              name={["NhaCungCap", "soDienThoai"]}
+              name={["nhacungcap", "sdt"]}
               rules={[
                 {
                   type: "string",
@@ -310,28 +251,31 @@ function NhaCungCapForm({ match, permission, history }) {
                   message: "Số điện thoại không hợp lệ",
                 },
               ]}
+              initialValue={sdt}
             >
               <Input placeholder="Nhập só điện thoại"></Input>
             </FormItem>
             <FormItem
               label="Địa chỉ"
-              name={["NhaCungCap", "diaChi"]}
+              name={["nhacungcap", "diaChi"]}
               rules={[
                 {
                   type: "string",
                 },
               ]}
+              initialValue={diaChi}
             >
               <Input placeholder="Nhập địa chỉ"></Input>
             </FormItem>
             <FormItem
               label="Mã số thuế"
-              name={["NhaCungCap", "maSoThue"]}
+              name={["nhacungcap", "maSoThue"]}
               rules={[
                 {
                   type: "string",
                 },
               ]}
+              initialValue={maSoThue}
             >
               <Input placeholder="Nhập mã số thuế"></Input>
             </FormItem>

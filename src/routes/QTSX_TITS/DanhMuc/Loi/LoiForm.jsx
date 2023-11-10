@@ -11,25 +11,25 @@ import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 const FormItem = Form.Item;
 
 const initialState = {
-  maThietBi: "",
-  tenThietBi: "",
-  tits_qtsx_NhomThietBi_Id: "",
+  maLoi: "",
+  tenLoi: "",
+  tits_qtsx_NhomLoi_Id: "",
   tits_qtsx_Tram_Id: "",
   module: "",
   soSerial: "",
   diaChiIP: "",
   moTa: "",
 };
-const ThietBiForm = ({ history, match, permission }) => {
+const LoiForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const {
-    maThietBi,
-    tenThietBi,
-    tits_qtsx_NhomThietBi_Id,
+    maLoi,
+    tenLoi,
+    tits_qtsx_NhomLoi_Id,
     tits_qtsx_Tram_Id,
     module,
     soSerial,
@@ -37,8 +37,7 @@ const ThietBiForm = ({ history, match, permission }) => {
     moTa,
   } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
-  const [ListNhomThietBi, setListNhomThietBi] = useState([]);
-  const [ListTram, setListTram] = useState([]);
+  const [ListNhomLoi, setListNhomLoi] = useState([]);
   const [info, setInfo] = useState({});
 
   useEffect(() => {
@@ -46,8 +45,7 @@ const ThietBiForm = ({ history, match, permission }) => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
           setType("new");
-          getListNhomThietBi();
-          getListTram();
+          getListNhomLoi();
         } else if (permission && !permission.add) {
           history.push("/home");
         }
@@ -58,8 +56,7 @@ const ThietBiForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getInfo();
-          getListNhomThietBi();
-          getListTram();
+          getListNhomLoi();
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -70,11 +67,11 @@ const ThietBiForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListNhomThietBi = () => {
+  const getListNhomLoi = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_NhomThietBi?page=-1`,
+          `tits_qtsx_NhomLoi?page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -86,29 +83,7 @@ const ThietBiForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListNhomThietBi(res.data);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListTram = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_Tram?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListTram(res.data);
+          setListNhomLoi(res.data);
         }
       })
       .catch((error) => console.error(error));
@@ -124,7 +99,7 @@ const ThietBiForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_ThietBi/${id}`,
+          `tits_qtsx_Loi/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -137,7 +112,7 @@ const ThietBiForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            thietbi: res.data,
+            loi: res.data,
           });
         }
         setInfo(res.data);
@@ -164,33 +139,24 @@ const ThietBiForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.thietbi);
+    saveData(values.loi);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.thietbi, true);
+        saveData(values.loi, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (user, saveQuit = false) => {
+  const saveData = (loi, saveQuit = false) => {
     if (type === "new") {
-      const newData = user;
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(
-            `tits_qtsx_ThietBi`,
-            "POST",
-            newData,
-            "ADD",
-            "",
-            resolve,
-            reject
-          )
+          fetchStart(`tits_qtsx_Loi`, "POST", loi, "ADD", "", resolve, reject)
         );
       })
         .then((res) => {
@@ -212,13 +178,13 @@ const ThietBiForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const newData = { ...info, ...user };
+      loi.id = id;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_ThietBi/${id}`,
+            `tits_qtsx_Loi/${id}`,
             "PUT",
-            newData,
+            loi,
             "EDIT",
             "",
             resolve,
@@ -238,7 +204,7 @@ const ThietBiForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle = type === "new" ? "Thêm mới thiết bị" : "Chỉnh sửa thiết bị";
+  const formTitle = type === "new" ? "Thêm mới lỗi" : "Chỉnh sửa lỗi";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -251,8 +217,8 @@ const ThietBiForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã thiết bị"
-            name={["thietbi", "maThietBi"]}
+            label="Mã lỗi"
+            name={["loi", "maLoi"]}
             rules={[
               {
                 type: "string",
@@ -260,16 +226,16 @@ const ThietBiForm = ({ history, match, permission }) => {
               },
               {
                 max: 50,
-                message: "Mã thiết bị không được quá 50 ký tự",
+                message: "Mã lỗi không được quá 50 ký tự",
               },
             ]}
-            initialValue={maThietBi}
+            initialValue={maLoi}
           >
-            <Input className="input-item" placeholder="Nhập mã thiết bị" />
+            <Input className="input-item" placeholder="Nhập mã lỗi" />
           </FormItem>
           <FormItem
-            label="Tên thiết bị"
-            name={["thietbi", "tenThietBi"]}
+            label="Tên lỗi"
+            name={["loi", "tenLoi"]}
             rules={[
               {
                 type: "string",
@@ -277,106 +243,37 @@ const ThietBiForm = ({ history, match, permission }) => {
               },
               {
                 max: 250,
-                message: "Tên thiết bị không được quá 250 ký tự",
+                message: "Tên lỗi không được quá 250 ký tự",
               },
             ]}
-            initialValue={tenThietBi}
+            initialValue={tenLoi}
           >
-            <Input className="input-item" placeholder="Nhập tên thiết bị" />
+            <Input className="input-item" placeholder="Nhập tên lỗi" />
           </FormItem>
           <FormItem
-            label="Nhóm thiết bị"
-            name={["thietbi", "tits_qtsx_NhomThietBi_Id"]}
+            label="Nhóm lỗi"
+            name={["loi", "tits_qtsx_NhomLoi_Id"]}
             rules={[
               {
                 type: "string",
                 required: true,
               },
             ]}
-            initialValue={tits_qtsx_NhomThietBi_Id}
+            initialValue={tits_qtsx_NhomLoi_Id}
           >
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListNhomThietBi ? ListNhomThietBi : []}
-              placeholder="Chọn nhóm thiết bị"
-              optionsvalue={["id", "tenNhomThietBi"]}
+              data={ListNhomLoi ? ListNhomLoi : []}
+              placeholder="Chọn nhóm lỗi"
+              optionsvalue={["id", "tenNhomLoi"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
             />
-          </FormItem>
-          <FormItem
-            label="Trạm"
-            name={["thietbi", "tits_qtsx_Tram_Id"]}
-            rules={[
-              {
-                type: "string",
-                required: true,
-              },
-            ]}
-            initialValue={tits_qtsx_Tram_Id}
-          >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListTram ? ListTram : []}
-              placeholder="Chọn trạm"
-              optionsvalue={["id", "tenTram"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-            />
-          </FormItem>
-          <FormItem
-            label="Module"
-            name={["thietbi", "module"]}
-            rules={[
-              {
-                type: "string",
-              },
-              {
-                max: 50,
-                message: "Module không được quá 50 ký tự",
-              },
-            ]}
-            initialValue={module}
-          >
-            <Input className="input-item" placeholder="Nhập module" />
-          </FormItem>
-          <FormItem
-            label="Số serial"
-            name={["thietbi", "soSerial"]}
-            rules={[
-              {
-                type: "string",
-              },
-              {
-                max: 250,
-                message: "Số seri không được quá 50 ký tự",
-              },
-            ]}
-            initialValue={soSerial}
-          >
-            <Input className="input-item" placeholder="Nhập số seri" />
-          </FormItem>
-          <FormItem
-            label="Địa chỉ IP"
-            name={["thietbi", "diaChiIP"]}
-            rules={[
-              {
-                type: "string",
-              },
-              {
-                max: 250,
-                message: "Địa chỉ IP không được quá 255 ký tự",
-              },
-            ]}
-            initialValue={diaChiIP}
-          >
-            <Input className="input-item" placeholder="Nhập địa chỉ IP" />
           </FormItem>
           <FormItem
             label="Mô tả"
-            name={["thietbi", "moTa"]}
+            name={["loi", "moTa"]}
             rules={[
               {
                 type: "string",
@@ -401,4 +298,4 @@ const ThietBiForm = ({ history, match, permission }) => {
   );
 };
 
-export default ThietBiForm;
+export default LoiForm;

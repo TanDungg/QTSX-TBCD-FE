@@ -9,7 +9,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
-
 import {
   ModalDeleteConfirm,
   Table,
@@ -24,17 +23,20 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import ImportSanPham from "./ImportSanPham";
+
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function SanPham({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
+  const [LoaiSanPham, setLoaiSanPham] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [ActiveModal, setActiveModal] = useState(false);
+
   useEffect(() => {
     if (permission && permission.view) {
-      loadData(keyword, page);
+      getListData(LoaiSanPham, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -47,9 +49,13 @@ function SanPham({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, page) => {
-    const param = convertObjectToUrlParams({ keyword, page });
-    dispatch(fetchStart(`SanPham?${param}`, "GET", null, "LIST"));
+  const getListData = (tits_qtsx_LoaiSanPham_Id, keyword, page) => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_LoaiSanPham_Id,
+      keyword,
+      page,
+    });
+    dispatch(fetchStart(`tits_qtsx_SanPham?${param}`, "GET", null, "LIST"));
   };
 
   /**
@@ -57,7 +63,7 @@ function SanPham({ match, history, permission }) {
    *
    */
   const onSearchSanPham = () => {
-    loadData(keyword, page);
+    getListData(LoaiSanPham, keyword, page);
   };
 
   /**
@@ -68,7 +74,7 @@ function SanPham({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, page);
+      getListData(LoaiSanPham, val.target.value, page);
     }
   };
   /**
@@ -78,33 +84,6 @@ function SanPham({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    // const phanQuyenItem =
-    //   permission && permission.edit ? (
-    //     <Link
-    //       to={{
-    //         pathname: `${match.url}/${item.id}/quy-trinh`,
-    //         state: { itemData: item },
-    //       }}
-    //       title="Quy trình"
-    //     >
-    //       <GatewayOutlined />
-    //     </Link>
-    //   ) : (
-    //     <span disabled title="Quy trình">
-    //       <GatewayOutlined />
-    //     </span>
-    //   );
-    // const addItem =
-    //   permission && permission.add
-    //     ? {
-    //         onClick: () => {
-    //           setActiveModalAddChiTiet(true);
-    //           setInfoSanPham({ ...item, sanPham_Id: item.id });
-    //           setType("add");
-    //         },
-    //       }
-    //     : { disabled: true };
-
     const editItem =
       permission && permission.edit ? (
         <Link
@@ -127,13 +106,6 @@ function SanPham({ match, history, permission }) {
         : { disabled: true };
     return (
       <div>
-        {/* {phanQuyenItem}
-        <Divider type="vertical" />
-        <a {...addItem} title="Thêm chi tiết">
-          <PlusCircleOutlined />
-        </a>
-        <Divider type="vertical" /> */}
-
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa sản phẩm">
@@ -142,33 +114,7 @@ function SanPham({ match, history, permission }) {
       </div>
     );
   };
-  // const actionContentChiTiet = (item) => {
-  //   const editItem =
-  //     permission && permission.edit
-  //       ? {
-  //           onClick: () => {
-  //             setActiveModalAddChiTiet(true);
-  //             setInfoSanPham(item);
-  //             setType("edit");
-  //           },
-  //         }
-  //       : { disabled: true };
-  //   const deleteVal =
-  //     permission && permission.del
-  //       ? { onClick: () => deleteItemFunc(item, "chi tiết") }
-  //       : { disabled: true };
-  //   return (
-  //     <div>
-  //       <a {...editItem} title="Sửa chi tiết">
-  //         <EditOutlined />
-  //       </a>
-  //       <Divider type="vertical" />
-  //       <a {...deleteVal} title="Xóa chi tiết">
-  //         <DeleteOutlined />
-  //       </a>
-  //     </div>
-  //   );
-  // };
+
   /**
    * deleteItemFunc: Xoá item theo item
    * @param {object} item
@@ -185,18 +131,14 @@ function SanPham({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url =
-      // item.maChiTiet
-      //   ? `lkn_ChiTiet/${item.chiTiet_Id}`
-      //   :
-      `SanPham/${item.id}`;
+    let url = `tits_qtsx_SanPham/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, page);
+          getListData(LoaiSanPham, keyword, page);
         }
       })
       .catch((error) => console.error(error));
@@ -210,7 +152,7 @@ function SanPham({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, pagination);
+    getListData(LoaiSanPham, keyword, pagination);
   };
 
   /**
@@ -259,8 +201,8 @@ function SanPham({ match, history, permission }) {
    * @param {*} val
    * @returns
    */
-  const renderMauSac = (val) => {
-    const mauSac = JSON.parse(val);
+  const renderHinhAnh = (item) => {
+    const mauSac = JSON.parse(item);
     if (!isEmpty(mauSac)) {
       return map(mauSac, (item, index) => {
         let color = "green";
@@ -331,36 +273,19 @@ function SanPham({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Kích thước",
-      dataIndex: "kichThuoc",
-      key: "kichThuoc",
+      title: "Thông số kỹ thuật",
+      dataIndex: "thongSoKyThuat",
+      key: "thongSoKyThuat",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.kichThuoc,
-            value: d.kichThuoc,
+            text: d.thongSoKyThuat,
+            value: d.thongSoKyThuat,
           };
         })
       ),
-      onFilter: (value, record) => record.kichThuoc.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Màu sắc",
-      dataIndex: "mauSac",
-      key: "mauSac",
-      align: "center",
-      render: (val) => renderMauSac(val),
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.mauSac,
-            value: d.mauSac,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.mauSac.includes(value),
+      onFilter: (value, record) => record.thongSoKyThuat.includes(value),
       filterSearch: true,
     },
     {
@@ -380,10 +305,25 @@ function SanPham({ match, history, permission }) {
       filterSearch: true,
     },
     {
+      title: "Hình ảnh",
+      key: "fileHinhAnh",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.fileHinhAnh,
+            value: d.fileHinhAnh,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.fileHinhAnh.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 80,
+      width: 100,
       render: (value) => actionContent(value),
     },
   ];
@@ -403,77 +343,18 @@ function SanPham({ match, history, permission }) {
       }),
     };
   });
-  // let renderChiTiet = [
-  //   {
-  //     title: "STT",
-  //     dataIndex: "key",
-  //     key: "key",
-  //     align: "center",
-  //     width: 45,
-  //   },
-  //   {
-  //     title: "Mã chi tiết",
-  //     dataIndex: "maChiTiet",
-  //     key: "maChiTiet",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Tên chi tiết",
-  //     dataIndex: "tenChiTiet",
-  //     key: "tenChiTiet",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Đơn vị tính",
-  //     dataIndex: "tenDonViTinh",
-  //     key: "tenDonViTinh",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Số lượng",
-  //     dataIndex: "soLuongChiTiet",
-  //     key: "soLuongChiTiet",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Kích thước",
-  //     dataIndex: "kichThuoc",
-  //     key: "kichThuoc",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Chức năng",
-  //     key: "action",
-  //     align: "center",
-  //     width: 100,
-  //     render: (value) => actionContentChiTiet(value),
-  //   },
-  // ];
 
-  // const columnChilden = map(renderChiTiet, (col) => {
-  //   if (!col.editable) {
-  //     return col;
-  //   }
-  //   return {
-  //     ...col,
-  //     onCell: (record) => ({
-  //       record,
-  //       editable: col.editable,
-  //       dataIndex: col.dataIndex,
-  //       title: col.title,
-  //       info: col.info,
-  //     }),
-  //   };
-  // });
   const components = {
     body: {
       row: EditableRow,
       cell: EditableCell,
     },
   };
+
   const refeshData = () => {
-    loadData(keyword, page);
+    getListData(LoaiSanPham, keyword, page);
   };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader

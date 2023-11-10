@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col } from "antd";
+import { Card, Button, Divider, Col, Checkbox } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -20,7 +20,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function NhomThietBi({ match, history, permission }) {
+function NhomLoi({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [keyword, setKeyword] = useState("");
@@ -43,7 +43,7 @@ function NhomThietBi({ match, history, permission }) {
    */
   const loadData = (keyword, page) => {
     const param = convertObjectToUrlParams({ keyword, page });
-    dispatch(fetchStart(`tits_qtsx_NhomThietBi?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`tits_qtsx_NhomLoi?${param}`, "GET", null, "LIST"));
   };
   /**
    * handleTableChange
@@ -100,12 +100,7 @@ function NhomThietBi({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maNhomThietBi,
-      "nhóm thiết bị"
-    );
+    ModalDeleteConfirm(deleteItemAction, item, item.maNhomLoi, "nhóm lỗi");
   };
 
   /**
@@ -114,7 +109,7 @@ function NhomThietBi({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_NhomThietBi/${item.id}`;
+    let url = `tits_qtsx_NhomLoi/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -152,6 +147,10 @@ function NhomThietBi({ match, history, permission }) {
   const { pageSize, totalRow } = data;
   const dataList = reDataForTable(data.datalist, page, pageSize);
 
+  const renderSuDung = (item) => {
+    return <Checkbox checked={item.isSuDung} disabled={true} />;
+  };
+
   let renderHead = [
     {
       title: "STT",
@@ -161,36 +160,64 @@ function NhomThietBi({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã nhóm thiết bị",
-      dataIndex: "maNhomThietBi",
-      key: "maNhomThietBi",
+      title: "Mã nhóm lỗi",
+      dataIndex: "maNhomLoi",
+      key: "maNhomLoi",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maNhomThietBi,
-            value: d.maNhomThietBi,
+            text: d.maNhomLoi,
+            value: d.maNhomLoi,
           };
         })
       ),
-      onFilter: (value, record) => record.maNhomThietBi.includes(value),
+      onFilter: (value, record) => record.maNhomLoi.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên nhóm thiết bị",
-      dataIndex: "tenNhomThietBi",
-      key: "tenNhomThietBi",
+      title: "Tên nhóm lỗi",
+      dataIndex: "tenNhomLoi",
+      key: "tenNhomLoi",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenNhomThietBi,
-            value: d.tenNhomThietBi,
+            text: d.tenNhomLoi,
+            value: d.tenNhomLoi,
           };
         })
       ),
-      onFilter: (value, record) => record.tenNhomThietBi.includes(value),
+      onFilter: (value, record) => record.tenNhomLoi.includes(value),
       filterSearch: true,
+    },
+    {
+      title: "Công đoạn",
+      dataIndex: "tenCongDoan",
+      key: "tenCongDoan",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenCongDoan,
+            value: d.tenCongDoan,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenCongDoan.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Sử dụng",
+      key: "isSuDung",
+      align: "center",
+      render: (val) => renderSuDung(val),
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "center",
     },
     {
       title: "Chức năng",
@@ -205,7 +232,7 @@ function NhomThietBi({ match, history, permission }) {
    * Tìm kiếm người dùng
    *
    */
-  const onSearchNhomThietBi = () => {
+  const onSearchNhomLoi = () => {
     setPage(1);
     loadData(keyword, 1);
   };
@@ -246,8 +273,8 @@ function NhomThietBi({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Nhóm thiết bị"
-        description="Danh sách nhóm thiết bị"
+        title="Nhóm lỗi"
+        description="Danh sách nhóm lỗi"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
@@ -284,8 +311,8 @@ function NhomThietBi({ match, history, permission }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchNhomThietBi,
-                onSearch: onSearchNhomThietBi,
+                onPressEnter: onSearchNhomLoi,
+                onSearch: onSearchNhomLoi,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
               }}
@@ -317,4 +344,4 @@ function NhomThietBi({ match, history, permission }) {
   );
 }
 
-export default NhomThietBi;
+export default NhomLoi;

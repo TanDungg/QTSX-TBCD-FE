@@ -1,41 +1,57 @@
 import React, { useState, useEffect } from "react";
-import { Card, Form, Spin } from "antd";
+import { Button, Card, Form, Image, Spin, Upload } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
-
 import { Input, Select, FormSubmit } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { getLocalStorage, getTokenInfo } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import Helpers from "src/helpers";
+import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
+
 const FormItem = Form.Item;
 
 const initialState = {
-  maSP: "",
-  tenSP: "",
-  loaiSanPham_Id: "",
+  maSanPham: "",
+  tenSanPham: "",
+  tits_qtsx_LoaiSanPham_Id: "",
+  thongSoKyThuat: "",
+  hinhAnh: "",
+  donViTinh_Id: "",
 };
 
 function SanPhamForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
+  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const { loading } = useSelector(({ common }) => common).toJS();
-
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
-  const [LoaiSanPhamSelect, setLoaiSanPhamSelect] = useState([]);
-  const [MauSacSelect, setMauSacSelect] = useState([]);
-  const [DonViTinhSelect, setDonViTinhSelect] = useState([]);
-
+  const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
+  const [ListDonViTinh, setListDonViTinh] = useState([]);
+  const [FileHinhAnh, setFileHinhAnh] = useState(null);
+  const [DisableUpload, setDisableUpload] = useState(false);
+  const [OpenImage, setOpenImage] = useState(false);
   const [fieldTouch, setFieldTouch] = useState(false);
-
+  const {
+    maSanPham,
+    tenSanPham,
+    tits_qtsx_LoaiSanPham_Id,
+    thongSoKyThuat,
+    hinhAnh,
+    donViTinh_Id,
+  } = initialState;
   const { setFieldsValue, validateFields, resetFields } = form;
+
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
       if (permission && !permission.add) {
         history.push("/home");
       } else {
         setType("new");
-        getData();
+        getDonViTinh();
+        getLoaiSanPham();
       }
     } else {
       if (permission && !permission.edit) {
@@ -45,7 +61,8 @@ function SanPhamForm({ match, permission, history }) {
           setType("edit");
           setId(match.params.id);
           getInfo(match.params.id);
-          getData();
+          getDonViTinh();
+          getLoaiSanPham();
         }
       }
     }
@@ -55,6 +72,54 @@ function SanPhamForm({ match, permission, history }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const getLoaiSanPham = async () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          "tits_qtsx_LoaiSanPham?page=-1",
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiSanPham(res.data);
+        } else {
+          setListLoaiSanPham([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getDonViTinh = async () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `DonViTinh?donVi_Id=${INFO.donVi_Id}&page=-1`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListDonViTinh(res.data);
+        } else {
+          setListDonViTinh([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   /**
    * Lấy thông tin info
    *
@@ -63,19 +128,22 @@ function SanPhamForm({ match, permission, history }) {
   const getInfo = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(`SanPham/${id}`, "GET", null, "DETAIL", "", resolve, reject)
+        fetchStart(
+          `tits_qtsx_SanPham/${id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
       );
     })
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            SanPham: {
+            sanpham: {
               ...res.data,
-              mauSac_Id:
-                res.data.mauSac &&
-                JSON.parse(res.data.mauSac).map((ms) =>
-                  ms.mauSac_Id.toLowerCase()
-                ),
             },
           });
         }
@@ -83,95 +151,15 @@ function SanPhamForm({ match, permission, history }) {
       .catch((error) => console.error(error));
   };
 
-  const getData = () => {
-    getDonViTinh();
-    getLoaiSanPham();
-    getMauSac();
-  };
-
-  /**
-   * Lấy danh sách menu
-   *
-   */
-  const getLoaiSanPham = async () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          "LoaiSanPham?page=-1",
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setLoaiSanPhamSelect(res.data);
-        } else {
-          setLoaiSanPhamSelect([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  /**
-   * Lấy danh sách menu
-   *
-   */
-  const getMauSac = async () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart("MauSac?page=-1", "GET", null, "LIST", "", resolve, reject)
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setMauSacSelect(res.data);
-        } else {
-          setMauSacSelect([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  /**
-   * Lấy danh sách menu
-   *
-   */
-  const getDonViTinh = async () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          "DonViTinh?page=-1",
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDonViTinhSelect(res.data);
-        } else {
-          setDonViTinhSelect([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const { maSP, tenSP, loaiSanPham_Id } = initialState;
   /**
    * Khi submit
    *
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.SanPham);
+    saveData(values.sanpham);
   };
+
   /**
    * Lưu và thoát
    *
@@ -179,21 +167,26 @@ function SanPhamForm({ match, permission, history }) {
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.SanPham, true);
+        saveData(values.sanpham, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (SanPham, saveQuit = false) => {
-    SanPham.chiTietMauSacs = SanPham.mauSac_Id.map((ms) => {
-      return { mauSac_Id: ms };
-    });
+  const saveData = (sanpham, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`SanPham`, "POST", SanPham, "ADD", "", resolve, reject)
+          fetchStart(
+            `tits_qtsx_SanPham`,
+            "POST",
+            sanpham,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
         );
       })
         .then((res) => {
@@ -209,13 +202,13 @@ function SanPhamForm({ match, permission, history }) {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      SanPham.id = id;
+      sanpham.id = id;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `SanPham/${id}`,
+            `tits_qtsx_SanPham/${id}`,
             "PUT",
-            SanPham,
+            sanpham,
             "EDIT",
             "",
             resolve,
@@ -250,6 +243,24 @@ function SanPhamForm({ match, permission, history }) {
     );
   };
 
+  const props = {
+    beforeUpload: (file) => {
+      const isPNG = file.type === "image/png" || file.type === "image/jpeg";
+      if (!isPNG) {
+        Helpers.alertError(`${file.name} không phải hình ảnh`);
+      } else {
+        setFileHinhAnh(file);
+        setDisableUpload(true);
+        // const reader = new FileReader();
+        // reader.onload = (e) => setFileChat(e.target.result);
+        // reader.readAsDataURL(file);
+        return false;
+      }
+    },
+    showUploadList: false,
+    maxCount: 1,
+  };
+
   const formTitle = type === "new" ? "Thêm mới sản phẩm" : "Chỉnh sửa sản phẩm";
 
   return (
@@ -266,7 +277,7 @@ function SanPhamForm({ match, permission, history }) {
           >
             <FormItem
               label="Mã sản phẩm"
-              name={["SanPham", "maSanPham"]}
+              name={["sanpham", "maSanPham"]}
               rules={[
                 {
                   type: "string",
@@ -276,13 +287,13 @@ function SanPhamForm({ match, permission, history }) {
                   max: 250,
                 },
               ]}
-              initialValue={maSP}
+              initialValue={maSanPham}
             >
               <Input className="input-item" placeholder="Nhập mã sản phẩm" />
             </FormItem>
             <FormItem
               label="Tên sản phẩm"
-              name={["SanPham", "tenSanPham"]}
+              name={["sanpham", "tenSanPham"]}
               rules={[
                 {
                   type: "string",
@@ -292,24 +303,24 @@ function SanPhamForm({ match, permission, history }) {
                   max: 250,
                 },
               ]}
-              initialValue={tenSP}
+              initialValue={tenSanPham}
             >
               <Input className="input-item" placeholder="Nhập tên sản phẩm" />
             </FormItem>
             <FormItem
               label="Loại sản phẩm"
-              name={["SanPham", "loaiSanPham_Id"]}
+              name={["sanpham", "tits_qtsx_LoaiSanPham_Id"]}
               rules={[
                 {
                   type: "string",
                   required: true,
                 },
               ]}
-              initialValue={loaiSanPham_Id}
+              initialValue={tits_qtsx_LoaiSanPham_Id}
             >
               <Select
                 className="heading-select slt-search th-select-heading"
-                data={LoaiSanPhamSelect ? LoaiSanPhamSelect : []}
+                data={ListLoaiSanPham ? ListLoaiSanPham : []}
                 placeholder="Chọn loại sản phẩm"
                 optionsvalue={["id", "tenLoaiSanPham"]}
                 style={{ width: "100%" }}
@@ -318,56 +329,131 @@ function SanPhamForm({ match, permission, history }) {
               />
             </FormItem>
             <FormItem
-              label="Kích thước"
-              name={["SanPham", "kichThuoc"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-            >
-              <Input placeholder="Nhập kích thước"></Input>
-            </FormItem>
-            <FormItem
-              label="Màu sắc"
-              name={["SanPham", "mauSac_Id"]}
-              rules={[
-                {
-                  type: "array",
-                  required: true,
-                },
-              ]}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={MauSacSelect ? MauSacSelect : []}
-                placeholder="Chọn màu sắc"
-                optionsvalue={["id", "tenMauSac"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp="name"
-                mode={"multiple"}
-              />
-            </FormItem>
-            <FormItem
               label="Đơn vị tính"
-              name={["SanPham", "donViTinh_Id"]}
+              name={["sanpham", "donViTinh_Id"]}
               rules={[
                 {
                   type: "string",
                   required: true,
                 },
               ]}
+              initialValue={donViTinh_Id}
             >
               <Select
                 className="heading-select slt-search th-select-heading"
-                data={DonViTinhSelect ? DonViTinhSelect : []}
+                data={ListDonViTinh ? ListDonViTinh : []}
                 placeholder="Chọn đơn vị tính"
                 optionsvalue={["id", "tenDonViTinh"]}
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp="name"
               />
+            </FormItem>
+            <FormItem
+              label="Thông số kỹ thuật"
+              name={["sanpham", "thongSoKyThuat"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+              initialValue={thongSoKyThuat}
+            >
+              <Input
+                className="input-item"
+                placeholder="Nhập thông số kỹ thuật"
+              />
+            </FormItem>
+            <FormItem
+              label="Hình ảnh"
+              name={["sanpham", "hinhAnh"]}
+              rules={[
+                {
+                  type: "file",
+                  required: true,
+                },
+              ]}
+            >
+              {!DisableUpload ? (
+                <Upload {...props}>
+                  <Button
+                    style={{
+                      marginBottom: 0,
+                    }}
+                    icon={<UploadOutlined />}
+                    disabled={type === "detail" ? true : false}
+                  >
+                    Tải file hình ảnh
+                  </Button>
+                </Upload>
+              ) : FileHinhAnh.name ? (
+                <span>
+                  <span
+                    style={{ color: "#0469B9", cursor: "pointer" }}
+                    // onClick={() => handleViewFile(File)}
+                  >
+                    {FileHinhAnh.name.length > 20
+                      ? FileHinhAnh.name.substring(0, 20) + "..."
+                      : FileHinhAnh.name}
+                  </span>
+                  <DeleteOutlined
+                    style={{ cursor: "pointer", color: "red" }}
+                    disabled={type === "new" || type === "edit" ? false : true}
+                    onClick={() => {
+                      setFileHinhAnh(null);
+                      setDisableUpload(false);
+                      setFieldsValue({
+                        sanpham: {
+                          hinhAnh: null,
+                        },
+                      });
+                    }}
+                  />
+                  <Image
+                    width={100}
+                    src={FileHinhAnh}
+                    alt="preview"
+                    style={{
+                      display: "none",
+                    }}
+                    preview={{
+                      visible: OpenImage,
+                      scaleStep: 0.5,
+                      src: FileHinhAnh,
+                      onVisibleChange: (value) => {
+                        setOpenImage(value);
+                      },
+                    }}
+                  />
+                </span>
+              ) : (
+                <span>
+                  <a
+                    target="_blank"
+                    href={BASE_URL_API + FileHinhAnh}
+                    rel="noopener noreferrer"
+                  >
+                    {FileHinhAnh.split("/")[5]}{" "}
+                  </a>
+                  {(type === "new" || type === "edit") && (
+                    <DeleteOutlined
+                      style={{ cursor: "pointer", color: "red" }}
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                      onClick={() => {
+                        setFileHinhAnh(null);
+                        setDisableUpload(false);
+                        setFieldsValue({
+                          sanpham: {
+                            hinhAnh: null,
+                          },
+                        });
+                      }}
+                    />
+                  )}
+                </span>
+              )}
             </FormItem>
             <FormSubmit
               goBack={goBack}

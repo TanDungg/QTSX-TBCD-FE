@@ -22,7 +22,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function KhachHang({ history, permission }) {
+function KhachHang({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
@@ -45,7 +45,7 @@ function KhachHang({ history, permission }) {
    */
   const loadData = (keyword, page) => {
     const param = convertObjectToUrlParams({ keyword, page });
-    dispatch(fetchStart(`KhachHang?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`tits_qtsx_KhachHang?${param}`, "GET", null, "LIST"));
   };
   const { totalRow, pageSize } = data;
 
@@ -80,7 +80,7 @@ function KhachHang({ history, permission }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/khach-hang/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
           title="Sửa"
@@ -123,7 +123,7 @@ function KhachHang({ history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `KhachHang/${item.id}`;
+    let url = `tits_qtsx_KhachHang/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -154,7 +154,7 @@ function KhachHang({ history, permission }) {
    */
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-kho-tpc/khach-hang/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
 
@@ -248,19 +248,19 @@ function KhachHang({ history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Loại khách hàng",
-      dataIndex: "tenLoaiKhachHang",
-      key: "tenLoaiKhachHang",
+      title: "Người liên hệ",
+      dataIndex: "nguoiLienHe",
+      key: "nguoiLienHe",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenLoaiKhachHang,
-            value: d.tenLoaiKhachHang,
+            text: d.nguoiLienHe,
+            value: d.nguoiLienHe,
           };
         })
       ),
-      onFilter: (value, record) => record.tenLoaiKhachHang.includes(value),
+      onFilter: (value, record) => record.nguoiLienHe.includes(value),
       filterSearch: true,
     },
     {
@@ -281,18 +281,18 @@ function KhachHang({ history, permission }) {
     },
     {
       title: "Số điện thoại",
-      dataIndex: "soDienThoai",
-      key: "soDienThoai",
+      dataIndex: "sDT",
+      key: "sDT",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.soDienThoai,
-            value: d.soDienThoai,
+            text: d.sDT,
+            value: d.sDT,
           };
         })
       ),
-      onFilter: (value, record) => record.soDienThoai.includes(value),
+      onFilter: (value, record) => record.sDT.includes(value),
       filterSearch: true,
     },
     {
@@ -309,54 +309,6 @@ function KhachHang({ history, permission }) {
         })
       ),
       onFilter: (value, record) => record.email.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Mã số thuế",
-      dataIndex: "maSoThue",
-      key: "maSoThue",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.maSoThue,
-            value: d.maSoThue,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.maSoThue.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Người liên hệ",
-      dataIndex: "nguoiLienHe",
-      key: "nguoiLienHe",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.nguoiLienHe,
-            value: d.nguoiLienHe,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.nguoiLienHe.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Fax",
-      dataIndex: "fax",
-      key: "fax",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.fax,
-            value: d.fax,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.fax.includes(value),
       filterSearch: true,
     },
     {

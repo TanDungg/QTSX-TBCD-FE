@@ -1,65 +1,53 @@
-import { Card, Form, Input } from "antd";
+import { Card, Checkbox, Form, Input } from "antd";
 import includes from "lodash/includes";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch } from "react-redux";
-
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { getLocalStorage, getTokenInfo } from "src/util/Common";
 
 const FormItem = Form.Item;
-
 const initialState = {
-  maThietBi: "",
-  tenThietBi: "",
-  tits_qtsx_NhomThietBi_Id: "",
-  tits_qtsx_Tram_Id: "",
-  module: "",
-  soSerial: "",
-  diaChiIP: "",
+  maNhomLoi: "",
+  tenNhomLoi: "",
+  tits_qtsx_CongDoan_Id: "",
+  isSuDung: true,
   moTa: "",
 };
-const ThietBiForm = ({ history, match, permission }) => {
+
+const NhomLoiForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
+  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const {
-    maThietBi,
-    tenThietBi,
-    tits_qtsx_NhomThietBi_Id,
-    tits_qtsx_Tram_Id,
-    module,
-    soSerial,
-    diaChiIP,
-    moTa,
-  } = initialState;
+  const { maNhomLoi, tenNhomLoi, tits_qtsx_CongDoan_Id, isSuDung, moTa } =
+    initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
-  const [ListNhomThietBi, setListNhomThietBi] = useState([]);
-  const [ListTram, setListTram] = useState([]);
   const [info, setInfo] = useState({});
+  const [ListCongDoan, setListCongDoan] = useState([]);
+  const ref = useRef(null);
 
   useEffect(() => {
+    ref.current.focus();
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
           setType("new");
-          getListNhomThietBi();
-          getListTram();
+          getListCongDoan();
         } else if (permission && !permission.add) {
           history.push("/home");
         }
       } else {
         if (permission && permission.edit) {
           setType("edit");
-          // Get info
           const { id } = match.params;
           setId(id);
           getInfo();
-          getListNhomThietBi();
-          getListTram();
+          getListCongDoan();
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -70,11 +58,11 @@ const ThietBiForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListNhomThietBi = () => {
+  const getListCongDoan = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_NhomThietBi?page=-1`,
+          `tits_qtsx_CongDoan?page=-1&donVi_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -86,29 +74,7 @@ const ThietBiForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListNhomThietBi(res.data);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListTram = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_Tram?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListTram(res.data);
+          setListCongDoan(res.data);
         }
       })
       .catch((error) => console.error(error));
@@ -124,7 +90,7 @@ const ThietBiForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_ThietBi/${id}`,
+          `tits_qtsx_NhomLoi/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -137,10 +103,10 @@ const ThietBiForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            thietbi: res.data,
+            nhomloi: res.data,
           });
+          setInfo(res.data);
         }
-        setInfo(res.data);
       })
       .catch((error) => console.error(error));
   };
@@ -164,28 +130,27 @@ const ThietBiForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.thietbi);
+    saveData(values.nhomloi);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.thietbi, true);
+        saveData(values.nhomloi, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (user, saveQuit = false) => {
+  const saveData = (nhomloi, saveQuit = false) => {
     if (type === "new") {
-      const newData = user;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_ThietBi`,
+            `tits_qtsx_NhomLoi`,
             "POST",
-            newData,
+            nhomloi,
             "ADD",
             "",
             resolve,
@@ -212,13 +177,13 @@ const ThietBiForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const newData = { ...info, ...user };
+      nhomloi.id = id;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_ThietBi/${id}`,
+            `tits_qtsx_NhomLoi/${id}`,
             "PUT",
-            newData,
+            nhomloi,
             "EDIT",
             "",
             resolve,
@@ -238,7 +203,7 @@ const ThietBiForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle = type === "new" ? "Thêm mới thiết bị" : "Chỉnh sửa thiết bị";
+  const formTitle = type === "new" ? "Thêm mới nhóm lỗi" : "Chỉnh sửa nhóm lỗi";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -251,8 +216,8 @@ const ThietBiForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã thiết bị"
-            name={["thietbi", "maThietBi"]}
+            label="Mã nhóm lỗi"
+            name={["nhomloi", "maNhomLoi"]}
             rules={[
               {
                 type: "string",
@@ -260,16 +225,20 @@ const ThietBiForm = ({ history, match, permission }) => {
               },
               {
                 max: 50,
-                message: "Mã thiết bị không được quá 50 ký tự",
+                message: "Mã nhóm lỗi không được quá 50 ký tự",
               },
             ]}
-            initialValue={maThietBi}
+            initialValue={maNhomLoi}
           >
-            <Input className="input-item" placeholder="Nhập mã thiết bị" />
+            <Input
+              className="input-item"
+              placeholder="Nhập mã nhóm lỗi"
+              ref={ref}
+            />
           </FormItem>
           <FormItem
-            label="Tên thiết bị"
-            name={["thietbi", "tenThietBi"]}
+            label="Tên nhóm lỗi"
+            name={["nhomloi", "tenNhomLoi"]}
             rules={[
               {
                 type: "string",
@@ -277,118 +246,57 @@ const ThietBiForm = ({ history, match, permission }) => {
               },
               {
                 max: 250,
-                message: "Tên thiết bị không được quá 250 ký tự",
+                message: "Tên nhóm lỗi không được quá 250 ký tự",
               },
             ]}
-            initialValue={tenThietBi}
+            initialValue={tenNhomLoi}
           >
-            <Input className="input-item" placeholder="Nhập tên thiết bị" />
+            <Input className="input-item" placeholder="Nhập tên nhóm lỗi" />
           </FormItem>
           <FormItem
-            label="Nhóm thiết bị"
-            name={["thietbi", "tits_qtsx_NhomThietBi_Id"]}
+            label="Công đoạn"
+            name={["nhomloi", "tits_qtsx_CongDoan_Id"]}
             rules={[
               {
                 type: "string",
                 required: true,
               },
             ]}
-            initialValue={tits_qtsx_NhomThietBi_Id}
+            initialValue={tits_qtsx_CongDoan_Id}
           >
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListNhomThietBi ? ListNhomThietBi : []}
-              placeholder="Chọn nhóm thiết bị"
-              optionsvalue={["id", "tenNhomThietBi"]}
+              data={ListCongDoan ? ListCongDoan : []}
+              placeholder="Chọn công đoạn"
+              optionsvalue={["id", "tenCongDoan"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
             />
           </FormItem>
           <FormItem
-            label="Trạm"
-            name={["thietbi", "tits_qtsx_Tram_Id"]}
-            rules={[
-              {
-                type: "string",
-                required: true,
-              },
-            ]}
-            initialValue={tits_qtsx_Tram_Id}
+            label="Sử dụng"
+            name={["nhomloi", "isSuDung"]}
+            valuePropName="checked"
+            initialValue={isSuDung}
           >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListTram ? ListTram : []}
-              placeholder="Chọn trạm"
-              optionsvalue={["id", "tenTram"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-            />
+            <Checkbox />
           </FormItem>
           <FormItem
-            label="Module"
-            name={["thietbi", "module"]}
-            rules={[
-              {
-                type: "string",
-              },
-              {
-                max: 50,
-                message: "Module không được quá 50 ký tự",
-              },
-            ]}
-            initialValue={module}
-          >
-            <Input className="input-item" placeholder="Nhập module" />
-          </FormItem>
-          <FormItem
-            label="Số serial"
-            name={["thietbi", "soSerial"]}
+            label="Ghi chú"
+            name={["nhomloi", "moTa"]}
             rules={[
               {
                 type: "string",
               },
               {
                 max: 250,
-                message: "Số seri không được quá 50 ký tự",
-              },
-            ]}
-            initialValue={soSerial}
-          >
-            <Input className="input-item" placeholder="Nhập số seri" />
-          </FormItem>
-          <FormItem
-            label="Địa chỉ IP"
-            name={["thietbi", "diaChiIP"]}
-            rules={[
-              {
-                type: "string",
-              },
-              {
-                max: 250,
-                message: "Địa chỉ IP không được quá 255 ký tự",
-              },
-            ]}
-            initialValue={diaChiIP}
-          >
-            <Input className="input-item" placeholder="Nhập địa chỉ IP" />
-          </FormItem>
-          <FormItem
-            label="Mô tả"
-            name={["thietbi", "moTa"]}
-            rules={[
-              {
-                type: "string",
-              },
-              {
-                max: 250,
-                message: "Mô tả không được quá 255 ký tự",
+                message: "Ghi chú không được quá 250 ký tự",
               },
             ]}
             initialValue={moTa}
           >
-            <Input className="input-item" placeholder="Nhập mô tả" />
+            <Input className="input-item" placeholder="Nhập ghi chú" />
           </FormItem>
           <FormSubmit
             goBack={goBack}
@@ -401,4 +309,4 @@ const ThietBiForm = ({ history, match, permission }) => {
   );
 };
 
-export default ThietBiForm;
+export default NhomLoiForm;

@@ -5523,7 +5523,7 @@ a.ant-btn-sm {
   cursor: not-allowed;
 }
 .ant-checkbox-disabled.ant-checkbox-checked .ant-checkbox-inner::after {
-  border-color: rgba(0, 0, 0, 0.25);
+  border-color: #0469b9;
   animation-name: none;
 }
 .ant-checkbox-disabled .ant-checkbox-input {

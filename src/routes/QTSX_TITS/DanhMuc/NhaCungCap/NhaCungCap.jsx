@@ -42,7 +42,7 @@ function NhaCungCap({ match, history, permission }) {
    */
   const loadData = (keyword, page) => {
     const param = convertObjectToUrlParams({ keyword, page });
-    dispatch(fetchStart(`NhaCungCap?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`tits_qtsx_NhaCungCap?${param}`, "GET", null, "LIST"));
   };
 
   /**
@@ -123,7 +123,7 @@ function NhaCungCap({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `NhaCungCap/${item.id}`;
+    let url = `tits_qtsx_NhaCungCap/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -218,22 +218,6 @@ function NhaCungCap({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Loại nhà cung cấp",
-      dataIndex: "tenLoaiNhaCungCap",
-      key: "tenLoaiNhaCungCap",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenLoaiNhaCungCap,
-            value: d.tenLoaiNhaCungCap,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenLoaiNhaCungCap.includes(value),
-      filterSearch: true,
-    },
-    {
       title: "Người liên hệ",
       dataIndex: "nguoiLienHe",
       key: "nguoiLienHe",
@@ -250,35 +234,19 @@ function NhaCungCap({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.email,
-            value: d.email,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.email.includes(value),
-      filterSearch: true,
-    },
-    {
       title: "Số điện thoại",
-      dataIndex: "soDienThoai",
-      key: "soDienThoai",
+      dataIndex: "sdt",
+      key: "sdt",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.soDienThoai,
-            value: d.soDienThoai,
+            text: d.sdt,
+            value: d.sdt,
           };
         })
       ),
-      onFilter: (value, record) => record.soDienThoai.includes(value),
+      onFilter: (value, record) => record.sdt.includes(value),
       filterSearch: true,
     },
     {
@@ -317,7 +285,7 @@ function NhaCungCap({ match, history, permission }) {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 80,
+      width: 100,
       render: (value) => actionContent(value),
     },
   ];
@@ -397,7 +365,7 @@ function NhaCungCap({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 1000, y: "70vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Divider } from "antd";
+import { Button, Card, Col, Divider, Row } from "antd";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
@@ -12,6 +12,7 @@ import { reDataForTable, removeDuplicates } from "src/util/Common";
 import {
   EditableTableRow,
   ModalDeleteConfirm,
+  Select,
   Table,
   Toolbar,
 } from "src/components/Common";
@@ -19,15 +20,20 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-function ThietBi({ match, permission, history }) {
+
+function Loi({ match, permission, history }) {
   const dispatch = useDispatch();
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const { totalRow, pageSize } = data;
+  const [ListNhomLoi, setListNhomLoi] = useState([]);
+  const [NhomLoi, setNhomLoi] = useState(null);
+
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(keyword, page);
+      getListData(NhomLoi, keyword, page);
+      getListNhomLoi();
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -45,9 +51,35 @@ function ThietBi({ match, permission, history }) {
    * @param page Trang
    * @param pageSize
    */
-  const getListData = (keyword, page) => {
-    let param = convertObjectToUrlParams({ page, keyword });
-    dispatch(fetchStart(`tits_qtsx_ThietBi?${param}`, "GET", null, "LIST"));
+  const getListData = (tits_qtsx_NhomLoi_Id, keyword, page) => {
+    let param = convertObjectToUrlParams({
+      tits_qtsx_NhomLoi_Id,
+      keyword,
+      page,
+    });
+    dispatch(fetchStart(`tits_qtsx_Loi?${param}`, "GET", null, "LIST"));
+  };
+
+  const getListNhomLoi = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_NhomLoi?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListNhomLoi(res.data);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   /**
@@ -59,14 +91,14 @@ function ThietBi({ match, permission, history }) {
 
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(keyword, pagination);
+    getListData(NhomLoi, keyword, pagination);
   };
   /**
    * Tìm kiếm người dùng
    *
    */
   const onSearchNguoiDung = () => {
-    getListData(keyword, page);
+    getListData(NhomLoi, keyword, page);
   };
 
   /**
@@ -77,8 +109,12 @@ function ThietBi({ match, permission, history }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, page);
+      getListData(NhomLoi, val.target.value, page);
     }
+  };
+
+  const handleClearSearch = () => {
+    getListData(NhomLoi, null, 1);
   };
   /**
    * deleteItemFunc: Remove item from list
@@ -87,8 +123,7 @@ function ThietBi({ match, permission, history }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "thiết bị";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenThietBi, title);
+    ModalDeleteConfirm(deleteItemAction, item, item.tenLoi, "lỗi");
   };
 
   /**
@@ -97,12 +132,12 @@ function ThietBi({ match, permission, history }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_ThietBi/${item.id}`;
+    let url = `tits_qtsx_Loi/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        getListData(keyword, page);
+        getListData(NhomLoi, keyword, page);
       })
       .catch((error) => console.error(error));
   };
@@ -147,41 +182,6 @@ function ThietBi({ match, permission, history }) {
     );
   };
 
-  /**
-   * Save item from table
-   * @param {object} row
-   * @memberof ChucNang
-   */
-  const handleSave = async (row) => {
-    const dataValue = treeToFlatlist(data);
-    // Check data not change
-    const item = find(dataValue, (item) => item.id === row.id);
-    if (!isEmpty(item)) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_ThietBi/${item.id}`,
-            "PUT",
-            {
-              ...item,
-              thuTu: row.thuTu,
-            },
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.status === 204) {
-            getListData(keyword, page);
-          }
-        })
-        .catch((error) => console.error(error));
-    }
-  };
-
   let dataList = reDataForTable(data.datalist, page, pageSize);
 
   let colValues = [
@@ -193,115 +193,51 @@ function ThietBi({ match, permission, history }) {
       align: "center",
     },
     {
-      title: "Mã thiết bị",
-      dataIndex: "maThietBi",
-      key: "maThietBi",
+      title: "Mã lỗi",
+      dataIndex: "maLoi",
+      key: "maLoi",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maThietBi,
-            value: d.maThietBi,
+            text: d.maLoi,
+            value: d.maLoi,
           };
         })
       ),
-      onFilter: (value, record) => record.maThietBi.includes(value),
+      onFilter: (value, record) => record.maLoi.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên thiết bị",
-      dataIndex: "tenThietBi",
-      key: "tenThietBi",
+      title: "Tên lỗi",
+      dataIndex: "tenLoi",
+      key: "tenLoi",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenThietBi,
-            value: d.tenThietBi,
+            text: d.tenLoi,
+            value: d.tenLoi,
           };
         })
       ),
-      onFilter: (value, record) => record.tenThietBi.includes(value),
+      onFilter: (value, record) => record.tenLoi.includes(value),
       filterSearch: true,
     },
     {
-      title: "Nhóm thiết bị",
-      dataIndex: "tenNhomThietBi",
-      key: "tenNhomThietBi",
+      title: "Nhóm lỗi",
+      dataIndex: "tenNhomLoi",
+      key: "tenNhomLoi",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenNhomThietBi,
-            value: d.tenNhomThietBi,
+            text: d.tenNhomLoi,
+            value: d.tenNhomLoi,
           };
         })
       ),
-      onFilter: (value, record) => record.tenNhomThietBi.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Trạm",
-      dataIndex: "tenTram",
-      key: "tenTram",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenTram,
-            value: d.tenTram,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenTram.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Module",
-      dataIndex: "module",
-      key: "module",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.module,
-            value: d.module,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.module.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Số seri",
-      dataIndex: "soSerial",
-      key: "soSerial",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.soSerial,
-            value: d.soSerial,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.soSerial.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Địa chỉ IP",
-      dataIndex: "diaChiIP",
-      key: "diaChiIP",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.diaChiIP,
-            value: d.diaChiIP,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.diaChiIP.includes(value),
+      onFilter: (value, record) => record.tenNhomLoi.includes(value),
       filterSearch: true,
     },
     {
@@ -347,19 +283,10 @@ function ThietBi({ match, permission, history }) {
         dataIndex: col.dataIndex,
         title: col.title,
         info: col.info,
-        handleSave: handleSave,
       }),
     };
   });
 
-  /**
-   * Redirect to create new organization
-   *
-   * @memberof ChucNang
-   */
-  const handleClearSearch = () => {
-    getListData(null, 1);
-  };
   const handleRedirect = () => {
     history.push({
       pathname: `${match.url}/them-moi`,
@@ -380,56 +307,95 @@ function ThietBi({ match, permission, history }) {
     );
   };
 
+  const handleSelectNhomLoi = (value) => {
+    setNhomLoi(value);
+    getListData(value, null, 1);
+  };
+
+  const clearSelectNhomLoi = (value) => {
+    setNhomLoi(null);
+    getListData(null, null, 1);
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Thiết bị"}
-        description="Danh sách thiết bị"
+        title={"Lỗi"}
+        description="Danh sách lỗi"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
-        <Col
-          xxl={8}
-          xl={12}
-          lg={16}
-          md={16}
-          sm={20}
-          xs={24}
-          style={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <span
+        <Row>
+          <Col
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
             style={{
-              width: "80px",
-            }}
-          >
-            Tìm kiếm:
-          </span>
-          <div
-            style={{
-              flex: 1,
+              display: "flex",
               alignItems: "center",
-              marginTop: width < 576 ? 10 : 0,
             }}
           >
-            <Toolbar
-              count={1}
-              search={{
-                title: "Tìm kiếm",
-                loading,
-                value: keyword,
-                onChange: onChangeKeyword,
-                onPressEnter: onSearchNguoiDung,
-                onSearch: onSearchNguoiDung,
-                placeholder: "Nhập từ khóa",
-                allowClear: true,
-                onClear: { handleClearSearch },
-              }}
+            <span style={{ width: "80px" }}>Nhóm lỗi:</span>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListNhomLoi ? ListNhomLoi : []}
+              placeholder="Chọn nhóm lỗi"
+              optionsvalue={["id", "tenNhomLoi"]}
+              style={{ width: "calc(100% - 80px)" }}
+              optionFilterProp={"name"}
+              showSearch
+              onSelect={handleSelectNhomLoi}
+              allowClear
+              onClear={clearSelectNhomLoi}
+              value={NhomLoi}
             />
-          </div>
-        </Col>
+          </Col>
+          <Col
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <span
+              style={{
+                width: "80px",
+              }}
+            >
+              Tìm kiếm:
+            </span>
+            <div
+              style={{
+                flex: 1,
+                alignItems: "center",
+                marginTop: width < 576 ? 10 : 0,
+              }}
+            >
+              <Toolbar
+                count={1}
+                search={{
+                  title: "Tìm kiếm",
+                  loading,
+                  value: keyword,
+                  onChange: onChangeKeyword,
+                  onPressEnter: onSearchNguoiDung,
+                  onSearch: onSearchNguoiDung,
+                  placeholder: "Nhập từ khóa",
+                  allowClear: true,
+                  onClear: { handleClearSearch },
+                }}
+              />
+            </div>
+          </Col>
+        </Row>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
@@ -455,4 +421,4 @@ function ThietBi({ match, permission, history }) {
   );
 }
 
-export default ThietBi;
+export default Loi;

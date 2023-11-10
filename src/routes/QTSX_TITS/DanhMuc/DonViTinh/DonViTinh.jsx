@@ -52,10 +52,10 @@ function DonViTinh({ permission, history }) {
    */
   const getListData = (keyword, page, pageSize) => {
     let param = convertObjectToUrlParams({
-      pageSize,
-      page,
-      keyword,
       DonVi_Id: INFO.donVi_Id,
+      keyword,
+      page,
+      pageSize,
     });
     dispatch(fetchStart(`DonViTinh?${param}`, "GET", null, "LIST"));
   };
@@ -158,41 +158,6 @@ function DonViTinh({ permission, history }) {
     );
   };
 
-  /**
-   * Save item from table
-   * @param {object} row
-   * @memberof ChucNang
-   */
-  const handleSave = async (row) => {
-    const dataValue = treeToFlatlist(data);
-    // Check data not change
-    const item = find(dataValue, (item) => item.id === row.id);
-    if (!isEmpty(item)) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `DonViTinh/${item.id}`,
-            "PUT",
-            {
-              ...item,
-              thuTu: row.thuTu,
-            },
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.status === 204) {
-            getListData(keyword, page);
-          }
-        })
-        .catch((error) => console.error(error));
-    }
-  };
-
   let dataList = reDataForTable(data.datalist, page, pageSize);
 
   let colValues = [
@@ -239,7 +204,7 @@ function DonViTinh({ permission, history }) {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 80,
+      width: 100,
       render: (value) => actionContent(value),
     },
   ];
@@ -262,7 +227,6 @@ function DonViTinh({ permission, history }) {
         dataIndex: col.dataIndex,
         title: col.title,
         info: col.info,
-        handleSave: handleSave,
       }),
     };
   });

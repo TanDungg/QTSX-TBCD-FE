@@ -3,8 +3,7 @@ import { Card, Button, Divider, Col } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, isEmpty, repeat } from "lodash";
-
+import { map, isEmpty } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -14,15 +13,14 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
-  reDataSelectedTable,
+  reDataForTable,
   removeDuplicates,
-  treeToFlatlist,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function LoaiSanPham({ history, permission }) {
+function LoaiSanPham({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [keyword, setKeyword] = useState("");
@@ -43,23 +41,7 @@ function LoaiSanPham({ history, permission }) {
    */
   const loadData = (keyword) => {
     const param = convertObjectToUrlParams({ keyword });
-    dispatch(
-      fetchStart(`LoaiSanPham/loai-san-pham-tree?${param}`, "GET", null, "LIST")
-    );
-  };
-
-  /**
-   * Thêm dấu để phân cấp tiêu đề dựa theo tree (flatlist)
-   *
-   * @param {*} value
-   * @param {*} record
-   * @returns
-   * @memberof ChucNang
-   */
-  const renderTenLoaiSanPham = (value, record) => {
-    let string = repeat("- ", record.level);
-    string = `${string} ${value}`;
-    return <div>{string}</div>;
+    dispatch(fetchStart(`tits_qtsx_LoaiSanPham?${param}`, "GET", null, "LIST"));
   };
 
   /**
@@ -73,7 +55,7 @@ function LoaiSanPham({ history, permission }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/loai-san-pham/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
           title="Sửa"
@@ -121,13 +103,11 @@ function LoaiSanPham({ history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `LoaiSanPham/${item.id}`;
-    if (item.isRemove) url = `LoaiSanPham/${item.id}`;
+    let url = `tits_qtsx_LoaiSanPham/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        // Reload lại danh sách
         loadData();
       })
       .catch((error) => console.error(error));
@@ -140,7 +120,7 @@ function LoaiSanPham({ history, permission }) {
    */
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-kho-tpc/loai-san-pham/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
 
@@ -157,8 +137,9 @@ function LoaiSanPham({ history, permission }) {
       </Button>
     );
   };
-  let dataList = treeToFlatlist(data);
-  dataList = reDataSelectedTable(dataList);
+
+  let dataList = reDataForTable(data.datalist);
+
   let renderHead = [
     {
       title: "STT",
@@ -172,7 +153,6 @@ function LoaiSanPham({ history, permission }) {
       dataIndex: "maLoaiSanPham",
       key: "maLoaiSanPham",
       align: "center",
-      render: (value, record) => renderTenLoaiSanPham(value, record),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -204,7 +184,7 @@ function LoaiSanPham({ history, permission }) {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 80,
+      width: 100,
       render: (value) => actionContent(value),
     },
   ];
@@ -228,6 +208,7 @@ function LoaiSanPham({ history, permission }) {
       loadData(val.target.value);
     }
   };
+
   const components = {
     body: {
       row: EditableRow,
@@ -303,15 +284,13 @@ function LoaiSanPham({ history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 500, y: "70vh" }}
+          scroll={{ x: 700, y: "65vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}
           size="small"
-          rowClassName={(record) => {
-            return record.isParent ? "editable-row" : "editable-row";
-          }}
+          rowClassName={"editable-row"}
           pagination={{
             pageSize: 20,
             showSizeChanger: false,

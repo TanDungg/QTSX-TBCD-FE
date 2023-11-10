@@ -3,38 +3,38 @@ import { Card, Form, Spin } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
 
-import { Input, Select, FormSubmit } from "src/components/Common";
+import { Input, FormSubmit } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
 
 const FormItem = Form.Item;
-
 const initialState = {
   maKhachHang: "",
   tenKhachHang: "",
-  loaiKhachHang_Id: "",
+  nguoiLienHe: "",
+  sdt: "",
+  diaChi: "",
+  email: "",
 };
 
 function KhachHangForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { loading } = useSelector(({ common }) => common).toJS();
-
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
-  const [LoaiKhachHangSelect, setLoaiKhachHangSelect] = useState([]);
-
   const [fieldTouch, setFieldTouch] = useState(false);
-
+  const { maKhachHang, tenKhachHang, nguoiLienHe, sdt, diaChi, email } =
+    initialState;
   const { setFieldsValue, validateFields, resetFields } = form;
+
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
       if (permission && !permission.add) {
         history.push("/home");
       } else {
         setType("new");
-        getData();
       }
     } else {
       if (permission && !permission.edit) {
@@ -44,7 +44,6 @@ function KhachHangForm({ match, permission, history }) {
           setType("edit");
           setId(match.params.id);
           getInfo(match.params.id);
-          getData();
         }
       }
     }
@@ -63,7 +62,7 @@ function KhachHangForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `KhachHang/${id}`,
+          `tits_qtsx_KhachHang/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -76,53 +75,20 @@ function KhachHangForm({ match, permission, history }) {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            KhachHang: res.data,
+            khachhang: res.data,
           });
         }
       })
       .catch((error) => console.error(error));
   };
 
-  const getData = () => {
-    getLoaiKhachHang();
-  };
-
-  /**
-   * Lấy danh sách menu
-   *
-   */
-  const getLoaiKhachHang = async () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          "LoaiKhachHang?page=-1",
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setLoaiKhachHangSelect(res.data);
-        } else {
-          setLoaiKhachHangSelect([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const { maKhachHang, tenKhachHang, loaiKhachHang_Id } = initialState;
   /**
    * Khi submit
    *
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.KhachHang);
+    saveData(values.khachhang);
   };
   /**
    * Lưu và thoát
@@ -131,18 +97,26 @@ function KhachHangForm({ match, permission, history }) {
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.KhachHang, true);
+        saveData(values.khachhang, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (KhachHang, saveQuit = false) => {
+  const saveData = (khachhang, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`KhachHang`, "POST", KhachHang, "ADD", "", resolve, reject)
+          fetchStart(
+            `tits_qtsx_KhachHang`,
+            "POST",
+            khachhang,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
         );
       })
         .then((res) => {
@@ -158,13 +132,13 @@ function KhachHangForm({ match, permission, history }) {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      KhachHang.id = id;
+      khachhang.id = id;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `KhachHang/${id}`,
+            `tits_qtsx_KhachHang/${id}`,
             "PUT",
-            KhachHang,
+            khachhang,
             "EDIT",
             "",
             resolve,
@@ -200,7 +174,9 @@ function KhachHangForm({ match, permission, history }) {
   };
 
   const formTitle =
-    type === "new" ? "Thêm mới khách hàng" : "Chỉnh sửa khách hàng";
+    type === "new"
+      ? "Thêm mới thông tin khách hàng"
+      : "Chỉnh sửa thông tin khách hàng";
 
   return (
     <div className="gx-main-content">
@@ -216,7 +192,7 @@ function KhachHangForm({ match, permission, history }) {
           >
             <FormItem
               label="Mã khách hàng"
-              name={["KhachHang", "maKhachHang"]}
+              name={["khachhang", "maKhachHang"]}
               rules={[
                 {
                   type: "string",
@@ -232,7 +208,7 @@ function KhachHangForm({ match, permission, history }) {
             </FormItem>
             <FormItem
               label="Tên khách hàng"
-              name={["KhachHang", "tenKhachHang"]}
+              name={["khachhang", "tenKhachHang"]}
               rules={[
                 {
                   type: "string",
@@ -247,41 +223,21 @@ function KhachHangForm({ match, permission, history }) {
               <Input className="input-item" placeholder="Nhập tên khách hàng" />
             </FormItem>
             <FormItem
-              label="Loại khách hàng"
-              name={["KhachHang", "loaiKhachHang_Id"]}
+              label="Người liên hệ"
+              name={["khachhang", "nguoiLienHe"]}
               rules={[
                 {
                   type: "string",
                   required: true,
                 },
               ]}
-              initialValue={loaiKhachHang_Id}
+              initialValue={nguoiLienHe}
             >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={LoaiKhachHangSelect ? LoaiKhachHangSelect : []}
-                placeholder="Chọn loại khách hàng"
-                optionsvalue={["id", "tenLoaiKhachHang"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp="name"
-              />
-            </FormItem>
-            <FormItem
-              label="Địa chỉ"
-              name={["KhachHang", "diaChi"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-              ]}
-            >
-              <Input placeholder="Nhập địa chỉ"></Input>
+              <Input placeholder="Nhập người liên hệ"></Input>
             </FormItem>
             <FormItem
               label="Số điện thoại"
-              name={["KhachHang", "soDienThoai"]}
+              name={["khachhang", "sdt"]}
               rules={[
                 {
                   type: "string",
@@ -292,55 +248,35 @@ function KhachHangForm({ match, permission, history }) {
                   message: "Số điện thoại không hợp lệ",
                 },
               ]}
+              initialValue={sdt}
             >
               <Input placeholder="Nhập số điện thoại"></Input>
             </FormItem>
             <FormItem
-              label="Email"
-              name={["KhachHang", "email"]}
-              rules={[
-                {
-                  type: "email",
-                },
-              ]}
-            >
-              <Input placeholder="Nhập email"></Input>
-            </FormItem>
-            <FormItem
-              label="Mã số thuế"
-              name={["KhachHang", "maSoThue"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-            >
-              <Input placeholder="Nhập mã số thuế"></Input>
-            </FormItem>
-            <FormItem
-              label="Người liên hệ"
-              name={["KhachHang", "nguoiLienHe"]}
+              label="Địa chỉ"
+              name={["khachhang", "diaChi"]}
               rules={[
                 {
                   type: "string",
                   required: true,
                 },
               ]}
+              initialValue={diaChi}
             >
-              <Input placeholder="Nhập người liên hệ"></Input>
+              <Input placeholder="Nhập địa chỉ"></Input>
             </FormItem>
             <FormItem
-              label="Fax"
-              name={["KhachHang", "fax"]}
+              label="Email"
+              name={["khachhang", "email"]}
               rules={[
                 {
-                  type: "string",
+                  type: "email",
                 },
               ]}
+              initialValue={email}
             >
-              <Input placeholder="Nhập fax"></Input>
+              <Input placeholder="Nhập email"></Input>
             </FormItem>
-
             <FormSubmit
               goBack={goBack}
               saveAndClose={saveAndClose}
