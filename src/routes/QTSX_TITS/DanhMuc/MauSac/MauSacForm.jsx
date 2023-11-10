@@ -11,8 +11,8 @@ import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 const FormItem = Form.Item;
 
 const initialState = {
-  maMauSac: "",
-  tenMauSac: "",
+  maMau: "",
+  tenMau: "",
 };
 const MauSacForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
@@ -20,7 +20,7 @@ const MauSacForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { maMauSac, tenMauSac } = initialState;
+  const { maMau, tenMau } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
 
@@ -58,7 +58,15 @@ const MauSacForm = ({ history, match, permission }) => {
     setId(id);
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(`MauSac/${id}`, "GET", null, "DETAIL", "", resolve, reject)
+        fetchStart(
+          `tits_qtsx_MauSac/${id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
       );
     })
       .then((res) => {
@@ -109,7 +117,15 @@ const MauSacForm = ({ history, match, permission }) => {
       const newData = user;
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`MauSac`, "POST", newData, "ADD", "", resolve, reject)
+          fetchStart(
+            `tits_qtsx_MauSac`,
+            "POST",
+            newData,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
         );
       })
         .then((res) => {
@@ -135,7 +151,7 @@ const MauSacForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `MauSac/${id}`,
+            `tits_qtsx_MauSac/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -157,7 +173,7 @@ const MauSacForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle = type === "new" ? "Thêm mới màu sắc" : "Chỉnh sửa màu sắc";
+  const formTitle = type === "new" ? "Thêm mới màu" : "Chỉnh sửa màu";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -170,8 +186,8 @@ const MauSacForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã màu sắc"
-            name={["MauSac", "maMauSac"]}
+            label="Mã màu"
+            name={["MauSac", "maMau"]}
             rules={[
               {
                 type: "string",
@@ -179,16 +195,16 @@ const MauSacForm = ({ history, match, permission }) => {
               },
               {
                 max: 50,
-                message: "Mã màu sắc không được quá 50 ký tự",
+                message: "Mã màu không được quá 50 ký tự",
               },
             ]}
-            initialValue={maMauSac}
+            initialValue={maMau}
           >
-            <Input className="input-item" placeholder="Nhập mã màu sắc" />
+            <Input className="input-item" placeholder="Nhập mã màu" />
           </FormItem>
           <FormItem
-            label="Tên màu sắc"
-            name={["MauSac", "tenMauSac"]}
+            label="Tên màu"
+            name={["MauSac", "tenMau"]}
             rules={[
               {
                 type: "string",
@@ -196,12 +212,12 @@ const MauSacForm = ({ history, match, permission }) => {
               },
               {
                 max: 250,
-                message: "Tên màu sắc không được quá 250 ký tự",
+                message: "Tên màu không được quá 250 ký tự",
               },
             ]}
-            initialValue={tenMauSac}
+            initialValue={tenMau}
           >
-            <Input className="input-item" placeholder="Nhập tên màu sắc" />
+            <Input className="input-item" placeholder="Nhập tên màu" />
           </FormItem>
           <FormSubmit
             goBack={goBack}

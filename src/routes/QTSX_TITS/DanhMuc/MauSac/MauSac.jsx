@@ -87,8 +87,8 @@ function MauSac({ match, permission, history }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "màu sắc";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenMauSac, title);
+    const title = "màu";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenMau, title);
   };
 
   /**
@@ -97,7 +97,7 @@ function MauSac({ match, permission, history }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `MauSac/${item.id}`;
+    let url = `tits_qtsx_MauSac/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -160,7 +160,7 @@ function MauSac({ match, permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `MauSac/${item.id}`,
+            `tits_qtsx_MauSac/${item.id}`,
             "PUT",
             {
               ...item,
@@ -193,35 +193,35 @@ function MauSac({ match, permission, history }) {
       align: "center",
     },
     {
-      title: "Mã màu sắc",
-      dataIndex: "maMauSac",
-      key: "maMauSac",
+      title: "Mã màu",
+      dataIndex: "maMau",
+      key: "maMau",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maMauSac,
-            value: d.maMauSac,
+            text: d.maMau,
+            value: d.maMau,
           };
         })
       ),
-      onFilter: (value, record) => record.maMauSac.includes(value),
+      onFilter: (value, record) => record.maMau.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên màu sắc",
-      dataIndex: "tenMauSac",
-      key: "tenMauSac",
+      title: "Tên màu",
+      dataIndex: "maMau",
+      key: "maMau",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenMauSac,
-            value: d.tenMauSac,
+            text: d.maMau,
+            value: d.maMau,
           };
         })
       ),
-      onFilter: (value, record) => record.tenMauSac.includes(value),
+      onFilter: (value, record) => record.maMau.includes(value),
       filterSearch: true,
     },
     {
@@ -287,8 +287,8 @@ function MauSac({ match, permission, history }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Màu sắc"}
-        description="Danh sách Màu sắc"
+        title={"Màu"}
+        description="Danh sách màu"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">

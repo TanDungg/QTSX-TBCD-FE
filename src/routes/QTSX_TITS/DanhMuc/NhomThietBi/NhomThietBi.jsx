@@ -41,11 +41,20 @@ function NhomThietBi({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword) => {
+  const loadData = (keyword, page) => {
     const param = convertObjectToUrlParams({ keyword, page });
     dispatch(fetchStart(`tits_qtsx_NhomThietBi?${param}`, "GET", null, "LIST"));
   };
-
+  /**
+   * handleTableChange
+   *
+   * Fetch dữ liệu dựa theo thay đổi trang
+   * @param {number} pagination
+   */
+  const handleTableChange = (pagination) => {
+    setPage(pagination);
+    loadData(keyword, pagination);
+  };
   /**
    * ActionContent: Hành động trên bảng
    * @param {*} item
@@ -141,13 +150,13 @@ function NhomThietBi({ match, history, permission }) {
     );
   };
   const { pageSize, totalRow } = data;
-  const dataList = reDataForTable(data.datalist);
+  const dataList = reDataForTable(data.datalist, page, pageSize);
 
   let renderHead = [
     {
       title: "STT",
-      dataIndex: "stt",
-      key: "stt",
+      dataIndex: "key",
+      key: "key",
       align: "center",
       width: 45,
     },
@@ -197,7 +206,8 @@ function NhomThietBi({ match, history, permission }) {
    *
    */
   const onSearchNhomThietBi = () => {
-    loadData(keyword);
+    setPage(1);
+    loadData(keyword, 1);
   };
 
   /**
@@ -208,7 +218,7 @@ function NhomThietBi({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value);
+      loadData(val.target.value, page);
     }
   };
   const components = {
@@ -294,7 +304,9 @@ function NhomThietBi({ match, history, permission }) {
           size="small"
           rowClassName={"editable-row"}
           pagination={{
-            pageSize: 20,
+            onChange: handleTableChange,
+            pageSize: pageSize,
+            totalRow: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,
           }}
