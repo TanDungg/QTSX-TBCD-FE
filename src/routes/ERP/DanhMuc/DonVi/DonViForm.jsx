@@ -111,7 +111,10 @@ const DonViForm = ({ history, match, permission }) => {
         if (res && res.data) {
           const data = res.data;
           setFieldsValue({
-            donvi: data,
+            donvi: {
+              ...data,
+              donVi_Id: data.donVi_Id ? data.donVi_Id : "root",
+            },
           });
           setInfo(...res.data, res.data.tapDoan);
         }

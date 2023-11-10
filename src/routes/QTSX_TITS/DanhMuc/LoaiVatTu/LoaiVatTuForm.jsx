@@ -4,35 +4,30 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit, Select, TreeSelect } from "src/components/Common";
+import { FormSubmit } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 
 const FormItem = Form.Item;
 
 const initialState = {
-  maPhongBan: "",
-  tenPhongBan: "",
-  donVi_Id: "",
-  phongBan_Id: "root",
+  maLoaiVatTu: "",
+  tenLoaiVatTu: "",
 };
-const PhongBanForm = ({ history, match, permission }) => {
+const LoaiVatTuForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { maPhongBan, tenPhongBan, donVi_Id, phongBan_Id } = initialState;
-  const [donViSelect, setDonViSelect] = useState([]);
-  const [PhongBanTree, setPhongBanTree] = useState([]);
-
+  const { maLoaiVatTu, tenLoaiVatTu } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
+
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
-          getData();
           setType("new");
         } else if (permission && !permission.add) {
           history.push("/home");
@@ -40,6 +35,7 @@ const PhongBanForm = ({ history, match, permission }) => {
       } else {
         if (permission && permission.edit) {
           setType("edit");
+          // Get info
           const { id } = match.params;
           setId(id);
           getInfo();
@@ -53,75 +49,39 @@ const PhongBanForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getData = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `DonVi/don-vi-tree`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDonViSelect(res.data);
-        }
-      })
-      .catch((error) => console.error(error));
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `PhongBan/phong-ban-tree`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setPhongBanTree(res.data);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
   /**
    * Lấy thông tin
    *
    */
   const getInfo = () => {
     const { id } = match.params;
-    getData();
     setId(id);
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(`PhongBan/${id}`, "GET", null, "DETAIL", "", resolve, reject)
+        fetchStart(
+          `tits_qtsx_LoaiVatTu/${id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
       );
     })
       .then((res) => {
         if (res && res.data) {
-          const data = res.data;
           setFieldsValue({
-            phongban: {
-              ...data,
-              phongBan_Id: data.phongBan_Id ? data.phongBan_Id : "root",
-            },
+            LoaiVatTu: res.data,
           });
-          setInfo(res.data);
         }
+        setInfo(res.data);
       })
       .catch((error) => console.error(error));
   };
+
   /**
-   * Quay lại trang phòng ban
+   * Quay lại trang người dùng
    *
    */
   const goBack = () => {
@@ -139,13 +99,13 @@ const PhongBanForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.phongban);
+    saveData(values.LoaiVatTu);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.phongban, true);
+        saveData(values.LoaiVatTu, true);
       })
       .catch((error) => {
         console.log("error", error);
@@ -157,7 +117,15 @@ const PhongBanForm = ({ history, match, permission }) => {
       const newData = user;
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`PhongBan`, "POST", newData, "ADD", "", resolve, reject)
+          fetchStart(
+            `tits_qtsx_LoaiVatTu`,
+            "POST",
+            newData,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
         );
       })
         .then((res) => {
@@ -179,12 +147,11 @@ const PhongBanForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      delete info.donVi;
-      var newData = { ...info, ...user };
+      const newData = { ...info, ...user };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `PhongBan/${id}`,
+            `tits_qtsx_LoaiVatTu/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -207,7 +174,7 @@ const PhongBanForm = ({ history, match, permission }) => {
   };
 
   const formTitle =
-    type === "new" ? "Thêm mới Ban/Phòng" : "Chỉnh sửa Ban/Phòng";
+    type === "new" ? "Thêm mới loại vật tư" : "Chỉnh sửa loại vật tư";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -220,8 +187,8 @@ const PhongBanForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã Ban/Phòng"
-            name={["phongban", "maPhongBan"]}
+            label="Mã loại vật tư"
+            name={["LoaiVatTu", "maLoaiVatTu"]}
             rules={[
               {
                 type: "string",
@@ -229,16 +196,16 @@ const PhongBanForm = ({ history, match, permission }) => {
               },
               {
                 max: 50,
-                message: "Mã Ban/Phòng không được quá 50 ký tự",
+                message: "Mã loại vật tư không được quá 50 ký tự",
               },
             ]}
-            initialValue={maPhongBan}
+            initialValue={maLoaiVatTu}
           >
-            <Input className="input-item" placeholder="Nhập mã Ban/Phòng" />
+            <Input className="input-item" placeholder="Nhập mã loại vật tư" />
           </FormItem>
           <FormItem
-            label="Tên Ban/Phòng"
-            name={["phongban", "tenPhongBan"]}
+            label="Tên loại vật tư"
+            name={["LoaiVatTu", "tenLoaiVatTu"]}
             rules={[
               {
                 type: "string",
@@ -246,52 +213,12 @@ const PhongBanForm = ({ history, match, permission }) => {
               },
               {
                 max: 250,
-                message: "Tên Ban/Phong không được quá 250 ký tự",
+                message: "Tên loại vật tư không được quá 250 ký tự",
               },
             ]}
-            initialValue={tenPhongBan}
+            initialValue={tenLoaiVatTu}
           >
-            <Input className="input-item" placeholder="Nhập tên Ban/Phong" />
-          </FormItem>
-          <FormItem
-            label="Ban/Phòng cha"
-            name={["donvi", "phongBan_Id"]}
-            rules={[
-              {
-                type: "string",
-              },
-            ]}
-            initialValue={phongBan_Id}
-          >
-            <TreeSelect
-              className="tree-select-item"
-              datatreeselect={PhongBanTree ? PhongBanTree : []}
-              name="menu"
-              options={["id", "tenDonVi", "children"]}
-              placeholder="Ban/Phòng cha"
-              style={{ width: "100%" }}
-            />
-          </FormItem>
-          <FormItem
-            label="Đơn vị"
-            name={["phongban", "donVi_Id"]}
-            rules={[
-              {
-                type: "string",
-                required: true,
-              },
-            ]}
-            initialValue={donVi_Id}
-          >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={donViSelect ? donViSelect : []}
-              placeholder="Chọn đơn vị"
-              optionsvalue={["id", "tenDonVi"]}
-              style={{ width: "100%" }}
-              optionFilterProp="name"
-              showSearch
-            />
+            <Input className="input-item" placeholder="Nhập tên loại vật tư" />
           </FormItem>
           <FormSubmit
             goBack={goBack}
@@ -304,4 +231,4 @@ const PhongBanForm = ({ history, match, permission }) => {
   );
 };
 
-export default PhongBanForm;
+export default LoaiVatTuForm;

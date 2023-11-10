@@ -45,7 +45,7 @@ function CauTrucKhoThanhPham({ match, history, permission }) {
     const param = convertObjectToUrlParams({ keyword, page });
     dispatch(
       fetchStart(
-        `CauTrucKho/cau-truc-kho-thanh-pham-tree?${param}`,
+        `tits_qtsx_CauTrucKho/cau-truc-kho-thanh-pham-tree?${param}`,
         "GET",
         null,
         "LIST"

@@ -25,8 +25,6 @@ const LoaiSanPham = asyncComponent(() => import("./LoaiSanPham/LoaiSanPham"));
 const LoaiSanPhamForm = asyncComponent(() =>
   import("./LoaiSanPham/LoaiSanPhamForm")
 );
-const NhomVatTu = asyncComponent(() => import("./NhomVatTu/NhomVatTu"));
-const NhomVatTuForm = asyncComponent(() => import("./NhomVatTu/NhomVatTuForm"));
 const LoaiKhachHang = asyncComponent(() =>
   import("./LoaiKhachHang/LoaiKhachHang")
 );
@@ -113,6 +111,9 @@ const NhomLoiForm = asyncComponent(() => import("./NhomLoi/NhomLoiForm"));
 
 const Loi = asyncComponent(() => import("./Loi/Loi"));
 const LoiForm = asyncComponent(() => import("./Loi/LoiForm"));
+
+const LoaiVatTu = asyncComponent(() => import("./LoaiVatTu/LoaiVatTu"));
+const LoaiVatTuForm = asyncComponent(() => import("./LoaiVatTu/LoaiVatTuForm"));
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -222,21 +223,6 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/loai-san-pham/:id/chinh-sua`}
         exact
         component={Auth(LoaiSanPhamForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/nhom-vat-tu`}
-        exact
-        component={Auth(NhomVatTu, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/nhom-vat-tu/them-moi`}
-        exact
-        component={Auth(NhomVatTuForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/nhom-vat-tu/:id/chinh-sua`}
-        exact
-        component={Auth(NhomVatTuForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/loai-khach-hang`}
@@ -537,6 +523,36 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/loi/:id/chinh-sua`}
         exact
         component={Auth(LoiForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/thong-tin-kiem-soat`}
+        exact
+        component={Auth(ThongTinKiemSoat, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/thong-tin-kiem-soat/them-moi`}
+        exact
+        component={Auth(ThongTinKiemSoatForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/thong-tin-kiem-soat/:id/chinh-sua`}
+        exact
+        component={Auth(ThongTinKiemSoatForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/loai-vat-tu`}
+        exact
+        component={Auth(LoaiVatTu, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/loai-vat-tu/them-moi`}
+        exact
+        component={Auth(LoaiVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/loai-vat-tu/:id/chinh-sua`}
+        exact
+        component={Auth(LoaiVatTuForm, menus, pathname, permission)}
       />
       {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
     </Switch>

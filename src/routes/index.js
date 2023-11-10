@@ -21,6 +21,8 @@ const HOME_KHO_TPC = asyncComponent(() => import("./Kho_TPC/Home"));
 
 const DanhMuc_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/DanhMuc"));
 const HeThong_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/HeThong"));
+const KeHoach_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/KeHoach"));
+
 const App = ({ match, menus, location }) => {
   const { pathname } = location;
   return (
@@ -83,6 +85,10 @@ const App = ({ match, menus, location }) => {
         <Route
           path={`${match.url}he-thong-qtsx-tits`}
           component={Auth(HeThong_QTSX_TITS, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}ke-hoach-qtsx-tits`}
+          component={Auth(KeHoach_QTSX_TITS, menus, pathname)}
         />
         <Route path="*" component={Auth(Home_ERP, menus, pathname)} />
       </Switch>

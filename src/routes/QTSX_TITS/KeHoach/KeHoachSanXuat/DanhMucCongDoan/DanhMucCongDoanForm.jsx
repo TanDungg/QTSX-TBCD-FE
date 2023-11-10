@@ -3,27 +3,30 @@ import { Card, Form, Spin } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
 
-import { Input, TreeSelect, FormSubmit } from "src/components/Common";
+import { Input, Select, FormSubmit } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
-
+import { getLocalStorage, getTokenInfo } from "src/util/Common";
 const FormItem = Form.Item;
 
 const initialState = {
-  nhomVatTu_Id: "root",
+  maSP: "",
+  tenSP: "",
+  loaicongDoan_Id: "",
 };
 
-function NhomVatTuForm({ match, permission, history }) {
+function DanhMucCongDoanForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-  const { loading, item } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
+  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
 
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
-  const [ListNhomVatTu, setListNhomVatTu] = useState([]);
+  const [listDonVi, setListDonVi] = useState([]);
+
   const [fieldTouch, setFieldTouch] = useState(false);
-  const { nhomVatTu_Id } = initialState;
 
   const { setFieldsValue, validateFields, resetFields } = form;
   useEffect(() => {
@@ -32,6 +35,7 @@ function NhomVatTuForm({ match, permission, history }) {
         history.push("/home");
       } else {
         setType("new");
+        getData();
       }
     } else {
       if (permission && !permission.edit) {
@@ -41,14 +45,10 @@ function NhomVatTuForm({ match, permission, history }) {
           setType("edit");
           setId(match.params.id);
           getInfo(match.params.id);
+          getData();
         }
       }
     }
-    if (permission && (permission.add || permission.edit)) {
-      // Lấy danh sách menu
-      getListNhomVatTu();
-    }
-
     return () => {
       dispatch(fetchReset());
     };
@@ -64,7 +64,7 @@ function NhomVatTuForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `NhomVatTu/${id}`,
+          `tits_qtsx_CongDoan/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -75,24 +75,28 @@ function NhomVatTuForm({ match, permission, history }) {
       );
     })
       .then((res) => {
-        const newData = res.data;
-        if (newData.nhomVatTu_Id === null) newData.nhomVatTu_Id = "root";
-        setFieldsValue({
-          NhomVatTu: newData,
-        });
+        if (res && res.data) {
+          res.data.thuTu = res.data.thuTu.toString();
+          setFieldsValue({
+            congDoan: res.data,
+          });
+        }
       })
       .catch((error) => console.error(error));
   };
 
+  const getData = () => {
+    getDonVi();
+  };
   /**
    * Lấy danh sách menu
    *
    */
-  const getListNhomVatTu = async () => {
+  const getDonVi = async () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          "NhomVatTu/nhom-vat-tu-tree",
+          `DonVi/${INFO.donVi_Id}`,
           "GET",
           null,
           "LIST",
@@ -103,20 +107,23 @@ function NhomVatTuForm({ match, permission, history }) {
       );
     })
       .then((res) => {
-        setListNhomVatTu([]);
-        const newList = { id: "root", tenNhomVatTu: "Root", children: [] };
-        setListNhomVatTu([newList, ...res.data]);
+        if (res && res.data) {
+          setListDonVi([res.data]);
+        } else {
+          setListDonVi([]);
+        }
       })
       .catch((error) => console.error(error));
   };
 
+  const { maSP, tenSP, loaicongDoan_Id } = initialState;
   /**
    * Khi submit
    *
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.NhomVatTu);
+    saveData(values.congDoan);
   };
   /**
    * Lưu và thoát
@@ -125,24 +132,21 @@ function NhomVatTuForm({ match, permission, history }) {
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.NhomVatTu, true);
+        saveData(values.congDoan, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (NhomVatTu, saveQuit = false) => {
+  const saveData = (congDoan, saveQuit = false) => {
     if (type === "new") {
-      const newNhomVatTu = NhomVatTu;
-      newNhomVatTu.nhomVatTu_Id =
-        newNhomVatTu.nhomVatTu_Id === "root" ? null : newNhomVatTu.nhomVatTu_Id;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `NhomVatTu`,
+            `tits_qtsx_CongDoan`,
             "POST",
-            newNhomVatTu,
+            congDoan,
             "ADD",
             "",
             resolve,
@@ -151,28 +155,25 @@ function NhomVatTuForm({ match, permission, history }) {
         );
       })
         .then((res) => {
-          if (saveQuit) {
-            goBack();
-          } else {
-            resetFields();
-            setFieldTouch(false);
-            getListNhomVatTu();
+          if (res && res.status !== 409) {
+            if (saveQuit) {
+              goBack();
+            } else {
+              resetFields();
+              setFieldTouch(false);
+            }
           }
         })
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const editNhomVatTu = { ...item, ...NhomVatTu };
-      editNhomVatTu.nhomVatTu_Id =
-        editNhomVatTu.nhomVatTu_Id === "root"
-          ? (editNhomVatTu.nhomVatTu_Id = null)
-          : editNhomVatTu.nhomVatTu_Id;
+      congDoan.id = id;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `NhomVatTu/${id}`,
+            `tits_qtsx_CongDoan/${id}`,
             "PUT",
-            editNhomVatTu,
+            congDoan,
             "EDIT",
             "",
             resolve,
@@ -181,11 +182,13 @@ function NhomVatTuForm({ match, permission, history }) {
         );
       })
         .then((res) => {
-          if (saveQuit) {
-            goBack();
-          } else {
-            setFieldTouch(false);
-            getInfo(id);
+          if (res && res.status !== 409) {
+            if (saveQuit) {
+              goBack();
+            } else {
+              setFieldTouch(false);
+              getInfo(id);
+            }
           }
         })
         .catch((error) => console.log(error));
@@ -193,7 +196,7 @@ function NhomVatTuForm({ match, permission, history }) {
   };
 
   /**
-   * Quay lại trang chức năng
+   * Quay lại trang công đoạn
    *
    */
   const goBack = () => {
@@ -206,7 +209,7 @@ function NhomVatTuForm({ match, permission, history }) {
   };
 
   const formTitle =
-    type === "new" ? "Thêm mới nhóm vật tư" : "Chỉnh sửa nhóm vật tư";
+    type === "new" ? "Thêm mới công đoạn" : "Chỉnh sửa công đoạn";
 
   return (
     <div className="gx-main-content">
@@ -221,8 +224,8 @@ function NhomVatTuForm({ match, permission, history }) {
             onFieldsChange={() => setFieldTouch(true)}
           >
             <FormItem
-              label="Mã nhóm vật tư"
-              name={["NhomVatTu", "maNhomVatTu"]}
+              label="Mã công đoạn"
+              name={["congDoan", "maCongDoan"]}
               rules={[
                 {
                   type: "string",
@@ -232,12 +235,13 @@ function NhomVatTuForm({ match, permission, history }) {
                   max: 250,
                 },
               ]}
+              initialValue={maSP}
             >
-              <Input className="input-item" placeholder="Nhập nhóm vật tư" />
+              <Input className="input-item" placeholder="Nhập mã công đoạn" />
             </FormItem>
             <FormItem
-              label="Tên nhóm vật tư"
-              name={["NhomVatTu", "tenNhomVatTu"]}
+              label="Tên công đoạn"
+              name={["congDoan", "tenCongDoan"]}
               rules={[
                 {
                   type: "string",
@@ -247,29 +251,55 @@ function NhomVatTuForm({ match, permission, history }) {
                   max: 250,
                 },
               ]}
+              initialValue={tenSP}
             >
-              <Input
-                className="input-item"
-                placeholder="Nhập tên nhóm vật tư"
-              />
+              <Input className="input-item" placeholder="Nhập tên công đoạn" />
             </FormItem>
             <FormItem
-              label="Chọn nhóm vật tư cha"
-              name={["NhomVatTu", "nhomVatTu_Id"]}
+              label="Thứ tự"
+              name={["congDoan", "thuTu"]}
+              rules={[
+                {
+                  type: "string",
+                  required: true,
+                },
+                {
+                  pattern: /^[1-9]\d*$/,
+                  message: "Thứ tự không hợp lệ!",
+                },
+              ]}
+            >
+              <Input type="number" placeholder="Nhập thứ tự"></Input>
+            </FormItem>
+            <FormItem
+              label="Ghi chú"
+              name={["congDoan", "moTa"]}
               rules={[
                 {
                   type: "string",
                 },
               ]}
-              initialValue={nhomVatTu_Id}
             >
-              <TreeSelect
-                className="tree-select-item"
-                datatreeselect={ListNhomVatTu}
-                name="menu"
-                options={["id", "tenNhomVatTu", "children"]}
-                placeholder="Chọn menu cha"
+              <Input className="input-item" placeholder="Nhập ghi chú" />
+            </FormItem>
+            <FormItem
+              label="Đơn vị"
+              name={["congDoan", "donVi_Id"]}
+              rules={[
+                {
+                  type: "string",
+                  required: true,
+                },
+              ]}
+            >
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={listDonVi ? listDonVi : []}
+                placeholder="Chọn đơn vị"
+                optionsvalue={["id", "tenDonVi"]}
                 style={{ width: "100%" }}
+                showSearch
+                optionFilterProp="name"
               />
             </FormItem>
             <FormSubmit
@@ -284,4 +314,4 @@ function NhomVatTuForm({ match, permission, history }) {
   );
 }
 
-export default NhomVatTuForm;
+export default DanhMucCongDoanForm;

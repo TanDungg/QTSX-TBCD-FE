@@ -116,11 +116,14 @@ const BoPhanForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          const data = res.data[0];
+          const data = res.data;
           setFieldsValue({
-            bophan: data,
+            bophan: {
+              ...data,
+              boPhan_Id: data.boPhan_Id ? data.boPhan_Id : "root",
+            },
           });
-          setInfo(...res.data, res.data[0].phongBan);
+          setInfo(res.data);
         }
       })
       .catch((error) => console.error(error));
