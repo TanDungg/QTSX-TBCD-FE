@@ -47,7 +47,7 @@ function ThietBi({ permission, history }) {
    */
   const getListData = (keyword, page) => {
     let param = convertObjectToUrlParams({ page, keyword });
-    dispatch(fetchStart(`ThietBi?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`tits_qtsx_ThietBi?${param}`, "GET", null, "LIST"));
   };
 
   /**
@@ -97,7 +97,7 @@ function ThietBi({ permission, history }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `ThietBi/${item.id}`;
+    let url = `tits_qtsx_ThietBi/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -160,7 +160,7 @@ function ThietBi({ permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `ThietBi/${item.id}`,
+            `tits_qtsx_ThietBi/${item.id}`,
             "PUT",
             {
               ...item,
