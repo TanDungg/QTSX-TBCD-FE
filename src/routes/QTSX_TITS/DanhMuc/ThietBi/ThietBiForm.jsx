@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit } from "src/components/Common";
+import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 
@@ -13,6 +13,11 @@ const FormItem = Form.Item;
 const initialState = {
   maThietBi: "",
   tenThietBi: "",
+  nhomThietBi_Id: "",
+  tram_Id: "",
+  module: "",
+  soSeri: "",
+  diaChiIP: "",
 };
 const ThietBiForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
@@ -20,8 +25,18 @@ const ThietBiForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { maThietBi, tenThietBi } = initialState;
+  const {
+    maThietBi,
+    tenThietBi,
+    nhomThietBi_Id,
+    tram_Id,
+    module,
+    soSeri,
+    diaChiIP,
+  } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
+  const [ListNhomThietBi, setListNhomThietBi] = useState([]);
+  const [ListTram, setListTram] = useState([]);
   const [info, setInfo] = useState({});
 
   useEffect(() => {
@@ -202,6 +217,96 @@ const ThietBiForm = ({ history, match, permission }) => {
             initialValue={tenThietBi}
           >
             <Input className="input-item" placeholder="Nhập tên thiết bị" />
+          </FormItem>
+          <FormItem
+            label="Nhóm thiết bị"
+            name={["ThietBi", "nhomThietBi_Id"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
+            initialValue={nhomThietBi_Id}
+          >
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListNhomThietBi ? ListNhomThietBi : []}
+              placeholder="Chọn nhóm thiết bị"
+              optionsvalue={["id", "tenNhomThietBi"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+            />
+          </FormItem>
+          <FormItem
+            label="Trạm"
+            name={["ThietBi", "tram_Id"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
+            initialValue={tram_Id}
+          >
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListTram ? ListTram : []}
+              placeholder="Chọn trạm"
+              optionsvalue={["id", "tenTram"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+            />
+          </FormItem>
+          <FormItem
+            label="Module"
+            name={["ThietBi", "module"]}
+            rules={[
+              {
+                type: "string",
+              },
+              {
+                max: 50,
+                message: "Module không được quá 50 ký tự",
+              },
+            ]}
+            initialValue={module}
+          >
+            <Input className="input-item" placeholder="Nhập module" />
+          </FormItem>
+          <FormItem
+            label="Số serial"
+            name={["ThietBi", "soSeri"]}
+            rules={[
+              {
+                type: "string",
+              },
+              {
+                max: 250,
+                message: "Số seri không được quá 50 ký tự",
+              },
+            ]}
+            initialValue={soSeri}
+          >
+            <Input className="input-item" placeholder="Nhập số seri" />
+          </FormItem>
+          <FormItem
+            label="Địa chỉ IP"
+            name={["ThietBi", "diaChiIP"]}
+            rules={[
+              {
+                type: "string",
+              },
+              {
+                max: 250,
+                message: "Địa chỉ IP không được quá 255 ký tự",
+              },
+            ]}
+            initialValue={diaChiIP}
+          >
+            <Input className="input-item" placeholder="Nhập địa chỉ IP" />
           </FormItem>
           <FormSubmit
             goBack={goBack}
