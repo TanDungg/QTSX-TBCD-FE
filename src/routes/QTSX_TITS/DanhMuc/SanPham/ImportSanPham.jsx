@@ -12,6 +12,7 @@ import {
   Upload,
   Alert,
   Popover,
+  Image,
 } from "antd";
 import { messages } from "src/constants/Messages";
 import Helper from "src/helpers";
@@ -19,60 +20,138 @@ import map from "lodash/map";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
-import { Modal } from "src/components/Common";
-import { exportExcel, reDataForTable } from "src/util/Common";
+import { Modal, ModalDeleteConfirm } from "src/components/Common";
+import {
+  convertObjectToUrlParams,
+  exportExcel,
+  reDataForTable,
+} from "src/util/Common";
 import * as XLSX from "xlsx";
 import { EditableTableRow, Table } from "src/components/Common";
+import { getLocalStorage, getTokenInfo } from "src/util/Common";
+import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [dataView, setDataView] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
   const [HangTrung, setHangTrung] = useState([]);
   const [DataLoi, setDataLoi] = useState();
   const [message, setMessageError] = useState([]);
-  const renderLoi = (val) => {
-    let check = false;
-    let messageLoi = "";
-    if (DataLoi && DataLoi.length > 0) {
-      DataLoi.forEach((dt) => {
-        if (dt.maSanPham === val) {
-          check = true;
-          messageLoi = dt.ghiChuImport;
-        }
-      });
-    }
-    return check ? (
-      <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
-        {val}
-      </Popover>
-    ) : (
-      <span>{val}</span>
+  const [FileAnh, setFileAnh] = useState(null);
+  const [OpenImage, setOpenImage] = useState(false);
+
+  const deleteItemFunc = (item, title) => {
+    ModalDeleteConfirm(deleteItemAction, item, item.maSanPham, title);
+  };
+
+  const deleteItemAction = (item) => {
+    const newData = dataView.filter((d) => d.maSanPham !== item.maSanPham);
+    setDataView(newData);
+  };
+
+  const actionContent = (item) => {
+    const deleteVal = { onClick: () => deleteItemFunc(item, "sản phẩm") };
+    return (
+      <div>
+        <a {...deleteVal} title="Xóa sản phẩm">
+          <DeleteOutlined />
+        </a>
+      </div>
     );
   };
+
+  const handleViewFile = () => {
+    setOpenImage(true);
+  };
+
+  const handleUploadFile = (file, index) => {
+    const isPNG = file.type === "image/png" || file.type === "image/jpeg";
+    if (!isPNG) {
+      Helper.alertError(`${file.name} không phải hình ảnh`);
+    } else {
+      const newData = dataView.map((data) => {
+        if (data.maSanPham === index.maSanPham) {
+          return {
+            ...data,
+            hinhAnh: file,
+          };
+        }
+        return data;
+      });
+      setDataView(newData);
+      const reader = new FileReader();
+      reader.onload = (e) => setFileAnh(e.target.result);
+      reader.readAsDataURL(file);
+      return false;
+    }
+  };
+
+  const renderHinhAnh = (record) => {
+    return record.hinhAnh ? (
+      <span>
+        <span
+          style={{ color: "#0469B9", cursor: "pointer" }}
+          onClick={() => handleViewFile(record.hinhAnh)}
+        >
+          {record.hinhAnh.name.length > 20
+            ? record.hinhAnh.name.substring(0, 20) + "..."
+            : record.hinhAnh.name}
+          <DeleteOutlined
+            style={{ cursor: "pointer", color: "red" }}
+            onClick={() => {
+              const newDataView = [...dataView];
+              newDataView[record].hinhAnh = null;
+              setDataView(newDataView);
+            }}
+          />
+        </span>
+      </span>
+    ) : (
+      <Upload
+        beforeUpload={(file) => handleUploadFile(file, record)}
+        showUploadList={false}
+        maxCount={1}
+      >
+        <Button
+          style={{
+            marginBottom: 0,
+          }}
+          icon={<UploadOutlined />}
+        >
+          Tải file hình ảnh
+        </Button>
+      </Upload>
+    );
+  };
+
   let colValues = [
     {
       title: "STT",
       dataIndex: "key",
       key: "key",
-      width: 50,
       align: "center",
+      width: 45,
     },
     {
       title: "Mã sản phẩm",
       dataIndex: "maSanPham",
       key: "maSanPham",
       align: "center",
-      render: (val) => renderLoi(val),
     },
     {
       title: "Tên sản phẩm",
       dataIndex: "tenSanPham",
-      align: "center",
       key: "tenSanPham",
+      align: "center",
     },
     {
       title: "Mã loại sản phẩm",
@@ -81,22 +160,29 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
       align: "center",
     },
     {
-      title: "Kích thước",
-      dataIndex: "kichThuoc",
+      title: "Thông số kỹ thuật",
+      dataIndex: "thongSoKyThuat",
+      key: "thongSoKyThuat",
       align: "center",
-      key: "kichThuoc",
-    },
-    {
-      title: "Mã màu sắc",
-      dataIndex: "maMauSac",
-      align: "center",
-      key: "maMauSac",
     },
     {
       title: "Mã đơn vị tính",
       dataIndex: "maDonViTinh",
-      align: "center",
       key: "maDonViTinh",
+      align: "center",
+    },
+    {
+      title: "Hình ảnh",
+      key: "hinhAnh",
+      align: "center",
+      render: (record) => renderHinhAnh(record),
+    },
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 100,
+      render: (value) => actionContent(value),
     },
   ];
   const components = {
@@ -124,11 +210,14 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
 
   //File mẫu
   const TaiFileMau = () => {
+    let param = convertObjectToUrlParams({
+      DonVi_Id: INFO.donVi_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `SanPham/ExportFileExcel`,
-          "POST",
+          `tits_qtsx_SanPham/export-file-excel?${param}`,
+          "GET",
           null,
           "DOWLOAD",
           "",
@@ -137,9 +226,10 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
         )
       );
     }).then((res) => {
-      exportExcel("File_Mau_San_Pham", res.data.dataexcel);
+      exportExcel("FileMauImportSanPham", res.data.dataexcel);
     });
   };
+
   const xuLyExcel = (file) => {
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -203,7 +293,7 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Kích thước" &&
+          .trim() === "Thông số kỹ thuật" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
@@ -214,28 +304,17 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã màu sắc" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
-          })[0]
-          .toString()
           .trim() === "Mã đơn vị tính";
+
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
           range: 2,
         });
+
         const MSP = "Mã sản phẩm";
         const TSP = "Tên sản phẩm";
         const MLSP = "Mã loại sản phẩm";
-
-        const KT = "Kích thước";
-        const MMS = "Mã màu sắc";
+        const TSKT = "Thông số kỹ thuật";
         const MDVT = "Mã đơn vị tính";
 
         const Data = [];
@@ -248,10 +327,8 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
             data[index][TSP].toString().trim() === "" &&
             data[index][MLSP] &&
             data[index][MLSP].toString().trim() === "" &&
-            data[index][KT] &&
-            data[index][KT].toString().trim() === "" &&
-            data[index][MMS] &&
-            data[index][MMS].toString().trim() === "" &&
+            data[index][TSKT] &&
+            data[index][TSKT].toString().trim() === "" &&
             data[index][MDVT] &&
             data[index][MDVT].toString().trim() === ""
           ) {
@@ -260,33 +337,29 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
               maSanPham: data[index][MSP]
                 ? data[index][MSP].toString().trim() !== ""
                   ? data[index][MSP].toString().trim()
-                  : undefined
-                : undefined,
+                  : null
+                : null,
               tenSanPham: data[index][TSP]
                 ? data[index][TSP].toString().trim() !== ""
                   ? data[index][TSP].toString().trim()
-                  : undefined
-                : undefined,
+                  : null
+                : null,
               maLoaiSanPham: data[index][MLSP]
                 ? data[index][MLSP].toString().trim() !== ""
                   ? data[index][MLSP].toString().trim()
-                  : undefined
-                : undefined,
-              kichThuoc: data[index][KT]
-                ? data[index][KT].toString().trim() !== ""
-                  ? data[index][KT].toString().trim()
-                  : undefined
-                : undefined,
-              maMauSac: data[index][MMS]
-                ? data[index][MMS].toString().trim() !== ""
-                  ? data[index][MMS].toString().trim()
-                  : undefined
-                : undefined,
+                  : null
+                : null,
+              thongSoKyThuat: data[index][TSKT]
+                ? data[index][TSKT].toString().trim() !== ""
+                  ? data[index][TSKT].toString().trim()
+                  : null
+                : null,
+              hinhAnh: null,
               maDonViTinh: data[index][MDVT]
                 ? data[index][MDVT].toString().trim() !== ""
                   ? data[index][MDVT].toString().trim()
-                  : undefined
-                : undefined,
+                  : null
+                : null,
             });
           }
           Data.push(data[index][MSP]);
@@ -302,11 +375,7 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
           const row = [];
           for (let i = 0; i < Data.length; i++) {
             for (let j = i + 1; j < Data.length; j++) {
-              if (
-                Data[i] === Data[j] &&
-                Data[j] !== undefined &&
-                Data[i] !== undefined
-              ) {
+              if (Data[i] === Data[j] && Data[j] !== null && Data[i] !== null) {
                 indices.push(Data[i]);
                 row.push(i + 1);
                 row.push(j + 1);
@@ -359,30 +428,58 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
   };
 
   const handleSubmit = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `SanPham/ImportExel`,
-          "POST",
-          dataView,
-          "IMPORT",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res.status === 409) {
-        setDataLoi(res.data);
-        setMessageError("Import không thành công");
+    const newData = dataView.map((dataview) => {
+      if (dataview.hinhAnh) {
+        const formData = new FormData();
+        formData.append("file", dataview.hinhAnh);
+        return fetch(`${BASE_URL_API}/api/Upload`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: "Bearer ".concat(INFO.token),
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            return {
+              ...dataview,
+              hinhAnh: data.path,
+            };
+          });
       } else {
-        setFileName(null);
-        setDataView([]);
-        openModalFS(false);
-        refesh();
+        return dataview;
       }
     });
+
+    Promise.all(newData).then((Data) => {
+      console.log(Data);
+    });
+
+    // new Promise((resolve, reject) => {
+    //   dispatch(
+    //     fetchStart(
+    //       `SanPham/ImportExel`,
+    //       "POST",
+    //       dataView,
+    //       "IMPORT",
+    //       "",
+    //       resolve,
+    //       reject
+    //     )
+    //   );
+    // }).then((res) => {
+    //   if (res.status === 409) {
+    //     setDataLoi(res.data);
+    //     setMessageError("Import không thành công");
+    //   } else {
+    //     setFileName(null);
+    //     setDataView([]);
+    //     openModalFS(false);
+    //     refesh();
+    //   }
+    // });
   };
+
   const prop = {
     type: "confirm",
     okText: "Xác nhận",
@@ -402,19 +499,19 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
           return "red-row";
         }
       });
-    } else if (current.maSanPham === undefined) {
+    } else if (current.maSanPham === null) {
       setCheckDanger(true);
       setMessageError("Mã sản phẩm không được rỗng");
       return "red-row";
-    } else if (current.tenSanPham === undefined) {
+    } else if (current.tenSanPham === null) {
       setCheckDanger(true);
       setMessageError("Tên sản phẩm không được rỗng");
       return "red-row";
-    } else if (current.maLoaiSanPham === undefined) {
+    } else if (current.maLoaiSanPham === null) {
       setCheckDanger(true);
       setMessageError("Mã loại sản phẩm không được rỗng");
       return "red-row";
-    } else if (current.maDonViTinh === undefined) {
+    } else if (current.maDonViTinh === null) {
       setCheckDanger(true);
       setMessageError("Mã đơn vị tính không được rỗng");
       return "red-row";
@@ -535,6 +632,22 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
             Lưu
           </Button>
         </Card>
+        <Image
+          width={"80%"}
+          src={FileAnh}
+          alt="preview"
+          style={{
+            display: "none",
+          }}
+          preview={{
+            visible: OpenImage,
+            scaleStep: 0.5,
+            src: FileAnh,
+            onVisibleChange: (value) => {
+              setOpenImage(value);
+            },
+          }}
+        />
       </div>
     </AntModal>
   );

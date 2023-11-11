@@ -3,7 +3,7 @@ import { Card, Form, Spin } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
 
-import { Input, TreeSelect, FormSubmit } from "src/components/Common";
+import { Input, FormSubmit } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -18,7 +18,7 @@ const initialState = {
 function LoaiSanPhamForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-  const { loading, item } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
 
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);

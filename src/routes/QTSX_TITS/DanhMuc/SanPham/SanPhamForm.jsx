@@ -24,22 +24,27 @@ const initialState = {
 function SanPhamForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const { loading } = useSelector(({ common }) => common).toJS();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
   const [ListDonViTinh, setListDonViTinh] = useState([]);
   const [FileHinhAnh, setFileHinhAnh] = useState(null);
+  const [FileAnh, setFileAnh] = useState(null);
   const [DisableUpload, setDisableUpload] = useState(false);
   const [OpenImage, setOpenImage] = useState(false);
+  const [info, setInfo] = useState(null);
   const [fieldTouch, setFieldTouch] = useState(false);
   const {
     maSanPham,
     tenSanPham,
     tits_qtsx_LoaiSanPham_Id,
     thongSoKyThuat,
-    hinhAnh,
     donViTinh_Id,
   } = initialState;
   const { setFieldsValue, validateFields, resetFields } = form;
@@ -141,11 +146,14 @@ function SanPhamForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
+          setInfo(res.data);
           setFieldsValue({
             sanpham: {
               ...res.data,
             },
           });
+          setFileHinhAnh(res.data.hinhAnh);
+          setDisableUpload(true);
         }
       })
       .catch((error) => console.error(error));
@@ -157,7 +165,7 @@ function SanPhamForm({ match, permission, history }) {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.sanpham);
+    uploadFile(values.sanpham);
   };
 
   /**
@@ -167,11 +175,53 @@ function SanPhamForm({ match, permission, history }) {
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.sanpham, true);
+        uploadFile(values.sanpham, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
+  };
+
+  const uploadFile = (sanpham, saveQuit) => {
+    if (type === "new" && sanpham.hinhAnh) {
+      const formData = new FormData();
+      formData.append("file", sanpham.hinhAnh.file);
+      fetch(`${BASE_URL_API}/api/Upload`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: "Bearer ".concat(INFO.token),
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          sanpham.hinhAnh = data.path;
+          saveData(sanpham, saveQuit);
+        })
+        .catch(() => {
+          console.log("upload failed.");
+        });
+    } else if (type === "edit" && sanpham.hinhAnh) {
+      const formData = new FormData();
+      formData.append("file", sanpham.hinhAnh.file);
+      fetch(`${BASE_URL_API}/api/Upload?stringPath=${info.hinhAnh}`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: "Bearer ".concat(INFO.token),
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          sanpham.hinhAnh = data.path;
+          saveData(sanpham, saveQuit);
+        })
+        .catch(() => {
+          console.log("upload failed.");
+        });
+    } else {
+      saveData(sanpham, saveQuit);
+    }
   };
 
   const saveData = (sanpham, saveQuit = false) => {
@@ -195,6 +245,8 @@ function SanPhamForm({ match, permission, history }) {
               goBack();
             } else {
               resetFields();
+              setFileHinhAnh(null);
+              setFileAnh(null);
               setFieldTouch(false);
             }
           }
@@ -251,14 +303,18 @@ function SanPhamForm({ match, permission, history }) {
       } else {
         setFileHinhAnh(file);
         setDisableUpload(true);
-        // const reader = new FileReader();
-        // reader.onload = (e) => setFileChat(e.target.result);
-        // reader.readAsDataURL(file);
+        const reader = new FileReader();
+        reader.onload = (e) => setFileAnh(e.target.result);
+        reader.readAsDataURL(file);
         return false;
       }
     },
     showUploadList: false,
     maxCount: 1,
+  };
+
+  const handleViewFile = () => {
+    setOpenImage(true);
   };
 
   const formTitle = type === "new" ? "Thêm mới sản phẩm" : "Chỉnh sửa sản phẩm";
@@ -390,7 +446,7 @@ function SanPhamForm({ match, permission, history }) {
                 <span>
                   <span
                     style={{ color: "#0469B9", cursor: "pointer" }}
-                    // onClick={() => handleViewFile(File)}
+                    onClick={() => handleViewFile(FileHinhAnh)}
                   >
                     {FileHinhAnh.name.length > 20
                       ? FileHinhAnh.name.substring(0, 20) + "..."
@@ -411,7 +467,7 @@ function SanPhamForm({ match, permission, history }) {
                   />
                   <Image
                     width={100}
-                    src={FileHinhAnh}
+                    src={FileAnh}
                     alt="preview"
                     style={{
                       display: "none",
@@ -419,7 +475,7 @@ function SanPhamForm({ match, permission, history }) {
                     preview={{
                       visible: OpenImage,
                       scaleStep: 0.5,
-                      src: FileHinhAnh,
+                      src: FileAnh,
                       onVisibleChange: (value) => {
                         setOpenImage(value);
                       },

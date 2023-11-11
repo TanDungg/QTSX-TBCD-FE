@@ -49,13 +49,12 @@ function TheoDoiHangVe({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, nhomVatTu_Id, tuNgay, denNgay, page, vatTu_Id) => {
+  const loadData = (keyword, nhomVatTu_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      vatTu_Id,
-      tuNgay,
-      denNgay,
       keyword,
       nhomVatTu_Id,
+      tuNgay,
+      denNgay,
       page,
     });
     dispatch(
@@ -256,16 +255,6 @@ function TheoDoiHangVe({ match, history, permission }) {
       key: "ngayXacNhanHangVe",
       align: "center",
       width: 140,
-      filters: removeDuplicates(
-        map(data, (d) => {
-          return {
-            text: d.ngayXacNhanHangVe,
-            value: d.ngayXacNhanHangVe,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.ngayXacNhanHangVe.includes(value),
-      filterSearch: true,
     },
     {
       title: "CV Thu mua",
@@ -273,16 +262,6 @@ function TheoDoiHangVe({ match, history, permission }) {
       align: "center",
       width: 180,
       render: (record) => renderColumn(record, "userThuMua"),
-      filters: removeDuplicates(
-        map(data, (d) => {
-          return {
-            text: d.userThuMua,
-            value: d.userThuMua,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.userThuMua.includes(value),
-      filterSearch: true,
     },
     {
       title: "Ngày nhận hàng",
@@ -290,16 +269,6 @@ function TheoDoiHangVe({ match, history, permission }) {
       align: "center",
       width: 140,
       render: (record) => renderColumn(record, "ngayHangVe"),
-      filters: removeDuplicates(
-        map(data, (d) => {
-          return {
-            text: d.ngayHangVe,
-            value: d.ngayHangVe,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.ngayHangVe.includes(value),
-      filterSearch: true,
     },
     {
       title: "ĐVT",
