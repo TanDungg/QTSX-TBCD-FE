@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Card, Form, Spin } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
-
+import { getLocalStorage, getTokenInfo } from "src/util/Common";
 import { Input, Select, FormSubmit } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
@@ -13,23 +13,41 @@ const FormItem = Form.Item;
 const initialState = {
   maVatTu: "",
   tenVatTu: "",
-  nhomVatTu_Id: "",
+  tits_qtsx_LoaiVatTu_Id: "",
+  thongSoKyThuat: "",
+  tits_qtsx_MauSac_Id: "",
+  donViTinh_Id: "",
+  donViTinhQuyDoi_Id: "",
+  tiLeQuyDoi: "",
 };
 
 function VatTuForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const { loading } = useSelector(({ common }) => common).toJS();
-
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
-  const [NhomVatTuSelect, setNhomVatTuSelect] = useState([]);
-  const [MauSacSelect, setMauSacSelect] = useState([]);
+  const [ListLoaiVatTu, setListLoaiVatTu] = useState([]);
+  const [ListMauSac, setListMauSac] = useState([]);
   const [DonViTinhSelect, setDonViTinhSelect] = useState([]);
-
   const [fieldTouch, setFieldTouch] = useState(false);
-
+  const {
+    maVatTu,
+    tenVatTu,
+    tits_qtsx_LoaiVatTu_Id,
+    thongSoKyThuat,
+    tits_qtsx_MauSac_Id,
+    donViTinh_Id,
+    donViTinhQuyDoi_Id,
+    tiLeQuyDoi,
+  } = initialState;
   const { setFieldsValue, validateFields, resetFields } = form;
+
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
       if (permission && !permission.add) {
@@ -64,13 +82,21 @@ function VatTuForm({ match, permission, history }) {
   const getInfo = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(`VatTu/${id}`, "GET", null, "DETAIL", "", resolve, reject)
+        fetchStart(
+          `tits_qtsx_VatTu/${id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
       );
     })
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            VatTu: res.data,
+            vattu: res.data,
           });
         }
       })
@@ -91,7 +117,7 @@ function VatTuForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          "NhomVatTu?page=-1",
+          "tits_qtsx_LoaiVatTu?page=-1",
           "GET",
           null,
           "LIST",
@@ -103,9 +129,9 @@ function VatTuForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setNhomVatTuSelect(res.data);
+          setListLoaiVatTu(res.data);
         } else {
-          setNhomVatTuSelect([]);
+          setListLoaiVatTu([]);
         }
       })
       .catch((error) => console.error(error));
@@ -117,14 +143,22 @@ function VatTuForm({ match, permission, history }) {
   const getMauSac = async () => {
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart("MauSac?page=-1", "GET", null, "LIST", "", resolve, reject)
+        fetchStart(
+          "tits_qtsx_MauSac?page=-1",
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
       );
     })
       .then((res) => {
         if (res && res.data) {
-          setMauSacSelect(res.data);
+          setListMauSac(res.data);
         } else {
-          setMauSacSelect([]);
+          setListMauSac([]);
         }
       })
       .catch((error) => console.error(error));
@@ -137,7 +171,7 @@ function VatTuForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          "DonViTinh?page=-1",
+          `DonViTinh?donVi_Id=${INFO.donVi_Id}&page=-1`,
           "GET",
           null,
           "LIST",
@@ -157,14 +191,13 @@ function VatTuForm({ match, permission, history }) {
       .catch((error) => console.error(error));
   };
 
-  const { maVatTu, tenVatTu, nhomVatTu_Id } = initialState;
   /**
    * Khi submit
    *
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.VatTu);
+    saveData(values.vattu);
   };
   /**
    * Lưu và thoát
@@ -173,18 +206,26 @@ function VatTuForm({ match, permission, history }) {
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.VatTu, true);
+        saveData(values.vattu, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (VatTu, saveQuit = false) => {
+  const saveData = (vattu, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`VatTu`, "POST", VatTu, "ADD", "", resolve, reject)
+          fetchStart(
+            `tits_qtsx_VatTu`,
+            "POST",
+            vattu,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
         );
       })
         .then((res) => {
@@ -200,10 +241,18 @@ function VatTuForm({ match, permission, history }) {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      VatTu.id = id;
+      vattu.id = id;
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(`VatTu/${id}`, "PUT", VatTu, "EDIT", "", resolve, reject)
+          fetchStart(
+            `tits_qtsx_VatTu/${id}`,
+            "PUT",
+            vattu,
+            "EDIT",
+            "",
+            resolve,
+            reject
+          )
         );
       })
         .then((res) => {
@@ -249,7 +298,7 @@ function VatTuForm({ match, permission, history }) {
           >
             <FormItem
               label="Mã vật tư"
-              name={["VatTu", "maVatTu"]}
+              name={["vattu", "maVatTu"]}
               rules={[
                 {
                   type: "string",
@@ -265,7 +314,7 @@ function VatTuForm({ match, permission, history }) {
             </FormItem>
             <FormItem
               label="Tên vật tư"
-              name={["VatTu", "tenVatTu"]}
+              name={["vattu", "tenVatTu"]}
               rules={[
                 {
                   type: "string",
@@ -280,21 +329,53 @@ function VatTuForm({ match, permission, history }) {
               <Input className="input-item" placeholder="Nhập tên vật tư" />
             </FormItem>
             <FormItem
-              label="Nhóm vật tư"
-              name={["VatTu", "nhomVatTu_Id"]}
+              label="Loại vật tư"
+              name={["vattu", "tits_qtsx_LoaiVatTu_Id"]}
               rules={[
                 {
                   type: "string",
                   required: true,
                 },
               ]}
-              initialValue={nhomVatTu_Id}
+              initialValue={tits_qtsx_LoaiVatTu_Id}
             >
               <Select
                 className="heading-select slt-search th-select-heading"
-                data={NhomVatTuSelect ? NhomVatTuSelect : []}
-                placeholder="Chọn nhóm vật tư"
-                optionsvalue={["id", "tenNhomVatTu"]}
+                data={ListLoaiVatTu ? ListLoaiVatTu : []}
+                placeholder="Chọn loại vật tư"
+                optionsvalue={["id", "tenLoaiVatTu"]}
+                style={{ width: "100%" }}
+                showSearch
+                optionFilterProp="name"
+              />
+            </FormItem>
+            <FormItem
+              label="Thông số kỹ thuật"
+              name={["vattu", "thongSoKyThuat"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+              initialValue={thongSoKyThuat}
+            >
+              <Input placeholder="Nhập thông số kỹ thuật"></Input>
+            </FormItem>
+            <FormItem
+              label="Màu sắc"
+              name={["vattu", "tits_qtsx_MauSac_Id"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+              initialValue={tits_qtsx_MauSac_Id}
+            >
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListMauSac ? ListMauSac : []}
+                placeholder="Chọn màu sắc"
+                optionsvalue={["id", "tenMauSac"]}
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp="name"
@@ -302,13 +383,14 @@ function VatTuForm({ match, permission, history }) {
             </FormItem>
             <FormItem
               label="Đơn vị tính"
-              name={["VatTu", "donViTinh_Id"]}
+              name={["vattu", "donViTinh_Id"]}
               rules={[
                 {
                   type: "string",
                   required: true,
                 },
               ]}
+              initialValue={donViTinh_Id}
             >
               <Select
                 className="heading-select slt-search th-select-heading"
@@ -321,55 +403,34 @@ function VatTuForm({ match, permission, history }) {
               />
             </FormItem>
             <FormItem
-              label="Thông số"
-              name={["VatTu", "quyCach"]}
+              label="Đơn vị tính quy đổi"
+              name={["vattu", "donViTinhQuyDoi_Id"]}
               rules={[
                 {
                   type: "string",
                 },
               ]}
-            >
-              <Input placeholder="Nhập thông số"></Input>
-            </FormItem>
-            <FormItem
-              label="Màu sắc"
-              name={["VatTu", "mauSac_Id"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
+              initialValue={donViTinhQuyDoi_Id}
             >
               <Select
                 className="heading-select slt-search th-select-heading"
-                data={MauSacSelect ? MauSacSelect : []}
-                placeholder="Chọn màu sắc"
-                optionsvalue={["id", "tenMauSac"]}
+                data={DonViTinhSelect ? DonViTinhSelect : []}
+                placeholder="Chọn đơn vị tính quy đổi"
+                optionsvalue={["id", "tenDonViTinh"]}
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp="name"
               />
             </FormItem>
-
-            <FormItem
-              label="Đơn vị quy đổi"
-              name={["VatTu", "donViQuyDoi"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-            >
-              <Input className="input-item" placeholder="Nhập đơn vị quy đổi" />
-            </FormItem>
             <FormItem
               label="Tỉ lệ quy đổi"
-              name={["VatTu", "tiLeQuyDoi"]}
+              name={["vattu", "tiLeQuyDoi"]}
               rules={[
                 {
                   type: "string",
                 },
               ]}
+              initialValue={tiLeQuyDoi}
             >
               <Input className="input-item" placeholder="Nhập tỉ lệ quy đổi" />
             </FormItem>

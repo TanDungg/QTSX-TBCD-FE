@@ -49,26 +49,6 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
   const [FileAnh, setFileAnh] = useState(null);
   const [OpenImage, setOpenImage] = useState(false);
 
-  const deleteItemFunc = (item, title) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maSanPham, title);
-  };
-
-  const deleteItemAction = (item) => {
-    const newData = dataView.filter((d) => d.maSanPham !== item.maSanPham);
-    setDataView(newData);
-  };
-
-  const actionContent = (item) => {
-    const deleteVal = { onClick: () => deleteItemFunc(item, "sản phẩm") };
-    return (
-      <div>
-        <a {...deleteVal} title="Xóa sản phẩm">
-          <DeleteOutlined />
-        </a>
-      </div>
-    );
-  };
-
   const handleViewFile = () => {
     setOpenImage(true);
   };
@@ -105,15 +85,22 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
           {record.hinhAnh.name.length > 20
             ? record.hinhAnh.name.substring(0, 20) + "..."
             : record.hinhAnh.name}
-          <DeleteOutlined
-            style={{ cursor: "pointer", color: "red" }}
-            onClick={() => {
-              const newDataView = [...dataView];
-              newDataView[record].hinhAnh = null;
-              setDataView(newDataView);
-            }}
-          />
         </span>
+        <DeleteOutlined
+          style={{ cursor: "pointer", color: "red" }}
+          onClick={() => {
+            const newDataView = dataView.map((data) => {
+              if (data.maSanPham === record.maSanPham) {
+                return {
+                  ...data,
+                  hinhAnh: null,
+                };
+              }
+              return data;
+            });
+            setDataView(newDataView);
+          }}
+        />
       </span>
     ) : (
       <Upload
@@ -178,11 +165,10 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
       render: (record) => renderHinhAnh(record),
     },
     {
-      title: "Chức năng",
-      key: "action",
+      title: "Lỗi",
+      dataIndex: "ghiChuImport",
+      key: "ghiChuImport",
       align: "center",
-      width: 100,
-      render: (value) => actionContent(value),
     },
   ];
   const components = {
@@ -360,6 +346,7 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
                   ? data[index][MDVT].toString().trim()
                   : null
                 : null,
+              ghiChuImport: null,
             });
           }
           Data.push(data[index][MSP]);
@@ -452,32 +439,49 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
     });
 
     Promise.all(newData).then((Data) => {
-      console.log(Data);
-    });
+      const newListSanPham = {
+        donVi_Id: INFO.donVi_Id,
+        list_SanPhams: Data,
+      };
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `tits_qtsx_SanPham/import-excel`,
+            "POST",
+            newListSanPham,
+            "IMPORT",
+            "",
+            resolve,
+            reject
+          )
+        );
+      }).then((res) => {
+        if (res.status === 409) {
+          setDataLoi(res.data);
+          const newData = dataView.map((data) => {
+            const dt = res.data.find(
+              (item) => item.maSanPham === data.maSanPham
+            );
 
-    // new Promise((resolve, reject) => {
-    //   dispatch(
-    //     fetchStart(
-    //       `SanPham/ImportExel`,
-    //       "POST",
-    //       dataView,
-    //       "IMPORT",
-    //       "",
-    //       resolve,
-    //       reject
-    //     )
-    //   );
-    // }).then((res) => {
-    //   if (res.status === 409) {
-    //     setDataLoi(res.data);
-    //     setMessageError("Import không thành công");
-    //   } else {
-    //     setFileName(null);
-    //     setDataView([]);
-    //     openModalFS(false);
-    //     refesh();
-    //   }
-    // });
+            if (dt) {
+              return {
+                ...data,
+                ghiChuImport: dt.ghiChuImport,
+              };
+            } else {
+              return data;
+            }
+          });
+          setDataView(newData);
+          setMessageError("Import không thành công");
+        } else {
+          setFileName(null);
+          setDataView([]);
+          openModalFS(false);
+          refesh();
+        }
+      });
+    });
   };
 
   const prop = {
