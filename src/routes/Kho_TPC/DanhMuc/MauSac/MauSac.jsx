@@ -1,4 +1,9 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { Button, Card, Col, Divider } from "antd";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
@@ -17,13 +22,14 @@ import {
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
-
+import ImportMauSac from "./ImportMauSac";
 const { EditableRow, EditableCell } = EditableTableRow;
 function MauSac({ permission, history }) {
   const dispatch = useDispatch();
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
+  const [ActiveModal, setActiveModal] = useState(false);
   const { totalRow, pageSize } = data;
   useEffect(() => {
     if (permission && permission.view) {
@@ -49,7 +55,9 @@ function MauSac({ permission, history }) {
     let param = convertObjectToUrlParams({ page, keyword });
     dispatch(fetchStart(`MauSac?${param}`, "GET", null, "LIST"));
   };
-
+  const refeshData = () => {
+    getListData(keyword, page);
+  };
   /**
    * handleTableChange
    *
@@ -272,15 +280,26 @@ function MauSac({ permission, history }) {
 
   const addButtonRender = () => {
     return (
-      <Button
-        icon={<PlusOutlined />}
-        className="th-btn-margin-bottom-0"
-        type="primary"
-        onClick={handleRedirect}
-        disabled={permission && !permission.add}
-      >
-        Thêm mới
-      </Button>
+      <>
+        <Button
+          icon={<UploadOutlined />}
+          className="th-btn-margin-bottom-0"
+          type="primary"
+          onClick={() => setActiveModal(true)}
+          disabled={permission && !permission.add}
+        >
+          Import
+        </Button>
+        <Button
+          icon={<PlusOutlined />}
+          className="th-btn-margin-bottom-0"
+          type="primary"
+          onClick={handleRedirect}
+          disabled={permission && !permission.add}
+        >
+          Thêm mới
+        </Button>
+      </>
     );
   };
 
@@ -355,6 +374,11 @@ function MauSac({ permission, history }) {
           loading={loading}
         />
       </Card>
+      <ImportMauSac
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        refesh={refeshData}
+      />
     </div>
   );
 }
