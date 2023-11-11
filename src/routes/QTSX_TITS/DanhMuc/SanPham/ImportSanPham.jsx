@@ -428,12 +428,11 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
   };
 
   const handleSubmit = () => {
-    const newData = dataView.map((data) => {
-      if (data.hinhAnh) {
-        console.log(data);
+    const newData = dataView.map((dataview) => {
+      if (dataview.hinhAnh) {
         const formData = new FormData();
-        formData.append("file", data.hinhAnh.file);
-        fetch(`${BASE_URL_API}/api/Upload`, {
+        formData.append("file", dataview.hinhAnh);
+        return fetch(`${BASE_URL_API}/api/Upload`, {
           method: "POST",
           body: formData,
           headers: {
@@ -442,12 +441,18 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
         })
           .then((res) => res.json())
           .then((data) => {
-            data.hinhAnh = data.path;
+            return {
+              ...dataview,
+              hinhAnh: data.path,
+            };
           });
       } else {
-        setDataLoi(data);
-        return null;
+        return dataview;
       }
+    });
+
+    Promise.all(newData).then((Data) => {
+      console.log(Data);
     });
 
     // new Promise((resolve, reject) => {
