@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Popover } from "antd";
+import { Card, Button, Divider, Col, Popover, Tag } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -23,7 +23,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function CauTrucKhoThanhPham({ match, history, permission }) {
+function CauTrucKhoVatTu({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [keyword, setKeyword] = useState("");
@@ -145,7 +145,7 @@ function CauTrucKhoThanhPham({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `CauTrucKho/kho-thanh-pham//${item.id}`;
+    let url = `tits_qtsx_CauTrucKho/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -184,7 +184,20 @@ function CauTrucKhoThanhPham({ match, history, permission }) {
   let dataList = treeToFlatlist(data);
   dataList = reDataSelectedTable(dataList);
   // let dataList = data;
-
+  const renderChungTu = (val) => {
+    const chungTu = val && val;
+    if (!isEmpty(chungTu)) {
+      return map(chungTu, (item, index) => {
+        let color = "green";
+        return (
+          <Tag key={index} color={color}>
+            {item.tenChungTu}
+          </Tag>
+        );
+      });
+    }
+    return null;
+  };
   let renderHead = [
     {
       title: "STT",
@@ -226,32 +239,26 @@ function CauTrucKhoThanhPham({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Tên Ban/Phòng",
-      dataIndex: "tenPhongBan",
-      key: "tenPhongBan",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenPhongBan,
-            value: d.tenPhongBan,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenPhongBan.includes(value),
-      filterSearch: true,
-    },
-    {
       title: "Sức chứa",
       dataIndex: "sucChua",
       key: "sucChua",
       align: "center",
-      render: (val) => <span>{val === 0 ? "" : val}</span>,
+      render: (val) => <span>{val !== 0 && val}</span>,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.sucChua,
+            value: d.sucChua,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.sucChua.includes(value),
+      filterSearch: true,
     },
     {
       title: "Mã Barcode",
-      dataIndex: "qrCode",
-      key: "qrCode",
+      dataIndex: "nameId",
+      key: "nameId",
       align: "center",
       render: (value) => (
         <div id="myqrcode">
@@ -594,9 +601,6 @@ function CauTrucKhoThanhPham({ match, history, permission }) {
           className="gx-table-responsive"
           dataSource={dataList}
           size="small"
-          rowClassName={(record) => {
-            return record.isParent ? "editable-row" : "editable-row";
-          }}
           pagination={false}
           loading={loading}
           // expandable={{
@@ -656,4 +660,4 @@ function CauTrucKhoThanhPham({ match, history, permission }) {
   );
 }
 
-export default CauTrucKhoThanhPham;
+export default CauTrucKhoVatTu;

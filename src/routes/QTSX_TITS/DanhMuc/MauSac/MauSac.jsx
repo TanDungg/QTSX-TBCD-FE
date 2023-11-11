@@ -193,35 +193,35 @@ function MauSac({ match, permission, history }) {
       align: "center",
     },
     {
-      title: "Mã màu",
-      dataIndex: "maMau",
-      key: "maMau",
+      title: "Mã màu sắc",
+      dataIndex: "maMauSac",
+      key: "maMauSac",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maMau,
-            value: d.maMau,
+            text: d.maMauSac,
+            value: d.maMauSac,
           };
         })
       ),
-      onFilter: (value, record) => record.maMau.includes(value),
+      onFilter: (value, record) => record.maMauSac.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên màu",
-      dataIndex: "maMau",
-      key: "maMau",
+      title: "Tên màu sắc",
+      dataIndex: "tenMauSac",
+      key: "tenMauSac",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maMau,
-            value: d.maMau,
+            text: d.tenMauSac,
+            value: d.tenMauSac,
           };
         })
       ),
-      onFilter: (value, record) => record.maMau.includes(value),
+      onFilter: (value, record) => record.tenMauSac.includes(value),
       filterSearch: true,
     },
     {
@@ -287,8 +287,8 @@ function MauSac({ match, permission, history }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Màu"}
-        description="Danh sách màu"
+        title={"Màu sắc"}
+        description="Danh sách màu sắc"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">

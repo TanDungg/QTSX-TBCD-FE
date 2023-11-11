@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Popover } from "antd";
+import { Card, Button, Divider, Col, Popover, Tag } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -145,7 +145,7 @@ function CauTrucKhoVatTu({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `CauTrucKho/${item.id}`;
+    let url = `tits_qtsx_CauTrucKho/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -184,7 +184,20 @@ function CauTrucKhoVatTu({ match, history, permission }) {
   let dataList = treeToFlatlist(data);
   dataList = reDataSelectedTable(dataList);
   // let dataList = data;
-
+  const renderChungTu = (val) => {
+    const chungTu = val && val;
+    if (!isEmpty(chungTu)) {
+      return map(chungTu, (item, index) => {
+        let color = "green";
+        return (
+          <Tag key={index} color={color}>
+            {item.tenChungTu}
+          </Tag>
+        );
+      });
+    }
+    return null;
+  };
   let renderHead = [
     {
       title: "STT",
@@ -226,25 +239,16 @@ function CauTrucKhoVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Tên Ban/Phòng",
-      dataIndex: "tenPhongBan",
-      key: "tenPhongBan",
+      title: "Chứng từ",
+      dataIndex: "chiTietChungTus",
+      key: "chiTietChungTus",
+      render: (val) => renderChungTu(val),
       align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenPhongBan,
-            value: d.tenPhongBan,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenPhongBan.includes(value),
-      filterSearch: true,
     },
     {
       title: "Mã Barcode",
-      dataIndex: "qrCode",
-      key: "qrCode",
+      dataIndex: "nameId",
+      key: "nameId",
       align: "center",
       render: (value) => (
         <div id="myqrcode">
@@ -587,9 +591,6 @@ function CauTrucKhoVatTu({ match, history, permission }) {
           className="gx-table-responsive"
           dataSource={dataList}
           size="small"
-          rowClassName={(record) => {
-            return record.isParent ? "editable-row" : "editable-row";
-          }}
           pagination={false}
           loading={loading}
           // expandable={{

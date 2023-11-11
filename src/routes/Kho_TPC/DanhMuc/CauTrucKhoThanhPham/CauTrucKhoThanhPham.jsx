@@ -145,7 +145,7 @@ function CauTrucKhoThanhPham({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `CauTrucKho/kho-thanh-pham//${item.id}`;
+    let url = `CauTrucKho/kho-thanh-pham/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })

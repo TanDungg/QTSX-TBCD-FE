@@ -173,7 +173,7 @@ const MauSacForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle = type === "new" ? "Thêm mới màu" : "Chỉnh sửa màu";
+  const formTitle = type === "new" ? "Thêm mới màu sắc" : "Chỉnh sửa màu sắc";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -186,8 +186,8 @@ const MauSacForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã màu"
-            name={["MauSac", "maMau"]}
+            label="Mã màu sắc"
+            name={["MauSac", "maMauSac"]}
             rules={[
               {
                 type: "string",
@@ -195,16 +195,16 @@ const MauSacForm = ({ history, match, permission }) => {
               },
               {
                 max: 50,
-                message: "Mã màu không được quá 50 ký tự",
+                message: "Mã màu sắc không được quá 50 ký tự",
               },
             ]}
             initialValue={maMau}
           >
-            <Input className="input-item" placeholder="Nhập mã màu" />
+            <Input className="input-item" placeholder="Nhập mã màu sắc" />
           </FormItem>
           <FormItem
-            label="Tên màu"
-            name={["MauSac", "tenMau"]}
+            label="Tên màu sắc"
+            name={["MauSac", "tenMauSac"]}
             rules={[
               {
                 type: "string",
@@ -212,12 +212,12 @@ const MauSacForm = ({ history, match, permission }) => {
               },
               {
                 max: 250,
-                message: "Tên màu không được quá 250 ký tự",
+                message: "Tên màu sắc không được quá 250 ký tự",
               },
             ]}
             initialValue={tenMau}
           >
-            <Input className="input-item" placeholder="Nhập tên màu" />
+            <Input className="input-item" placeholder="Nhập tên màu sắc" />
           </FormItem>
           <FormSubmit
             goBack={goBack}

@@ -115,6 +115,9 @@ const LoiForm = asyncComponent(() => import("./Loi/LoiForm"));
 const LoaiVatTu = asyncComponent(() => import("./LoaiVatTu/LoaiVatTu"));
 const LoaiVatTuForm = asyncComponent(() => import("./LoaiVatTu/LoaiVatTuForm"));
 
+const Kho = asyncComponent(() => import("./Kho/Kho"));
+const KhoForm = asyncComponent(() => import("./Kho/KhoForm"));
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -553,6 +556,21 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/loai-vat-tu/:id/chinh-sua`}
         exact
         component={Auth(LoaiVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/kho`}
+        exact
+        component={Auth(Kho, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/kho/them-moi`}
+        exact
+        component={Auth(KhoForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/kho/:id/chinh-sua`}
+        exact
+        component={Auth(KhoForm, menus, pathname, permission)}
       />
       {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
     </Switch>
