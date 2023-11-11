@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Tag, Col } from "antd";
+import { Card, Button, Divider, Tag, Col, Image } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -23,6 +23,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import ImportSanPham from "./ImportSanPham";
+import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -33,6 +34,7 @@ function SanPham({ match, history, permission }) {
   const [LoaiSanPham, setLoaiSanPham] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [ActiveModal, setActiveModal] = useState(false);
+  const [OpenImage, setOpenImage] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -195,23 +197,20 @@ function SanPham({ match, history, permission }) {
   const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
-  /**
-   * Hiển thị tag quyền
-   *
-   * @param {*} val
-   * @returns
-   */
+
   const renderHinhAnh = (item) => {
-    const mauSac = JSON.parse(item);
-    if (!isEmpty(mauSac)) {
-      return map(mauSac, (item, index) => {
-        let color = "green";
-        return (
-          <Tag key={index} color={color}>
-            {item.tenMauSac}
-          </Tag>
-        );
-      });
+    if (!isEmpty(item.hinhAnh)) {
+      return (
+        <span>
+          <a
+            target="_blank"
+            href={BASE_URL_API + item.hinhAnh}
+            rel="noopener noreferrer"
+          >
+            {item.hinhAnh.split("/")[5]}
+          </a>
+        </span>
+      );
     }
     return null;
   };
@@ -306,18 +305,9 @@ function SanPham({ match, history, permission }) {
     },
     {
       title: "Hình ảnh",
-      key: "fileHinhAnh",
+      key: "hinhAnh",
       align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.fileHinhAnh,
-            value: d.fileHinhAnh,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.fileHinhAnh.includes(value),
-      filterSearch: true,
+      render: (record) => renderHinhAnh(record),
     },
     {
       title: "Chức năng",
