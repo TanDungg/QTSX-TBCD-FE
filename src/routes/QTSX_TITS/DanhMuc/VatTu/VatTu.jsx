@@ -49,7 +49,7 @@ function VatTu({ match, history, permission }) {
    */
   const loadData = (keyword, page) => {
     const param = convertObjectToUrlParams({ keyword, page });
-    dispatch(fetchStart(`VatTu?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`tits_qtsx_VatTu?${param}`, "GET", null, "LIST"));
   };
 
   /**
@@ -82,7 +82,7 @@ function VatTu({ match, history, permission }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `/danh-muc-kho-tpc/vat-tu/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
           title="Sửa"
@@ -116,7 +116,7 @@ function VatTu({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maVatTu, "sản phẩm");
+    ModalDeleteConfirm(deleteItemAction, item, item.maVatTu, "vật tư");
   };
 
   /**
@@ -125,7 +125,7 @@ function VatTu({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `VatTu/${item.id}`;
+    let url = `tits_qtsx_VatTu/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -156,15 +156,18 @@ function VatTu({ match, history, permission }) {
    */
   const handleRedirect = () => {
     history.push({
-      pathname: "/danh-muc-kho-tpc/vat-tu/them-moi",
+      pathname: `${match.url}/them-moi`,
     });
   };
+
   const handleImport = () => {
     setActiveModal(true);
   };
+
   const refeshData = () => {
     loadData(keyword, page);
   };
+
   const addButtonRender = () => {
     return (
       <>
@@ -234,35 +237,35 @@ function VatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Nhóm vật tư",
-      dataIndex: "tenNhomVatTu",
-      key: "tenNhomVatTu",
+      title: "Loại vật tư",
+      dataIndex: "tenLoaiVatTu",
+      key: "tenLoaiVatTu",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenNhomVatTu,
-            value: d.tenNhomVatTu,
+            text: d.tenLoaiVatTu,
+            value: d.tenLoaiVatTu,
           };
         })
       ),
-      onFilter: (value, record) => record.tenNhomVatTu.includes(value),
+      onFilter: (value, record) => record.tenLoaiVatTu.includes(value),
       filterSearch: true,
     },
     {
-      title: "Thông số",
-      dataIndex: "quyCach",
-      key: "quyCach",
+      title: "Thông số kỹ thuật",
+      dataIndex: "thongSoKyThuat",
+      key: "thongSoKyThuat",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.quyCach,
-            value: d.quyCach,
+            text: d.thongSoKyThuat,
+            value: d.thongSoKyThuat,
           };
         })
       ),
-      onFilter: (value, record) => record.quyCach.includes(value),
+      onFilter: (value, record) => record.thongSoKyThuat.includes(value),
       filterSearch: true,
     },
     {
@@ -299,18 +302,18 @@ function VatTu({ match, history, permission }) {
     },
     {
       title: "Đơn vị quy đổi",
-      dataIndex: "donViQuyDoi",
-      key: "donViQuyDoi",
+      dataIndex: "tenDonViTinhQuyDoi",
+      key: "tenDonViTinhQuyDoi",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.donViQuyDoi,
-            value: d.donViQuyDoi,
+            text: d.tenDonViTinhQuyDoi,
+            value: d.tenDonViTinhQuyDoi,
           };
         })
       ),
-      onFilter: (value, record) => record.donViQuyDoi.includes(value),
+      onFilter: (value, record) => record.tenDonViTinhQuyDoi.includes(value),
       filterSearch: true,
     },
     {
@@ -413,7 +416,7 @@ function VatTu({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 700, y: "50vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

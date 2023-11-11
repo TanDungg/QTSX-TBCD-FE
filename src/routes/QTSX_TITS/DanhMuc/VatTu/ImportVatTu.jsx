@@ -20,39 +20,31 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
 import { Modal } from "src/components/Common";
-import { exportExcel, reDataForTable } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  exportExcel,
+  reDataForTable,
+} from "src/util/Common";
 import * as XLSX from "xlsx";
 import { EditableTableRow, Table } from "src/components/Common";
+import { getLocalStorage, getTokenInfo } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [dataView, setDataView] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
   const [HangTrung, setHangTrung] = useState([]);
   const [DataLoi, setDataLoi] = useState();
   const [message, setMessageError] = useState([]);
-  const renderLoi = (val) => {
-    let check = false;
-    let messageLoi = "";
-    if (DataLoi && DataLoi.length > 0) {
-      DataLoi.forEach((dt) => {
-        if (dt.maVatTu === val) {
-          check = true;
-          messageLoi = dt.ghiChuImport;
-        }
-      });
-    }
-    return check ? (
-      <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
-        {val}
-      </Popover>
-    ) : (
-      <span>{val}</span>
-    );
-  };
+
   let colValues = [
     {
       title: "STT",
@@ -67,7 +59,6 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
-      render: (val) => renderLoi(val),
     },
     {
       title: "Tên vật tư",
@@ -76,16 +67,16 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
       key: "tenVatTu",
     },
     {
-      title: "Mã nhóm vật tư",
-      dataIndex: "maNhomVatTu",
+      title: "Mã loại vật tư",
+      dataIndex: "maLoaiVatTu",
       align: "center",
-      key: "maNhomVatTu",
+      key: "maLoaiVatTu",
     },
     {
-      title: "Thông số",
-      dataIndex: "quyCach",
+      title: "Thông số kỹ thuật",
+      dataIndex: "thongSoKyThuat",
       align: "center",
-      key: "quyCach",
+      key: "thongSoKyThuat",
     },
     {
       title: "Mã màu sắc",
@@ -100,16 +91,22 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
       key: "maDonViTinh",
     },
     {
-      title: "Đơn vị quy đổi",
-      dataIndex: "donViQuyDoi",
+      title: "Mã đơn vị tính quy đổi",
+      dataIndex: "maDonViTinhQuyDoi",
       align: "center",
-      key: "donViQuyDoi",
+      key: "maDonViTinhQuyDoi",
     },
     {
       title: "Tỉ lệ quy đổi",
       dataIndex: "tiLeQuyDoi",
       align: "center",
       key: "tiLeQuyDoi",
+    },
+    {
+      title: "Lỗi",
+      dataIndex: "ghiChuImport",
+      align: "center",
+      key: "ghiChuImport",
     },
   ];
   const components = {
@@ -137,11 +134,14 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
 
   //File mẫu
   const TaiFileMau = () => {
+    let param = convertObjectToUrlParams({
+      DonVi_Id: INFO.donVi_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `VatTu/ExportFileExcel`,
-          "POST",
+          `tits_qtsx_VatTu/export-file-excel?${param}`,
+          "GET",
           null,
           "DOWLOAD",
           "",
@@ -150,7 +150,7 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
         )
       );
     }).then((res) => {
-      exportExcel("File_Mau_Vat_Tu", res.data.dataexcel);
+      exportExcel("FileMauImportVatTu", res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {
@@ -205,7 +205,7 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã nhóm vật tư" &&
+          .trim() === "Mã loại vật tư" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
@@ -216,7 +216,7 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Thông số" &&
+          .trim() === "Thông số kỹ thuật" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
@@ -249,7 +249,7 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 7, r: 2 }, e: { c: 7, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Đơn vị quy đổi" &&
+          .trim() === "Mã đơn vị tính quy đổi" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 8, r: 2 }, e: { c: 8, r: 2 } },
@@ -267,70 +267,58 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
         });
         const MVT = "Mã vật tư";
         const TVT = "Tên vật tư";
-        const MNVT = "Mã nhóm vật tư";
-        const TS = "Thông số";
+        const MLVT = "Mã loại vật tư";
+        const TSKT = "Thông số kỹ thuật";
         const MDVT = "Mã đơn vị tính";
         const MMS = "Mã màu sắc";
-        const DVQD = "Đơn vị quy đổi";
+        const DVQD = "Mã đơn vị tính quy đổi";
         const TLQD = "Tỉ lệ quy đổi";
 
         const Data = [];
         const NewData = [];
         data.forEach((d, index) => {
-          if (
-            data[index][MVT] &&
-            data[index][MVT].toString().trim() === "" &&
-            data[index][TVT] &&
-            data[index][TVT].toString().trim() === "" &&
-            data[index][MNVT] &&
-            data[index][MNVT].toString().trim() === "" &&
-            data[index][MDVT] &&
-            data[index][MDVT].toString().trim() === ""
-          ) {
-          } else {
-            NewData.push({
-              maVatTu: data[index][MVT]
-                ? data[index][MVT].toString().trim() !== ""
-                  ? data[index][MVT].toString().trim()
-                  : undefined
-                : undefined,
-              tenVatTu: data[index][TVT]
-                ? data[index][TVT].toString().trim() !== ""
-                  ? data[index][TVT].toString().trim()
-                  : undefined
-                : undefined,
-              maNhomVatTu: data[index][MNVT]
-                ? data[index][MNVT].toString().trim() !== ""
-                  ? data[index][MNVT].toString().trim()
-                  : undefined
-                : undefined,
-              quyCach: data[index][TS]
-                ? data[index][TS].toString().trim() !== ""
-                  ? data[index][TS].toString().trim()
-                  : undefined
-                : undefined,
-              maMauSac: data[index][MMS]
-                ? data[index][MMS].toString().trim() !== ""
-                  ? data[index][MMS].toString().trim()
-                  : undefined
-                : undefined,
-              maDonViTinh: data[index][MDVT]
-                ? data[index][MDVT].toString().trim() !== ""
-                  ? data[index][MDVT].toString().trim()
-                  : undefined
-                : undefined,
-              donViQuyDoi: data[index][DVQD]
-                ? data[index][DVQD].toString().trim() !== ""
-                  ? data[index][DVQD].toString().trim()
-                  : undefined
-                : undefined,
-              tiLeQuyDoi: data[index][TLQD]
-                ? data[index][TLQD].toString().trim() !== ""
-                  ? data[index][TLQD].toString().trim()
-                  : undefined
-                : undefined,
-            });
-          }
+          NewData.push({
+            maVatTu: data[index][MVT]
+              ? data[index][MVT].toString().trim() !== ""
+                ? data[index][MVT].toString().trim()
+                : null
+              : null,
+            tenVatTu: data[index][TVT]
+              ? data[index][TVT].toString().trim() !== ""
+                ? data[index][TVT].toString().trim()
+                : null
+              : null,
+            maLoaiVatTu: data[index][MLVT]
+              ? data[index][MLVT].toString().trim() !== ""
+                ? data[index][MLVT].toString().trim()
+                : null
+              : null,
+            thongSoKyThuat: data[index][TSKT]
+              ? data[index][TSKT].toString().trim() !== ""
+                ? data[index][TSKT].toString().trim()
+                : null
+              : null,
+            maMauSac: data[index][MMS]
+              ? data[index][MMS].toString().trim() !== ""
+                ? data[index][MMS].toString().trim()
+                : null
+              : null,
+            maDonViTinh: data[index][MDVT]
+              ? data[index][MDVT].toString().trim() !== ""
+                ? data[index][MDVT].toString().trim()
+                : null
+              : null,
+            maDonViTinhQuyDoi: data[index][DVQD]
+              ? data[index][DVQD].toString().trim() !== ""
+                ? data[index][DVQD].toString().trim()
+                : null
+              : null,
+            tiLeQuyDoi: data[index][TLQD]
+              ? data[index][TLQD].toString().trim() !== ""
+                ? data[index][TLQD].toString().trim()
+                : null
+              : null,
+          });
           Data.push(data[index][MVT]);
         });
         if (NewData.length === 0) {
@@ -344,11 +332,7 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
           const row = [];
           for (let i = 0; i < Data.length; i++) {
             for (let j = i + 1; j < Data.length; j++) {
-              if (
-                Data[i] === Data[j] &&
-                Data[j] !== undefined &&
-                Data[i] !== undefined
-              ) {
+              if (Data[i] === Data[j] && Data[j] !== null && Data[i] !== null) {
                 indices.push(Data[i]);
                 row.push(i + 1);
                 row.push(j + 1);
@@ -399,12 +383,16 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
   };
 
   const handleSubmit = () => {
+    const newListSanPham = {
+      donVi_Id: INFO.donVi_Id,
+      list_VatTus: dataView,
+    };
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `VatTu/ImportExel`,
+          `tits_qtsx_VatTu/import-excel`,
           "POST",
-          dataView,
+          newListSanPham,
           "IMPORT",
           "",
           resolve,
@@ -414,6 +402,18 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
     }).then((res) => {
       if (res.status === 409) {
         setDataLoi(res.data);
+        const newData = dataView.map((data) => {
+          const dt = res.data.find((item) => item.maVatTu === data.maVatTu);
+          if (dt) {
+            return {
+              ...data,
+              ghiChuImport: dt.ghiChuImport,
+            };
+          } else {
+            return data;
+          }
+        });
+        setDataView(newData);
         setMessageError("Import không thành công");
       } else {
         setFileName(null);
@@ -442,19 +442,19 @@ function ImportVatTu({ openModalFS, openModal, loading, refesh }) {
           return "red-row";
         }
       });
-    } else if (current.maVatTu === undefined) {
+    } else if (current.maVatTu === null) {
       setCheckDanger(true);
       setMessageError("Mã vật tư không được rỗng");
       return "red-row";
-    } else if (current.tenVatTu === undefined) {
+    } else if (current.tenVatTu === null) {
       setCheckDanger(true);
       setMessageError("Tên vật tư không được rỗng");
       return "red-row";
-    } else if (current.maNhomVatTu === undefined) {
+    } else if (current.maLoaiVatTu === null) {
       setCheckDanger(true);
       setMessageError("Mã nhóm vật tư không được rỗng");
       return "red-row";
-    } else if (current.maDonViTinh === undefined) {
+    } else if (current.maDonViTinh === null) {
       setCheckDanger(true);
       setMessageError("Mã đơn vị tính không được rỗng");
       return "red-row";
