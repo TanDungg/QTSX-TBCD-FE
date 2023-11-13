@@ -247,7 +247,6 @@ function SanPhamForm({ match, permission, history }) {
               resetFields();
               setFileHinhAnh(null);
               setFileAnh(null);
-              setDisableUpload(false);
               setFieldTouch(false);
               setDisableUpload(false);
             }
