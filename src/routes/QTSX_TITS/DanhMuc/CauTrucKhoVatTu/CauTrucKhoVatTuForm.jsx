@@ -260,9 +260,7 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
   };
 
   const formTitle =
-    type === "new"
-      ? "Thêm mới cấu trúc kho vật tư"
-      : "Chỉnh sửa cấu trúc kho vật tư";
+    type === "new" ? "Thêm mới kho vật tư" : "Chỉnh sửa kho vật tư";
 
   return (
     <div className="gx-main-content">
@@ -277,7 +275,7 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
             onFieldsChange={() => setFieldTouch(true)}
           >
             <FormItem
-              label="Mã cấu trúc kho"
+              label="Mã kho vật tư"
               name={["CauTrucKho", "maCauTrucKho"]}
               rules={[
                 {
@@ -290,13 +288,10 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
               ]}
               initialValue={maCauTrucKho}
             >
-              <Input
-                className="input-item"
-                placeholder="Nhập mã cấu trúc kho"
-              />
+              <Input className="input-item" placeholder="Nhập mã kho vật tư" />
             </FormItem>
             <FormItem
-              label="Tên cấu trúc kho"
+              label="Tên kho vật tư"
               name={["CauTrucKho", "tenCauTrucKho"]}
               rules={[
                 {
@@ -309,12 +304,9 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
               ]}
               initialValue={tenCauTrucKho}
             >
-              <Input
-                className="input-item"
-                placeholder="Nhập tên cấu trúc kho"
-              />
+              <Input className="input-item" placeholder="Nhập tên kho vật tư" />
             </FormItem>
-
+            {/* 
             <FormItem
               label="Cấu trúc kho cha"
               name={["CauTrucKho", "tits_qtsx_CauTrucKho_Id"]}
@@ -350,15 +342,15 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
                   }
                 }}
               />
-            </FormItem>
-            <FormItem label="Vị trí" name={["CauTrucKho", "viTri"]}>
+            </FormItem> */}
+            {/* <FormItem label="Vị trí" name={["CauTrucKho", "viTri"]}>
               <Input
                 className="input-item"
                 type="number"
                 placeholder="Nhập vị trí"
                 disabled={disableViTri}
               />
-            </FormItem>
+            </FormItem> */}
             <FormItem
               label="Chứng từ"
               name={["CauTrucKho", "tits_qtsx_CauTrucKho_ChungTus"]}
@@ -377,10 +369,6 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
                 showSearch
                 optionFilterProp="name"
                 mode={"multiple"}
-                disabled={
-                  getFieldValue("CauTrucKho") &&
-                  getFieldValue("CauTrucKho").tits_qtsx_CauTrucKho_Id !== "root"
-                }
               />
             </FormItem>
             <FormSubmit

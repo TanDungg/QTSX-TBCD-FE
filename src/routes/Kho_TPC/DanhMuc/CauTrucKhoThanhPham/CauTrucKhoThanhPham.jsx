@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Col, Popover } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty, repeat } from "lodash";
@@ -20,12 +25,14 @@ import {
   treeToFlatlist,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import ImportCauTrucKhoThanhPham from "./ImportCauTrucKhoThanhPham";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function CauTrucKhoThanhPham({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const [ActiveModal, setActiveModal] = useState(false);
   const [keyword, setKeyword] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
@@ -169,6 +176,15 @@ function CauTrucKhoThanhPham({ match, history, permission }) {
   const addButtonRender = () => {
     return (
       <>
+        <Button
+          icon={<UploadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={() => setActiveModal(true)}
+          disabled={permission && !permission.add}
+        >
+          Import
+        </Button>
         <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
@@ -652,6 +668,13 @@ function CauTrucKhoThanhPham({ match, history, permission }) {
           // }}
         />
       </Card>
+      <ImportCauTrucKhoThanhPham
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        refesh={() => {
+          loadData(keyword, 1);
+        }}
+      />
     </div>
   );
 }

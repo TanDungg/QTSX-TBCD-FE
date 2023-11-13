@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Col, Popover } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty, repeat } from "lodash";
+import ImportCauTrucKhoVatTu from "./ImportCauTrucKhoVatTu";
 import QRCode from "qrcode.react";
 import {
   ModalDeleteConfirm,
@@ -27,6 +33,8 @@ function CauTrucKhoVatTu({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [keyword, setKeyword] = useState("");
+  const [ActiveModal, setActiveModal] = useState(false);
+
   useEffect(() => {
     if (permission && permission.view) {
       loadData(keyword, 1);
@@ -164,6 +172,15 @@ function CauTrucKhoVatTu({ match, history, permission }) {
   const addButtonRender = () => {
     return (
       <>
+        <Button
+          icon={<UploadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={() => setActiveModal(true)}
+          disabled={permission && !permission.add}
+        >
+          Import
+        </Button>
         <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
@@ -638,6 +655,13 @@ function CauTrucKhoVatTu({ match, history, permission }) {
           //     />
           //   ),
           // }}
+        />
+        <ImportCauTrucKhoVatTu
+          openModal={ActiveModal}
+          openModalFS={setActiveModal}
+          refesh={() => {
+            loadData(keyword, 1);
+          }}
         />
       </Card>
     </div>
