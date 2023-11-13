@@ -317,7 +317,7 @@ function DanhMucCongDoan({ match, history, permission }) {
             ? "Mã xưởng"
             : ma === "chuyen"
             ? "Mã chuyền"
-            : ma === "tram" && "Mã trạm",
+            : "Mã trạm",
         dataIndex:
           ma === "congDoan"
             ? "maCongDoan"
@@ -325,7 +325,7 @@ function DanhMucCongDoan({ match, history, permission }) {
             ? "maXuong"
             : ma === "chuyen"
             ? "maChuyen"
-            : ma === "tram" && "maTram",
+            : "maTram",
         key:
           ma === "congDoan"
             ? "maCongDoan"
@@ -333,7 +333,7 @@ function DanhMucCongDoan({ match, history, permission }) {
             ? "maXuong"
             : ma === "chuyen"
             ? "maChuyen"
-            : ma === "tram" && "maTram",
+            : "maTram",
         align: "center",
       },
       {
@@ -344,7 +344,7 @@ function DanhMucCongDoan({ match, history, permission }) {
             ? "Tên xưởng"
             : ma === "chuyen"
             ? "Tên chuyền"
-            : ma === "tram" && "Tên trạm",
+            : "Tên trạm",
         dataIndex:
           ma === "congDoan"
             ? "tenCongDoan"
@@ -352,7 +352,7 @@ function DanhMucCongDoan({ match, history, permission }) {
             ? "tenXuong"
             : ma === "chuyen"
             ? "tenChuyen"
-            : ma === "tram" && "tenTram",
+            : "tenTram",
         key:
           ma === "congDoan"
             ? "tenCongDoan"
@@ -360,7 +360,7 @@ function DanhMucCongDoan({ match, history, permission }) {
             ? "tenXuong"
             : ma === "chuyen"
             ? "tenChuyen"
-            : ma === "tram" && "tenTram",
+            : "tenTram",
         align: "center",
       },
     ];
@@ -544,7 +544,7 @@ function DanhMucCongDoan({ match, history, permission }) {
           expandable={{
             expandedRowRender: (record) => (
               <Table
-                style={{ marginLeft: "80px", width: "90%" }}
+                style={{ marginLeft: "80px", width: "94.6%" }}
                 bordered
                 columns={columnsXuong}
                 scroll={{ x: 500 }}
@@ -558,7 +558,7 @@ function DanhMucCongDoan({ match, history, permission }) {
                 expandable={{
                   expandedRowRender: (record) => (
                     <Table
-                      style={{ marginLeft: "80px", width: "80%" }}
+                      style={{ marginLeft: "80px", width: "94%" }}
                       bordered
                       columns={columnsChuyen}
                       scroll={{ x: 500 }}
@@ -572,7 +572,7 @@ function DanhMucCongDoan({ match, history, permission }) {
                       expandable={{
                         expandedRowRender: (record) => (
                           <Table
-                            style={{ marginLeft: "80px", width: "80%" }}
+                            style={{ marginLeft: "80px", width: "93.6%" }}
                             bordered
                             columns={columnsTram}
                             scroll={{ x: 500 }}

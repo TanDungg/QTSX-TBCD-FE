@@ -18,16 +18,18 @@ const BaoCao_KHO_TPC = asyncComponent(() => import("./Kho_TPC/BaoCao"));
 const QuanLyKho_KHO_TPC = asyncComponent(() => import("./Kho_TPC/QuanLyKho"));
 const InBarcode = asyncComponent(() => import("./Kho_TPC/InBarcode"));
 const HOME_KHO_TPC = asyncComponent(() => import("./Kho_TPC/Home"));
-
+//QTSX_TITS
 const DanhMuc_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/DanhMuc"));
 const HeThong_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/HeThong"));
 const KeHoach_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/KeHoach"));
+const MuaHang_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/MuaHang"));
 
 const App = ({ match, menus, location }) => {
   const { pathname } = location;
   return (
     <div className="gx-main-content-wrapper">
       <Switch>
+        {/* ERP */}
         <Route
           path={`${match.url}home`}
           component={Auth(Home_ERP, menus, pathname)}
@@ -89,6 +91,10 @@ const App = ({ match, menus, location }) => {
         <Route
           path={`${match.url}ke-hoach-qtsx-tits`}
           component={Auth(KeHoach_QTSX_TITS, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}mua-hang-qtsx-tits`}
+          component={Auth(MuaHang_QTSX_TITS, menus, pathname)}
         />
         <Route path="*" component={Auth(Home_ERP, menus, pathname)} />
       </Switch>

@@ -143,8 +143,8 @@ function LoaiSanPham({ match, history, permission }) {
   let renderHead = [
     {
       title: "STT",
-      dataIndex: "stt",
-      key: "stt",
+      dataIndex: "key",
+      key: "key",
       align: "center",
       width: 45,
     },
