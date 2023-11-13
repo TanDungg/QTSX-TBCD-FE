@@ -249,6 +249,7 @@ function SanPhamForm({ match, permission, history }) {
               setFileAnh(null);
               setDisableUpload(false);
               setFieldTouch(false);
+              setDisableUpload(false);
             }
           }
         })
@@ -297,6 +298,7 @@ function SanPhamForm({ match, permission, history }) {
   };
 
   const props = {
+    accept: "image/png, image/jpeg",
     beforeUpload: (file) => {
       const isPNG = file.type === "image/png" || file.type === "image/jpeg";
       if (!isPNG) {
@@ -443,7 +445,7 @@ function SanPhamForm({ match, permission, history }) {
                     Tải file hình ảnh
                   </Button>
                 </Upload>
-              ) : FileHinhAnh.name ? (
+              ) : FileHinhAnh && FileHinhAnh.name ? (
                 <span>
                   <span
                     style={{ color: "#0469B9", cursor: "pointer" }}
@@ -490,7 +492,7 @@ function SanPhamForm({ match, permission, history }) {
                     href={BASE_URL_API + FileHinhAnh}
                     rel="noopener noreferrer"
                   >
-                    {FileHinhAnh.split("/")[5]}{" "}
+                    {FileHinhAnh && FileHinhAnh.split("/")[5]}{" "}
                   </a>
                   {(type === "new" || type === "edit") && (
                     <DeleteOutlined
