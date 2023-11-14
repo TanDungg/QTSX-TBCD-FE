@@ -22,6 +22,9 @@ const KeHoachTong = asyncComponent(() =>
 const KeHoachChiTiet = asyncComponent(() =>
   import("./KeHoachSanXuat/KeHoachChiTiet/KeHoachChiTiet")
 );
+const ImportKeHoachTong = asyncComponent(() =>
+  import("./KeHoachSanXuat/KeHoachTong/ImportKeHoachTong")
+);
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -62,7 +65,12 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(KeHoachTong, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/ke-hoach-san-xuat/chi-tiet`}
+        path={`${match.url}/ke-hoach-san-xuat/tong/import`}
+        exact
+        component={Auth(ImportKeHoachTong, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/ke-hoach-san-xuat/kh-chi-tiet`}
         exact
         component={Auth(KeHoachChiTiet, menus, pathname, permission)}
       />

@@ -2,7 +2,7 @@
 export const BASE_URL_API = `http://10.14.7.215:1512`;
 // export const BASE_URL_API = `http://10.14.2.34:81`;
 
-// export const BASE_URL_API = `http://localhost:81`;
+// export const BASE_URL_API = `http://113.176.118.58:82`;
 
 export const BASE_URL_APP = `${window.location.origin.toString()}`;
 // export const BASE_URL_APP = `http://localhost:4000`;

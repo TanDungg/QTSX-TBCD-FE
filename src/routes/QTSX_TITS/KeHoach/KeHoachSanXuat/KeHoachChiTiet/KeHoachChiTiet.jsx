@@ -25,11 +25,9 @@ function KeHoachChiTiet({ match, history, permission }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const INFO = getLocalStorage("menu");
-  const [listKeHoach, setListKeHoach] = useState([]);
   const [KeHoach, setKeHoach] = useState("");
   const [Xuong, setXuong] = useState("");
   const [data, setData] = useState([]);
-  const [ListXuong, setListXuong] = useState([]);
   const [VersionSelect, setVersionSelect] = useState([]);
   const [Thang, setThang] = useState(getThangNow());
   const [Nam, setNam] = useState(getNamNow());
@@ -38,8 +36,6 @@ function KeHoachChiTiet({ match, history, permission }) {
   const [dataEdit, setDataEdit] = useState({});
   useEffect(() => {
     if (permission && permission.view) {
-      getXuong();
-      getLoaiKeHoach();
     } else if (permission && !permission.view) {
       history.push("/home");
     }
@@ -61,13 +57,18 @@ function KeHoachChiTiet({ match, history, permission }) {
    * @param phongBan_Id loại xe id
    * @param thangNam tháng năm
    */
-  const getListData = (loaiKeHoach_Id, phongBan_Id, thang, nam, version_Id) => {
+  const getListData = (
+    tits_qtsx_Xuong_Id,
+    thang,
+    nam,
+    tits_qtsx_KeHoachVersion_Id
+  ) => {
     let param = convertObjectToUrlParams({
       thang,
       nam,
-      phongBan_Id,
-      loaiKeHoach_Id,
-      version_Id,
+      IsSanXuat: true,
+      tits_qtsx_Xuong_Id,
+      tits_qtsx_KeHoachVersion_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -88,17 +89,8 @@ function KeHoachChiTiet({ match, history, permission }) {
             const ctkh = {};
             let t = 0;
             JSON.parse(sp.chiTietKeHoach).forEach((ct) => {
-              let chiTietMS = [];
-              ct.chiTietMauSac.forEach((ms) => {
-                chiTietMS.push({
-                  mauSac_Id: ms.mauSac_Id,
-                  tenMauSac: ms.tenMauSac,
-                  soLuong: ms.soLuong,
-                });
-              });
               ctkh[`ngay${ct.ngay}`] = {
                 soLuong: ct.tongSoLuong,
-                mauSac: chiTietMS,
                 keHoach_Id: ct.keHoach_Id,
                 ngay: ct.ngay,
                 sanPham_Id: sp.sanPham_Id,
@@ -123,71 +115,17 @@ function KeHoachChiTiet({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
-  const getLoaiKeHoach = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_LoaiKeHoach?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListKeHoach(res.data);
-          setKeHoach(res.data[0].id);
-        } else {
-          setListKeHoach([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  const getXuong = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const xuong = [];
-          res.data.forEach((x) => {
-            if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
-              xuong.push(x);
-            }
-          });
-          setListXuong(xuong);
-          setXuong(xuong[0].id);
-        } else {
-          setListXuong([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  const getVersion = (kh, pb, t, n) => {
+
+  const getVersion = (t, n) => {
     const params = convertObjectToUrlParams({
-      loaiKeHoach_Id: kh,
-      phongBan_Id: pb,
+      IsSanXuat: true,
       thang: t,
       nam: n,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_KeHoach/list-version-ke-hoach?${params}`,
+          `tits_qtsx_KeHoach?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -201,9 +139,9 @@ function KeHoachChiTiet({ match, history, permission }) {
         if (res && res.data.length > 0) {
           setVersionSelect(res.data);
           setVersion(res.data[0].version_Id);
-          getListData(kh, pb, t, n, res.data[0].version_Id);
+          getListData(t, n, res.data[0].version_Id);
         } else {
-          getListData(kh, pb, t, n);
+          getListData(t, n);
           setVersion("");
           setVersionSelect([]);
         }
@@ -424,13 +362,6 @@ function KeHoachChiTiet({ match, history, permission }) {
       }),
     };
   });
-  const handleOnSelectKeHoach = (value) => {
-    getVersion(value, Xuong, Thang, Nam);
-  };
-  const handleOnSelectXuong = (value) => {
-    setXuong(value);
-    getVersion(KeHoach, value, Thang, Nam);
-  };
   const handleOnSelectVersion = (value) => {
     getListData(KeHoach, Xuong, Thang, Nam, value);
     setVersion(value);
@@ -470,54 +401,12 @@ function KeHoachChiTiet({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Kế hoạch"}
-        description="Kế hoạch"
+        title={"Kế hoạch sản xuất chi tiết"}
+        description="Kế hoạch sản xuất chi tiết"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Kế hoạch:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={listKeHoach ? listKeHoach : []}
-              placeholder="Chọn kế hoạch"
-              optionsvalue={["id", "tenLoaiKeHoach"]}
-              style={{ width: "100%" }}
-              onSelect={handleOnSelectKeHoach}
-              onChange={(value) => setKeHoach(value)}
-              value={KeHoach}
-            />
-          </Col>
-
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Xưởng sản xuất:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListXuong ? ListXuong : []}
-              placeholder="Chọn xưởng"
-              optionsvalue={["id", "tenPhongBan"]}
-              style={{ width: "100%" }}
-              onSelect={handleOnSelectXuong}
-              value={Xuong}
-            />
-          </Col>
           <Col
             xxl={6}
             xl={8}
@@ -538,7 +427,6 @@ function KeHoachChiTiet({ match, history, permission }) {
               onChange={(date, dateString) => handleOnChangeDate(dateString)}
             />
           </Col>
-
           <Col
             xxl={6}
             xl={8}

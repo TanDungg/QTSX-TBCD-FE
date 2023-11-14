@@ -35,38 +35,30 @@ function KeHoachTong({ match, history, permission }) {
   const [dataEdit, setDataEdit] = useState({});
   useEffect(() => {
     if (permission && permission.view) {
+      getVersion(Thang, Nam);
     } else if (permission && !permission.view) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  useEffect(() => {
-    if (Xuong !== "") {
-      getVersion(Xuong, Thang, Nam);
-    }
-  }, [Xuong]);
 
-  const refeshData = () => {
-    getVersion(Xuong, Thang, Nam);
-  };
   /**
    * Load danh sách người dùng
    * @param KeHoach Từ khóa
    * @param phongBan_Id loại xe id
    * @param thangNam tháng năm
    */
-  const getListData = (phongBan_Id, thang, nam, version_Id) => {
+  const getListData = (thang, nam, tits_qtsx_KeHoachVersion_Id) => {
     let param = convertObjectToUrlParams({
       thang,
       nam,
-      phongBan_Id,
-      version_Id,
+      tits_qtsx_KeHoachVersion_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_KeHoach?${param}`,
+          `tits_qtsx_KeHoach?${param}`,
           "GET",
           null,
           "LIST",
@@ -82,17 +74,8 @@ function KeHoachTong({ match, history, permission }) {
             const ctkh = {};
             let t = 0;
             JSON.parse(sp.chiTietKeHoach).forEach((ct) => {
-              let chiTietMS = [];
-              ct.chiTietMauSac.forEach((ms) => {
-                chiTietMS.push({
-                  mauSac_Id: ms.mauSac_Id,
-                  tenMauSac: ms.tenMauSac,
-                  soLuong: ms.soLuong,
-                });
-              });
               ctkh[`ngay${ct.ngay}`] = {
                 soLuong: ct.tongSoLuong,
-                mauSac: chiTietMS,
                 keHoach_Id: ct.keHoach_Id,
                 ngay: ct.ngay,
                 sanPham_Id: sp.sanPham_Id,
@@ -117,17 +100,16 @@ function KeHoachTong({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
-  const getVersion = (kh, pb, t, n) => {
+  const getVersion = (t, n) => {
     const params = convertObjectToUrlParams({
-      loaiKeHoach_Id: kh,
-      phongBan_Id: pb,
+      IsSanXuat: true,
       thang: t,
       nam: n,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_KeHoach/list-version-ke-hoach?${params}`,
+          `tits_qtsx_KeHoach/list-version-ke-hoach?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -141,9 +123,9 @@ function KeHoachTong({ match, history, permission }) {
         if (res && res.data.length > 0) {
           setVersionSelect(res.data);
           setVersion(res.data[0].version_Id);
-          getListData(kh, pb, t, n, res.data[0].version_Id);
+          getListData(t, n, res.data[0].version_Id);
         } else {
-          getListData(kh, pb, t, n);
+          getListData(t, n);
           setVersion("");
           setVersionSelect([]);
         }
@@ -223,68 +205,7 @@ function KeHoachTong({ match, history, permission }) {
       </div>
     );
   };
-  const render = (val, record) => {
-    if (val === undefined || val.soLuong === 0) {
-      return (
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          -
-        </div>
-      );
-    } else {
-      const content = val.mauSac.map((ms) => {
-        return (
-          <p style={{ padding: "0 5px", margin: 0 }}>
-            {ms.tenMauSac} : {ms.soLuong}
-          </p>
-        );
-      });
-      return (
-        <Popover content={content} placement="rightBottom">
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            {(val.ngay >= new Date().getDate() - 1 &&
-              Number(val.thang) >= new Date().getMonth() + 1 &&
-              VersionSelect.length > 0 &&
-              Version === VersionSelect[0].version_Id) ||
-            Number(val.thang) > new Date().getMonth() + 1 ? (
-              <span
-                style={{ color: "#0469b9", cursor: "pointer" }}
-                onClick={() => {
-                  setDataEdit(val);
-                  setActiveEditKeHoach(true);
-                }}
-              >
-                {val.soLuong}
-              </span>
-            ) : (
-              <span>{val.soLuong}</span>
-            )}
-          </div>
-        </Popover>
-      );
-    }
-  };
+
   let colValues = [
     {
       title: "STT",
@@ -330,7 +251,6 @@ function KeHoachTong({ match, history, permission }) {
             key: `ngay${id}`,
             align: "center",
             width: 40,
-            render: (val, record) => render(val, record),
           };
         }),
     },
@@ -489,7 +409,7 @@ function KeHoachTong({ match, history, permission }) {
         openModal={ActiveEditKeHoach}
         openModalFS={setActiveEditKeHoach}
         data={dataEdit}
-        refesh={refeshData}
+        refesh={() => {}}
       />
     </div>
   );
