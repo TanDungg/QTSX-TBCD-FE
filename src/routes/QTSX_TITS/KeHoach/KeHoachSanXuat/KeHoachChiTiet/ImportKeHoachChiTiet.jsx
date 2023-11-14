@@ -204,10 +204,17 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
       width: 120,
     },
     {
-      title: "Mã màu sắc",
-      dataIndex: "maMauSac",
+      title: "Đơn hàng",
+      dataIndex: "maDonHang",
       align: "center",
-      key: "maMauSac",
+      key: "maDonHang",
+      width: 100,
+    },
+    {
+      title: "ĐMNC",
+      dataIndex: "dmnc",
+      align: "center",
+      key: "dmnc",
       width: 100,
     },
     {
@@ -329,7 +336,18 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
             range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Mã màu sắc";
+          .trim() === "Đơn hàng" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
+          })[0]
+          .toString()
+          .trim() === "ĐMNC";
       if (checkMau) {
         for (let index = 1; index <= getNumberDayOfMonth(Thang, Nam); index++) {
           if (
@@ -384,7 +402,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
               range: { s: { c: 2, r: 1 }, e: { c: 2, r: 1 } },
             })[0]
             .toString()
-            .trim() === TenKeHoach;
+            .trim() === "Kế hoạch sản xuất";
         if (!checkKeHoach) {
           setFileName(file.name);
           setDataView([]);

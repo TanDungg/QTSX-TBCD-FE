@@ -174,7 +174,7 @@ function ImportKeHoachTong({ match, permission, history }) {
     }
     return check ? (
       <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
-        {val}
+        <span style={{ fontWeight: "bold" }}>{val}</span>
       </Popover>
     ) : (
       <span>{val}</span>
@@ -204,11 +204,11 @@ function ImportKeHoachTong({ match, permission, history }) {
       width: 120,
     },
     {
-      title: "Mã màu sắc",
-      dataIndex: "maMauSac",
+      title: "Loại sản phẩm",
+      dataIndex: "loaiSanPham",
       align: "center",
-      key: "maMauSac",
-      width: 100,
+      key: "loaiSanPham",
+      width: 120,
     },
     {
       title: `Tháng ${Thang} năm ${Nam}`,
@@ -225,6 +225,13 @@ function ImportKeHoachTong({ match, permission, history }) {
             render: (val) => render(val),
           };
         }),
+    },
+    {
+      title: "Tổng",
+      dataIndex: "tong",
+      align: "center",
+      key: "tong",
+      width: 60,
     },
   ];
   const components = {
@@ -253,15 +260,15 @@ function ImportKeHoachTong({ match, permission, history }) {
   //File mẫu
   const TaiFileMau = () => {
     const params = convertObjectToUrlParams({
-      loaiKeHoach_Id: KeHoach,
-      phongBan_Id: Xuong,
+      // loaiKeHoach_Id: KeHoach,
+      IsSanXuat: true,
       Thang: Thang,
       Nam: Nam,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_KeHoach/export-file-mau-ke-hoach-san-xuat?${params}`,
+          `tits_qtsx_KeHoach/export-file-mau-ke-hoach-san-xuat?${params}`,
           "POST",
           null,
           "DOWLOAD",
@@ -271,7 +278,7 @@ function ImportKeHoachTong({ match, permission, history }) {
         )
       );
     }).then((res) => {
-      exportExcel(`File_Mau_${TenKeHoach}`, res.data.dataexcel);
+      exportExcel(`File_Mau_Ke_Hoach_SX`, res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {
@@ -329,7 +336,7 @@ function ImportKeHoachTong({ match, permission, history }) {
             range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Mã màu sắc";
+          .trim() === "Loại sản phẩm";
       if (checkMau) {
         for (let index = 1; index <= getNumberDayOfMonth(Thang, Nam); index++) {
           if (
@@ -384,7 +391,7 @@ function ImportKeHoachTong({ match, permission, history }) {
               range: { s: { c: 2, r: 1 }, e: { c: 2, r: 1 } },
             })[0]
             .toString()
-            .trim() === TenKeHoach;
+            .trim() === "Kế hoạch sản xuất";
         if (!checkKeHoach) {
           setFileName(file.name);
           setDataView([]);
@@ -392,148 +399,120 @@ function ImportKeHoachTong({ match, permission, history }) {
           setMessageError("Kế hoạch không hợp lệ");
           Helper.alertError("Kế hoạch không hợp lệ");
         } else {
-          const checkXuong =
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: 4, r: 1 }, e: { c: 4, r: 1 } },
-            })[0] &&
+          const checkThangNam =
             XLSX.utils
               .sheet_to_json(worksheet, {
                 header: 1,
                 range: { s: { c: 4, r: 1 }, e: { c: 4, r: 1 } },
               })[0]
               .toString()
-              .trim() === "Xưởng:" &&
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
-            })[0] &&
+              .trim() === "Tháng:" &&
             XLSX.utils
               .sheet_to_json(worksheet, {
                 header: 1,
-                range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
+                range: { s: { c: 6, r: 1 }, e: { c: 6, r: 1 } },
               })[0]
               .toString()
-              .trim() === TenXuong;
-          if (!checkXuong) {
+              .trim().length === 1
+              ? "0" +
+                XLSX.utils
+                  .sheet_to_json(worksheet, {
+                    header: 1,
+                    range: { s: { c: 6, r: 1 }, e: { c: 6, r: 1 } },
+                  })[0]
+                  .toString()
+                  .trim()
+              : XLSX.utils
+                  .sheet_to_json(worksheet, {
+                    header: 1,
+                    range: { s: { c: 6, r: 1 }, e: { c: 6, r: 1 } },
+                  })[0]
+                  .toString()
+                  .trim() === Thang.toString() &&
+                XLSX.utils
+                  .sheet_to_json(worksheet, {
+                    header: 1,
+                    range: { s: { c: 8, r: 1 }, e: { c: 8, r: 1 } },
+                  })[0]
+                  .toString()
+                  .trim() === "Năm:" &&
+                XLSX.utils
+                  .sheet_to_json(worksheet, {
+                    header: 1,
+                    range: { s: { c: 10, r: 1 }, e: { c: 10, r: 1 } },
+                  })[0]
+                  .toString()
+                  .trim() === Nam.toString();
+          if (!checkThangNam) {
             setFileName(file.name);
             setDataView([]);
             setCheckDanger(true);
-            setMessageError("Xưởng không hợp lệ");
-            Helper.alertError("Xưởng không hợp lệ");
+            setMessageError("Tháng Năm không hợp lệ");
+            Helper.alertError("Tháng Năm không hợp lệ");
           } else {
-            const checkThangNam =
-              XLSX.utils
-                .sheet_to_json(worksheet, {
-                  header: 1,
-                  range: { s: { c: 11, r: 1 }, e: { c: 11, r: 1 } },
-                })[0]
-                .toString()
-                .trim() === "Tháng:" &&
-              XLSX.utils
-                .sheet_to_json(worksheet, {
-                  header: 1,
-                  range: { s: { c: 13, r: 1 }, e: { c: 13, r: 1 } },
-                })[0]
-                .toString()
-                .trim().length === 1
-                ? "0" +
-                  XLSX.utils
-                    .sheet_to_json(worksheet, {
-                      header: 1,
-                      range: { s: { c: 13, r: 1 }, e: { c: 13, r: 1 } },
-                    })[0]
-                    .toString()
-                    .trim()
-                : XLSX.utils
-                    .sheet_to_json(worksheet, {
-                      header: 1,
-                      range: { s: { c: 13, r: 1 }, e: { c: 13, r: 1 } },
-                    })[0]
-                    .toString()
-                    .trim() === Thang.toString() &&
-                  XLSX.utils
-                    .sheet_to_json(worksheet, {
-                      header: 1,
-                      range: { s: { c: 15, r: 1 }, e: { c: 15, r: 1 } },
-                    })[0]
-                    .toString()
-                    .trim() === "Năm:" &&
-                  XLSX.utils
-                    .sheet_to_json(worksheet, {
-                      header: 1,
-                      range: { s: { c: 16, r: 1 }, e: { c: 16, r: 1 } },
-                    })[0]
-                    .toString()
-                    .trim() === Nam.toString();
-            if (!checkThangNam) {
+            const data = XLSX.utils.sheet_to_json(worksheet, {
+              range: 3,
+            });
+            const MSP = "Mã sản phẩm";
+            const TSP = "Tên sản phẩm";
+            const MLSP = "Loại sản phẩm";
+            // const Data = [];
+            const NewData = [];
+            data.forEach((d, index) => {
+              if (
+                d[MSP] &&
+                d[MSP].toString().trim() === "" &&
+                d[TSP] &&
+                d[TSP].toString().trim() === "" &&
+                d[MLSP] &&
+                d[MLSP].toString().trim() === ""
+              ) {
+              } else {
+                const slNgay = {};
+                let tong = 0;
+                for (
+                  let index = 1;
+                  index <= getNumberDayOfMonth(Thang, Nam);
+                  index++
+                ) {
+                  if (d[index]) {
+                    slNgay[index] = d[index];
+                    tong = tong + d[index];
+                  }
+                }
+                NewData.push({
+                  maSanPham: d[MSP]
+                    ? d[MSP].toString().trim() !== ""
+                      ? d[MSP].toString().trim()
+                      : undefined
+                    : undefined,
+                  tenSanPham: d[TSP]
+                    ? d[TSP].toString().trim() !== ""
+                      ? d[TSP].toString().trim()
+                      : undefined
+                    : undefined,
+                  loaiSanPham: d[MLSP]
+                    ? d[MLSP].toString().trim() !== ""
+                      ? d[MLSP].toString().trim()
+                      : undefined
+                    : undefined,
+                  ...slNgay,
+                  tong: tong,
+                });
+              }
+              // Data.push(data[index][MSP]);
+            });
+            if (NewData.length === 0) {
               setFileName(file.name);
               setDataView([]);
               setCheckDanger(true);
-              setMessageError("Tháng Năm không hợp lệ");
-              Helper.alertError("Tháng Năm không hợp lệ");
+              setMessageError("Dữ liệu import không được rỗng");
+              Helper.alertError("Dữ liệu import không được rỗng");
             } else {
-              const data = XLSX.utils.sheet_to_json(worksheet, {
-                range: 3,
-              });
-              const MSP = "Mã sản phẩm";
-              const TSP = "Tên sản phẩm";
-              const MMS = "Mã màu sắc";
-              // const Data = [];
-              const NewData = [];
-              data.forEach((d, index) => {
-                if (
-                  d[MSP] &&
-                  d[MSP].toString().trim() === "" &&
-                  d[TSP] &&
-                  d[TSP].toString().trim() === "" &&
-                  d[MMS] &&
-                  d[MMS].toString().trim() === ""
-                ) {
-                } else {
-                  const slNgay = {};
-                  for (
-                    let index = 1;
-                    index <= getNumberDayOfMonth(Thang, Nam);
-                    index++
-                  ) {
-                    if (d[index]) {
-                      slNgay[index] = d[index];
-                    }
-                  }
-                  NewData.push({
-                    maSanPham: d[MSP]
-                      ? d[MSP].toString().trim() !== ""
-                        ? d[MSP].toString().trim()
-                        : undefined
-                      : undefined,
-                    tenSanPham: d[TSP]
-                      ? d[TSP].toString().trim() !== ""
-                        ? d[TSP].toString().trim()
-                        : undefined
-                      : undefined,
-                    maMauSac: d[MMS]
-                      ? d[MMS].toString().trim() !== ""
-                        ? d[MMS].toString().trim()
-                        : undefined
-                      : undefined,
-                    ...slNgay,
-                  });
-                }
-                // Data.push(data[index][MSP]);
-              });
-              if (NewData.length === 0) {
-                setFileName(file.name);
-                setDataView([]);
-                setCheckDanger(true);
-                setMessageError("Dữ liệu import không được rỗng");
-                Helper.alertError("Dữ liệu import không được rỗng");
-              } else {
-                setDataView(NewData);
-                setFileName(file.name);
-                setDataLoi();
-                setCheckDanger(false);
-              }
+              setDataView(NewData);
+              setFileName(file.name);
+              setDataLoi();
+              setCheckDanger(false);
             }
           }
         }
@@ -563,14 +542,12 @@ function ImportKeHoachTong({ match, permission, history }) {
 
   const handleSubmit = () => {
     const newData = {
-      loaiKeHoach_Id: KeHoach,
-      phongban_Id: Xuong,
+      isSanXuat: true,
       nam: Nam,
       thang: Thang,
       list_SanPhams: dataView.map((dt) => {
         return {
           maSanPham: dt.maSanPham,
-          maMauSac: dt.maMauSac,
           list_ChiTiets: Array.from(
             { length: getNumberDayOfMonth(Thang, Nam) },
             (_, i) => {
@@ -587,7 +564,7 @@ function ImportKeHoachTong({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_KeHoach/import-excel`,
+          `tits_qtsx_KeHoach/import-excel`,
           "POST",
           newData,
           "IMPORT",
@@ -633,10 +610,6 @@ function ImportKeHoachTong({ match, permission, history }) {
     } else if (current.tenSanPham === undefined) {
       setCheckDanger(true);
       setMessageError("Tên sản phẩm không được rỗng");
-      return "red-row";
-    } else if (current.maMauSac === undefined) {
-      setCheckDanger(true);
-      setMessageError("Mã màu sắc không được rỗng");
       return "red-row";
     } else if (DataLoi && DataLoi.length > 0) {
       let check = false;
@@ -700,49 +673,6 @@ function ImportKeHoachTong({ match, permission, history }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Kế hoạch:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={listKeHoach ? listKeHoach : []}
-              placeholder="Chọn kế hoạch"
-              optionsvalue={["id", "tenLoaiKeHoach"]}
-              style={{ width: "100%" }}
-              onSelect={hanldeSelectKeHoach}
-              value={KeHoach}
-              disabled={fileName !== ""}
-            />
-          </Col>
-
-          <Col
-            xxl={6}
-            xl={8}
-            lg={8}
-            md={8}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Xưởng sản xuất:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={listXuong ? listXuong : []}
-              placeholder="Chọn xưởng"
-              optionsvalue={["id", "tenPhongBan"]}
-              style={{ width: "100%" }}
-              onSelect={hanldeSelectXuong}
-              value={Xuong}
-              disabled={fileName !== ""}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={8}
-            md={8}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
             <h5>Tháng:</h5>
             <DatePicker
               allowClear={false}
@@ -774,11 +704,7 @@ function ImportKeHoachTong({ match, permission, history }) {
           </Col>
           <Col xxl={4} xl={5} lg={7} md={7} xs={17}>
             <Upload {...props}>
-              <Button
-                icon={<UploadOutlined />}
-                danger={checkDanger}
-                disabled={!DisableTaiFile}
-              >
+              <Button icon={<UploadOutlined />} danger={checkDanger}>
                 Tải dữ liệu lên
               </Button>
             </Upload>
@@ -817,7 +743,6 @@ function ImportKeHoachTong({ match, permission, history }) {
               onClick={TaiFileMau}
               className="th-btn-margin-bottom-0"
               type="primary"
-              disabled={!DisableTaiFile}
             >
               File mẫu
             </Button>
