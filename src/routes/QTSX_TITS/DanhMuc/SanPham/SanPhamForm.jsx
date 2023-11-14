@@ -203,7 +203,7 @@ function SanPhamForm({ match, permission, history }) {
         .catch(() => {
           console.log("upload failed.");
         });
-    } else if (type === "edit" && sanpham.hinhAnh.file) {
+    } else if (type === "edit" && sanpham.hinhAnh) {
       const formData = new FormData();
       formData.append("file", sanpham.hinhAnh.file);
       fetch(

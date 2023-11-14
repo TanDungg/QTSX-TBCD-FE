@@ -277,6 +277,7 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu }) {
     DataThemVatTu(DataListVatTu);
     openModalFS(false);
     setListVatTu([]);
+    setDataListVatTu([]);
   };
 
   const handleCancel = () => {

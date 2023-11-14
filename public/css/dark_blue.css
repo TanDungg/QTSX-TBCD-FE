@@ -2870,8 +2870,8 @@ html {
 .ant-btn-danger[disabled]:hover,
 .ant-btn-danger[disabled]:focus,
 .ant-btn-danger[disabled]:active {
-  color: rgba(0, 0, 0, 0.25);
-  background: #f5f5f5;
+  color: white;
+  background: red;
   border-color: #d9d9d9;
   text-shadow: none;
   box-shadow: none;
@@ -19314,7 +19314,7 @@ span.ant-radio + * {
   color: #000;
 }
 .ant-select-single .ant-select-selector .ant-select-selection-item {
-  position: relative; 
+  position: relative;
   user-select: none;
 }
 .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
@@ -43276,7 +43276,7 @@ textarea.gx-chat-textarea {
    transform: none;
 } */
 
-.inMa-BarCode{
+.inMa-BarCode {
   border: 1px solid #333;
   margin: 12px;
   margin-left: 5px;

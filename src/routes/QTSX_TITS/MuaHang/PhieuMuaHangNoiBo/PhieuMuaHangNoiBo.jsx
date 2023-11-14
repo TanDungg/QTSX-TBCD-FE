@@ -29,6 +29,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -80,10 +81,8 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
   };
 
   const actionContent = (item) => {
+    console.log(permission);
     const detailItem =
-      permission &&
-      permission.cof &&
-      item.fileXacNhan &&
       INFO.user_Id === item.nguoiDuyet_Id &&
       item.tinhTrang === "Chưa xác nhận" ? (
         <Link
@@ -104,8 +103,8 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
-      !item.fileXacNhan &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id ? (
+      item.nguoiTaoPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -125,7 +124,8 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
       permission &&
       permission.del &&
       !item.fileXacNhan &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id
+      item.nguoiTaoPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
 
@@ -158,7 +158,7 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_PhieuMuaHangNoiBo?id=${item.id}`;
+    let url = `tits_qtsx_PhieuMuaHangNoiBo/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -282,6 +282,24 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
       );
     return <div>{detail}</div>;
   };
+
+  const renderFile = (item) => {
+    if (!isEmpty(item.file)) {
+      return (
+        <span>
+          <a
+            target="_blank"
+            href={BASE_URL_API + item.file}
+            rel="noopener noreferrer"
+          >
+            {item.file.split("/")[5]}
+          </a>
+        </span>
+      );
+    }
+    return null;
+  };
+
   let renderHead = [
     {
       title: "STT",
@@ -388,9 +406,9 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
     },
     {
       title: "File đính kèm",
-      dataIndex: "file",
       key: "file",
       align: "center",
+      render: (record) => renderFile(record),
     },
     {
       title: "Tình trạng",
