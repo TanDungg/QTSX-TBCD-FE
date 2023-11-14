@@ -152,8 +152,10 @@ function SanPhamForm({ match, permission, history }) {
               ...res.data,
             },
           });
-          setFileHinhAnh(res.data.hinhAnh);
-          setDisableUpload(true);
+          if (res.data.hinhAnh) {
+            setFileHinhAnh(res.data.hinhAnh);
+            setDisableUpload(true);
+          }
         }
       })
       .catch((error) => console.error(error));
@@ -201,16 +203,21 @@ function SanPhamForm({ match, permission, history }) {
         .catch(() => {
           console.log("upload failed.");
         });
-    } else if (type === "edit" && sanpham.hinhAnh) {
+    } else if (type === "edit" && sanpham.hinhAnh.file) {
       const formData = new FormData();
       formData.append("file", sanpham.hinhAnh.file);
-      fetch(`${BASE_URL_API}/api/Upload?stringPath=${info.hinhAnh}`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: "Bearer ".concat(INFO.token),
-        },
-      })
+      fetch(
+        info.hinhAnh
+          ? `${BASE_URL_API}/api/Upload?stringPath=${info.hinhAnh}`
+          : `${BASE_URL_API}/api/Upload`,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: "Bearer ".concat(INFO.token),
+          },
+        }
+      )
         .then((res) => res.json())
         .then((data) => {
           sanpham.hinhAnh = data.path;
@@ -225,61 +232,66 @@ function SanPhamForm({ match, permission, history }) {
   };
 
   const saveData = (sanpham, saveQuit = false) => {
-    if (type === "new") {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_SanPham`,
-            "POST",
-            sanpham,
-            "ADD",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.status !== 409) {
-            if (saveQuit) {
-              goBack();
-            } else {
-              resetFields();
-              setFileHinhAnh(null);
-              setFileAnh(null);
-              setFieldTouch(false);
-              setDisableUpload(false);
-            }
-          }
+    if (sanpham.hinhAnh) {
+      if (type === "new") {
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `tits_qtsx_SanPham`,
+              "POST",
+              sanpham,
+              "ADD",
+              "",
+              resolve,
+              reject
+            )
+          );
         })
-        .catch((error) => console.error(error));
-    }
-    if (type === "edit") {
-      sanpham.id = id;
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_SanPham/${id}`,
-            "PUT",
-            sanpham,
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.status !== 409) {
-            if (saveQuit) {
-              goBack();
-            } else {
-              setFieldTouch(false);
-              getInfo(id);
+          .then((res) => {
+            if (res && res.status !== 409) {
+              if (saveQuit) {
+                goBack();
+              } else {
+                resetFields();
+                setFileHinhAnh(null);
+                setFileAnh(null);
+                setFieldTouch(false);
+                setDisableUpload(false);
+              }
             }
-          }
+          })
+          .catch((error) => console.error(error));
+      }
+      if (type === "edit") {
+        sanpham.id = id;
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `tits_qtsx_SanPham/${id}`,
+              "PUT",
+              sanpham,
+              "EDIT",
+              "",
+              resolve,
+              reject
+            )
+          );
         })
-        .catch((error) => console.log(error));
+          .then((res) => {
+            if (res && res.status !== 409) {
+              if (saveQuit) {
+                goBack();
+              } else {
+                setFieldTouch(false);
+                getInfo(id);
+              }
+            }
+          })
+          .catch((error) => console.log(error));
+      }
+    } else {
+      Helpers.alertError(`File không được để trống`);
+      setFieldTouch(false);
     }
   };
 

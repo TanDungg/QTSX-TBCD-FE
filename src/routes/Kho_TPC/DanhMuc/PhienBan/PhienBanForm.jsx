@@ -147,9 +147,9 @@ const PhienBanForm = ({ history, match, permission }) => {
         .catch(() => {
           console.log("upload failed.");
         });
-    } else if (type === "edit" && phienban.fileUrl) {
+    } else if (type === "edit" && phienban.fileUrl.file) {
       const formData = new FormData();
-      formData.append("file", phienban.fileUrl);
+      formData.append("file", phienban.fileUrl.file);
       fetch(`${BASE_URL_API}/api/Upload?stringPath=${info.fileUrl}`, {
         method: "POST",
         body: formData,
@@ -159,7 +159,6 @@ const PhienBanForm = ({ history, match, permission }) => {
       })
         .then((res) => res.json())
         .then((data) => {
-          console.log(data);
           phienban.fileUrl = data.path;
           saveData(phienban, saveQuit);
         })
@@ -173,38 +172,43 @@ const PhienBanForm = ({ history, match, permission }) => {
 
   const saveData = (phienban, saveQuit = false) => {
     if (type === "new") {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `lkn_PhienBan`,
-            "POST",
-            phienban,
-            "ADD",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res.status !== 409) {
-            if (saveQuit) {
-              goBack();
-            } else {
-              resetFields();
-              setFieldTouch(false);
-              setFileAPK(null);
-              setDisableUpload(false);
-            }
-          } else {
-            if (saveQuit) {
-              goBack();
-            } else {
-              setFieldTouch(false);
-            }
-          }
+      if (phienban.fileUrl) {
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `lkn_PhienBan`,
+              "POST",
+              phienban,
+              "ADD",
+              "",
+              resolve,
+              reject
+            )
+          );
         })
-        .catch((error) => console.error(error));
+          .then((res) => {
+            if (res.status !== 409) {
+              if (saveQuit) {
+                goBack();
+              } else {
+                resetFields();
+                setFieldTouch(false);
+                setFileAPK(null);
+                setDisableUpload(false);
+              }
+            } else {
+              if (saveQuit) {
+                goBack();
+              } else {
+                setFieldTouch(false);
+              }
+            }
+          })
+          .catch((error) => console.error(error));
+      } else {
+        Helpers.alertError(`File không được để trống`);
+        setFieldTouch(false);
+      }
     }
     if (type === "edit") {
       phienban.id = id;
@@ -252,13 +256,23 @@ const PhienBanForm = ({ history, match, permission }) => {
 
   const handleDownloadAPK = () => {
     if (FileAPK) {
-      const url = URL.createObjectURL(FileAPK);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", `${FileAPK.name ? FileAPK.name : FileAPK}`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      if (FileAPK.name) {
+        const url = URL.createObjectURL(FileAPK);
+        const link = document.createElement("a");
+        link.href = url;
+        link.setAttribute("download", `${FileAPK.name}`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        const link = document.createElement("a");
+        link.href = BASE_URL_API + FileAPK;
+        link.target = "_blank";
+        link.download = { FileAPK };
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
     }
   };
 
@@ -362,14 +376,11 @@ const PhienBanForm = ({ history, match, permission }) => {
                 ) : null}
               </span>
             ) : (
-              <span>
-                <a
-                  target="_blank"
-                  href={BASE_URL_API + FileAPK}
-                  rel="noopener noreferrer"
-                >
-                  {FileAPK && FileAPK.split("/")[5]}{" "}
-                </a>
+              <span
+                style={{ color: "#0469B9", cursor: "pointer" }}
+                onClick={() => handleDownloadAPK()}
+              >
+                {FileAPK && FileAPK.split("/")[5]}{" "}
                 {type === "new" && (
                   <DeleteOutlined
                     style={{ cursor: "pointer", color: "red" }}

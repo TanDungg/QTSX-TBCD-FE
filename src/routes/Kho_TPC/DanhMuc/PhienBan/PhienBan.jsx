@@ -17,6 +17,7 @@ import {
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -151,6 +152,30 @@ function PhienBan({ match, history, permission }) {
     return <Checkbox checked={item.isSuDung} disabled={true} />;
   };
 
+  const handleDownloadAPK = (item) => {
+    const link = document.createElement("a");
+    link.href = BASE_URL_API + item.fileUrl;
+    link.target = "_blank";
+    link.download = `${item.fileUrl}`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const renderFileAPK = (item) => {
+    if (!isEmpty(item.fileUrl)) {
+      return (
+        <span
+          style={{ color: "#0469B9", cursor: "pointer" }}
+          onClick={() => handleDownloadAPK(item)}
+        >
+          {item.fileUrl.split("/")[5]}
+        </span>
+      );
+    }
+    return null;
+  };
+
   let renderHead = [
     {
       title: "STT",
@@ -210,9 +235,9 @@ function PhienBan({ match, history, permission }) {
 
     {
       title: "Link file",
-      dataIndex: "fileUrl",
       key: "fileUrl",
       align: "center",
+      render: (record) => renderFileAPK(record),
     },
     {
       title: "Sử dụng",
