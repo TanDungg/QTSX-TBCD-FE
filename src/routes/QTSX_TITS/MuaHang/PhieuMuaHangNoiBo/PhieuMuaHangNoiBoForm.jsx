@@ -690,7 +690,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           color={
             info && info.tinhTrang === "Chưa xác nhận"
               ? "orange"
-              : info && info.tinhTrang === "Đã xác Nhận"
+              : info && info.tinhTrang === "Đã xác nhận"
               ? "blue"
               : "red"
           }

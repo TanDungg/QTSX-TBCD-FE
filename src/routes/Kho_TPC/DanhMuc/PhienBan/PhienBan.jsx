@@ -156,7 +156,7 @@ function PhienBan({ match, history, permission }) {
     const link = document.createElement("a");
     link.href = BASE_URL_API + item.fileUrl;
     link.target = "_blank";
-    link.download = `${item.fileUrl}`;
+    link.download = "AppLinkKienNhua.apk";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
