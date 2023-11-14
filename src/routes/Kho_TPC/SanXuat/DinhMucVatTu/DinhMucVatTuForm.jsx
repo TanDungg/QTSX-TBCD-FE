@@ -400,6 +400,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
         if (res && res.data) {
           res.data.ghiChu = data.ghiChu;
           res.data.dinhMuc = data.dinhMuc;
+          res.data.dinhMucXaNhua = data.dinhMucXaNhua;
           res.data.vatTu_Id = res.data.id;
           if (listVatTu.length === 0) {
             res.data.isBatBuoc = true;
@@ -430,6 +431,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
         if (res && res.data) {
           res.data.ghiChu = data.ghiChu;
           res.data.dinhMuc = data.dinhMuc;
+          res.data.dinhMucXaNhua = data.dinhMucXaNhua;
           res.data.vatTu_Id = res.data.id;
           res.data.tenVatTu = res.data.tenSanPham;
           res.data.maVatTu = res.data.maSanPham;
@@ -541,6 +543,13 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       title: "Định mức",
       dataIndex: "dinhMuc",
       key: "dinhMuc",
+      align: "center",
+      editable: type === "new" || type === "edit" ? true : false,
+    },
+    {
+      title: "Định mức xả nhựa",
+      dataIndex: "dinhMucXaNhua",
+      key: "dinhMucXaNhua",
       align: "center",
       editable: type === "new" || type === "edit" ? true : false,
     },

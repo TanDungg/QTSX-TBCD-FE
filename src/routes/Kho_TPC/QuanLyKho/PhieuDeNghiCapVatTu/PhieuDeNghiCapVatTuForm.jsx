@@ -220,7 +220,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
           res.data.list_VatTus.map((data) => {
             return {
               ...data,
-              soLuong: res.data.soLuongKH * data.dinhMuc,
+              soLuong: res.data.soLuongKH * data.dinhMuc + data.dinhMucXaNhua,
               soLuongKH: res.data.soLuongKH,
             };
           });
@@ -534,6 +534,12 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       title: "Định mức",
       dataIndex: "dinhMuc",
       key: "dinhMuc",
+      align: "center",
+    },
+    {
+      title: "Định mức xả nhựa",
+      dataIndex: "dinhMucXaNhua",
+      key: "dinhMucXaNhua",
       align: "center",
     },
     {

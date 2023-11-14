@@ -27,7 +27,6 @@ const NhomLoiForm = ({ history, match, permission }) => {
   const { maNhomLoi, tenNhomLoi, tits_qtsx_CongDoan_Id, isSuDung, moTa } =
     initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
-  const [info, setInfo] = useState({});
   const [ListCongDoan, setListCongDoan] = useState([]);
   const ref = useRef(null);
 
@@ -105,7 +104,6 @@ const NhomLoiForm = ({ history, match, permission }) => {
           setFieldsValue({
             nhomloi: res.data,
           });
-          setInfo(res.data);
         }
       })
       .catch((error) => console.error(error));

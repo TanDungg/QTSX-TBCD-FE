@@ -26,19 +26,9 @@ const LoiForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const {
-    maLoi,
-    tenLoi,
-    tits_qtsx_NhomLoi_Id,
-    tits_qtsx_Tram_Id,
-    module,
-    soSerial,
-    diaChiIP,
-    moTa,
-  } = initialState;
+  const { maLoi, tenLoi, tits_qtsx_NhomLoi_Id, moTa } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
   const [ListNhomLoi, setListNhomLoi] = useState([]);
-  const [info, setInfo] = useState({});
 
   useEffect(() => {
     const load = () => {
@@ -115,7 +105,6 @@ const LoiForm = ({ history, match, permission }) => {
             loi: res.data,
           });
         }
-        setInfo(res.data);
       })
       .catch((error) => console.error(error));
   };

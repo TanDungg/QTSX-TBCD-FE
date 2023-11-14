@@ -3,11 +3,11 @@ import { Card, Form, Spin, Switch } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
 
-import { Input, TreeSelect, FormSubmit, Select } from "src/components/Common";
+import { Input, FormSubmit, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
-import { convertObjectToUrlParams, getLocalStorage } from "src/util/Common";
+import { getLocalStorage } from "src/util/Common";
 
 const FormItem = Form.Item;
 

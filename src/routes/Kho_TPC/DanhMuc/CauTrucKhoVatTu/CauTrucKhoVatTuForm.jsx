@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Form, Spin, Switch } from "antd";
+import { Card, Form, Spin } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
 
@@ -154,7 +154,7 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
       .catch((error) => console.error(error));
   };
 
-  const { maCauTrucKho, tenCauTrucKho, cauTrucKho_Id, isActive } = initialState;
+  const { maCauTrucKho, tenCauTrucKho, cauTrucKho_Id } = initialState;
   /**
    * Khi submit
    *

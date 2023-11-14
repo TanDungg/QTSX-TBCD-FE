@@ -1,5 +1,6 @@
 import {
   DeleteOutlined,
+  EditOutlined,
   PlusOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
@@ -42,8 +43,8 @@ import {
   renderPDF,
 } from "src/util/Common";
 import ModalTuChoi from "./ModalTuChoi";
-import Helper from "src/helpers";
 import dayjs from "dayjs";
+import AddSanPham from "./AddSanPham";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -146,6 +147,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
     token: getTokenInfo().token,
   };
   const [type, setType] = useState("");
+  const [typeSanPham, setTypeSanPham] = useState("");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
@@ -158,7 +160,10 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
   const [openImage, setOpenImage] = useState(false);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
+  const [infoSanPham, setInfoSanPham] = useState({});
+
   const [editingRecord, setEditingRecord] = useState([]);
+  const [ActiveModal, setActiveModal] = useState(false);
 
   useEffect(() => {
     const load = () => {
@@ -180,7 +185,6 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getInfo(id);
-          getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -208,37 +212,11 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const getUserKy = (info) => {
-    const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `Account/get-cbnv?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        setListKhachHang(res.data.datalist);
-      } else {
-        setListKhachHang([]);
-      }
-    });
-  };
-
   /**
    * Lấy thông tin
    *
    */
-  const getInfo = (id, check) => {
+  const getInfo = (id) => {
     const params = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id.toLowerCase(),
     });
@@ -292,8 +270,8 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "vật tư";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
+    const title = "sản phẩm";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenSanPham, title);
   };
 
   /**
@@ -302,9 +280,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = ListSanPham.filter(
-      (d) => d.lkn_ChiTietBOM_Id !== item.lkn_ChiTietBOM_Id
-    );
+    const newData = ListSanPham.filter((d) => d.sanPham_Id !== item.sanPham_Id);
     setListSanPham(newData);
   };
 
@@ -315,13 +291,27 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
+    const editItemVal =
+      type === "new" || type === "edit"
+        ? {
+            onClick: () => {
+              setActiveModal(true);
+              setInfoSanPham(item);
+              setTypeSanPham("edit");
+            },
+          }
+        : { disabled: true };
     const deleteItemVal =
-      permission && permission.del && (type === "new" || type === "edit")
+      type === "new" || type === "edit"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
         <React.Fragment>
+          <a {...editItemVal} title="Xóa">
+            <EditOutlined />
+          </a>
+          <Divider type="vertical" />
           <a {...deleteItemVal} title="Xóa">
             <DeleteOutlined />
           </a>
@@ -396,54 +386,54 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
   //   });
   // };
 
-  const handleInputChange = (val, item) => {
-    const soLuong = val.target.value;
-    if (isEmpty(soLuong) || Number(soLuong) <= 0) {
-      setFieldTouch(false);
-      setEditingRecord([...editingRecord, item]);
-      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
-    } else {
-      const newData = editingRecord.filter(
-        (d) => d.lkn_ChiTietBOM_Id !== item.lkn_ChiTietBOM_Id
-      );
-      setEditingRecord(newData);
-      newData.length === 0 && setFieldTouch(true);
-    }
-    const newData = [...ListSanPham];
-    newData.forEach((ct, index) => {
-      if (ct.lkn_ChiTietBOM_Id === item.lkn_ChiTietBOM_Id) {
-        ct.soLuong = soLuong;
-      }
-    });
-    setListSanPham(newData);
-  };
+  // const handleInputChange = (val, item) => {
+  //   const soLuong = val.target.value;
+  //   if (isEmpty(soLuong) || Number(soLuong) <= 0) {
+  //     setFieldTouch(false);
+  //     setEditingRecord([...editingRecord, item]);
+  //     item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+  //   } else {
+  //     const newData = editingRecord.filter(
+  //       (d) => d.lkn_ChiTietBOM_Id !== item.lkn_ChiTietBOM_Id
+  //     );
+  //     setEditingRecord(newData);
+  //     newData.length === 0 && setFieldTouch(true);
+  //   }
+  //   const newData = [...ListSanPham];
+  //   newData.forEach((ct, index) => {
+  //     if (ct.lkn_ChiTietBOM_Id === item.lkn_ChiTietBOM_Id) {
+  //       ct.soLuong = soLuong;
+  //     }
+  //   });
+  //   setListSanPham(newData);
+  // };
 
-  const rendersoLuong = (item) => {
-    let isEditing = false;
-    let message = "";
-    editingRecord.forEach((ct) => {
-      if (ct.lkn_ChiTietBOM_Id === item.lkn_ChiTietBOM_Id) {
-        isEditing = true;
-        message = ct.message;
-      }
-    });
-    return (
-      <>
-        <Input
-          style={{
-            textAlign: "center",
-            width: "100%",
-          }}
-          className={`input-item`}
-          type="number"
-          value={item.soLuong}
-          disabled={type === "new" || type === "edit" ? false : true}
-          onChange={(val) => handleInputChange(val, item)}
-        />
-        {isEditing && <div style={{ color: "red" }}>{message}</div>}
-      </>
-    );
-  };
+  // const rendersoLuong = (item) => {
+  //   let isEditing = false;
+  //   let message = "";
+  //   editingRecord.forEach((ct) => {
+  //     if (ct.lkn_ChiTietBOM_Id === item.lkn_ChiTietBOM_Id) {
+  //       isEditing = true;
+  //       message = ct.message;
+  //     }
+  //   });
+  //   return (
+  //     <>
+  //       <Input
+  //         style={{
+  //           textAlign: "center",
+  //           width: "100%",
+  //         }}
+  //         className={`input-item`}
+  //         type="number"
+  //         value={item.soLuong}
+  //         disabled={type === "new" || type === "edit" ? false : true}
+  //         onChange={(val) => handleInputChange(val, item)}
+  //       />
+  //       {isEditing && <div style={{ color: "red" }}>{message}</div>}
+  //     </>
+  //   );
+  // };
   let colValues = [
     {
       title: "STT",
@@ -526,17 +516,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
       cell: EditableCell,
     },
   };
-  const handleSave = (row) => {
-    const newData = [...ListSanPham];
-    const index = newData.findIndex((item) => row.vatTu_Id === item.vatTu_Id);
-    const item = newData[index];
-    newData.splice(index, 1, {
-      ...item,
-      ...row,
-    });
-    // setDisableSave(true);
-    setListSanPham(newData);
-  };
+
   const columns = map(colValues, (col) => {
     if (!col.editable) {
       return col;
@@ -549,7 +529,6 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
         dataIndex: col.dataIndex,
         title: col.title,
         info: col.info,
-        handleSave: handleSave,
       }),
     };
   });
@@ -769,6 +748,28 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
+  const ThemSanPham = (data, type) => {
+    console.log(data);
+    if (type === "new") {
+      let check = false;
+      ListSanPham.forEach((sp) => {
+        if (sp.sanPham_Id === data.sanPham_Id) {
+          check = true;
+          Helpers.alertWarning(`Sản phẩm ${data.tenSanPham} đã được thêm!`);
+        }
+      });
+      !check && setListSanPham([...ListSanPham, data]);
+    } else {
+      const newData = ListSanPham.map((sp) => {
+        if (sp.sanPham_Id === data.sanPham_Id) {
+          return data;
+        } else {
+          return sp;
+        }
+      });
+      setListSanPham([...newData]);
+    }
+  };
 
   const formTitle =
     type === "new" ? (
@@ -817,7 +818,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
         file.type === "image/jpeg" ||
         file.type === "application/pdf";
       if (!isPNG) {
-        Helper.alertError(`${file.name} không phải hình ảnh hoặc file pdf`);
+        Helpers.alertError(`${file.name} không phải hình ảnh hoặc file pdf`);
       } else {
         setFile(file);
         setDisableUpload(true);
@@ -1109,7 +1110,14 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
         {type === "new" || type === "edit" ? (
           <Row>
             <Col span={24} align="end" style={{ marginTop: 8 }}>
-              <Button icon={<PlusOutlined />} type="primary">
+              <Button
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  setActiveModal(true);
+                  setTypeSanPham("new");
+                }}
+                type="primary"
+              >
                 Thêm sản phẩm
               </Button>
               <Button icon={<UploadOutlined />} type="primary">
@@ -1179,6 +1187,13 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
         openModal={ActiveModalTuChoi}
         openModalFS={setActiveModalTuChoi}
         saveTuChoi={saveTuChoi}
+      />
+      <AddSanPham
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        addSanPham={ThemSanPham}
+        info={infoSanPham}
+        type={typeSanPham}
       />
     </div>
   );

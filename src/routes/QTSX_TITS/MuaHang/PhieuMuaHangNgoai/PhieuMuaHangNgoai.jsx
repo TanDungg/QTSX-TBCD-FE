@@ -24,7 +24,6 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
-  exportPDF,
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";

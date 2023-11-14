@@ -31,6 +31,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import AddSanPham from "./AddSanPham";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -474,17 +475,6 @@ function DonHangSanXuat({ match, history, permission }) {
       }),
     };
   });
-
-  const handleOnSelectBanPhong = (val) => {
-    setBanPhong(val);
-    setPage(1);
-    loadData(keyword, val, Thang, Nam, 1);
-  };
-  const handleClearBanPhong = (val) => {
-    setBanPhong("");
-    setPage(1);
-    loadData(keyword, "", Thang, Nam, 1);
-  };
 
   const handleChangeNgay = (dateString) => {
     setThang(dateString[0]);

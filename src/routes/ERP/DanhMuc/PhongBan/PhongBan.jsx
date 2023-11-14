@@ -33,10 +33,8 @@ function PhongBan({ match, permission, history }) {
   const dispatch = useDispatch();
   const { data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
-  const [page, setPage] = useState(1);
   const { totalRow } = data;
   const [ActiveModal, setActiveModal] = useState(false);
-  const [DonVi, setDonVi] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -308,9 +306,7 @@ function PhongBan({ match, permission, history }) {
       </>
     );
   };
-  const refeshData = () => {
-    getListData(DonVi, keyword, page);
-  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -351,11 +347,7 @@ function PhongBan({ match, permission, history }) {
           }}
           loading={loading}
         />
-        <ImportPhongBan
-          openModal={ActiveModal}
-          openModalFS={setActiveModal}
-          refresh={refeshData}
-        />
+        <ImportPhongBan openModal={ActiveModal} openModalFS={setActiveModal} />
       </Card>
     </div>
   );

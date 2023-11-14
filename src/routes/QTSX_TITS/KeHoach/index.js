@@ -16,6 +16,12 @@ const DonHangSanXuat = asyncComponent(() =>
 const DonHangSanXuatForm = asyncComponent(() =>
   import("./DonHangSanXuat/DonHangSanXuatForm")
 );
+const KeHoachTong = asyncComponent(() =>
+  import("./KeHoachSanXuat/KeHoachTong/KeHoachTong")
+);
+const KeHoachChiTiet = asyncComponent(() =>
+  import("./KeHoachSanXuat/KeHoachChiTiet/KeHoachChiTiet")
+);
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -49,6 +55,16 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/don-hang/:id/chinh-sua`}
         exact
         component={Auth(DonHangSanXuatForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/ke-hoach-san-xuat/tong`}
+        exact
+        component={Auth(KeHoachTong, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/ke-hoach-san-xuat/chi-tiet`}
+        exact
+        component={Auth(KeHoachChiTiet, menus, pathname, permission)}
       />
       {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
     </Switch>

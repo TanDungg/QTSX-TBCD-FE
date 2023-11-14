@@ -24,7 +24,6 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
-  exportPDF,
   removeDuplicates,
   exportExcel,
 } from "src/util/Common";
