@@ -14,6 +14,7 @@ import {
   Tag,
   Upload,
   Image,
+  DatePicker,
 } from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
@@ -47,7 +48,7 @@ import ImportVatTu from "./ImportVatTu";
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 
-const DonHangForm = ({ history, match, permission }) => {
+const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = {
     ...getLocalStorage("menu"),
@@ -59,37 +60,30 @@ const DonHangForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
-  const [listVatTu, setListVatTu] = useState([]);
-  const [ListSanPham, setListSanPham] = useState([]);
+  const [ListVatTu, setListVatTu] = useState([]);
+  const [ListNhaCungCap, setListNhaCungCap] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
-  const [ListUser, setListUser] = useState([]);
-  const [SanPham_Id, setSanPham_Id] = useState(null);
-  const [SoLuong, setSoLuong] = useState(null);
-  const [ActiveImportVatTu, setActiveImportVatTu] = useState(false);
-  const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(false);
-  const [File, setFile] = useState("");
-  const [disableUpload, setDisableUpload] = useState(false);
-  const [FileChat, setFileChat] = useState("");
   const [Message, setMessage] = useState(null);
   const [DisabledThem, setDisabledThem] = useState(true);
   const [openImage, setOpenImage] = useState(false);
-  const [info, setInfo] = useState({});
+  const [disableUpload, setDisableUpload] = useState(false);
+  const [File, setFile] = useState(null);
+  const [FileChat, setFileChat] = useState(null);
+  const [ActiveImportVatTu, setActiveImportVatTu] = useState(false);
+  const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(false);
   const [editingRecord, setEditingRecord] = useState([]);
-  const [ListXuong, setListXuong] = useState([]);
-  const [Xuong, setXuong] = useState(null);
+  const [info, setInfo] = useState(null);
 
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
-          getUserLap(INFO);
           setType("new");
+          getListNhaCungCap();
           getUserKy(INFO);
-          getXuong();
           setFieldsValue({
-            deNghiMuaHang: {
-              ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
-              ngayHoanThanhDukien: moment(getDateNow(), "DD/MM/YYYY"),
+            phieumuahangnoibo: {
+              ngayTaoPhieu: moment(getDateNow(), "DD/MM/YYYY"),
             },
           });
         } else if (permission && !permission.add) {
@@ -100,8 +94,8 @@ const DonHangForm = ({ history, match, permission }) => {
           setType("edit");
           const { id } = match.params;
           setId(id);
-          getXuong();
           getInfo(id);
+          getListNhaCungCap();
           getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -112,6 +106,7 @@ const DonHangForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getInfo(id, true);
+          getListNhaCungCap();
           getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -122,6 +117,7 @@ const DonHangForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getInfo(id);
+          getListNhaCungCap();
           getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -133,11 +129,11 @@ const DonHangForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getXuong = () => {
+  const getListNhaCungCap = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          `tits_qtsx_NhaCungCap?page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -148,46 +144,9 @@ const DonHangForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        const xuong = [];
-        res.data.forEach((x) => {
-          if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
-            xuong.push(x);
-          }
-        });
-        setListXuong(xuong);
+        setListNhaCungCap(res.data);
       } else {
-        setListXuong([]);
-      }
-    });
-  };
-
-  const getUserLap = (info, nguoiLap_Id) => {
-    const params = convertObjectToUrlParams({
-      id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
-      donVi_Id: info.donVi_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `Account/cbnv/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        setListUser([res.data]);
-        setFieldsValue({
-          deNghiMuaHang: {
-            userYeuCau_Id: res.data.Id,
-            tenPhongBan: res.data.tenPhongBan,
-          },
-        });
-      } else {
+        setListNhaCungCap([]);
       }
     });
   };
@@ -217,62 +176,15 @@ const DonHangForm = ({ history, match, permission }) => {
     });
   };
 
-  const getSanPham = (id, phongBan_Id) => {
-    if (id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `SanPham/${id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListSanPham([res.data]);
-        } else {
-          setListSanPham([]);
-        }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `lkn_DinhMucVatTu/list-san-pham-bom-theo-phong-ban?PhongBan_Id=${phongBan_Id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListSanPham(res.data);
-        } else {
-          setListSanPham([]);
-        }
-      });
-    }
-  };
-
   /**
    * Lấy thông tin
    *
    */
   const getInfo = (id, check) => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id.toLowerCase(),
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuDeNghiMuaHang/${id}?${params}`,
+          `tits_qtsx_PhieuMuaHangNoiBo/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -286,9 +198,9 @@ const DonHangForm = ({ history, match, permission }) => {
         if (res && res.data) {
           setInfo(res.data);
           const vattu =
-            res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu);
+            res.data.tits_qtsx_PhieuMuaHangNoiBoChiTiets &&
+            JSON.parse(res.data.tits_qtsx_PhieuMuaHangNoiBoChiTiets);
           setListVatTu(vattu);
-          getUserLap(INFO, res.data.userYeuCau_Id);
           res.data.userYeuCau_Id === INFO.user_Id &&
             check &&
             setType("UploadFile");
@@ -297,9 +209,9 @@ const DonHangForm = ({ history, match, permission }) => {
             setDisableUpload(true);
           }
           setFieldsValue({
-            deNghiMuaHang: {
+            phieumuahangnoibo: {
               sanPham_Id: res.data.sanPham_Id,
-              ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
+              ngayTaoPhieu: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               ngayHoanThanhDukien: moment(
                 res.data.ngayHoanThanhDukien,
                 "DD/MM/YYYY"
@@ -351,8 +263,8 @@ const DonHangForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter(
-      (d) => d.lkn_ChiTietBOM_Id !== item.lkn_ChiTietBOM_Id
+    const newData = ListVatTu.filter(
+      (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
     );
     setListVatTu(newData);
   };
@@ -387,15 +299,16 @@ const DonHangForm = ({ history, match, permission }) => {
       item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
     } else {
       const newData = editingRecord.filter(
-        (d) => d.lkn_ChiTietBOM_Id !== item.lkn_ChiTietBOM_Id
+        (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
       );
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
-    const newData = [...listVatTu];
+    const newData = [...ListVatTu];
     newData.forEach((ct, index) => {
-      if (ct.lkn_ChiTietBOM_Id === item.lkn_ChiTietBOM_Id) {
+      if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
         ct.soLuong = soLuong;
+        ct.thanhTien = soLuong * ct.donGia;
       }
     });
     setListVatTu(newData);
@@ -405,7 +318,7 @@ const DonHangForm = ({ history, match, permission }) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (ct.lkn_ChiTietBOM_Id === item.lkn_ChiTietBOM_Id) {
+      if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
         isEditing = true;
         message = ct.message;
       }
@@ -468,8 +381,8 @@ const DonHangForm = ({ history, match, permission }) => {
     },
     {
       title: "Ngày yêu cầu giao",
-      dataIndex: "ngayYeuCau",
-      key: "ngayYeuCau",
+      dataIndex: "ngay",
+      key: "ngay",
       align: "center",
     },
     {
@@ -521,16 +434,16 @@ const DonHangForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.deNghiMuaHang);
+    saveData(values.phieumuahangnoibo);
   };
 
   const saveAndClose = (val) => {
     validateFields()
       .then((values) => {
-        if (listVatTu.length === 0) {
+        if (ListVatTu.length === 0) {
           Helpers.alertError("Danh sách vật tư rỗng");
         } else {
-          saveData(values.deNghiMuaHang, val);
+          saveData(values.phieumuahangnoibo, val);
         }
       })
       .catch((error) => {
@@ -538,18 +451,24 @@ const DonHangForm = ({ history, match, permission }) => {
       });
   };
 
-  const saveData = (deNghiMuaHang, saveQuit = false) => {
+  const saveData = (phieumuahangnoibo, saveQuit = false) => {
     if (type === "new") {
       const newData = {
-        ...deNghiMuaHang,
-        ngayHoanThanhDukien: deNghiMuaHang.ngayHoanThanhDukien._i,
-        ngayYeuCau: deNghiMuaHang.ngayYeuCau._i,
-        chiTiet_phieumuahangs: listVatTu.filter((ct) => Number(ct.soLuong) > 0),
+        ...phieumuahangnoibo,
+        ngayTaoPhieu: phieumuahangnoibo.ngayTaoPhieu.format("DD/MM/YYYY"),
+        tits_qtsx_PhieuMuaHangNoiBoChiTiets: ListVatTu.map((dt) => {
+          return {
+            ...dt,
+            soLuong: parseFloat(dt.soLuong),
+            donGia: parseFloat(dt.donGia),
+          };
+        }),
       };
+      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuDeNghiMuaHang`,
+            `tits_qtsx_PhieuMuaHangNoiBo`,
             "POST",
             newData,
             "ADD",
@@ -567,11 +486,9 @@ const DonHangForm = ({ history, match, permission }) => {
               resetFields();
               setFieldTouch(false);
               setListVatTu([]);
-              getUserLap(INFO);
               setFieldsValue({
-                deNghiMuaHang: {
-                  ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
-                  ngayHoanThanhDukien: moment(getDateNow(), "DD/MM/YYYY"),
+                phieumuahangnoibo: {
+                  ngayTaoPhieu: moment(getDateNow(), "DD/MM/YYYY"),
                 },
               });
             }
@@ -584,15 +501,15 @@ const DonHangForm = ({ history, match, permission }) => {
     if (type === "edit") {
       const newData = {
         id: id,
-        ...deNghiMuaHang,
-        ngayHoanThanhDukien: deNghiMuaHang.ngayHoanThanhDukien._i,
-        ngayYeuCau: deNghiMuaHang.ngayYeuCau._i,
-        chiTiet_phieumuahangs: listVatTu.filter((ct) => Number(ct.soLuong) > 0),
+        ...phieumuahangnoibo,
+        ngayHoanThanhDukien: phieumuahangnoibo.ngayHoanThanhDukien._i,
+        ngayTaoPhieu: phieumuahangnoibo.ngayTaoPhieu.format("DD/MM/YYYY"),
+        chiTiet_phieumuahangs: ListVatTu.filter((ct) => Number(ct.soLuong) > 0),
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuDeNghiMuaHang/${id}`,
+            `lkn_Phieuphieumuahangnoibo/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -618,7 +535,7 @@ const DonHangForm = ({ history, match, permission }) => {
     const newData = {
       id: id,
       isXacNhan: true,
-      chiTiet_phieumuahangs: listVatTu.map((vt) => {
+      chiTiet_phieumuahangs: ListVatTu.map((vt) => {
         return {
           ...vt,
           lkn_PhieuMuaHang_Id: id,
@@ -628,7 +545,7 @@ const DonHangForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuDeNghiMuaHang/xac-nhan/${id}`,
+          `lkn_Phieuphieumuahangnoibo/xac-nhan/${id}`,
           "PUT",
           newData,
           "XACNHAN",
@@ -676,7 +593,7 @@ const DonHangForm = ({ history, match, permission }) => {
         new Promise((resolve, reject) => {
           dispatch(
             fetchStart(
-              `lkn_PhieuDeNghiMuaHang/tai-file-phieu-de-nghi/${id}`,
+              `lkn_Phieuphieumuahangnoibo/tai-file-phieu-de-nghi/${id}`,
               "PUT",
               { id: id, file: data.path },
               "GUIPHIEU",
@@ -695,6 +612,7 @@ const DonHangForm = ({ history, match, permission }) => {
         console.log("upload failed.");
       });
   };
+
   const prop1 = {
     type: "confirm",
     okText: "Xác nhận",
@@ -707,29 +625,8 @@ const DonHangForm = ({ history, match, permission }) => {
     Modal(prop1);
   };
 
-  const saveTuChoi = (val) => {
-    const newData = {
-      id: id,
-      isXacNhan: false,
-      lyDoTuChoi: val,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuDeNghiMuaHang/xac-nhan/${id}`,
-          "PUT",
-          newData,
-          "TUCHOI",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) getInfo(id);
-      })
-      .catch((error) => console.error(error));
+  const DataThemVatTu = (data) => {
+    setListVatTu(data);
   };
 
   const hanldeSoLuong = (value) => {
@@ -741,78 +638,10 @@ const DonHangForm = ({ history, match, permission }) => {
         setMessage("Số lượng phải lớn hơn 0");
         setDisabledThem(true);
       } else {
-        setSoLuong(value);
         setMessage(null);
         setDisabledThem(false);
       }
     }
-  };
-  const hanleOnSelectXuong = (val) => {
-    setXuong(val);
-    getSanPham(null, val);
-  };
-  const hanldeThem = () => {
-    const params = convertObjectToUrlParams({
-      SanPham_Id: SanPham_Id,
-      phongBan_Id: Xuong,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_DinhMucVatTu/bom-vat-tu-by-san-pham?${params}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data.length !== 0) {
-          const data = res.data[0];
-          const newData =
-            data.chiTietBOM &&
-            JSON.parse(data.chiTietBOM).map((ct) => {
-              return {
-                ...ct,
-                sanPham_Id: data.sanPham_Id,
-                tenSanPham: data.tenSanPham,
-                bom_Id: data.id,
-                lkn_ChiTietBOM_Id: ct.lkn_ChiTietBOM_Id.toLowerCase(),
-                vatTu_Id: ct.vatTu_Id.toLowerCase(),
-                soLuongTheoDinhMuc: ct.dinhMuc * SoLuong,
-                ghiChu: "",
-                hangMucSuDung: "",
-                soLuong: ct.dinhMuc * SoLuong,
-              };
-            });
-          if (newData) {
-            const newListSanPham = ListSanPham.filter(
-              (d) => d.id !== data.sanPham_Id
-            );
-            setListVatTu([...listVatTu, ...newData]);
-            setListSanPham(newListSanPham);
-            setFieldsValue({
-              sanPham: {
-                phongBan_Id: null,
-                sanPham_Id: null,
-                soLuong: null,
-              },
-            });
-            setSanPham_Id(null);
-            setSoLuong(null);
-            setXuong(null);
-            setDisabledThem(true);
-          } else {
-            Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
-          }
-        } else {
-          Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
-        }
-      })
-      .catch((error) => console.error(error));
   };
 
   const props = {
@@ -855,29 +684,29 @@ const DonHangForm = ({ history, match, permission }) => {
         Chi tiết đơn hàng -{" "}
         <Tag
           color={
-            info.isXacNhan === null
+            info && info.isXacNhan === null
               ? "orange"
-              : info.isXacNhan === true
+              : info && info.isXacNhan === true
               ? "blue"
               : "red"
           }
           style={{ fontSize: 14 }}
         >
-          {info.maPhieuYeuCau}
+          {info && info.maPhieuYeuCau}
         </Tag>
         <Tag
           color={
-            info.isXacNhan === null
+            info && info.isXacNhan === null
               ? "orange"
-              : info.isXacNhan === true
+              : info && info.isXacNhan === true
               ? "blue"
               : "red"
           }
           style={{ fontSize: 14 }}
         >
-          {info.isXacNhan === null
+          {info && info.isXacNhan === null
             ? "Chưa xác nhận"
-            : info.isXacNhan === true
+            : info && info.isXacNhan === true
             ? "Đã xác nhận"
             : "Đã từ chối"}
         </Tag>
@@ -914,33 +743,8 @@ const DonHangForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Mã đơn hàng"
-                name={["deNghiMuaHang", "maDonHang"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Input
-                  className="input-item"
-                  placeholder="Nhập mã đơn hàng"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
                 label="Tên đơn hàng"
-                name={["deNghiMuaHang", "tenDonHang"]}
+                name={["phieumuahangnoibo", "tenDonHang"]}
                 rules={[
                   {
                     required: true,
@@ -964,17 +768,47 @@ const DonHangForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Đơn vị cung cấp"
-                name={["deNghiMuaHang", "donViCungCap"]}
+                label="Ngày tạo phiếu"
+                name={["phieumuahangnoibo", "ngayTaoPhieu"]}
                 rules={[
                   {
                     required: true,
                   },
                 ]}
               >
-                <Input
-                  className="input-item"
-                  placeholder="Nhập đơn vị cung cấp"
+                <DatePicker
+                  format={"DD/MM/YYYY"}
+                  allowClear={false}
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Đơn vị cung cấp"
+                name={["phieumuahangnoibo", "tits_qtsx_NhaCungCap_Id"]}
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListNhaCungCap}
+                  placeholder="Chọn đơn vị cung cấp"
+                  optionsvalue={["id", "tenNhaCungCap"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
@@ -990,17 +824,22 @@ const DonHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Địa chỉ"
-                name={["deNghiMuaHang", "diaChiDonViCungCap"]}
+                name={["phieumuahangnoibo", "tits_qtsx_NhaCungCap_Id"]}
                 rules={[
                   {
                     required: true,
                   },
                 ]}
               >
-                <Input
-                  className="input-item"
-                  placeholder="Nhập địa chỉ đơn vị cung cấp"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListNhaCungCap}
+                  placeholder="Địa chỉ đơn vị cung cấp"
+                  optionsvalue={["id", "diaChi"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={true}
                 />
               </FormItem>
             </Col>
@@ -1015,7 +854,7 @@ const DonHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Bên mua"
-                name={["deNghiMuaHang", "benMua"]}
+                name={["phieumuahangnoibo", "benMua"]}
                 rules={[
                   {
                     required: true,
@@ -1024,7 +863,7 @@ const DonHangForm = ({ history, match, permission }) => {
               >
                 <Input
                   className="input-item"
-                  placeholder="Nhập mã đơn hàng"
+                  placeholder="Nhập bên mua"
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
@@ -1039,8 +878,8 @@ const DonHangForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Địa chỉ"
-                name={["deNghiMuaHang", "diaChiBenMua"]}
+                label="Địa chỉ bên mua"
+                name={["phieumuahangnoibo", "diaChi"]}
                 rules={[
                   {
                     required: true,
@@ -1065,7 +904,7 @@ const DonHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người kiểm tra"
-                name={["deNghiMuaHang", "userKiemTra_Id"]}
+                name={["phieumuahangnoibo", "nguoiKiemTra_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -1096,7 +935,7 @@ const DonHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Kế toán duyệt"
-                name={["deNghiMuaHang", "userKeToan_Id"]}
+                name={["phieumuahangnoibo", "nguoiKeToan_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -1127,7 +966,7 @@ const DonHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Duyệt"
-                name={["deNghiMuaHang", "userDuyet_Id"]}
+                name={["phieumuahangnoibo", "nguoiDuyet_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -1157,8 +996,8 @@ const DonHangForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Địa điểm giao hàng"
-                name={["deNghiMuaHang", "diaDiemGiaoHang"]}
+                label="Địa chỉ giao hàng"
+                name={["phieumuahangnoibo", "diaChiGiaoHang"]}
                 rules={[
                   {
                     type: "string",
@@ -1184,7 +1023,7 @@ const DonHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Hình thức thanh toán"
-                name={["deNghiMuaHang", "hinhThucThanhToan"]}
+                name={["phieumuahangnoibo", "hinhThucThanhToan"]}
                 rules={[
                   {
                     type: "string",
@@ -1210,7 +1049,7 @@ const DonHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Ghi chú"
-                name={["deNghiMuaHang", "ghiChu"]}
+                name={["phieumuahangnoibo", "moTa"]}
                 rules={[
                   {
                     type: "string",
@@ -1235,7 +1074,7 @@ const DonHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="File đính kèm"
-                name={["deNghiMuaHang", "fileXacNhan"]}
+                name={["phieumuahangnoibo", "file"]}
               >
                 {!disableUpload ? (
                   <Upload {...props}>
@@ -1352,7 +1191,7 @@ const DonHangForm = ({ history, match, permission }) => {
           scroll={{ x: 1300, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
-          dataSource={reDataForTable(listVatTu)}
+          dataSource={reDataForTable(ListVatTu)}
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
@@ -1364,7 +1203,7 @@ const DonHangForm = ({ history, match, permission }) => {
           goBack={goBack}
           handleSave={saveAndClose}
           saveAndClose={saveAndClose}
-          disabled={fieldTouch && listVatTu.length !== 0}
+          disabled={fieldTouch && ListVatTu.length !== 0}
         />
       ) : null}
       {type === "UploadFile" &&
@@ -1389,10 +1228,10 @@ const DonHangForm = ({ history, match, permission }) => {
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
-        // saveTuChoi={saveTuChoi}
+        DataThemVatTu={DataThemVatTu}
       />
     </div>
   );
 };
 
-export default DonHangForm;
+export default PhieuMuaHangNoiBoForm;

@@ -92,7 +92,8 @@ const QuyTrinhSanPham = asyncComponent(() =>
 const QuyTrinhSanPhamForm = asyncComponent(() =>
   import("./QuyTrinhSanPham/QuyTrinhSanPhamForm")
 );
-
+const PhienBan = asyncComponent(() => import("./PhienBan/PhienBan"));
+const PhienBanForm = asyncComponent(() => import("./PhienBan/PhienBanForm"));
 // const Home = asyncComponent(() => import("../Home"));
 
 const App = ({ match, location, menus, permission }) => {
@@ -459,6 +460,21 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/ke/:id/chinh-sua`}
         exact
         component={Auth(KeForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phien-ban-apk`}
+        exact
+        component={Auth(PhienBan, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phien-ban-apk/them-moi`}
+        exact
+        component={Auth(PhienBanForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phien-ban-apk/:id/chinh-sua`}
+        exact
+        component={Auth(PhienBanForm, menus, pathname, permission)}
       />
 
       {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}

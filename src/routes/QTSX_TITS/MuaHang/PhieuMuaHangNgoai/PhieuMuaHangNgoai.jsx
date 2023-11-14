@@ -4,13 +4,12 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  EyeOutlined,
-  EyeInvisibleOutlined,
   PrinterOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -25,6 +24,7 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  exportPDF,
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -32,15 +32,16 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function DeNghiMuaHangCKD({ match, history, permission }) {
+
+function DeNghiMuaHang({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [selectedDevice, setSelectedDevice] = useState([]);
-  const [FromDate, setFromDate] = useState(getDateNow(7));
+  const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
+  const [SelectedMuaHangNgoai, setSelectedMuaHangNgoai] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListBanPhong, setListBanPhong] = useState([]);
   const [BanPhong, setBanPhong] = useState("");
@@ -48,7 +49,7 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       getBanPhong();
-      loadData(keyword, BanPhong, FromDate, ToDate, page);
+      loadData(keyword, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -71,7 +72,7 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
       donVi_Id: INFO.donVi_Id,
     });
     dispatch(
-      fetchStart(`lkn_PhieuDeNghiMuaHang?${param}`, "GET", null, "LIST")
+      fetchStart(`tits_qtsx_PhieuMuaHangNgoai?${param}`, "GET", null, "LIST")
     );
   };
   const getBanPhong = () => {
@@ -102,7 +103,7 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, BanPhong, FromDate, ToDate, page);
+    loadData(keyword, FromDate, ToDate, page);
   };
 
   /**
@@ -113,7 +114,7 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, BanPhong, FromDate, ToDate, page);
+      loadData(val.target.value, FromDate, ToDate, page);
     }
   };
   /**
@@ -124,10 +125,7 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      permission &&
-      permission.cof &&
-      item.tinhTrang === "Chưa xác nhận" &&
-      item.fileXacNhan ? (
+      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -135,15 +133,18 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
           }}
           title="Xác nhận"
         >
-          <EyeOutlined />
+          <CheckCircleOutlined />
         </Link>
       ) : (
         <span disabled title="Xác nhận">
-          <EyeInvisibleOutlined />
+          <CheckCircleOutlined />
         </span>
       );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
+      permission &&
+      permission.edit &&
+      !item.fileXacNhan &&
+      item.userYeuCau_Id === INFO.user_Id ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -159,7 +160,10 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
+      permission &&
+      permission.del &&
+      !item.fileXacNhan &&
+      item.userYeuCau_Id === INFO.user_Id
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -196,14 +200,14 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDeNghiMuaHang?id=${item.id}`;
+    let url = `tits_qtsx_PhieuMuaHangNgoai?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, BanPhong, FromDate, ToDate, page);
+          loadData(keyword, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -217,7 +221,7 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, BanPhong, FromDate, ToDate, pagination);
+    loadData(keyword, FromDate, ToDate, pagination);
   };
 
   /**
@@ -230,7 +234,52 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handlePrint = () => {};
+
+  const handlePrint = () => {
+    const params = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuMuaHangNgoai/${SelectedMuaHangNgoai[0].id}?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newData = {
+            ...res.data,
+            lstpdncvtct: JSON.parse(res.data.chiTietVatTu),
+          };
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `tits_qtsx_PhieuMuaHangNgoai/export-pdf`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportPDF("PhieuDeNghiMuaHang", res.data.datapdf);
+            setSelectedMuaHangNgoai([]);
+            setSelectedKeys([]);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -248,7 +297,7 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
-          disabled={permission && !permission.print}
+          disabled={SelectedMuaHangNgoai.length === 0}
         >
           In phiếu
         </Button>
@@ -258,6 +307,7 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
   const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
+
   const renderDetail = (val) => {
     const detail =
       permission && permission.view ? (
@@ -274,6 +324,7 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
       );
     return <div>{detail}</div>;
   };
+
   let renderHead = [
     {
       title: "STT",
@@ -312,22 +363,6 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
         })
       ),
       onFilter: (value, record) => record.ngayYeuCau.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Ban/Phòng",
-      dataIndex: "tenPhongBan",
-      key: "tenPhongBan",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenPhongBan,
-            value: d.tenPhongBan,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenPhongBan.includes(value),
       filterSearch: true,
     },
     {
@@ -394,6 +429,7 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
       cell: EditableCell,
     },
   };
+
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
@@ -410,79 +446,43 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
     };
   });
 
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(selectedDevice, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setSelectedDevice(newDevice);
-    setSelectedKeys(newKeys);
-  }
-
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: selectedDevice,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedDevice = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedDevice(newSelectedDevice);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
-  const handleOnSelectBanPhong = (val) => {
-    setBanPhong(val);
-    setPage(1);
-    loadData(keyword, val, FromDate, ToDate, 1);
-  };
-  const handleClearBanPhong = (val) => {
-    setBanPhong("");
-    setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
-  };
-
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    loadData(keyword, dateString[0], dateString[1], 1);
   };
+
+  const rowSelection = {
+    selectedRowKeys: selectedKeys,
+    selectedRows: SelectedMuaHangNgoai,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        SelectedMuaHangNgoai.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectedMuaHangNgoai[0].key)
+          : [...selectedRows];
+
+      const key =
+        selectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
+          : [...selectedRowKeys];
+
+      setSelectedMuaHangNgoai(row);
+      setSelectedKeys(key);
+    },
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phiếu đề nghị mua hàng CKD"
-        description="Danh sách phiếu đề nghị mua hàng CKD"
+        title="Phiếu mua hàng ngoài"
+        description="Danh sách phiếu mua hàng ngoài"
         buttons={addButtonRender()}
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Ban/Phòng:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListBanPhong ? ListBanPhong : []}
-              placeholder="Chọn Ban/Phòng"
-              optionsvalue={["id", "tenPhongBan"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectBanPhong}
-              value={BanPhong}
-              allowClear
-              onClear={handleClearBanPhong}
-            />
-          </Col>
-
           <Col
             xxl={6}
             xl={8}
@@ -528,29 +528,8 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
           </Col>
         </Row>
         <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            preserveSelectedRowKeys: true,
-            selectedRowKeys: selectedKeys,
-            hideSelectAll: true,
-            getCheckboxProps: (record) => ({}),
-          }}
-          onRow={(record, rowIndex) =>
-            record.tinhTrang === "Chưa xác nhận" && {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setSelectedDevice([record]);
-                  setSelectedKeys([record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            }
-          }
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 1100, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -567,10 +546,17 @@ function DeNghiMuaHangCKD({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: selectedKeys,
+          }}
         />
       </Card>
     </div>
   );
 }
 
-export default DeNghiMuaHangCKD;
+export default DeNghiMuaHang;

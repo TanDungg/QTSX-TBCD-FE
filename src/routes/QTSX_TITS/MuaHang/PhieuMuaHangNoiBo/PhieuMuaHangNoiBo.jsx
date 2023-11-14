@@ -33,7 +33,7 @@ import moment from "moment";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
-function DonHang({ match, history, permission }) {
+function PhieuMuaHangNoiBo({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -43,11 +43,10 @@ function DonHang({ match, history, permission }) {
   const [ToDate, setToDate] = useState(getDateNow());
   const [SelectedDonHang, setSelectedDonHang] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [TinhTrang, setTinhTrang] = useState(null);
 
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(FromDate, ToDate, TinhTrang, keyword, page);
+      getListData(keyword, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -56,32 +55,37 @@ function DonHang({ match, history, permission }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListData = (tuNgay, denNgay, tinhTrang, keyword, page) => {
+  const getListData = (keyword, ngayBatDau, ngayKetThuc, page) => {
     const param = convertObjectToUrlParams({
-      tuNgay,
-      denNgay,
-      tinhTrang,
       keyword,
+      ngayBatDau,
+      ngayKetThuc,
       page,
       donVi_Id: INFO.donVi_Id,
     });
-    dispatch(fetchStart(`DonHang?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(`tits_qtsx_PhieuMuaHangNoiBo?${param}`, "GET", null, "LIST")
+    );
   };
 
   const onSearchDonHang = () => {
-    getListData(FromDate, ToDate, TinhTrang, keyword, page);
+    getListData(FromDate, ToDate, keyword, page);
   };
 
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(FromDate, ToDate, TinhTrang, val.target.value, page);
+      getListData(val.target.value, FromDate, ToDate, page);
     }
   };
 
   const actionContent = (item) => {
     const detailItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
+      permission &&
+      permission.cof &&
+      item.fileXacNhan &&
+      INFO.user_Id === item.nguoiDuyet_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -101,7 +105,7 @@ function DonHang({ match, history, permission }) {
       permission &&
       permission.edit &&
       !item.fileXacNhan &&
-      item.userYeuCau_Id === INFO.user_Id ? (
+      item.nguoiTaoPhieu_Id === INFO.user_Id ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -121,7 +125,7 @@ function DonHang({ match, history, permission }) {
       permission &&
       permission.del &&
       !item.fileXacNhan &&
-      item.userYeuCau_Id === INFO.user_Id
+      item.nguoiTaoPhieu_Id === INFO.user_Id
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
 
@@ -145,7 +149,7 @@ function DonHang({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maDonHang, "đơn hàng");
+    ModalDeleteConfirm(deleteItemAction, item, item.maPhieu, "đơn hàng");
   };
 
   /**
@@ -154,14 +158,14 @@ function DonHang({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `DonHang?id=${item.id}`;
+    let url = `tits_qtsx_PhieuMuaHangNoiBo?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(FromDate, ToDate, TinhTrang, keyword, page);
+          getListData(keyword, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -175,7 +179,7 @@ function DonHang({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(FromDate, ToDate, TinhTrang, keyword, pagination);
+    getListData(keyword, FromDate, ToDate, pagination);
   };
 
   /**
@@ -196,7 +200,7 @@ function DonHang({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `DonHang/${SelectedDonHang[0].id}?${params}`,
+          `tits_qtsx_PhieuMuaHangNoiBo/${SelectedDonHang[0].id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -215,7 +219,7 @@ function DonHang({ match, history, permission }) {
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `DonHang/export-pdf`,
+                `tits_qtsx_PhieuMuaHangNoiBo/export-pdf`,
                 "POST",
                 newData,
                 "",
@@ -225,7 +229,7 @@ function DonHang({ match, history, permission }) {
               )
             );
           }).then((res) => {
-            exportPDF("DonHang", res.data.datapdf);
+            exportPDF("PhieuMuaHangNoiBo", res.data.datapdf);
             setSelectedDonHang([]);
             setSelectedKeys([]);
           });
@@ -271,10 +275,10 @@ function DonHang({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maDonHang}
+          {val.maPhieu}
         </Link>
       ) : (
-        <span disabled>{val.maDonHang}</span>
+        <span disabled>{val.maPhieu}</span>
       );
     return <div>{detail}</div>;
   };
@@ -288,18 +292,18 @@ function DonHang({ match, history, permission }) {
     },
     {
       title: "Mã đơn hàng",
-      key: "maDonHang",
+      key: "maPhieu",
       align: "center",
       render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maDonHang,
-            value: d.maDonHang,
+            text: d.maPhieu,
+            value: d.maPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.maDonHang.includes(value),
+      onFilter: (value, record) => record.maPhieu.includes(value),
       filterSearch: true,
     },
     {
@@ -336,56 +340,56 @@ function DonHang({ match, history, permission }) {
     },
     {
       title: "Đơn vị cung cấp",
-      dataIndex: "donViCungCap",
-      key: "donViCungCap",
+      dataIndex: "tenNhaCungCap",
+      key: "tenNhaCungCap",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.donViCungCap,
-            value: d.donViCungCap,
+            text: d.tenNhaCungCap,
+            value: d.tenNhaCungCap,
           };
         })
       ),
-      onFilter: (value, record) => record.donViCungCap.includes(value),
+      onFilter: (value, record) => record.tenNhaCungCap.includes(value),
       filterSearch: true,
     },
     {
-      title: "Ngày đề nghị",
-      dataIndex: "ngayDeNghi",
-      key: "ngayDeNghi",
+      title: "Ngày yêu cầu",
+      dataIndex: "ngayYeuCau",
+      key: "ngayYeuCau",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayDeNghi,
-            value: d.ngayDeNghi,
+            text: d.ngayYeuCau,
+            value: d.ngayYeuCau,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayDeNghi.includes(value),
+      onFilter: (value, record) => record.ngayYeuCau.includes(value),
       filterSearch: true,
     },
     {
       title: "Người tạo",
-      dataIndex: "nguoiTao",
-      key: "nguoiTao",
+      dataIndex: "tenNguoiTaoPhieu",
+      key: "tenNguoiTaoPhieu",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.nguoiTao,
-            value: d.nguoiTao,
+            text: d.tenNguoiTaoPhieu,
+            value: d.tenNguoiTaoPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.nguoiTao.includes(value),
+      onFilter: (value, record) => record.tenNguoiTaoPhieu.includes(value),
       filterSearch: true,
     },
     {
       title: "File đính kèm",
-      dataIndex: "fileDinhKem",
-      key: "fileDinhKem",
+      dataIndex: "file",
+      key: "file",
       align: "center",
     },
     {
@@ -440,18 +444,7 @@ function DonHang({ match, history, permission }) {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    getListData(dateString[0], dateString[1], TinhTrang, keyword, 1);
-  };
-
-  const handleOnSelectTinhTrang = (val) => {
-    setTinhTrang(val);
-    setPage(1);
-    getListData(FromDate, ToDate, val, keyword, 1);
-  };
-  const handleClearTinhTrang = () => {
-    setTinhTrang(null);
-    setPage(1);
-    getListData(FromDate, ToDate, null, keyword, 1);
+    getListData(keyword, dateString[0], dateString[1], 1);
   };
 
   const rowSelection = {
@@ -477,8 +470,8 @@ function DonHang({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Đơn hàng"
-        description="Danh sách đơn hàng"
+        title="Phiếu mua hàng nội bộ"
+        description="Danh sách phiếu mua hàng nội bộ"
         buttons={addButtonRender()}
       />
 
@@ -502,34 +495,6 @@ function DonHang({ match, history, permission }) {
                 moment(ToDate, "DD/MM/YYYY"),
               ]}
               allowClear={false}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Tình trạng:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={[
-                { value: "Đang giao" },
-                { value: "Đã giao" },
-                { value: "Đã từ chối" },
-              ]}
-              placeholder="Chọn tình trạng"
-              optionsvalue={["value", "value"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectTinhTrang}
-              value={TinhTrang}
-              allowClear
-              onClear={handleClearTinhTrang}
             />
           </Col>
           <Col
@@ -586,4 +551,4 @@ function DonHang({ match, history, permission }) {
   );
 }
 
-export default DonHang;
+export default PhieuMuaHangNoiBo;

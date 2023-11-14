@@ -31,7 +31,7 @@ import {
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
+function ModalTuChoi({ openModalFS, openModal, DataThemVatTu }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
   const INFO = {
@@ -52,7 +52,7 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
       getDonViTinh();
       setFieldsValue({
         themvattu: {
-          ngayYeuCauGiao: moment(getDateNow(), "DD/MM/YYYY"),
+          ngay: moment(getDateNow(), "DD/MM/YYYY"),
         },
       });
     }
@@ -131,10 +131,14 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = DataListVatTu.filter((d) => d.vatTu_Id !== item.vatTu_Id);
+    const newData = DataListVatTu.filter(
+      (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
+    );
     setDataListVatTu(newData);
 
-    const vattu = DataListVatTu.filter((d) => d.vatTu_Id === item.vatTu_Id);
+    const vattu = DataListVatTu.filter(
+      (d) => d.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id
+    );
     setListVatTu([...ListVatTu, vattu[0]]);
   };
 
@@ -198,8 +202,8 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
     },
     {
       title: "Ngày yêu cầu giao",
-      dataIndex: "ngayYeuCauGiao",
-      key: "ngayYeuCauGiao",
+      dataIndex: "ngay",
+      key: "ngay",
       align: "center",
     },
     {
@@ -248,31 +252,31 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
 
   const onFinish = (values) => {
     const data = values.themvattu;
-    const listvattu = ListVatTu.filter((d) => d.id === data.vatTu_Id);
-    const donvitinh = ListDonViTinh.filter((d) => d.id === data.donViTinh_Id);
+    const listvattu = ListVatTu.filter((d) => d.id === data.tits_qtsx_VatTu_Id);
     const DataList = {
       ...data,
       ...listvattu[0],
-      tenDonViTinh: donvitinh[0].tenDonViTinh,
-      thanhTien: data.soLuong * data.donGia,
-      ngayYeuCauGiao: data.ngayYeuCauGiao.format("DD/MM/YYYY"),
+      thanhTien: parseFloat(data.soLuong * data.donGia),
+      ngay: data.ngay.format("DD/MM/YYYY"),
+      tits_qtsx_DonHang_Id: "c758e53f-ebf8-4706-a2a5-66eb4d03a278",
     };
     setDataListVatTu([...DataListVatTu, DataList]);
 
-    const VatTu = ListVatTu.filter((d) => d.id !== data.vatTu_Id);
+    const VatTu = ListVatTu.filter((d) => d.id !== data.tits_qtsx_VatTu_Id);
     setListVatTu(VatTu);
     resetFields();
+    setFieldTouch(false);
     setFieldsValue({
       themvattu: {
-        ngayYeuCauGiao: moment(getDateNow(), "DD/MM/YYYY"),
+        ngay: moment(getDateNow(), "DD/MM/YYYY"),
       },
     });
   };
 
-  const saveData = (tc) => {
-    saveTuChoi(tc.lyDoTuChoi);
+  const XacNhan = () => {
+    DataThemVatTu(DataListVatTu);
     openModalFS(false);
-    resetFields();
+    setListVatTu([]);
   };
 
   const handleCancel = () => {
@@ -309,7 +313,7 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
               >
                 <FormItem
                   label="Tên vật tư"
-                  name={["themvattu", "vatTu_Id"]}
+                  name={["themvattu", "tits_qtsx_VatTu_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -339,7 +343,7 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
               >
                 <FormItem
                   label="Loại vật tư"
-                  name={["themvattu", "vatTu_Id"]}
+                  name={["themvattu", "tits_qtsx_VatTu_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -369,36 +373,6 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Đơn vị tính"
-                  name={["themvattu", "donViTinh_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListDonViTinh}
-                    placeholder="Chọn đơn vị tính"
-                    optionsvalue={["id", "tenDonViTinh"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp="name"
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
                   label="Số lượng"
                   name={["themvattu", "soLuong"]}
                   rules={[
@@ -415,7 +389,7 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
                   />
                 </FormItem>
               </Col>
-              <Col
+              {/* <Col
                 xxl={12}
                 xl={12}
                 lg={24}
@@ -426,7 +400,7 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
               >
                 <FormItem
                   label="Đơn đặt hàng"
-                  name={["themvattu", "donViTinh_Id"]}
+                  name={["themvattu", "tits_qtsx_DonHang_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -444,7 +418,7 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
                     optionFilterProp="name"
                   />
                 </FormItem>
-              </Col>
+              </Col> */}
               <Col
                 xxl={12}
                 xl={12}
@@ -456,7 +430,7 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
               >
                 <FormItem
                   label="Ngày yêu cầu giao"
-                  name={["themvattu", "ngayYeuCauGiao"]}
+                  name={["themvattu", "ngay"]}
                   rules={[
                     {
                       required: true,
@@ -480,7 +454,7 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
                   name={["themvattu", "donGia"]}
                   rules={[
                     {
-                      type: "string",
+                      required: true,
                     },
                   ]}
                 >
@@ -511,7 +485,7 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
         <Row justify={"center"} style={{ marginTop: 15 }}>
           <Button
             type="primary"
-            onClick={""}
+            onClick={XacNhan}
             disabled={DataListVatTu.length === 0}
           >
             Xác nhận
