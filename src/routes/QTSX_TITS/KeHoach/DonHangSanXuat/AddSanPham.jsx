@@ -1,105 +1,132 @@
-import { Modal as AntModal, Button, Row, Form, Input } from "antd";
+import { Modal as AntModal, Form, Input, DatePicker } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams } from "src/util/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { Select } from "src/components/Common";
 import { FormSubmit } from "src/components/Common";
+import moment from "moment";
+import dayjs from "dayjs";
 const FormItem = Form.Item;
 
-function AddSanPham({ openModalFS, openModal, refesh, info, type }) {
+function AddSanPham({
+  openModalFS,
+  openModal,
+  refesh,
+  info,
+  type,
+  addSanPham,
+}) {
   const dispatch = useDispatch();
   const [fieldTouch, setFieldTouch] = useState(false);
+  const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
+  const [ListSanPham, setListSanPham] = useState([]);
+  const [ListMauSac, setListMauSac] = useState([]);
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   useEffect(() => {
     if (openModal) {
-      if (type === "congDoanNew") {
+      getLoaiSanPham();
+      getMauSac();
+      if (type === "edit") {
+        getSanPham(info.loaiSanPham_Id);
         setFieldsValue({
           chitiet: {
             ...info,
+            ngayBanGiao: moment(info.ngayBanGiao, "DD/MM/YYYY"),
           },
         });
+      } else {
+        resetFields();
       }
     }
   }, [openModal]);
-
+  const getLoaiSanPham = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_LoaiSanPham?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiSanPham(res.data);
+        } else {
+          setListLoaiSanPham([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const getSanPham = (loaiSanPham_Id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_SanPham?tits_qtsx_LoaiSanPham_Id=${loaiSanPham_Id}&&page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListSanPham(res.data);
+        } else {
+          setListSanPham([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const getMauSac = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_MauSac?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListMauSac(res.data);
+        } else {
+          setListMauSac([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   const saveData = (chitiet) => {
-    if (type === "congDoanNew" || type === "xuongNew" || type === "chuyenNew") {
-      const url =
-        type === "congDoanNew"
-          ? "tits_qtsx_Xuong"
-          : type === "xuongNew"
-          ? "tits_qtsx_Chuyen"
-          : type === "chuyenNew" && "tits_qtsx_Tram";
-      const newData = type === "congDoanNew";
-
-      new Promise((resolve, reject) => {
-        dispatch(fetchStart(url, "POST", newData, "ADD", "", resolve, reject));
-      })
-        .then((res) => {
-          if (res && res.status !== 409) {
-            openModalFS(false);
-            resetFields();
-            refesh();
-          }
-        })
-        .catch((error) => console.error(error));
-    } else if (
-      type === "xuongEdit" ||
-      type === "chuyenEdit" ||
-      type === "tramEdit"
-    ) {
-      const url =
-        type === "xuongEdit"
-          ? "tits_qtsx_Xuong"
-          : type === "chuyenEdit"
-          ? "tits_qtsx_Chuyen"
-          : type === "tramEdit" && "tits_qtsx_Tram";
-      const newData =
-        type === "xuongEdit"
-          ? {
-              ...chitiet,
-              id: info.id,
-              tits_qtsx_CongDoan_Id: info.tits_qtsx_CongDoan_Id,
-            }
-          : type === "chuyenEdit"
-          ? {
-              ...chitiet,
-              id: info.id,
-              tits_qtsx_Xuong_Id: info.tits_qtsx_Xuong_Id,
-              tits_qtsx_CongDoan_Id: info.tits_qtsx_CongDoan_Id,
-            }
-          : type === "tramEdit" && {
-              ...chitiet,
-              id: info.id,
-              tits_qtsx_Chuyen_Id: info.tits_qtsx_Chuyen_Id,
-              tits_qtsx_Xuong_Id: info.tits_qtsx_Xuong_Id,
-              tits_qtsx_CongDoan_Id: info.tits_qtsx_CongDoan_Id,
-            };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `${url}/${info.id}`,
-            "PUT",
-            newData,
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.status !== 409) {
-            openModalFS(false);
-            resetFields();
-            refesh();
-          }
-        })
-        .catch((error) => console.error(error));
-    }
+    const newData = chitiet;
+    newData.ngayBanGiao = chitiet.ngayBanGiao._i;
+    ListSanPham.forEach((sp) => {
+      if (sp.id === newData.sanPham_Id) {
+        newData.tenSanPham = sp.tenSanPham;
+        newData.maSanPham = sp.maSanPham;
+        newData.tenLoaiSanPham = sp.tenLoaiSanPham;
+      }
+    });
+    ListMauSac.forEach((ms) => {
+      if (ms.id === newData.mauSac_Id) {
+        newData.tenMauSac = ms.tenMauSac;
+      }
+    });
+    addSanPham(newData, type);
+    openModalFS(false);
   };
 
   const handleCancel = () => {
@@ -113,18 +140,11 @@ function AddSanPham({ openModalFS, openModal, refesh, info, type }) {
   const onFinish = (values) => {
     saveData(values.chitiet);
   };
-  const title =
-    type === "congDoanNew"
-      ? "Thêm xưởng"
-      : type === "xuongEdit"
-      ? "Chỉnh sửa xưởng"
-      : type === "xuongNew"
-      ? "Thêm chuyền"
-      : type === "chuyenEdit"
-      ? "Chỉnh sửa chuyền"
-      : type === "chuyenNew"
-      ? "Thêm trạm"
-      : type === "tramEdit" && "Chỉnh sửa trạm";
+  const title = type === "new" ? "Thêm sản phẩm" : "Chỉnh sửa sản phẩm";
+
+  const disabledDate = (current) => {
+    return current && current < dayjs().startOf("day");
+  };
 
   return (
     <AntModal
@@ -150,11 +170,12 @@ function AddSanPham({ openModalFS, openModal, refesh, info, type }) {
           >
             <Select
               className="heading-select slt-search th-select-heading"
-              data={[]}
+              data={ListLoaiSanPham}
               placeholder="Chọn loại sản phẩm"
               optionsvalue={["id", "tenLoaiSanPham"]}
               style={{ width: "100%" }}
               showSearch
+              onSelect={(val) => getSanPham(val)}
               optionFilterProp="name"
             />
           </FormItem>
@@ -165,12 +186,23 @@ function AddSanPham({ openModalFS, openModal, refesh, info, type }) {
           >
             <Select
               className="heading-select slt-search th-select-heading"
-              data={[]}
+              data={ListSanPham}
               placeholder="Chọn sản phẩm"
               optionsvalue={["id", "tenSanPham"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
+              onSelect={(val) => {
+                ListSanPham.forEach((sp) => {
+                  if (sp.id === val) {
+                    setFieldsValue({
+                      chitiet: {
+                        tenDonViTinh: sp.tenDonViTinh,
+                      },
+                    });
+                  }
+                });
+              }}
             />
           </FormItem>
           <FormItem
@@ -187,7 +219,7 @@ function AddSanPham({ openModalFS, openModal, refesh, info, type }) {
           >
             <Select
               className="heading-select slt-search th-select-heading"
-              data={[]}
+              data={ListMauSac}
               placeholder="Chọn màu sắc"
               optionsvalue={["id", "tenMauSac"]}
               style={{ width: "100%" }}
@@ -197,19 +229,10 @@ function AddSanPham({ openModalFS, openModal, refesh, info, type }) {
           </FormItem>
           <FormItem
             label="Đơn vị tính"
-            name={["chitiet", "donViTinh_Id"]}
+            name={["chitiet", "tenDonViTinh"]}
             rules={[{ type: "string", required: true }]}
           >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={[]}
-              placeholder="Chọn Đơn vị tính"
-              optionsvalue={["id", "tenDoiViTinh"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              disabled={true}
-            />
+            <Input placeholder="Đơn vị tính" disabled={true}></Input>
           </FormItem>
 
           <FormItem
@@ -247,9 +270,23 @@ function AddSanPham({ openModalFS, openModal, refesh, info, type }) {
           >
             <Input placeholder="Vận chuyển"></Input>
           </FormItem>
+          <FormItem label="Ngày bàn giao" name={["chitiet", "ngayBanGiao"]}>
+            <DatePicker
+              format={"DD/MM/YYYY"}
+              allowClear={false}
+              onChange={(date, dateString) => {
+                setFieldsValue({
+                  chitiet: {
+                    ngayBanGiao: moment(dateString, "DD/MM/YYYY"),
+                  },
+                });
+              }}
+              disabledDate={disabledDate}
+            />
+          </FormItem>
           <FormItem
             label="Ghi chú"
-            name={["chitiet", "moTa"]}
+            name={["chitiet", "ghiChu"]}
             rules={[
               {
                 type: "string",

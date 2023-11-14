@@ -128,7 +128,21 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
           >
             <Input placeholder="Định mức"></Input>
           </FormItem>
-
+          <FormItem
+            label="Định mức xả nhựa"
+            name={["vatTu", "dinhMucXaNhua"]}
+            rules={[
+              {
+                required: true,
+              },
+              {
+                pattern: /^(0\.\d*[1-9]\d*|[1-9]\d*(\.\d+)?)$/,
+                message: "Định mức xả nhựa phải là số và lớn hơn 0!",
+              },
+            ]}
+          >
+            <Input placeholder="Định mức xả nhựa"></Input>
+          </FormItem>
           <FormItem
             label="Ghi chú"
             name={["vatTu", "ghiChu"]}

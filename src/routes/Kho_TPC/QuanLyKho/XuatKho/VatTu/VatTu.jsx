@@ -495,6 +495,8 @@ function XuatKhoVatTu({ match, history, permission }) {
                 ? JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus)
                 : null,
             };
+          } else {
+            return null;
           }
         });
         new Promise((resolve, reject) => {
