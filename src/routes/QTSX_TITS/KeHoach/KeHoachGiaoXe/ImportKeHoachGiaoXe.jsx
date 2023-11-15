@@ -36,7 +36,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ImportKeHoachChiTiet({ match, permission, history }) {
+function ImportKeHoachGiaoXe({ match, permission, history }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = getLocalStorage("menu");
@@ -46,14 +46,6 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
   const [HangTrung, setHangTrung] = useState([]);
   const [DataLoi, setDataLoi] = useState();
   const [message, setMessageError] = useState([]);
-  const [DisableTaiFile, setDisableTaiFile] = useState(false);
-  const [listKeHoach, setListKeHoach] = useState([]);
-  const [listXuong, setListXuong] = useState([]);
-  const [KeHoach, setKeHoach] = useState();
-  const [TenKeHoach, setTenKeHoach] = useState();
-  const [TenXuong, setTenXuong] = useState();
-
-  const [Xuong, setXuong] = useState();
   const [Thang, setThang] = useState(getThangNow());
   const [Nam, setNam] = useState(getNamNow());
 
@@ -62,7 +54,6 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
       if (permission && !permission.add) {
         history.push("/home");
       } else if (permission && permission.add) {
-        getData();
       }
     }
 
@@ -71,55 +62,6 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const getData = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_LoaiKeHoach?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListKeHoach(res.data);
-          setKeHoach(res.data[1].id);
-          setTenKeHoach(res.data[1].tenLoaiKeHoach);
-        } else {
-          setListKeHoach([]);
-        }
-      })
-      .catch((error) => console.error(error));
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_Xuong?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const xuong = res.data;
-
-          setListXuong(xuong);
-        } else {
-          setListXuong([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
   const render = (val) => {
     if (val === undefined) {
       return (
@@ -170,7 +112,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
     }
     return check ? (
       <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
-        {val}
+        <span style={{ fontWeight: "bold" }}>{val}</span>
       </Popover>
     ) : (
       <span>{val}</span>
@@ -200,20 +142,6 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
       width: 120,
     },
     {
-      title: "Đơn hàng",
-      dataIndex: "maPhieu",
-      align: "center",
-      key: "maPhieu",
-      width: 100,
-    },
-    {
-      title: "ĐMNC",
-      dataIndex: "dinhMucNhanCong",
-      align: "center",
-      key: "dinhMucNhanCong",
-      width: 100,
-    },
-    {
       title: `Tháng ${Thang} năm ${Nam}`,
       children: new Array(getNumberDayOfMonth(Thang, Nam))
         .fill(null)
@@ -234,7 +162,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
       dataIndex: "tong",
       align: "center",
       key: "tong",
-      width: 100,
+      width: 60,
     },
   ];
   const components = {
@@ -263,10 +191,9 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
   //File mẫu
   const TaiFileMau = () => {
     const params = convertObjectToUrlParams({
-      tits_qtsx_Xuong_Id: Xuong,
-      IsSanXuat: true,
-      Thang: Thang,
-      Nam: Nam,
+      IsSanXuat: false,
+      thang: Thang,
+      nam: Nam,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -281,7 +208,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
         )
       );
     }).then((res) => {
-      exportExcel(`File_Mau_San_Xuat_Chi_Tiet}`, res.data.dataexcel);
+      exportExcel(`File_Mau_Ke_Hoach_Giao_Xe`, res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {
@@ -291,7 +218,6 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
         type: "binary",
       });
       const worksheet = workbook.Sheets["Kế hoạch"];
-
       let checkMau =
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
@@ -329,45 +255,23 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
             range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Tên sản phẩm" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
-          })[0]
-          .toString()
-          .trim() === "Đơn hàng" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
-          })[0]
-          .toString()
-          .trim() === "Định mức nhân công";
+          .trim() === "Tên sản phẩm";
       if (checkMau) {
         for (let index = 1; index <= getNumberDayOfMonth(Thang, Nam); index++) {
           if (
             XLSX.utils.sheet_to_json(worksheet, {
               header: 1,
               range: {
-                s: { c: 4 + index, r: 3 },
-                e: { c: 4 + index, r: 3 },
+                s: { c: 2 + index, r: 3 },
+                e: { c: 2 + index, r: 3 },
               },
             })[0] &&
             XLSX.utils
               .sheet_to_json(worksheet, {
                 header: 1,
                 range: {
-                  s: { c: 4 + index, r: 3 },
-                  e: { c: 4 + index, r: 3 },
+                  s: { c: 2 + index, r: 3 },
+                  e: { c: 2 + index, r: 3 },
                 },
               })[0]
               .toString()
@@ -384,7 +288,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
         setMessageError("Mẫu import không hợp lệ");
         Helper.alertError("Mẫu file import không hợp lệ");
       } else {
-        const checkXuong =
+        const checkKeHoach =
           XLSX.utils.sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 1, r: 1 }, e: { c: 1, r: 1 } },
@@ -395,7 +299,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
               range: { s: { c: 1, r: 1 }, e: { c: 1, r: 1 } },
             })[0]
             .toString()
-            .trim() === "Xưởng:" &&
+            .trim() === "Loại kế hoạch" &&
           XLSX.utils.sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 2, r: 1 }, e: { c: 2, r: 1 } },
@@ -406,13 +310,13 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
               range: { s: { c: 2, r: 1 }, e: { c: 2, r: 1 } },
             })[0]
             .toString()
-            .trim() === TenXuong;
-        if (!checkXuong) {
+            .trim() === "Kế hoạch giao hàng";
+        if (!checkKeHoach) {
           setFileName(file.name);
           setDataView([]);
           setCheckDanger(true);
-          setMessageError("Xưởng không hợp lệ");
-          Helper.alertError("Xưởng không hợp lệ");
+          setMessageError("Kế hoạch không hợp lệ");
+          Helper.alertError("Kế hoạch không hợp lệ");
         } else {
           const checkThangNam =
             XLSX.utils
@@ -425,7 +329,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
             XLSX.utils
               .sheet_to_json(worksheet, {
                 header: 1,
-                range: { s: { c: 4, r: 1 }, e: { c: 4, r: 1 } },
+                range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
               })[0]
               .toString()
               .trim().length === 1
@@ -433,28 +337,28 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
                 XLSX.utils
                   .sheet_to_json(worksheet, {
                     header: 1,
-                    range: { s: { c: 4, r: 1 }, e: { c: 4, r: 1 } },
+                    range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
                   })[0]
                   .toString()
                   .trim()
               : XLSX.utils
                   .sheet_to_json(worksheet, {
                     header: 1,
-                    range: { s: { c: 4, r: 1 }, e: { c: 4, r: 1 } },
+                    range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
                   })[0]
                   .toString()
                   .trim() === Thang.toString() &&
                 XLSX.utils
                   .sheet_to_json(worksheet, {
                     header: 1,
-                    range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
+                    range: { s: { c: 7, r: 1 }, e: { c: 7, r: 1 } },
                   })[0]
                   .toString()
                   .trim() === "Năm:" &&
                 XLSX.utils
                   .sheet_to_json(worksheet, {
                     header: 1,
-                    range: { s: { c: 6, r: 1 }, e: { c: 6, r: 1 } },
+                    range: { s: { c: 9, r: 1 }, e: { c: 9, r: 1 } },
                   })[0]
                   .toString()
                   .trim() === Nam.toString();
@@ -470,23 +374,18 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
             });
             const MSP = "Mã sản phẩm";
             const TSP = "Tên sản phẩm";
-            const DH = "Đơn hàng";
-            const DMNC = "Định mức nhân công";
+            const Data = [];
             const NewData = [];
             data.forEach((d, index) => {
               if (
                 d[MSP] &&
                 d[MSP].toString().trim() === "" &&
                 d[TSP] &&
-                d[TSP].toString().trim() === "" &&
-                d[DH] &&
-                d[DH].toString().trim() === "" &&
-                d[DMNC] &&
-                d[DMNC].toString().trim() === ""
+                d[TSP].toString().trim() === ""
               ) {
               } else {
                 const slNgay = {};
-                let t = 0;
+                let tong = 0;
                 for (
                   let index = 1;
                   index <= getNumberDayOfMonth(Thang, Nam);
@@ -494,7 +393,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
                 ) {
                   if (d[index]) {
                     slNgay[index] = d[index];
-                    t += d[index];
+                    tong = tong + d[index];
                   }
                 }
                 NewData.push({
@@ -508,20 +407,11 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
                       ? d[TSP].toString().trim()
                       : undefined
                     : undefined,
-                  maPhieu: d[DH]
-                    ? d[DH].toString().trim() !== ""
-                      ? d[DH].toString().trim()
-                      : undefined
-                    : undefined,
-                  dinhMucNhanCong: d[DMNC]
-                    ? d[DMNC].toString().trim() !== ""
-                      ? d[DMNC].toString().trim()
-                      : undefined
-                    : undefined,
-                  tong: t,
                   ...slNgay,
+                  tong: tong,
                 });
               }
+              Data.push(data[index][MSP]);
             });
             if (NewData.length === 0) {
               setFileName(file.name);
@@ -535,17 +425,14 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
               setDataLoi();
               const indices = [];
               const row = [];
-              for (let i = 0; i < NewData.length; i++) {
-                for (let j = i + 1; j < NewData.length; j++) {
+              for (let i = 0; i < Data.length; i++) {
+                for (let j = i + 1; j < Data.length; j++) {
                   if (
-                    NewData[i].maSanPham === NewData[j].maSanPham &&
-                    NewData[i].maPhieu === NewData[j].maPhieu &&
-                    NewData[j].maSanPham !== undefined &&
-                    NewData[i].maSanPham !== undefined &&
-                    NewData[j].maPhieu !== undefined &&
-                    NewData[i].maPhieu !== undefined
+                    Data[i] === Data[j] &&
+                    Data[j] !== undefined &&
+                    Data[i] !== undefined
                   ) {
-                    indices.push(NewData[i].maSanPham);
+                    indices.push(Data[i]);
                     row.push(i + 1);
                     row.push(j + 1);
                   }
@@ -593,16 +480,12 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
 
   const handleSubmit = () => {
     const newData = {
-      tits_qtsx_Xuong_Id: Xuong,
-      isSanXuat: true,
+      isSanXuat: false,
       nam: Nam,
       thang: Thang,
       list_SanPhams: dataView.map((dt) => {
         return {
           maSanPham: dt.maSanPham,
-          maPhieu: dt.maPhieu,
-          dinhMucNhanCong: dt.dinhMucNhanCong,
-
           list_ChiTiets: Array.from(
             { length: getNumberDayOfMonth(Thang, Nam) },
             (_, i) => {
@@ -642,7 +525,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận import kế hoạch sản xuất chi tiết",
+    title: "Xác nhận import kế hoạch giao xe",
     onOk: handleSubmit,
   };
   const modalXK = () => {
@@ -664,14 +547,6 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
     } else if (current.tenSanPham === undefined) {
       setCheckDanger(true);
       setMessageError("Tên sản phẩm không được rỗng");
-      return "red-row";
-    } else if (current.maPhieu === undefined) {
-      setCheckDanger(true);
-      setMessageError("Đơn hàng không được rỗng");
-      return "red-row";
-    } else if (current.dinhMucNhanCong === undefined) {
-      setCheckDanger(true);
-      setMessageError("Định mức nhân công không được rỗng");
       return "red-row";
     } else if (DataLoi && DataLoi.length > 0) {
       let check = false;
@@ -698,13 +573,6 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
       }
     }
   };
-  const hanldeSelectXuong = (val) => {
-    setDisableTaiFile(true);
-    setXuong(val);
-    listXuong.forEach((x) => {
-      x.id === val && setTenXuong(x.tenXuong);
-    });
-  };
   /**
    * Quay lại trang kế hoạch
    *
@@ -712,7 +580,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
   const goBack = () => {
     history.push(`${match.url.replace("/import", "")}`);
   };
-  const formTitle = "Import kế hoạch sản xuất chi tiết";
+  const formTitle = "Import kế hoạch giao xe";
 
   return (
     <div className="gx-main-content">
@@ -720,27 +588,6 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={8}
-            md={8}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Xưởng sản xuất:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={listXuong ? listXuong : []}
-              placeholder="Chọn xưởng"
-              optionsvalue={["id", "tenXuong"]}
-              style={{ width: "100%" }}
-              onSelect={hanldeSelectXuong}
-              value={Xuong}
-              disabled={fileName !== ""}
-            />
-          </Col>
           <Col
             xxl={6}
             xl={8}
@@ -781,11 +628,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
           </Col>
           <Col xxl={4} xl={5} lg={7} md={7} xs={17}>
             <Upload {...props}>
-              <Button
-                icon={<UploadOutlined />}
-                danger={checkDanger}
-                disabled={!DisableTaiFile}
-              >
+              <Button icon={<UploadOutlined />} danger={checkDanger}>
                 Tải dữ liệu lên
               </Button>
             </Upload>
@@ -824,7 +667,6 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
               onClick={TaiFileMau}
               className="th-btn-margin-bottom-0"
               type="primary"
-              disabled={!DisableTaiFile}
             >
               File mẫu
             </Button>
@@ -856,4 +698,4 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
   );
 }
 
-export default ImportKeHoachChiTiet;
+export default ImportKeHoachGiaoXe;

@@ -21,7 +21,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function KeHoachTong({ match, history, permission }) {
+function KeHoachGiaoXe({ match, history, permission }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const INFO = getLocalStorage("menu");
@@ -101,7 +101,7 @@ function KeHoachTong({ match, history, permission }) {
   };
   const getVersion = (t, n) => {
     const params = convertObjectToUrlParams({
-      isSanXuat: true,
+      isSanXuat: false,
       thang: t,
       nam: n,
     });
@@ -320,8 +320,8 @@ function KeHoachTong({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Kế hoạch sản xuất"}
-        description="Kế hoạch sản xuất"
+        title={"Kế hoạch giao xe"}
+        description="Kế hoạch giao xe"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
@@ -398,4 +398,4 @@ function KeHoachTong({ match, history, permission }) {
   );
 }
 
-export default KeHoachTong;
+export default KeHoachGiaoXe;
