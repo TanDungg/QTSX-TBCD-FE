@@ -23,6 +23,8 @@ function CauTrucKho({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
   const [selectedDevice, setSelectedDevice] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
+  const [pageSize, setPageSize] = useState(20);
+
   useEffect(() => {
     if (permission && permission.view) {
       loadData(keyword, 1);
@@ -290,7 +292,13 @@ function CauTrucKho({ match, history, permission }) {
           rowClassName={(record) => {
             return record.isParent ? "editable-row" : "editable-row";
           }}
-          pagination={false}
+          pagination={{
+            onChange: (page, pageSize) => {
+              setPageSize(pageSize);
+            },
+            pageSize: pageSize,
+            total: dataList.length,
+          }}
           loading={loading}
           rowSelection={{
             type: "checkbox",

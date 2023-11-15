@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { map } from "lodash";
 import { Table, EditableTableRow, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
+import ModalChiTietKho from "./ModalChiTietKho";
 import {
   convertObjectToUrlParams,
   reDataForTable,
@@ -24,6 +25,8 @@ function LayoutKhoVatTu({ history, permission }) {
   const [focusNgan, setFocusNgan] = useState("");
   const [soTangMax, setSoTangMax] = useState(1);
   const [Kho, setKho] = useState("");
+  const [ActiveModal, setActiveModal] = useState("");
+
   useEffect(() => {
     if (permission && permission.view) {
       loadData();
@@ -230,9 +233,10 @@ function LayoutKhoVatTu({ history, permission }) {
                         lg={12}
                         style={{
                           height:
-                            ke.children.length === 0
-                              ? soTangMax * 40
-                              : ke.children.length * 40,
+                            // ke.children.length === 0
+                            //   ?
+                            soTangMax * 40,
+                          // : ke.children.length * 40,
                           marginBottom: 50,
                         }}
                       >
@@ -257,6 +261,7 @@ function LayoutKhoVatTu({ history, permission }) {
                               setFocusKe(ke.id);
                               setFocusNgan("");
                               handleViewThongTin(ke.chiTietVatTu);
+                              // setActiveModal(true);
                             }
                           }}
                         >
@@ -323,6 +328,7 @@ function LayoutKhoVatTu({ history, permission }) {
                                                 cursor: "pointer",
                                               }}
                                               onClick={() => {
+                                                // setActiveModal(true);
                                                 handleViewThongTin(
                                                   ngan.chiTietVatTu
                                                 );
@@ -429,6 +435,11 @@ function LayoutKhoVatTu({ history, permission }) {
           </Col>
         </Row>
       </Card>
+      <ModalChiTietKho
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        ListChiTietVatTu={ListChiTietVatTu}
+      />
     </div>
   );
 }

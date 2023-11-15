@@ -25,7 +25,7 @@ function KeHoachChiTiet({ match, history, permission }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const INFO = getLocalStorage("menu");
-  const [KeHoach, setKeHoach] = useState("");
+  const [ListXuong, setListXuong] = useState([]);
   const [Xuong, setXuong] = useState("");
   const [data, setData] = useState([]);
   const [VersionSelect, setVersionSelect] = useState([]);
@@ -36,21 +36,14 @@ function KeHoachChiTiet({ match, history, permission }) {
   const [dataEdit, setDataEdit] = useState({});
   useEffect(() => {
     if (permission && permission.view) {
+      getXuong();
     } else if (permission && !permission.view) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  useEffect(() => {
-    if (KeHoach !== "" && Xuong !== "") {
-      getVersion(KeHoach, Xuong, Thang, Nam);
-    }
-  }, [KeHoach, Xuong]);
 
-  const refeshData = () => {
-    getVersion(KeHoach, Xuong, Thang, Nam);
-  };
   /**
    * Load danh sách người dùng
    * @param KeHoach Từ khóa
@@ -73,7 +66,7 @@ function KeHoachChiTiet({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_KeHoach?${param}`,
+          `tits_qtsx_KeHoach?${param}`,
           "GET",
           null,
           "LIST",
@@ -86,25 +79,24 @@ function KeHoachChiTiet({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           const newData = res.data.map((sp) => {
-            const ctkh = {};
+            const ctkh = [];
             let t = 0;
             JSON.parse(sp.chiTietKeHoach).forEach((ct) => {
               ctkh[`ngay${ct.ngay}`] = {
-                soLuong: ct.tongSoLuong,
-                keHoach_Id: ct.keHoach_Id,
-                ngay: ct.ngay,
-                sanPham_Id: sp.sanPham_Id,
-                thang: ct.thang,
-                nam: ct.nam,
-                tenSanPham: sp.tenSanPham,
+                soLuong: ct.soLuong,
+                tits_qtsx_KeHoachChiTiet_Id: ct.tits_qtsx_KeHoachChiTiet_Id,
               };
-              t = t + ct.tongSoLuong;
+              t = t + ct.soLuong;
             });
             return {
               maSanPham: sp.maSanPham,
               tenSanPham: sp.tenSanPham,
-              sanPham_Id: sp.sanPham_Id,
-              tong: t > 0 ? t : 0,
+              tits_qtsx_SanPham_Id: sp.tits_qtsx_SanPham_Id,
+              tits_qtsx_KeHoach_Id: sp.tits_qtsx_KeHoach_Id,
+              tits_qtsx_DonHang_Id: sp.tits_qtsx_DonHang_Id,
+              maPhieu: sp.maPhieu,
+              dinhMucNhanCong: sp.dinhMucNhanCong,
+              tong: t,
               ...ctkh,
             };
           });
@@ -115,9 +107,37 @@ function KeHoachChiTiet({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
-
-  const getVersion = (t, n) => {
+  const getXuong = () => {
     const params = convertObjectToUrlParams({
+      page: -1,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_Xuong?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data.length > 0) {
+          setXuong(res.data[0].id);
+          getVersion(res.data[0].id, Thang, Nam);
+          setListXuong(res.data);
+        } else {
+          setListXuong([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const getVersion = (tits_qtsx_Xuong_Id, t, n) => {
+    const params = convertObjectToUrlParams({
+      tits_qtsx_Xuong_Id,
       IsSanXuat: true,
       thang: t,
       nam: n,
@@ -125,7 +145,7 @@ function KeHoachChiTiet({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_KeHoach?${params}`,
+          `tits_qtsx_KeHoach/list-ke-hoach-version?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -138,10 +158,10 @@ function KeHoachChiTiet({ match, history, permission }) {
       .then((res) => {
         if (res && res.data.length > 0) {
           setVersionSelect(res.data);
-          setVersion(res.data[0].version_Id);
-          getListData(t, n, res.data[0].version_Id);
+          setVersion(res.data[0].Id);
+          getListData(tits_qtsx_Xuong_Id, t, n, res.data[0].Id);
         } else {
-          getListData(t, n);
+          setData([]);
           setVersion("");
           setVersionSelect([]);
         }
@@ -172,16 +192,12 @@ function KeHoachChiTiet({ match, history, permission }) {
    */
   const deleteItemAction = (item) => {
     const params = convertObjectToUrlParams({
-      loaiKeHoach_Id: KeHoach,
-      phongban_Id: Xuong,
-      sanPham_Id: item.sanPham_Id,
-      nam: Nam,
-      thang: Thang,
+      tits_qtsx_KeHoach_Id: item.tits_qtsx_KeHoach_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_KeHoach?${params}`,
+          `tits_qtsx_KeHoach?${params}`,
           "DELETE",
           "",
           "DELETE",
@@ -193,7 +209,7 @@ function KeHoachChiTiet({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.status !== 409) {
-          getVersion(KeHoach, Xuong, Thang, Nam);
+          getVersion(Xuong, Thang, Nam);
         }
       })
       .catch((error) => console.error(error));
@@ -206,10 +222,7 @@ function KeHoachChiTiet({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const deleteItemVal =
-      permission &&
-      permission.del &&
-      VersionSelect.length > 0 &&
-      Version === VersionSelect[0].version_Id
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -222,68 +235,7 @@ function KeHoachChiTiet({ match, history, permission }) {
       </div>
     );
   };
-  const render = (val, record) => {
-    if (val === undefined || val.soLuong === 0) {
-      return (
-        <div
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
-          -
-        </div>
-      );
-    } else {
-      const content = val.mauSac.map((ms) => {
-        return (
-          <p style={{ padding: "0 5px", margin: 0 }}>
-            {ms.tenMauSac} : {ms.soLuong}
-          </p>
-        );
-      });
-      return (
-        <Popover content={content} placement="rightBottom">
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            {(val.ngay >= new Date().getDate() - 1 &&
-              Number(val.thang) >= new Date().getMonth() + 1 &&
-              VersionSelect.length > 0 &&
-              Version === VersionSelect[0].version_Id) ||
-            Number(val.thang) > new Date().getMonth() + 1 ? (
-              <span
-                style={{ color: "#0469b9", cursor: "pointer" }}
-                onClick={() => {
-                  setDataEdit(val);
-                  setActiveEditKeHoach(true);
-                }}
-              >
-                {val.soLuong}
-              </span>
-            ) : (
-              <span>{val.soLuong}</span>
-            )}
-          </div>
-        </Popover>
-      );
-    }
-  };
+
   let colValues = [
     {
       title: "STT",
@@ -310,6 +262,20 @@ function KeHoachChiTiet({ match, history, permission }) {
       fixed: width > 768 ? "left" : "none",
     },
     {
+      title: "Đơn hàng",
+      dataIndex: "maPhieu",
+      align: "center",
+      key: "maPhieu",
+      width: 120,
+    },
+    {
+      title: "ĐMNC",
+      dataIndex: "dinhMucNhanCong",
+      align: "center",
+      key: "dinhMucNhanCong",
+      width: 80,
+    },
+    {
       title: `Tháng ${Thang} năm ${Nam}`,
       children: new Array(getNumberDayOfMonth(Thang, Nam))
         .fill(null)
@@ -321,7 +287,9 @@ function KeHoachChiTiet({ match, history, permission }) {
             key: `ngay${id}`,
             align: "center",
             width: 40,
-            render: (val, record) => render(val, record),
+            render: (val) => (
+              <span>{val && val.soLuong > 0 ? val.soLuong : "-"}</span>
+            ),
           };
         }),
     },
@@ -363,7 +331,7 @@ function KeHoachChiTiet({ match, history, permission }) {
     };
   });
   const handleOnSelectVersion = (value) => {
-    getListData(KeHoach, Xuong, Thang, Nam, value);
+    getListData(Xuong, Thang, Nam, value);
     setVersion(value);
   };
   const handleOnChangeDate = (dateString) => {
@@ -371,11 +339,12 @@ function KeHoachChiTiet({ match, history, permission }) {
     const Nam = dateString.slice(-4);
     setThang(Thang);
     setNam(Nam);
-    getVersion(KeHoach, Xuong, Thang, Nam);
+    getVersion(Xuong, Thang, Nam);
   };
   const { totalRow } = data;
-  const handleClearVersion = (value) => {
-    getListData(KeHoach, Xuong, Thang, Nam);
+  const handleOnSelectXuong = (value) => {
+    getVersion(value, Thang, Nam);
+    setXuong(value);
     setVersion(null);
   };
   const handleImport = () => {
@@ -416,6 +385,26 @@ function KeHoachChiTiet({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
+            <h5>Xưởng:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListXuong ? ListXuong : []}
+              placeholder={"Xưởng"}
+              optionsvalue={["id", "tenXuong"]}
+              style={{ width: "100%" }}
+              onSelect={handleOnSelectXuong}
+              value={Xuong}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Tháng:</h5>
             <DatePicker
               allowClear={false}
@@ -441,13 +430,10 @@ function KeHoachChiTiet({ match, history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={VersionSelect ? VersionSelect : []}
               placeholder={"Version hiện hành"}
-              optionsvalue={["version_Id", "version"]}
+              optionsvalue={["Id", "version"]}
               style={{ width: "100%" }}
               onSelect={handleOnSelectVersion}
-              onChange={(value) => setVersion(value)}
               value={Version}
-              allowClear
-              onClear={handleClearVersion}
             />
           </Col>
         </Row>
@@ -474,7 +460,7 @@ function KeHoachChiTiet({ match, history, permission }) {
         openModal={ActiveEditKeHoach}
         openModalFS={setActiveEditKeHoach}
         data={dataEdit}
-        refesh={refeshData}
+        // refesh={refeshData}
       />
     </div>
   );

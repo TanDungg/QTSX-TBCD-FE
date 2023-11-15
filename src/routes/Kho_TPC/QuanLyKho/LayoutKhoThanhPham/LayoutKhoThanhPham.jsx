@@ -11,6 +11,7 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import ModalChiTietKho from "./ModalChiTietKho";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 function LayoutKhoThanhPham({ history, permission }) {
@@ -23,6 +24,7 @@ function LayoutKhoThanhPham({ history, permission }) {
   const [focusKe, setFocusKe] = useState("");
   const [focusNgan, setFocusNgan] = useState("");
   const [soTangMax, setSoTangMax] = useState(1);
+  const [ActiveModal, setActiveModal] = useState("");
   const [Kho, setKho] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
@@ -230,9 +232,10 @@ function LayoutKhoThanhPham({ history, permission }) {
                         lg={12}
                         style={{
                           height:
-                            ke.children.length === 0
-                              ? soTangMax * 40
-                              : ke.children.length * 40,
+                            // ke.children.length === 0
+                            // ?
+                            soTangMax * 40,
+                          // : ke.children.length * 40,
                           marginBottom: 50,
                         }}
                       >
@@ -258,6 +261,7 @@ function LayoutKhoThanhPham({ history, permission }) {
                               setFocusKe(ke.id);
                               setFocusNgan("");
                               handleViewThongTin(ke.chiTietThanhPham);
+                              // setActiveModal(true)
                             }
                           }}
                         >
@@ -328,6 +332,7 @@ function LayoutKhoThanhPham({ history, permission }) {
                                                   ngan.chiTietThanhPham
                                                 );
                                                 setFocusNgan(ngan.id);
+                                                // setActiveModal(true)
                                                 setFocusKe("");
                                               }}
                                             ></Col>
@@ -430,6 +435,11 @@ function LayoutKhoThanhPham({ history, permission }) {
           </Col>
         </Row>
       </Card>
+      <ModalChiTietKho
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        ListChiTietVatTu={ListChiTietVatTu}
+      />
     </div>
   );
 }

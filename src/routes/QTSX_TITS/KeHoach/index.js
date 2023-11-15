@@ -25,6 +25,15 @@ const KeHoachChiTiet = asyncComponent(() =>
 const ImportKeHoachTong = asyncComponent(() =>
   import("./KeHoachSanXuat/KeHoachTong/ImportKeHoachTong")
 );
+const ImportKeHoachChiTiet = asyncComponent(() =>
+  import("./KeHoachSanXuat/KeHoachChiTiet/ImportKeHoachChiTiet")
+);
+const KeHoachGiaoXe = asyncComponent(() =>
+  import("./KeHoachGiaoXe/KeHoachGiaoXe")
+);
+const ImportKeHoachGiaoXe = asyncComponent(() =>
+  import("./KeHoachGiaoXe/ImportKeHoachGiaoXe")
+);
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -68,11 +77,26 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/ke-hoach-san-xuat/tong/import`}
         exact
         component={Auth(ImportKeHoachTong, menus, pathname, permission)}
+      />{" "}
+      <Route
+        path={`${match.url}/ke-hoach-san-xuat/kh-chi-tiet/import`}
+        exact
+        component={Auth(ImportKeHoachChiTiet, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/ke-hoach-san-xuat/kh-chi-tiet`}
         exact
         component={Auth(KeHoachChiTiet, menus, pathname, permission)}
+      />{" "}
+      <Route
+        path={`${match.url}/ke-hoach-giao-xe/import`}
+        exact
+        component={Auth(ImportKeHoachGiaoXe, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/ke-hoach-giao-xe`}
+        exact
+        component={Auth(KeHoachGiaoXe, menus, pathname, permission)}
       />
       {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
     </Switch>

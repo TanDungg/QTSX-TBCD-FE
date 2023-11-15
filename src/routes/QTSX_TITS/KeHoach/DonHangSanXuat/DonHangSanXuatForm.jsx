@@ -154,11 +154,11 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListKhachHang, setListKhachHang] = useState([]);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
-  const [File, setFile] = useState("");
+  const [File, setFile] = useState([]);
   const [disableUpload, setDisableUpload] = useState(false);
   const [FileChat, setFileChat] = useState("");
   const [openImage, setOpenImage] = useState(false);
-  const { validateFields, resetFields, setFieldsValue } = form;
+  const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
   const [info, setInfo] = useState({});
   const [infoSanPham, setInfoSanPham] = useState({});
 
@@ -170,8 +170,9 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
           setType("new");
+          getKhachHang();
           setFieldsValue({
-            deNghiMuaHang: {
+            dondathang: {
               ngayDatHang: moment(getDateNow(), "DD/MM/YYYY"),
               ngayHoanThanhDukien: moment(getDateNow(), "DD/MM/YYYY"),
             },
@@ -223,7 +224,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuDeNghiMuaHang/${id}?${params}`,
+          `lkn_Phieudondathang/${id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -236,10 +237,38 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setInfo(res.data);
+          getKhachHang();
 
           setFieldsValue({
-            deNghiMuaHang: {},
+            dondathang: {},
           });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getKhachHang = () => {
+    const params = convertObjectToUrlParams({
+      page: -1,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_KhachHang?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data.length > 0) {
+          setListKhachHang(res.data);
+        } else {
+          setListKhachHang([]);
         }
       })
       .catch((error) => console.error(error));
@@ -538,7 +567,8 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.deNghiMuaHang);
+    console.log(values.dondathang);
+    // saveData(values.dondathang);
   };
 
   const saveAndClose = (val) => {
@@ -547,7 +577,8 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
         if (ListSanPham.length === 0) {
           Helpers.alertError("Danh sách sản phẩm rỗng");
         } else {
-          saveData(values.deNghiMuaHang, val);
+          console.log(values.dondathang);
+          // saveData(values.dondathang, val);
         }
       })
       .catch((error) => {
@@ -555,20 +586,18 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
       });
   };
 
-  const saveData = (deNghiMuaHang, saveQuit = false) => {
+  const saveData = (dondathang, saveQuit = false) => {
     if (type === "new") {
       const newData = {
-        ...deNghiMuaHang,
-        ngayHoanThanhDukien: deNghiMuaHang.ngayHoanThanhDukien._i,
-        ngayDatHang: deNghiMuaHang.ngayDatHang._i,
-        chiTiet_phieumuahangs: ListSanPham.filter(
-          (ct) => Number(ct.soLuong) > 0
-        ),
+        ...dondathang,
+        ngayHoanThanhDukien: dondathang.ngayHoanThanhDukien._i,
+        ngayDatHang: dondathang.ngayDatHang._i,
+        chiTiet_DonHangs: ListSanPham,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuDeNghiMuaHang`,
+            `lkn_Phieudondathang`,
             "POST",
             newData,
             "ADD",
@@ -587,7 +616,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
               setFieldTouch(false);
               setListSanPham([]);
               setFieldsValue({
-                deNghiMuaHang: {
+                dondathang: {
                   ngayDatHang: moment(getDateNow(), "DD/MM/YYYY"),
                 },
               });
@@ -601,9 +630,9 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
     if (type === "edit") {
       const newData = {
         id: id,
-        ...deNghiMuaHang,
-        ngayHoanThanhDukien: deNghiMuaHang.ngayHoanThanhDukien._i,
-        ngayDatHang: deNghiMuaHang.ngayDatHang._i,
+        ...dondathang,
+        ngayHoanThanhDukien: dondathang.ngayHoanThanhDukien._i,
+        ngayDatHang: dondathang.ngayDatHang._i,
         chiTiet_phieumuahangs: ListSanPham.filter(
           (ct) => Number(ct.soLuong) > 0
         ),
@@ -611,7 +640,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuDeNghiMuaHang/${id}`,
+            `lkn_Phieudondathang/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -647,7 +676,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuDeNghiMuaHang/xac-nhan/${id}`,
+          `lkn_Phieudondathang/xac-nhan/${id}`,
           "PUT",
           newData,
           "XACNHAN",
@@ -692,7 +721,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
         new Promise((resolve, reject) => {
           dispatch(
             fetchStart(
-              `lkn_PhieuDeNghiMuaHang/tai-file-phieu-de-nghi/${id}`,
+              `lkn_Phieudondathang/tai-file-phieu-de-nghi/${id}`,
               "PUT",
               { id: id, file: data.path },
               "GUIPHIEU",
@@ -733,7 +762,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuDeNghiMuaHang/xac-nhan/${id}`,
+          `lkn_Phieudondathang/xac-nhan/${id}`,
           "PUT",
           newData,
           "TUCHOI",
@@ -749,7 +778,6 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
   const ThemSanPham = (data, type) => {
-    console.log(data);
     if (type === "new") {
       let check = false;
       ListSanPham.forEach((sp) => {
@@ -809,41 +837,73 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
         </Tag>
       </span>
     );
+  const xoaUrlUpload = (stringPath) => {
+    const params = convertObjectToUrlParams({
+      stringPath,
+    });
 
+    dispatch(
+      fetchStart(`Upload/delete-image?${params}`, "POST", null, "DETAIL", "")
+    );
+  };
   const props = {
+    action: `${BASE_URL_API}/api/Upload`,
+    headers: {
+      Authorization: "Bearer ".concat(INFO.token),
+    },
     accept: ".pdf, .png, .jpg, .jpeg",
-    beforeUpload: (file) => {
-      const isPNG =
-        file.type === "image/png" ||
-        file.type === "image/jpeg" ||
-        file.type === "application/pdf";
-      if (!isPNG) {
-        Helpers.alertError(`${file.name} không phải hình ảnh hoặc file pdf`);
-      } else {
-        setFile(file);
+    onChange: (file) => {
+      if (file.file.status === "done") {
         setDisableUpload(true);
-        const reader = new FileReader();
-        reader.onload = (e) => setFileChat(e.target.result);
-        reader.readAsDataURL(file);
-        return false;
+        setFieldsValue({
+          dondathang: {
+            file: file.file.response.path,
+          },
+        });
+      } else if (file.file.status === "error") {
+        Helpers.alertError(`Upload File không thành công.`);
       }
     },
-    showUploadList: false,
+    onPreview: (file) => {
+      window.open(`${BASE_URL_API}${file.response.path}`);
+    },
+    onRemove: (file) => {
+      xoaUrlUpload(getFieldValue("dondathang").file);
+      setDisableUpload(false);
+      setFieldsValue({
+        dondathang: {
+          file: undefined,
+        },
+      });
+    },
+    // fileList: File,
+    showUploadList: true,
     maxCount: 1,
+    progress: {
+      strokeColor: {
+        "0%": "#108ee9",
+        "100%": "#87d068",
+      },
+      strokeWidth: 3,
+      format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
+    },
   };
-
-  const handleViewFile = (file) => {
-    if (file.type === "application/pdf") {
-      renderPDF(file);
-    } else {
-      setOpenImage(true);
-    }
-  };
-
   const disabledDate = (current) => {
     return current && current < dayjs().startOf("day");
   };
-
+  const handleOnSelectKhachHang = (val) => {
+    ListKhachHang.forEach((kh) => {
+      if (kh.id === val) {
+        setFieldsValue({
+          dondathang: {
+            soDienThoai: kh.sDT,
+            email: kh.email,
+            tenNguoiLienHe: kh.nguoiLienHe,
+          },
+        });
+      }
+    });
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -867,7 +927,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Tên đơn hàng"
-                name={["deNghiMuaHang", "tenDonHang"]}
+                name={["dondathang", "tenDonHang"]}
                 rules={[
                   {
                     type: "string",
@@ -889,7 +949,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Khách hàng"
-                name={["deNghiMuaHang", "userDuyet_Id"]}
+                name={["dondathang", "tits_qtsx_KhachHang_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -906,6 +966,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp="name"
                   disabled={type === "new" || type === "edit" ? false : true}
+                  onSelect={handleOnSelectKhachHang}
                 />
               </FormItem>
             </Col>
@@ -920,7 +981,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Số điện thoại"
-                name={["deNghiMuaHang", "soDienThoai"]}
+                name={["dondathang", "soDienThoai"]}
                 rules={[
                   {
                     type: "string",
@@ -942,7 +1003,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Email"
-                name={["deNghiMuaHang", "email"]}
+                name={["dondathang", "email"]}
                 rules={[
                   {
                     type: "email",
@@ -964,10 +1025,10 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người liên hệ"
-                name={["deNghiMuaHang", "tenNguoiLienHe"]}
+                name={["dondathang", "tenNguoiLienHe"]}
                 rules={[
                   {
-                    type: "email",
+                    type: "string",
                     required: true,
                   },
                 ]}
@@ -986,7 +1047,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Ngày đặt hàng"
-                name={["deNghiMuaHang", "ngayDatHang"]}
+                name={["dondathang", "ngayDatHang"]}
                 rules={[
                   {
                     required: true,
@@ -998,12 +1059,11 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
                   allowClear={false}
                   onChange={(date, dateString) => {
                     setFieldsValue({
-                      deNghiMuaHang: {
+                      dondathang: {
                         ngayDatHang: moment(dateString, "DD/MM/YYYY"),
                       },
                     });
                   }}
-                  disabled={true}
                 />
               </FormItem>
             </Col>
@@ -1018,15 +1078,15 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="File dính kèm"
-                name={["deNghiMuaHang", "fileDinhKem"]}
+                name={["dondathang", "file"]}
                 rules={[
                   {
                     required: true,
                   },
                 ]}
               >
-                {!disableUpload ? (
-                  <Upload {...props}>
+                <Upload {...props}>
+                  {!disableUpload && (
                     <Button
                       style={{
                         marginBottom: 0,
@@ -1038,70 +1098,8 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
                     >
                       Tải file
                     </Button>
-                  </Upload>
-                ) : File.name ? (
-                  <span>
-                    <span
-                      style={{ color: "#0469B9", cursor: "pointer" }}
-                      onClick={() => handleViewFile(File)}
-                    >
-                      {File.name.length > 20
-                        ? File.name.substring(0, 20) + "..."
-                        : File.name}{" "}
-                    </span>
-                    <DeleteOutlined
-                      style={{ cursor: "pointer", color: "red" }}
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                      onClick={() => {
-                        setFile();
-                        setDisableUpload(false);
-                        setFieldsValue({
-                          phieunhanhang: {
-                            fileDinhKem: undefined,
-                          },
-                        });
-                      }}
-                    />
-                    <Image
-                      width={100}
-                      src={FileChat}
-                      alt="preview"
-                      style={{
-                        display: "none",
-                      }}
-                      preview={{
-                        visible: openImage,
-                        scaleStep: 0.5,
-                        src: FileChat,
-                        onVisibleChange: (value) => {
-                          setOpenImage(value);
-                        },
-                      }}
-                    />
-                  </span>
-                ) : (
-                  <span>
-                    <a
-                      target="_blank"
-                      href={BASE_URL_API + File}
-                      rel="noopener noreferrer"
-                    >
-                      {File.split("/")[5]}{" "}
-                    </a>
-                    {type === "UploadFile" &&
-                      (!info.isXacNhan || info.isXacNhan !== true) && (
-                        <DeleteOutlined
-                          style={{ cursor: "pointer", color: "red" }}
-                          onClick={() => {
-                            setFile();
-                            setDisableUpload(false);
-                          }}
-                        />
-                      )}
-                  </span>
-                )}
+                  )}
+                </Upload>
               </FormItem>
             </Col>
           </Row>

@@ -234,9 +234,6 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
               }
             }
           }
-          setDataView(NewData);
-          setFileName(file.name);
-          setDataLoi();
           if (indices.length > 0) {
             setMessageError(`Hàng ${row.join(", ")} có số Lot trùng nhau`);
             Helper.alertError(`Hàng ${row.join(", ")} có số Lot trùng nhau`);
@@ -246,6 +243,9 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
             setHangTrung([]);
             setCheckDanger(false);
           }
+          setDataView(NewData);
+          setFileName(file.name);
+          setDataLoi();
         }
       } else {
         setFileName(file.name);
