@@ -18,9 +18,6 @@ const PhieuMuaHangNgoai = asyncComponent(() =>
 const PhieuMuaHangNgoaiForm = asyncComponent(() =>
   import("./PhieuMuaHangNgoai/PhieuMuaHangNgoaiForm")
 );
-const QuyTrinhPhieuMuaHangNgoai = asyncComponent(() =>
-  import("./PhieuMuaHangNgoai/QuyTrinhPhieuMuaHangNgoai")
-);
 
 const TheoDoiDonHang = asyncComponent(() =>
   import("./TheoDoiDonHang/TheoDoiDonHang")
@@ -95,11 +92,6 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/phieu-mua-hang-ngoai/:id/xac-nhan`}
         exact
         component={Auth(PhieuMuaHangNgoaiForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/phieu-mua-hang-ngoai/:id/quy-trinh`}
-        exact
-        component={Auth(QuyTrinhPhieuMuaHangNgoai, menus, pathname, permission)}
       />
 
       {/* Theo dõi đơn hàng */}

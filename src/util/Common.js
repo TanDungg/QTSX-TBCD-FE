@@ -948,3 +948,18 @@ export function createGuid() {
     return v.toString(16);
   });
 }
+
+export const exportAPK = (fileName, fileContent) => {
+  const fileType = "application/vnd.android.package-archive";
+  const byteCharacters = atob(fileContent);
+  const byteNumbers = new Array(byteCharacters.length);
+
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+
+  const byteArray = new Uint8Array(byteNumbers);
+  const dataBlob = new Blob([byteArray], { type: fileType });
+
+  return FileSaver.saveAs(dataBlob, fileName);
+};

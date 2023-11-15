@@ -179,27 +179,33 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
       align: "center",
     },
     {
-      title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
+      title: "Định mức",
+      dataIndex: "dinhMuc",
+      key: "dinhMuc",
       align: "center",
     },
     {
-      title: "Ngày yêu cầu giao",
+      title: "SL dự phòng",
+      dataIndex: "soLuongDuPhong",
+      key: "soLuongDuPhong",
+      align: "center",
+    },
+    {
+      title: "SL đặt mua",
+      dataIndex: "soLuongDatMua",
+      key: "soLuongDatMua",
+      align: "center",
+    },
+    {
+      title: "Ngày yêu cầu",
       dataIndex: "ngay",
       key: "ngay",
       align: "center",
     },
     {
-      title: "Đơn giá",
-      dataIndex: "donGia",
-      key: "donGia",
-      align: "center",
-    },
-    {
-      title: "Thành tiền",
-      dataIndex: "thanhTien",
-      key: "thanhTien",
+      title: "Hạng mục sử dụng",
+      dataIndex: "hangMucSuDung",
+      key: "hangMucSuDung",
       align: "center",
     },
     {
@@ -240,9 +246,8 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
     const DataList = {
       ...data,
       ...listvattu[0],
-      thanhTien: parseFloat(data.soLuong * data.donGia),
       ngay: data.ngay.format("DD/MM/YYYY"),
-      tits_qtsx_DonHang_Id: "c758e53f-ebf8-4706-a2a5-66eb4d03a278",
+      tits_qtsx_DonHang_Id: "CD07F17C-6521-48BD-8D67-80944CA06CD9",
     };
     setDataListVatTu([...DataListVatTu, DataList]);
 
@@ -358,8 +363,35 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Số lượng"
-                  name={["themvattu", "soLuong"]}
+                  label="Định mức"
+                  name={["themvattu", "dinhMuc"]}
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    className="input-item"
+                    placeholder="Nhập định mức"
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="SL dự phòng"
+                  name={["themvattu", "soLuongDuPhong"]}
                   rules={[
                     {
                       required: true,
@@ -372,6 +404,33 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
                     step="0.01"
                     className="input-item"
                     placeholder="Nhập số lượng"
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="SL đặt mua"
+                  name={["themvattu", "soLuongDatMua"]}
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    className="input-item"
+                    placeholder="Nhập số lượng đặt mua"
                   />
                 </FormItem>
               </Col>
@@ -436,20 +495,17 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Đơn giá"
-                  name={["themvattu", "donGia"]}
+                  label="Hạn mục sử dụng"
+                  name={["themvattu", "hangMucSuDung"]}
                   rules={[
                     {
-                      required: true,
+                      type: "string",
                     },
                   ]}
                 >
                   <Input
                     className="input-item"
-                    placeholder="Nhập đơn giá"
-                    type="number"
-                    min={0}
-                    step="0.01"
+                    placeholder="Nhập hạn mục sử dụng"
                   />
                 </FormItem>
               </Col>

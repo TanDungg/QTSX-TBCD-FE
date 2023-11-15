@@ -29,6 +29,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -43,12 +44,9 @@ function DeNghiMuaHang({ match, history, permission }) {
   const [ToDate, setToDate] = useState(getDateNow());
   const [SelectedMuaHangNgoai, setSelectedMuaHangNgoai] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [ListBanPhong, setListBanPhong] = useState([]);
-  const [BanPhong, setBanPhong] = useState("");
 
   useEffect(() => {
     if (permission && permission.view) {
-      getBanPhong();
       loadData(keyword, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
@@ -62,42 +60,18 @@ function DeNghiMuaHang({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const loadData = (keyword, ngayBatDau, ngayKetThuc, page) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
-      tuNgay,
-      denNgay,
       keyword,
+      ngayBatDau,
+      ngayKetThuc,
       page,
-      donVi_Id: INFO.donVi_Id,
     });
     dispatch(
       fetchStart(`tits_qtsx_PhieuMuaHangNgoai?${param}`, "GET", null, "LIST")
     );
   };
-  const getBanPhong = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListBanPhong(res.data);
-        } else {
-          setListBanPhong([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
+
   /**
    * Tìm kiếm sản phẩm
    *
@@ -125,7 +99,8 @@ function DeNghiMuaHang({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
+      item.nguoiDuyet_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -143,8 +118,8 @@ function DeNghiMuaHang({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
-      !item.fileXacNhan &&
-      item.userYeuCau_Id === INFO.user_Id ? (
+      item.tinhTrang === "Chưa xác nhận" &&
+      item.nguoiDuyet_Id === INFO.user_Id ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -162,8 +137,8 @@ function DeNghiMuaHang({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
-      !item.fileXacNhan &&
-      item.userYeuCau_Id === INFO.user_Id
+      item.tinhTrang === "Chưa xác nhận" &&
+      item.nguoiDuyet_Id === INFO.user_Id
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -189,7 +164,7 @@ function DeNghiMuaHang({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuYeuCau,
+      item.maPhieu,
       "phiếu đề nghị mua hàng"
     );
   };
@@ -200,7 +175,7 @@ function DeNghiMuaHang({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_PhieuMuaHangNgoai?id=${item.id}`;
+    let url = `tits_qtsx_PhieuMuaHangNgoai/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -317,12 +292,29 @@ function DeNghiMuaHang({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuYeuCau}
+          {val.maPhieu}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuYeuCau}</span>
+        <span disabled>{val.maPhieu}</span>
       );
     return <div>{detail}</div>;
+  };
+
+  const renderFile = (item) => {
+    if (!isEmpty(item.fileDinhKem)) {
+      return (
+        <span>
+          <a
+            target="_blank"
+            href={BASE_URL_API + item.fileDinhKem}
+            rel="noopener noreferrer"
+          >
+            {item.fileDinhKem.split("/")[5]}
+          </a>
+        </span>
+      );
+    }
+    return null;
   };
 
   let renderHead = [
@@ -334,19 +326,67 @@ function DeNghiMuaHang({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu yêu cầu",
-      key: "maPhieuYeuCau",
+      title: "Mã phiếu",
+      key: "maPhieu",
       align: "center",
       render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieuYeuCau,
-            value: d.maPhieuYeuCau,
+            text: d.maPhieu,
+            value: d.maPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.maPhieuYeuCau.includes(value),
+      onFilter: (value, record) => record.maPhieu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Đơn vị yêu cầu",
+      dataIndex: "tenDonViYeuCau",
+      key: "tenDonViYeuCau",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDonViYeuCau,
+            value: d.tenDonViYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenDonViYeuCau.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Đơn vị nhận yêu cầu",
+      dataIndex: "tenDonViNhanYeuCau",
+      key: "tenDonViNhanYeuCau",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDonViNhanYeuCau,
+            value: d.tenDonViNhanYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenDonViNhanYeuCau.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Người tạo phiếu",
+      dataIndex: "tenNguoiTaoPhieu",
+      key: "tenNguoiTaoPhieu",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiTaoPhieu,
+            value: d.tenNguoiTaoPhieu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNguoiTaoPhieu.includes(value),
       filterSearch: true,
     },
     {
@@ -366,35 +406,35 @@ function DeNghiMuaHang({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Người đặt hàng",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
+      title: "Ngày dự kiến giao",
+      dataIndex: "ngayGiaoDuKien",
+      key: "ngayGiaoDuKien",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenNguoiYeuCau,
-            value: d.tenNguoiYeuCau,
+            text: d.ngayGiaoDuKien,
+            value: d.ngayGiaoDuKien,
           };
         })
       ),
-      onFilter: (value, record) => record.tenNguoiYeuCau.includes(value),
+      onFilter: (value, record) => record.ngayGiaoDuKien.includes(value),
       filterSearch: true,
     },
     {
-      title: "Dự kiến hoàn thành",
-      dataIndex: "ngayHoanThanhDukien",
-      key: "ngayHoanThanhDukien",
+      title: "File đính kèm",
+      key: "fileDinhKem",
       align: "center",
+      render: (record) => renderFile(record),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayHoanThanhDukien,
-            value: d.ngayHoanThanhDukien,
+            text: d.fileDinhKem,
+            value: d.fileDinhKem,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayHoanThanhDukien.includes(value),
+      onFilter: (value, record) => record.fileDinhKem.includes(value),
       filterSearch: true,
     },
     {
@@ -529,7 +569,7 @@ function DeNghiMuaHang({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 1100, y: "55vh" }}
+          scroll={{ x: 1500, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

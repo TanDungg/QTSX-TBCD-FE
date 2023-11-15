@@ -262,6 +262,9 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
     const newData = ListVatTu.filter(
       (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
     );
+    if (newData.length !== 0) {
+      setFieldTouch(true);
+    }
     setListVatTu(newData);
   };
 
@@ -466,7 +469,11 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
         .catch(() => {
           console.log("upload failed.");
         });
-    } else if (type === "edit" && phieumuahangnoibo.file) {
+    } else if (
+      type === "edit" &&
+      phieumuahangnoibo.file &&
+      phieumuahangnoibo.file.file
+    ) {
       const formData = new FormData();
       formData.append("file", phieumuahangnoibo.file.file);
       fetch(
@@ -1094,8 +1101,9 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                       onClick={() => {
                         setFile(null);
                         setDisableUpload(false);
+                        setFieldTouch(true);
                         setFieldsValue({
-                          phieunhanhang: {
+                          phieumuahangnoibo: {
                             file: null,
                           },
                         });
@@ -1117,6 +1125,12 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                         onClick={() => {
                           setFile(null);
                           setDisableUpload(false);
+                          setFieldTouch(true);
+                          setFieldsValue({
+                            phieumuahangnoibo: {
+                              file: null,
+                            },
+                          });
                         }}
                       />
                     )}
@@ -1198,6 +1212,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
+        itemData={ListVatTu.length !== 0 && ListVatTu}
         DataThemVatTu={DataThemVatTu}
       />
     </div>

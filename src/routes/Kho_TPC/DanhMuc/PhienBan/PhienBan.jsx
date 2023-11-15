@@ -13,6 +13,7 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
+  exportAPK,
   reDataForTable,
   removeDuplicates,
 } from "src/util/Common";
@@ -156,7 +157,7 @@ function PhienBan({ match, history, permission }) {
     const link = document.createElement("a");
     link.href = BASE_URL_API + item.fileUrl;
     link.target = "_blank";
-    link.download = "AppLinkKienNhua.apk";
+    link.download = item.fileUrl;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

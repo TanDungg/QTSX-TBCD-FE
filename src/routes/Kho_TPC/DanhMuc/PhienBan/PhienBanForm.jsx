@@ -415,15 +415,6 @@ const PhienBanForm = ({ history, match, permission }) => {
           >
             <Input className="input-item" placeholder="Nhập mô tả" />
           </FormItem>
-          <FormItem
-            label="Sử dụng"
-            name={["phienban", "isSuDung"]}
-            valuePropName="checked"
-            initialValue={isSuDung}
-          >
-            <Checkbox />
-          </FormItem>
-
           <FormSubmit
             goBack={goBack}
             saveAndClose={saveAndClose}

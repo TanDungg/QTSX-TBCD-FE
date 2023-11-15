@@ -68,7 +68,6 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             return true;
           }
         });
-        console.log(newData);
 
         setListViTriKhoAdd(newData);
       } else {

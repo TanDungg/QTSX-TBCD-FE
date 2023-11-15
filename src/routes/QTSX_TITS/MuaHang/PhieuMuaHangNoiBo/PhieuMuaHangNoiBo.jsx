@@ -81,7 +81,6 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
   };
 
   const actionContent = (item) => {
-    console.log(permission);
     const detailItem =
       INFO.user_Id === item.nguoiDuyet_Id &&
       item.tinhTrang === "Chưa xác nhận" ? (
