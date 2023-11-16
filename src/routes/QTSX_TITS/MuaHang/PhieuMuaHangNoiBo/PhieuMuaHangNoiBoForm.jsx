@@ -373,6 +373,12 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
+      title: "Đơn hàng",
+      dataIndex: "maPhieu",
+      key: "maPhieu",
+      align: "center",
+    },
+    {
       title: "Số lượng",
       key: "soLuong",
       align: "center",
@@ -1138,6 +1144,29 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 )}
               </FormItem>
             </Col>
+            {info.tinhTrang === "Đã từ chối" && (
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Lý do từ chối"
+                  name={["phieumuahangngoai", "lyDoDuyetTuChoi"]}
+                  rules={[
+                    {
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Input className="input-item" disabled={true} />
+                </FormItem>
+              </Col>
+            )}
           </Row>
         </Form>
       </Card>
@@ -1174,7 +1203,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           // loading={loading}
         />
       </Card>
-      {type === "xacnhan" && (
+      {type === "xacnhan" && info.tinhTrang === "Chưa xác nhận" && (
         <Row justify={"end"} style={{ marginTop: 15 }}>
           <Col style={{ marginRight: 15 }}>
             <Button
@@ -1212,7 +1241,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
-        itemData={ListVatTu.length !== 0 && ListVatTu}
+        itemData={ListVatTu && ListVatTu}
         DataThemVatTu={DataThemVatTu}
       />
     </div>

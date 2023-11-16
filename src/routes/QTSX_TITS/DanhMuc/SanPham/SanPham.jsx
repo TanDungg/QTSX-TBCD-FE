@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Tag, Col, Image } from "antd";
+import { Card, Button, Divider, Tag, Col, Image, Row } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -14,6 +14,7 @@ import {
   Table,
   EditableTableRow,
   Toolbar,
+  Select,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -31,13 +32,14 @@ function SanPham({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
-  const [LoaiSanPham, setLoaiSanPham] = useState([]);
+  const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
+  const [LoaiSanPham, setLoaiSanPham] = useState(null);
   const [keyword, setKeyword] = useState("");
   const [ActiveModal, setActiveModal] = useState(false);
-  const [OpenImage, setOpenImage] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
+      getLoaiSanPham();
       getListData(LoaiSanPham, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
@@ -58,6 +60,30 @@ function SanPham({ match, history, permission }) {
       page,
     });
     dispatch(fetchStart(`tits_qtsx_SanPham?${param}`, "GET", null, "LIST"));
+  };
+
+  const getLoaiSanPham = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          "tits_qtsx_LoaiSanPham?page=-1",
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiSanPham(res.data);
+        } else {
+          setListLoaiSanPham([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   /**
@@ -341,6 +367,18 @@ function SanPham({ match, history, permission }) {
     },
   };
 
+  const handleOnSelectLoaiSanPham = (value) => {
+    setLoaiSanPham(value);
+    setPage(1);
+    getListData(value, keyword, 1);
+  };
+
+  const handleClearLoaiSanPham = (value) => {
+    setLoaiSanPham(null);
+    setPage(1);
+    getListData(null, keyword, 1);
+  };
+
   const refeshData = () => {
     getListData(LoaiSanPham, keyword, page);
   };
@@ -353,47 +391,76 @@ function SanPham({ match, history, permission }) {
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom">
-        <Col
-          xxl={8}
-          xl={12}
-          lg={16}
-          md={16}
-          sm={20}
-          xs={24}
-          style={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <span
+        <Row>
+          <Col
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
             style={{
-              width: "80px",
-            }}
-          >
-            Tìm kiếm:
-          </span>
-          <div
-            style={{
-              flex: 1,
+              display: "flex",
               alignItems: "center",
-              marginTop: width < 576 ? 10 : 0,
             }}
           >
-            <Toolbar
-              count={1}
-              search={{
-                title: "Tìm kiếm",
-                loading,
-                value: keyword,
-                onChange: onChangeKeyword,
-                onPressEnter: onSearchSanPham,
-                onSearch: onSearchSanPham,
-                placeholder: "Nhập từ khóa",
-                allowClear: true,
-              }}
+            <span style={{ width: "120px" }}>Loại sản phẩm:</span>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListLoaiSanPham ? ListLoaiSanPham : []}
+              placeholder="Chọn loại sản phẩm"
+              optionsvalue={["id", "tenLoaiSanPham"]}
+              style={{ width: "calc(100% - 120px)" }}
+              showSearch
+              onSelect={handleOnSelectLoaiSanPham}
+              optionFilterProp="name"
+              allowClear
+              onClear={handleClearLoaiSanPham}
+              value={LoaiSanPham}
             />
-          </div>
-        </Col>
+          </Col>
+          <Col
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <span
+              style={{
+                width: "120px",
+              }}
+            >
+              Tìm kiếm:
+            </span>
+            <div
+              style={{
+                flex: 1,
+                alignItems: "center",
+                marginTop: width < 576 ? 10 : 0,
+              }}
+            >
+              <Toolbar
+                count={1}
+                search={{
+                  title: "Tìm kiếm",
+                  loading,
+                  value: keyword,
+                  onChange: onChangeKeyword,
+                  onPressEnter: onSearchSanPham,
+                  onSearch: onSearchSanPham,
+                  placeholder: "Nhập từ khóa",
+                  allowClear: true,
+                }}
+              />
+            </div>
+          </Col>
+        </Row>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
@@ -415,24 +482,6 @@ function SanPham({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
-          // expandable={{
-          //   expandedRowRender: (record) => (
-          //     <Table
-          //       style={{ marginLeft: "80px", width: "80%" }}
-          //       bordered
-          //       columns={columnChilden}
-          //       scroll={{ x: 500 }}
-          //       components={components}
-          //       className="gx-table-responsive th-F1D065-head"
-          //       dataSource={reDataForTable(JSON.parse(record.chiTiet))}
-          //       size="small"
-          //       rowClassName={"editable-row"}
-          //       loading={loading}
-          //       pagination={false}
-          //     />
-          //   ),
-          //   rowExpandable: (record) => record.name !== "Not Expandable",
-          // }}
         />
       </Card>
       <ImportSanPham
