@@ -45,6 +45,7 @@ import {
 import ModalTuChoi from "./ModalTuChoi";
 import dayjs from "dayjs";
 import AddSanPham from "./AddSanPham";
+import ImportSanPham from "./ImportSanPham";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -164,6 +165,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
 
   const [editingRecord, setEditingRecord] = useState([]);
   const [ActiveModal, setActiveModal] = useState(false);
+  const [ActiveModalImport, setActiveModalImport] = useState(false);
 
   useEffect(() => {
     const load = () => {
@@ -218,13 +220,10 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
    *
    */
   const getInfo = (id) => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id.toLowerCase(),
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_Phieudondathang/${id}?${params}`,
+          `tits_qtsx_Donhang/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -239,8 +238,26 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
           setInfo(res.data);
           getKhachHang();
 
+          if (res.data.file) {
+            setFile(res.data.file);
+            setDisableUpload(true);
+          }
+          setListSanPham(
+            JSON.parse(res.data.chiTiet_DonHangs).map((sp) => {
+              return {
+                ...sp,
+                tits_qtsx_LoaiSanPham_Id:
+                  sp.tits_qtsx_LoaiSanPham_Id.toLowerCase(),
+                tits_qtsx_MauSac_Id: sp.tits_qtsx_MauSac_Id.toLowerCase(),
+                tits_qtsx_SanPham_Id: sp.tits_qtsx_SanPham_Id.toLowerCase(),
+              };
+            })
+          );
           setFieldsValue({
-            dondathang: {},
+            dondathang: {
+              ...res.data,
+              ngayDatHang: moment(res.data.ngayDatHang, "DD/MM/YYYY"),
+            },
           });
         }
       })
@@ -309,7 +326,9 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = ListSanPham.filter((d) => d.sanPham_Id !== item.sanPham_Id);
+    const newData = ListSanPham.filter(
+      (d) => d.tits_qtsx_ChiTiet !== item.tits_qtsx_ChiTiet
+    );
     setListSanPham(newData);
   };
 
@@ -515,20 +534,20 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
     },
     {
       title: "Vận chuyển/ chiếc(VND)",
-      dataIndex: "vanChuyen",
-      key: "vanChuyen",
+      dataIndex: "phiVanChuyen",
+      key: "phiVanChuyen",
       align: "center",
     },
     {
       title: "Ngày bàn giao",
-      dataIndex: "ngayBanGiao",
-      key: "ngayBanGiao",
+      dataIndex: "ngay",
+      key: "ngay",
       align: "center",
     },
     {
       title: "Ghi chú",
-      dataIndex: "ghiChu",
-      key: "ghiChu",
+      dataIndex: "moTa",
+      key: "moTa",
       align: "center",
     },
     {
@@ -561,13 +580,19 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
       }),
     };
   });
+  const handleViewFile = (file) => {
+    if (file.type === "application/pdf") {
+      renderPDF(file);
+    } else {
+      setOpenImage(true);
+    }
+  };
   /**
    * Khi submit
    *
    * @param {*} values
    */
   const onFinish = (values) => {
-    console.log(values.dondathang);
     // saveData(values.dondathang);
   };
 
@@ -577,8 +602,14 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
         if (ListSanPham.length === 0) {
           Helpers.alertError("Danh sách sản phẩm rỗng");
         } else {
-          console.log(values.dondathang);
-          // saveData(values.dondathang, val);
+          if (type === "new") {
+            hanldeXacNhanTaiFile(values.dondathang, val);
+          } else if (type === "edit" && File.name) {
+            hanldeXacNhanTaiFile(values.dondathang, val);
+          } else {
+            values.dondathang.file = info.file;
+            saveData(values.dondathang, val);
+          }
         }
       })
       .catch((error) => {
@@ -590,14 +621,13 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
     if (type === "new") {
       const newData = {
         ...dondathang,
-        ngayHoanThanhDukien: dondathang.ngayHoanThanhDukien._i,
         ngayDatHang: dondathang.ngayDatHang._i,
         chiTiet_DonHangs: ListSanPham,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_Phieudondathang`,
+            `tits_qtsx_Donhang`,
             "POST",
             newData,
             "ADD",
@@ -631,16 +661,18 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
       const newData = {
         id: id,
         ...dondathang,
-        ngayHoanThanhDukien: dondathang.ngayHoanThanhDukien._i,
         ngayDatHang: dondathang.ngayDatHang._i,
-        chiTiet_phieumuahangs: ListSanPham.filter(
-          (ct) => Number(ct.soLuong) > 0
-        ),
+        chiTiet_DonHangs: ListSanPham.map((sp) => {
+          return {
+            ...sp,
+            tits_qtsx_DonHang_Id: id,
+          };
+        }),
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_Phieudondathang/${id}`,
+            `tits_qtsx_Donhang/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -663,22 +695,12 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
   };
 
   const hanldeXacNhan = () => {
-    const newData = {
-      id: id,
-      isXacNhan: true,
-      chiTiet_phieumuahangs: ListSanPham.map((vt) => {
-        return {
-          ...vt,
-          lkn_PhieuMuaHang_Id: id,
-        };
-      }),
-    };
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_Phieudondathang/xac-nhan/${id}`,
+          `tits_qtsx_Donhang/xac-nhan/${id}`,
           "PUT",
-          newData,
+          null,
           "XACNHAN",
           "",
           resolve,
@@ -693,21 +715,21 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
-  const prop = {
+  const propXacNhan = {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận phiếu đề nghị mua hàng",
+    title: "Xác nhận đơn hàng",
     onOk: hanldeXacNhan,
   };
   const modalXK = () => {
-    Modal(prop);
+    Modal(propXacNhan);
   };
-  const hanldeXacNhanTaiFile = () => {
+  const hanldeXacNhanTaiFile = (dondathang, val) => {
     const formData = new FormData();
     formData.append("file", File);
     const url = info.fileXacNhan
-      ? `${BASE_URL_API}/api/Upload?stringPath=${info.fileXacNhan}`
+      ? `${BASE_URL_API}/api/Upload?stringPath=${info.file}`
       : `${BASE_URL_API}/api/Upload`;
     fetch(url, {
       method: "POST",
@@ -718,23 +740,8 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
     })
       .then((res) => res.json())
       .then((data) => {
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `lkn_Phieudondathang/tai-file-phieu-de-nghi/${id}`,
-              "PUT",
-              { id: id, file: data.path },
-              "GUIPHIEU",
-              "",
-              resolve,
-              reject
-            )
-          );
-        })
-          .then((res) => {
-            if (res.status !== 409) getInfo(id, true);
-          })
-          .catch((error) => console.error(error));
+        dondathang.file = data.path;
+        saveData(dondathang, val);
       })
       .catch(() => {
         console.log("upload failed.");
@@ -778,24 +785,41 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
   const ThemSanPham = (data, type) => {
+    setFieldTouch(true);
     if (type === "new") {
       let check = false;
       ListSanPham.forEach((sp) => {
-        if (sp.sanPham_Id === data.sanPham_Id) {
+        if (
+          sp.tits_qtsx_SanPham_Id === data.tits_qtsx_SanPham_Id &&
+          sp.tits_qtsx_MauSac_Id === data.tits_qtsx_MauSac_Id
+        ) {
           check = true;
-          Helpers.alertWarning(`Sản phẩm ${data.tenSanPham} đã được thêm!`);
+          Helpers.alertWarning(
+            `Sản phẩm ${data.tenSanPham} có màu ${data.tenMauSac} đã được thêm!`
+          );
         }
       });
-      !check && setListSanPham([...ListSanPham, data]);
+      if (!check) {
+        setListSanPham([...ListSanPham, data]);
+        setActiveModal(false);
+      }
     } else {
-      const newData = ListSanPham.map((sp) => {
-        if (sp.sanPham_Id === data.sanPham_Id) {
-          return data;
-        } else {
-          return sp;
-        }
-      });
-      setListSanPham([...newData]);
+      if (infoSanPham.tits_qtsx_SanPham_Id === data.tits_qtsx_SanPham_Id) {
+        const newData = ListSanPham.map((sp) => {
+          if (sp.tits_qtsx_ChiTiet === infoSanPham.tits_qtsx_ChiTiet) {
+            return data;
+          } else {
+            return sp;
+          }
+        });
+        setListSanPham([...newData]);
+      } else {
+        const newData = ListSanPham.filter(
+          (d) => d.tits_qtsx_ChiTiet !== infoSanPham.tits_qtsx_ChiTiet
+        );
+        setListSanPham([data, ...newData]);
+      }
+      setActiveModal(false);
     }
   };
 
@@ -817,7 +841,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
           }
           style={{ fontSize: 14 }}
         >
-          {info.maPhieuYeuCau}
+          {info.maPhieu}
         </Tag>
         <Tag
           color={
@@ -837,68 +861,43 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
         </Tag>
       </span>
     );
-  const xoaUrlUpload = (stringPath) => {
-    const params = convertObjectToUrlParams({
-      stringPath,
-    });
 
-    dispatch(
-      fetchStart(`Upload/delete-image?${params}`, "POST", null, "DETAIL", "")
-    );
-  };
   const props = {
-    action: `${BASE_URL_API}/api/Upload`,
-    headers: {
-      Authorization: "Bearer ".concat(INFO.token),
-    },
     accept: ".pdf, .png, .jpg, .jpeg",
-    onChange: (file) => {
-      if (file.file.status === "done") {
+    beforeUpload: (file) => {
+      const isPNG =
+        file.type === "image/png" ||
+        file.type === "image/jpeg" ||
+        file.type === "application/pdf";
+      if (!isPNG) {
+        Helpers.alertError(`${file.name} không phải hình ảnh hoặc file pdf`);
+      } else {
+        setFile(file);
         setDisableUpload(true);
-        setFieldsValue({
-          dondathang: {
-            file: file.file.response.path,
-          },
-        });
-      } else if (file.file.status === "error") {
-        Helpers.alertError(`Upload File không thành công.`);
+        const reader = new FileReader();
+        reader.onload = (e) => setFileChat(e.target.result);
+        reader.readAsDataURL(file);
+        return false;
       }
     },
-    onPreview: (file) => {
-      window.open(`${BASE_URL_API}${file.response.path}`);
-    },
-    onRemove: (file) => {
-      xoaUrlUpload(getFieldValue("dondathang").file);
-      setDisableUpload(false);
-      setFieldsValue({
-        dondathang: {
-          file: undefined,
-        },
-      });
-    },
-    // fileList: File,
-    showUploadList: true,
+    showUploadList: false,
     maxCount: 1,
-    progress: {
-      strokeColor: {
-        "0%": "#108ee9",
-        "100%": "#87d068",
-      },
-      strokeWidth: 3,
-      format: (percent) => percent && `${parseFloat(percent.toFixed(2))}%`,
-    },
   };
   const disabledDate = (current) => {
     return current && current < dayjs().startOf("day");
+  };
+  const addSanPhamImport = (data) => {
+    setListSanPham([...data, ...ListSanPham]);
+    setFieldTouch(true);
   };
   const handleOnSelectKhachHang = (val) => {
     ListKhachHang.forEach((kh) => {
       if (kh.id === val) {
         setFieldsValue({
           dondathang: {
-            soDienThoai: kh.sDT,
+            sDT: kh.sDT,
             email: kh.email,
-            tenNguoiLienHe: kh.nguoiLienHe,
+            nguoiLienHe: kh.nguoiLienHe,
           },
         });
       }
@@ -935,7 +934,10 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
                   },
                 ]}
               >
-                <Input placeholder="Tên đơn hàng" />
+                <Input
+                  placeholder="Tên đơn hàng"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
               </FormItem>
             </Col>
             <Col
@@ -981,7 +983,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Số điện thoại"
-                name={["dondathang", "soDienThoai"]}
+                name={["dondathang", "sDT"]}
                 rules={[
                   {
                     type: "string",
@@ -1025,7 +1027,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người liên hệ"
-                name={["dondathang", "tenNguoiLienHe"]}
+                name={["dondathang", "nguoiLienHe"]}
                 rules={[
                   {
                     type: "string",
@@ -1064,6 +1066,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
                       },
                     });
                   }}
+                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -1085,8 +1088,8 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
                   },
                 ]}
               >
-                <Upload {...props}>
-                  {!disableUpload && (
+                {!disableUpload ? (
+                  <Upload {...props}>
                     <Button
                       style={{
                         marginBottom: 0,
@@ -1098,8 +1101,69 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
                     >
                       Tải file
                     </Button>
-                  )}
-                </Upload>
+                  </Upload>
+                ) : File.name ? (
+                  <span>
+                    <span
+                      style={{ color: "#0469B9", cursor: "pointer" }}
+                      onClick={() => handleViewFile(File)}
+                    >
+                      {File.name.length > 20
+                        ? File.name.substring(0, 20) + "..."
+                        : File.name}{" "}
+                    </span>
+                    <DeleteOutlined
+                      style={{ cursor: "pointer", color: "red" }}
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                      onClick={() => {
+                        setFile();
+                        setDisableUpload(false);
+                        setFieldsValue({
+                          phieunhanhang: {
+                            file: undefined,
+                          },
+                        });
+                      }}
+                    />
+                    <Image
+                      width={100}
+                      src={FileChat}
+                      alt="preview"
+                      style={{
+                        display: "none",
+                      }}
+                      preview={{
+                        visible: openImage,
+                        scaleStep: 0.5,
+                        src: FileChat,
+                        onVisibleChange: (value) => {
+                          setOpenImage(value);
+                        },
+                      }}
+                    />
+                  </span>
+                ) : (
+                  <span>
+                    <a
+                      target="_blank"
+                      href={BASE_URL_API + File}
+                      rel="noopener noreferrer"
+                    >
+                      {File.split("/")[5]}{" "}
+                    </a>
+                    {!info.isXacNhan && (
+                      <DeleteOutlined
+                        style={{ cursor: "pointer", color: "red" }}
+                        onClick={() => {
+                          setFile();
+                          setDisableUpload(false);
+                        }}
+                      />
+                    )}
+                  </span>
+                )}
               </FormItem>
             </Col>
           </Row>
@@ -1118,7 +1182,11 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
               >
                 Thêm sản phẩm
               </Button>
-              <Button icon={<UploadOutlined />} type="primary">
+              <Button
+                icon={<UploadOutlined />}
+                onClick={() => setActiveModalImport(true)}
+                type="primary"
+              >
                 Import
               </Button>
             </Col>
@@ -1192,6 +1260,12 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
         addSanPham={ThemSanPham}
         info={infoSanPham}
         type={typeSanPham}
+      />
+      <ImportSanPham
+        openModal={ActiveModalImport}
+        openModalFS={setActiveModalImport}
+        addSanPham={addSanPhamImport}
+        listSanPham={ListSanPham}
       />
     </div>
   );

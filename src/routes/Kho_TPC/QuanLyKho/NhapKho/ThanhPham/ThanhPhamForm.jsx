@@ -151,6 +151,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           getUserLap(INFO);
           setType("new");
           getXuong();
+          getKho();
           setFieldsValue({
             phieunhapkho: {
               ngayNhap: moment(getDateNow(), "DD/MM/YYYY"),
@@ -243,11 +244,11 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       }
     });
   };
-  const getKho = (phongBan_Id) => {
+  const getKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-phong-ban?thuTu=101&&phongBan_Id=${phongBan_Id}&&isThanhPham=true`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=101&&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -292,7 +293,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           getUserLap(INFO, res.data.userLap_Id);
           setInfo(res.data);
           getXuong();
-          getKho(res.data.phongBan_Id);
+          getKho();
           setFieldsValue({
             phieunhapkho: {
               ...res.data,
@@ -673,14 +674,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     !check && setFieldTouch(true);
   };
   const dataList = reDataForTable(ListSanPham);
-  const hanldeSelectXuong = (val) => {
-    getKho(val);
-    setFieldsValue({
-      phieunhapkho: {
-        cauTrucKho_Id: null,
-      },
-    });
-  };
   const disabledDate = (current) => {
     return current && current > dayjs().startOf("day");
   };
@@ -750,7 +743,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp="name"
                   disabled={type === "new" || type === "edit" ? false : true}
-                  onSelect={hanldeSelectXuong}
                 />
               </FormItem>
             </Col>

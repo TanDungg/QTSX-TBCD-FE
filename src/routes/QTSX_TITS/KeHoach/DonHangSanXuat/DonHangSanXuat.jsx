@@ -15,26 +15,23 @@ import {
   Table,
   EditableTableRow,
   Toolbar,
-  Select,
+  Modal,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
-  getDateNow,
   getLocalStorage,
   getTokenInfo,
-  exportPDF,
   removeDuplicates,
   getThangNow,
   getNamNow,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
-import AddSanPham from "./AddSanPham";
+import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-const { RangePicker } = DatePicker;
 
 function DonHangSanXuat({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
@@ -46,12 +43,10 @@ function DonHangSanXuat({ match, history, permission }) {
   const [Nam, setNam] = useState(getNamNow());
   const [SelectedMuaHang, setSelectedMuaHang] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [ListBanPhong, setListBanPhong] = useState([]);
-  const [BanPhong, setBanPhong] = useState("");
 
   useEffect(() => {
     if (permission && permission.view) {
-      loadData(keyword, BanPhong, Thang, Nam, page);
+      loadData(keyword, Thang, Nam, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -64,48 +59,22 @@ function DonHangSanXuat({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const loadData = (Keyword, Thang, Nam, page) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
-      tuNgay,
-      denNgay,
-      keyword,
+      Thang,
+      Nam,
+      Keyword,
       page,
-      donVi_Id: INFO.donVi_Id,
     });
-    dispatch(
-      fetchStart(`lkn_PhieuDeNghiMuaHang?${param}`, "GET", null, "LIST")
-    );
+    dispatch(fetchStart(`tits_qtsx_Donhang?${param}`, "GET", null, "LIST"));
   };
-  const getBanPhong = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListBanPhong(res.data);
-        } else {
-          setListBanPhong([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
+
   /**
    * Tìm kiếm sản phẩm
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, BanPhong, Thang, Nam, page);
+    loadData(keyword, Thang, Nam, page);
   };
 
   /**
@@ -116,7 +85,7 @@ function DonHangSanXuat({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, BanPhong, Thang, Nam, page);
+      loadData(val.target.value, Thang, Nam, page);
     }
   };
   /**
@@ -126,27 +95,8 @@ function DonHangSanXuat({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const detailItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <CheckCircleOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <CheckCircleOutlined />
-        </span>
-      );
     const editItem =
-      permission &&
-      permission.edit &&
-      !item.fileXacNhan &&
-      item.userYeuCau_Id === INFO.user_Id ? (
+      permission && permission.edit && !item.isXacNhan ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -162,16 +112,11 @@ function DonHangSanXuat({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission &&
-      permission.del &&
-      !item.fileXacNhan &&
-      item.userYeuCau_Id === INFO.user_Id
+      permission && permission.del && !item.isXacNhan
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {detailItem}
-        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -188,12 +133,7 @@ function DonHangSanXuat({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maPhieuYeuCau,
-      "phiếu đề nghị mua hàng"
-    );
+    ModalDeleteConfirm(deleteItemAction, item, item.maPhieu, "đơn hàng");
   };
 
   /**
@@ -202,14 +142,14 @@ function DonHangSanXuat({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDeNghiMuaHang?id=${item.id}`;
+    let url = `tits_qtsx_Donhang?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, BanPhong, Thang, Nam, page);
+          loadData(keyword, Thang, Nam, page);
         }
       })
       .catch((error) => console.error(error));
@@ -223,7 +163,7 @@ function DonHangSanXuat({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, BanPhong, Thang, Nam, pagination);
+    loadData(keyword, Thang, Nam, pagination);
   };
 
   /**
@@ -238,16 +178,33 @@ function DonHangSanXuat({ match, history, permission }) {
   };
 
   const handlePrint = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
+    // const params = convertObjectToUrlParams({
+    //   donVi_Id: INFO.donVi_Id,
+    // });
+    // new Promise((resolve, reject) => {
+    //   dispatch(
+    //     fetchStart(
+    //       `tits_qtsx_Donhang`,
+    //       "GET",
+    //       null,
+    //       "DETAIL",
+    //       "",
+    //       resolve,
+    //       reject
+    //     )
+    //   );
+    // })
+    //   .then((res) => {})
+    //   .catch((error) => console.error(error));
+  };
+  const hanldeXacNhan = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuDeNghiMuaHang/${SelectedMuaHang[0].id}?${params}`,
-          "GET",
+          `tits_qtsx_Donhang/xac-nhan/${SelectedMuaHang[0].id}`,
+          "PUT",
           null,
-          "DETAIL",
+          "XACNHAN",
           "",
           resolve,
           reject
@@ -255,33 +212,24 @@ function DonHangSanXuat({ match, history, permission }) {
       );
     })
       .then((res) => {
-        if (res && res.data) {
-          const newData = {
-            ...res.data,
-            lstpdncvtct: JSON.parse(res.data.chiTietVatTu),
-          };
-          new Promise((resolve, reject) => {
-            dispatch(
-              fetchStart(
-                `lkn_PhieuDeNghiMuaHang/export-pdf`,
-                "POST",
-                newData,
-                "",
-                "",
-                resolve,
-                reject
-              )
-            );
-          }).then((res) => {
-            exportPDF("PhieuDeNghiMuaHang", res.data.datapdf);
-            setSelectedMuaHang([]);
-            setSelectedKeys([]);
-          });
+        if (res.status !== 409) {
+          setSelectedKeys([]);
+          setSelectedMuaHang([]);
+          loadData(keyword, Thang, Nam, page);
         }
       })
       .catch((error) => console.error(error));
   };
-
+  const propXacNhan = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận đơn hàng",
+    onOk: hanldeXacNhan,
+  };
+  const modalXK = () => {
+    Modal(propXacNhan);
+  };
   const addButtonRender = () => {
     return (
       <>
@@ -298,8 +246,11 @@ function DonHangSanXuat({ match, history, permission }) {
           icon={<CheckCircleOutlined />}
           className="th-margin-bottom-0"
           type="primary"
-          onClick={handlePrint}
-          disabled={SelectedMuaHang.length === 0}
+          onClick={modalXK}
+          disabled={
+            SelectedMuaHang.length === 0 ||
+            (SelectedMuaHang[0] && SelectedMuaHang[0].isXacNhan)
+          }
         >
           Xác nhận
         </Button>
@@ -328,10 +279,10 @@ function DonHangSanXuat({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuYeuCau}
+          {val.maPhieu}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuYeuCau}</span>
+        <span disabled>{val.maPhieu}</span>
       );
     return <div>{detail}</div>;
   };
@@ -345,25 +296,25 @@ function DonHangSanXuat({ match, history, permission }) {
     },
     {
       title: "Mã đơn hàng",
-      key: "maDonHang",
+      key: "maPhieu",
       align: "center",
       render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maDonHang,
-            value: d.maDonHang,
+            text: d.maPhieu,
+            value: d.maPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.maDonHang.includes(value),
+      onFilter: (value, record) => record.maPhieu.includes(value),
       filterSearch: true,
     },
     {
       title: "Tên đơn hàng",
       key: "tenDonHang",
+      dataIndex: "tenDonHang",
       align: "center",
-      render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -377,18 +328,18 @@ function DonHangSanXuat({ match, history, permission }) {
     },
     {
       title: "Khách hàng",
-      dataIndex: "tenKhachHang",
-      key: "tenKhachHang",
+      dataIndex: "khachHang",
+      key: "khachHang",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenKhachHang,
-            value: d.tenKhachHang,
+            text: d.khachHang,
+            value: d.khachHang,
           };
         })
       ),
-      onFilter: (value, record) => record.tenKhachHang.includes(value),
+      onFilter: (value, record) => record.khachHang.includes(value),
       filterSearch: true,
     },
     {
@@ -409,9 +360,18 @@ function DonHangSanXuat({ match, history, permission }) {
     },
     {
       title: "File đính kèm",
-      dataIndex: "fileDinhKem",
-      key: "fileDinhKem",
+      dataIndex: "file",
+      key: "file",
       align: "center",
+      render: (val) => (
+        <a
+          href={`${BASE_URL_API}${val}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {val && val.split("/")[5]}
+        </a>
+      ),
     },
     {
       title: "Người xác nhận",
@@ -477,10 +437,10 @@ function DonHangSanXuat({ match, history, permission }) {
   });
 
   const handleChangeNgay = (dateString) => {
-    setThang(dateString[0]);
-    setNam(dateString[1]);
+    setThang(dateString.split("/")[0]);
+    setNam(dateString.split("/")[1]);
     setPage(1);
-    loadData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    loadData(keyword, dateString.split("/")[0], dateString.split("/")[1], 1);
   };
 
   const rowSelection = {

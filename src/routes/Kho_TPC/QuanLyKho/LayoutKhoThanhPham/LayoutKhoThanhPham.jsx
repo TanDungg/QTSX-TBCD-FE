@@ -295,28 +295,30 @@ function LayoutKhoThanhPham({ history, permission }) {
                                       {tang.children.length > 0 &&
                                         tang.children.map((ngan, index) => {
                                           return (
-                                            <Col
-                                              span={
-                                                (tang.children.length === 5 ||
-                                                  tang.children.length === 7 ||
-                                                  tang.children.length === 9 ||
-                                                  tang.children.length === 10 ||
-                                                  tang.children.length === 11 ||
-                                                  tang.children.length ===
-                                                    13) &&
-                                                index + 1 ===
-                                                  tang.children.length
-                                                  ? Math.floor(
-                                                      24 / tang.children.length
-                                                    ) * 2
-                                                  : Math.floor(
-                                                      24 / tang.children.length
-                                                    )
-                                              }
+                                            <div
+                                              // span={
+                                              //   (tang.children.length === 5 ||
+                                              //     tang.children.length === 7 ||
+                                              //     tang.children.length === 9 ||
+                                              //     tang.children.length === 10 ||
+                                              //     tang.children.length === 11 ||
+                                              //     tang.children.length ===
+                                              //       13) &&
+                                              //   index + 1 ===
+                                              //     tang.children.length
+                                              //     ? Math.floor(
+                                              //         24 / tang.children.length
+                                              //       ) * 2
+                                              //     : Math.floor(
+                                              //         24 / tang.children.length
+                                              //       )
+                                              // }
                                               style={{
                                                 height: 40,
                                                 margin: 0,
-                                                // width: "100%",
+                                                width: `${
+                                                  100 / tang.children.length
+                                                }%`,
                                                 padding: 0,
                                                 backgroundColor:
                                                   focusNgan === ngan.id
@@ -335,7 +337,7 @@ function LayoutKhoThanhPham({ history, permission }) {
                                                 // setActiveModal(true)
                                                 setFocusKe("");
                                               }}
-                                            ></Col>
+                                            ></div>
                                           );
                                         })}
                                     </Row>

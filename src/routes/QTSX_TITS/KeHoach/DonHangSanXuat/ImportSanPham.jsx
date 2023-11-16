@@ -23,14 +23,16 @@ import { Modal } from "src/components/Common";
 import { exportExcel, reDataForTable } from "src/util/Common";
 import * as XLSX from "xlsx";
 import { EditableTableRow, Table } from "src/components/Common";
-import { getLocalStorage, getTokenInfo } from "src/util/Common";
+
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ImportCauTrucKhoThanhPham({
+function ImportSanPham({
   openModalFS,
   openModal,
   loading,
   refesh,
+  addSanPham,
+  listSanPham,
 }) {
   const dispatch = useDispatch();
   const [dataView, setDataView] = useState([]);
@@ -38,14 +40,13 @@ function ImportCauTrucKhoThanhPham({
   const [checkDanger, setCheckDanger] = useState(false);
   const [HangTrung, setHangTrung] = useState([]);
   const [DataLoi, setDataLoi] = useState();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [message, setMessageError] = useState([]);
   const renderLoi = (val) => {
     let check = false;
     let messageLoi = "";
     if (DataLoi && DataLoi.length > 0) {
       DataLoi.forEach((dt) => {
-        if (dt.maCauTrucKho === val) {
+        if (dt.maSanPham === val) {
           check = true;
           messageLoi = dt.ghiChuImport;
         }
@@ -68,46 +69,66 @@ function ImportCauTrucKhoThanhPham({
       align: "center",
     },
     {
-      title: "Mã cấu trúc kho",
-      dataIndex: "maCauTrucKho",
-      key: "maCauTrucKho",
+      title: "Mã sản phẩm",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
       align: "center",
       render: (val) => renderLoi(val),
     },
     {
-      title: "Tên cấu trúc kho",
-      dataIndex: "tenCauTrucKho",
-      key: "tenCauTrucKho",
+      title: "Tên sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       align: "center",
     },
     {
-      title: "Mã Ban/Phòng",
-      dataIndex: "maPhongBan",
-      key: "maPhongBan",
+      title: "Lốp",
+      dataIndex: "lop",
+      key: "lop",
       align: "center",
     },
     {
-      title: "Mã cấu trúc kho cha",
-      dataIndex: "maCauTrucKhoCha",
-      key: "maCauTrucKhoCha",
+      title: "Mã màu sắc",
+      dataIndex: "maMauSac",
+      key: "maMauSac",
       align: "center",
     },
     {
-      title: "Sức chứa",
-      dataIndex: "sucChua",
-      key: "sucChua",
+      title: "Số lượng",
+      dataIndex: "soLuong",
+      key: "soLuong",
       align: "center",
     },
     {
-      title: "Vị trí",
-      dataIndex: "viTri",
-      key: "viTri",
+      title: "Đơn giá/ chiếc(VNĐ)",
+      dataIndex: "donGia",
+      key: "donGia",
       align: "center",
     },
     {
-      title: "Cố định",
-      dataIndex: "isCoDinh",
-      key: "isCoDinh",
+      title: "Vận chuyển/ Chiếc(VNĐ)",
+      dataIndex: "phiVanChuyen",
+      key: "phiVanChuyen",
+      align: "center",
+    },
+    {
+      title: "Thành tiền (VNĐ)",
+      key: "thanhtien",
+      align: "center",
+      render: (val) => (
+        <span>{val && Number(val.donGia) + Number(val.phiVanChuyen)}</span>
+      ),
+    },
+    {
+      title: "Mã màu sắc",
+      dataIndex: "maMauSac",
+      key: "maMauSac",
+      align: "center",
+    },
+    {
+      title: "Ngày bàn giao",
+      dataIndex: "ngay",
+      key: "ngay",
       align: "center",
     },
   ];
@@ -139,7 +160,7 @@ function ImportCauTrucKhoThanhPham({
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/ExportFileExcel-san-pham?donVi_Id=${INFO.donVi_Id}`,
+          `tits_qtsx_Donhang/export-file-mau`,
           "POST",
           null,
           "DOWLOAD",
@@ -149,7 +170,7 @@ function ImportCauTrucKhoThanhPham({
         )
       );
     }).then((res) => {
-      exportExcel("File_Mau_Cau_Truc_Kho_Thanh_Pham", res.data.dataexcel);
+      exportExcel("File_Mau_Thong_Tin_San_Pham", res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {
@@ -158,160 +179,180 @@ function ImportCauTrucKhoThanhPham({
       const workbook = XLSX.read(event.target.result, {
         type: "binary",
       });
-      const worksheet = workbook.Sheets["Import cấu trúc kho"];
+      const worksheet = workbook.Sheets["Import Sản phẩm"];
 
       const checkMau =
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 0, r: 1 }, e: { c: 0, r: 1 } },
+          range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 0, r: 1 }, e: { c: 0, r: 1 } },
+            range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
           })[0]
           .toString()
           .trim() === "STT" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 1, r: 1 }, e: { c: 1, r: 1 } },
+          range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 1, r: 1 }, e: { c: 1, r: 1 } },
+            range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã cấu trúc kho" &&
+          .trim() === "Mã sản phẩm" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 2, r: 1 }, e: { c: 2, r: 1 } },
+          range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 2, r: 1 }, e: { c: 2, r: 1 } },
+            range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Tên cấu trúc kho" &&
+          .trim() === "Tên sản phẩm" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 3, r: 1 }, e: { c: 3, r: 1 } },
+          range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 3, r: 1 }, e: { c: 3, r: 1 } },
+            range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã Ban/Phòng" &&
+          .trim() === "Lốp" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 4, r: 1 }, e: { c: 4, r: 1 } },
+          range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 4, r: 1 }, e: { c: 4, r: 1 } },
+            range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã cấu trúc kho cha" &&
+          .trim() === "Mã màu sắc" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
+          range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
+            range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Sức chứa" &&
+          .trim() === "Số lượng" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 6, r: 1 }, e: { c: 6, r: 1 } },
+          range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 6, r: 1 }, e: { c: 6, r: 1 } },
+            range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Vị trí" &&
+          .trim() === "Đơn giá" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 7, r: 1 }, e: { c: 7, r: 1 } },
+          range: { s: { c: 7, r: 2 }, e: { c: 7, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 7, r: 1 }, e: { c: 7, r: 1 } },
+            range: { s: { c: 7, r: 2 }, e: { c: 7, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Cố định";
+          .trim() === "Phí vận chuyển" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 8, r: 2 }, e: { c: 8, r: 2 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 8, r: 2 }, e: { c: 8, r: 2 } },
+          })[0]
+          .toString()
+          .trim() === "Ngày bàn giao";
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
-          range: 1,
+          range: 2,
         });
-        const MCTK = "Mã cấu trúc kho";
-        const TCTK = "Tên cấu trúc kho";
-        const BP = "Mã Ban/Phòng";
-        const MCTKC = "Mã cấu trúc kho cha";
-        const VT = "Vị trí";
-        const SC = "Sức chứa";
-        const CD = "Cố định";
-
-        const Data = [];
+        const MSP = "Mã sản phẩm";
+        const TSP = "Tên sản phẩm";
+        const SLuong = "Số lượng";
+        const L = "Lốp";
+        const MMS = "Mã màu sắc";
+        const DG = "Đơn giá";
+        const PVC = "Phí vận chuyển";
+        const NBG = "Ngày bàn giao";
         const NewData = [];
         data.forEach((d, index) => {
           if (
-            data[index][MCTK] &&
-            data[index][MCTK].toString().trim() === "" &&
-            data[index][TCTK] &&
-            data[index][TCTK].toString().trim() === "" &&
-            data[index][BP] &&
-            data[index][BP].toString().trim() === ""
+            data[index][TSP] &&
+            data[index][TSP].toString().trim() === "" &&
+            data[index][MSP] &&
+            data[index][MSP].toString().trim() === "" &&
+            data[index][L] &&
+            data[index][L].toString().trim() === "" &&
+            data[index][MMS] &&
+            data[index][MMS].toString().trim() === "" &&
+            data[index][DG] &&
+            data[index][DG].toString().trim() === "" &&
+            data[index][PVC] &&
+            data[index][PVC].toString().trim() === ""
           ) {
           } else {
             NewData.push({
-              maCauTrucKho: data[index][MCTK]
-                ? data[index][MCTK].toString().trim() !== ""
-                  ? data[index][MCTK].toString().trim()
+              tenSanPham: data[index][TSP]
+                ? data[index][TSP].toString().trim() !== ""
+                  ? data[index][TSP].toString().trim()
                   : undefined
                 : undefined,
-              tenCauTrucKho: data[index][TCTK]
-                ? data[index][TCTK].toString().trim() !== ""
-                  ? data[index][TCTK].toString().trim()
+              maSanPham: data[index][MSP]
+                ? data[index][MSP].toString().trim() !== ""
+                  ? data[index][MSP].toString().trim()
                   : undefined
                 : undefined,
-              maPhongBan: data[index][BP]
-                ? data[index][BP].toString().trim() !== ""
-                  ? data[index][BP].toString().trim()
+              soLuong: data[index][SLuong]
+                ? data[index][SLuong].toString().trim() !== ""
+                  ? data[index][SLuong].toString().trim()
                   : undefined
                 : undefined,
-              maCauTrucKhoCha: data[index][MCTKC]
-                ? data[index][MCTKC].toString().trim() !== ""
-                  ? data[index][MCTKC].toString().trim()
+              lop: data[index][L]
+                ? data[index][L].toString().trim() !== ""
+                  ? data[index][L].toString().trim()
                   : undefined
                 : undefined,
-              viTri: data[index][VT]
-                ? data[index][VT].toString().trim() !== ""
-                  ? data[index][VT].toString().trim()
+              maMauSac: data[index][MMS]
+                ? data[index][MMS].toString().trim() !== ""
+                  ? data[index][MMS].toString().trim()
                   : undefined
                 : undefined,
-              sucChua: data[index][SC]
-                ? data[index][SC].toString().trim() !== ""
-                  ? data[index][SC].toString().trim()
+              donGia: data[index][DG]
+                ? data[index][DG].toString().trim() !== ""
+                  ? data[index][DG].toString().trim()
                   : undefined
                 : undefined,
-              isCoDinh: data[index][CD]
-                ? data[index][CD].toString().trim() !== ""
-                  ? data[index][CD].toString().trim()
+              phiVanChuyen: data[index][PVC]
+                ? data[index][PVC].toString().trim() !== ""
+                  ? data[index][PVC].toString().trim()
+                  : undefined
+                : undefined,
+              ngay: data[index][NBG]
+                ? data[index][NBG].toString().trim() !== ""
+                  ? data[index][NBG].toString().trim()
                   : undefined
                 : undefined,
             });
           }
-          Data.push(data[index][MCTK]);
         });
         if (NewData.length === 0) {
           setFileName(file.name);
@@ -322,28 +363,28 @@ function ImportCauTrucKhoThanhPham({
         } else {
           const indices = [];
           const row = [];
-          for (let i = 0; i < Data.length; i++) {
-            for (let j = i + 1; j < Data.length; j++) {
+          for (let i = 0; i < NewData.length; i++) {
+            for (let j = i + 1; j < NewData.length; j++) {
               if (
-                Data[i] === Data[j] &&
-                Data[j] !== undefined &&
-                Data[i] !== undefined
+                NewData[i].maSanPham === NewData[j].maSanPham &&
+                NewData[i].maMauSac === NewData[j].maMauSac &&
+                NewData[j].maSanPham !== undefined &&
+                NewData[i].maSanPham !== undefined &&
+                NewData[j].maMauSac !== undefined &&
+                NewData[i].maMauSac !== undefined
               ) {
-                indices.push(Data[i]);
+                indices.push(NewData[i]);
                 row.push(i + 1);
                 row.push(j + 1);
               }
             }
           }
-          setDataView(NewData);
-          setFileName(file.name);
-          setDataLoi();
           if (indices.length > 0) {
             setMessageError(
-              `Hàng ${row.join(", ")} có mã cấu trúc kho trùng nhau`
+              `Hàng ${row.join(", ")} có mã sản phẩm và mã màu sắc trùng nhau`
             );
             Helper.alertError(
-              `Hàng ${row.join(", ")} có mã cấu trúc kho trùng nhau`
+              `Hàng ${row.join(", ")} có mã sản phẩm và mã màu sắc trùng nhau`
             );
             setHangTrung(indices);
             setCheckDanger(true);
@@ -351,6 +392,9 @@ function ImportCauTrucKhoThanhPham({
             setHangTrung([]);
             setCheckDanger(false);
           }
+          setDataView(NewData);
+          setFileName(file.name);
+          setDataLoi();
         }
       } else {
         setFileName(file.name);
@@ -386,14 +430,9 @@ function ImportCauTrucKhoThanhPham({
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/ImportExel-san-pham`,
+          `tits_qtsx_Donhang/import-excel`,
           "POST",
-          dataView.map((ctk) => {
-            return {
-              ...ctk,
-              isCoDinh: ctk.isCoDinh.toLowerCase() === "x",
-            };
-          }),
+          dataView,
           "IMPORT",
           "",
           resolve,
@@ -405,10 +444,32 @@ function ImportCauTrucKhoThanhPham({
         setDataLoi(res.data);
         setMessageError("Import không thành công");
       } else {
-        setFileName(null);
-        setDataView([]);
-        openModalFS(false);
-        refesh();
+        let check = false;
+        res.data.forEach((dt) => {
+          dt.tits_qtsx_ChiTiet =
+            dt.tits_qtsx_SanPham_Id + "_" + dt.tits_qtsx_MauSac_Id;
+          listSanPham.forEach((sp) => {
+            if (
+              dt.tits_qtsx_MauSac_Id === sp.tits_qtsx_MauSac_Id &&
+              dt.tits_qtsx_SanPham_Id === sp.tits_qtsx_SanPham_Id
+            ) {
+              check = true;
+              setMessageError(
+                `Sản phẩm ${dt.tenSanPham} có màu ${dt.tenMauSac} đã được thêm`
+              );
+              dt.ghiChuImport = `Sản phẩm ${dt.tenSanPham} có màu ${dt.tenMauSac} đã được thêm`;
+            }
+          });
+        });
+        if (check) {
+          setDataLoi(res.data);
+          Helper.alertWarning(res.data[0].ghiChuImport);
+        } else {
+          addSanPham(res.data);
+          setFileName(null);
+          setDataView([]);
+          openModalFS(false);
+        }
       }
     });
   };
@@ -416,7 +477,7 @@ function ImportCauTrucKhoThanhPham({
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận import cấu trúc kho thành phẩm",
+    title: "Xác nhận import thông tin sản phẩm",
     onOk: handleSubmit,
   };
   const modalXK = () => {
@@ -425,28 +486,40 @@ function ImportCauTrucKhoThanhPham({
 
   const RowStyle = (current, index) => {
     if (HangTrung.length > 0) {
-      HangTrung.forEach((maCauTrucKho) => {
-        if (current.maCauTrucKho === maCauTrucKho) {
+      HangTrung.forEach((soLot) => {
+        if (current.soLot === soLot) {
           setCheckDanger(true);
           return "red-row";
         }
       });
-    } else if (current.maCauTrucKho === undefined) {
+    } else if (current.tenSanPham === undefined) {
       setCheckDanger(true);
-      setMessageError("Mã cấu trúc kho không được rỗng");
+      setMessageError("Tên sản phẩm không được rỗng");
       return "red-row";
-    } else if (current.tenCauTrucKho === undefined) {
+    } else if (current.maSanPham === undefined) {
       setCheckDanger(true);
-      setMessageError("Tên cấu trúc kho không được rỗng");
+      setMessageError("Mã sản phẩm không được rỗng");
       return "red-row";
-    } else if (current.maPhongBan === undefined) {
+    } else if (current.soLuong === undefined) {
       setCheckDanger(true);
-      setMessageError("Mã Ban/Phòng không được rỗng");
+      setMessageError("Số lượng không được rỗng");
+      return "red-row";
+    } else if (current.maMauSac === undefined) {
+      setCheckDanger(true);
+      setMessageError("Mã màu sắc không được rỗng");
+      return "red-row";
+    } else if (current.donGia === undefined) {
+      setCheckDanger(true);
+      setMessageError("Đơn giá không được rỗng");
+      return "red-row";
+    } else if (current.phiVanChuyen === undefined) {
+      setCheckDanger(true);
+      setMessageError("Phí vận chuyển không được rỗng");
       return "red-row";
     } else if (DataLoi && DataLoi.length > 0) {
       let check = false;
       DataLoi.forEach((dt) => {
-        if (current.maCauTrucKho.toString() === dt.maCauTrucKho.toString()) {
+        if (current.soLot.toString() === dt.soLot.toString()) {
           check = true;
         }
       });
@@ -462,16 +535,14 @@ function ImportCauTrucKhoThanhPham({
       setCheckDanger(false);
       setFileName(null);
       setDataView([]);
-      refesh();
     } else {
       openModalFS(false);
-      refesh();
     }
   };
 
   return (
     <AntModal
-      title="Import cấu trúc kho thành phẩm"
+      title="Import thông tin sản phẩm"
       open={openModal}
       width={`80%`}
       closable={true}
@@ -565,4 +636,4 @@ function ImportCauTrucKhoThanhPham({
   );
 }
 
-export default ImportCauTrucKhoThanhPham;
+export default ImportSanPham;
