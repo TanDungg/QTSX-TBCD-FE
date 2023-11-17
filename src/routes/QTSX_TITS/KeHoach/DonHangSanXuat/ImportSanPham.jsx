@@ -433,7 +433,7 @@ function ImportSanPham({
           `tits_qtsx_Donhang/import-excel`,
           "POST",
           dataView,
-          "IMPORT",
+          "A",
           "",
           resolve,
           reject
@@ -486,8 +486,8 @@ function ImportSanPham({
 
   const RowStyle = (current, index) => {
     if (HangTrung.length > 0) {
-      HangTrung.forEach((soLot) => {
-        if (current.soLot === soLot) {
+      HangTrung.forEach((maSanPham) => {
+        if (current.maSanPham === maSanPham) {
           setCheckDanger(true);
           return "red-row";
         }

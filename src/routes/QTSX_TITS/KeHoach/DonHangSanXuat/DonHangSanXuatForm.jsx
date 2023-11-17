@@ -162,9 +162,9 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
   const [info, setInfo] = useState({});
   const [infoSanPham, setInfoSanPham] = useState({});
+  const [ActiveModal, setActiveModal] = useState(false);
 
   const [editingRecord, setEditingRecord] = useState([]);
-  const [ActiveModal, setActiveModal] = useState(false);
   const [ActiveModalImport, setActiveModalImport] = useState(false);
 
   useEffect(() => {
@@ -1169,41 +1169,50 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
           </Row>
           <Divider />
         </Form>
-        {type === "new" || type === "edit" ? (
-          <Row>
-            <Col span={24} align="end" style={{ marginTop: 8 }}>
-              <Button
-                icon={<PlusOutlined />}
-                onClick={() => {
-                  setActiveModal(true);
-                  setTypeSanPham("new");
-                }}
-                type="primary"
-              >
-                Thêm sản phẩm
-              </Button>
-              <Button
-                icon={<UploadOutlined />}
-                onClick={() => setActiveModalImport(true)}
-                type="primary"
-              >
-                Import
-              </Button>
-            </Col>
-          </Row>
-        ) : null}
-        <Table
-          bordered
-          columns={columns}
-          scroll={{ x: 1300, y: "55vh" }}
-          components={components}
-          className="gx-table-responsive"
-          dataSource={reDataForTable(ListSanPham)}
-          size="small"
-          rowClassName={"editable-row"}
-          pagination={false}
-          // loading={loading}
-        />
+        <Card
+          title="Thông tin sản phẩm"
+          headStyle={{
+            textAlign: "center",
+            backgroundColor: "#0469B9",
+            color: "#fff",
+          }}
+        >
+          {type === "new" || type === "edit" ? (
+            <Row>
+              <Col span={24} align="end" style={{ marginTop: 8 }}>
+                <Button
+                  icon={<PlusOutlined />}
+                  onClick={() => {
+                    setActiveModal(true);
+                    setTypeSanPham("new");
+                  }}
+                  type="primary"
+                >
+                  Thêm sản phẩm
+                </Button>
+                <Button
+                  icon={<UploadOutlined />}
+                  onClick={() => setActiveModalImport(true)}
+                  type="primary"
+                >
+                  Import
+                </Button>
+              </Col>
+            </Row>
+          ) : null}
+          <Table
+            bordered
+            columns={columns}
+            scroll={{ x: 1300, y: "55vh" }}
+            components={components}
+            className="gx-table-responsive"
+            dataSource={reDataForTable(ListSanPham)}
+            size="small"
+            rowClassName={"editable-row"}
+            pagination={false}
+            // loading={loading}
+          />
+        </Card>
         {type === "new" || type === "edit" ? (
           <FormSubmit
             goBack={goBack}

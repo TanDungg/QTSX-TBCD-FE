@@ -131,9 +131,6 @@ function AddSanPhamModal({ openModalFS, openModal, loading, addSanPham }) {
             name={["vatTu", "dinhMucXaNhua"]}
             rules={[
               {
-                required: true,
-              },
-              {
                 pattern: /^(0\.\d*[1-9]\d*|[1-9]\d*(\.\d+)?)$/,
                 message: "Định mức xả nhựa phải là số và lớn hơn 0!",
               },

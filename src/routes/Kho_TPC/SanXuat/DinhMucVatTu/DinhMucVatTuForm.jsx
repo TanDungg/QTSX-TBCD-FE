@@ -125,7 +125,7 @@ const EditableCell = ({
         }}
         onClick={toggleEdit}
       >
-        {children}
+        {title === "Định mức xả nhựa" && children === 0 ? null : children}
       </div>
     );
   }
@@ -326,7 +326,13 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListSanPham(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            name: dt.maSanPham + " - " + dt.tenSanPham,
+          };
+        });
+        setListSanPham(newData);
       } else {
         setListSanPham([]);
       }
@@ -406,7 +412,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
         if (res && res.data) {
           res.data.ghiChu = data.ghiChu;
           res.data.dinhMuc = data.dinhMuc;
-          res.data.dinhMucXaNhua = data.dinhMucXaNhua;
+          res.data.dinhMucXaNhua = data.dinhMucXaNhua ? data.dinhMucXaNhua : 0;
           res.data.vatTu_Id = res.data.id;
           if (listVatTu.length === 0) {
             res.data.isBatBuoc = true;
@@ -438,7 +444,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
         if (res && res.data) {
           res.data.ghiChu = data.ghiChu;
           res.data.dinhMuc = data.dinhMuc;
-          res.data.dinhMucXaNhua = data.dinhMucXaNhua;
+          res.data.dinhMucXaNhua = data.dinhMucXaNhua ? data.dinhMucXaNhua : 0;
           res.data.vatTu_Id = res.data.id;
           res.data.tenVatTu = res.data.tenSanPham;
           res.data.maVatTu = res.data.maSanPham;
@@ -731,6 +737,9 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
     });
     !check && getDetailSanPham(data);
   };
+  const addVatTuImport = (data) => {
+    setListVatTu([...listVatTu, ...data]);
+  };
   const hanldeXacNhan = () => {
     const newData = {
       id: id,
@@ -929,7 +938,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListSanPham ? ListSanPham : []}
                   placeholder="Chọn sản phẩm"
-                  optionsvalue={["id", "tenSanPham"]}
+                  optionsvalue={["id", "name"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1075,6 +1084,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       <ImportDinhMucVatTu
         openModal={ActiveModalImport}
         listVatTu={listVatTu}
+        addVatTu={addVatTuImport}
         openModalFS={setActiveModalImport}
       />
     </div>

@@ -46,7 +46,7 @@ function ImportDinhMucVatTu({
     let messageLoi = "";
     if (DataLoi && DataLoi.length > 0) {
       DataLoi.forEach((dt) => {
-        if (dt.maVatTu === val) {
+        if (dt.maVatTu === val && dt.ghiChuImport) {
           check = true;
           messageLoi = dt.ghiChuImport;
         }
@@ -92,6 +92,7 @@ function ImportDinhMucVatTu({
       dataIndex: "dinhMucXaNhua",
       key: "dinhMucXaNhua",
       align: "center",
+      render: (val) => <span>{val !== 0 && val}</span>,
     },
     {
       title: "Ghi chú",
@@ -101,8 +102,8 @@ function ImportDinhMucVatTu({
     },
     {
       title: "Bắt buộc",
-      dataIndex: "isBacBuoc",
-      key: "isBacBuoc",
+      dataIndex: "isBatBuoc",
+      key: "isBatBuoc",
       align: "center",
     },
   ];
@@ -232,7 +233,7 @@ function ImportDinhMucVatTu({
             range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Bắc buộc" &&
+          .trim() === "Bắt buộc" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 7, r: 2 }, e: { c: 7, r: 2 } },
@@ -246,20 +247,19 @@ function ImportDinhMucVatTu({
         const DM = "Định mức";
         const DMXN = "Định mức xả nhựa";
         const GC = "Ghi chú";
-        const BB = "Bắc buộc";
+        const BB = "Bắt buộc";
         const NewData = [];
+
         data.forEach((d, index) => {
+          console.log(data[index][TVT].toString().trim() === "");
           if (
             data[index][TVT] &&
-            data[index][TVT].toString().trim() === "" &&
+            data[index][TVT].toString().trim() !== "" &&
             data[index][MVT] &&
-            data[index][MVT].toString().trim() === "" &&
-            data[index][DMXN] &&
-            data[index][DMXN].toString().trim() === "" &&
+            data[index][MVT].toString().trim() !== "" &&
             data[index][DM] &&
-            data[index][DM].toString().trim() === ""
+            data[index][DM].toString().trim() !== ""
           ) {
-          } else {
             NewData.push({
               tenVatTu: data[index][TVT]
                 ? data[index][TVT].toString().trim() !== ""
@@ -279,19 +279,20 @@ function ImportDinhMucVatTu({
               dinhMucXaNhua: data[index][DMXN]
                 ? data[index][DMXN].toString().trim() !== ""
                   ? data[index][DMXN].toString().trim()
-                  : undefined
-                : undefined,
+                  : 0
+                : 0,
               ghiChu: data[index][GC]
                 ? data[index][GC].toString().trim() !== ""
                   ? data[index][GC].toString().trim()
                   : undefined
                 : undefined,
-              isBacBuoc: data[index][BB]
+              isBatBuoc: data[index][BB]
                 ? data[index][BB].toString().trim() !== ""
                   ? data[index][BB].toString().trim()
                   : undefined
                 : undefined,
             });
+          } else {
           }
         });
         if (NewData.length === 0) {
@@ -303,6 +304,7 @@ function ImportDinhMucVatTu({
         } else {
           const indices = [];
           const row = [];
+          let checkIsBatBuoc = false;
           for (let i = 0; i < NewData.length; i++) {
             for (let j = i + 1; j < NewData.length; j++) {
               if (
@@ -314,12 +316,19 @@ function ImportDinhMucVatTu({
                 row.push(i + 1);
                 row.push(j + 1);
               }
+              if (NewData[i].isBatBuoc) {
+                checkIsBatBuoc = true;
+              }
             }
           }
           if (indices.length > 0) {
             setMessageError(`Hàng ${row.join(", ")} có mã vật tư trùng nhau`);
             Helper.alertError(`Hàng ${row.join(", ")} có mã vật tư trùng nhau`);
             setHangTrung(indices);
+            setCheckDanger(true);
+          } else if (!checkIsBatBuoc) {
+            setMessageError(`Phải có ít nhất 1 vật tư bắt buộc`);
+            Helper.alertError(`Phải có ít nhất 1 vật tư bắt buộc`);
             setCheckDanger(true);
           } else {
             setHangTrung([]);
@@ -360,13 +369,19 @@ function ImportDinhMucVatTu({
   };
 
   const handleSubmit = () => {
+    const newData = dataView.map((dt) => {
+      return {
+        ...dt,
+        isBatBuoc: dt.isBatBuoc === "x",
+      };
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_DinhMucVatTu/import-excel`,
+          `lkn_DinhMucVatTu/kiem-tra-file-export`,
           "POST",
-          dataView,
-          "IMPORT",
+          newData,
+          "A",
           "",
           resolve,
           reject
@@ -412,8 +427,8 @@ function ImportDinhMucVatTu({
 
   const RowStyle = (current, index) => {
     if (HangTrung.length > 0) {
-      HangTrung.forEach((soLot) => {
-        if (current.soLot === soLot) {
+      HangTrung.forEach((maVatTu) => {
+        if (current.maVatTu === maVatTu) {
           setCheckDanger(true);
           return "red-row";
         }
@@ -430,14 +445,13 @@ function ImportDinhMucVatTu({
       setCheckDanger(true);
       setMessageError("Định mức");
       return "red-row";
-    } else if (current.dinhMucXaNhua === undefined) {
-      setCheckDanger(true);
-      setMessageError("Định mức xả nhựa");
-      return "red-row";
     } else if (DataLoi && DataLoi.length > 0) {
       let check = false;
       DataLoi.forEach((dt) => {
-        if (current.maVatTu.toString() === dt.maVatTu.toString()) {
+        if (
+          current.maVatTu.toString() === dt.maVatTu.toString() &&
+          dt.ghiChuImport
+        ) {
           check = true;
         }
       });
