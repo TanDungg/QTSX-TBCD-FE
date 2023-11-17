@@ -26,13 +26,13 @@ import { EditableTableRow, Table } from "src/components/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ImportSanPham({
+function ImportDinhMucVatTu({
   openModalFS,
   openModal,
   loading,
   refesh,
-  addSanPham,
-  listSanPham,
+  addVatTu,
+  listVatTu,
 }) {
   const dispatch = useDispatch();
   const [dataView, setDataView] = useState([]);
@@ -46,7 +46,7 @@ function ImportSanPham({
     let messageLoi = "";
     if (DataLoi && DataLoi.length > 0) {
       DataLoi.forEach((dt) => {
-        if (dt.maSanPham === val) {
+        if (dt.maVatTu === val) {
           check = true;
           messageLoi = dt.ghiChuImport;
         }
@@ -69,66 +69,40 @@ function ImportSanPham({
       align: "center",
     },
     {
-      title: "Mã sản phẩm",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
       align: "center",
       render: (val) => renderLoi(val),
     },
     {
-      title: "Tên sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
       align: "center",
     },
     {
-      title: "Lốp",
-      dataIndex: "lop",
-      key: "lop",
+      title: "Định mức",
+      dataIndex: "dinhMuc",
+      key: "dinhMuc",
       align: "center",
     },
     {
-      title: "Mã màu sắc",
-      dataIndex: "maMauSac",
-      key: "maMauSac",
+      title: "Định mức xả nhựa",
+      dataIndex: "dinhMucXaNhua",
+      key: "dinhMucXaNhua",
       align: "center",
     },
     {
-      title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
+      title: "Ghi chú",
+      dataIndex: "ghiChu",
+      key: "ghiChu",
       align: "center",
     },
     {
-      title: "Đơn giá/ chiếc(VNĐ)",
-      dataIndex: "donGia",
-      key: "donGia",
-      align: "center",
-    },
-    {
-      title: "Vận chuyển/ Chiếc(VNĐ)",
-      dataIndex: "phiVanChuyen",
-      key: "phiVanChuyen",
-      align: "center",
-    },
-    {
-      title: "Thành tiền (VNĐ)",
-      key: "thanhtien",
-      align: "center",
-      render: (val) => (
-        <span>{val && Number(val.donGia) + Number(val.phiVanChuyen)}</span>
-      ),
-    },
-    {
-      title: "Mã màu sắc",
-      dataIndex: "maMauSac",
-      key: "maMauSac",
-      align: "center",
-    },
-    {
-      title: "Ngày bàn giao",
-      dataIndex: "ngay",
-      key: "ngay",
+      title: "Bắt buộc",
+      dataIndex: "isBacBuoc",
+      key: "isBacBuoc",
       align: "center",
     },
   ];
@@ -160,7 +134,7 @@ function ImportSanPham({
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_Donhang/export-file-mau`,
+          `lkn_DinhMucVatTu/export-file-mau`,
           "POST",
           null,
           "DOWLOAD",
@@ -170,7 +144,7 @@ function ImportSanPham({
         )
       );
     }).then((res) => {
-      exportExcel("File_Mau_Thong_Tin_San_Pham", res.data.dataexcel);
+      exportExcel("File_Mau_Dinh_Muc", res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {
@@ -179,7 +153,7 @@ function ImportSanPham({
       const workbook = XLSX.read(event.target.result, {
         type: "binary",
       });
-      const worksheet = workbook.Sheets["Import Sản phẩm"];
+      const worksheet = workbook.Sheets["Định mức vật tư"];
 
       const checkMau =
         XLSX.utils.sheet_to_json(worksheet, {
@@ -203,7 +177,7 @@ function ImportSanPham({
             range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã sản phẩm" &&
+          .trim() === "Mã vật tư" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
@@ -214,7 +188,7 @@ function ImportSanPham({
             range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Tên sản phẩm" &&
+          .trim() === "Tên vật tư" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
@@ -225,7 +199,7 @@ function ImportSanPham({
             range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Lốp" &&
+          .trim() === "Định mức" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
@@ -236,7 +210,7 @@ function ImportSanPham({
             range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã màu sắc" &&
+          .trim() === "Định mức xả nhựa" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
@@ -247,7 +221,7 @@ function ImportSanPham({
             range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Số lượng" &&
+          .trim() === "Ghi chú" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
@@ -258,97 +232,63 @@ function ImportSanPham({
             range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Đơn giá" &&
+          .trim() === "Bắc buộc" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 7, r: 2 }, e: { c: 7, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 7, r: 2 }, e: { c: 7, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Phí vận chuyển" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 8, r: 2 }, e: { c: 8, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 8, r: 2 }, e: { c: 8, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Ngày bàn giao";
+        })[0];
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
           range: 2,
         });
-        const MSP = "Mã sản phẩm";
-        const TSP = "Tên sản phẩm";
-        const SLuong = "Số lượng";
-        const L = "Lốp";
-        const MMS = "Mã màu sắc";
-        const DG = "Đơn giá";
-        const PVC = "Phí vận chuyển";
-        const NBG = "Ngày bàn giao";
+        const MVT = "Mã vật tư";
+        const TVT = "Tên vật tư";
+        const DM = "Định mức";
+        const DMXN = "Định mức xả nhựa";
+        const GC = "Ghi chú";
+        const BB = "Bắc buộc";
         const NewData = [];
         data.forEach((d, index) => {
           if (
-            data[index][TSP] &&
-            data[index][TSP].toString().trim() === "" &&
-            data[index][MSP] &&
-            data[index][MSP].toString().trim() === "" &&
-            data[index][L] &&
-            data[index][L].toString().trim() === "" &&
-            data[index][MMS] &&
-            data[index][MMS].toString().trim() === "" &&
-            data[index][DG] &&
-            data[index][DG].toString().trim() === "" &&
-            data[index][PVC] &&
-            data[index][PVC].toString().trim() === ""
+            data[index][TVT] &&
+            data[index][TVT].toString().trim() === "" &&
+            data[index][MVT] &&
+            data[index][MVT].toString().trim() === "" &&
+            data[index][DMXN] &&
+            data[index][DMXN].toString().trim() === "" &&
+            data[index][DM] &&
+            data[index][DM].toString().trim() === ""
           ) {
           } else {
             NewData.push({
-              tenSanPham: data[index][TSP]
-                ? data[index][TSP].toString().trim() !== ""
-                  ? data[index][TSP].toString().trim()
+              tenVatTu: data[index][TVT]
+                ? data[index][TVT].toString().trim() !== ""
+                  ? data[index][TVT].toString().trim()
                   : undefined
                 : undefined,
-              maSanPham: data[index][MSP]
-                ? data[index][MSP].toString().trim() !== ""
-                  ? data[index][MSP].toString().trim()
+              maVatTu: data[index][MVT]
+                ? data[index][MVT].toString().trim() !== ""
+                  ? data[index][MVT].toString().trim()
                   : undefined
                 : undefined,
-              soLuong: data[index][SLuong]
-                ? data[index][SLuong].toString().trim() !== ""
-                  ? data[index][SLuong].toString().trim()
+              dinhMuc: data[index][DM]
+                ? data[index][DM].toString().trim() !== ""
+                  ? data[index][DM].toString().trim()
                   : undefined
                 : undefined,
-              lop: data[index][L]
-                ? data[index][L].toString().trim() !== ""
-                  ? data[index][L].toString().trim()
+              dinhMucXaNhua: data[index][DMXN]
+                ? data[index][DMXN].toString().trim() !== ""
+                  ? data[index][DMXN].toString().trim()
                   : undefined
                 : undefined,
-              maMauSac: data[index][MMS]
-                ? data[index][MMS].toString().trim() !== ""
-                  ? data[index][MMS].toString().trim()
+              ghiChu: data[index][GC]
+                ? data[index][GC].toString().trim() !== ""
+                  ? data[index][GC].toString().trim()
                   : undefined
                 : undefined,
-              donGia: data[index][DG]
-                ? data[index][DG].toString().trim() !== ""
-                  ? data[index][DG].toString().trim()
-                  : undefined
-                : undefined,
-              phiVanChuyen: data[index][PVC]
-                ? data[index][PVC].toString().trim() !== ""
-                  ? data[index][PVC].toString().trim()
-                  : undefined
-                : undefined,
-              ngay: data[index][NBG]
-                ? data[index][NBG].toString().trim() !== ""
-                  ? data[index][NBG].toString().trim()
+              isBacBuoc: data[index][BB]
+                ? data[index][BB].toString().trim() !== ""
+                  ? data[index][BB].toString().trim()
                   : undefined
                 : undefined,
             });
@@ -366,12 +306,9 @@ function ImportSanPham({
           for (let i = 0; i < NewData.length; i++) {
             for (let j = i + 1; j < NewData.length; j++) {
               if (
-                NewData[i].maSanPham === NewData[j].maSanPham &&
-                NewData[i].maMauSac === NewData[j].maMauSac &&
-                NewData[j].maSanPham !== undefined &&
-                NewData[i].maSanPham !== undefined &&
-                NewData[j].maMauSac !== undefined &&
-                NewData[i].maMauSac !== undefined
+                NewData[i].maVatTu === NewData[j].maVatTu &&
+                NewData[j].maVatTu !== undefined &&
+                NewData[i].maVatTu !== undefined
               ) {
                 indices.push(NewData[i]);
                 row.push(i + 1);
@@ -380,12 +317,8 @@ function ImportSanPham({
             }
           }
           if (indices.length > 0) {
-            setMessageError(
-              `Hàng ${row.join(", ")} có mã sản phẩm và mã màu sắc trùng nhau`
-            );
-            Helper.alertError(
-              `Hàng ${row.join(", ")} có mã sản phẩm và mã màu sắc trùng nhau`
-            );
+            setMessageError(`Hàng ${row.join(", ")} có mã vật tư trùng nhau`);
+            Helper.alertError(`Hàng ${row.join(", ")} có mã vật tư trùng nhau`);
             setHangTrung(indices);
             setCheckDanger(true);
           } else {
@@ -430,7 +363,7 @@ function ImportSanPham({
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_Donhang/import-excel`,
+          `lkn_DinhMucVatTu/import-excel`,
           "POST",
           dataView,
           "IMPORT",
@@ -446,18 +379,11 @@ function ImportSanPham({
       } else {
         let check = false;
         res.data.forEach((dt) => {
-          dt.tits_qtsx_ChiTiet =
-            dt.tits_qtsx_SanPham_Id + "_" + dt.tits_qtsx_MauSac_Id;
-          listSanPham.forEach((sp) => {
-            if (
-              dt.tits_qtsx_MauSac_Id === sp.tits_qtsx_MauSac_Id &&
-              dt.tits_qtsx_SanPham_Id === sp.tits_qtsx_SanPham_Id
-            ) {
+          listVatTu.forEach((sp) => {
+            if (dt.vatTu_Id === sp.vatTu_Id) {
               check = true;
-              setMessageError(
-                `Sản phẩm ${dt.tenSanPham} có màu ${dt.tenMauSac} đã được thêm`
-              );
-              dt.ghiChuImport = `Sản phẩm ${dt.tenSanPham} có màu ${dt.tenMauSac} đã được thêm`;
+              setMessageError(`Vật tư ${dt.tenVatTu} đã được thêm`);
+              dt.ghiChuImport = `Vật tư ${dt.tenVatTu} đã được thêm`;
             }
           });
         });
@@ -465,7 +391,7 @@ function ImportSanPham({
           setDataLoi(res.data);
           Helper.alertWarning(res.data[0].ghiChuImport);
         } else {
-          addSanPham(res.data);
+          addVatTu(res.data);
           setFileName(null);
           setDataView([]);
           openModalFS(false);
@@ -477,7 +403,7 @@ function ImportSanPham({
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận import thông tin sản phẩm",
+    title: "Xác nhận import thông tin vật tư",
     onOk: handleSubmit,
   };
   const modalXK = () => {
@@ -492,34 +418,26 @@ function ImportSanPham({
           return "red-row";
         }
       });
-    } else if (current.tenSanPham === undefined) {
+    } else if (current.tenVatTu === undefined) {
       setCheckDanger(true);
-      setMessageError("Tên sản phẩm không được rỗng");
+      setMessageError("Tên vật tư không được rỗng");
       return "red-row";
-    } else if (current.maSanPham === undefined) {
+    } else if (current.maVatTu === undefined) {
       setCheckDanger(true);
-      setMessageError("Mã sản phẩm không được rỗng");
+      setMessageError("Mã vật tư không được rỗng");
       return "red-row";
-    } else if (current.soLuong === undefined) {
+    } else if (current.dinhMuc === undefined) {
       setCheckDanger(true);
-      setMessageError("Số lượng không được rỗng");
+      setMessageError("Định mức");
       return "red-row";
-    } else if (current.maMauSac === undefined) {
+    } else if (current.dinhMucXaNhua === undefined) {
       setCheckDanger(true);
-      setMessageError("Mã màu sắc không được rỗng");
-      return "red-row";
-    } else if (current.donGia === undefined) {
-      setCheckDanger(true);
-      setMessageError("Đơn giá không được rỗng");
-      return "red-row";
-    } else if (current.phiVanChuyen === undefined) {
-      setCheckDanger(true);
-      setMessageError("Phí vận chuyển không được rỗng");
+      setMessageError("Định mức xả nhựa");
       return "red-row";
     } else if (DataLoi && DataLoi.length > 0) {
       let check = false;
       DataLoi.forEach((dt) => {
-        if (current.maSanPham.toString() === dt.maSanPham.toString()) {
+        if (current.maVatTu.toString() === dt.maVatTu.toString()) {
           check = true;
         }
       });
@@ -542,7 +460,7 @@ function ImportSanPham({
 
   return (
     <AntModal
-      title="Import thông tin sản phẩm"
+      title="Import thông tin vật tư"
       open={openModal}
       width={`80%`}
       closable={true}
@@ -636,4 +554,4 @@ function ImportSanPham({
   );
 }
 
-export default ImportSanPham;
+export default ImportDinhMucVatTu;

@@ -1,4 +1,8 @@
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -35,6 +39,7 @@ import {
 import AddVatTuModal from "./AddVatTuModal";
 import ModalTuChoi from "./ModalTuChoi";
 import AddSanPhamModal from "./AddSanPhamModal";
+import ImportDinhMucVatTu from "./ImportDinhMucVatTu";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -145,6 +150,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
   const [ActiveModal, setActiveModal] = useState(false);
   const [ActiveModalSanPham, setActiveModalSanPham] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
+  const [ActiveModalImport, setActiveModalImport] = useState(false);
 
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
@@ -407,6 +413,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
           } else {
             res.data.isBatBuoc = false;
           }
+          console.log(res.data);
           setListVatTu([...listVatTu, res.data]);
           setFieldTouch(true);
         }
@@ -1002,6 +1009,13 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                 >
                   Chọn sản phẩm
                 </Button>
+                <Button
+                  icon={<UploadOutlined />}
+                  type="primary"
+                  onClick={() => setActiveModalImport(true)}
+                >
+                  Import
+                </Button>
               </Col>
             ) : null}
           </Row>
@@ -1057,6 +1071,11 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
         openModal={ActiveModalTuChoi}
         openModalFS={setActiveModalTuChoi}
         saveTuChoi={saveTuChoi}
+      />
+      <ImportDinhMucVatTu
+        openModal={ActiveModalImport}
+        listVatTu={listVatTu}
+        openModalFS={setActiveModalImport}
       />
     </div>
   );
