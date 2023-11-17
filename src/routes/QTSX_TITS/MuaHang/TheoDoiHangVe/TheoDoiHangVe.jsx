@@ -31,12 +31,10 @@ function TheoDoiHangVe({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
-  const [ListNhomVatTu, setListNhomVatTu] = useState([]);
-  const [NhomVatTu, setNhomVatTu] = useState("");
+
   useEffect(() => {
     if (permission && permission.view) {
-      getNhomVatTu();
-      loadData(keyword, NhomVatTu, FromDate, ToDate, page);
+      loadData(keyword, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -49,52 +47,29 @@ function TheoDoiHangVe({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, nhomVatTu_Id, tuNgay, denNgay, page) => {
+  const loadData = (keyword, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
       keyword,
-      nhomVatTu_Id,
       tuNgay,
       denNgay,
       page,
     });
     dispatch(
       fetchStart(
-        `lkn_PhieuNhanHang/list-thong-tin-hang-ve?${param}`,
+        `tits_qtsx_PhieuNhanHang/theo-doi-hang-ve?${param}`,
         "GET",
         null,
         "LIST"
       )
     );
   };
-  const getNhomVatTu = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `NhomVatTu?page=-1&&donviid=${INFO.donVi_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListNhomVatTu(res.data);
-        } else {
-          setListNhomVatTu([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
+
   /**
    * Tìm kiếm sản phẩm
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, NhomVatTu, FromDate, ToDate, page);
+    loadData(keyword, FromDate, ToDate, page);
   };
 
   /**
@@ -105,64 +80,46 @@ function TheoDoiHangVe({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, NhomVatTu, FromDate, ToDate, page);
+      loadData(val.target.value, FromDate, ToDate, page);
     }
   };
 
-  const renderColumn = (record, value) => {
-    if (value === "ngayHangVe") {
+  const renderColumn = (value, key) => {
+    if (key === "ngayNhan") {
       return (
         <div>
-          {record.ngayHangVe !== "Chưa xác định" ? (
-            JSON.parse(record.ngayHangVe).map((nhv) => {
+          {value &&
+            value.map((nn) => {
               return (
                 <Tag
                   style={{
-                    marginRight: 5,
                     color: "#0469B9",
                     fontSize: 13,
                   }}
                 >
-                  {nhv.ngayHangVe}
+                  {nn.ngay} (SL: {nn.soLuong})
                 </Tag>
               );
-            })
-          ) : (
-            <Tag
-              style={{
-                marginRight: 5,
-                color: "red",
-                fontSize: 13,
-              }}
-            >
-              {record.ngayHangVe}
-            </Tag>
-          )}
+            })}
         </div>
       );
     }
-    if (value === "userThuMua") {
+    if (key === "ketQua") {
       return (
         <div>
-          {record.userThuMua !== null ? (
+          {value && (
             <Tag
               style={{
-                marginRight: 5,
-                color: "#0469B9",
+                color:
+                  value === "Chưa nhận hàng"
+                    ? "red"
+                    : value === "Đang giao hàng"
+                    ? "orange"
+                    : "blue",
                 fontSize: 13,
               }}
             >
-              {record.userThuMua}
-            </Tag>
-          ) : (
-            <Tag
-              style={{
-                marginRight: 5,
-                color: "red",
-                fontSize: 13,
-              }}
-            >
-              Chưa xác định
+              {value}
             </Tag>
           )}
         </div>
@@ -178,6 +135,24 @@ function TheoDoiHangVe({ match, history, permission }) {
       align: "center",
       width: 50,
       fixed: "left",
+    },
+    {
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
+      align: "center",
+      width: 130,
+      fixed: "left",
+      filters: removeDuplicates(
+        map(data, (d) => {
+          return {
+            text: d.maVatTu,
+            value: d.maVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maVatTu.includes(value),
+      filterSearch: true,
     },
     {
       title: "Tên vật tư",
@@ -198,93 +173,54 @@ function TheoDoiHangVe({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Nhóm vật tư",
-      dataIndex: "tenNhomVatTu",
-      key: "tenNhomVatTu",
+      title: "Loại vật tư",
+      dataIndex: "tenLoaiVatTu",
+      key: "tenLoaiVatTu",
       align: "center",
       width: 120,
       filters: removeDuplicates(
         map(data, (d) => {
           return {
-            text: d.tenNhomVatTu,
-            value: d.tenNhomVatTu,
+            text: d.tenLoaiVatTu,
+            value: d.tenLoaiVatTu,
           };
         })
       ),
-      onFilter: (value, record) => record.tenNhomVatTu.includes(value),
+      onFilter: (value, record) => record.tenLoaiVatTu.includes(value),
       filterSearch: true,
-    },
-
-    {
-      title: "Hạng mục sử dụng",
-      dataIndex: "hangMucSuDung",
-      key: "hangMucSuDung",
-      align: "center",
-      width: 100,
-      filters: removeDuplicates(
-        map(data, (d) => {
-          return {
-            text: d.hangMucSuDung,
-            value: d.hangMucSuDung,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.hangMucSuDung.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Ngày dự kiến hoàn thành",
-      dataIndex: "ngayHoanThanhDuKien",
-      key: "ngayHoanThanhDuKien",
-      align: "center",
-      width: 140,
-      filters: removeDuplicates(
-        map(data, (d) => {
-          return {
-            text: d.ngayHoanThanhDuKien,
-            value: d.ngayHoanThanhDuKien,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.ngayHoanThanhDuKien.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Ngày xác nhận hàng về",
-      dataIndex: "ngayXacNhanHangVe",
-      key: "ngayXacNhanHangVe",
-      align: "center",
-      width: 140,
-    },
-    {
-      title: "CV Thu mua",
-      key: "userThuMua",
-      align: "center",
-      width: 180,
-      render: (record) => renderColumn(record, "userThuMua"),
-    },
-    {
-      title: "Ngày nhận hàng",
-      key: "ngayHangVe",
-      align: "center",
-      width: 140,
-      render: (record) => renderColumn(record, "ngayHangVe"),
     },
     {
       title: "ĐVT",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
+      dataIndex: "donViTinh",
+      key: "donViTinh",
       align: "center",
       width: 80,
       filters: removeDuplicates(
         map(data, (d) => {
           return {
-            text: d.tenDonViTinh,
-            value: d.tenDonViTinh,
+            text: d.donViTinh,
+            value: d.donViTinh,
           };
         })
       ),
-      onFilter: (value, record) => record.tenDonViTinh.includes(value),
+      onFilter: (value, record) => record.donViTinh.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "CV thu mua",
+      dataIndex: "tenChuyenVienThuMua",
+      key: "tenChuyenVienThuMua",
+      align: "center",
+      width: 180,
+      filters: removeDuplicates(
+        map(data, (d) => {
+          return {
+            text: d.tenChuyenVienThuMua,
+            value: d.tenChuyenVienThuMua,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenChuyenVienThuMua.includes(value),
       filterSearch: true,
     },
     {
@@ -295,16 +231,58 @@ function TheoDoiHangVe({ match, history, permission }) {
       width: 80,
     },
     {
-      title: "SL hàng nhận",
-      dataIndex: "soLuongNhan",
-      key: "soLuongNhan",
+      title: "Đơn hàng",
+      dataIndex: "maPhieu",
+      key: "maPhieu",
+      align: "center",
+      width: 120,
+      filters: removeDuplicates(
+        map(data, (d) => {
+          return {
+            text: d.maPhieu,
+            value: d.maPhieu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maPhieu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Ngày dự kiến giao",
+      dataIndex: "ngayGiaoDuKien",
+      key: "ngayGiaoDuKien",
+      align: "center",
+      width: 140,
+      filters: removeDuplicates(
+        map(data, (d) => {
+          return {
+            text: d.ngayGiaoDuKien,
+            value: d.ngayGiaoDuKien,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayGiaoDuKien.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Ngày nhận hàng",
+      dataIndex: "ngayNhan",
+      key: "ngayNhan",
+      align: "center",
+      width: 160,
+      render: (value) => renderColumn(value, "ngayNhan"),
+    },
+    {
+      title: "SL nhận",
+      dataIndex: "tongSoLuongNhan",
+      key: "tongSoLuongNhan",
       align: "center",
       width: 80,
     },
     {
-      title: "SL còn thiếu",
-      dataIndex: "soLuongConThieu",
-      key: "soLuongConThieu",
+      title: "SL thiếu",
+      dataIndex: "soLuongThieu",
+      key: "soLuongThieu",
       align: "center",
       width: 80,
     },
@@ -320,7 +298,7 @@ function TheoDoiHangVe({ match, history, permission }) {
       dataIndex: "ketQua",
       key: "ketQua",
       align: "center",
-      width: 100,
+      width: 140,
       filters: removeDuplicates(
         map(data, (d) => {
           return {
@@ -331,13 +309,14 @@ function TheoDoiHangVe({ match, history, permission }) {
       ),
       onFilter: (value, record) => record.ketQua.includes(value),
       filterSearch: true,
+      render: (value) => renderColumn(value, "ketQua"),
     },
     {
       title: "Ghi chú",
       dataIndex: "ghiChu",
       key: "ghiChu",
       align: "center",
-      width: 100,
+      width: 130,
     },
   ];
 
@@ -363,22 +342,13 @@ function TheoDoiHangVe({ match, history, permission }) {
     };
   });
 
-  const handleOnSelectNhomVatTu = (val) => {
-    setNhomVatTu(val);
-    setPage(1);
-    loadData(keyword, val, FromDate, ToDate, 1);
-  };
-  const handleClearNhomVatTu = (val) => {
-    setNhomVatTu("");
-    setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
-  };
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    loadData(keyword, NhomVatTu, dateString[0], dateString[1], 1);
+    loadData(keyword, dateString[0], dateString[1], 1);
   };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -387,33 +357,7 @@ function TheoDoiHangVe({ match, history, permission }) {
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Nhóm vật tư:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListNhomVatTu ? ListNhomVatTu : []}
-              placeholder="Chọn nhóm vật tư"
-              optionsvalue={["id", "tenNhomVatTu"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectNhomVatTu}
-              value={NhomVatTu}
-              onChange={(value) => setNhomVatTu(value)}
-              allowClear
-              onClear={handleClearNhomVatTu}
-            />
-          </Col>
-
+        <Row style={{ marginBottom: 8 }}>
           <Col
             xxl={6}
             xl={8}
@@ -434,7 +378,6 @@ function TheoDoiHangVe({ match, history, permission }) {
               allowClear={false}
             />
           </Col>
-
           <Col
             xxl={6}
             xl={8}
@@ -461,7 +404,7 @@ function TheoDoiHangVe({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 1200, y: "55vh" }}
+          scroll={{ x: 1720, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

@@ -26,6 +26,7 @@ import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
+
 function PhieuNhanHang({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
@@ -34,12 +35,10 @@ function PhieuNhanHang({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
-  const [ListUserYeuCau, setListUserYeuCau] = useState([]);
-  const [UserYeuCau, setUserYeuCau] = useState("");
+
   useEffect(() => {
     if (permission && permission.view) {
-      getUserYeuCau();
-      loadData(keyword, UserYeuCau, FromDate, ToDate, page);
+      loadData(keyword, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -52,46 +51,24 @@ function PhieuNhanHang({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, useryeucau_Id, tuNgay, denNgay, page) => {
+  const loadData = (keyword, NgayBatDau, NgayKetThuc, page) => {
     const param = convertObjectToUrlParams({
-      useryeucau_Id,
-      donVi_Id: INFO.donVi_Id,
-      tuNgay,
-      denNgay,
       keyword,
+      NgayBatDau,
+      NgayKetThuc,
       page,
     });
-    dispatch(fetchStart(`lkn_PhieuNhanHang?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(`tits_qtsx_PhieuNhanHang?${param}`, "GET", null, "LIST")
+    );
   };
-  const getUserYeuCau = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuNhanHang/list-user-lap-phieu-nhan-hang`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListUserYeuCau(res.data);
-        } else {
-          setListUserYeuCau([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
+
   /**
    * Tìm kiếm sản phẩm
    *
    */
-  const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, UserYeuCau, FromDate, ToDate, page);
+  const onSearchPhieuNhanHang = () => {
+    loadData(keyword, FromDate, ToDate, page);
   };
 
   /**
@@ -102,7 +79,7 @@ function PhieuNhanHang({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, UserYeuCau, FromDate, ToDate, page);
+      loadData(val.target.value, FromDate, ToDate, page);
     }
   };
   /**
@@ -115,7 +92,7 @@ function PhieuNhanHang({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
-      item.createdBy === INFO.user_Id &&
+      item.nguoiTaoPhieu_Id === INFO.user_Id &&
       moment(item.ngayTaoPhieu, "DD/MM/YYYY") >=
         moment(getDateNow(-1), "DD/MM/YYYY") ? (
         <Link
@@ -135,7 +112,7 @@ function PhieuNhanHang({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
-      item.createdBy === INFO.user_Id &&
+      item.nguoiTaoPhieu_Id === INFO.user_Id &&
       moment(item.ngayTaoPhieu, "DD/MM/YYYY") >=
         moment(getDateNow(-1), "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
@@ -158,12 +135,7 @@ function PhieuNhanHang({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maPhieuNhanHang,
-      "phiếu nhận hàng"
-    );
+    ModalDeleteConfirm(deleteItemAction, item, item.maPhieu, "phiếu nhận hàng");
   };
 
   /**
@@ -172,14 +144,14 @@ function PhieuNhanHang({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuNhanHang?id=${item.id}`;
+    let url = `tits_qtsx_PhieuNhanHang?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, UserYeuCau, FromDate, ToDate, page);
+          loadData(keyword, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -193,7 +165,7 @@ function PhieuNhanHang({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, UserYeuCau, FromDate, ToDate, pagination);
+    loadData(keyword, FromDate, ToDate, pagination);
   };
 
   /**
@@ -216,7 +188,7 @@ function PhieuNhanHang({ match, history, permission }) {
           onClick={handleRedirect}
           disabled={permission && !permission.add}
         >
-          Tạo phiếu nhận
+          Tạo phiếu
         </Button>
       </>
     );
@@ -234,10 +206,10 @@ function PhieuNhanHang({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuNhanHang}
+          {val.maPhieu}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuNhanHang}</span>
+        <span disabled>{val.maPhieu}</span>
       );
     return <div>{detail}</div>;
   };
@@ -251,89 +223,72 @@ function PhieuNhanHang({ match, history, permission }) {
     },
     {
       title: "Mã phiếu nhận hàng",
-      key: "maPhieuNhanHang",
+      key: "maPhieu",
       align: "center",
       render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieuNhanHang,
-            value: d.maPhieuNhanHang,
+            text: d.maPhieu,
+            value: d.maPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.maPhieuNhanHang.includes(value),
+      onFilter: (value, record) => record.maPhieu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Người tạo phiếu",
+      dataIndex: "nguoiTaoPhieu",
+      key: "nguoiTaoPhieu",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.nguoiTaoPhieu,
+            value: d.nguoiTaoPhieu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.nguoiTaoPhieu.includes(value),
       filterSearch: true,
     },
     {
       title: "Mã phiếu mua hàng",
-      dataIndex: "maPhieuYeuCau",
-      key: "maPhieuYeuCau",
+      dataIndex: "maPhieuMuaHang",
+      key: "maPhieuMuaHang",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieuYeuCau,
-            value: d.maPhieuYeuCau,
+            text: d.maPhieuMuaHang,
+            value: d.maPhieuMuaHang,
           };
         })
       ),
-      onFilter: (value, record) => record.maPhieuYeuCau.includes(value),
-      filterSearch: true,
-    },
-
-    {
-      title: "Ngày hàng về",
-      dataIndex: "ngayHangVe",
-      key: "ngayHangVe",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.ngayHangVe,
-            value: d.ngayHangVe,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.ngayHangVe.includes(value),
+      onFilter: (value, record) => record.maPhieuMuaHang.includes(value),
       filterSearch: true,
     },
     {
-      title: "CV Thu mua",
-      dataIndex: "tenThuMua",
-      key: "tenThuMua",
+      title: "Ngày tạo phiếu",
+      dataIndex: "ngayTaoPhieu",
+      key: "ngayTaoPhieu",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenThuMua,
-            value: d.tenThuMua,
+            text: d.ngayTaoPhieu,
+            value: d.ngayTaoPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.tenThuMua.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Người yêu cầu",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenNguoiYeuCau,
-            value: d.tenNguoiYeuCau,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenNguoiYeuCau.includes(value),
+      onFilter: (value, record) => record.ngayTaoPhieu.includes(value),
       filterSearch: true,
     },
     {
       title: "File đính kèm",
-      dataIndex: "fileDinhKem",
-      key: "fileDinhKem",
+      dataIndex: "file",
+      key: "file",
       align: "center",
       render: (val) => (
         <a href={BASE_URL_API + val} target="_blank" rel="noopener noreferrer">
@@ -372,22 +327,13 @@ function PhieuNhanHang({ match, history, permission }) {
     };
   });
 
-  const handleOnSelectUserYeuCau = (val) => {
-    setUserYeuCau(val);
-    setPage(1);
-    loadData(keyword, val, FromDate, ToDate, 1);
-  };
-  const handleClearUserYeuCau = (val) => {
-    setUserYeuCau("");
-    setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
-  };
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    loadData(keyword, UserYeuCau, dateString[0], dateString[1], 1);
+    loadData(keyword, dateString[0], dateString[1], 1);
   };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -398,30 +344,6 @@ function PhieuNhanHang({ match, history, permission }) {
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Người yêu cầu:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListUserYeuCau ? ListUserYeuCau : []}
-              placeholder="Chọn người yêu cầu"
-              optionsvalue={["nguoiLap_Id", "tennguoiLap"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectUserYeuCau}
-              value={UserYeuCau}
-              allowClear
-              onClear={handleClearUserYeuCau}
-            />
-          </Col>
           <Col
             xxl={6}
             xl={8}
@@ -459,8 +381,8 @@ function PhieuNhanHang({ match, history, permission }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchDeNghiMuaHang,
-                onSearch: onSearchDeNghiMuaHang,
+                onPressEnter: onSearchPhieuNhanHang,
+                onSearch: onSearchPhieuNhanHang,
                 allowClear: true,
                 placeholder: "Tìm kiếm",
               }}
