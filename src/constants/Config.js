@@ -1,6 +1,6 @@
 // export const BASE_URL_API = "http://erp-api.thacoindustries.com";
-export const BASE_URL_API = `http://10.14.7.215:1512`;
-// export const BASE_URL_API = `http://10.14.2.34:81`;
+// export const BASE_URL_API = `http://10.14.7.215:1512`;
+export const BASE_URL_API = `http://10.14.7.70:8585`;
 
 // export const BASE_URL_API = `http://113.176.118.58:82`;
 
@@ -288,6 +288,37 @@ export const DEFAULT_FORM_CONGDOAN = {
     span:
       window.innerWidth >= 1600
         ? 14
+        : window.innerWidth >= 1200
+        ? 15
+        : window.innerWidth >= 768
+        ? 17
+        : window.innerWidth >= 576
+        ? 16
+        : 17,
+  },
+};
+
+export const DEFAULT_FORM_XUATKHONGOAIQUAN = {
+  labelCol: {
+    span:
+      window.innerWidth >= 1600
+        ? 8
+        : window.innerWidth >= 1200
+        ? 9
+        : window.innerWidth >= 768
+        ? 6
+        : window.innerWidth >= 576
+        ? 8
+        : 7,
+    style: {
+      fontWeight: "bold",
+      marginLeft: window.innerWidth >= 1200 ? -15 : 0,
+    },
+  },
+  wrapperCol: {
+    span:
+      window.innerWidth >= 1600
+        ? 16
         : window.innerWidth >= 1200
         ? 15
         : window.innerWidth >= 768

@@ -19,16 +19,19 @@ const PhieuMuaHangNgoaiForm = asyncComponent(() =>
   import("./PhieuMuaHangNgoai/PhieuMuaHangNgoaiForm")
 );
 
-const TheoDoiDonHang = asyncComponent(() =>
-  import("./TheoDoiDonHang/TheoDoiDonHang")
+const PhieuYeuCauXuatKhoNgoaiQuan = asyncComponent(() =>
+  import("./PhieuYeuCauXuatKhoNgoaiQuan/PhieuYeuCauXuatKhoNgoaiQuan")
 );
-const TheoDoiDonHangForm = asyncComponent(() =>
-  import("./TheoDoiDonHang/TheoDoiDonHangForm")
+const PhieuYeuCauXuatKhoNgoaiQuanForm = asyncComponent(() =>
+  import("./PhieuYeuCauXuatKhoNgoaiQuan/PhieuYeuCauXuatKhoNgoaiQuanForm")
 );
+
+//Theo dõi hàng về
 const TheoDoiHangVe = asyncComponent(() =>
   import("./TheoDoiHangVe/TheoDoiHangVe")
 );
 
+//Phiếu nhận hàng
 const PhieuNhanHang = asyncComponent(() =>
   import("./PhieuNhanHang/PhieuNhanHang")
 );
@@ -66,7 +69,6 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(PhieuMuaHangNoiBoForm, menus, pathname, permission)}
       />
-
       {/* Phiếu mua hàng ngoài */}
       <Route
         path={`${match.url}/phieu-mua-hang-ngoai`}
@@ -93,17 +95,46 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(PhieuMuaHangNgoaiForm, menus, pathname, permission)}
       />
-
       {/* Theo dõi đơn hàng */}
       <Route
-        path={`${match.url}/theo-doi-don-hang`}
+        path={`${match.url}/xuat-kho-ngoai-quan`}
         exact
-        component={Auth(TheoDoiDonHang, menus, pathname, permission)}
+        component={Auth(
+          PhieuYeuCauXuatKhoNgoaiQuan,
+          menus,
+          pathname,
+          permission
+        )}
       />
       <Route
-        path={`${match.url}/theo-doi-don-hang/:id/chi-tiet`}
+        path={`${match.url}/xuat-kho-ngoai-quan/them-moi`}
         exact
-        component={Auth(TheoDoiDonHangForm, menus, pathname, permission)}
+        component={Auth(
+          PhieuYeuCauXuatKhoNgoaiQuanForm,
+          menus,
+          pathname,
+          permission
+        )}
+      />
+      <Route
+        path={`${match.url}/xuat-kho-ngoai-quan/:id/chinh-sua`}
+        exact
+        component={Auth(
+          PhieuYeuCauXuatKhoNgoaiQuanForm,
+          menus,
+          pathname,
+          permission
+        )}
+      />
+      <Route
+        path={`${match.url}/xuat-kho-ngoai-quan/:id/chi-tiet`}
+        exact
+        component={Auth(
+          PhieuYeuCauXuatKhoNgoaiQuanForm,
+          menus,
+          pathname,
+          permission
+        )}
       />
       <Route
         path={`${match.url}/theo-doi-hang-ve`}
