@@ -382,6 +382,12 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
+      title: "Đơn hàng",
+      dataIndex: "maPhieu",
+      key: "maPhieu",
+      align: "center",
+    },
+    {
       title: "Định mức",
       dataIndex: "dinhMuc",
       key: "dinhMuc",
@@ -607,59 +613,58 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         const datalist = values.phieumuahangngoai;
         if (!datalist.fileXacNhan) {
           Helpers.alertError("File xác nhận không được để trống");
-        } else {
-          if (datalist.fileXacNhan && datalist.fileXacNhan.file) {
-            console.log(info.fileXacNhan);
-            const formData = new FormData();
-            formData.append("file", datalist.fileXacNhan.file);
-            fetch(
-              info.fileXacNhan
-                ? `${BASE_URL_API}/api/Upload?stringPath=${info.fileXacNhan}`
-                : `${BASE_URL_API}/api/Upload`,
-              {
-                method: "POST",
-                body: formData,
-                headers: {
-                  Authorization: "Bearer ".concat(INFO.token),
-                },
-              }
-            )
-              .then((res) => res.json())
-              .then((data) => {
-                const newData = {
-                  ...datalist,
-                  ngayGiaoDuKien: datalist.ngayGiaoDuKien.format("DD/MM/YYYY"),
-                  fileXacNhan: data.path,
-                  id: id,
-                  isDuyet: true,
-                };
-                new Promise((resolve, reject) => {
-                  dispatch(
-                    fetchStart(
-                      `tits_qtsx_PhieuMuaHangNgoai/xac-nhan/${id}`,
-                      "PUT",
-                      newData,
-                      "XACNHAN",
-                      "",
-                      resolve,
-                      reject
-                    )
-                  );
-                })
-                  .then((res) => {
-                    if (res.status !== 409) {
-                      setFileXacNhan(null);
-                      setDisableUploadXacNhan(false);
-                      setFieldTouch(false);
-                      getInfo(id);
-                    }
-                  })
-                  .catch((error) => console.error(error));
+        } else if (!datalist.nguoiThuMua_Id) {
+          Helpers.alertError("Chuyên viên thu mua không được để trống");
+        } else if (datalist.fileXacNhan && datalist.fileXacNhan.file) {
+          const formData = new FormData();
+          formData.append("file", datalist.fileXacNhan.file);
+          fetch(
+            info.fileXacNhan
+              ? `${BASE_URL_API}/api/Upload?stringPath=${info.fileXacNhan}`
+              : `${BASE_URL_API}/api/Upload`,
+            {
+              method: "POST",
+              body: formData,
+              headers: {
+                Authorization: "Bearer ".concat(INFO.token),
+              },
+            }
+          )
+            .then((res) => res.json())
+            .then((data) => {
+              const newData = {
+                ...datalist,
+                ngayGiaoDuKien: datalist.ngayGiaoDuKien.format("DD/MM/YYYY"),
+                fileXacNhan: data.path,
+                id: id,
+                isDuyet: true,
+              };
+              new Promise((resolve, reject) => {
+                dispatch(
+                  fetchStart(
+                    `tits_qtsx_PhieuMuaHangNgoai/xac-nhan/${id}`,
+                    "PUT",
+                    newData,
+                    "XACNHAN",
+                    "",
+                    resolve,
+                    reject
+                  )
+                );
               })
-              .catch(() => {
-                console.log("upload failed.");
-              });
-          }
+                .then((res) => {
+                  if (res.status !== 409) {
+                    setFileXacNhan(null);
+                    setDisableUploadXacNhan(false);
+                    setFieldTouch(false);
+                    getInfo(id);
+                  }
+                })
+                .catch((error) => console.error(error));
+            })
+            .catch(() => {
+              console.log("upload failed.");
+            });
         }
       })
       .catch((error) => {
@@ -872,31 +877,6 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Địa chỉ giao hàng"
-                name={["phieumuahangngoai", "diaChiGiaoHang"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Input
-                  className="input-item"
-                  placeholder="Nhập địa chỉ giao hàng"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
                 label="Người nhận"
                 name={["phieumuahangngoai", "nguoiNhan_Id"]}
                 rules={[
@@ -1006,6 +986,31 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Địa chỉ giao hàng"
+                name={["phieumuahangngoai", "diaChiGiaoHang"]}
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <Input
+                  className="input-item"
+                  placeholder="Nhập địa chỉ giao hàng"
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
@@ -1308,7 +1313,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
-        itemData={ListVatTu.length !== 0 && ListVatTu}
+        itemData={ListVatTu && ListVatTu}
         DataThemVatTu={DataThemVatTu}
       />
     </div>

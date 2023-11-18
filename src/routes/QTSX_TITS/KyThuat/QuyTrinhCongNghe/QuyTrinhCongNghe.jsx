@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Row } from "antd";
+import { Card, Button, Divider, Tag, Col, Image, Row } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -9,7 +9,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
-import ImportVatTu from "./ImportVatTu";
 import {
   ModalDeleteConfirm,
   Table,
@@ -24,22 +23,22 @@ import {
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function VatTu({ match, history, permission }) {
+function QuyTrinhCongNghe({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
+  const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
+  const [LoaiSanPham, setLoaiSanPham] = useState(null);
   const [keyword, setKeyword] = useState("");
-  const [ActiveModal, setActiveModal] = useState(false);
-  const [ListLoaiVatTu, setListLoaiVatTu] = useState([]);
-  const [LoaiVatTu, setLoaiVatTu] = useState(null);
 
   useEffect(() => {
     if (permission && permission.view) {
-      getLoaiVatTu();
-      loadData(keyword, LoaiVatTu, page);
+      getLoaiSanPham();
+      getListData(LoaiSanPham, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -52,20 +51,22 @@ function VatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, tits_qtsx_LoaiVatTu_Id, page) => {
+  const getListData = (tits_qtsx_LoaiSanPham_Id, keyword, page) => {
     const param = convertObjectToUrlParams({
+      tits_qtsx_LoaiSanPham_Id,
       keyword,
-      tits_qtsx_LoaiVatTu_Id,
       page,
     });
-    dispatch(fetchStart(`tits_qtsx_VatTu?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(`tits_qtsx_QuyTrinhCongNghe?${param}`, "GET", null, "LIST")
+    );
   };
 
-  const getLoaiVatTu = () => {
+  const getLoaiSanPham = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          "tits_qtsx_LoaiVatTu?page=-1",
+          "tits_qtsx_LoaiSanPham?page=-1",
           "GET",
           null,
           "LIST",
@@ -77,20 +78,20 @@ function VatTu({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListLoaiVatTu(res.data);
+          setListLoaiSanPham(res.data);
         } else {
-          setListLoaiVatTu([]);
+          setListLoaiSanPham([]);
         }
       })
       .catch((error) => console.error(error));
   };
 
   /**
-   * Tìm kiếm sản phẩm
+   * Tìm kiếm người dùng
    *
    */
-  const onSearchVatTu = () => {
-    loadData(keyword, LoaiVatTu, page);
+  const onSearchQuyTrinhCongNghe = () => {
+    getListData(LoaiSanPham, keyword, page);
   };
 
   /**
@@ -101,7 +102,7 @@ function VatTu({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, LoaiVatTu, page);
+      getListData(LoaiSanPham, val.target.value, page);
     }
   };
   /**
@@ -118,24 +119,24 @@ function VatTu({ match, history, permission }) {
             pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
-          title="Sửa"
+          title="Sửa quy trình công nghệ"
         >
           <EditOutlined />
         </Link>
       ) : (
-        <span disabled title="Sửa">
+        <span disabled title="Sửa quy trình công nghệ">
           <EditOutlined />
         </span>
       );
     const deleteVal =
       permission && permission.del && !item.isUsed
-        ? { onClick: () => deleteItemFunc(item) }
+        ? { onClick: () => deleteItemFunc(item, "quy trình công nghệ") }
         : { disabled: true };
     return (
       <div>
         {editItem}
         <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa">
+        <a {...deleteVal} title="Xóa quy trình công nghệ">
           <DeleteOutlined />
         </a>
       </div>
@@ -148,8 +149,8 @@ function VatTu({ match, history, permission }) {
    * @returns
    * @memberof VaiTro
    */
-  const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maVatTu, "vật tư");
+  const deleteItemFunc = (item, title) => {
+    ModalDeleteConfirm(deleteItemAction, item, item.maQuyTrinhCongNghe, title);
   };
 
   /**
@@ -158,14 +159,14 @@ function VatTu({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_VatTu/${item.id}`;
+    let url = `tits_qtsx_QuyTrinhCongNghe/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, LoaiVatTu, page);
+          getListData(LoaiSanPham, keyword, page);
         }
       })
       .catch((error) => console.error(error));
@@ -179,7 +180,7 @@ function VatTu({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, LoaiVatTu, pagination);
+    getListData(LoaiSanPham, keyword, pagination);
   };
 
   /**
@@ -193,38 +194,9 @@ function VatTu({ match, history, permission }) {
     });
   };
 
-  const handleImport = () => {
-    setActiveModal(true);
-  };
-
-  const handleOnSelectLoaiVatTu = (value) => {
-    setLoaiVatTu(value);
-    setPage(1);
-    loadData(keyword, value, 1);
-  };
-
-  const handleClearLoaiVatTu = (value) => {
-    setLoaiVatTu(null);
-    setPage(1);
-    loadData(keyword, null, 1);
-  };
-
-  const refeshData = () => {
-    loadData(keyword, LoaiVatTu, page);
-  };
-
   const addButtonRender = () => {
     return (
       <>
-        <Button
-          icon={<ImportOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleImport}
-          disabled={permission && !permission.add}
-        >
-          Import
-        </Button>
         <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
@@ -241,6 +213,23 @@ function VatTu({ match, history, permission }) {
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
 
+  const renderFile = (item) => {
+    if (!isEmpty(item.file)) {
+      return (
+        <span>
+          <a
+            target="_blank"
+            href={BASE_URL_API + item.file}
+            rel="noopener noreferrer"
+          >
+            {item.file.split("/")[5]}
+          </a>
+        </span>
+      );
+    }
+    return null;
+  };
+
   let renderHead = [
     {
       title: "STT",
@@ -250,148 +239,126 @@ function VatTu({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      title: "Mã quy trình",
+      dataIndex: "maQuyTrinhCongNghe",
+      key: "maQuyTrinhCongNghe",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maVatTu,
-            value: d.maVatTu,
+            text: d.maQuyTrinhCongNghe,
+            value: d.maQuyTrinhCongNghe,
           };
         })
       ),
-      onFilter: (value, record) => record.maVatTu.includes(value),
+      onFilter: (value, record) => record.maQuyTrinhCongNghe.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      title: "Tên quy trình",
+      dataIndex: "tenQuyTrinhCongNghe",
+      key: "tenQuyTrinhCongNghe",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenVatTu,
-            value: d.tenVatTu,
+            text: d.tenQuyTrinhCongNghe,
+            value: d.tenQuyTrinhCongNghe,
           };
         })
       ),
-      onFilter: (value, record) => record.tenVatTu.includes(value),
+      onFilter: (value, record) => record.tenQuyTrinhCongNghe.includes(value),
       filterSearch: true,
     },
     {
-      title: "Loại vật tư",
-      dataIndex: "tenLoaiVatTu",
-      key: "tenLoaiVatTu",
+      title: "Sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenLoaiVatTu,
-            value: d.tenLoaiVatTu,
+            text: d.tenSanPham,
+            value: d.tenSanPham,
           };
         })
       ),
-      onFilter: (value, record) => record.tenLoaiVatTu.includes(value),
+      onFilter: (value, record) => record.tenSanPham.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Loại sản phẩm",
+      dataIndex: "tenLoaiSanPham",
+      key: "tenLoaiSanPham",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenLoaiSanPham,
+            value: d.tenLoaiSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenLoaiSanPham.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Ngày ban hành",
+      dataIndex: "ngayBanHanh",
+      key: "ngayBanHanh",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayBanHanh,
+            value: d.ngayBanHanh,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayBanHanh.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Ngày hiệu lực",
+      dataIndex: "ngayHieuLuc",
+      key: "ngayHieuLuc",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayHieuLuc,
+            value: d.ngayHieuLuc,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayHieuLuc.includes(value),
       filterSearch: true,
     },
     {
       title: "Thông số kỹ thuật",
-      dataIndex: "thongSoKyThuat",
-      key: "thongSoKyThuat",
+      key: "file",
       align: "center",
+      render: (record) => renderFile(record),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.thongSoKyThuat,
-            value: d.thongSoKyThuat,
+            text: d.file,
+            value: d.file,
           };
         })
       ),
-      onFilter: (value, record) => record.thongSoKyThuat.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Màu sắc",
-      dataIndex: "tenMauSac",
-      key: "tenMauSac",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenMauSac,
-            value: d.tenMauSac,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenMauSac.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenDonViTinh,
-            value: d.tenDonViTinh,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenDonViTinh.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Đơn vị quy đổi",
-      dataIndex: "tenDonViTinhQuyDoi",
-      key: "tenDonViTinhQuyDoi",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenDonViTinhQuyDoi,
-            value: d.tenDonViTinhQuyDoi,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenDonViTinhQuyDoi.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Tỉ lệ quy đổi",
-      dataIndex: "tiLeQuyDoi",
-      key: "tiLeQuyDoi",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tiLeQuyDoi,
-            value: d.tiLeQuyDoi,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tiLeQuyDoi.includes(value),
+      onFilter: (value, record) => record.file.includes(value),
       filterSearch: true,
     },
     {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 80,
+      width: 100,
       render: (value) => actionContent(value),
     },
   ];
 
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
@@ -408,11 +375,30 @@ function VatTu({ match, history, permission }) {
     };
   });
 
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+
+  const handleOnSelectLoaiSanPham = (value) => {
+    setLoaiSanPham(value);
+    setPage(1);
+    getListData(value, keyword, 1);
+  };
+
+  const handleClearLoaiSanPham = (value) => {
+    setLoaiSanPham(null);
+    setPage(1);
+    getListData(null, keyword, 1);
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Vật tư"
-        description="Danh sách vật tư"
+        title="Quy trình công nghệ sản phẩm"
+        description="Danh sách quy trình công nghệ sản phẩm"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom">
@@ -429,19 +415,19 @@ function VatTu({ match, history, permission }) {
               alignItems: "center",
             }}
           >
-            <span style={{ width: "100px" }}>Loại vật tư:</span>
+            <span style={{ width: "120px" }}>Loại sản phẩm:</span>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListLoaiVatTu ? ListLoaiVatTu : []}
-              placeholder="Chọn loại vật tư"
-              optionsvalue={["id", "tenLoaiVatTu"]}
-              style={{ width: "calc(100% - 100px)" }}
+              data={ListLoaiSanPham ? ListLoaiSanPham : []}
+              placeholder="Chọn loại sản phẩm"
+              optionsvalue={["id", "tenLoaiSanPham"]}
+              style={{ width: "calc(100% - 120px)" }}
               showSearch
-              onSelect={handleOnSelectLoaiVatTu}
+              onSelect={handleOnSelectLoaiSanPham}
               optionFilterProp="name"
               allowClear
-              onClear={handleClearLoaiVatTu}
-              value={LoaiVatTu}
+              onClear={handleClearLoaiSanPham}
+              value={LoaiSanPham}
             />
           </Col>
           <Col
@@ -458,7 +444,7 @@ function VatTu({ match, history, permission }) {
           >
             <span
               style={{
-                width: "100px",
+                width: "120px",
               }}
             >
               Tìm kiếm:
@@ -477,8 +463,8 @@ function VatTu({ match, history, permission }) {
                   loading,
                   value: keyword,
                   onChange: onChangeKeyword,
-                  onPressEnter: onSearchVatTu,
-                  onSearch: onSearchVatTu,
+                  onPressEnter: onSearchQuyTrinhCongNghe,
+                  onSearch: onSearchQuyTrinhCongNghe,
                   placeholder: "Nhập từ khóa",
                   allowClear: true,
                 }}
@@ -490,7 +476,7 @@ function VatTu({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 700, y: "50vh" }}
+          scroll={{ x: 700, y: "70vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -509,13 +495,8 @@ function VatTu({ match, history, permission }) {
           loading={loading}
         />
       </Card>
-      <ImportVatTu
-        openModal={ActiveModal}
-        openModalFS={setActiveModal}
-        refesh={refeshData}
-      />
     </div>
   );
 }
 
-export default VatTu;
+export default QuyTrinhCongNghe;

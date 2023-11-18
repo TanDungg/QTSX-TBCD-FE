@@ -23,6 +23,8 @@ const DanhMuc_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/DanhMuc"));
 const HeThong_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/HeThong"));
 const KeHoach_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/KeHoach"));
 const MuaHang_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/MuaHang"));
+const KyThuat_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/KyThuat"));
+const SanXuat_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/SanXuat"));
 
 const App = ({ match, menus, location }) => {
   const { pathname } = location;
@@ -95,6 +97,14 @@ const App = ({ match, menus, location }) => {
         <Route
           path={`${match.url}mua-hang-qtsx-tits`}
           component={Auth(MuaHang_QTSX_TITS, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}ky-thuat-qtsx-tits`}
+          component={Auth(KyThuat_QTSX_TITS, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}san-xuat-qtsx-tits`}
+          component={Auth(SanXuat_QTSX_TITS, menus, pathname)}
         />
         <Route path="*" component={Auth(Home_ERP, menus, pathname)} />
       </Switch>

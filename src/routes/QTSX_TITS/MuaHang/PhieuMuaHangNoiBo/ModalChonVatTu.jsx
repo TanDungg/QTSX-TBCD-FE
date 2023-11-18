@@ -31,7 +31,7 @@ import {
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
+function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
   const INFO = {
@@ -44,10 +44,12 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
   const { resetFields, setFieldsValue } = form;
   const [DataListVatTu, setDataListVatTu] = useState([]);
   const [ListVatTu, setListVatTu] = useState([]);
+  const [ListDonHang, setListDonHang] = useState([]);
 
   useEffect(() => {
     if (openModal) {
       getListVatTu();
+      getListDonHang();
       setFieldsValue({
         themvattu: {
           ngay: moment(getDateNow(), "DD/MM/YYYY"),
@@ -60,7 +62,7 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
-  const getListVatTu = (info) => {
+  const getListVatTu = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -94,6 +96,29 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
         setListVatTu(newData);
       } else {
         setListVatTu([]);
+      }
+    });
+  };
+
+  const getListDonHang = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_DonHang?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        const newData = res.data.filter((d) => d.isXacNhan === true);
+        setListDonHang(newData);
+      } else {
+        setListDonHang([]);
       }
     });
   };
@@ -179,6 +204,12 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
       align: "center",
     },
     {
+      title: "Đơn hàng",
+      dataIndex: "maPhieu",
+      key: "maPhieu",
+      align: "center",
+    },
+    {
       title: "Số lượng",
       dataIndex: "soLuong",
       key: "soLuong",
@@ -237,12 +268,16 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
   const onFinish = (values) => {
     const data = values.themvattu;
     const listvattu = ListVatTu.filter((d) => d.id === data.tits_qtsx_VatTu_Id);
+    const donhang = ListDonHang.filter(
+      (d) => d.id === data.tits_qtsx_DonHang_Id
+    );
     const DataList = {
       ...data,
       ...listvattu[0],
+      tenDonHang: donhang[0].tenDonHang,
+      maPhieu: donhang[0].maPhieu,
       thanhTien: parseFloat(data.soLuong * data.donGia),
       ngay: data.ngay.format("DD/MM/YYYY"),
-      tits_qtsx_DonHang_Id: "c758e53f-ebf8-4706-a2a5-66eb4d03a278",
     };
     setDataListVatTu([...DataListVatTu, DataList]);
 
@@ -358,6 +393,36 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
+                  label="Đơn đặt hàng"
+                  name={["themvattu", "tits_qtsx_DonHang_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListDonHang}
+                    placeholder="Chọn đơn đặt hàng"
+                    optionsvalue={["id", "maPhieu"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    optionFilterProp="name"
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
                   label="Số lượng"
                   name={["themvattu", "soLuong"]}
                   rules={[
@@ -375,36 +440,6 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
                   />
                 </FormItem>
               </Col>
-              {/* <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Đơn đặt hàng"
-                  name={["themvattu", "tits_qtsx_DonHang_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListDonViTinh}
-                    placeholder="Chọn đơn đặt hàng"
-                    optionsvalue={["id", "tenDonViTinh"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp="name"
-                  />
-                </FormItem>
-              </Col> */}
               <Col
                 xxl={12}
                 xl={12}
@@ -488,4 +523,4 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
   );
 }
 
-export default ModalTuChoi;
+export default ModalChonVatTu;
