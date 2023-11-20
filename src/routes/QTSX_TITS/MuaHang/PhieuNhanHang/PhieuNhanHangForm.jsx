@@ -173,7 +173,13 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           setInfo(data);
 
           const chiTiet =
-            data.chiTiet_NhanHangs && JSON.parse(data.chiTiet_NhanHangs);
+            data.chiTiet_NhanHangs &&
+            JSON.parse(data.chiTiet_NhanHangs).map((data) => {
+              return {
+                ...data,
+                soLuongCu: data.soLuong,
+              };
+            });
           setListVatTu(chiTiet);
 
           if (data.file) {
@@ -280,7 +286,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
         ct.tits_qtsx_PhieuMuaHangChiTiet_Id ===
         item.tits_qtsx_PhieuMuaHangChiTiet_Id
       ) {
-        ct.soLuong = SoLuongNhan;
+        ct.soLuongDaNhap = SoLuongNhan;
       }
     });
     setListVatTu(newData);
@@ -299,7 +305,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       }
     });
     return type === "detail" ? (
-      item.soLuong
+      item.soLuongDaNhap
     ) : (
       <>
         <Input
@@ -309,7 +315,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           }}
           className={`input-item`}
           type="number"
-          value={item.soLuong}
+          value={item.soLuongDaNhap}
           disabled={type === "new" || type === "edit" ? false : true}
           onChange={(val) => handleInputChange(val, item)}
         />
@@ -349,7 +355,6 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       key: "tenDonViTinh",
       align: "center",
     },
-
     {
       title: "Số lượng mua",
       dataIndex: "soLuongMua",
@@ -358,7 +363,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng nhận",
-      key: "soLuong",
+      key: "soLuongDaNhap",
       align: "center",
       render: (record) => rendersoLuong(record),
     },
@@ -497,6 +502,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     if (type === "new") {
       const newData = {
         ...phieunhanhang,
+
         ngayTaoPhieu: phieunhanhang.ngayTaoPhieu.format("DD/MM/YYYY"),
         chiTiet_NhanHangs: listVatTu,
       };
@@ -534,10 +540,10 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       const newData = {
         ...phieunhanhang,
         id: id,
+        tits_qtsx_PhieuMuaHang_Id: info.tits_qtsx_PhieuMuaHang_Id,
         ngayTaoPhieu: phieunhanhang.ngayTaoPhieu.format("DD/MM/YYYY"),
         chiTiet_NhanHangs: listVatTu,
       };
-      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -581,6 +587,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
         return {
           ...data,
           soLuong: data.soLuongMua,
+          soLuongDaNhap: data.soLuongMua - data.soLuongDaGiao,
         };
       });
     setListVatTu(data);
@@ -677,28 +684,43 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
               xs={24}
               style={{ marginBottom: 8 }}
             >
-              <FormItem
-                label="Mã phiếu mua hàng"
-                name={["phieunhanhang", "tits_qtsx_PhieuMuaHang_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListPhieuMuaHang}
-                  placeholder="Chọn mã phiếu mua hàng"
-                  optionsvalue={["id", "maPhieu"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  onSelect={hanldeSelectPhieu}
-                  optionFilterProp="name"
-                  disabled={type === "new" ? false : true}
-                />
-              </FormItem>
+              {type === "new" ? (
+                <FormItem
+                  label="Mã phiếu mua hàng"
+                  name={["phieunhanhang", "tits_qtsx_PhieuMuaHang_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListPhieuMuaHang}
+                    placeholder="Chọn mã phiếu mua hàng"
+                    optionsvalue={["id", "maPhieu"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    onSelect={hanldeSelectPhieu}
+                    optionFilterProp="name"
+                    disabled={type === "new" ? false : true}
+                  />
+                </FormItem>
+              ) : (
+                <FormItem
+                  label="Mã phiếu mua hàng"
+                  name={["phieunhanhang", "maPhieuMuaHang"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Input className="input-item" disabled={true} />
+                </FormItem>
+              )}
             </Col>
             <Col
               xxl={12}
@@ -709,27 +731,42 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
               xs={24}
               style={{ marginBottom: 8 }}
             >
-              <FormItem
-                label="Người yêu cầu"
-                name={["phieunhanhang", "tits_qtsx_PhieuMuaHang_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListPhieuMuaHang}
-                  placeholder="Chọn mã phiếu mua hàng"
-                  optionsvalue={["id", "tenNguoiYeuCau"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  onSelect={hanldeSelectPhieu}
-                  optionFilterProp="name"
-                  disabled={true}
-                />
-              </FormItem>
+              {type === "new" ? (
+                <FormItem
+                  label="Người yêu cầu"
+                  name={["phieunhanhang", "tits_qtsx_PhieuMuaHang_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListPhieuMuaHang}
+                    placeholder="Chọn mã phiếu mua hàng"
+                    optionsvalue={["id", "tenNguoiYeuCau"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    onSelect={hanldeSelectPhieu}
+                    optionFilterProp="name"
+                    disabled={true}
+                  />
+                </FormItem>
+              ) : (
+                <FormItem
+                  label="Người yêu cầu"
+                  name={["phieunhanhang", "nguoiYeuCauMua"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Input className="input-item" disabled={true} />
+                </FormItem>
+              )}
             </Col>
             <Col
               xxl={12}

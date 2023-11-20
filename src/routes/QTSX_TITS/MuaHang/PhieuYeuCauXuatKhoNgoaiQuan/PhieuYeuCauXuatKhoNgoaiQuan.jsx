@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
+import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -27,7 +27,7 @@ import { BASE_URL_API } from "src/constants/Config";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
-function PhieuNhanHang({ match, history, permission }) {
+function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -59,7 +59,12 @@ function PhieuNhanHang({ match, history, permission }) {
       page,
     });
     dispatch(
-      fetchStart(`tits_qtsx_PhieuNhanHang?${param}`, "GET", null, "LIST")
+      fetchStart(
+        `tits_qtsx_PhieuYeuCauXuatKhoNgoaiQuan?${param}`,
+        "GET",
+        null,
+        "LIST"
+      )
     );
   };
 
@@ -93,8 +98,8 @@ function PhieuNhanHang({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id &&
-      moment(item.ngayTaoPhieu, "DD/MM/YYYY") >=
+      item.nguoiYeuCau_Id === INFO.user_Id &&
+      moment(item.ngayYeuCau, "DD/MM/YYYY") >=
         moment(getDateNow(-1), "DD/MM/YYYY") ? (
         <Link
           to={{
@@ -114,8 +119,8 @@ function PhieuNhanHang({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id &&
-      moment(item.ngayTaoPhieu, "DD/MM/YYYY") >=
+      item.nguoiYeuCau_Id === INFO.user_Id &&
+      moment(item.ngayYeuCau, "DD/MM/YYYY") >=
         moment(getDateNow(-1), "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
@@ -137,7 +142,12 @@ function PhieuNhanHang({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maPhieu, "phiếu nhận hàng");
+    ModalDeleteConfirm(
+      deleteItemAction,
+      item,
+      item.maPhieu,
+      "phiếu xuất kho ngoại quan"
+    );
   };
 
   /**
@@ -146,7 +156,7 @@ function PhieuNhanHang({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_PhieuNhanHang?id=${item.id}`;
+    let url = `tits_qtsx_PhieuYeuCauXuatKhoNgoaiQuan?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -215,6 +225,29 @@ function PhieuNhanHang({ match, history, permission }) {
       );
     return <div>{detail}</div>;
   };
+
+  const renderColumn = (value) => {
+    return (
+      <div>
+        {value && (
+          <Tag
+            style={{
+              color:
+                value === "Chưa nhận"
+                  ? "red"
+                  : value === "Đã nhận"
+                  ? "blue"
+                  : "orange",
+              fontSize: 13,
+            }}
+          >
+            {value}
+          </Tag>
+        )}
+      </div>
+    );
+  };
+
   let renderHead = [
     {
       title: "STT",
@@ -224,7 +257,7 @@ function PhieuNhanHang({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu nhận hàng",
+      title: "Mã phiếu yêu cầu",
       key: "maPhieu",
       align: "center",
       render: (val) => renderDetail(val),
@@ -240,63 +273,85 @@ function PhieuNhanHang({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Người tạo phiếu",
-      dataIndex: "nguoiTaoPhieu",
-      key: "nguoiTaoPhieu",
+      title: "Đơn vị yêu cầu",
+      dataIndex: "donViYeuCau",
+      key: "donViYeuCau",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.nguoiTaoPhieu,
-            value: d.nguoiTaoPhieu,
+            text: d.donViYeuCau,
+            value: d.donViYeuCau,
           };
         })
       ),
-      onFilter: (value, record) => record.nguoiTaoPhieu.includes(value),
+      onFilter: (value, record) => record.donViYeuCau.includes(value),
       filterSearch: true,
     },
     {
-      title: "Mã phiếu mua hàng",
-      dataIndex: "maPhieuMuaHang",
-      key: "maPhieuMuaHang",
+      title: "Đơn vị nhận yêu cầu",
+      dataIndex: "donViNhanYeuCau",
+      key: "donViNhanYeuCau",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieuMuaHang,
-            value: d.maPhieuMuaHang,
+            text: d.donViNhanYeuCau,
+            value: d.donViNhanYeuCau,
           };
         })
       ),
-      onFilter: (value, record) => record.maPhieuMuaHang.includes(value),
+      onFilter: (value, record) => record.donViNhanYeuCau.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Người yêu cầu",
+      dataIndex: "nguoiYeuCau",
+      key: "nguoiYeuCau",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.nguoiYeuCau,
+            value: d.nguoiYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.nguoiYeuCau.includes(value),
       filterSearch: true,
     },
     {
       title: "Ngày tạo phiếu",
-      dataIndex: "ngayTaoPhieu",
-      key: "ngayTaoPhieu",
+      dataIndex: "ngayYeuCau",
+      key: "ngayYeuCau",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayTaoPhieu,
-            value: d.ngayTaoPhieu,
+            text: d.ngayYeuCau,
+            value: d.ngayYeuCau,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayTaoPhieu.includes(value),
+      onFilter: (value, record) => record.ngayYeuCau.includes(value),
       filterSearch: true,
     },
     {
-      title: "File đính kèm",
-      dataIndex: "file",
-      key: "file",
+      title: "Tình trạng",
+      dataIndex: "tinhTrang",
+      key: "tinhTrang",
       align: "center",
-      render: (val) => (
-        <a href={BASE_URL_API + val} target="_blank" rel="noopener noreferrer">
-          {val && val.split("/")[5]}
-        </a>
+      filters: removeDuplicates(
+        map(data, (d) => {
+          return {
+            text: d.tinhTrangPhieu,
+            value: d.tinhTrangPhieu,
+          };
+        })
       ),
+      onFilter: (value, record) => record.tinhTrangPhieu.includes(value),
+      filterSearch: true,
+      render: (value) => renderColumn(value),
     },
     {
       title: "Chức năng",
@@ -339,8 +394,8 @@ function PhieuNhanHang({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phiếu nhận hàng"
-        description="Phiếu nhận hàng"
+        title="Phiếu yêu cầu xuất kho ngoại quan"
+        description="Phiếu yêu cầu xuất kho ngoại quan"
         buttons={addButtonRender()}
       />
 
@@ -416,4 +471,4 @@ function PhieuNhanHang({ match, history, permission }) {
   );
 }
 
-export default PhieuNhanHang;
+export default PhieuYeuCauXuatKhoNgoaiQuan;
