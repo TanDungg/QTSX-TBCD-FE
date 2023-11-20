@@ -375,18 +375,18 @@ function DonHangSanXuat({ match, history, permission }) {
     },
     {
       title: "Người xác nhận",
-      dataIndex: "tenNguoiXacNhan",
-      key: "tenNguoiXacNhan",
+      dataIndex: "nguoiXacNhan",
+      key: "nguoiXacNhan",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenNguoiXacNhan,
-            value: d.tenNguoiXacNhan,
+            text: d.nguoiXacNhan,
+            value: d.nguoiXacNhan,
           };
         })
       ),
-      onFilter: (value, record) => record.tenNguoiXacNhan.includes(value),
+      onFilter: (value, record) => record.nguoiXacNhan.includes(value),
       filterSearch: true,
     },
     {

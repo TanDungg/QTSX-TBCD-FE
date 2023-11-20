@@ -5,7 +5,7 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 import { Card, Form, Input, Row, Col, Divider, Button } from "antd";
-import { map } from "lodash";
+import { isEmpty, map } from "lodash";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -21,6 +21,8 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import ImportSoLo from "./ImportSoLo";
+import ModalEditSanPham from "./ModalEditSanPham";
 
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -44,9 +46,13 @@ const SoLoForm = ({ history, match, permission }) => {
 
   const [infoSanPham, setInfoSanPham] = useState({});
   const [ActiveModal, setActiveModal] = useState(false);
+  const [ActiveModalEdit, setActiveModalEdit] = useState(false);
+
+  const [DisableAdd, setDisableAdd] = useState(true);
+
   const [form] = Form.useForm();
   const { tenLot } = initialState;
-  const { validateFields, resetFields, setFieldsValue } = form;
+  const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
   const [info, setInfo] = useState({});
 
   useEffect(() => {
@@ -87,7 +93,14 @@ const SoLoForm = ({ history, match, permission }) => {
           if (id) {
             const newData = [];
             res.data.forEach((dt) => {
-              newData.push(...JSON.parse(dt.chiTiet_DonHangs));
+              newData.push(
+                ...JSON.parse(dt.chiTiet_DonHangs).map((ct) => {
+                  return {
+                    ...ct,
+                    name: ct.tenSanPham + " - " + ct.tenMauSac,
+                  };
+                })
+              );
             });
             setListSanPhamSelect(newData);
           } else {
@@ -158,9 +171,8 @@ const SoLoForm = ({ history, match, permission }) => {
       type === "new" || type === "edit"
         ? {
             onClick: () => {
-              setActiveModal(true);
+              setActiveModalEdit(true);
               setInfoSanPham(item);
-              setTypeSanPham("edit");
             },
           }
         : { disabled: true };
@@ -326,17 +338,51 @@ const SoLoForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
   };
-  const validatePasswordsMatch = (_, value) => {
+  const validateSoLuong = (_, value) => {
     if (value && value > SoLuongSanPhamToiDa) {
+      setDisableAdd(true);
       return Promise.reject(
-        new Error(`Số lượng phải nhỏ hơn ${SoLuongSanPhamToiDa}!`)
+        new Error(`Số lượng lô phải nhỏ hơn hoặc bằng số lượng đơn hàng!`)
       );
-    } else if (value && Number(value === 0)) {
+    } else if (value && Number(value) === 0) {
+      setDisableAdd(true);
       return Promise.reject(new Error(`Số lượng phải lớn hơn 0!`));
+    } else if (!value) {
+      setDisableAdd(true);
+      return Promise
+        .reject
+        // new Error(`Số lượng là bắt buộc!`)
+        ();
+    } else {
+      setDisableAdd(false);
+      return Promise.resolve();
     }
-    return Promise.resolve();
   };
   const formTitle = type === "new" ? "Thêm mới số lô" : "Chỉnh sửa số lô";
+  const onClickAddTable = () => {
+    const newData = [];
+    ListSanPhamSelect.forEach((sp) => {
+      if (
+        sp.tits_qtsx_DonHangChiTiet_Id ===
+        getFieldValue("Lot").tits_qtsx_DonHangChiTiet_Id
+      ) {
+        newData.push({
+          tits_qtsx_DonHangChiTiet_Id: sp.tits_qtsx_DonHangChiTiet_Id,
+          tenSanPham: sp.tenSanPham,
+          maSanPham: sp.maSanPham,
+          tenLoaiSanPham: sp.tenLoaiSanPham,
+          maLoaiSanPham: sp.maLoaiSanPham,
+          tenMauSac: sp.tenMauSac,
+          maNoiBo: "",
+          tits_qtsx_DonHangChiTiet_Id: sp.tits_qtsx_DonHangChiTiet_Id,
+        });
+      }
+    });
+    for (let index = 1; index < getFieldValue("Lot").soLuong; index++) {
+      newData.push(newData[0]);
+    }
+    setListSanPham(reDataForTable(newData));
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -368,12 +414,12 @@ const SoLoForm = ({ history, match, permission }) => {
                   },
                   {
                     max: 250,
-                    message: "Số lot không được quá 250 ký tự",
+                    message: "Số lô không được quá 250 ký tự",
                   },
                 ]}
                 initialValue={tenLot}
               >
-                <Input className="input-item" placeholder="Nhập số lot" />
+                <Input className="input-item" placeholder="Nhập số lô" />
               </FormItem>
             </Col>
             <Col
@@ -405,6 +451,13 @@ const SoLoForm = ({ history, match, permission }) => {
                   optionFilterProp="name"
                   onSelect={(val) => {
                     getDonHang(val);
+                    setFieldsValue({
+                      Lot: {
+                        soLuongDonHang: null,
+                        soLuong: null,
+                        tits_qtsx_DonHangChiTiet_Id: null,
+                      },
+                    });
                   }}
                 />
               </FormItem>
@@ -420,7 +473,7 @@ const SoLoForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Sản phẩm"
-                name={["Lot", "tits_qtsx_SanPham_Id"]}
+                name={["Lot", "tits_qtsx_DonHangChiTiet_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -432,17 +485,19 @@ const SoLoForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListSanPhamSelect ? ListSanPhamSelect : []}
                   placeholder="Chọn sản phẩm"
-                  optionsvalue={["tits_qtsx_SanPham_Id", "tenSanPham"]}
+                  optionsvalue={["tits_qtsx_DonHangChiTiet_Id", "name"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
                   onSelect={(val) => {
                     ListSanPhamSelect.forEach((sp) => {
-                      if (val === sp.tits_qtsx_SanPham_Id) {
+                      if (val === sp.tits_qtsx_DonHangChiTiet_Id) {
                         setSoLuongSanPhamToiDa(sp.soLuongConLai);
                         setDisableSoLuong(false);
+                        setDisableAdd(false);
                         setFieldsValue({
                           Lot: {
+                            soLuongDonHang: sp.soLuongConLai,
                             soLuong: sp.soLuongConLai,
                           },
                         });
@@ -462,30 +517,66 @@ const SoLoForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Số lượng"
+                label="Số lượng đơn hàng"
+                name={["Lot", "soLuongDonHang"]}
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <Input
+                  className="input-item"
+                  placeholder="Số lượng đơn hàng"
+                  type="number"
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Số lượng lô"
                 name={["Lot", "soLuong"]}
                 rules={[
                   {
                     required: true,
                   },
                   {
-                    validator: validatePasswordsMatch,
+                    validator: validateSoLuong,
                   },
                 ]}
               >
                 <Input
                   className="input-item"
-                  placeholder="Số lượng"
+                  placeholder="Số lượng lô"
+                  type="number"
                   disabled={DisableSoLuong}
                 />
               </FormItem>
             </Col>
             {(type === "new" || type === "edit") && (
-              <Col span={24} align="end">
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
                 <Button
                   icon={<PlusOutlined />}
-                  onClick={() => setActiveModal(true)}
+                  onClick={onClickAddTable}
                   type="primary"
+                  disabled={DisableAdd}
                 >
                   Thêm vào bảng
                 </Button>
@@ -493,6 +584,7 @@ const SoLoForm = ({ history, match, permission }) => {
                   icon={<UploadOutlined />}
                   onClick={() => setActiveModal(true)}
                   type="primary"
+                  disabled={DisableAdd}
                 >
                   Import
                 </Button>
@@ -516,7 +608,7 @@ const SoLoForm = ({ history, match, permission }) => {
           scroll={{ x: 1300, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
-          dataSource={reDataForTable(ListSanPham)}
+          dataSource={ListSanPham}
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
@@ -529,6 +621,13 @@ const SoLoForm = ({ history, match, permission }) => {
         handleSave={saveAndClose}
         saveAndClose={saveAndClose}
         disabled={fieldTouch}
+      />
+      <ImportSoLo openModal={ActiveModal} openModalFS={setActiveModal} />
+
+      <ModalEditSanPham
+        openModal={ActiveModalEdit}
+        openModalFS={setActiveModalEdit}
+        info={infoSanPham}
       />
     </div>
   );

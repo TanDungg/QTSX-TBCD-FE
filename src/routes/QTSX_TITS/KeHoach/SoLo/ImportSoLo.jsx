@@ -26,7 +26,7 @@ import { EditableTableRow, Table } from "src/components/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
+function ImportSoLo({ openModalFS, openModal, loading, refesh }) {
   const dispatch = useDispatch();
   const [dataView, setDataView] = useState([]);
   const [fileName, setFileName] = useState("");
@@ -62,22 +62,28 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
       align: "center",
     },
     {
-      title: "Số Lot",
-      dataIndex: "soLot",
-      key: "soLot",
-      align: "center",
-      render: (val) => renderLoi(val),
-    },
-    {
       title: "Mã sản phẩm",
       dataIndex: "maSanPham",
       key: "maSanPham",
       align: "center",
     },
     {
-      title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
+      title: "Tên sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
+      align: "center",
+    },
+    {
+      title: "Mã sản phẩm nội bộ",
+      dataIndex: "maNoiBo",
+      key: "maNoiBo",
+      align: "center",
+      render: (val) => renderLoi(val),
+    },
+    {
+      title: "Mã quy trình",
+      dataIndex: "maQuyTrinh",
+      key: "maQuyTrinh",
       align: "center",
     },
   ];
@@ -238,8 +244,12 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
           setFileName(file.name);
           setDataLoi();
           if (indices.length > 0) {
-            setMessageError(`Hàng ${row.join(", ")} có số Lot trùng nhau`);
-            Helper.alertError(`Hàng ${row.join(", ")} có số Lot trùng nhau`);
+            setMessageError(
+              `Hàng ${row.join(", ")} có mã sản phẩm nội bộ trùng nhau`
+            );
+            Helper.alertError(
+              `Hàng ${row.join(", ")} có mã sản phẩm nội bộ trùng nhau`
+            );
             setHangTrung(indices);
             setCheckDanger(true);
           } else {
@@ -306,7 +316,7 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận import số Lot",
+    title: "Xác nhận import số Lô",
     onOk: handleSubmit,
   };
   const modalXK = () => {
@@ -323,7 +333,7 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
       });
     } else if (current.soLot === undefined) {
       setCheckDanger(true);
-      setMessageError("Số Lot không được rỗng");
+      setMessageError("Số Lô không được rỗng");
       return "red-row";
     } else if (current.maSanPham === undefined) {
       setCheckDanger(true);
@@ -357,7 +367,7 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
 
   return (
     <AntModal
-      title="Import Số Lot"
+      title="Import Số Lô"
       open={openModal}
       width={`80%`}
       closable={true}
@@ -451,4 +461,4 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
   );
 }
 
-export default ImportSoLot;
+export default ImportSoLo;

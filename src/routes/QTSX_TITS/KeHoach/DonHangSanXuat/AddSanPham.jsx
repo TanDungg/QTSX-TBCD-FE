@@ -112,7 +112,7 @@ function AddSanPham({
   };
   const saveData = (chitiet) => {
     const newData = chitiet;
-    newData.ngay = chitiet.ngay._i;
+    newData.ngay = chitiet.ngay && chitiet.ngay._i;
     newData.tits_qtsx_ChiTiet =
       newData.tits_qtsx_SanPham_Id + "_" + newData.tits_qtsx_MauSac_Id;
 
