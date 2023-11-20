@@ -31,7 +31,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 const initialState = {
   tenLot: "",
 };
-const SoLoForm = ({ history, match, permission }) => {
+const SoVinForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
@@ -426,33 +426,32 @@ const SoLoForm = ({ history, match, permission }) => {
       return Promise.resolve();
     }
   };
-  const formTitle = type === "new" ? "Thêm mới Số Lô" : "Chỉnh sửa Số Lô";
+  const formTitle = type === "new" ? "Thêm mới số lô" : "Chỉnh sửa số lô";
   const onClickAddTable = () => {
-    if (SoLuongSanPhamToiDa === ListSanPham.length) {
-      Helpers.alertWarning(
-        `Số lượng mã sản phẩm nội bộ tối đa của Lô là ${SoLuongSanPhamToiDa}`
-      );
-    } else {
-      setActiveModalEdit(true);
-      ListSanPhamSelect.forEach((sp) => {
-        if (
-          sp.tits_qtsx_DonHangChiTiet_Id ===
-          getFieldValue("Lot").tits_qtsx_DonHangChiTiet_Id
-        ) {
-          setInfoSanPham({
-            tits_qtsx_DonHangChiTiet_Id: sp.tits_qtsx_DonHangChiTiet_Id,
-            tits_qtsx_SanPham_Id: sp.tits_qtsx_SanPham_Id,
-            tits_qtsx_MauSac_Id: sp.tits_qtsx_MauSac_Id,
-            tenSanPham: sp.tenSanPham,
-            maSanPham: sp.maSanPham,
-            tenLoaiSanPham: sp.tenLoaiSanPham,
-            maLoaiSanPham: sp.maLoaiSanPham,
-            tenMauSac: sp.tenMauSac,
-            maNoiBo: "",
-          });
-        }
-      });
-    }
+    setActiveModalEdit(true);
+    // const newData = [];
+    ListSanPhamSelect.forEach((sp) => {
+      if (
+        sp.tits_qtsx_DonHangChiTiet_Id ===
+        getFieldValue("Lot").tits_qtsx_DonHangChiTiet_Id
+      ) {
+        setInfoSanPham({
+          tits_qtsx_DonHangChiTiet_Id: sp.tits_qtsx_DonHangChiTiet_Id,
+          tits_qtsx_SanPham_Id: sp.tits_qtsx_SanPham_Id,
+          tits_qtsx_MauSac_Id: sp.tits_qtsx_MauSac_Id,
+          tenSanPham: sp.tenSanPham,
+          maSanPham: sp.maSanPham,
+          tenLoaiSanPham: sp.tenLoaiSanPham,
+          maLoaiSanPham: sp.maLoaiSanPham,
+          tenMauSac: sp.tenMauSac,
+          maNoiBo: "",
+        });
+      }
+    });
+    // for (let index = 1; index < getFieldValue("Lot").soLuong; index++) {
+    //   newData.push(newData[0]);
+    // }
+    // setListSanPham(reDataForTable(newData));
   };
   const editSanPham = (data, type) => {
     let check = false;
@@ -468,7 +467,6 @@ const SoLoForm = ({ history, match, permission }) => {
       if (type === "new") {
         setListSanPham(reDataForTable([...ListSanPham, data]));
       } else {
-        setFieldTouch(true);
         setListSanPham([
           ...ListSanPham.map((sp) => {
             if (sp.key === data.key) {
@@ -480,9 +478,6 @@ const SoLoForm = ({ history, match, permission }) => {
         ]);
       }
     }
-  };
-  const addSanPham = (data) => {
-    setListSanPham([...ListSanPham, ...data]);
   };
   return (
     <div className="gx-main-content">
@@ -678,7 +673,8 @@ const SoLoForm = ({ history, match, permission }) => {
           color: "#fff",
         }}
       >
-        {type === "new" && (
+        {" "}
+        {(type === "new" || type === "edit") && (
           <Col
             // xxl={12}
             // xl={12}
@@ -690,14 +686,14 @@ const SoLoForm = ({ history, match, permission }) => {
             span={24}
             align="end"
           >
-            <Button
+            {/* <Button
               icon={<PlusOutlined />}
               onClick={onClickAddTable}
               type="primary"
               disabled={DisableAdd}
             >
               Thêm
-            </Button>
+            </Button> */}
             <Button
               icon={<UploadOutlined />}
               onClick={() => setActiveModal(true)}
@@ -732,7 +728,6 @@ const SoLoForm = ({ history, match, permission }) => {
         openModal={ActiveModal}
         openModalFS={setActiveModal}
         chiTietDonHang_Id={ChiTietDonHang}
-        addSanPham={addSanPham}
       />
 
       <ModalEditSanPham
@@ -746,4 +741,4 @@ const SoLoForm = ({ history, match, permission }) => {
   );
 };
 
-export default SoLoForm;
+export default SoVinForm;

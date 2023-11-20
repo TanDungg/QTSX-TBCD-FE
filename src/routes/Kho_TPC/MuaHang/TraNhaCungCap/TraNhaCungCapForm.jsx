@@ -223,6 +223,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
   const getUserDuyet = (info) => {
     const params = convertObjectToUrlParams({
       donviId: info.donVi_Id,
+      key: 1,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -238,7 +239,7 @@ const TraNhaCungCapForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserDuyet(res.data.datalist);
+        setListUserDuyet(res.data);
       } else {
         setListUserDuyet([]);
       }

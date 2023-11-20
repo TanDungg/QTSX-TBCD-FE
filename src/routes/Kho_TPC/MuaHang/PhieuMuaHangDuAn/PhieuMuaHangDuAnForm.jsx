@@ -246,6 +246,7 @@ const PhieuMuaHangDuAnForm = ({ history, match, permission }) => {
   const getUserKy = (info) => {
     const params = convertObjectToUrlParams({
       donviId: info.donVi_Id,
+      key: 1,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -261,7 +262,7 @@ const PhieuMuaHangDuAnForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserKy(res.data.datalist);
+        setListUserKy(res.data);
       } else {
         setListUserKy([]);
       }

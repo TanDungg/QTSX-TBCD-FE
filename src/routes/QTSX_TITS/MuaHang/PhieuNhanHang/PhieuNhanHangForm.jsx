@@ -286,7 +286,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
         ct.tits_qtsx_PhieuMuaHangChiTiet_Id ===
         item.tits_qtsx_PhieuMuaHangChiTiet_Id
       ) {
-        ct.soLuongDaNhap = SoLuongNhan;
+        ct.soLuong = SoLuongNhan;
       }
     });
     setListVatTu(newData);
@@ -305,7 +305,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       }
     });
     return type === "detail" ? (
-      item.soLuongDaNhap
+      item.soLuong
     ) : (
       <>
         <Input
@@ -315,7 +315,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           }}
           className={`input-item`}
           type="number"
-          value={item.soLuongDaNhap}
+          value={item.soLuong}
           disabled={type === "new" || type === "edit" ? false : true}
           onChange={(val) => handleInputChange(val, item)}
         />
@@ -356,14 +356,14 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Số lượng mua",
-      dataIndex: "soLuongMua",
-      key: "soLuongMua",
+      title: "Số lượng chưa nhận",
+      dataIndex: "soLuongChuaNhan",
+      key: "soLuongChuaNhan",
       align: "center",
     },
     {
       title: "Số lượng nhận",
-      key: "soLuongDaNhap",
+      key: "soLuong",
       align: "center",
       render: (record) => rendersoLuong(record),
     },
@@ -502,9 +502,13 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     if (type === "new") {
       const newData = {
         ...phieunhanhang,
-
         ngayTaoPhieu: phieunhanhang.ngayTaoPhieu.format("DD/MM/YYYY"),
-        chiTiet_NhanHangs: listVatTu,
+        chiTiet_NhanHangs: listVatTu.map((dt) => {
+          return {
+            ...dt,
+            soLuong: dt.soLuong && parseFloat(dt.soLuong),
+          };
+        }),
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -586,8 +590,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       JSON.parse(newData[0].chiTietPhieus).map((data) => {
         return {
           ...data,
-          soLuong: data.soLuongMua,
-          soLuongDaNhap: data.soLuongMua - data.soLuongDaGiao,
+          soLuong: data.soLuongChuaNhan ? data.soLuongChuaNhan : 0,
         };
       });
     setListVatTu(data);
