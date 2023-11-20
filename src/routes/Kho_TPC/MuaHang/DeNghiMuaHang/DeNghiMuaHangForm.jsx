@@ -282,6 +282,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const getUserKy = (info) => {
     const params = convertObjectToUrlParams({
       donviId: info.donVi_Id,
+      key: 1,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -297,7 +298,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserKy(res.data.datalist);
+        setListUserKy(res.data);
       } else {
         setListUserKy([]);
       }
@@ -340,7 +341,13 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         );
       }).then((res) => {
         if (res && res.data) {
-          setListSanPham(res.data);
+          const newData = res.data.map((ct) => {
+            return {
+              ...ct,
+              name: ct.maSanPham + " - " + ct.tenSanPham,
+            };
+          });
+          setListSanPham(newData);
         } else {
           setListSanPham([]);
         }
@@ -1481,7 +1488,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                     className="heading-select slt-search th-select-heading"
                     data={ListSanPham ? ListSanPham : []}
                     placeholder="Chọn sản phẩm"
-                    optionsvalue={["sanPham_Id", "tenSanPham"]}
+                    optionsvalue={["sanPham_Id", "name"]}
                     style={{ width: "100%" }}
                     onSelect={hanldeSelectSanPham}
                     showSearch

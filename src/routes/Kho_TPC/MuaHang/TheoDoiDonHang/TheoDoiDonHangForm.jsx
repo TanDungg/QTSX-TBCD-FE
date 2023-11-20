@@ -99,15 +99,15 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
   const goBack = () => {
     history.push(`${match.url.replace(`/${id}/chi-tiet`, "")}`);
   };
-
   const getUserThuMua = (info) => {
     const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
+      donVi_Id: info.donVi_Id,
+      phanMem_Id: info.phanMem_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}`,
+          `lkn_PhieuNhanHang/list-user-thu-mua?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -118,12 +118,36 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListNguoiThuMua(res.data.datalist);
+        setListNguoiThuMua(res.data);
       } else {
         setListNguoiThuMua([]);
       }
     });
   };
+  // const getUserThuMua = (info) => {
+  //   const params = convertObjectToUrlParams({
+  //     donviId: info.donVi_Id,key:1
+  //   });
+  //   new Promise((resolve, reject) => {
+  //     dispatch(
+  //       fetchStart(
+  //         `Account/get-cbnv?${params}`,
+  //         "GET",
+  //         null,
+  //         "DETAIL",
+  //         "",
+  //         resolve,
+  //         reject
+  //       )
+  //     );
+  //   }).then((res) => {
+  //     if (res && res.data) {
+  //       setListNguoiThuMua(res.data.datalist);
+  //     } else {
+  //       setListNguoiThuMua([]);
+  //     }
+  //   });
+  // };
 
   const actionContent = (item) => {
     const CapNhat = () => {

@@ -214,8 +214,8 @@ function CanBoNhanVien({ match, history, permission }) {
     const params = convertObjectToUrlParams({
       chiTiet_Id: item.chiTiet_Id,
       user_Id: item.id,
-      tapDoan_Id: item.tapDoan_Id,
-      donVi_Id: item.donVi_Id,
+      tapDoan_Id: item.TapDoan_Id,
+      donVi_Id: item.DonVi_Id,
     });
     let url = `Account/delete-don-vi-cbnv?${params}`;
     new Promise((resolve, reject) => {

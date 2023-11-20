@@ -18,6 +18,8 @@ const DonHangSanXuatForm = asyncComponent(() =>
 );
 const SoLo = asyncComponent(() => import("./SoLo/SoLo"));
 const SoLoForm = asyncComponent(() => import("./SoLo/SoLoForm"));
+const SoVin = asyncComponent(() => import("./SoVin/SoVin"));
+const SoVinForm = asyncComponent(() => import("./SoVin/SoVinForm"));
 const KeHoachTong = asyncComponent(() =>
   import("./KeHoachSanXuat/KeHoachTong/KeHoachTong")
 );
@@ -89,6 +91,21 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/so-lo/:id/chinh-sua`}
         exact
         component={Auth(SoLoForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/so-vin`}
+        exact
+        component={Auth(SoVin, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/so-vin/them-moi`}
+        exact
+        component={Auth(SoVinForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/so-vin/:id/chinh-sua`}
+        exact
+        component={Auth(SoVinForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/ke-hoach-san-xuat/tong`}

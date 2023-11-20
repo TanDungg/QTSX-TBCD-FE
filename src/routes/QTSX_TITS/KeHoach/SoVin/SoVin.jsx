@@ -23,12 +23,14 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 import ChiTietSoLo from "./ChiTietSoLo";
 const { EditableRow, EditableCell } = EditableTableRow;
-function SoLo({ match, permission, history }) {
+function SoVin({ match, permission, history }) {
   const dispatch = useDispatch();
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const [DonHang, setDonHang] = useState("");
+  const [SoLo, setSoLo] = useState("");
+
   const [infoChiTietMaNoiBo, setInfoChiTietMaNoiBo] = useState([]);
 
   const [ActiveModal, setActiveModal] = useState(false);
@@ -53,13 +55,19 @@ function SoLo({ match, permission, history }) {
    * @param page Trang
    * @param pageSize
    */
-  const getListData = (keyword, page, tits_qtsx_DonHang_Id) => {
+  const getListData = (
+    keyword,
+    page,
+    tits_qtsx_DonHang_Id,
+    tits_qtsx_SoLo_Id
+  ) => {
     let param = convertObjectToUrlParams({
       tits_qtsx_DonHang_Id,
+      tits_qtsx_SoLo_Id,
       page,
       keyword,
     });
-    dispatch(fetchStart(`tits_qtsx_SoLo?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`tits_qtsx_SoVin?${param}`, "GET", null, "LIST"));
   };
 
   /**
@@ -218,7 +226,7 @@ function SoLo({ match, permission, history }) {
       filterSearch: true,
     },
     {
-      title: "Danh sách mã sản phẩm nội bộ",
+      title: "Danh sách số VIN",
       key: "maSanPhamNoiBo",
       align: "center",
       render: (val) => (
@@ -269,7 +277,7 @@ function SoLo({ match, permission, history }) {
     });
   };
   const refeshData = () => {
-    getListData(keyword, page, DonHang);
+    getListData(keyword, page, DonHang, SoLo);
   };
   const handleImport = () => {
     setActiveModal(true);
@@ -278,6 +286,11 @@ function SoLo({ match, permission, history }) {
     setDonHang(val);
     setPage(1);
     getListData(keyword, 1, val);
+  };
+  const handleOnSelectSoLo = (val) => {
+    setSoLo(val);
+    setPage(1);
+    getListData(keyword, 1, DonHang, val);
   };
   const addButtonRender = () => {
     return (
@@ -307,8 +320,8 @@ function SoLo({ match, permission, history }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Danh mục số lô"}
-        description="Danh mục số lô"
+        title={"Danh mục số VIN"}
+        description="Danh mục số VIN"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -334,8 +347,35 @@ function SoLo({ match, permission, history }) {
               allowClear
               onClear={() => {
                 setDonHang("");
+                setSoLo("");
                 setPage(1);
-                getListData(keyword, 1, "");
+                getListData(keyword, 1, "", "");
+              }}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Số lô:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={data.datalist ? data.datalist : []}
+              placeholder={"Chọn số lô"}
+              optionsvalue={["tits_qtsx_SoLo_Id", "tenSoLo"]}
+              style={{ width: "100%" }}
+              onSelect={handleOnSelectSoLo}
+              value={SoLo}
+              allowClear
+              onClear={() => {
+                setSoLo("");
+                setPage(1);
+                getListData(keyword, 1, DonHang, "");
               }}
             />
           </Col>
@@ -387,4 +427,4 @@ function SoLo({ match, permission, history }) {
   );
 }
 
-export default SoLo;
+export default SoVin;
