@@ -23,29 +23,23 @@ import { Modal } from "src/components/Common";
 import { exportExcel, reDataForTable } from "src/util/Common";
 import * as XLSX from "xlsx";
 import { EditableTableRow, Table } from "src/components/Common";
-import { getLocalStorage, getTokenInfo } from "src/util/Common";
+
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ImportCauTrucKhoThanhPham({
-  openModalFS,
-  openModal,
-  loading,
-  refesh,
-}) {
+function ImportSoLo({ openModalFS, openModal, loading, refesh }) {
   const dispatch = useDispatch();
   const [dataView, setDataView] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
   const [HangTrung, setHangTrung] = useState([]);
   const [DataLoi, setDataLoi] = useState();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [message, setMessageError] = useState([]);
   const renderLoi = (val) => {
     let check = false;
     let messageLoi = "";
     if (DataLoi && DataLoi.length > 0) {
       DataLoi.forEach((dt) => {
-        if (dt.maCauTrucKho === val) {
+        if (dt.soLot === val) {
           check = true;
           messageLoi = dt.ghiChuImport;
         }
@@ -68,46 +62,28 @@ function ImportCauTrucKhoThanhPham({
       align: "center",
     },
     {
-      title: "Mã cấu trúc kho",
-      dataIndex: "maCauTrucKho",
-      key: "maCauTrucKho",
+      title: "Mã sản phẩm",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
+      align: "center",
+    },
+    {
+      title: "Tên sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
+      align: "center",
+    },
+    {
+      title: "Mã sản phẩm nội bộ",
+      dataIndex: "maNoiBo",
+      key: "maNoiBo",
       align: "center",
       render: (val) => renderLoi(val),
     },
     {
-      title: "Tên cấu trúc kho",
-      dataIndex: "tenCauTrucKho",
-      key: "tenCauTrucKho",
-      align: "center",
-    },
-    {
-      title: "Mã Ban/Phòng",
-      dataIndex: "maPhongBan",
-      key: "maPhongBan",
-      align: "center",
-    },
-    {
-      title: "Mã cấu trúc kho cha",
-      dataIndex: "maCauTrucKhoCha",
-      key: "maCauTrucKhoCha",
-      align: "center",
-    },
-    {
-      title: "Sức chứa",
-      dataIndex: "sucChua",
-      key: "sucChua",
-      align: "center",
-    },
-    {
-      title: "Vị trí",
-      dataIndex: "viTri",
-      key: "viTri",
-      align: "center",
-    },
-    {
-      title: "Cố định",
-      dataIndex: "isCoDinh",
-      key: "isCoDinh",
+      title: "Mã quy trình",
+      dataIndex: "maQuyTrinh",
+      key: "maQuyTrinh",
       align: "center",
     },
   ];
@@ -139,7 +115,7 @@ function ImportCauTrucKhoThanhPham({
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/ExportFileExcel-san-pham?donVi_Id=${INFO.donVi_Id}`,
+          `LOT/ExportFileExcel`,
           "POST",
           null,
           "DOWLOAD",
@@ -149,7 +125,7 @@ function ImportCauTrucKhoThanhPham({
         )
       );
     }).then((res) => {
-      exportExcel("File_Mau_Cau_Truc_Kho_Thanh_Pham", res.data.dataexcel);
+      exportExcel("File_Mau_So_Lot", res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {
@@ -158,160 +134,89 @@ function ImportCauTrucKhoThanhPham({
       const workbook = XLSX.read(event.target.result, {
         type: "binary",
       });
-      const worksheet = workbook.Sheets["Import cấu trúc kho"];
+      const worksheet = workbook.Sheets["Import số Lot"];
 
       const checkMau =
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 0, r: 1 }, e: { c: 0, r: 1 } },
+          range: { s: { c: 0, r: 3 }, e: { c: 0, r: 3 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 0, r: 1 }, e: { c: 0, r: 1 } },
+            range: { s: { c: 0, r: 3 }, e: { c: 0, r: 3 } },
           })[0]
           .toString()
           .trim() === "STT" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 1, r: 1 }, e: { c: 1, r: 1 } },
+          range: { s: { c: 1, r: 3 }, e: { c: 1, r: 3 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 1, r: 1 }, e: { c: 1, r: 1 } },
+            range: { s: { c: 1, r: 3 }, e: { c: 1, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Mã cấu trúc kho" &&
+          .trim() === "Số Lot" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 2, r: 1 }, e: { c: 2, r: 1 } },
+          range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 2, r: 1 }, e: { c: 2, r: 1 } },
+            range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Tên cấu trúc kho" &&
+          .trim() === "Mã sản phẩm" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 3, r: 1 }, e: { c: 3, r: 1 } },
+          range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 3, r: 1 }, e: { c: 3, r: 1 } },
+            range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Mã Ban/Phòng" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 4, r: 1 }, e: { c: 4, r: 1 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 4, r: 1 }, e: { c: 4, r: 1 } },
-          })[0]
-          .toString()
-          .trim() === "Mã cấu trúc kho cha" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
-          })[0]
-          .toString()
-          .trim() === "Sức chứa" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 6, r: 1 }, e: { c: 6, r: 1 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 6, r: 1 }, e: { c: 6, r: 1 } },
-          })[0]
-          .toString()
-          .trim() === "Vị trí" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 7, r: 1 }, e: { c: 7, r: 1 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 7, r: 1 }, e: { c: 7, r: 1 } },
-          })[0]
-          .toString()
-          .trim() === "Cố định";
+          .trim() === "Số lượng";
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
-          range: 1,
+          range: 3,
         });
-        const MCTK = "Mã cấu trúc kho";
-        const TCTK = "Tên cấu trúc kho";
-        const BP = "Mã Ban/Phòng";
-        const MCTKC = "Mã cấu trúc kho cha";
-        const VT = "Vị trí";
-        const SC = "Sức chứa";
-        const CD = "Cố định";
-
+        const SL = "Số Lot";
+        const MSP = "Mã sản phẩm";
+        const SLuong = "Số lượng";
         const Data = [];
         const NewData = [];
         data.forEach((d, index) => {
           if (
-            data[index][MCTK] &&
-            data[index][MCTK].toString().trim() === "" &&
-            data[index][TCTK] &&
-            data[index][TCTK].toString().trim() === "" &&
-            data[index][BP] &&
-            data[index][BP].toString().trim() === ""
+            data[index][SL] &&
+            data[index][SL].toString().trim() === "" &&
+            data[index][MSP] &&
+            data[index][MSP].toString().trim() === ""
           ) {
           } else {
             NewData.push({
-              maCauTrucKho: data[index][MCTK]
-                ? data[index][MCTK].toString().trim() !== ""
-                  ? data[index][MCTK].toString().trim()
+              soLot: data[index][SL]
+                ? data[index][SL].toString().trim() !== ""
+                  ? data[index][SL].toString().trim()
                   : undefined
                 : undefined,
-              tenCauTrucKho: data[index][TCTK]
-                ? data[index][TCTK].toString().trim() !== ""
-                  ? data[index][TCTK].toString().trim()
+              maSanPham: data[index][MSP]
+                ? data[index][MSP].toString().trim() !== ""
+                  ? data[index][MSP].toString().trim()
                   : undefined
                 : undefined,
-              maPhongBan: data[index][BP]
-                ? data[index][BP].toString().trim() !== ""
-                  ? data[index][BP].toString().trim()
-                  : undefined
-                : undefined,
-              maCauTrucKhoCha: data[index][MCTKC]
-                ? data[index][MCTKC].toString().trim() !== ""
-                  ? data[index][MCTKC].toString().trim()
-                  : undefined
-                : undefined,
-              viTri: data[index][VT]
-                ? data[index][VT].toString().trim() !== ""
-                  ? data[index][VT].toString().trim()
-                  : undefined
-                : undefined,
-              sucChua: data[index][SC]
-                ? data[index][SC].toString().trim() !== ""
-                  ? data[index][SC].toString().trim()
-                  : undefined
-                : undefined,
-              isCoDinh: data[index][CD]
-                ? data[index][CD].toString().trim() !== ""
-                  ? data[index][CD].toString().trim()
+              soLuong: data[index][SLuong]
+                ? data[index][SLuong].toString().trim() !== ""
+                  ? data[index][SLuong].toString().trim()
                   : undefined
                 : undefined,
             });
           }
-          Data.push(data[index][MCTK]);
+          Data.push(data[index][SL]);
         });
         if (NewData.length === 0) {
           setFileName(file.name);
@@ -340,10 +245,10 @@ function ImportCauTrucKhoThanhPham({
           setDataLoi();
           if (indices.length > 0) {
             setMessageError(
-              `Hàng ${row.join(", ")} có mã cấu trúc kho trùng nhau`
+              `Hàng ${row.join(", ")} có mã sản phẩm nội bộ trùng nhau`
             );
             Helper.alertError(
-              `Hàng ${row.join(", ")} có mã cấu trúc kho trùng nhau`
+              `Hàng ${row.join(", ")} có mã sản phẩm nội bộ trùng nhau`
             );
             setHangTrung(indices);
             setCheckDanger(true);
@@ -386,14 +291,9 @@ function ImportCauTrucKhoThanhPham({
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/ImportExel-san-pham`,
+          `Lot/ImportExel`,
           "POST",
-          dataView.map((ctk) => {
-            return {
-              ...ctk,
-              isCoDinh: ctk.isCoDinh.toLowerCase() === "x",
-            };
-          }),
+          dataView,
           "IMPORT",
           "",
           resolve,
@@ -416,7 +316,7 @@ function ImportCauTrucKhoThanhPham({
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận import cấu trúc kho thành phẩm",
+    title: "Xác nhận import số Lô",
     onOk: handleSubmit,
   };
   const modalXK = () => {
@@ -425,28 +325,24 @@ function ImportCauTrucKhoThanhPham({
 
   const RowStyle = (current, index) => {
     if (HangTrung.length > 0) {
-      HangTrung.forEach((maCauTrucKho) => {
-        if (current.maCauTrucKho === maCauTrucKho) {
+      HangTrung.forEach((soLot) => {
+        if (current.soLot === soLot) {
           setCheckDanger(true);
           return "red-row";
         }
       });
-    } else if (current.maCauTrucKho === undefined) {
+    } else if (current.soLot === undefined) {
       setCheckDanger(true);
-      setMessageError("Mã cấu trúc kho không được rỗng");
+      setMessageError("Số Lô không được rỗng");
       return "red-row";
-    } else if (current.tenCauTrucKho === undefined) {
+    } else if (current.maSanPham === undefined) {
       setCheckDanger(true);
-      setMessageError("Tên cấu trúc kho không được rỗng");
-      return "red-row";
-    } else if (current.maPhongBan === undefined) {
-      setCheckDanger(true);
-      setMessageError("Mã Ban/Phòng không được rỗng");
+      setMessageError("Mã sản phẩm không được rỗng");
       return "red-row";
     } else if (DataLoi && DataLoi.length > 0) {
       let check = false;
       DataLoi.forEach((dt) => {
-        if (current.maCauTrucKho.toString() === dt.maCauTrucKho.toString()) {
+        if (current.soLot.toString() === dt.soLot.toString()) {
           check = true;
         }
       });
@@ -471,7 +367,7 @@ function ImportCauTrucKhoThanhPham({
 
   return (
     <AntModal
-      title="Import cấu trúc kho thành phẩm"
+      title="Import Số Lô"
       open={openModal}
       width={`80%`}
       closable={true}
@@ -565,4 +461,4 @@ function ImportCauTrucKhoThanhPham({
   );
 }
 
-export default ImportCauTrucKhoThanhPham;
+export default ImportSoLo;

@@ -1,5 +1,15 @@
-import { DeleteOutlined } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, DatePicker, Tag } from "antd";
+import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Col,
+  DatePicker,
+  Tag,
+  Button,
+  Upload,
+} from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -14,13 +24,15 @@ import {
   EditableTableRow,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { BASE_URL_API, DEFAULT_FORM_NHAPKHOVATTU } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
+  exportPDF,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
   reDataForTable,
+  renderPDF,
 } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -34,15 +46,17 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
-  const [ListNhaCungCap, setListNhaCungCap] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [ListMaPhieu, setListMaPhieu] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
-
   const [ListUserKy, setListUserKy] = useState([]);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
+  const [ChungTu, setChungTu] = useState([]);
+  const [DisableUpload, setDisableUpload] = useState(false);
+  const [FileChungTu, setFileChungTu] = useState(false);
+
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
@@ -50,13 +64,12 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           const datetime = moment();
           setType("new");
           getUserLap(INFO);
-          getNhaCungCap();
           getUserKy(INFO);
           getKho();
-          getMaPhieu();
+          getMaPhieuNhapKho();
           setFieldsValue({
-            phieunhapkho: {
-              ngayNhan: moment(
+            phieunhapkhovattu: {
+              ngayNhapKho: moment(
                 datetime.format("DD/MM/YYYY HH:mm:ss"),
                 "DD/MM/YYYY HH:mm:ss"
               ),
@@ -98,7 +111,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}`,
+          `Account/get-cbnv?${params}&key=1`,
           "GET",
           null,
           "DETAIL",
@@ -109,7 +122,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserKy(res.data.datalist);
+        setListUserKy(res.data);
       } else {
         setListUserKy([]);
       }
@@ -137,7 +150,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       if (res && res.data) {
         setListUser([res.data]);
         setFieldsValue({
-          phieunhapkho: {
+          phieunhapkhovattu: {
             userNhan_Id: res.data.Id,
             tenPhongBan: res.data.tenPhongBan,
           },
@@ -147,141 +160,48 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  const getNhaCungCap = (id) => {
-    if (id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `NhaCungCap/${id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListNhaCungCap([res.data]);
-        } else {
-          setListNhaCungCap([]);
-        }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `NhaCungCap?page=-1`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListNhaCungCap(res.data);
-        } else {
-          setListNhaCungCap([]);
-        }
-      });
-    }
+  const getMaPhieuNhapKho = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuNhapKhoVatTu/phieu-nhan-hang-chua-nhap`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListMaPhieu(res.data);
+      } else {
+        setListMaPhieu([]);
+      }
+    });
   };
 
-  const getMaPhieu = (id) => {
-    if (!id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `lkn_PhieuNhanHang/get-phieu-nhan-hang-chua-nhap `,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListMaPhieu(res.data);
-        } else {
-          setListMaPhieu([]);
-        }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `lkn_PhieuNhanHang/${id}?donVi_Id=${INFO.donVi_Id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListMaPhieu([
-            {
-              maPhieuNhanHang: res.data.maPhieuNhanHang,
-              id: res.data.id,
-            },
-          ]);
-        } else {
-          setListMaPhieu([]);
-        }
-      });
-    }
-  };
-
-  const getKho = (id) => {
-    if (id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `CauTrucKho/${id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListKho([res.data]);
-        } else {
-          setListKho([]);
-        }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListKho(res.data);
-        } else {
-          setListKho([]);
-        }
-      });
-    }
+  const getKho = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_CauTrucKho/cau-truc-kho-vat-tu-tree`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListKho(res.data);
+      } else {
+        setListKho([]);
+      }
+    });
   };
 
   /**
@@ -295,7 +215,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuNhapKhoVatTu/${id}?${params}`,
+          `tits_qtsx_PhieuNhapKhoVatTu/${id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -312,26 +232,25 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
             JSON.parse(res.data.chiTietVatTu).map((data) => {
               return {
                 ...data,
-                lkn_ChiTietPhieuNhanHang_Id:
-                  data.lkn_ChiTietPhieuNhanHang_Id.toLowerCase(),
+                tits_qtsx_PhieuNhanHang_Id:
+                  data.tits_qtsx_PhieuNhanHang_Id.toLowerCase(),
                 thoiGianSuDung: data.thoiGianSuDung
                   ? data.thoiGianSuDung
                   : null,
               };
             });
-
           setListVatTu(newData ? newData : []);
           getUserLap(INFO, res.data.userNhan_Id);
           getUserKy(INFO);
           setInfo(res.data);
           getKho();
-          getMaPhieu(res.data.phieuNhanHang_Id);
-          getNhaCungCap();
+          getMaPhieuNhapKho(res.data.phieuNhanHang_Id);
+
           setFieldsValue({
-            phieunhapkho: {
+            phieunhapkhovattu: {
               ...res.data,
-              ngayNhan: res.data.ngayNhan
-                ? moment(res.data.ngayNhan, "DD/MM/YYYY HH:mm:ss")
+              ngayNhapKho: res.data.ngayNhapKho
+                ? moment(res.data.ngayNhapKho, "DD/MM/YYYY HH:mm:ss")
                 : null,
               ngayHoaDon: res.data.ngayHoaDon
                 ? moment(res.data.ngayHoaDon, "DD/MM/YYYY")
@@ -378,7 +297,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
    */
   const deleteItemAction = (item) => {
     const newData = listVatTu.filter(
-      (d) => d.lkn_ChiTietPhieuNhanHang_Id !== item.lkn_ChiTietPhieuNhanHang_Id
+      (d) => d.tits_qtsx_PhieuNhanHang_Id !== item.tits_qtsx_PhieuNhanHang_Id
     );
     setListVatTu(newData);
   };
@@ -404,19 +323,23 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       </div>
     );
   };
-  const renderDatePicker = (val, record) => {
+  const renderDatePicker = (record) => {
     return (
       <DatePicker
         format={"DD/MM/YYYY"}
         disabled={type === "new" || type === "edit" ? false : true}
-        value={val ? moment(val, "DD/MM/YYYY") : null}
+        value={
+          record.hanSuDung
+            ? moment(record.hanSuDung, "DD/MM/YYYY")
+            : moment(getDateNow(), "DD/MM/YYYY")
+        }
         allowClear={false}
         onChange={(date, dateString) => {
           const newVatTu = [...listVatTu];
           newVatTu.forEach((vt, index) => {
             if (
-              vt.lkn_ChiTietPhieuNhanHang_Id ===
-              record.lkn_ChiTietPhieuNhanHang_Id
+              vt.tits_qtsx_PhieuNhanHang_Id ===
+              record.tits_qtsx_PhieuNhanHang_Id
             ) {
               newVatTu[index].thoiGianSuDung = dateString;
             }
@@ -440,26 +363,25 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       item.message = `Số lượng phải nhỏ hơn ${item.soLuongNhan}`;
     } else {
       const newData = editingRecord.filter(
-        (d) =>
-          d.lkn_ChiTietPhieuNhanHang_Id !== item.lkn_ChiTietPhieuNhanHang_Id
+        (d) => d.tits_qtsx_PhieuNhanHang_Id !== item.tits_qtsx_PhieuNhanHang_Id
       );
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...listVatTu];
     newData.forEach((ct, index) => {
-      if (ct.lkn_ChiTietPhieuNhanHang_Id === item.lkn_ChiTietPhieuNhanHang_Id) {
+      if (ct.tits_qtsx_PhieuNhanHang_Id === item.tits_qtsx_PhieuNhanHang_Id) {
         ct.soLuongNhap = soLuongNhap;
       }
     });
     setListVatTu(newData);
   };
 
-  const rendersoLuong = (item) => {
+  const rendersoLuong = (record, value) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (ct.lkn_ChiTietPhieuNhanHang_Id === item.lkn_ChiTietPhieuNhanHang_Id) {
+      if (ct.tits_qtsx_PhieuNhanHang_Id === record.tits_qtsx_PhieuNhanHang_Id) {
         isEditing = true;
         message = ct.message;
       }
@@ -473,19 +395,20 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           }}
           className={`input-item`}
           type="number"
-          value={item.soLuongNhap}
+          value={record.soLuong}
           disabled={type === "new" || type === "edit" ? false : true}
-          onChange={(val) => handleInputChange(val, item)}
+          onChange={(val) => handleInputChange(val, record, value)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
       </>
     );
   };
+
   const changeGhiChu = (val, item) => {
     const ghiChu = val.target.value;
     const newData = [...listVatTu];
     newData.forEach((sp, index) => {
-      if (sp.lkn_ChiTietPhieuNhanHang_Id === item.lkn_ChiTietPhieuNhanHang_Id) {
+      if (sp.tits_qtsx_PhieuNhanHang_Id === item.tits_qtsx_PhieuNhanHang_Id) {
         sp.ghiChu = ghiChu;
       }
     });
@@ -517,12 +440,6 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
-      align: "center",
-    },
-    {
       title: "Mã vật tư",
       dataIndex: "maVatTu",
       key: "maVatTu",
@@ -541,18 +458,22 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Số lượng",
-      render: (record) => rendersoLuong(record),
-
-      key: "soLuongNhap",
+      title: "Số lượng chưa nhập",
+      dataIndex: "soLuongChuaNhap",
+      key: "soLuongChuaNhap",
       align: "center",
     },
     {
-      title: "Thời gian sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
+      title: "Số lượng nhập",
+      key: "soLuong",
       align: "center",
-      render: (val, record) => renderDatePicker(val, record),
+      render: (record) => rendersoLuong(record),
+    },
+    {
+      title: "Hạn sử dụng",
+      key: "hanSuDung",
+      align: "center",
+      render: (record) => renderDatePicker(record),
     },
     {
       title: "Ghi chú",
@@ -578,7 +499,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     const newData = [...listVatTu];
     const index = newData.findIndex(
       (item) =>
-        row.lkn_ChiTietPhieuNhanHang_Id === item.lkn_ChiTietPhieuNhanHang_Id
+        row.tits_qtsx_PhieuNhanHang_Id === item.tits_qtsx_PhieuNhanHang_Id
     );
     const item = newData[index];
     newData.splice(index, 1, {
@@ -610,7 +531,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.phieunhapkho);
+    saveData(values.phieunhapkhovattu);
   };
 
   const saveAndClose = (val) => {
@@ -619,7 +540,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         if (listVatTu.length === 0) {
           Helpers.alertError("Danh sách vật tư rỗng");
         } else {
-          saveData(values.phieunhapkho, val);
+          saveData(values.phieunhapkhovattu, val);
         }
       })
       .catch((error) => {
@@ -627,18 +548,19 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       });
   };
 
-  const saveData = (nhapkho, saveQuit = false) => {
+  const saveData = (phieunhapkhovattu, saveQuit = false) => {
     if (type === "new") {
       const newData = {
-        ...nhapkho,
-        chiTiet_PhieuNhapKhoVatTus: listVatTu,
-        ngayHoaDon: nhapkho.ngayHoaDon._i,
-        ngayNhan: nhapkho.ngayNhan._i,
+        ...phieunhapkhovattu,
+        ngayNhapKho: phieunhapkhovattu.ngayNhapKho.format(
+          "DD/MM/YYYY HH:mm:ss"
+        ),
+        tits_qtsx_PhieuNhapKhoVatTuChiTiets: listVatTu,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuNhapKhoVatTu`,
+            `tits_qtsx_PhieuNhapKhoVatTu`,
             "POST",
             newData,
             "ADD",
@@ -655,13 +577,12 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
             } else {
               resetFields();
               getUserLap(INFO);
-              getNhaCungCap();
               getUserKy(INFO);
               getKho();
-              getMaPhieu();
+              getMaPhieuNhapKho();
               setFieldsValue({
-                phieunhapkho: {
-                  ngayNhan: moment(getDateNow(), "DD/MM/YYYY HH:mm:ss"),
+                phieunhapkhovattu: {
+                  ngayNhapKho: moment(getDateNow(), "DD/MM/YYYY HH:mm:ss"),
                   ngayHoaDon: moment(getDateNow(), "DD/MM/YYYY"),
                 },
               });
@@ -677,21 +598,22 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     if (type === "edit") {
       const newData = {
         id: id,
-        ...nhapkho,
-        chiTiet_PhieuNhapKhoVatTus: listVatTu.map((vt) => {
+        ...phieunhapkhovattu,
+        ngayNhapKho: phieunhapkhovattu.ngayNhapKho.format(
+          "DD/MM/YYYY HH:mm:ss"
+        ),
+        tits_qtsx_PhieuNhapKhoVatTuChiTiets: listVatTu.map((vt) => {
           return {
             ...vt,
-            lkn_PhieuNhapKhoVatTu_Id: id,
+            tits_qtsx_PhieuNhapKhoVatTu_Id: id,
           };
         }),
-        ngayHoaDon: nhapkho.ngayHoaDon._i,
-        ngayNhan: nhapkho.ngayNhan._i,
       };
 
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuNhapKhoVatTu/${id}`,
+            `tits_qtsx_PhieuNhapKhoVatTu/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -729,7 +651,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuNhanHang/phieu-nhan-hang-chua-du?id=${value}`,
+          `tits_qtsx_PhieuNhapKhoVatTu/phieu-nhan-hang-chi-tiet-chua-nhap?tits_qtsx_PhieuNhanHang_Id=${value}`,
           "GET",
           null,
           "LIST",
@@ -741,21 +663,118 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          const newVatTu =
-            res.data.chiTietVatTu &&
-            JSON.parse(res.data.chiTietVatTu)
-              .filter((ct) => Number(ct.soLuongNhan) > 0)
-              .map((ct) => ({
-                ...ct,
-                soLuongNhap: ct.soLuongNhan,
-                lkn_ChiTietPhieuNhanHang_Id:
-                  ct.lkn_ChiTietPhieuNhanHang_Id.toLowerCase(),
-                thoiGianSuDung: getDateNow(),
-              }));
-          setListVatTu(newVatTu || []);
+          setListVatTu(res.data);
         }
       })
       .catch((error) => console.error(error));
+  };
+
+  const renderFileChungTu = () => {
+    const chungtu = [];
+
+    for (let i = 0; i < ChungTu.length; i++) {
+      const props = {
+        accept: ".pdf",
+        beforeUpload: (file) => {
+          const isPDF = file.type === "application/pdf";
+
+          if (!isPDF) {
+            Helpers.alertError(`${file.name} không phải là file PDF`);
+          } else {
+            setFieldsValue({
+              phieunhapkhovattu: {
+                tenChungTu: file,
+              },
+            });
+            setDisableUpload(true);
+            return false;
+          }
+        },
+        showUploadList: false,
+        maxCount: 1,
+      };
+
+      chungtu.push(
+        <Col
+          xxl={12}
+          xl={12}
+          lg={24}
+          md={24}
+          sm={24}
+          xs={24}
+          style={{ marginBottom: 8 }}
+        >
+          <Form.Item
+            label={`File chứng từ ${ChungTu[i].tenChungTu}`}
+            name={["phieunhapkhovattu", `fileChungTu${ChungTu[i].tenChungTu}`]}
+            rules={[
+              {
+                type: "file",
+                required: true,
+              },
+            ]}
+          >
+            {!DisableUpload ? (
+              <Upload {...props}>
+                <Button
+                  style={{
+                    marginBottom: 0,
+                  }}
+                  icon={<UploadOutlined />}
+                  disabled={type === "xacnhan" || type === "detail"}
+                >
+                  File chứng từ {ChungTu[i].tenChungTu}
+                </Button>
+              </Upload>
+            ) : FileChungTu.name ? (
+              <span>
+                <span
+                  style={{ color: "#0469B9", cursor: "pointer" }}
+                  onClick={() => renderPDF(FileChungTu)}
+                >
+                  {FileChungTu.name.length > 30
+                    ? FileChungTu.name.substring(0, 30) + "..."
+                    : FileChungTu.name}{" "}
+                </span>
+                <DeleteOutlined
+                  style={{ cursor: "pointer", color: "red" }}
+                  disabled={type === "new" || type === "edit" ? false : true}
+                  onClick={() => {
+                    setFileChungTu(null);
+                    setDisableUpload(false);
+                  }}
+                />
+              </span>
+            ) : (
+              <span>
+                <a
+                  target="_blank"
+                  href={BASE_URL_API + FileChungTu}
+                  rel="noopener noreferrer"
+                >
+                  {FileChungTu.split("/")[5]}{" "}
+                </a>
+                {type !== "detail" && (
+                  <DeleteOutlined
+                    style={{ cursor: "pointer", color: "red" }}
+                    onClick={() => {
+                      setFileChungTu(null);
+                      setDisableUpload(false);
+                    }}
+                  />
+                )}
+              </span>
+            )}
+          </Form.Item>
+        </Col>
+      );
+    }
+    return chungtu;
+  };
+
+  const hanldeSelectChungTu = (value) => {
+    const newChungTu = ListKho.filter((d) => d.id === value);
+    setChungTu(newChungTu[0].chiTietChungTus && newChungTu[0].chiTietChungTus);
   };
 
   return (
@@ -763,17 +782,25 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       <ContainerHeader title={formTitle} back={goBack} />
       <Card className="th-card-margin-bottom">
         <Form
-          {...DEFAULT_FORM_CUSTOM}
+          {...DEFAULT_FORM_NHAPKHOVATTU}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
           <Row>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Người nhập"
-                name={["phieunhapkho", "userNhan_Id"]}
+                name={["phieunhapkhovattu", "userNhan_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -790,10 +817,18 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Ban/Phòng"
-                name={["phieunhapkho", "tenPhongBan"]}
+                name={["phieunhapkhovattu", "tenPhongBan"]}
                 rules={[
                   {
                     type: "string",
@@ -804,35 +839,18 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 <Input className="input-item" disabled={true} />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
-                label="Ngày nhập"
-                name={["phieunhapkho", "ngayNhan"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <DatePicker
-                  format={"DD/MM/YYYY HH:mm:ss"}
-                  disabled={true}
-                  showTime
-                  allowClear={false}
-                  onChange={(date, dateString) => {
-                    setFieldsValue({
-                      phieunhapkho: {
-                        ngayNhan: moment(dateString, "DD/MM/YYYY HH:mm:ss"),
-                      },
-                    });
-                  }}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Số đơn hàng"
-                name={["phieunhapkho", "phieuNhanHang_Id"]}
+                label="Phiếu nhận hàng"
+                name={["phieunhapkhovattu", "tits_qtsx_PhieuNhanHang_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -843,8 +861,8 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListMaPhieu}
-                  placeholder="Chọn phiếu mua hàng"
-                  optionsvalue={["id", "maPhieuNhanHang"]}
+                  placeholder="Chọn phiếu nhận hàng"
+                  optionsvalue={["tits_qtsx_PhieuNhanHang_Id", "maPhieu"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -853,85 +871,43 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
-                label="Số hóa đơn"
-                name={["phieunhapkho", "soHoaDon"]}
+                label="Biên bản bàn giao"
+                name={["phieunhapkhovattu", "bienBanBanGiao"]}
                 rules={[
                   {
-                    type: "string",
-                  },
-                ]}
-              >
-                <Input
-                  placeholder="Số hóa đơn"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Ngày hóa đơn"
-                name={["phieunhapkho", "ngayHoaDon"]}
-                rules={[]}
-              >
-                <DatePicker
-                  disabled={type === "new" ? false : true}
-                  format={"DD/MM/YYYY"}
-                  allowClear={false}
-                  onChange={(date, dateString) => {
-                    setFieldsValue({
-                      phieunhapkho: {
-                        ngayHoaDon: moment(dateString, "DD/MM/YYYY"),
-                      },
-                    });
-                  }}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Nhà cung cấp"
-                name={["phieunhapkho", "nhaCungCap_Id"]}
-                rules={[
-                  {
-                    type: "string",
                     required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListNhaCungCap}
-                  placeholder="Chọn nhà cung cấp"
-                  optionsvalue={["id", "tenNhaCungCap"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem
-                label="Nội dung nhập"
-                name={["phieunhapkho", "noiDungNhanVatTu"]}
-                rules={[
-                  {
                     type: "string",
                   },
                 ]}
               >
                 <Input
-                  placeholder="Nội dụng nhập vật tư"
+                  placeholder="Biên bản bàn giao"
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
                 label="Kho nhập"
-                name={["phieunhapkho", "cauTrucKho_Id"]}
+                name={["phieunhapkhovattu", "tits_qtsx_CauTrucKho_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -943,18 +919,109 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListKho}
                   placeholder="Chọn kho nhập"
-                  optionsvalue={["id", "tenCTKho"]}
+                  optionsvalue={["id", "tenCauTrucKho"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
+                  onSelect={hanldeSelectChungTu}
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
-                label="BP.QC"
-                name={["phieunhapkho", "userQC_Id"]}
+                label="Ngày nhập kho"
+                name={["phieunhapkhovattu", "ngayNhapKho"]}
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <DatePicker
+                  format={"DD/MM/YYYY HH:mm:ss"}
+                  disabled={type === "new" || type === "edit" ? false : true}
+                  showTime
+                  allowClear={false}
+                  onChange={(date, dateString) => {
+                    setFieldsValue({
+                      phieunhapkhovattu: {
+                        ngayNhapKho: moment(dateString, "DD/MM/YYYY HH:mm:ss"),
+                      },
+                    });
+                  }}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Số phiếu kiểm tra"
+                name={["phieunhapkhovattu", "soPhieuKiemTra"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Số phiểu kiểm tra"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Nội dung nhập"
+                name={["phieunhapkhovattu", "noiDung"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nội dung nhập"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Người giao"
+                name={["phieunhapkhovattu", "nguoiGiao_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -965,7 +1032,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
-                  placeholder="Chọn BP.QC"
+                  placeholder="Người giao"
                   optionsvalue={["user_Id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
@@ -974,10 +1041,18 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
               <FormItem
-                label="Thống kê"
-                name={["phieunhapkho", "userThongKe_Id"]}
+                label="Người duyệt"
+                name={["phieunhapkhovattu", "nguoiDuyet_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -988,7 +1063,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
-                  placeholder="Chọn thống kê"
+                  placeholder="Người duyệt"
                   optionsvalue={["user_Id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
@@ -997,29 +1072,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
-              <FormItem
-                label="Phụ trách bộ phận"
-                name={["phieunhapkho", "userPhuTrach_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn phụ trách bộ phận"
-                  optionsvalue={["user_Id", "fullName"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
+            {renderFileChungTu()}
           </Row>
         </Form>
         <Table

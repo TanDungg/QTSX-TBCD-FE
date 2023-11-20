@@ -1,4 +1,8 @@
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -35,6 +39,7 @@ import {
 import AddVatTuModal from "./AddVatTuModal";
 import ModalTuChoi from "./ModalTuChoi";
 import AddSanPhamModal from "./AddSanPhamModal";
+import ImportDinhMucVatTu from "./ImportDinhMucVatTu";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -120,7 +125,7 @@ const EditableCell = ({
         }}
         onClick={toggleEdit}
       >
-        {children}
+        {title === "Định mức xả nhựa" && children === 0 ? null : children}
       </div>
     );
   }
@@ -145,6 +150,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
   const [ActiveModal, setActiveModal] = useState(false);
   const [ActiveModalSanPham, setActiveModalSanPham] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
+  const [ActiveModalImport, setActiveModalImport] = useState(false);
 
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
@@ -320,7 +326,13 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListSanPham(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            name: dt.maSanPham + " - " + dt.tenSanPham,
+          };
+        });
+        setListSanPham(newData);
       } else {
         setListSanPham([]);
       }
@@ -400,13 +412,14 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
         if (res && res.data) {
           res.data.ghiChu = data.ghiChu;
           res.data.dinhMuc = data.dinhMuc;
-          res.data.dinhMucXaNhua = data.dinhMucXaNhua;
+          res.data.dinhMucXaNhua = data.dinhMucXaNhua ? data.dinhMucXaNhua : 0;
           res.data.vatTu_Id = res.data.id;
           if (listVatTu.length === 0) {
             res.data.isBatBuoc = true;
           } else {
             res.data.isBatBuoc = false;
           }
+          console.log(res.data);
           setListVatTu([...listVatTu, res.data]);
           setFieldTouch(true);
         }
@@ -431,7 +444,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
         if (res && res.data) {
           res.data.ghiChu = data.ghiChu;
           res.data.dinhMuc = data.dinhMuc;
-          res.data.dinhMucXaNhua = data.dinhMucXaNhua;
+          res.data.dinhMucXaNhua = data.dinhMucXaNhua ? data.dinhMucXaNhua : 0;
           res.data.vatTu_Id = res.data.id;
           res.data.tenVatTu = res.data.tenSanPham;
           res.data.maVatTu = res.data.maSanPham;
@@ -724,6 +737,9 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
     });
     !check && getDetailSanPham(data);
   };
+  const addVatTuImport = (data) => {
+    setListVatTu([...listVatTu, ...data]);
+  };
   const hanldeXacNhan = () => {
     const newData = {
       id: id,
@@ -922,7 +938,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListSanPham ? ListSanPham : []}
                   placeholder="Chọn sản phẩm"
-                  optionsvalue={["id", "tenSanPham"]}
+                  optionsvalue={["id", "name"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1002,6 +1018,13 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                 >
                   Chọn sản phẩm
                 </Button>
+                <Button
+                  icon={<UploadOutlined />}
+                  type="primary"
+                  onClick={() => setActiveModalImport(true)}
+                >
+                  Import
+                </Button>
               </Col>
             ) : null}
           </Row>
@@ -1057,6 +1080,12 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
         openModal={ActiveModalTuChoi}
         openModalFS={setActiveModalTuChoi}
         saveTuChoi={saveTuChoi}
+      />
+      <ImportDinhMucVatTu
+        openModal={ActiveModalImport}
+        listVatTu={listVatTu}
+        addVatTu={addVatTuImport}
+        openModalFS={setActiveModalImport}
       />
     </div>
   );

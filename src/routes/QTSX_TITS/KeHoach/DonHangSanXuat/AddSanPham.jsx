@@ -29,11 +29,11 @@ function AddSanPham({
       getLoaiSanPham();
       getMauSac();
       if (type === "edit") {
-        getSanPham(info.loaiSanPham_Id);
+        getSanPham(info.tits_qtsx_LoaiSanPham_Id);
         setFieldsValue({
           chitiet: {
             ...info,
-            ngayBanGiao: moment(info.ngayBanGiao, "DD/MM/YYYY"),
+            ngay: moment(info.ngay, "DD/MM/YYYY"),
           },
         });
       } else {
@@ -112,21 +112,23 @@ function AddSanPham({
   };
   const saveData = (chitiet) => {
     const newData = chitiet;
-    newData.ngayBanGiao = chitiet.ngayBanGiao._i;
+    newData.ngay = chitiet.ngay && chitiet.ngay._i;
+    newData.tits_qtsx_ChiTiet =
+      newData.tits_qtsx_SanPham_Id + "_" + newData.tits_qtsx_MauSac_Id;
+
     ListSanPham.forEach((sp) => {
-      if (sp.id === newData.sanPham_Id) {
+      if (sp.id === newData.tits_qtsx_SanPham_Id) {
         newData.tenSanPham = sp.tenSanPham;
         newData.maSanPham = sp.maSanPham;
         newData.tenLoaiSanPham = sp.tenLoaiSanPham;
       }
     });
     ListMauSac.forEach((ms) => {
-      if (ms.id === newData.mauSac_Id) {
+      if (ms.id === newData.tits_qtsx_MauSac_Id) {
         newData.tenMauSac = ms.tenMauSac;
       }
     });
     addSanPham(newData, type);
-    openModalFS(false);
   };
 
   const handleCancel = () => {
@@ -165,7 +167,7 @@ function AddSanPham({
         >
           <FormItem
             label="Loại sản phẩm"
-            name={["chitiet", "loaiSanPham_Id"]}
+            name={["chitiet", "tits_qtsx_LoaiSanPham_Id"]}
             rules={[{ type: "string", required: true }]}
           >
             <Select
@@ -181,7 +183,7 @@ function AddSanPham({
           </FormItem>
           <FormItem
             label="Sản phẩm"
-            name={["chitiet", "sanPham_Id"]}
+            name={["chitiet", "tits_qtsx_SanPham_Id"]}
             rules={[{ type: "string", required: true }]}
           >
             <Select
@@ -214,7 +216,7 @@ function AddSanPham({
           </FormItem>
           <FormItem
             label="Màu sắc"
-            name={["chitiet", "mauSac_Id"]}
+            name={["chitiet", "tits_qtsx_MauSac_Id"]}
             rules={[{ type: "string", required: true }]}
           >
             <Select
@@ -261,7 +263,7 @@ function AddSanPham({
           </FormItem>
           <FormItem
             label="Vận chuyển"
-            name={["chitiet", "vanChuyen"]}
+            name={["chitiet", "phiVanChuyen"]}
             rules={[
               {
                 required: true,
@@ -270,14 +272,14 @@ function AddSanPham({
           >
             <Input placeholder="Vận chuyển"></Input>
           </FormItem>
-          <FormItem label="Ngày bàn giao" name={["chitiet", "ngayBanGiao"]}>
+          <FormItem label="Ngày bàn giao" name={["chitiet", "ngay"]}>
             <DatePicker
               format={"DD/MM/YYYY"}
               allowClear={false}
               onChange={(date, dateString) => {
                 setFieldsValue({
                   chitiet: {
-                    ngayBanGiao: moment(dateString, "DD/MM/YYYY"),
+                    ngay: moment(dateString, "DD/MM/YYYY"),
                   },
                 });
               }}
@@ -286,7 +288,7 @@ function AddSanPham({
           </FormItem>
           <FormItem
             label="Ghi chú"
-            name={["chitiet", "ghiChu"]}
+            name={["chitiet", "moTa"]}
             rules={[
               {
                 type: "string",

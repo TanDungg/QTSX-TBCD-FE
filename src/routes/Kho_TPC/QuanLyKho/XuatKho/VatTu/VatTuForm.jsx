@@ -465,6 +465,7 @@ const VatTuForm = ({ history, match, permission }) => {
           return {
             ...item,
             chiTiet_LuuVatTus: [],
+            soLuongThucXuat: null,
           };
         }
         return item;

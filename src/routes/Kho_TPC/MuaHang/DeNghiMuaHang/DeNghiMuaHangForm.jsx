@@ -1036,12 +1036,13 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 bom_Id: data.id,
                 lkn_ChiTietBOM_Id: ct.lkn_ChiTietBOM_Id.toLowerCase(),
                 vatTu_Id: ct.vatTu_Id.toLowerCase(),
-                soLuongTheoDinhMuc: ct.dinhMuc * SoLuong,
+                soLuongTheoDinhMuc: (ct.dinhMuc * SoLuong).toFixed(6),
                 ghiChu: "",
                 hangMucSuDung: "",
-                soLuong: ct.dinhMuc * SoLuong,
+                soLuong: (ct.dinhMuc * SoLuong).toFixed(6),
               };
             });
+
           if (newData) {
             const newListSanPham = ListSanPham.filter(
               (d) => d.id !== data.sanPham_Id
@@ -1050,14 +1051,12 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             setListSanPham(newListSanPham);
             setFieldsValue({
               sanPham: {
-                phongBan_Id: null,
                 sanPham_Id: null,
                 soLuong: null,
               },
             });
             setSanPham_Id(null);
             setSoLuong(null);
-            setXuong(null);
             setDisabledThem(true);
           } else {
             Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");

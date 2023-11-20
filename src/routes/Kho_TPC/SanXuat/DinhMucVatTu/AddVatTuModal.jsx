@@ -133,9 +133,6 @@ function AddVatTuModal({ openModalFS, openModal, loading, addVatTu }) {
             name={["vatTu", "dinhMucXaNhua"]}
             rules={[
               {
-                required: true,
-              },
-              {
                 pattern: /^(0\.\d*[1-9]\d*|[1-9]\d*(\.\d+)?)$/,
                 message: "Định mức xả nhựa phải là số và lớn hơn 0!",
               },

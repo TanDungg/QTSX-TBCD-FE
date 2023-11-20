@@ -16,6 +16,8 @@ const DonHangSanXuat = asyncComponent(() =>
 const DonHangSanXuatForm = asyncComponent(() =>
   import("./DonHangSanXuat/DonHangSanXuatForm")
 );
+const SoLo = asyncComponent(() => import("./SoLo/SoLo"));
+const SoLoForm = asyncComponent(() => import("./SoLo/SoLoForm"));
 const KeHoachTong = asyncComponent(() =>
   import("./KeHoachSanXuat/KeHoachTong/KeHoachTong")
 );
@@ -67,6 +69,26 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/don-hang/:id/chinh-sua`}
         exact
         component={Auth(DonHangSanXuatForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/don-hang/:id/chi-tiet`}
+        exact
+        component={Auth(DonHangSanXuatForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/so-lo`}
+        exact
+        component={Auth(SoLo, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/so-lo/them-moi`}
+        exact
+        component={Auth(SoLoForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/so-lo/:id/chinh-sua`}
+        exact
+        component={Auth(SoLoForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/ke-hoach-san-xuat/tong`}

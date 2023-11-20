@@ -70,7 +70,7 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
               return {
                 ...data,
                 tenCTKho: itemData.tenCTKho,
-                soLuongThucXuat: 0,
+                soLuongThucXuat: data.soLuong,
               };
             }
           }
@@ -94,6 +94,10 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       setDisabledSave(true);
       setEditingRecord([...editingRecord, item]);
       item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+    } else if (Number(soLuong) > item.soLuong) {
+      setDisabledSave(true);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng xuất không được lớn hơn số lượng trong kho";
     } else {
       const newData =
         editingRecord &&
@@ -108,13 +112,20 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       setEditingRecord(newData);
     }
     const newData = [...ListViTriKho];
+    const vitri = [...SelectedViTri];
 
     newData.forEach((ct, index) => {
       if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
         ct.soLuongThucXuat = soLuong;
       }
     });
+    vitri.forEach((ct, index) => {
+      if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+        ct.soLuongThucXuat = soLuong;
+      }
+    });
     setListViTriKho(newData);
+    setSelectedViTri(vitri);
   };
 
   const renderSoLuongXuat = (item) => {
