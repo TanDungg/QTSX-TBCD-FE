@@ -627,13 +627,18 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     } else if (type === "edit" && phieunhanhang.fileDinhKem) {
       const formData = new FormData();
       formData.append("file", phieunhanhang.fileDinhKem.file);
-      fetch(`${BASE_URL_API}/api/Upload?stringPath=${info.fileDinhKem}`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: "Bearer ".concat(INFO.token),
-        },
-      })
+      fetch(
+        info.fileDinhKem
+          ? `${BASE_URL_API}/api/Upload?stringPath=${info.fileDinhKem}`
+          : `${BASE_URL_API}/api/Upload`,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: "Bearer ".concat(INFO.token),
+          },
+        }
+      )
         .then((res) => res.json())
         .then((data) => {
           phieunhanhang.fileDinhKem = data.path;

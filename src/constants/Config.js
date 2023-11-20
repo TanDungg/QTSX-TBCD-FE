@@ -327,3 +327,33 @@ export const DEFAULT_FORM_XUATKHONGOAIQUAN = {
         : 17,
   },
 };
+export const DEFAULT_FORM_NHAPKHOVATTU = {
+  labelCol: {
+    span:
+      window.innerWidth >= 1600
+        ? 8
+        : window.innerWidth >= 1200
+        ? 9
+        : window.innerWidth >= 768
+        ? 6
+        : window.innerWidth >= 576
+        ? 8
+        : 7,
+    style: {
+      fontWeight: "bold",
+      marginLeft: window.innerWidth >= 1200 ? -15 : 0,
+    },
+  },
+  wrapperCol: {
+    span:
+      window.innerWidth >= 1600
+        ? 15
+        : window.innerWidth >= 1200
+        ? 15
+        : window.innerWidth >= 768
+        ? 17
+        : window.innerWidth >= 576
+        ? 16
+        : 17,
+  },
+};

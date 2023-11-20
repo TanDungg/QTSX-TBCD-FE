@@ -459,6 +459,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
   const uploadFile = (phieumuahangnoibo, saveQuit) => {
     if (type === "new" && phieumuahangnoibo.file) {
       const formData = new FormData();
+      console.log(phieumuahangnoibo.file.file);
       formData.append("file", phieumuahangnoibo.file.file);
       fetch(`${BASE_URL_API}/api/Upload`, {
         method: "POST",
