@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
+import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -22,23 +22,25 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
-import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
-function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
+function ThanhLyVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [page, setPage] = useState(1);
-  const [keyword, setKeyword] = useState("");
+  const [ListKho, setListKho] = useState([]);
+  const [Kho, setKho] = useState(null);
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
+  const [keyword, setKeyword] = useState("");
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (permission && permission.view) {
-      loadData(keyword, FromDate, ToDate, page);
+      getKho();
+      getListData(keyword, Kho, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -47,60 +49,60 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Lấy dữ liệu về
-   *
-   */
-  const loadData = (keyword, NgayBatDau, NgayKetThuc, page) => {
+  const getListData = (keyword, cauTrucKho_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
+      cauTrucKho_Id,
+      donVi_Id: INFO.donVi_Id,
+      tuNgay,
+      denNgay,
       keyword,
-      NgayBatDau,
-      NgayKetThuc,
       page,
     });
-    dispatch(
-      fetchStart(
-        `tits_qtsx_PhieuYeuCauXuatKhoNgoaiQuan?${param}`,
-        "GET",
-        null,
-        "LIST"
-      )
-    );
+    dispatch(fetchStart(`lkn_PhieuThanhLyVatTu?${param}`, "GET", null, "LIST"));
   };
 
-  /**
-   * Tìm kiếm sản phẩm
-   *
-   */
-  const onSearchPhieuNhanHang = () => {
-    loadData(keyword, FromDate, ToDate, page);
+  const getKho = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListKho(res.data);
+        } else {
+          setListKho([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
-  /**
-   * Thay đổi keyword
-   *
-   * @param {*} val
-   */
+  const onSearchDeNghiMuaHang = () => {
+    getListData(keyword, Kho, FromDate, ToDate, page);
+  };
+
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, FromDate, ToDate, page);
+      getListData(val.target.value, Kho, FromDate, ToDate, page);
     }
   };
 
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
   const actionContent = (item) => {
     const editItem =
       permission &&
       permission.edit &&
-      item.nguoiYeuCau_Id === INFO.user_Id &&
-      moment(item.ngayYeuCau, "DD/MM/YYYY") >=
-        moment(getDateNow(-1), "DD/MM/YYYY") ? (
+      item.userLap_Id === INFO.user_Id &&
+      moment(getDateNow(-1), "DD/MM/YYYY") <=
+        moment(item.ngayXuatKho, "DD/MM/YYYY") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -115,13 +117,12 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
           <EditOutlined />
         </span>
       );
-
     const deleteVal =
       permission &&
       permission.del &&
-      item.nguoiYeuCau_Id === INFO.user_Id &&
-      moment(item.ngayYeuCau, "DD/MM/YYYY") >=
-        moment(getDateNow(-1), "DD/MM/YYYY")
+      item.userLap_Id === INFO.user_Id &&
+      moment(getDateNow(-1), "DD/MM/YYYY") <=
+        moment(item.ngayXuatKho, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -135,61 +136,39 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
     );
   };
 
-  /**
-   * deleteItemFunc: Xoá item theo item
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
   const deleteItemFunc = (item) => {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieu,
-      "phiếu xuất kho ngoại quan"
+      item.maPhieuThanhLy,
+      "phiếu thanh lý"
     );
   };
 
-  /**
-   * Xóa item
-   *
-   * @param {*} item
-   */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_PhieuYeuCauXuatKhoNgoaiQuan?id=${item.id}`;
+    let url = `lkn_PhieuThanhLyVatTu?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, FromDate, ToDate, page);
+          getListData(keyword, Kho, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, FromDate, ToDate, pagination);
+    getListData(keyword, Kho, FromDate, ToDate, pagination);
   };
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
   const handleRedirect = () => {
     history.push({
       pathname: `${match.url}/them-moi`,
     });
   };
+
   const addButtonRender = () => {
     return (
       <>
@@ -218,34 +197,12 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieu}
+          {val.maPhieuThanhLy}
         </Link>
       ) : (
-        <span disabled>{val.maPhieu}</span>
+        <span disabled>{val.maPhieuThanhLy}</span>
       );
     return <div>{detail}</div>;
-  };
-
-  const renderColumn = (value) => {
-    return (
-      <div>
-        {value && (
-          <Tag
-            style={{
-              color:
-                value === "Chưa nhận"
-                  ? "red"
-                  : value === "Đã nhận"
-                  ? "blue"
-                  : "orange",
-              fontSize: 13,
-            }}
-          >
-            {value}
-          </Tag>
-        )}
-      </div>
-    );
   };
 
   let renderHead = [
@@ -254,74 +211,42 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
       dataIndex: "key",
       key: "key",
       align: "center",
-      width: 45,
+      width: 50,
     },
     {
-      title: "Mã phiếu yêu cầu",
-      key: "maPhieu",
+      title: "Mã phiếu thanh lý",
+      key: "maPhieuThanhLy",
       align: "center",
       render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieu,
-            value: d.maPhieu,
+            text: d.maPhieuThanhLy,
+            value: d.maPhieuThanhLy,
           };
         })
       ),
-      onFilter: (value, record) => record.maPhieu.includes(value),
+      onFilter: (value, record) => record.maPhieuThanhLy.includes(value),
       filterSearch: true,
     },
     {
-      title: "Đơn vị yêu cầu",
-      dataIndex: "donViYeuCau",
-      key: "donViYeuCau",
+      title: "Kho thanh lý",
+      dataIndex: "tenKhoThanhLy",
+      key: "tenKhoThanhLy",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.donViYeuCau,
-            value: d.donViYeuCau,
+            text: d.tenKhoThanhLy,
+            value: d.tenKhoThanhLy,
           };
         })
       ),
-      onFilter: (value, record) => record.donViYeuCau.includes(value),
+      onFilter: (value, record) => record.tenKhoThanhLy.includes(value),
       filterSearch: true,
     },
     {
-      title: "Đơn vị nhận yêu cầu",
-      dataIndex: "donViNhanYeuCau",
-      key: "donViNhanYeuCau",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.donViNhanYeuCau,
-            value: d.donViNhanYeuCau,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.donViNhanYeuCau.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Người yêu cầu",
-      dataIndex: "nguoiYeuCau",
-      key: "nguoiYeuCau",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.nguoiYeuCau,
-            value: d.nguoiYeuCau,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.nguoiYeuCau.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Ngày tạo phiếu",
+      title: "Ngày yêu cầu",
       dataIndex: "ngayYeuCau",
       key: "ngayYeuCau",
       align: "center",
@@ -337,21 +262,20 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Tình trạng",
-      dataIndex: "tinhTrangPhieu",
-      key: "tinhTrangPhieu",
+      title: "Người lập",
+      dataIndex: "nguoiLapPhieu",
+      key: "nguoiLapPhieu",
       align: "center",
       filters: removeDuplicates(
-        map(data, (d) => {
+        map(dataList, (d) => {
           return {
-            text: d.tinhTrangPhieu,
-            value: d.tinhTrangPhieu,
+            text: d.nguoiLapPhieu,
+            value: d.nguoiLapPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.tinhTrangPhieu.includes(value),
+      onFilter: (value, record) => record.nguoiLapPhieu.includes(value),
       filterSearch: true,
-      render: (value) => renderColumn(value),
     },
     {
       title: "Chức năng",
@@ -368,6 +292,7 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
       cell: EditableCell,
     },
   };
+
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
@@ -384,23 +309,59 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
     };
   });
 
+  const handleOnSelectKho = (val) => {
+    setKho(val);
+    setPage(1);
+    getListData(keyword, val, FromDate, ToDate, 1);
+  };
+
+  const handleClearKho = (val) => {
+    setKho("");
+    setPage(1);
+    getListData(keyword, "", FromDate, ToDate, 1);
+  };
+
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    loadData(keyword, dateString[0], dateString[1], 1);
+    getListData(keyword, Kho, dateString[0], dateString[1], 1);
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phiếu yêu cầu xuất kho ngoại quan"
-        description="Phiếu yêu cầu xuất kho ngoại quan"
+        title="Thanh lý vật tư"
+        description="Thanh lý vật tư"
         buttons={addButtonRender()}
       />
-
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row>
+        <Row style={{ marginBottom: 8 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Kho:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListKho ? ListKho : []}
+              placeholder="Chọn kho"
+              optionsvalue={["id", "tenCTKho"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp={"name"}
+              onSelect={handleOnSelectKho}
+              value={Kho}
+              onChange={(value) => setKho(value)}
+              allowClear
+              onClear={handleClearKho}
+            />
+          </Col>
           <Col
             xxl={6}
             xl={8}
@@ -421,7 +382,6 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
               allowClear={false}
             />
           </Col>
-
           <Col
             xxl={6}
             xl={8}
@@ -438,8 +398,8 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchPhieuNhanHang,
-                onSearch: onSearchPhieuNhanHang,
+                onPressEnter: onSearchDeNghiMuaHang,
+                onSearch: onSearchDeNghiMuaHang,
                 allowClear: true,
                 placeholder: "Tìm kiếm",
               }}
@@ -448,7 +408,7 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 700, y: "55vh" }}
+          scroll={{ x: 700, y: "54vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -471,4 +431,4 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
   );
 }
 
-export default PhieuYeuCauXuatKhoNgoaiQuan;
+export default ThanhLyVatTu;
