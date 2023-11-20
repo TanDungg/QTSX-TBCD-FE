@@ -55,7 +55,6 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
   const [info, setInfo] = useState({});
   const [ChungTu, setChungTu] = useState([]);
   const [DisableUpload, setDisableUpload] = useState(false);
-  const [FileChungTu, setFileChungTu] = useState(false);
 
   useEffect(() => {
     const load = () => {
@@ -555,45 +554,63 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         ngayNhapKho: phieunhapkhovattu.ngayNhapKho.format(
           "DD/MM/YYYY HH:mm:ss"
         ),
+        list_ChungTu: ChungTu.map((chungtu) => {
+          const filechungtu = [];
+
+          for (const key in phieunhapkhovattu) {
+            if (
+              key.startsWith("fileChungTu") &&
+              key.slice(11) === chungtu.maChungTu
+            ) {
+              filechungtu.push(phieunhapkhovattu[key].file);
+            }
+          }
+
+          return {
+            ...chungtu,
+            fileChungTu: filechungtu.length > 0 ? filechungtu[0] : null,
+          };
+        }),
         tits_qtsx_PhieuNhapKhoVatTuChiTiets: listVatTu,
       };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_PhieuNhapKhoVatTu`,
-            "POST",
-            newData,
-            "ADD",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res.status !== 409) {
-            if (saveQuit) {
-              goBack();
-            } else {
-              resetFields();
-              getUserLap(INFO);
-              getUserKy(INFO);
-              getKho();
-              getMaPhieuNhapKho();
-              setFieldsValue({
-                phieunhapkhovattu: {
-                  ngayNhapKho: moment(getDateNow(), "DD/MM/YYYY HH:mm:ss"),
-                  ngayHoaDon: moment(getDateNow(), "DD/MM/YYYY"),
-                },
-              });
-              setFieldTouch(false);
-              setListVatTu([]);
-            }
-          } else {
-            setFieldTouch(false);
-          }
-        })
-        .catch((error) => console.error(error));
+      console.log(newData);
+      // new Promise((resolve, reject) => {
+      //   dispatch(
+      //     fetchStart(
+      //       `tits_qtsx_PhieuNhapKhoVatTu`,
+      //       "POST",
+      //       newData,
+      //       "ADD",
+      //       "",
+      //       resolve,
+      //       reject
+      //     )
+      //   );
+      // })
+      //   .then((res) => {
+      //     if (res.status !== 409) {
+      //       if (saveQuit) {
+      //         goBack();
+      //       } else {
+      //         resetFields();
+      //         getUserLap(INFO);
+      //         getUserKy(INFO);
+      //         getKho();
+      //         getMaPhieuNhapKho();
+      //         setFieldsValue({
+      //           phieunhapkhovattu: {
+      //             ngayNhapKho: moment(getDateNow(), "DD/MM/YYYY HH:mm:ss"),
+      //             ngayHoaDon: moment(getDateNow(), "DD/MM/YYYY"),
+      //           },
+      //         });
+      //         setFieldTouch(false);
+      //         setListVatTu([]);
+      //       }
+      //     } else {
+      //       setFieldTouch(false);
+      //     }
+      //   })
+      //   .catch((error) => console.error(error));
     }
     if (type === "edit") {
       const newData = {
@@ -671,6 +688,13 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
 
   const renderFileChungTu = () => {
     const chungtu = [];
+    const [FileChungTu, setFileChungTu] = useState([]);
+
+    const handleFileChange = (index, file) => {
+      const newChungTu = [...FileChungTu];
+      newChungTu[index] = file;
+      setFileChungTu(newChungTu);
+    };
 
     for (let i = 0; i < ChungTu.length; i++) {
       const props = {
@@ -681,12 +705,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           if (!isPDF) {
             Helpers.alertError(`${file.name} không phải là file PDF`);
           } else {
-            setFieldsValue({
-              phieunhapkhovattu: {
-                tenChungTu: file,
-              },
-            });
-            setDisableUpload(true);
+            handleFileChange(i, file);
             return false;
           }
         },
@@ -696,6 +715,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
 
       chungtu.push(
         <Col
+          key={i}
           xxl={12}
           xl={12}
           lg={24}
@@ -705,8 +725,8 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           style={{ marginBottom: 8 }}
         >
           <Form.Item
-            label={`File chứng từ ${ChungTu[i].tenChungTu}`}
-            name={["phieunhapkhovattu", `fileChungTu${ChungTu[i].tenChungTu}`]}
+            label={`File chứng từ ${ChungTu[i].maChungTu}`}
+            name={["phieunhapkhovattu", `fileChungTu${ChungTu[i].maChungTu}`]}
             rules={[
               {
                 type: "file",
@@ -714,61 +734,38 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               },
             ]}
           >
-            {!DisableUpload ? (
+            {!FileChungTu[i] ? (
               <Upload {...props}>
                 <Button
-                  style={{
-                    marginBottom: 0,
-                  }}
+                  style={{ marginBottom: 0 }}
                   icon={<UploadOutlined />}
                   disabled={type === "xacnhan" || type === "detail"}
                 >
-                  File chứng từ {ChungTu[i].tenChungTu}
+                  File chứng từ {ChungTu[i].maChungTu}
                 </Button>
               </Upload>
-            ) : FileChungTu.name ? (
+            ) : (
               <span>
                 <span
                   style={{ color: "#0469B9", cursor: "pointer" }}
-                  onClick={() => renderPDF(FileChungTu)}
+                  onClick={() => renderPDF(FileChungTu[i])}
                 >
-                  {FileChungTu.name.length > 30
-                    ? FileChungTu.name.substring(0, 30) + "..."
-                    : FileChungTu.name}{" "}
+                  {FileChungTu[i].name.length > 30
+                    ? FileChungTu[i].name.substring(0, 30) + "..."
+                    : FileChungTu[i].name}{" "}
                 </span>
                 <DeleteOutlined
                   style={{ cursor: "pointer", color: "red" }}
                   disabled={type === "new" || type === "edit" ? false : true}
-                  onClick={() => {
-                    setFileChungTu(null);
-                    setDisableUpload(false);
-                  }}
+                  onClick={() => handleFileChange(i, null)}
                 />
-              </span>
-            ) : (
-              <span>
-                <a
-                  target="_blank"
-                  href={BASE_URL_API + FileChungTu}
-                  rel="noopener noreferrer"
-                >
-                  {FileChungTu.split("/")[5]}{" "}
-                </a>
-                {type !== "detail" && (
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    onClick={() => {
-                      setFileChungTu(null);
-                      setDisableUpload(false);
-                    }}
-                  />
-                )}
               </span>
             )}
           </Form.Item>
         </Col>
       );
     }
+
     return chungtu;
   };
 
