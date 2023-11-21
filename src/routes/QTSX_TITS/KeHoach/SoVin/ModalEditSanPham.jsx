@@ -20,12 +20,10 @@ function ModalEditSanPham({
 }) {
   const dispatch = useDispatch();
   const [fieldTouch, setFieldTouch] = useState(false);
-  const [ListQuyTrinh, setListQuyTrinh] = useState([]);
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   useEffect(() => {
     if (openModal) {
-      getQuyTrinh(info.tits_qtsx_SanPham_Id);
       setFieldsValue({
         chitiet: {
           ...info,
@@ -33,47 +31,11 @@ function ModalEditSanPham({
       });
     }
   }, [openModal]);
-  const getQuyTrinh = (tits_qtsx_SanPham_Id) => {
-    const params = convertObjectToUrlParams({
-      tits_qtsx_SanPham_Id,
-      isSuDung: true,
-      isDuyet: true,
 
-      page: -1,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_QuyTrinhSanXuat?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListQuyTrinh(res.data);
-        } else {
-          setListQuyTrinh([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
   const saveData = (chitiet) => {
     const newData = { ...info, ...chitiet };
-    ListQuyTrinh.forEach((qt) => {
-      if (
-        qt.tits_qtsx_QuyTrinhSanXuat_Id === chitiet.tits_qtsx_QuyTrinhSanXuat_Id
-      ) {
-        newData.tenQuyTrinhSanXuat = qt.tenQuyTrinhSanXuat;
-        newData.maQuyTrinhSanXuat = qt.maQuyTrinhSanXuat;
-      }
-    });
     editSanPham(newData, type);
+    resetFields();
   };
 
   const handleCancel = () => {
@@ -87,7 +49,7 @@ function ModalEditSanPham({
   const onFinish = (values) => {
     saveData(values.chitiet);
   };
-  const title = "Chỉnh sửa thông tin mã sản phẩm nội bộ";
+  const title = "Chỉnh sửa thông tin số VIN";
 
   return (
     <AntModal
@@ -139,33 +101,15 @@ function ModalEditSanPham({
             <Input placeholder="Màu sắc" disabled={true}></Input>
           </FormItem>
           <FormItem
-            label="Mã sản phẩm nội bộ"
-            name={["chitiet", "maNoiBo"]}
+            label="Mã số VIN"
+            name={["chitiet", "maSoVin"]}
             rules={[
               {
                 required: true,
               },
             ]}
           >
-            <Input placeholder="Mã nội bộ"></Input>
-          </FormItem>
-          <FormItem
-            label="Quy trình"
-            name={["chitiet", "tits_qtsx_QuyTrinhSanXuat_Id"]}
-            rules={[{ type: "string", required: true }]}
-          >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListQuyTrinh}
-              placeholder="Chọn quy trình"
-              optionsvalue={[
-                "tits_qtsx_QuyTrinhSanXuat_Id",
-                "tenQuyTrinhSanXuat",
-              ]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-            />
+            <Input placeholder="Mã số VIN"></Input>
           </FormItem>
           <FormSubmit disabled={fieldTouch} />
         </Form>

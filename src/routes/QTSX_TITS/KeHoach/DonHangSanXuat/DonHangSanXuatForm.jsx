@@ -644,6 +644,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
             } else {
               resetFields();
               setFieldTouch(false);
+              setDisableUpload(false);
               setListSanPham([]);
               setFieldsValue({
                 dondathang: {

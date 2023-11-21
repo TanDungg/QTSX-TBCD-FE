@@ -20,13 +20,25 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
 import { Modal } from "src/components/Common";
-import { exportExcel, reDataForTable } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  exportExcel,
+  reDataForTable,
+} from "src/util/Common";
 import * as XLSX from "xlsx";
 import { EditableTableRow, Table } from "src/components/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ImportSoLo({ openModalFS, openModal, loading, refesh, soLuong }) {
+function ImportSoVIN({
+  openModalFS,
+  openModal,
+  loading,
+  refesh,
+  tits_qtsx_SoLo_Id,
+  addSanPham,
+  soLuongDonHang,
+}) {
   const dispatch = useDispatch();
   const [dataView, setDataView] = useState([]);
   const [fileName, setFileName] = useState("");
@@ -39,7 +51,7 @@ function ImportSoLo({ openModalFS, openModal, loading, refesh, soLuong }) {
     let messageLoi = "";
     if (DataLoi && DataLoi.length > 0) {
       DataLoi.forEach((dt) => {
-        if (dt.maNoiBo === val.maNoiBo) {
+        if (dt.maSoVin === val.maSoVin) {
           check = true;
           messageLoi = dt.ghiChuImport;
         }
@@ -75,21 +87,27 @@ function ImportSoLo({ openModalFS, openModal, loading, refesh, soLuong }) {
       align: "center",
     },
     {
-      title: "Màu sắc",
-      dataIndex: "tenMauSac",
-      key: "tenMauSac",
+      title: "Mã loại sản phẩm",
+      dataIndex: "maLoaiSanPham",
+      key: "maLoaiSanPham",
       align: "center",
     },
     {
-      title: "Mã sản phẩm nội bộ",
-      dataIndex: "maNoiBo",
-      key: "maNoiBo",
+      title: "Mã màu",
+      dataIndex: "maMau",
+      key: "maMau",
       align: "center",
     },
     {
-      title: "Mã quy trình",
-      dataIndex: "maQuyTrinh",
-      key: "maQuyTrinh",
+      title: "Tên số lô",
+      dataIndex: "tenSoLo",
+      key: "tenSoLo",
+      align: "center",
+    },
+    {
+      title: "Mã số VIN",
+      dataIndex: "maSoVin",
+      key: "maSoVin",
       align: "center",
     },
   ];
@@ -118,10 +136,13 @@ function ImportSoLo({ openModalFS, openModal, loading, refesh, soLuong }) {
 
   //File mẫu
   const TaiFileMau = () => {
+    const params = convertObjectToUrlParams({
+      tits_qtsx_SoLo_Id: tits_qtsx_SoLo_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `LOT/ExportFileExcel`,
+          `tits_qtsx_SoVin/export-file-mau?${params}`,
           "POST",
           null,
           "DOWLOAD",
@@ -131,7 +152,7 @@ function ImportSoLo({ openModalFS, openModal, loading, refesh, soLuong }) {
         )
       );
     }).then((res) => {
-      exportExcel("File_Mau_So_Lot", res.data.dataexcel);
+      exportExcel("File_Mau_So_VIN", res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {
@@ -140,74 +161,118 @@ function ImportSoLo({ openModalFS, openModal, loading, refesh, soLuong }) {
       const workbook = XLSX.read(event.target.result, {
         type: "binary",
       });
-      const worksheet = workbook.Sheets["Import số Lot"];
+      const worksheet = workbook.Sheets["số VIN"];
 
       const checkMau =
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 0, r: 3 }, e: { c: 0, r: 3 } },
+          range: { s: { c: 0, r: 4 }, e: { c: 0, r: 4 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 0, r: 3 }, e: { c: 0, r: 3 } },
+            range: { s: { c: 0, r: 4 }, e: { c: 0, r: 4 } },
           })[0]
           .toString()
           .trim() === "STT" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 1, r: 3 }, e: { c: 1, r: 3 } },
+          range: { s: { c: 1, r: 4 }, e: { c: 1, r: 4 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 1, r: 3 }, e: { c: 1, r: 3 } },
-          })[0]
-          .toString()
-          .trim() === "Số Lot" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
+            range: { s: { c: 1, r: 4 }, e: { c: 1, r: 4 } },
           })[0]
           .toString()
           .trim() === "Mã sản phẩm" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
+          range: { s: { c: 2, r: 4 }, e: { c: 2, r: 4 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
+            range: { s: { c: 2, r: 4 }, e: { c: 2, r: 4 } },
           })[0]
           .toString()
-          .trim() === "Số lượng";
+          .trim() === "Tên sản phẩm" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 3, r: 4 }, e: { c: 3, r: 4 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 3, r: 4 }, e: { c: 3, r: 4 } },
+          })[0]
+          .toString()
+          .trim() === "Mã loại sản phẩm" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 4, r: 4 }, e: { c: 4, r: 4 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 4, r: 4 }, e: { c: 4, r: 4 } },
+          })[0]
+          .toString()
+          .trim() === "Mã màu" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 5, r: 4 }, e: { c: 5, r: 4 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 5, r: 4 }, e: { c: 5, r: 4 } },
+          })[0]
+          .toString()
+          .trim() === "Tên số lô" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 6, r: 4 }, e: { c: 6, r: 4 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 6, r: 4 }, e: { c: 6, r: 4 } },
+          })[0]
+          .toString()
+          .trim() === "Mã số VIN";
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
-          range: 3,
+          range: 4,
         });
-        const SL = "Số Lot";
         const MSP = "Mã sản phẩm";
-        const SLuong = "Số lượng";
+        const TSP = "Tên sản phẩm";
+        const MLSP = "Mã loại sản phẩm";
+        const MM = "Mã màu";
+        const MSV = "Mã số VIN";
+        const MSPNB = "Tên số lô";
         const Data = [];
         const NewData = [];
         data.forEach((d, index) => {
           if (
-            data[index][SL] &&
-            data[index][SL].toString().trim() === "" &&
+            data[index][TSP] &&
+            data[index][TSP].toString().trim() === "" &&
             data[index][MSP] &&
-            data[index][MSP].toString().trim() === ""
+            data[index][MSP].toString().trim() === "" &&
+            data[index][MLSP] &&
+            data[index][MLSP].toString().trim() === "" &&
+            data[index][MM] &&
+            data[index][MM].toString().trim() === "" &&
+            data[index][MSV] &&
+            data[index][MSV].toString().trim() === "" &&
+            data[index][MSPNB] &&
+            data[index][MSPNB].toString().trim() === ""
           ) {
           } else {
             NewData.push({
-              soLot: data[index][SL]
-                ? data[index][SL].toString().trim() !== ""
-                  ? data[index][SL].toString().trim()
+              tenSanPham: data[index][TSP]
+                ? data[index][TSP].toString().trim() !== ""
+                  ? data[index][TSP].toString().trim()
                   : undefined
                 : undefined,
               maSanPham: data[index][MSP]
@@ -215,14 +280,30 @@ function ImportSoLo({ openModalFS, openModal, loading, refesh, soLuong }) {
                   ? data[index][MSP].toString().trim()
                   : undefined
                 : undefined,
-              soLuong: data[index][SLuong]
-                ? data[index][SLuong].toString().trim() !== ""
-                  ? data[index][SLuong].toString().trim()
+              maLoaiSanPham: data[index][MLSP]
+                ? data[index][MLSP].toString().trim() !== ""
+                  ? data[index][MLSP].toString().trim()
                   : undefined
                 : undefined,
+              maMau: data[index][MM]
+                ? data[index][MM].toString().trim() !== ""
+                  ? data[index][MM].toString().trim()
+                  : undefined
+                : undefined,
+              tenSoLo: data[index][MSPNB]
+                ? data[index][MSPNB].toString().trim() !== ""
+                  ? data[index][MSPNB].toString().trim()
+                  : undefined
+                : undefined,
+              maSoVin: data[index][MSV]
+                ? data[index][MSV].toString().trim() !== ""
+                  ? data[index][MSV].toString().trim()
+                  : undefined
+                : undefined,
+              tits_qtsx_SoLo_Id: tits_qtsx_SoLo_Id,
             });
           }
-          Data.push(data[index][SL]);
+          Data.push(data[index][MSV]);
         });
         if (NewData.length === 0) {
           setFileName(file.name);
@@ -250,17 +331,22 @@ function ImportSoLo({ openModalFS, openModal, loading, refesh, soLuong }) {
           setFileName(file.name);
           setDataLoi();
           if (indices.length > 0) {
-            setMessageError(
-              `Hàng ${row.join(", ")} có mã sản phẩm nội bộ trùng nhau`
-            );
-            Helper.alertError(
-              `Hàng ${row.join(", ")} có mã sản phẩm nội bộ trùng nhau`
-            );
+            setMessageError(`Hàng ${row.join(", ")} có mã số VIN trùng nhau`);
+            Helper.alertError(`Hàng ${row.join(", ")} có mã số VIN trùng nhau`);
             setHangTrung(indices);
             setCheckDanger(true);
           } else {
             setHangTrung([]);
             setCheckDanger(false);
+          }
+          if (NewData.length > soLuongDonHang) {
+            setCheckDanger(true);
+            setMessageError(
+              `Số lượng import lớn hơn số lượng trong lô (${soLuongDonHang}) `
+            );
+            Helper.alertError(
+              `Số lượng import lớn hơn số lượng trong lô (${soLuongDonHang}) `
+            );
           }
         }
       } else {
@@ -297,10 +383,10 @@ function ImportSoLo({ openModalFS, openModal, loading, refesh, soLuong }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Lot/ImportExel`,
+          `tits_qtsx_SoVin/kiem-tra-file-export`,
           "POST",
           dataView,
-          "IMPORT",
+          "a",
           "",
           resolve,
           reject
@@ -311,10 +397,10 @@ function ImportSoLo({ openModalFS, openModal, loading, refesh, soLuong }) {
         setDataLoi(res.data);
         setMessageError("Import không thành công");
       } else {
+        addSanPham(res.data);
         setFileName(null);
         setDataView([]);
         openModalFS(false);
-        refesh();
       }
     });
   };
@@ -322,7 +408,7 @@ function ImportSoLo({ openModalFS, openModal, loading, refesh, soLuong }) {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận import số Lô",
+    title: "Xác nhận import Số VIN",
     onOk: handleSubmit,
   };
   const modalXK = () => {
@@ -331,24 +417,40 @@ function ImportSoLo({ openModalFS, openModal, loading, refesh, soLuong }) {
 
   const RowStyle = (current, index) => {
     if (HangTrung.length > 0) {
-      HangTrung.forEach((soLot) => {
-        if (current.soLot === soLot) {
+      HangTrung.forEach((maSoVin) => {
+        if (current.maSoVin === maSoVin) {
           setCheckDanger(true);
           return "red-row";
         }
       });
-    } else if (current.soLot === undefined) {
+    } else if (current.tenSoLo === undefined) {
       setCheckDanger(true);
-      setMessageError("Số Lô không được rỗng");
+      setMessageError("Tên số Lô không được rỗng");
       return "red-row";
     } else if (current.maSanPham === undefined) {
       setCheckDanger(true);
       setMessageError("Mã sản phẩm không được rỗng");
       return "red-row";
+    } else if (current.tenSanPham === undefined) {
+      setCheckDanger(true);
+      setMessageError("Tên sản phẩm không được rỗng");
+      return "red-row";
+    } else if (current.maLoaiSanPham === undefined) {
+      setCheckDanger(true);
+      setMessageError("Mã loại sản phẩm không được rỗng");
+      return "red-row";
+    } else if (current.maSoVin === undefined) {
+      setCheckDanger(true);
+      setMessageError("Mã số VIN không được rỗng");
+      return "red-row";
+    } else if (current.maMau === undefined) {
+      setCheckDanger(true);
+      setMessageError("Mã màu không được rỗng");
+      return "red-row";
     } else if (DataLoi && DataLoi.length > 0) {
       let check = false;
       DataLoi.forEach((dt) => {
-        if (current.soLot.toString() === dt.soLot.toString()) {
+        if (current.maSoVin.toString() === dt.maSoVin.toString()) {
           check = true;
         }
       });
@@ -371,7 +473,7 @@ function ImportSoLo({ openModalFS, openModal, loading, refesh, soLuong }) {
 
   return (
     <AntModal
-      title="Import Số Lô"
+      title="Import Số VIN"
       open={openModal}
       width={`80%`}
       closable={true}
@@ -465,4 +567,4 @@ function ImportSoLo({ openModalFS, openModal, loading, refesh, soLuong }) {
   );
 }
 
-export default ImportSoLo;
+export default ImportSoVIN;

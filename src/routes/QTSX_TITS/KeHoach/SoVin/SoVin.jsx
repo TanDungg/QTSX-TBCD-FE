@@ -138,7 +138,7 @@ function SoVin({ match, permission, history }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.tits_qtsx_SoLo_Id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -234,7 +234,7 @@ function SoVin({ match, permission, history }) {
           type="primary"
           onClick={() => {
             setActiveModal(true);
-            setInfoChiTietMaNoiBo(JSON.parse(val.tits_qtsx_SoLoChiTiets));
+            setInfoChiTietMaNoiBo(JSON.parse(val.tits_qtsx_SoVinChiTiets));
           }}
         >
           Xem chi tiết
@@ -279,9 +279,7 @@ function SoVin({ match, permission, history }) {
   const refeshData = () => {
     getListData(keyword, page, DonHang, SoLo);
   };
-  const handleImport = () => {
-    setActiveModal(true);
-  };
+
   const handleOnSelectDonHang = (val) => {
     setDonHang(val);
     setPage(1);
@@ -295,15 +293,6 @@ function SoVin({ match, permission, history }) {
   const addButtonRender = () => {
     return (
       <>
-        <Button
-          icon={<UploadOutlined />}
-          className="th-btn-margin-bottom-0"
-          type="primary"
-          onClick={handleImport}
-          disabled={permission && !permission.add}
-        >
-          Import
-        </Button>
         <Button
           icon={<PlusOutlined />}
           className="th-btn-margin-bottom-0"

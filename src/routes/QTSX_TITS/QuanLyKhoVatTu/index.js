@@ -9,7 +9,7 @@ const NhapKhoVatTu = asyncComponent(() =>
 const NhapKhoVatTuForm = asyncComponent(() =>
   import("./NhapKhoVatTu/NhapKhoVatTuForm")
 );
-
+const KhoVatTu = asyncComponent(() => import("./KhoVatTu/KhoVatTu"));
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -34,6 +34,11 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/nhap-kho/:id/chi-tiet`}
         exact
         component={Auth(NhapKhoVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/kho-vat-tu`}
+        exact
+        component={Auth(KhoVatTu, menus, pathname, permission)}
       />
     </Switch>
   );

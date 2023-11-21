@@ -271,9 +271,6 @@ function SoLo({ match, permission, history }) {
   const refeshData = () => {
     getListData(keyword, page, DonHang);
   };
-  const handleImport = () => {
-    setActiveModal(true);
-  };
   const handleOnSelectDonHang = (val) => {
     setDonHang(val);
     setPage(1);
@@ -282,15 +279,6 @@ function SoLo({ match, permission, history }) {
   const addButtonRender = () => {
     return (
       <>
-        <Button
-          icon={<UploadOutlined />}
-          className="th-btn-margin-bottom-0"
-          type="primary"
-          onClick={handleImport}
-          disabled={permission && !permission.add}
-        >
-          Import
-        </Button>
         <Button
           icon={<PlusOutlined />}
           className="th-btn-margin-bottom-0"
