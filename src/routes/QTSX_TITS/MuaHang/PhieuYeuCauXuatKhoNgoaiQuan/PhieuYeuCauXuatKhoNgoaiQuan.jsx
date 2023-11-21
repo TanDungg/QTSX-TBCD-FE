@@ -226,28 +226,6 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
     return <div>{detail}</div>;
   };
 
-  const renderColumn = (value) => {
-    return (
-      <div>
-        {value && (
-          <Tag
-            style={{
-              color:
-                value === "Chưa nhận"
-                  ? "red"
-                  : value === "Đã nhận"
-                  ? "blue"
-                  : "orange",
-              fontSize: 13,
-            }}
-          >
-            {value}
-          </Tag>
-        )}
-      </div>
-    );
-  };
-
   let renderHead = [
     {
       title: "STT",
@@ -351,7 +329,31 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
       ),
       onFilter: (value, record) => record.tinhTrangPhieu.includes(value),
       filterSearch: true,
-      render: (value) => renderColumn(value),
+      render: (value) => (
+        <div>
+          {value && (
+            <Tag
+              style={{
+                borderColor:
+                  value === "Chưa nhận"
+                    ? "red"
+                    : value === "Đã nhận"
+                    ? "blue"
+                    : "orange",
+                color:
+                  value === "Chưa nhận"
+                    ? "red"
+                    : value === "Đã nhận"
+                    ? "blue"
+                    : "orange",
+                fontSize: 13,
+              }}
+            >
+              {value}
+            </Tag>
+          )}
+        </div>
+      ),
     },
     {
       title: "Chức năng",
