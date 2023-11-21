@@ -37,6 +37,7 @@ function ImportSoLo({
   refesh,
   chiTietDonHang_Id,
   addSanPham,
+  soLuongDonHang,
 }) {
   const dispatch = useDispatch();
   const [dataView, setDataView] = useState([]);
@@ -341,6 +342,15 @@ function ImportSoLo({
           } else {
             setHangTrung([]);
             setCheckDanger(false);
+          }
+          if (NewData.length > soLuongDonHang) {
+            setCheckDanger(true);
+            setMessageError(
+              `Số lượng lớn hơn số lượng trong đơn hàng(${soLuongDonHang}) `
+            );
+            Helper.alertError(
+              `Số lượng lớn hơn số lượng trong đơn hàng(${soLuongDonHang}) `
+            );
           }
         }
       } else {

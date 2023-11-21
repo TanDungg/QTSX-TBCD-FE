@@ -14,7 +14,7 @@ import {
   Tag,
   Checkbox,
 } from "antd";
-import { includes, map } from "lodash";
+import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState, useRef, useContext } from "react";
@@ -151,6 +151,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
   const [ActiveModalSanPham, setActiveModalSanPham] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [ActiveModalImport, setActiveModalImport] = useState(false);
+  const [editingRecord, setEditingRecord] = useState([]);
 
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
@@ -526,6 +527,127 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
       />
     );
   };
+  const handleInputChange = (val, item) => {
+    const dinhMuc = val.target.value;
+    const numberPattern = /^(0\.\d*[1-9]\d*|[1-9]\d*(\.\d+)?)$/;
+    if (isEmpty(dinhMuc) || !numberPattern.test(dinhMuc)) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Định mức phải là số lớn hơn 0 và bắt buộc";
+      item.dm = true;
+    } else {
+      const newData = editingRecord.filter((d) => d.vatTu_Id !== item.vatTu_Id);
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
+    }
+    const newData = [...listVatTu];
+    newData.forEach((ct, index) => {
+      if (ct.vatTu_Id === item.vatTu_Id) {
+        ct.dinhMuc = dinhMuc;
+      }
+    });
+    setListVatTu(newData);
+  };
+  const renderDinhMuc = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.vatTu_Id === item.vatTu_Id && ct.dm) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          // type="number"
+          value={item.dinhMuc}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChange(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
+  const handleInputChangeXaNhua = (val, item) => {
+    const dinhMucXaNhua = val.target.value;
+    const numberPattern = /^(0\.\d*[1-9]\d*|[1-9]\d*(\.\d+)?)$/;
+    if (!isEmpty(dinhMucXaNhua) && !numberPattern.test(dinhMucXaNhua)) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Định mức xả nhựa phải là số lớn hơn 0";
+      item.dmxn = true;
+    } else {
+      const newData = editingRecord.filter((d) => d.vatTu_Id !== item.vatTu_Id);
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
+    }
+    const newData = [...listVatTu];
+    newData.forEach((ct, index) => {
+      if (ct.vatTu_Id === item.vatTu_Id) {
+        ct.dinhMucXaNhua = dinhMucXaNhua;
+      }
+    });
+    setListVatTu(newData);
+  };
+  const renderDinhMucXaNhua = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.vatTu_Id === item.vatTu_Id && ct.dmxn) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          // type="number"
+          value={item.dinhMucXaNhua}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChangeXaNhua(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
+  const handleInputChangeGhiChu = (val, item) => {
+    const ghiChu = val.target.value;
+    const newData = [...listVatTu];
+    newData.forEach((ct, index) => {
+      if (ct.vatTu_Id === item.vatTu_Id) {
+        ct.ghiChu = ghiChu;
+      }
+    });
+    setListVatTu(newData);
+  };
+  const renderGhiChu = (item) => {
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          // type="number"
+          value={item.ghiChu}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChangeGhiChu(val, item)}
+        />
+      </>
+    );
+  };
   let colValues = [
     {
       title: "STT",
@@ -554,24 +676,24 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Định mức",
-      dataIndex: "dinhMuc",
+      // dataIndex: "dinhMuc",
       key: "dinhMuc",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      render: (record) => renderDinhMuc(record),
     },
     {
       title: "Định mức xả nhựa",
-      dataIndex: "dinhMucXaNhua",
+      // dataIndex: "dinhMucXaNhua",
       key: "dinhMucXaNhua",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      render: (record) => renderDinhMucXaNhua(record),
     },
     {
       title: "Ghi chú",
-      dataIndex: "ghiChu",
+      // dataIndex: "ghiChu",
       key: "ghiChu",
       align: "center",
-      editable: type === "new" || type === "edit" ? true : false,
+      render: (record) => renderGhiChu(record),
     },
     {
       title: "Bắt buộc",
@@ -652,7 +774,12 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
         DinhMucVatTu.ngayYeuCau._i.split("/")[1] +
         "-" +
         DinhMucVatTu.ngayYeuCau._i.split("/")[0],
-      list_VatTu: listVatTu,
+      list_VatTu: listVatTu.map((vt) => {
+        return {
+          ...vt,
+          dinhMucXaNhua: vt.dinhMucXaNhua ? vt.dinhMucXaNhua : 0,
+        };
+      }),
     };
     if (type === "new") {
       new Promise((resolve, reject) => {

@@ -38,7 +38,6 @@ function ModalEditSanPham({
       tits_qtsx_SanPham_Id,
       isSuDung: true,
       isDuyet: true,
-
       page: -1,
     });
     new Promise((resolve, reject) => {
@@ -74,6 +73,7 @@ function ModalEditSanPham({
       }
     });
     editSanPham(newData, type);
+    resetFields();
   };
 
   const handleCancel = () => {
@@ -87,7 +87,7 @@ function ModalEditSanPham({
   const onFinish = (values) => {
     saveData(values.chitiet);
   };
-  const title = "Chỉnh sửa thông tin mã sản phẩm nội bộ";
+  const title = "Thông tin mã sản phẩm nội bộ";
 
   return (
     <AntModal

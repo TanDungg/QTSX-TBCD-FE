@@ -21,7 +21,7 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
-import ImportSoLo from "./ImportSoLo";
+import ImportSoVIN from "./ImportSoVIN";
 import ModalEditSanPham from "./ModalEditSanPham";
 import Helpers from "src/helpers";
 
@@ -39,7 +39,7 @@ const SoVinForm = ({ history, match, permission }) => {
   const [ListDonHang, setListDonHang] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SoLuongSanPhamToiDa, setSoLuongSanPhamToiDa] = useState([]);
-  const [ChiTietDonHang, setChiTietDonHang] = useState("");
+  const [soLo, setSoLo] = useState("");
 
   const [ListSanPhamSelect, setListSanPhamSelect] = useState([]);
   const [DisableSoLuong, setDisableSoLuong] = useState(true);
@@ -70,7 +70,7 @@ const SoVinForm = ({ history, match, permission }) => {
           // Get info
           const { id } = match.params;
           setId(id);
-          getDonHang();
+          getDonHang("", 1);
           getInfo();
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -81,43 +81,20 @@ const SoVinForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const getDonHang = (id, tits_qtsx_DonHangChiTiet_Id) => {
-    const url = id
-      ? `tits_qtsx_SoLo/don-hang-chua-du-so-lo?tits_qtsx_DonHang_Id=${id}`
-      : `tits_qtsx_SoLo/don-hang-chua-du-so-lo`;
+  const getDonHang = (id, key) => {
+    const params = convertObjectToUrlParams({
+      tits_qtsx_DonHang_Id: id,
+      key,
+    });
+    const url = `tits_qtsx_SoVin/get-so-lo-chua-nhap-so-vin?${params}`;
+
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "GET", null, "DETAIL", "", resolve, reject));
     })
       .then((res) => {
         if (res && res.data) {
           if (id) {
-            const newData = [];
-            res.data.forEach((dt) => {
-              newData.push(
-                ...JSON.parse(dt.chiTiet_DonHangs).map((ct) => {
-                  if (tits_qtsx_DonHangChiTiet_Id) {
-                    if (
-                      tits_qtsx_DonHangChiTiet_Id ===
-                      ct.tits_qtsx_DonHangChiTiet_Id.toLowerCase()
-                    ) {
-                      setSoLuongSanPhamToiDa(ct.soLuongSoLo + ct.soLuongConLai);
-                      setFieldsValue({
-                        Lot: {
-                          soLuongDonHang: ct.soLuong,
-                        },
-                      });
-                    }
-                  }
-                  return {
-                    ...ct,
-                    tits_qtsx_DonHangChiTiet_Id:
-                      ct.tits_qtsx_DonHangChiTiet_Id.toLowerCase(),
-                    name: ct.tenSanPham + " - " + ct.tenMauSac,
-                  };
-                })
-              );
-            });
-            setListSanPhamSelect(newData);
+            setListSanPhamSelect(res.data);
           } else {
             setListDonHang(res.data);
           }
@@ -131,13 +108,7 @@ const SoVinForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * Lấy thông tin
-   *
-   */
-  const getInfo = () => {
-    const { id } = match.params;
-    setId(id);
+  const getSoLo = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -153,27 +124,49 @@ const SoVinForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          getDonHang(
-            res.data.tits_qtsx_DonHang_Id,
-            res.data.tits_qtsx_DonHangChiTiet_Id
+          setSoLuongSanPhamToiDa(
+            JSON.parse(res.data.tits_qtsx_SoLoChiTiets).length
           );
+          setListSanPham(
+            reDataForTable(JSON.parse(res.data.tits_qtsx_SoLoChiTiets))
+          );
+        } else {
+          setListSanPham([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  /**
+   * Lấy thông tin
+   *
+   */
+  const getInfo = () => {
+    const { id } = match.params;
+    setId(id);
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_SoVin?tits_qtsx_SoLo_Id=${id}&&page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          getDonHang(res.data[0].tits_qtsx_DonHang_Id, 1);
           setDisableAdd(false);
           setDisableSoLuong(false);
           setListSanPham(
-            reDataForTable(
-              JSON.parse(res.data.tits_qtsx_SoLoChiTiets).map((ct) => {
-                return {
-                  ...ct,
-                  tits_qtsx_QuyTrinhSanXuat_Id:
-                    ct.tits_qtsx_QuyTrinhSanXuat_Id.toLowerCase(),
-                };
-              })
-            )
+            reDataForTable(JSON.parse(res.data[0].tits_qtsx_SoVinChiTiets))
           );
           setFieldsValue({
             Lot: {
-              ...res.data,
-              soLuong: JSON.parse(res.data.tits_qtsx_SoLoChiTiets).length,
+              ...res.data[0],
             },
           });
         }
@@ -228,10 +221,10 @@ const SoVinForm = ({ history, match, permission }) => {
           <a {...editItemVal} title="Xóa">
             <EditOutlined />
           </a>
-          <Divider type="vertical" />
+          {/* <Divider type="vertical" />
           <a {...deleteItemVal} title="Xóa">
             <DeleteOutlined />
-          </a>
+          </a> */}
         </React.Fragment>
       </div>
     );
@@ -263,15 +256,9 @@ const SoVinForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Mã sản phẩm nội bộ",
-      dataIndex: "maNoiBo",
-      key: "maNoiBo",
-      align: "center",
-    },
-    {
-      title: "Quy trình",
-      dataIndex: "tenQuyTrinhSanXuat",
-      key: "tenQuyTrinhSanXuat",
+      title: "Số VIN",
+      dataIndex: "maSoVin",
+      key: "maSoVin",
       align: "center",
     },
     {
@@ -338,15 +325,16 @@ const SoVinForm = ({ history, match, permission }) => {
 
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
-      const newData = {
-        ...user,
-        tits_qtsx_SoLoChiTiets: ListSanPham,
-        tits_qtsx_SanPham_Id: ListSanPham[0].tits_qtsx_SanPham_Id,
-      };
+      const newData = ListSanPham.map((sp) => {
+        return {
+          maSoVin: sp.maSoVin,
+          tits_qtsx_SoLo_Id: user.tits_qtsx_SoLo_Id,
+        };
+      });
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_SoLo`,
+            `tits_qtsx_SoVin`,
             "POST",
             newData,
             "ADD",
@@ -375,15 +363,17 @@ const SoVinForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const newData = {
-        ...user,
-        tits_qtsx_SoLoChiTiets: ListSanPham,
-        tits_qtsx_SanPham_Id: ListSanPham[0].tits_qtsx_SanPham_Id,
-      };
+      const newData = ListSanPham.map((sp) => {
+        return {
+          id: sp.id,
+          maSoVin: sp.maSoVin,
+          tits_qtsx_SoLo_Id: user.tits_qtsx_SoLo_Id,
+        };
+      });
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_SoLo/${id}`,
+            `tits_qtsx_SoVin`,
             "PUT",
             newData,
             "EDIT",
@@ -426,47 +416,25 @@ const SoVinForm = ({ history, match, permission }) => {
       return Promise.resolve();
     }
   };
-  const formTitle = type === "new" ? "Thêm mới số lô" : "Chỉnh sửa số lô";
+  const formTitle = type === "new" ? "Thêm mới số VIN" : "Chỉnh sửa số VIN";
   const onClickAddTable = () => {
-    setActiveModalEdit(true);
-    // const newData = [];
-    ListSanPhamSelect.forEach((sp) => {
-      if (
-        sp.tits_qtsx_DonHangChiTiet_Id ===
-        getFieldValue("Lot").tits_qtsx_DonHangChiTiet_Id
-      ) {
-        setInfoSanPham({
-          tits_qtsx_DonHangChiTiet_Id: sp.tits_qtsx_DonHangChiTiet_Id,
-          tits_qtsx_SanPham_Id: sp.tits_qtsx_SanPham_Id,
-          tits_qtsx_MauSac_Id: sp.tits_qtsx_MauSac_Id,
-          tenSanPham: sp.tenSanPham,
-          maSanPham: sp.maSanPham,
-          tenLoaiSanPham: sp.tenLoaiSanPham,
-          maLoaiSanPham: sp.maLoaiSanPham,
-          tenMauSac: sp.tenMauSac,
-          maNoiBo: "",
-        });
-      }
-    });
-    // for (let index = 1; index < getFieldValue("Lot").soLuong; index++) {
-    //   newData.push(newData[0]);
-    // }
-    // setListSanPham(reDataForTable(newData));
+    getSoLo(soLo);
   };
   const editSanPham = (data, type) => {
     let check = false;
     ListSanPham.forEach((sp) => {
-      if (sp.maNoiBo === data.maNoiBo) {
+      if (sp.maSoVin === data.maSoVin) {
         check = true;
       }
     });
     if (check) {
-      Helpers.alertWarning("Mã sản phẩm nội bộ trùng lặp.");
+      Helpers.alertWarning("Mã số VIN trùng lặp.");
     } else {
       setActiveModalEdit(false);
       if (type === "new") {
         setListSanPham(reDataForTable([...ListSanPham, data]));
       } else {
+        setFieldTouch(true);
         setListSanPham([
           ...ListSanPham.map((sp) => {
             if (sp.key === data.key) {
@@ -478,6 +446,9 @@ const SoVinForm = ({ history, match, permission }) => {
         ]);
       }
     }
+  };
+  const addSanPhamImport = (data) => {
+    setListSanPham(reDataForTable([...ListSanPham, ...data]));
   };
   return (
     <div className="gx-main-content">
@@ -501,33 +472,6 @@ const SoVinForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Tên số lô"
-                name={["Lot", "tenSoLo"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                  {
-                    max: 250,
-                    message: "Số lô không được quá 250 ký tự",
-                  },
-                ]}
-                initialValue={tenLot}
-              >
-                <Input className="input-item" placeholder="Nhập số lô" />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
                 label="Đơn hàng"
                 name={["Lot", "tits_qtsx_DonHang_Id"]}
                 rules={[
@@ -541,7 +485,7 @@ const SoVinForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListDonHang ? ListDonHang : []}
                   placeholder="Chọn đơn hàng"
-                  optionsvalue={["id", "tenDonHang"]}
+                  optionsvalue={["tits_qtsx_DonHang_Id", "maPhieu"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -569,8 +513,8 @@ const SoVinForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Sản phẩm"
-                name={["Lot", "tits_qtsx_DonHangChiTiet_Id"]}
+                label="Số Lô"
+                name={["Lot", "tits_qtsx_SoLo_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -581,100 +525,36 @@ const SoVinForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListSanPhamSelect ? ListSanPhamSelect : []}
-                  placeholder="Chọn sản phẩm"
-                  optionsvalue={["tits_qtsx_DonHangChiTiet_Id", "name"]}
+                  placeholder="Chọn số Lô"
+                  optionsvalue={["tits_qtsx_SoLo_Id", "tenSoLo"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
                   disabled={type !== "new"}
                   onSelect={(val) => {
-                    ListSanPhamSelect.forEach((sp) => {
-                      if (val === sp.tits_qtsx_DonHangChiTiet_Id) {
-                        setSoLuongSanPhamToiDa(sp.soLuongConLai);
-                        setDisableSoLuong(false);
-                        setDisableAdd(false);
-                        setChiTietDonHang(val);
-                        setFieldsValue({
-                          Lot: {
-                            soLuongDonHang: sp.soLuongConLai,
-                            soLuong: sp.soLuongConLai,
-                          },
-                        });
-                      }
-                    });
+                    setDisableSoLuong(false);
+                    setDisableAdd(false);
+                    setSoLo(val);
                   }}
                 />
               </FormItem>
             </Col>
-            {/* <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Số lượng đơn hàng"
-                name={["Lot", "soLuongDonHang"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Input
-                  className="input-item"
-                  placeholder="Số lượng đơn hàng"
-                  type="number"
-                  disabled={true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Số lượng lô"
-                name={["Lot", "soLuong"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                  {
-                    validator: validateSoLuong,
-                  },
-                ]}
-              >
-                <Input
-                  className="input-item"
-                  placeholder="Số lượng lô"
-                  type="number"
-                  disabled={DisableSoLuong}
-                />
-              </FormItem>
-            </Col> */}
           </Row>
         </Form>
       </Card>
 
       <Card
-        title="Thông tin mã sản phẩm nội bộ"
+        title="Thông tin số VIN"
         headStyle={{
           textAlign: "center",
           backgroundColor: "#0469B9",
           color: "#fff",
         }}
+        style={{
+          marginBottom: 0,
+        }}
       >
-        {" "}
-        {(type === "new" || type === "edit") && (
+        {type === "new" && (
           <Col
             // xxl={12}
             // xl={12}
@@ -686,14 +566,14 @@ const SoVinForm = ({ history, match, permission }) => {
             span={24}
             align="end"
           >
-            {/* <Button
+            <Button
               icon={<PlusOutlined />}
               onClick={onClickAddTable}
               type="primary"
               disabled={DisableAdd}
             >
               Thêm
-            </Button> */}
+            </Button>
             <Button
               icon={<UploadOutlined />}
               onClick={() => setActiveModal(true)}
@@ -724,10 +604,11 @@ const SoVinForm = ({ history, match, permission }) => {
         saveAndClose={saveAndClose}
         disabled={fieldTouch}
       />
-      <ImportSoLo
+      <ImportSoVIN
         openModal={ActiveModal}
         openModalFS={setActiveModal}
-        chiTietDonHang_Id={ChiTietDonHang}
+        tits_qtsx_SoLo_Id={soLo}
+        addSanPham={addSanPhamImport}
       />
 
       <ModalEditSanPham

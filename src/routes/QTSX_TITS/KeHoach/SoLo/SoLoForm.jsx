@@ -5,7 +5,7 @@ import {
   UploadOutlined,
 } from "@ant-design/icons";
 import { Card, Form, Input, Row, Col, Divider, Button } from "antd";
-import { isEmpty, map } from "lodash";
+import { map } from "lodash";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -42,7 +42,6 @@ const SoLoForm = ({ history, match, permission }) => {
   const [ChiTietDonHang, setChiTietDonHang] = useState("");
 
   const [ListSanPhamSelect, setListSanPhamSelect] = useState([]);
-  const [DisableSoLuong, setDisableSoLuong] = useState(true);
   const [infoSanPham, setInfoSanPham] = useState({});
   const [ActiveModal, setActiveModal] = useState(false);
   const [ActiveModalEdit, setActiveModalEdit] = useState(false);
@@ -53,7 +52,6 @@ const SoLoForm = ({ history, match, permission }) => {
   const [form] = Form.useForm();
   const { tenLot } = initialState;
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
-  const [info, setInfo] = useState({});
 
   useEffect(() => {
     const load = () => {
@@ -70,7 +68,7 @@ const SoLoForm = ({ history, match, permission }) => {
           // Get info
           const { id } = match.params;
           setId(id);
-          getDonHang();
+          getDonHang("", "", 1);
           getInfo();
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -81,10 +79,12 @@ const SoLoForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const getDonHang = (id, tits_qtsx_DonHangChiTiet_Id) => {
-    const url = id
-      ? `tits_qtsx_SoLo/don-hang-chua-du-so-lo?tits_qtsx_DonHang_Id=${id}`
-      : `tits_qtsx_SoLo/don-hang-chua-du-so-lo`;
+  const getDonHang = (id, tits_qtsx_DonHangChiTiet_Id, key) => {
+    const params = convertObjectToUrlParams({
+      tits_qtsx_DonHang_Id: id,
+      key: key ? key : 0,
+    });
+    const url = `tits_qtsx_SoLo/don-hang-chua-du-so-lo?${params}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "GET", null, "DETAIL", "", resolve, reject));
     })
@@ -155,10 +155,10 @@ const SoLoForm = ({ history, match, permission }) => {
         if (res && res.data) {
           getDonHang(
             res.data.tits_qtsx_DonHang_Id,
-            res.data.tits_qtsx_DonHangChiTiet_Id
+            res.data.tits_qtsx_DonHangChiTiet_Id,
+            1
           );
           setDisableAdd(false);
-          setDisableSoLuong(false);
           setListSanPham(
             reDataForTable(
               JSON.parse(res.data.tits_qtsx_SoLoChiTiets).map((ct) => {
@@ -177,7 +177,6 @@ const SoLoForm = ({ history, match, permission }) => {
             },
           });
         }
-        setInfo(res.data);
       })
       .catch((error) => console.error(error));
   };
@@ -482,7 +481,7 @@ const SoLoForm = ({ history, match, permission }) => {
     }
   };
   const addSanPham = (data) => {
-    setListSanPham([...ListSanPham, ...data]);
+    setListSanPham(reDataForTable([...ListSanPham, ...data]));
   };
   return (
     <div className="gx-main-content">
@@ -596,7 +595,6 @@ const SoLoForm = ({ history, match, permission }) => {
                     ListSanPhamSelect.forEach((sp) => {
                       if (val === sp.tits_qtsx_DonHangChiTiet_Id) {
                         setSoLuongSanPhamToiDa(sp.soLuongConLai);
-                        setDisableSoLuong(false);
                         setDisableAdd(false);
                         setChiTietDonHang(val);
                         setFieldsValue({
@@ -678,7 +676,7 @@ const SoLoForm = ({ history, match, permission }) => {
           color: "#fff",
         }}
       >
-        {type === "new" && (
+        {(type === "new" || type === "edit") && (
           <Col
             // xxl={12}
             // xl={12}
@@ -698,14 +696,16 @@ const SoLoForm = ({ history, match, permission }) => {
             >
               Thêm
             </Button>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={() => setActiveModal(true)}
-              type="primary"
-              disabled={DisableAdd}
-            >
-              Import
-            </Button>
+            {type === "new" && (
+              <Button
+                icon={<UploadOutlined />}
+                onClick={() => setActiveModal(true)}
+                type="primary"
+                disabled={DisableAdd}
+              >
+                Import
+              </Button>
+            )}
           </Col>
         )}
         <Table
@@ -733,6 +733,7 @@ const SoLoForm = ({ history, match, permission }) => {
         openModalFS={setActiveModal}
         chiTietDonHang_Id={ChiTietDonHang}
         addSanPham={addSanPham}
+        soLuongDonHang={SoLuongSanPhamToiDa}
       />
 
       <ModalEditSanPham

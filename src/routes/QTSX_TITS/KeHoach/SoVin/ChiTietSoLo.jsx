@@ -55,16 +55,10 @@ function ChiTietSoLo({ openModalFS, openModal, data, refesh, type }) {
       key: "tenMauSac",
     },
     {
-      title: "Mã sản phẩm nội bộ",
-      dataIndex: "maNoiBo",
+      title: "Mã số VIN",
+      dataIndex: "maSoVin",
       align: "center",
-      key: "maNoiBo",
-    },
-    {
-      title: "Quy trình",
-      dataIndex: "tenQuyTrinhSanXuat",
-      align: "center",
-      key: "tenQuyTrinhSanXuat",
+      key: "maSoVin",
     },
   ];
   const components = {
@@ -93,7 +87,7 @@ function ChiTietSoLo({ openModalFS, openModal, data, refesh, type }) {
     openModalFS(false);
     refesh();
   };
-  const formTitle = "Chi tiết mã sản phẩm nội bộ";
+  const formTitle = "Chi tiết số VIN";
 
   return (
     <div className="gx-main-content">
