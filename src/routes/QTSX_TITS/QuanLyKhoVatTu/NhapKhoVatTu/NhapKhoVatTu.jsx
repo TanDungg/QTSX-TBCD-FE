@@ -6,6 +6,7 @@ import {
   DeleteOutlined,
   PrinterOutlined,
   DownloadOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -136,36 +137,42 @@ function NhapKhoVatTu({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * Tìm kiếm sản phẩm
-   *
-   */
+
   const onSearchDeNghiMuaHang = () => {
     loadData(keyword, Kho, FromDate, ToDate, page);
   };
 
-  /**
-   * Thay đổi keyword
-   *
-   * @param {*} val
-   */
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
       loadData(val.target.value, Kho, FromDate, ToDate, page);
     }
   };
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
+
   const actionContent = (item) => {
+    const xacnhan =
+      INFO.user_Id === item.nguoiDuyet_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/xac-nhan`,
+            state: { itemData: item },
+          }}
+          title="Xác nhận"
+        >
+          <CheckCircleOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Xác nhận">
+          <CheckCircleOutlined />
+        </span>
+      );
+
     const editItem =
       permission &&
       permission.edit &&
       item.nguoiTaoPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" &&
       moment(getDateNow(-1), "DD/MM/YYYY") <=
         moment(item.ngayYeuCau, "DD/MM/YYYY") ? (
         <Link
@@ -186,12 +193,15 @@ function NhapKhoVatTu({ match, history, permission }) {
       permission &&
       permission.del &&
       item.nguoiTaoPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" &&
       moment(getDateNow(-1), "DD/MM/YYYY") <=
         moment(item.ngayYeuCau, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
+        {xacnhan}
+        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -514,16 +524,16 @@ function NhapKhoVatTu({ match, history, permission }) {
               style={{
                 borderColor:
                   value === "Chưa xác nhận"
-                    ? "red"
+                    ? "orange"
                     : value === "Đã xác nhận"
-                    ? "blue"
-                    : "orange",
+                    ? "#0469B9"
+                    : "red",
                 color:
                   value === "Chưa xác nhận"
-                    ? "red"
+                    ? "orange"
                     : value === "Đã xác nhận"
-                    ? "blue"
-                    : "orange",
+                    ? "#0469B9"
+                    : "red",
                 fontSize: 13,
               }}
             >

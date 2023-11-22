@@ -676,7 +676,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận đơn hàng",
+    title: "Xác nhận phiếu mua hàng ngoài",
     onOk: hanldeXacNhan,
   };
 

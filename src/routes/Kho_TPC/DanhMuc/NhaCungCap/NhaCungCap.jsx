@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Col } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  ImportOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -17,6 +22,7 @@ import {
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import ImportNhaCungCap from "./ImportNhaCungCap";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function NhaCungCap({ match, history, permission }) {
@@ -24,6 +30,7 @@ function NhaCungCap({ match, history, permission }) {
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
+  const [ActiveModal, setActiveModal] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -158,9 +165,22 @@ function NhaCungCap({ match, history, permission }) {
     });
   };
 
+  const refeshData = () => {
+    loadData(keyword, page);
+  };
+
   const addButtonRender = () => {
     return (
       <>
+        <Button
+          icon={<ImportOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={() => setActiveModal(true)}
+          disabled={permission && !permission.add}
+        >
+          Import
+        </Button>
         <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
@@ -416,6 +436,11 @@ function NhaCungCap({ match, history, permission }) {
           loading={loading}
         />
       </Card>
+      <ImportNhaCungCap
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        refesh={refeshData}
+      />
     </div>
   );
 }

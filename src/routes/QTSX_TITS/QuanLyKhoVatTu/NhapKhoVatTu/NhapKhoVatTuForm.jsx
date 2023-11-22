@@ -13,7 +13,7 @@ import {
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
-import React, { useEffect, useState, useRef, useContext } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import {
@@ -22,18 +22,19 @@ import {
   Table,
   ModalDeleteConfirm,
   EditableTableRow,
+  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API, DEFAULT_FORM_NHAPKHOVATTU } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
-  exportPDF,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
   reDataForTable,
   renderPDF,
 } from "src/util/Common";
+import ModalTuChoi from "./ModalTuChoi";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -58,6 +59,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   const [ChungTu, setChungTu] = useState([]);
+  const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
 
   useEffect(() => {
     const load = () => {
@@ -91,6 +93,15 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       } else if (includes(match.url, "chi-tiet")) {
         if (permission && permission.edit) {
           setType("detail");
+          const { id } = match.params;
+          setId(id);
+          getInfo(id);
+        } else if (permission && !permission.edit) {
+          history.push("/home");
+        }
+      } else if (includes(match.url, "xac-nhan")) {
+        if (permission && permission.edit) {
+          setType("xacnhan");
           const { id } = match.params;
           setId(id);
           getInfo(id);
@@ -357,10 +368,19 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       setFieldTouch(false);
       setEditingRecord([...editingRecord, item]);
       item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
-    } else if (Number(soLuongNhap) > item.soLuongChuaNhap) {
+    } else if (Number(soLuongNhap) > item.soLuongChuaNhap && type === "new") {
       setFieldTouch(false);
       setEditingRecord([...editingRecord, item]);
       item.message = `Số lượng không được lớn hơn ${item.soLuongChuaNhap}`;
+    } else if (
+      Number(soLuongNhap) > Number(item.soLuongChuaNhap + item.soLuongDaNhap) &&
+      type === "edit"
+    ) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = `Số lượng không được lớn hơn ${Number(
+        item.soLuongChuaNhap + item.soLuongDaNhap
+      )}`;
     } else {
       const newData = editingRecord.filter(
         (d) => d.tits_qtsx_PhieuNhanHang_Id !== item.tits_qtsx_PhieuNhanHang_Id
@@ -458,7 +478,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Số lượng chưa nhập",
+      title: "Số lượng còn lại",
       dataIndex: "soLuongChuaNhap",
       key: "soLuongChuaNhap",
       align: "center",
@@ -609,71 +629,82 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         .catch(() => {
           console.log("upload failed.");
         });
-      // } else if (type === "edit" && ChungTu) {
-      //   const formData = new FormData();
-      //   Object.keys(phieunhapkhovattu).forEach((key) => {
-      //     if (key.startsWith("fileChungTu")) {
-      //       phieunhapkhovattu[key].file &&
-      //         formData.append("lstFiles", phieunhapkhovattu[key].file);
-      //     }
-      //   });
-      //   fetch(`${BASE_URL_API}/api/Upload/Multi`, {
-      //     method: "POST",
-      //     body: formData,
-      //     headers: {
-      //       Authorization: "Bearer ".concat(INFO.token),
-      //     },
-      //   })
-      //     .then((res) => res.json())
-      //     .then((path) => {
-      //       console.log(path);
-      //       path.forEach((pathname) => {
-      //         Object.keys(phieunhapkhovattu).forEach((key) => {
-      //           if (
-      //             key.startsWith("fileChungTu") &&
-      //             phieunhapkhovattu[key] !== ""
-      //           ) {
-      //             if (phieunhapkhovattu[key] && phieunhapkhovattu[key].fileList) {
-      //               const fileList = phieunhapkhovattu[key].fileList.find(
-      //                 (file) => file.name === pathname.fileName
-      //               );
-      //               if (fileList) {
-      //                 phieunhapkhovattu[key] = pathname.path;
-      //               }
-      //             }
-      //           }
-      //         });
-      //       });
-      //       console.log(phieunhapkhovattu);
-      //       const newData = {
-      //         ...phieunhapkhovattu,
-      //         ngayNhapKho: phieunhapkhovattu.ngayNhapKho.format(
-      //           "DD/MM/YYYY HH:mm:ss"
-      //         ),
-      //         list_ChungTu: ChungTu.map((chungtu) => {
-      //           const filechungtu = [];
-      //           for (const key in phieunhapkhovattu) {
-      //             if (
-      //               key.startsWith("fileChungTu") &&
-      //               key.slice(11) === chungtu.maChungTu
-      //             ) {
-      //               filechungtu.push(phieunhapkhovattu[key]);
-      //             }
-      //           }
-      //           return {
-      //             ...chungtu,
-      //             fileChungTu: filechungtu.length > 0 ? filechungtu[0] : null,
-      //           };
-      //         }),
-      //         tits_qtsx_PhieuNhapKhoVatTuChiTiets: listVatTu,
-      //       };
-      //       saveData(newData, saveQuit);
-      //     })
-      //     .catch(() => {
-      //       console.log("upload failed.");
-      //     });
+    } else if (type === "edit" && ChungTu) {
+      const formData = new FormData();
+      Object.keys(phieunhapkhovattu).forEach((key) => {
+        if (key.startsWith("fileChungTu")) {
+          phieunhapkhovattu[key].file &&
+            formData.append("lstFiles", phieunhapkhovattu[key].file);
+        }
+      });
+      fetch(`${BASE_URL_API}/api/Upload/Multi`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: "Bearer ".concat(INFO.token),
+        },
+      })
+        .then((res) => res.json())
+        .then((path) => {
+          path.forEach((pathname) => {
+            Object.keys(phieunhapkhovattu).forEach((key) => {
+              if (
+                key.startsWith("fileChungTu") &&
+                phieunhapkhovattu[key] !== ""
+              ) {
+                if (phieunhapkhovattu[key] && phieunhapkhovattu[key].fileList) {
+                  const fileList = phieunhapkhovattu[key].fileList.find(
+                    (file) => file.name === pathname.fileName
+                  );
+                  if (fileList) {
+                    phieunhapkhovattu[key] = pathname.path;
+                  }
+                }
+              }
+            });
+          });
+
+          const newData = {
+            ...phieunhapkhovattu,
+            id: id,
+            tits_qtsx_PhieuNhanHang_Id: info.tits_qtsx_PhieuNhanHang_Id,
+            ngayNhapKho: phieunhapkhovattu.ngayNhapKho.format(
+              "DD/MM/YYYY HH:mm:ss"
+            ),
+            list_ChungTu: ChungTu.map((chungtu) => {
+              const filechungtu = [];
+              for (const key in phieunhapkhovattu) {
+                if (
+                  key.startsWith("fileChungTu") &&
+                  key.slice(11) === chungtu.maChungTu
+                ) {
+                  filechungtu.push(phieunhapkhovattu[key]);
+                }
+              }
+              return {
+                ...chungtu,
+                fileChungTu: filechungtu.length > 0 ? filechungtu[0] : null,
+              };
+            }),
+            tits_qtsx_PhieuNhapKhoVatTuChiTiets: listVatTu,
+          };
+          saveData(newData, saveQuit);
+        })
+        .catch(() => {
+          console.log("upload failed.");
+        });
     } else {
-      saveData(phieunhapkhovattu, saveQuit);
+      const newData = {
+        ...phieunhapkhovattu,
+        id: id,
+        tits_qtsx_PhieuNhanHang_Id: info.tits_qtsx_PhieuNhanHang_Id,
+        ngayNhapKho: phieunhapkhovattu.ngayNhapKho.format(
+          "DD/MM/YYYY HH:mm:ss"
+        ),
+        list_ChungTu: ChungTu,
+        tits_qtsx_PhieuNhapKhoVatTuChiTiets: listVatTu,
+      };
+      saveData(newData, saveQuit);
     }
   };
 
@@ -721,22 +752,12 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const newData = {
-        id: id,
-        ...phieunhapkhovattu,
-        ngayNhapKho: phieunhapkhovattu.ngayNhapKho.format(
-          "DD/MM/YYYY HH:mm:ss"
-        ),
-        list_ChungTu: ChungTu,
-        tits_qtsx_PhieuNhapKhoVatTuChiTiets: listVatTu,
-      };
-      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
             `tits_qtsx_PhieuNhapKhoVatTu/${id}`,
             "PUT",
-            newData,
+            phieunhapkhovattu,
             "EDIT",
             "",
             resolve,
@@ -756,6 +777,69 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     }
   };
 
+  const hanldeXacNhan = () => {
+    const newData = {
+      id: id,
+      isDuyet: true,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuNhapKhoVatTu/xac-nhan/${id}`,
+          "PUT",
+          newData,
+          "XACNHAN",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          getInfo(id);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const prop = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận phiếu nhập kho vật tư",
+    onOk: hanldeXacNhan,
+  };
+
+  const modalXK = () => {
+    Modal(prop);
+  };
+
+  const saveTuChoi = (data) => {
+    const newData = {
+      id: id,
+      isDuyet: false,
+      lyDoDuyetTuChoi: data,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuNhapKhoVatTu/xac-nhan/${id}`,
+          "PUT",
+          newData,
+          "TUCHOI",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) getInfo(id);
+      })
+      .catch((error) => console.error(error));
+  };
+
   const formTitle =
     type === "new" ? (
       "Tạo phiếu nhập kho vật tư "
@@ -768,7 +852,13 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           {info.maPhieu}
         </Tag>
         <Tag
-          color={info.tinhTrang !== "Chưa xác nhận" ? "blue" : "red"}
+          color={
+            info.tinhTrang === "Chưa xác nhận"
+              ? "orange"
+              : info.tinhTrang === "Đã xác nhận"
+              ? "blue"
+              : "red"
+          }
           style={{ fontSize: 15 }}
         >
           {info.tinhTrang}
@@ -1084,7 +1174,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp="name"
                   onSelect={hanldeSelectChungTu}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -1233,6 +1323,29 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               </FormItem>
             </Col>
             {renderFileChungTu()}
+            {info.tinhTrang === "Đã từ chối" && (
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Lý do từ chối"
+                  name={["phieunhapkhovattu", "lyDoDuyetTuChoi"]}
+                  rules={[
+                    {
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Input className="input-item" disabled={true} />
+                </FormItem>
+              </Col>
+            )}
           </Row>
         </Form>
         <Table
@@ -1247,6 +1360,24 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           pagination={false}
           // loading={loading}
         />
+        {type === "xacnhan" && info.tinhTrang === "Chưa xác nhận" && (
+          <Row justify={"end"} style={{ marginTop: 15 }}>
+            <Col style={{ marginRight: 15 }}>
+              <Button type="primary" onClick={modalXK}>
+                Xác nhận
+              </Button>
+            </Col>
+            <Col style={{ marginRight: 15 }}>
+              <Button
+                type="danger"
+                onClick={() => setActiveModalTuChoi(true)}
+                disabled={info.tinhTrang !== "Chưa xác nhận"}
+              >
+                Từ chối
+              </Button>
+            </Col>
+          </Row>
+        )}
         {type === "new" || type === "edit" ? (
           <FormSubmit
             goBack={goBack}
@@ -1256,6 +1387,11 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           />
         ) : null}
       </Card>
+      <ModalTuChoi
+        openModal={ActiveModalTuChoi}
+        openModalFS={setActiveModalTuChoi}
+        saveTuChoi={saveTuChoi}
+      />
     </div>
   );
 };

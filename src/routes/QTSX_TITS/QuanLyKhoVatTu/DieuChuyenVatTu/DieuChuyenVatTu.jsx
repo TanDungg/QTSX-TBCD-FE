@@ -25,12 +25,15 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
+
 function DieuChuyenVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [ListKho, setListKho] = useState([]);
-  const [Kho, setKho] = useState(null);
+  const [ListKhoDi, setListKhoDi] = useState([]);
+  const [KhoDi, setKhoDi] = useState(null);
+  const [ListKhoDen, setListKhoDen] = useState([]);
+  const [KhoDen, setKhoDen] = useState(null);
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
@@ -38,8 +41,8 @@ function DieuChuyenVatTu({ match, history, permission }) {
 
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(keyword, Kho, FromDate, ToDate, page);
-      getKho();
+      getListData(keyword, KhoDi, KhoDen, FromDate, ToDate, page);
+      getListKho();
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -52,25 +55,33 @@ function DieuChuyenVatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (keyword, cauTrucKho_Id, tuNgay, denNgay, page) => {
+  const getListData = (
+    keyword,
+    tits_qtsx_CauTrucKhoBegin_Id,
+    tits_qtsx_CauTrucKhoEnd_Id,
+    tuNgay,
+    denNgay,
+    page
+  ) => {
     const param = convertObjectToUrlParams({
-      cauTrucKho_Id,
-      donVi_Id: INFO.donVi_Id,
+      keyword,
+      tits_qtsx_CauTrucKhoBegin_Id,
+      tits_qtsx_CauTrucKhoEnd_Id,
       tuNgay,
       denNgay,
-      keyword,
+      isVatTu: true,
       page,
-      isKhoThanhPhamBegin: false,
-      isKhoThanhPhamEnd: false,
     });
-    dispatch(fetchStart(`lkn_PhieuDieuChuyen?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(`tits_qtsx_PhieuDieuChuyen?${param}`, "GET", null, "LIST")
+    );
   };
 
-  const getKho = () => {
+  const getListKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&isThanhPham=false`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-vat-tu-tree`,
           "GET",
           null,
           "DETAIL",
@@ -82,9 +93,9 @@ function DieuChuyenVatTu({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListKho(res.data);
+          setListKhoDi(res.data);
         } else {
-          setListKho([]);
+          setListKhoDi([]);
         }
       })
       .catch((error) => console.error(error));
@@ -94,7 +105,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    getListData(keyword, Kho, FromDate, ToDate, page);
+    getListData(keyword, KhoDi, KhoDen, FromDate, ToDate, page);
   };
 
   /**
@@ -105,7 +116,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, Kho, FromDate, ToDate, page);
+      getListData(val.target.value, KhoDi, KhoDen, FromDate, ToDate, page);
     }
   };
   /**
@@ -177,14 +188,14 @@ function DieuChuyenVatTu({ match, history, permission }) {
    */
   const deleteItemAction = (item) => {
     console.log(item);
-    let url = `lkn_PhieuDieuChuyen?id=${item.id}`;
+    let url = `tits_qtsx_PhieuDieuChuyen?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(keyword, Kho, FromDate, ToDate, page);
+          getListData(keyword, KhoDi, KhoDen, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -198,7 +209,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(keyword, Kho, FromDate, ToDate, pagination);
+    getListData(keyword, KhoDi, KhoDen, FromDate, ToDate, pagination);
   };
 
   /**
@@ -366,30 +377,42 @@ function DieuChuyenVatTu({ match, history, permission }) {
     };
   });
 
-  const handleOnSelectKho = (val) => {
-    setKho(val);
+  const handleOnSelectKhoDi = (val) => {
+    setKhoDi(val);
     setPage(1);
-    getListData(keyword, val, FromDate, ToDate, 1);
+    getListData(keyword, val, KhoDen, FromDate, ToDate, 1);
   };
 
-  const handleClearKho = (val) => {
-    setKho("");
+  const handleClearKhoDi = () => {
+    setKhoDi(null);
     setPage(1);
-    getListData(keyword, "", FromDate, ToDate, 1);
+    getListData(keyword, null, KhoDen, FromDate, ToDate, 1);
+  };
+
+  const handleOnSelectKhoDen = (val) => {
+    setKhoDen(val);
+    setPage(1);
+    getListData(keyword, KhoDi, val, FromDate, ToDate, 1);
+  };
+
+  const handleClearKhoDen = () => {
+    setKhoDen(null);
+    setPage(1);
+    getListData(keyword, KhoDi, null, FromDate, ToDate, 1);
   };
 
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    getListData(keyword, Kho, dateString[0], dateString[1], 1);
+    getListData(keyword, KhoDi, KhoDen, dateString[0], dateString[1], 1);
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Điều chuyển vật tư"
-        description="Điều chuyển vật tư"
+        title="Phiếu điều chuyển vật tư"
+        description="Phiếu điều chuyển vật tư"
         buttons={addButtonRender()}
       />
 
@@ -404,23 +427,45 @@ function DieuChuyenVatTu({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Kho:</h5>
+            <h5>Kho điều chuyển:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListKho ? ListKho : []}
-              placeholder="Chọn Kho"
-              optionsvalue={["id", "tenCTKho"]}
+              data={ListKhoDi ? ListKhoDi : []}
+              placeholder="Chọn kho điều chuyển"
+              optionsvalue={["id", "tenCauTrucKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectKho}
-              value={Kho}
-              onChange={(value) => setKho(value)}
+              onSelect={handleOnSelectKhoDi}
+              value={KhoDi}
               allowClear
-              onClear={handleClearKho}
+              onClear={handleClearKhoDi}
             />
           </Col>
-
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Kho nhận:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListKhoDen ? ListKhoDen : []}
+              placeholder="Chọn kho nhận"
+              optionsvalue={["id", "tenCauTrucKho"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp={"name"}
+              onSelect={handleOnSelectKhoDen}
+              value={KhoDen}
+              allowClear
+              onClear={handleClearKhoDen}
+            />
+          </Col>
           <Col
             xxl={6}
             xl={8}
