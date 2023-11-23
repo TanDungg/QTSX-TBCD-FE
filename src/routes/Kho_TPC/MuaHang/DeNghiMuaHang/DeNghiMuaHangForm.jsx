@@ -1043,10 +1043,10 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 bom_Id: data.id,
                 lkn_ChiTietBOM_Id: ct.lkn_ChiTietBOM_Id.toLowerCase(),
                 vatTu_Id: ct.vatTu_Id.toLowerCase(),
-                soLuongTheoDinhMuc: (ct.dinhMuc * SoLuong).toFixed(6),
+                soLuongTheoDinhMuc: Number((ct.dinhMuc * SoLuong).toFixed(6)),
                 ghiChu: "",
                 hangMucSuDung: "",
-                soLuong: (ct.dinhMuc * SoLuong).toFixed(6),
+                soLuong: Number((ct.dinhMuc * SoLuong).toFixed(6)),
               };
             });
 
@@ -1058,6 +1058,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
             setListSanPham(newListSanPham);
             setFieldsValue({
               sanPham: {
+                phongBan_Id: null,
                 sanPham_Id: null,
                 soLuong: null,
               },
