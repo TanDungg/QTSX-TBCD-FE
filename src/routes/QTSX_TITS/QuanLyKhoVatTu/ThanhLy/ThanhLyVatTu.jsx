@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EditOutlined,
+  CheckCircleOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -49,23 +54,31 @@ function ThanhLyVatTu({ match, history, permission }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListData = (keyword, cauTrucKho_Id, tuNgay, denNgay, page) => {
+  const getListData = (
+    keyword,
+    tits_qtsx_CauTrucKho_Id,
+    ngayBatDau,
+    ngayKetThuc,
+    page
+  ) => {
     const param = convertObjectToUrlParams({
-      cauTrucKho_Id,
-      donVi_Id: INFO.donVi_Id,
-      tuNgay,
-      denNgay,
+      tits_qtsx_CauTrucKho_Id,
+      ngayBatDau,
+      ngayKetThuc,
       keyword,
       page,
+      isVatTu: true,
     });
-    dispatch(fetchStart(`lkn_PhieuThanhLyVatTu?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(`tits_qtsx_PhieuThanhLy?${param}`, "GET", null, "LIST")
+    );
   };
 
   const getKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
           "GET",
           null,
           "DETAIL",
@@ -97,12 +110,20 @@ function ThanhLyVatTu({ match, history, permission }) {
   };
 
   const actionContent = (item) => {
+    const xacNhanItem =
+      permission && permission.edit && item.nguoiDuyet_Id === INFO.user_Id ? (
+        <a title="Xác nhận">
+          <CheckCircleOutlined />
+        </a>
+      ) : (
+        <span disabled title="Xác nhận">
+          <CheckCircleOutlined />
+        </span>
+      );
     const editItem =
       permission &&
       permission.edit &&
-      item.userLap_Id === INFO.user_Id &&
-      moment(getDateNow(-1), "DD/MM/YYYY") <=
-        moment(item.ngayXuatKho, "DD/MM/YYYY") ? (
+      item.nguoiTaoPhieu_Id === INFO.user_Id ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -118,15 +139,13 @@ function ThanhLyVatTu({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission &&
-      permission.del &&
-      item.userLap_Id === INFO.user_Id &&
-      moment(getDateNow(-1), "DD/MM/YYYY") <=
-        moment(item.ngayXuatKho, "DD/MM/YYYY")
+      permission && permission.del && item.nguoiTaoPhieu_Id === INFO.user_Id
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
+        {xacNhanItem}
+        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -137,16 +156,11 @@ function ThanhLyVatTu({ match, history, permission }) {
   };
 
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maPhieuThanhLy,
-      "phiếu thanh lý"
-    );
+    ModalDeleteConfirm(deleteItemAction, item, item.maPhieu, "phiếu thanh lý");
   };
 
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuThanhLyVatTu?id=${item.id}`;
+    let url = `tits_qtsx_PhieuThanhLy/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -197,15 +211,22 @@ function ThanhLyVatTu({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuThanhLy}
+          {val.maPhieu}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuThanhLy}</span>
+        <span disabled>{val.maPhieu}</span>
       );
     return <div>{detail}</div>;
   };
 
   let renderHead = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -215,34 +236,34 @@ function ThanhLyVatTu({ match, history, permission }) {
     },
     {
       title: "Mã phiếu thanh lý",
-      key: "maPhieuThanhLy",
+      key: "maPhieu",
       align: "center",
       render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieuThanhLy,
-            value: d.maPhieuThanhLy,
+            text: d.maPhieu,
+            value: d.maPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.maPhieuThanhLy.includes(value),
+      onFilter: (value, record) => record.maPhieu.includes(value),
       filterSearch: true,
     },
     {
       title: "Kho thanh lý",
-      dataIndex: "tenKhoThanhLy",
-      key: "tenKhoThanhLy",
+      dataIndex: "tenCauTrucKho",
+      key: "tenCauTrucKho",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenKhoThanhLy,
-            value: d.tenKhoThanhLy,
+            text: d.tenCauTrucKho,
+            value: d.tenCauTrucKho,
           };
         })
       ),
-      onFilter: (value, record) => record.tenKhoThanhLy.includes(value),
+      onFilter: (value, record) => record.tenCauTrucKho.includes(value),
       filterSearch: true,
     },
     {
@@ -263,26 +284,19 @@ function ThanhLyVatTu({ match, history, permission }) {
     },
     {
       title: "Người lập",
-      dataIndex: "nguoiLapPhieu",
-      key: "nguoiLapPhieu",
+      dataIndex: "tenNguoiTaoPhieu",
+      key: "tenNguoiTaoPhieu",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.nguoiLapPhieu,
-            value: d.nguoiLapPhieu,
+            text: d.tenNguoiTaoPhieu,
+            value: d.tenNguoiTaoPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.nguoiLapPhieu.includes(value),
+      onFilter: (value, record) => record.tenNguoiTaoPhieu.includes(value),
       filterSearch: true,
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
     },
   ];
 
@@ -351,7 +365,7 @@ function ThanhLyVatTu({ match, history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListKho ? ListKho : []}
               placeholder="Chọn kho"
-              optionsvalue={["id", "tenCTKho"]}
+              optionsvalue={["id", "tenCauTrucKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
