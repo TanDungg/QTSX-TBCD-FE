@@ -81,7 +81,7 @@ const SoVinForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const getDonHang = (id, key) => {
+  const getDonHang = (id, key = 0) => {
     const params = convertObjectToUrlParams({
       tits_qtsx_DonHang_Id: id,
       key,

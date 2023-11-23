@@ -48,25 +48,29 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu }) {
       }
       setFieldsValue({
         vatTu: {
-          vatTu_Id: vatTu.vatTu_Id,
+          vatTu_Id: vatTu.tits_qtsx_VatTu_Id,
           soLuong: vatTu.soLuong,
         },
       });
       setListVatTu([
         {
-          id: vatTu.vatTu_Id,
-          name: `${vatTu.maVatTu} - ${vatTu.tenVatTu} - ${vatTu.thoiGianSuDung}`,
+          id: vatTu.tits_qtsx_VatTu_Id,
+          name: `${vatTu.maVatTu} - ${vatTu.tenVatTu}`,
         },
       ]);
     }
   }, [openModal]);
 
   const getKe = (cauTrucKho_Id) => {
-    const params = convertObjectToUrlParams({ cauTrucKho_Id, thuTu: 2 });
+    const params = convertObjectToUrlParams({
+      cauTrucKho_Id,
+      thuTu: 2,
+      isThanhPham: false,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?${params}`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -90,7 +94,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?${params}`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -116,7 +120,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?${params}`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -260,7 +264,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu }) {
               className="heading-select slt-search th-select-heading"
               data={ListKe ? ListKe : []}
               placeholder="Chọn kệ"
-              optionsvalue={["id", "tenCTKho"]}
+              optionsvalue={["id", "tenCauTrucKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
@@ -281,7 +285,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu }) {
               className="heading-select slt-search th-select-heading"
               data={ListTang ? ListTang : []}
               placeholder="Chọn tầng"
-              optionsvalue={["id", "tenCTKho"]}
+              optionsvalue={["id", "tenCauTrucKho"]}
               style={{ width: "100%" }}
               showSearch
               onSelect={handleSelectTang}
@@ -302,7 +306,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu }) {
               className="heading-select slt-search th-select-heading"
               data={ListNgan ? ListNgan : []}
               placeholder="Chọn ngăn"
-              optionsvalue={["id", "tenCTKho"]}
+              optionsvalue={["id", "tenCauTrucKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"

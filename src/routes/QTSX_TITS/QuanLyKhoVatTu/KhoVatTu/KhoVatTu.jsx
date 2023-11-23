@@ -48,16 +48,15 @@ function KhoVatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, cauTrucKho_Id, page) => {
+  const loadData = (keyword, tits_qtsx_CauTrucKho_Id, page) => {
     const param = convertObjectToUrlParams({
-      cauTrucKho_Id,
+      tits_qtsx_CauTrucKho_Id,
       keyword,
       page,
-      donVi_Id: INFO.donVi_Id,
     });
     dispatch(
       fetchStart(
-        `lkn_ViTriLuuKho/list-vi-tri-luu-kho-vat-tu?${param}`,
+        `tits_qtsx_ViTriLuuKhoVatTu/list-vi-tri-luu-kho-vat-tu?${param}`,
         "GET",
         null,
         "LIST"
@@ -73,7 +72,7 @@ function KhoVatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=false`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=false`,
           "GET",
           null,
           "DETAIL",
@@ -194,18 +193,18 @@ function KhoVatTu({ match, history, permission }) {
     },
     {
       title: "Ngày nhập kho",
-      dataIndex: "ngayNhan",
-      key: "ngayNhan",
+      dataIndex: "ngayNhapKho",
+      key: "ngayNhapKho",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayNhan,
-            value: d.ngayNhan,
+            text: d.ngayNhapKho,
+            value: d.ngayNhapKho,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayNhan.includes(value),
+      onFilter: (value, record) => record.ngayNhapKho.includes(value),
       filterSearch: true,
     },
     {
@@ -261,12 +260,12 @@ function KhoVatTu({ match, history, permission }) {
         );
       },
     },
-    {
-      title: "Hạn sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
-      align: "center",
-    },
+    // {
+    //   title: "Hạn sử dụng",
+    //   dataIndex: "thoiGianSuDung",
+    //   key: "thoiGianSuDung",
+    //   align: "center",
+    // },
   ];
 
   const components = {
@@ -351,7 +350,7 @@ function KhoVatTu({ match, history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListKho ? ListKho : []}
               placeholder="Chọn kho"
-              optionsvalue={["id", "tenCTKho"]}
+              optionsvalue={["id", "tenCauTrucKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}

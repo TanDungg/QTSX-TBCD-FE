@@ -920,7 +920,7 @@ const VatTuForm = ({ history, match, permission }) => {
             </Col>
             <Col span={12}>
               <FormItem
-                label="Số đơn hàng"
+                label="Phiếu nhận hàng"
                 name={["phieunhapkho", "phieuNhanHang_Id"]}
                 rules={[
                   {
@@ -932,7 +932,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListMaPhieu}
-                  placeholder="Chọn phiếu mua hàng"
+                  placeholder="Chọn phiếu nhận hàng"
                   optionsvalue={["id", "maPhieuNhanHang"]}
                   style={{ width: "100%" }}
                   showSearch

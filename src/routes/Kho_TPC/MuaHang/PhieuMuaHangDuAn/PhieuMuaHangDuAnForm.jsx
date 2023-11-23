@@ -820,7 +820,7 @@ const PhieuMuaHangDuAnForm = ({ history, match, permission }) => {
         new Promise((resolve, reject) => {
           dispatch(
             fetchStart(
-              `lkn_PhieuMuaHangTheoDuAn/tai-file-phieu-de-nghi/{id}/${id}`,
+              `lkn_PhieuMuaHangTheoDuAn/tai-file-phieu-de-nghi/${id}`,
               "PUT",
               { id: id, file: data.path },
               "GUIPHIEU",
