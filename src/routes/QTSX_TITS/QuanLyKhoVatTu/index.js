@@ -19,7 +19,15 @@ const DeNghiCapVatTuPhuForm = asyncComponent(() =>
   import("./PhieuYeuCauCapVatTuPhu/PhieuYeuCauCapVatTuPhuForm")
 );
 
-/* Đề nghị cấp vật tư phụ */
+/* Đề xuất kho vật tư phụ */
+const XuatKhoVatTuPhu = asyncComponent(() =>
+  import("./XuatKhoVatTuPhu/XuatKhoVatTuPhu")
+);
+const XuatKhoVatTuPhuForm = asyncComponent(() =>
+  import("./XuatKhoVatTuPhu/XuatKhoVatTuPhuForm")
+);
+
+/* Điều chuyển vật tư */
 const DieuChuyenVatTu = asyncComponent(() =>
   import("./DieuChuyenVatTu/DieuChuyenVatTu")
 );
@@ -84,6 +92,33 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/de-nghi-cap-vat-tu-phu/:id/xac-nhan`}
         exact
         component={Auth(DeNghiCapVatTuPhuForm, menus, pathname, permission)}
+      />
+
+      {/* Đề xuất kho vật tư phụ */}
+      <Route
+        path={`${match.url}/xuat-kho-vat-tu-phu`}
+        exact
+        component={Auth(XuatKhoVatTuPhu, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/xuat-kho-vat-tu-phu/them-moi`}
+        exact
+        component={Auth(XuatKhoVatTuPhuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/xuat-kho-vat-tu-phu/:id/chinh-sua`}
+        exact
+        component={Auth(XuatKhoVatTuPhuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/xuat-kho-vat-tu-phu/:id/chi-tiet`}
+        exact
+        component={Auth(XuatKhoVatTuPhuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/xuat-kho-vat-tu-phu/:id/xac-nhan`}
+        exact
+        component={Auth(XuatKhoVatTuPhuForm, menus, pathname, permission)}
       />
 
       {/* Đề nghị cấp vật tư phụ */}

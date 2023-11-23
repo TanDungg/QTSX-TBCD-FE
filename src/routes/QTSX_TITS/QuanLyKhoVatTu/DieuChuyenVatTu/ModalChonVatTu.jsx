@@ -1,25 +1,42 @@
-import { Modal as AntModal, Card, Input, Button, Row, Col } from "antd";
+import { Modal as AntModal, Card, Input, Button, Row, Col, Form } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
-import { ModalDeleteConfirm, Select, Table } from "src/components/Common";
+import {
+  EditableTableRow,
+  ModalDeleteConfirm,
+  Select,
+  Table,
+} from "src/components/Common";
 import { DeleteOutlined } from "@ant-design/icons";
-import { isEmpty } from "lodash";
+import { isEmpty, map } from "lodash";
+import { DEFAULT_FORM_THEMVATTU } from "src/constants/Config";
 
-function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
-  const { width } = useSelector(({ common }) => common).toJS();
+const FormItem = Form.Item;
+const { EditableRow, EditableCell } = EditableTableRow;
+
+function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
   const dispatch = useDispatch();
+  const { width } = useSelector(({ common }) => common).toJS();
+  const [fieldTouch, setFieldTouch] = useState(false);
+  const [form] = Form.useForm();
+  const { resetFields, setFieldsValue } = form;
+  const [ListKhoVatTuDi, setListKhoVatTuDi] = useState([]);
+  const [ListVatPham, setListVatPham] = useState([]);
   const [ListViTriKho, setListViTriKho] = useState([]);
-  const [ViTriKho, setViTriKho] = useState(null);
-  const [VatTu, setVatTu] = useState([]);
-  const [ListVatTu, setListVatTu] = useState([]);
-  const [DisabledSave, setDisabledSave] = useState(true);
-  const [editingRecord, setEditingRecord] = useState({});
+  const [DataListVatPham, setDataListVatPham] = useState([]);
+  const [editingRecord, setEditingRecord] = useState([]);
 
   useEffect(() => {
     if (openModal) {
-      getListViTriKho(itemData.kho_Id);
+      getListKho();
+      setFieldsValue({
+        themvattu: {
+          tits_qtsx_CauTrucKhoBegin_Id: itemData.tits_qtsx_CauTrucKhoBegin_Id,
+        },
+      });
+      getListViTriKho(itemData.tits_qtsx_CauTrucKhoBegin_Id);
     }
     return () => {
       dispatch(fetchReset());
@@ -27,14 +44,39 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
-  const getListViTriKho = (cauTrucKho_Id) => {
+  const getListKho = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_CauTrucKho/cau-truc-kho-vat-tu-tree`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListKhoVatTuDi(res.data);
+        } else {
+          setListKhoVatTuDi([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListViTriKho = (tits_qtsx_CauTrucKho_Id, tits_qtsx_VatTu_Id) => {
     const params = convertObjectToUrlParams({
-      cauTrucKho_Id,
+      tits_qtsx_CauTrucKho_Id,
+      tits_qtsx_VatTu_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_ViTriLuuKho/list-vi-tri-luu-kho-vat-tu?${params}`,
+          `tits_qtsx_ViTriLuuKhoVatTu/vat-pham-by-kho?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -45,136 +87,149 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        const newListVatTu = res.data.map((data) => {
-          const vitri = `${data.tenKe ? `${data.tenKe}` : ""}${
-            data.tenTang ? ` - ${data.tenTang}` : ""
-          }${data.tenNgan ? ` - ${data.tenNgan}` : ""}`;
-          return {
-            ...data,
-            vatTu: `${data.maVatTu} - ${data.tenVatTu}${
-              vitri ? ` (${vitri})` : ""
-            }${data.thoiGianSuDung ? ` - ${data.thoiGianSuDung}` : ""}`,
-            soLuongDieuChuyen: data.soLuong,
-            lkn_ChiTietKhoBegin_Id: data.lkn_ChiTietKhoVatTu_Id,
-          };
-        });
-
-        const newData = newListVatTu.filter((data) => {
-          return (
-            itemData.listVatTu &&
-            !itemData.listVatTu.some((item) => item.vatTu === data.vatTu)
-          );
-        });
-        setListViTriKho(newData);
+        if (!tits_qtsx_VatTu_Id) {
+          const newVatTu = res.data.map((data) => {
+            return {
+              ...data,
+              vatPham: `${data.maVatPham} - ${data.tenVatPham}`,
+            };
+          });
+          setListVatPham(newVatTu);
+        } else {
+          const newListViTri = res.data.map((data) => {
+            const vitri = `${data.maKe ? `${data.maKe}` : ""}${
+              data.maTang ? ` - ${data.maTang}` : ""
+            }${data.maNgan ? ` - ${data.maNgan}` : ""}`;
+            return {
+              ...data,
+              viTri: vitri ? vitri : null,
+              soLuong: data.soLuongTonKho,
+            };
+          });
+          const newData = newListViTri.filter((data) => {
+            return (
+              itemData.dataListVatPham &&
+              !itemData.dataListVatPham.some(
+                (item) =>
+                  item.tits_qtsx_ChiTietKhoBegin_Id ===
+                  data.tits_qtsx_ChiTietKhoBegin_Id
+              )
+            );
+          });
+          setListViTriKho(newData);
+        }
       } else {
         setListViTriKho([]);
       }
     });
   };
 
-  const renderSoLuongDieuChuyen = (record) => {
-    const isEditing =
-      editingRecord.lkn_ChiTietKhoVatTu_Id === record.lkn_ChiTietKhoVatTu_Id;
+  const handleInputChange = (val, item) => {
+    const soLuongDieuChuyen = val.target.value;
+    if (isEmpty(soLuongDieuChuyen) || soLuongDieuChuyen === "0") {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message =
+        "Số lượng điều chuyển phải lớn hơn hoặc bằng 0 và bắt buộc";
+    } else if (soLuongDieuChuyen > item.soLuongTonKho) {
+      setFieldTouch(false);
+      item.message = `Số lượng điều chuyển không được lớn hơn ${item.soLuongTonKho}`;
+      setEditingRecord([...editingRecord, item]);
+    } else {
+      const newData = editingRecord.filter(
+        (d) =>
+          d.tits_qtsx_ChiTietKhoBegin_Id !== item.tits_qtsx_ChiTietKhoBegin_Id
+      );
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
+    }
+    const newData = [...ListViTriKho];
+    newData.forEach((ct, index) => {
+      if (
+        ct.tits_qtsx_ChiTietKhoBegin_Id === item.tits_qtsx_ChiTietKhoBegin_Id
+      ) {
+        ct.soLuong = soLuongDieuChuyen;
+      }
+    });
+    setListVatPham(newData);
+  };
+
+  const renderSoLuongDieuChuyen = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (
+        ct.tits_qtsx_ChiTietKhoBegin_Id === item.tits_qtsx_ChiTietKhoBegin_Id
+      ) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
     return (
-      <div>
+      <>
         <Input
-          min={0}
           style={{
             textAlign: "center",
             width: "100%",
             borderColor: isEditing ? "red" : "",
           }}
-          className={`input-item ${isEditing ? "input-error" : ""}`}
-          value={record.soLuongDieuChuyen}
+          className={`input-item`}
           type="number"
-          onChange={(val) => handleInputChange(val, record)}
+          value={item.soLuong}
+          onChange={(val) => handleInputChange(val, item)}
         />
-        {isEditing && (
-          <div style={{ color: "red" }}>{editingRecord.message}</div>
-        )}
-      </div>
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
     );
   };
 
-  const handleInputChange = (val, record) => {
-    const sl = val.target.value;
-    if (isEmpty(sl) || sl === "0") {
-      record.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
-      setEditingRecord(record);
-
-      setDisabledSave(true);
-    } else if (sl > record.soLuong) {
-      record.message =
-        "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho";
-      setEditingRecord(record);
-      setDisabledSave(true);
-    } else {
-      setEditingRecord({});
-      setDisabledSave(false);
-    }
-
-    setVatTu((prevVatTu) => {
-      return prevVatTu.map((item) => {
-        if (VatTu[0].lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
-          return {
-            ...item,
-            soLuongDieuChuyen: sl,
-          };
-        }
-        return item;
-      });
-    });
+  const renderMoTa = (item) => {
+    return (
+      <Input
+        style={{
+          textAlign: "center",
+          width: "100%",
+        }}
+        className={`input-item`}
+        value={item.moTa}
+        onChange={(val) => handleMoTa(val, item)}
+      />
+    );
   };
 
-  let colVatTu = [
+  const handleMoTa = (value, record) => {
+    const ghichu = value.target.value;
+    setFieldTouch(true);
+    const newData = [...ListViTriKho];
+    newData.forEach((ct, index) => {
+      if (
+        ct.tits_qtsx_ChiTietKhoBegin_Id === record.tits_qtsx_ChiTietKhoBegin_Id
+      ) {
+        ct.moTa = ghichu;
+      }
+    });
+    setListVatPham(newData);
+  };
+
+  let colValuesViTri = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 50,
+    },
     {
       title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      dataIndex: "maVatPham",
+      key: "maVatPham",
       align: "center",
     },
     {
       title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      dataIndex: "tenVatPham",
+      key: "tenVatPham",
       align: "center",
-    },
-    {
-      title: "Tên kệ",
-      dataIndex: "tenKe",
-      key: "tenKe",
-      align: "center",
-    },
-    {
-      title: "Tên tầng",
-      dataIndex: "tenTang",
-      key: "tenTang",
-      align: "center",
-    },
-    {
-      title: "Tên ngăn",
-      dataIndex: "tenNgan",
-      key: "tenNgan",
-      align: "center",
-    },
-    {
-      title: "SL trong kho",
-      dataIndex: "soLuong",
-      key: "soLuong",
-      align: "center",
-    },
-    {
-      title: "Thời hạn sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
-      align: "center",
-    },
-    {
-      title: "SL điều chuyển",
-      key: "soLuongDieuChuyen",
-      align: "center",
-      render: (record) => renderSoLuongDieuChuyen(record),
-      width: 200,
     },
     {
       title: "Đơn vị tính",
@@ -182,7 +237,41 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       key: "tenDonViTinh",
       align: "center",
     },
+    {
+      title: "Vị trí",
+      dataIndex: "viTri",
+      key: "viTri",
+      align: "center",
+    },
+    {
+      title: "SL điều chuyển",
+      key: "soLuong",
+      align: "center",
+      render: (record) => renderSoLuongDieuChuyen(record),
+    },
+    {
+      title: "Mô tả",
+      key: "moTa",
+      align: "center",
+      render: (record) => renderMoTa(record),
+    },
   ];
+
+  const columnsvitri = map(colValuesViTri, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
 
   const actionContent = (item) => {
     const deleteVal = { onClick: () => deleteItemFunc(item) };
@@ -196,17 +285,18 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   };
 
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, "vật tư");
+    ModalDeleteConfirm(deleteItemAction, item, item.tenVatPham, "vật tư");
   };
 
   const deleteItemAction = (item) => {
-    const newData = ListVatTu.filter(
-      (data) => data.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
+    const newData = ListVatPham.filter(
+      (data) =>
+        data.tits_qtsx_ChiTietKhoBegin_Id !== item.tits_qtsx_ChiTietKhoBegin_Id
     );
-    setListVatTu(newData);
+    setListVatPham(newData);
   };
 
-  let colListVatTu = [
+  let colValues = [
     {
       title: "STT",
       dataIndex: "key",
@@ -216,44 +306,38 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     },
     {
       title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      dataIndex: "maVatPham",
+      key: "maVatPham",
       align: "center",
     },
     {
       title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
-      align: "center",
-    },
-    {
-      title: "Tên kệ",
-      dataIndex: "tenKe",
-      key: "tenKe",
-      align: "center",
-    },
-    {
-      title: "Tên tầng",
-      dataIndex: "tenTang",
-      key: "tenTang",
-      align: "center",
-    },
-    {
-      title: "Số lượng điều chuyển",
-      dataIndex: "soLuongDieuChuyen",
-      key: "soLuongDieuChuyen",
-      align: "center",
-    },
-    {
-      title: "Thời hạn sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
+      dataIndex: "tenVatPham",
+      key: "tenVatPham",
       align: "center",
     },
     {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
+      align: "center",
+    },
+    {
+      title: "Vị trí",
+      dataIndex: "viTri",
+      key: "viTri",
+      align: "center",
+    },
+    {
+      title: "SL điều chuyển",
+      dataIndex: "soLuong",
+      key: "soLuong",
+      align: "center",
+    },
+    {
+      title: "Mô tả",
+      dataIndex: "moTa",
+      key: "moTa",
       align: "center",
     },
     {
@@ -265,39 +349,64 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     },
   ];
 
-  const HandleChonVatTu = (value) => {
-    const vattu = ListViTriKho.filter(
-      (d) => d.lkn_ChiTietKhoVatTu_Id === value
-    );
-    setViTriKho(value);
-    setVatTu(vattu);
-    setDisabledSave(false);
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
   };
 
-  const HandleThemVatTu = () => {
-    setListVatTu([...ListVatTu, VatTu[0]]);
-    const listvitrikho = ListViTriKho.filter(
-      (d) => d.lkn_ChiTietKhoVatTu_Id !== ViTriKho
-    );
-    setListViTriKho(listvitrikho);
-    setViTriKho(null);
-    setVatTu([]);
-  };
+  const columns = map(colValues, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
 
-  const XacNhanListDieuChuyen = () => {
-    ThemVatTu(ListVatTu);
+  const onFinish = (value) => {
+    const newData = ListViTriKho.filter((data) => data.soLuong !== 0);
+    setDataListVatPham([...DataListVatPham, ...newData]);
+    setFieldsValue({
+      themvattu: {
+        tits_qtsx_CauTrucKhoBegin_Id: itemData.tits_qtsx_CauTrucKhoBegin_Id,
+        tits_qtsx_VatPham_Id: null,
+      },
+    });
     setListViTriKho([]);
-    setListVatTu([]);
-    setVatTu([]);
-    setViTriKho(null);
+    const newListVatPham = ListVatPham.filter(
+      (data) =>
+        data.tits_qtsx_VatPham_Id !== value.themvattu.tits_qtsx_VatPham_Id
+    );
+    setFieldTouch(false);
+    setListVatPham(newListVatPham);
+  };
+
+  const XacNhan = () => {
+    console.log(DataListVatPham);
+    DataThemVatTu(DataListVatPham);
     openModalFS(false);
+    resetFields();
+    setDataListVatPham([]);
+  };
+
+  const SelectViTriKho = (value) => {
+    getListViTriKho(itemData.tits_qtsx_CauTrucKhoBegin_Id, value);
   };
 
   const handleCancel = () => {
+    setListVatPham([]);
     setListViTriKho([]);
-    setListVatTu([]);
-    setVatTu([]);
-    setViTriKho(null);
+    setDataListVatPham([]);
+    resetFields();
     openModalFS(false);
   };
 
@@ -312,69 +421,108 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     >
       <div className="gx-main-content">
         <Card className="th-card-margin-bottom">
-          <Row
-            style={{
-              padding: 15,
-              border: "1px solid #00688B",
-              borderRadius: 15,
-              margin: 15,
-            }}
-            justify={"center"}
+          <Form
+            {...DEFAULT_FORM_THEMVATTU}
+            form={form}
+            name="nguoi-dung-control"
+            onFinish={onFinish}
+            onFieldsChange={() => setFieldTouch(true)}
           >
-            <Col
-              xxl={12}
-              xl={16}
-              lg={20}
-              md={20}
-              sm={24}
-              xs={24}
-              style={{
-                marginBottom: 15,
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <span style={{ width: "100px", fontWeight: "bold" }}>
-                Chọn vật tư:
-              </span>
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListViTriKho ? ListViTriKho : []}
-                placeholder="Chọn vật tư điều chuyển"
-                optionsvalue={["lkn_ChiTietKhoVatTu_Id", "vatTu"]}
-                style={{ width: "calc(100% - 100px)" }}
-                optionFilterProp={"name"}
-                showSearch
-                onSelect={HandleChonVatTu}
-                value={ViTriKho}
-              />
-            </Col>
+            <Row>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Kho điều chuyển"
+                  name={["themvattu", "tits_qtsx_CauTrucKhoBegin_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListKhoVatTuDi ? ListKhoVatTuDi : []}
+                    optionsvalue={["id", "tenCauTrucKho"]}
+                    style={{ width: "100%" }}
+                    placeholder="Kho điều chuyển"
+                    showSearch
+                    optionFilterProp={"name"}
+                    disabled={true}
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Vật tư"
+                  name={["themvattu", "tits_qtsx_VatPham_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListVatPham}
+                    placeholder="Chọn tên vật tư"
+                    optionsvalue={["tits_qtsx_VatPham_Id", "vatPham"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    optionFilterProp="name"
+                    onSelect={SelectViTriKho}
+                  />
+                </FormItem>
+              </Col>
+            </Row>
             <Table
               bordered
-              columns={colVatTu}
-              scroll={{ x: 850, y: 100 }}
+              columns={columnsvitri}
+              scroll={{ x: 1300, y: "55vh" }}
+              components={components}
               className="gx-table-responsive"
-              dataSource={VatTu}
+              dataSource={reDataForTable(ListViTriKho)}
               size="small"
+              rowClassName={"editable-row"}
               pagination={false}
             />
-            <Col span={24} align="right" style={{ marginTop: 10 }}>
-              <Button
-                type={"primary"}
-                onClick={HandleThemVatTu}
-                disabled={DisabledSave}
-              >
+            <Row
+              justify={"center"}
+              style={{
+                marginTop: 10,
+              }}
+            >
+              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
                 Thêm vật tư
               </Button>
-            </Col>
-          </Row>
+            </Row>
+          </Form>
           <Table
             bordered
-            columns={colListVatTu}
-            scroll={{ x: 800, y: "25vh" }}
+            columns={columns}
+            scroll={{ x: 1300, y: "55vh" }}
+            components={components}
             className="gx-table-responsive"
-            dataSource={reDataForTable(ListVatTu)}
+            dataSource={reDataForTable(DataListVatPham)}
             size="small"
+            rowClassName={"editable-row"}
             pagination={false}
           />
           <div
@@ -383,8 +531,8 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             <Button
               className="th-btn-margin-bottom-0"
               type="primary"
-              onClick={XacNhanListDieuChuyen}
-              disabled={ListVatTu.length === 0}
+              onClick={XacNhan}
+              disabled={DataListVatPham.length === 0}
             >
               Xác nhận
             </Button>

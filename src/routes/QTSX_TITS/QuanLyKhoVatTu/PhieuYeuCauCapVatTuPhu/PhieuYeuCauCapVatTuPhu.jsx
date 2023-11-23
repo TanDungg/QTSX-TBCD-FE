@@ -415,23 +415,16 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
         <div>
           {value && (
             <Tag
+              color={
+                value === "Chưa duyệt"
+                  ? "orange"
+                  : value === "Đã duyệt"
+                  ? "blue"
+                  : value && value.startsWith("Bị hủy")
+                  ? "red"
+                  : "cyan"
+              }
               style={{
-                borderColor:
-                  value === "Chưa duyệt"
-                    ? "Gray"
-                    : value === "Đã duyệt"
-                    ? "#0469B9"
-                    : value.startsWith("Bị hủy")
-                    ? "red"
-                    : "darkcyan",
-                color:
-                  value === "Chưa duyệt"
-                    ? "Gray"
-                    : value === "Đã duyệt"
-                    ? "#0469B9"
-                    : value.startsWith("Bị hủy")
-                    ? "red"
-                    : "darkcyan",
                 fontSize: 13,
               }}
             >
@@ -567,7 +560,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
               allowClear={false}
             />
           </Col>
-          <Col xl={6} lg={24} md={24} xs={24}>
+          <Col xxl={6} xl={8} lg={12} md={12} sm={24} xs={24}>
             <h5>Tìm kiếm:</h5>
             <Toolbar
               count={1}

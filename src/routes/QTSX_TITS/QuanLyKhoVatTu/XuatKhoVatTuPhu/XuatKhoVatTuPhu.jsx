@@ -10,12 +10,13 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map } from "lodash";
+import { isEmpty, map } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
   EditableTableRow,
   Select,
+  Toolbar,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -42,14 +43,16 @@ function XuatKhoVatTu({ match, history, permission }) {
   const [DataXuatExcel, setDataXuatExcel] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState(null);
+  const [keyword, setKeyword] = useState(null);
   const [TuNgay, setTuNgay] = useState(getDateNow(-7));
   const [DenNgay, setDenNgay] = useState(getDateNow());
   const [SelectedDevice, setSelectedDevice] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
+
   useEffect(() => {
     if (permission && permission.view) {
       getKho();
-      getListData(Kho, TuNgay, DenNgay, page);
+      getListData(keyword, Kho, TuNgay, DenNgay, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -62,16 +65,20 @@ function XuatKhoVatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (PhongBan_Id, tuNgay, denNgay, page) => {
+  const getListData = (keyword, tits_qtsx_Xuong_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      PhongBan_Id,
+      keyword,
+      tits_qtsx_Xuong_Id,
       tuNgay,
       denNgay,
       page,
     });
-    dispatch(fetchStart(`lkn_PhieuXuatKhoVatTu?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(`tits_qtsx_PhieuXuatKhoVatTuPhu?${param}`, "GET", null, "LIST")
+    );
     const paramXuat = convertObjectToUrlParams({
-      PhongBan_Id,
+      keyword,
+      tits_qtsx_Xuong_Id,
       tuNgay,
       denNgay,
       page: -1,
@@ -79,7 +86,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuXuatKhoVatTu?${paramXuat}`,
+          `tits_qtsx_PhieuXuatKhoVatTuPhu?${paramXuat}`,
           "GET",
           null,
           "DETAIL",
@@ -206,8 +213,8 @@ function XuatKhoVatTu({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuXuatKhoVatTu,
-      "phiếu xuất kho vật tư"
+      item.maPhieu,
+      "phiếu xuất kho vật tư phụ"
     );
   };
 
@@ -217,27 +224,32 @@ function XuatKhoVatTu({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuXuatKhoVatTu?id=${item.id}`;
+    let url = `tits_qtsx_PhieuXuatKhoVatTuPhu/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         if (res.status !== 409) {
-          getListData(Kho, TuNgay, DenNgay, page);
+          getListData(keyword, Kho, TuNgay, DenNgay, page);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
+  const onSearchXuatKhoVatTuPhu = () => {
+    getListData(keyword, Kho, TuNgay, DenNgay, page);
+  };
+
+  const onChangeKeyword = (val) => {
+    setKeyword(val.target.value);
+    if (isEmpty(val.target.value)) {
+      getListData(val.target.value, Kho, TuNgay, DenNgay, page);
+    }
+  };
+
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(Kho, TuNgay, DenNgay, pagination);
+    getListData(keyword, Kho, TuNgay, DenNgay, pagination);
   };
 
   const { totalRow, pageSize } = data;
@@ -253,10 +265,10 @@ function XuatKhoVatTu({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuXuatKhoVatTu}
+          {val.maPhieu}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuXuatKhoVatTu}</span>
+        <span disabled>{val.maPhieu}</span>
       );
     return <div>{detail}</div>;
   };
@@ -270,18 +282,18 @@ function XuatKhoVatTu({ match, history, permission }) {
     },
     {
       title: "Mã phiếu xuất",
-      key: "maPhieuXuatKhoVatTu",
+      key: "maPhieu",
       align: "center",
       render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieuXuatKhoVatTu,
-            value: d.maPhieuXuatKhoVatTu,
+            text: d.maPhieu,
+            value: d.maPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.maPhieuXuatKhoVatTu.includes(value),
+      onFilter: (value, record) => record.maPhieu.includes(value),
       filterSearch: true,
     },
     {
@@ -413,7 +425,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuXuatKhoVatTu/${SelectedDevice[0].id}?${params}`,
+          `tits_qtsx_PhieuXuatKhoVatTuPhu/${SelectedDevice[0].id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -446,7 +458,7 @@ function XuatKhoVatTu({ match, history, permission }) {
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `lkn_PhieuXuatKhoVatTu/export-pdf`,
+                `tits_qtsx_PhieuXuatKhoVatTuPhu/export-pdf`,
                 "POST",
                 newData,
                 "",
@@ -473,7 +485,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       return new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuXuatKhoVatTu/${data.id}?${params}`,
+            `tits_qtsx_PhieuXuatKhoVatTuPhu/${data.id}?${params}`,
             "GET",
             null,
             "DETAIL",
@@ -502,7 +514,7 @@ function XuatKhoVatTu({ match, history, permission }) {
         new Promise((resolve, reject) => {
           dispatch(
             fetchStart(
-              `lkn_PhieuXuatKhoVatTu/export-file-excel-xuat-kho`,
+              `tits_qtsx_PhieuXuatKhoVatTuPhu/export-file-excel-xuat-kho`,
               "POST",
               DataXuat,
               "",
@@ -561,20 +573,20 @@ function XuatKhoVatTu({ match, history, permission }) {
   const handleOnSelectKho = (value) => {
     setKho(value);
     setPage(1);
-    getListData(value, TuNgay, DenNgay, 1);
+    getListData(keyword, value, TuNgay, DenNgay, 1);
   };
 
   const handleClearKho = () => {
     setKho(null);
     setPage(1);
-    getListData(null, TuNgay, DenNgay, 1);
+    getListData(keyword, null, TuNgay, DenNgay, 1);
   };
 
   const handleChangeNgay = (dateString) => {
     setTuNgay(dateString[0]);
     setDenNgay(dateString[1]);
     setPage(1);
-    getListData(Kho, dateString[0], dateString[1], 1);
+    getListData(keyword, Kho, dateString[0], dateString[1], 1);
   };
 
   const rowSelection = {
@@ -600,8 +612,8 @@ function XuatKhoVatTu({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phiếu xuất kho vật tư"
-        description="Danh sách phiếu xuất kho vật tư"
+        title="Phiếu xuất kho vật tư phụ"
+        description="Danh sách phiếu xuất kho vật tư phụ"
         buttons={addButtonRender()}
       />
 
@@ -650,6 +662,21 @@ function XuatKhoVatTu({ match, history, permission }) {
                 moment(DenNgay, "DD/MM/YYYY"),
               ]}
               allowClear={false}
+            />
+          </Col>
+          <Col xxl={6} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <h5>Tìm kiếm:</h5>
+            <Toolbar
+              count={1}
+              search={{
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchXuatKhoVatTuPhu,
+                onSearch: onSearchXuatKhoVatTuPhu,
+                allowClear: true,
+                placeholder: "Tìm kiếm",
+              }}
             />
           </Col>
         </Row>

@@ -17,7 +17,10 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
 
   useEffect(() => {
     if (openModal) {
-      getListViTriKho(itemData.kho_Id, itemData.vatTu_Id);
+      getListViTriKho(
+        itemData.tits_qtsx_CauTrucKho_Id,
+        itemData.ListVatTu.tits_qtsx_VatTu_Id
+      );
       if (itemData.isCheck === true) {
         setSelectedViTri(
           itemData.chiTiet_LuuVatTus && itemData.chiTiet_LuuVatTus

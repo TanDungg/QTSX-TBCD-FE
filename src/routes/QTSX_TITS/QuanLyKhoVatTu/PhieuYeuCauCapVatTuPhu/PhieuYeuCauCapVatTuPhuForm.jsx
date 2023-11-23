@@ -41,7 +41,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   const [ListVatTu, setListVatTu] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
-  const [value, setValue] = useState(1);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(false);
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
@@ -54,7 +53,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           setType("new");
           getUserKy(INFO);
-          getUserLap(INFO, null, value);
+          getUserLap(INFO, null);
           getXuong();
           setFieldsValue({
             phieuyeucaucapvattuphu: {
@@ -123,7 +122,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  const getUserLap = (info, nguoiLap_Id, value) => {
+  const getUserLap = (info, nguoiLap_Id) => {
     const params = convertObjectToUrlParams({
       id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
       donVi_Id: info.donVi_Id,
@@ -203,7 +202,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
         if (res && res.data) {
           setInfo(res.data);
           getXuong();
-          getUserLap(INFO, res.data.userLapPhieu_Id, 1);
+          getUserLap(INFO, res.data.userLapPhieu_Id);
           setFieldsValue({
             phieuyeucaucapvattuphu: {
               ...res.data,
@@ -524,7 +523,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
               setFieldTouch(false);
               setListVatTu([]);
               getUserKy(INFO);
-              getUserLap(INFO, null, value);
+              getUserLap(INFO, null);
               getXuong();
               setFieldsValue({
                 phieuyeucaucapvattuphu: {
@@ -569,7 +568,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
           } else {
             getInfo(id);
             setFieldTouch(false);
-            getUserLap(INFO, null, value);
+            getUserLap(INFO, null);
           }
         })
         .catch((error) => console.error(error));
@@ -654,24 +653,17 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
           {info.maPhieu}
         </Tag>
         <Tag
+          color={
+            info.tinhTrang === "Chưa duyệt"
+              ? "orange"
+              : info.tinhTrang === "Đã duyệt"
+              ? "blue"
+              : info.tinhTrang && info.tinhTrang.startsWith("Bị hủy")
+              ? "red"
+              : "cyan"
+          }
           style={{
             fontSize: "14px",
-            borderColor:
-              info.tinhTrang === "Chưa duyệt"
-                ? "Gray"
-                : info.tinhTrang === "Đã duyệt"
-                ? "#0469B9"
-                : info.tinhTrang && info.tinhTrang.startsWith("Bị hủy")
-                ? "red"
-                : "darkcyan",
-            color:
-              info.tinhTrang === "Chưa duyệt"
-                ? "Gray"
-                : info.tinhTrang === "Đã duyệt"
-                ? "#0469B9"
-                : info.tinhTrang && info.tinhTrang.startsWith("Bị hủy")
-                ? "red"
-                : "darkcyan",
           }}
         >
           {info.tinhTrang}

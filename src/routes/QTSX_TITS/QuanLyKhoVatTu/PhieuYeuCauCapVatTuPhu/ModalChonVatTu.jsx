@@ -7,12 +7,10 @@ import {
   Button,
   Col,
   Card,
-  DatePicker,
   Upload,
   Image,
 } from "antd";
 import { isEmpty, map } from "lodash";
-import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
