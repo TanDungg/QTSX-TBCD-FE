@@ -1,4 +1,4 @@
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 import {
   Modal as AntModal,
   Form,
@@ -8,8 +8,10 @@ import {
   Col,
   Card,
   DatePicker,
+  Upload,
+  Image,
 } from "antd";
-import { map } from "lodash";
+import { isEmpty, map } from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,12 +22,13 @@ import {
   Select,
   Table,
 } from "src/components/Common";
-import { DEFAULT_FORM_THEMVATTU } from "src/constants/Config";
+import { BASE_URL_API, DEFAULT_FORM_THEMVATTU } from "src/constants/Config";
+import Helpers from "src/helpers";
 import {
-  getDateNow,
+  convertObjectToUrlParams,
+  reDataForTable,
   getLocalStorage,
   getTokenInfo,
-  reDataForTable,
 } from "src/util/Common";
 
 const FormItem = Form.Item;
@@ -34,27 +37,25 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
+  const [fieldTouch, setFieldTouch] = useState(false);
+  const [form] = Form.useForm();
+  const { resetFields, setFieldsValue } = form;
   const INFO = {
     ...getLocalStorage("menu"),
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const [fieldTouch, setFieldTouch] = useState(false);
-  const [form] = Form.useForm();
-  const { resetFields, setFieldsValue } = form;
   const [DataListVatTu, setDataListVatTu] = useState([]);
+  const [VatTuTrongKho, setVatTuTrongKho] = useState({});
   const [ListVatTu, setListVatTu] = useState([]);
-  const [ListDonHang, setListDonHang] = useState([]);
+  const [FileHinhAnh, setFileHinhAnh] = useState(null);
+  const [FileAnh, setFileAnh] = useState(null);
+  const [DisableUpload, setDisableUpload] = useState(false);
+  const [OpenImage, setOpenImage] = useState(false);
 
   useEffect(() => {
     if (openModal) {
       getListVatTu();
-      getListDonHang();
-      setFieldsValue({
-        themvattu: {
-          ngay: moment(getDateNow(), "DD/MM/YYYY"),
-        },
-      });
     }
     return () => {
       dispatch(fetchReset());
@@ -100,11 +101,14 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
     });
   };
 
-  const getListDonHang = () => {
+  const getSoLuongTonKho = (tits_qtsx_VatTu_Id) => {
+    let params = convertObjectToUrlParams({
+      tits_qtsx_VatTu_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_DonHang?page=-1`,
+          `tits_qtsx_ViTriLuuKhoVatTu/get-so-luong-ton-kho-vat-tu?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -115,10 +119,12 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        const newData = res.data.filter((d) => d.isXacNhan === true);
-        setListDonHang(newData);
-      } else {
-        setListDonHang([]);
+        setVatTuTrongKho(res.data);
+        setFieldsValue({
+          themvattu: {
+            soLuongTonKho: res.data.soLuongTonKho,
+          },
+        });
       }
     });
   };
@@ -171,6 +177,23 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
     );
   };
 
+  const renderHinhAnh = (item) => {
+    if (!isEmpty(item.hinhAnh)) {
+      return (
+        <span>
+          <a
+            target="_blank"
+            href={BASE_URL_API + item.hinhAnh}
+            rel="noopener noreferrer"
+          >
+            {item.hinhAnh.split("/")[5]}
+          </a>
+        </span>
+      );
+    }
+    return null;
+  };
+
   let colValues = [
     {
       title: "STT",
@@ -192,45 +215,27 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
       align: "center",
     },
     {
-      title: "Loại vật tư",
-      dataIndex: "tenLoaiVatTu",
-      key: "tenLoaiVatTu",
-      align: "center",
-    },
-    {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
       align: "center",
     },
     {
-      title: "Đơn hàng",
-      dataIndex: "maPhieu",
-      key: "maPhieu",
+      title: "SL cần",
+      dataIndex: "soLuongCan",
+      key: "soLuongCan",
       align: "center",
     },
     {
-      title: "Định mức",
-      dataIndex: "dinhMuc",
-      key: "dinhMuc",
+      title: "SL tồn kho",
+      dataIndex: "soLuongTonKho",
+      key: "soLuongTonKho",
       align: "center",
     },
     {
-      title: "SL dự phòng",
-      dataIndex: "soLuongDuPhong",
-      key: "soLuongDuPhong",
-      align: "center",
-    },
-    {
-      title: "SL đặt mua",
-      dataIndex: "soLuongDatMua",
-      key: "soLuongDatMua",
-      align: "center",
-    },
-    {
-      title: "Ngày yêu cầu",
-      dataIndex: "ngay",
-      key: "ngay",
+      title: "SL yêu cầu thêm",
+      dataIndex: "soLuongYeuCau",
+      key: "soLuongYeuCau",
       align: "center",
     },
     {
@@ -238,6 +243,12 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
       dataIndex: "hangMucSuDung",
       key: "hangMucSuDung",
       align: "center",
+    },
+    {
+      title: "Hình ảnh",
+      key: "hinhAnh",
+      align: "center",
+      render: (record) => renderHinhAnh(record),
     },
     {
       title: "Chức năng",
@@ -272,29 +283,46 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
   });
 
   const onFinish = (values) => {
-    const data = values.themvattu;
-    const listvattu = ListVatTu.filter((d) => d.id === data.tits_qtsx_VatTu_Id);
-    const donhang = ListDonHang.filter(
-      (d) => d.id === data.tits_qtsx_DonHang_Id
-    );
-    const DataList = {
-      ...data,
-      ...listvattu[0],
-      tenDonHang: donhang[0].tenDonHang,
-      maPhieu: donhang[0].maPhieu,
-      ngay: data.ngay.format("DD/MM/YYYY"),
-    };
-    setDataListVatTu([...DataListVatTu, DataList]);
+    const themvattu = values.themvattu;
+    if (themvattu.hinhAnh) {
+      const formData = new FormData();
+      formData.append("file", themvattu.hinhAnh.file);
+      fetch(`${BASE_URL_API}/api/Upload`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: "Bearer ".concat(INFO.token),
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          themvattu.hinhAnh = data.path;
+          const DataList = {
+            ...themvattu,
+            ...VatTuTrongKho,
+            soLuongYeuCau:
+              parseFloat(themvattu.soLuongCan) +
+              parseFloat(themvattu.soLuongTonKho),
+          };
+          setDataListVatTu([...DataListVatTu, DataList]);
 
-    const VatTu = ListVatTu.filter((d) => d.id !== data.tits_qtsx_VatTu_Id);
-    setListVatTu(VatTu);
-    resetFields();
-    setFieldTouch(false);
-    setFieldsValue({
-      themvattu: {
-        ngay: moment(getDateNow(), "DD/MM/YYYY"),
-      },
-    });
+          const vattu = ListVatTu.filter(
+            (d) => d.id !== data.tits_qtsx_VatTu_Id
+          );
+          setListVatTu(vattu);
+          setVatTuTrongKho({});
+          resetFields();
+          setFieldTouch(false);
+          setDisableUpload(false);
+          setFileHinhAnh(null);
+        })
+        .catch(() => {
+          console.log("upload failed.");
+        });
+    } else {
+      setFieldTouch(false);
+      Helpers.alertError(`Vui lòng tải hình ảnh lên`);
+    }
   };
 
   const XacNhan = () => {
@@ -302,6 +330,34 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
     openModalFS(false);
     setListVatTu([]);
     setDataListVatTu([]);
+  };
+
+  const SelectSoLuongTonKho = (value) => {
+    getSoLuongTonKho(value);
+  };
+
+  const props = {
+    accept: "image/png, image/jpeg",
+    beforeUpload: (file) => {
+      const isPNG = file.type === "image/png" || file.type === "image/jpeg";
+      if (!isPNG) {
+        Helpers.alertError(`${file.name} không phải hình ảnh`);
+      } else {
+        setFileHinhAnh(file);
+        setDisableUpload(true);
+        setFieldTouch(true);
+        const reader = new FileReader();
+        reader.onload = (e) => setFileAnh(e.target.result);
+        reader.readAsDataURL(file);
+        return false;
+      }
+    },
+    showUploadList: false,
+    maxCount: 1,
+  };
+
+  const handleViewFile = () => {
+    setOpenImage(true);
   };
 
   const handleCancel = () => {
@@ -354,6 +410,7 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
+                    onSelect={SelectSoLuongTonKho}
                   />
                 </FormItem>
               </Col>
@@ -367,7 +424,7 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Loại vật tư"
+                  label="Đơn vị tính"
                   name={["themvattu", "tits_qtsx_VatTu_Id"]}
                   rules={[
                     {
@@ -379,8 +436,8 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                   <Select
                     className="heading-select slt-search th-select-heading"
                     data={ListVatTu}
-                    placeholder="Chọn tên loại vật tư"
-                    optionsvalue={["id", "tenLoaiVatTu"]}
+                    placeholder="Đơn vị tính của vật tư"
+                    optionsvalue={["id", "tenDonViTinh"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
@@ -398,23 +455,20 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Đơn đặt hàng"
-                  name={["themvattu", "tits_qtsx_DonHang_Id"]}
+                  label="SL tồn kho"
+                  name={["themvattu", "soLuongTonKho"]}
                   rules={[
                     {
-                      type: "string",
                       required: true,
                     },
                   ]}
                 >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListDonHang}
-                    placeholder="Chọn đơn đặt hàng"
-                    optionsvalue={["id", "maPhieu"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp="name"
+                  <Input
+                    type="number"
+                    step="0.01"
+                    className="input-item"
+                    placeholder="Số lượng tồn kho"
+                    disabled={true}
                   />
                 </FormItem>
               </Col>
@@ -428,29 +482,8 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Ngày yêu cầu giao"
-                  name={["themvattu", "ngay"]}
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
-                >
-                  <DatePicker format={"DD/MM/YYYY"} allowClear={false} />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Định mức"
-                  name={["themvattu", "dinhMuc"]}
+                  label="SL cần"
+                  name={["themvattu", "soLuongCan"]}
                   rules={[
                     {
                       required: true,
@@ -459,64 +492,10 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                 >
                   <Input
                     type="number"
-                    min={0}
                     step="0.01"
-                    className="input-item"
-                    placeholder="Nhập định mức"
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="SL dự phòng"
-                  name={["themvattu", "soLuongDuPhong"]}
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Input
-                    type="number"
                     min={0}
-                    step="0.01"
                     className="input-item"
-                    placeholder="Nhập số lượng"
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="SL đặt mua"
-                  name={["themvattu", "soLuongDatMua"]}
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    className="input-item"
-                    placeholder="Nhập số lượng đặt mua"
+                    placeholder="Số lượng cần"
                   />
                 </FormItem>
               </Col>
@@ -542,6 +521,78 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                     className="input-item"
                     placeholder="Nhập hạn mục sử dụng"
                   />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Hình ảnh"
+                  name={["themvattu", "hinhAnh"]}
+                  rules={[
+                    {
+                      type: "file",
+                      required: true,
+                    },
+                  ]}
+                >
+                  {!DisableUpload ? (
+                    <Upload {...props}>
+                      <Button
+                        style={{
+                          marginBottom: 0,
+                        }}
+                        icon={<UploadOutlined />}
+                      >
+                        Tải file hình ảnh
+                      </Button>
+                    </Upload>
+                  ) : (
+                    <span>
+                      <span
+                        style={{ color: "#0469B9", cursor: "pointer" }}
+                        onClick={() => handleViewFile(FileHinhAnh)}
+                      >
+                        {FileHinhAnh.name.length > 20
+                          ? FileHinhAnh.name.substring(0, 20) + "..."
+                          : FileHinhAnh.name}
+                      </span>
+                      <DeleteOutlined
+                        style={{ cursor: "pointer", color: "red" }}
+                        onClick={() => {
+                          setFileHinhAnh(null);
+                          setDisableUpload(false);
+                          setFieldsValue({
+                            sanpham: {
+                              hinhAnh: null,
+                            },
+                          });
+                        }}
+                      />
+                      <Image
+                        width={100}
+                        src={FileAnh}
+                        alt="preview"
+                        style={{
+                          display: "none",
+                        }}
+                        preview={{
+                          visible: OpenImage,
+                          scaleStep: 0.5,
+                          src: FileAnh,
+                          onVisibleChange: (value) => {
+                            setOpenImage(value);
+                          },
+                        }}
+                      />
+                    </span>
+                  )}
                 </FormItem>
               </Col>
             </Row>

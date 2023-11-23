@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
+import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   PrinterOutlined,
   DownloadOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -136,38 +137,44 @@ function NhapKhoVatTu({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * Tìm kiếm sản phẩm
-   *
-   */
+
   const onSearchDeNghiMuaHang = () => {
     loadData(keyword, Kho, FromDate, ToDate, page);
   };
 
-  /**
-   * Thay đổi keyword
-   *
-   * @param {*} val
-   */
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
       loadData(val.target.value, Kho, FromDate, ToDate, page);
     }
   };
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
+
   const actionContent = (item) => {
+    const xacnhan =
+      INFO.user_Id === item.nguoiDuyet_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/xac-nhan`,
+            state: { itemData: item },
+          }}
+          title="Xác nhận"
+        >
+          <CheckCircleOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Xác nhận">
+          <CheckCircleOutlined />
+        </span>
+      );
+
     const editItem =
       permission &&
       permission.edit &&
-      item.userNhan_Id === INFO.user_Id &&
+      item.nguoiTaoPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" &&
       moment(getDateNow(-1), "DD/MM/YYYY") <=
-        moment(item.ngayNhan, "DD/MM/YYYY") ? (
+        moment(item.ngayYeuCau, "DD/MM/YYYY") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -185,13 +192,16 @@ function NhapKhoVatTu({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
-      item.userNhan_Id === INFO.user_Id &&
+      item.nguoiTaoPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" &&
       moment(getDateNow(-1), "DD/MM/YYYY") <=
-        moment(item.ngayNhan, "DD/MM/YYYY")
+        moment(item.ngayYeuCau, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
+        {xacnhan}
+        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -208,12 +218,7 @@ function NhapKhoVatTu({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maPhieuNhapKhoVatTu,
-      "phiếu nhập kho"
-    );
+    ModalDeleteConfirm(deleteItemAction, item, item.maPhieu, "phiếu nhập kho");
   };
 
   /**
@@ -222,7 +227,7 @@ function NhapKhoVatTu({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_PhieuNhapKhoVatTu?id=${item.id}`;
+    let url = `tits_qtsx_PhieuNhapKhoVatTu/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -402,10 +407,10 @@ function NhapKhoVatTu({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuNhapKhoVatTu}
+          {val.maPhieu}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuNhapKhoVatTu}</span>
+        <span disabled>{val.maPhieu}</span>
       );
     return <div>{detail}</div>;
   };
@@ -419,86 +424,22 @@ function NhapKhoVatTu({ match, history, permission }) {
     },
     {
       title: "Mã phiếu nhập",
-      key: "maPhieuNhapKhoVatTu",
+      key: "maPhieu",
       align: "center",
       render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieuNhapKhoVatTu,
-            value: d.maPhieuNhapKhoVatTu,
+            text: d.maPhieu,
+            value: d.maPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.maPhieuNhapKhoVatTu.includes(value),
+      onFilter: (value, record) => record.maPhieu.includes(value),
       filterSearch: true,
     },
     {
-      title: "Ngày nhập",
-      dataIndex: "ngayNhan",
-      key: "ngayNhan",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.ngayNhan,
-            value: d.ngayNhan,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.ngayNhan.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Nhà cung cấp",
-      dataIndex: "tenNhaCungCap",
-      key: "tenNhaCungCap",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenNhaCungCap,
-            value: d.tenNhaCungCap,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenNhaCungCap.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Số hóa đơn",
-      dataIndex: "soHoaDon",
-      key: "soHoaDon",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.soHoaDon,
-            value: d.soHoaDon,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.soHoaDon.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Người nhận",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenNguoiYeuCau,
-            value: d.tenNguoiYeuCau,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenNguoiYeuCau.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Kho",
+      title: "Kho nhập",
       dataIndex: "tenCauTrucKho",
       key: "tenCauTrucKho",
       align: "center",
@@ -512,6 +453,95 @@ function NhapKhoVatTu({ match, history, permission }) {
       ),
       onFilter: (value, record) => record.tenCauTrucKho.includes(value),
       filterSearch: true,
+    },
+    {
+      title: "Ngày nhập kho",
+      dataIndex: "ngayNhapKho",
+      key: "ngayNhapKho",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayNhapKho,
+            value: d.ngayNhapKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayNhapKho.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Người lập phiếu",
+      dataIndex: "tenNguoiTaoPhieu",
+      key: "tenNguoiTaoPhieu",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiTaoPhieu,
+            value: d.tenNguoiTaoPhieu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNguoiTaoPhieu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Phiếu nhận hàng",
+      dataIndex: "maPhieuNhanHang",
+      key: "maPhieuNhanHang",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maPhieuNhanHang,
+            value: d.maPhieuNhanHang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maPhieuNhanHang.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "tinhTrang",
+      key: "tinhTrang",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tinhTrang,
+            value: d.tinhTrang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tinhTrang.includes(value),
+      filterSearch: true,
+      render: (value) => (
+        <div>
+          {value && (
+            <Tag
+              style={{
+                borderColor:
+                  value === "Chưa xác nhận"
+                    ? "orange"
+                    : value === "Đã xác nhận"
+                    ? "#0469B9"
+                    : "red",
+                color:
+                  value === "Chưa xác nhận"
+                    ? "orange"
+                    : value === "Đã xác nhận"
+                    ? "#0469B9"
+                    : "red",
+                fontSize: 13,
+              }}
+            >
+              {value}
+            </Tag>
+          )}
+        </div>
+      ),
     },
     {
       title: "Chức năng",
