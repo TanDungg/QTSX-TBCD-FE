@@ -41,7 +41,7 @@ function LayoutKhoVatTu({ history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
           "GET",
           null,
           "DETAIL",
@@ -62,7 +62,7 @@ function LayoutKhoVatTu({ history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_ViTriLuuKho/vi-tri-luu-kho-tree?kho_Id=${val}`,
+          `tits_qtsx_ViTriLuuKhoVatTu/vi-tri-luu-kho-vat-tu-tree?tits_qtsx_CauTrucKho_Id=${val}`,
           "GET",
           null,
           "DETAIL",
@@ -75,10 +75,13 @@ function LayoutKhoVatTu({ history, permission }) {
       if (res && res.data) {
         let soTangMax = 1;
         res.data.forEach((ke, index) => {
-          if (ke.children) {
-            res.data[index].children = ke.children.reverse();
+          if (ke.children_tits_qtsx_ViTriLuuKhoVatTus) {
+            res.data[index].children_tits_qtsx_ViTriLuuKhoVatTus =
+              ke.children_tits_qtsx_ViTriLuuKhoVatTus.reverse();
             soTangMax =
-              ke.children.length > soTangMax ? ke.children.length : soTangMax;
+              ke.children_tits_qtsx_ViTriLuuKhoVatTus.length > soTangMax
+                ? ke.children_tits_qtsx_ViTriLuuKhoVatTus.length
+                : soTangMax;
           }
         });
         res.data.sort((a, b) => a.viTri - b.viTri);
@@ -149,8 +152,8 @@ function LayoutKhoVatTu({ history, permission }) {
     },
     {
       title: "Hạn sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
+      dataIndex: "hanSuDung",
+      key: "hanSuDung",
       align: "center",
     },
   ];
@@ -211,7 +214,7 @@ function LayoutKhoVatTu({ history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListKho}
               placeholder="Chọn kho"
-              optionsvalue={["id", "tenCTKho"]}
+              optionsvalue={["id", "tenCauTrucKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
@@ -233,10 +236,10 @@ function LayoutKhoVatTu({ history, permission }) {
                         lg={12}
                         style={{
                           height:
-                            // ke.children.length === 0
+                            // ke.children_tits_qtsx_ViTriLuuKhoVatTus.length === 0
                             //   ?
                             soTangMax * 40,
-                          // : ke.children.length * 40,
+                          // : ke.children_tits_qtsx_ViTriLuuKhoVatTus.length * 40,
                           marginBottom: 50,
                         }}
                       >
@@ -244,7 +247,8 @@ function LayoutKhoVatTu({ history, permission }) {
                         <div
                           style={{
                             border:
-                              ke.children.length === 0 && "1px solid #333",
+                              ke.children_tits_qtsx_ViTriLuuKhoVatTus.length ===
+                                0 && "1px solid #333",
                             width: "90%",
                             height: "100%",
                             padding: "0 14px",
@@ -252,12 +256,16 @@ function LayoutKhoVatTu({ history, permission }) {
                             backgroundColor:
                               focusKe === ke.id
                                 ? "#5cdbd3"
-                                : ke.children.length === 0 && ke.chiTietVatTu
+                                : ke.children_tits_qtsx_ViTriLuuKhoVatTus
+                                    .length === 0 && ke.chiTietVatTu
                                 ? "#ff4d4f"
                                 : "#ccc",
                           }}
                           onClick={() => {
-                            if (ke.children.length === 0) {
+                            if (
+                              ke.children_tits_qtsx_ViTriLuuKhoVatTus.length ===
+                              0
+                            ) {
                               setFocusKe(ke.id);
                               setFocusNgan("");
                               handleViewThongTin(ke.chiTietVatTu);
@@ -265,10 +273,15 @@ function LayoutKhoVatTu({ history, permission }) {
                             }
                           }}
                         >
-                          {ke.children.length > 0
+                          {ke.children_tits_qtsx_ViTriLuuKhoVatTus.length > 0
                             ? [
                                 ...Array.from(
-                                  { length: soTangMax - ke.children.length },
+                                  {
+                                    length:
+                                      soTangMax -
+                                      ke.children_tits_qtsx_ViTriLuuKhoVatTus
+                                        .length,
+                                  },
                                   (_, i) => (
                                     <Row
                                       style={{
@@ -279,70 +292,82 @@ function LayoutKhoVatTu({ history, permission }) {
                                   )
                                 ),
                                 ,
-                                ...ke.children.map((tang, index) => {
-                                  return (
-                                    <Row
-                                      style={{
-                                        marginRight: -16,
-                                        border:
-                                          tang.children.length === 0 &&
-                                          "1px solid #333",
-                                        height: 40,
-                                        backgroundColor:
-                                          tang.children.length === 0 && "#ccc",
-                                      }}
-                                    >
-                                      {tang.children.length > 0 &&
-                                        tang.children.map((ngan, index) => {
-                                          return (
-                                            <div
-                                              // span={
-                                              //   (tang.children.length === 5 ||
-                                              //     tang.children.length === 7 ||
-                                              //     tang.children.length === 9 ||
-                                              //     tang.children.length === 10 ||
-                                              //     tang.children.length === 11 ||
-                                              //     tang.children.length ===
-                                              //       13) &&
-                                              //   index + 1 ===
-                                              //     tang.children.length
-                                              //     ? Math.floor(
-                                              //         24 / tang.children.length
-                                              //       ) * 2
-                                              //     : Math.floor(
-                                              //         24 / tang.children.length
-                                              //       )
-                                              // }
-                                              style={{
-                                                height: 40,
-                                                margin: 0,
-                                                width: `${
-                                                  100 / tang.children.length
-                                                }%`,
-                                                padding: 0,
-                                                backgroundColor:
-                                                  focusNgan === ngan.id
-                                                    ? "#5cdbd3"
-                                                    : ngan.chiTietVatTu
-                                                    ? "#ff4d4f"
-                                                    : "#ccc",
-                                                border: "1px solid #333",
-                                                cursor: "pointer",
-                                              }}
-                                              onClick={() => {
-                                                // setActiveModal(true);
-                                                handleViewThongTin(
-                                                  ngan.chiTietVatTu
-                                                );
-                                                setFocusNgan(ngan.id);
-                                                setFocusKe("");
-                                              }}
-                                            ></div>
-                                          );
-                                        })}
-                                    </Row>
-                                  );
-                                }),
+                                ...ke.children_tits_qtsx_ViTriLuuKhoVatTus.map(
+                                  (tang, index) => {
+                                    return (
+                                      <Row
+                                        style={{
+                                          marginRight: -16,
+                                          border:
+                                            tang
+                                              .children_tits_qtsx_ViTriLuuKhoVatTus
+                                              .length === 0 && "1px solid #333",
+                                          height: 40,
+                                          backgroundColor:
+                                            tang
+                                              .children_tits_qtsx_ViTriLuuKhoVatTus
+                                              .length === 0 && "#ccc",
+                                        }}
+                                      >
+                                        {tang
+                                          .children_tits_qtsx_ViTriLuuKhoVatTus
+                                          .length > 0 &&
+                                          tang.children_tits_qtsx_ViTriLuuKhoVatTus.map(
+                                            (ngan, index) => {
+                                              return (
+                                                <div
+                                                  // span={
+                                                  //   (tang.children_tits_qtsx_ViTriLuuKhoVatTus.length === 5 ||
+                                                  //     tang.children_tits_qtsx_ViTriLuuKhoVatTus.length === 7 ||
+                                                  //     tang.children_tits_qtsx_ViTriLuuKhoVatTus.length === 9 ||
+                                                  //     tang.children_tits_qtsx_ViTriLuuKhoVatTus.length === 10 ||
+                                                  //     tang.children_tits_qtsx_ViTriLuuKhoVatTus.length === 11 ||
+                                                  //     tang.children_tits_qtsx_ViTriLuuKhoVatTus.length ===
+                                                  //       13) &&
+                                                  //   index + 1 ===
+                                                  //     tang.children_tits_qtsx_ViTriLuuKhoVatTus.length
+                                                  //     ? Math.floor(
+                                                  //         24 / tang.children_tits_qtsx_ViTriLuuKhoVatTus.length
+                                                  //       ) * 2
+                                                  //     : Math.floor(
+                                                  //         24 / tang.children_tits_qtsx_ViTriLuuKhoVatTus.length
+                                                  //       )
+                                                  // }
+                                                  style={{
+                                                    height: 40,
+                                                    margin: 0,
+                                                    width: `${
+                                                      100 /
+                                                      tang
+                                                        .children_tits_qtsx_ViTriLuuKhoVatTus
+                                                        .length
+                                                    }%`,
+                                                    padding: 0,
+                                                    backgroundColor:
+                                                      focusNgan === ngan.id
+                                                        ? "#5cdbd3"
+                                                        : ngan.chiTietVatTu
+                                                        ? "#ff4d4f"
+                                                        : "#ccc",
+                                                    border: "1px solid #333",
+                                                    cursor: "pointer",
+                                                  }}
+                                                  onClick={() => {
+                                                    // setActiveModal(true);
+                                                    handleViewThongTin(
+                                                      ngan.chiTietVatTu
+                                                    );
+                                                    setFocusNgan(ngan.id);
+                                                    setFocusKe("");
+                                                  }}
+                                                ></div>
+                                              );
+                                            }
+                                          )}
+                                      </Row>
+                                    );
+                                  }
+                                ),
                               ]
                             : null}
                         </div>

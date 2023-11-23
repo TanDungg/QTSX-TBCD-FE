@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Row, Col } from "antd";
-import { EditOutlined } from "@ant-design/icons";
+import { Card, Button, Row, Col, Divider } from "antd";
+import {
+  CheckCircleOutlined,
+  DeleteOutlined,
+  EditOutlined,
+  PlusCircleOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { map, find, isEmpty, remove } from "lodash";
 import {
@@ -8,6 +13,7 @@ import {
   EditableTableRow,
   Toolbar,
   Select,
+  ModalDeleteConfirm,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -18,6 +24,7 @@ import {
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import { Link } from "react-router-dom";
 import ModalAddViTri from "./ModalAddViTri";
 const { EditableRow, EditableCell } = EditableTableRow;
 function KhoVatTu({ match, history, permission }) {
@@ -32,6 +39,7 @@ function KhoVatTu({ match, history, permission }) {
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState("");
   const [ActiveModal, setActiveModal] = useState(false);
+  const [KeyViTri, setKeyViTri] = useState("add");
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -150,8 +158,83 @@ function KhoVatTu({ match, history, permission }) {
   };
   const { totalRow, pageSize } = data;
   let dataList = reDataForTable(data.splice((vt) => vt.soLuong !== 0));
+  /**
+   * deleteItemFunc: Xoá item theo item
+   * @param {object} item
+   * @returns
+   * @memberof VaiTro
+   */
+  const deleteItemFunc = (item) => {
+    ModalDeleteConfirm(deleteItemAction, item, item.maVatTu, "vị trí");
+  };
 
+  /**
+   * Xóa item
+   *
+   * @param {*} item
+   */
+  const deleteItemAction = (item) => {
+    let url = `tits_qtsx_ViTriLuuKhoVatTu/huy-vi-tri-luu-kho-vat-tu?id=${item.tits_qtsx_ChiTietKhoVatTu_Id}`;
+    new Promise((resolve, reject) => {
+      dispatch(fetchStart(url, "PUT", null, "DELETE", "", resolve, reject));
+    })
+      .then((res) => {
+        // Reload lại danh sách
+        if (res.status !== 409) {
+          loadData(keyword, Kho, page);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const actionContent = (item) => {
+    const addItem =
+      permission && permission.add && !item.tits_qtsx_Ke_Id
+        ? {
+            onClick: () => {
+              setActiveModal(true);
+              setListVatTuSelected(item);
+              setKeyViTri("add");
+            },
+          }
+        : { disabled: true };
+    const editItem =
+      permission && permission.edit && item.tits_qtsx_Ke_Id
+        ? {
+            onClick: () => {
+              setActiveModal(true);
+              setListVatTuSelected(item);
+              setKeyViTri("edit");
+            },
+          }
+        : { disabled: true };
+    const deleteVal =
+      permission && permission.del && item.tits_qtsx_Ke_Id
+        ? { onClick: () => deleteItemFunc(item) }
+        : { disabled: true };
+    return (
+      <div>
+        <a {...addItem} title="Thêm vị trí">
+          <PlusCircleOutlined />
+        </a>
+        <Divider type="vertical" />
+        <a {...editItem} title="Sửa vị trí">
+          <EditOutlined />
+        </a>
+        <Divider type="vertical" />
+        <a {...deleteVal} title="Xóa vị trí">
+          <DeleteOutlined />
+        </a>
+      </div>
+    );
+  };
   let renderHead = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -384,27 +467,27 @@ function KhoVatTu({ match, history, permission }) {
           </Col>
         </Row>
         <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            preserveSelectedRowKeys: true,
-            selectedRowKeys: selectedKeys,
-            hideSelectAll: true,
-            getCheckboxProps: (record) => ({}),
-          }}
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (e) => {
-                const found = find(selectedKeys, (k) => k === record.key);
-                if (found === undefined) {
-                  setListVatTuSelected([record]);
-                  setSelectedKeys([record.key]);
-                } else {
-                  hanldeRemoveSelected(record);
-                }
-              },
-            };
-          }}
+          // rowSelection={{
+          //   type: "checkbox",
+          //   ...rowSelection,
+          //   preserveSelectedRowKeys: true,
+          //   selectedRowKeys: selectedKeys,
+          //   hideSelectAll: true,
+          //   getCheckboxProps: (record) => ({}),
+          // }}
+          // onRow={(record, rowIndex) => {
+          //   return {
+          //     onClick: (e) => {
+          //       const found = find(selectedKeys, (k) => k === record.key);
+          //       if (found === undefined) {
+          //         setListVatTuSelected([record]);
+          //         setSelectedKeys([record.key]);
+          //       } else {
+          //         hanldeRemoveSelected(record);
+          //       }
+          //     },
+          //   };
+          // }}
           bordered
           scroll={{ x: 700, y: "60vh" }}
           columns={columns}
@@ -428,8 +511,9 @@ function KhoVatTu({ match, history, permission }) {
       <ModalAddViTri
         openModal={ActiveModal}
         openModalFS={setActiveModal}
-        vatTu={ListVatTuSelected[0]}
+        vatTu={ListVatTuSelected}
         refesh={refesh}
+        key={KeyViTri}
       />
     </div>
   );

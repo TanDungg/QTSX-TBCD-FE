@@ -27,14 +27,14 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
-  const getListViTriKhoAdd = (cauTrucKho_Id) => {
+  const getListViTriKhoAdd = (tits_qtsx_CauTrucKho_Id) => {
     const params = convertObjectToUrlParams({
-      cauTrucKho_Id,
+      tits_qtsx_CauTrucKho_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_ViTriLuuKho/list-vi-tri-luu-kho-vat-tu?${params}`,
+          `tits_qtsx_ViTriLuuKhoVatTu/list-vi-tri-luu-kho-vat-tu?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -54,8 +54,9 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             vatTu: `${data.maVatTu} - ${data.tenVatTu}${
               vitri ? ` (${vitri})` : ""
             }${data.thoiGianSuDung ? ` - ${data.thoiGianSuDung}` : ""}`,
-            soLuongThanhLy: data.soLuong,
-            lkn_ChiTietKhoBegin_Id: data.lkn_ChiTietKhoVatTu_Id,
+            soLuong: data.soLuong,
+            tits_qtsx_ChiTietKhoBegin_Id: data.tits_qtsx_ChiTietKhoVatTu_Id,
+            tits_qtsx_VatPham_Id: data.tits_qtsx_VatTu_Id,
           };
         });
 
@@ -78,7 +79,8 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   const renderSoLuongThanhLy = (record) => {
     const isEditing =
-      editingRecord.lkn_ChiTietKhoVatTu_Id === record.lkn_ChiTietKhoVatTu_Id;
+      editingRecord.tits_qtsx_ChiTietKhoVatTu_Id ===
+      record.tits_qtsx_ChiTietKhoVatTu_Id;
     return (
       <div>
         <Input
@@ -89,7 +91,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             borderColor: isEditing ? "red" : "",
           }}
           className={`input-item ${isEditing ? "input-error" : ""}`}
-          value={record.soLuongThanhLy}
+          value={record.soLuong}
           type="number"
           onChange={(val) => handleInputChange(val, record)}
         />
@@ -109,7 +111,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
       setDisabledSave(true);
     } else if (sl > record.soLuong) {
       record.message =
-        "Số lượng điều chuyển phải nhỏ hơn hoặc bằng số lượng trong kho";
+        "Số lượng thanh lý phải nhỏ hơn hoặc bằng số lượng trong kho";
       setEditingRecord(record);
       setDisabledSave(true);
     } else {
@@ -119,10 +121,13 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
     setVatTu((prevVatTu) => {
       return prevVatTu.map((item) => {
-        if (VatTu[0].lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+        if (
+          VatTu[0].tits_qtsx_ChiTietKhoVatTu_Id ===
+          item.tits_qtsx_ChiTietKhoVatTu_Id
+        ) {
           return {
             ...item,
-            soLuongThanhLy: sl,
+            soLuong: sl,
           };
         }
         return item;
@@ -145,27 +150,23 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     },
     {
       title: "Ngày nhập kho",
-      dataIndex: "ngayNhan",
-      key: "ngayNhan",
+      dataIndex: "ngayNhapKho",
+      key: "ngayNhapKho",
       align: "center",
     },
     {
-      title: "Tên kệ",
-      dataIndex: "tenKe",
-      key: "tenKe",
+      title: "Vị trí",
+      key: "viTri",
       align: "center",
-    },
-    {
-      title: "Tên tầng",
-      dataIndex: "tenTang",
-      key: "tenTang",
-      align: "center",
-    },
-    {
-      title: "Tên ngăn",
-      dataIndex: "tenNgan",
-      key: "tenNgan",
-      align: "center",
+      render: (val) => {
+        return (
+          <span>
+            {val.tenKe && val.tenKe}
+            {val.tenTang && ` - ${val.tenTang}`}
+            {val.tenNgan && ` - ${val.tenNgan}`}
+          </span>
+        );
+      },
     },
     {
       title: "SL trong kho",
@@ -175,13 +176,13 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     },
     {
       title: "Thời hạn sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
+      dataIndex: "hanSuDung",
+      key: "hanSuDung",
       align: "center",
     },
     {
       title: "SL thanh lý",
-      key: "soLuongThanhLy",
+      key: "soLuong",
       align: "center",
       render: (record) => renderSoLuongThanhLy(record),
     },
@@ -210,12 +211,14 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   const deleteItemAction = (item) => {
     const newData = ListVatTu.filter(
-      (data) => data.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
+      (data) =>
+        data.tits_qtsx_ChiTietKhoVatTu_Id !== item.tits_qtsx_ChiTietKhoVatTu_Id
     );
     setListVatTu(newData);
 
     const newDataListVatTu = ListVatTu.filter(
-      (data) => data.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id
+      (data) =>
+        data.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
     );
     console.log(newDataListVatTu);
     setListViTriKhoAdd([...ListViTriKhoAdd, ...newDataListVatTu]);
@@ -243,32 +246,34 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
     },
     {
       title: "Ngày nhập kho",
-      dataIndex: "ngayNhan",
-      key: "ngayNhan",
+      dataIndex: "ngayNhapKho",
+      key: "ngayNhapKho",
       align: "center",
     },
     {
-      title: "Tên kệ",
-      dataIndex: "tenKe",
-      key: "tenKe",
+      title: "Vị trí",
+      key: "viTri",
       align: "center",
-    },
-    {
-      title: "Tên tầng",
-      dataIndex: "tenTang",
-      key: "tenTang",
-      align: "center",
+      render: (val) => {
+        return (
+          <span>
+            {val.tenKe && val.tenKe}
+            {val.tenTang && ` - ${val.tenTang}`}
+            {val.tenNgan && ` - ${val.tenNgan}`}
+          </span>
+        );
+      },
     },
     {
       title: "Số lượng thanh lý",
-      dataIndex: "soLuongThanhLy",
-      key: "soLuongThanhLy",
+      dataIndex: "soLuong",
+      key: "soLuong",
       align: "center",
     },
     {
       title: "Thời hạn sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
+      dataIndex: "hanSuDung",
+      key: "hanSuDung",
       align: "center",
     },
     {
@@ -288,7 +293,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
 
   const HandleChonVatTu = (value) => {
     const vattu = ListViTriKhoAdd.filter(
-      (d) => d.lkn_ChiTietKhoVatTu_Id === value
+      (d) => d.tits_qtsx_ChiTietKhoVatTu_Id === value
     );
     setViTriKho(value);
     setVatTu(vattu);
@@ -298,7 +303,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
   const HandleThemVatTu = () => {
     setListVatTu([...ListVatTu, VatTu[0]]);
     const listvitrikhoAdd = ListViTriKhoAdd.filter(
-      (d) => d.lkn_ChiTietKhoVatTu_Id !== ViTriKho
+      (d) => d.tits_qtsx_ChiTietKhoVatTu_Id !== ViTriKho
     );
     setListViTriKhoAdd(listvitrikhoAdd);
     setViTriKho(null);
@@ -362,7 +367,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
                 className="heading-select slt-search th-select-heading"
                 data={ListViTriKhoAdd ? ListViTriKhoAdd : []}
                 placeholder="Chọn vật tư thanh lý"
-                optionsvalue={["lkn_ChiTietKhoVatTu_Id", "vatTu"]}
+                optionsvalue={["tits_qtsx_ChiTietKhoVatTu_Id", "vatTu"]}
                 style={{ width: "calc(100% - 100px)" }}
                 optionFilterProp={"name"}
                 showSearch
