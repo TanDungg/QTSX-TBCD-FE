@@ -199,7 +199,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuDieuChuyen/${id}?${params}`,
+          `tits_qtsx_PhieuDieuChuyen/${id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -214,7 +214,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
           setInfo(res.data);
           getUserLap(INFO, res.data.userLap_Id, 1);
           getListKho();
-          setKhoVatTuDi(res.data.khoDi_Id);
+          setKhoVatTuDi(res.data.tits_qtsx_CauTrucKhoBegin_Id);
           setFieldsValue({
             phieudieuchuyenvattu: {
               ...res.data,
@@ -473,12 +473,13 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
       const newData = {
         ...data,
         ngay: data.ngay.format("DD/MM/YYYY"),
-        chiTiet_PhieuDieuChuyens: ListVatTu,
+        isVatTu: true,
+        list_ChiTiets: ListVatTu,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuDieuChuyen`,
+            `tits_qtsx_PhieuDieuChuyen`,
             "POST",
             newData,
             "ADD",
@@ -509,12 +510,12 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
         ...data,
         id: id,
         ngay: data.ngay.format("DD/MM/YYYY"),
-        chiTiet_PhieuDieuChuyens: ListVatTu,
+        list_ChiTiets: ListVatTu,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhieuDieuChuyen/${id}`,
+            `tits_qtsx_PhieuDieuChuyen/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -552,7 +553,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
     setKhoVatTuDi(value);
     setFieldsValue({
       phieudieuchuyenvattu: {
-        khoDen_Id: null,
+        tits_qtsx_CauTrucKhoEnd_Id: null,
       },
     });
     const newData = ListKhoVatTuDi.filter((d) => d.id !== value);
@@ -645,8 +646,8 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Kho đi"
-                name={["phieudieuchuyenvattu", "khoDi_Id"]}
+                label="Kho điều chuyển"
+                name={["phieudieuchuyenvattu", "tits_qtsx_CauTrucKhoBegin_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -678,7 +679,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Kho đến"
-                name={["phieudieuchuyenvattu", "khoDen_Id"]}
+                name={["phieudieuchuyenvattu", "tits_qtsx_CauTrucKhoEnd_Id"]}
                 rules={[
                   {
                     type: "string",

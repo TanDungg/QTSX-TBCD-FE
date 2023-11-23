@@ -177,7 +177,7 @@ export const DEFAULT_FORM_DIEUCHUYEN_THANHLY = {
   labelCol: {
     span:
       window.innerWidth >= 1600
-        ? 6
+        ? 7
         : window.innerWidth >= 1200
         ? 8
         : window.innerWidth >= 768
@@ -193,7 +193,7 @@ export const DEFAULT_FORM_DIEUCHUYEN_THANHLY = {
   wrapperCol: {
     span:
       window.innerWidth >= 1600
-        ? 17
+        ? 16
         : window.innerWidth >= 1200
         ? 16
         : window.innerWidth >= 768
