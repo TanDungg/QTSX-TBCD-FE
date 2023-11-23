@@ -201,7 +201,7 @@ function ModalThemKe({ openModalFS, openModal, addKe, cauTrucKho_Id }) {
             <Select
               className="heading-select slt-search th-select-heading"
               data={listKe}
-              placeholder="Chọn Kệ"
+              placeholder="Chọn vị trí"
               optionsvalue={["chiTietKho_Id", "name"]}
               style={{ width: "100%" }}
               showSearch

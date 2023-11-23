@@ -144,9 +144,11 @@ function PhieuMuaHangDuAn({ match, history, permission }) {
       );
     const editItem =
       permission &&
-      permission.edit &&
+      permission.edit 
+      &&
       !item.fileXacNhan &&
-      item.userYeuCau_Id === INFO.user_Id ? (
+      item.userYeuCau_Id === INFO.user_Id 
+      ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -163,7 +165,8 @@ function PhieuMuaHangDuAn({ match, history, permission }) {
       );
     const deleteVal =
       permission &&
-      permission.del &&
+      permission.del
+       &&
       !item.fileXacNhan &&
       INFO.user_Id === item.userYeuCau_Id
         ? { onClick: () => deleteItemFunc(item) }
