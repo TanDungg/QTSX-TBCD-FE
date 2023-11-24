@@ -41,9 +41,9 @@ function NhapKhoVatTu({ match, history, permission }) {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [selectedDevice, setSelectedDevice] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
+  const [selectedDevice, setSelectedDevice] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [DataXuatExcel, setDataXuatExcel] = useState([]);
   const [ListKhoVatTu, setListKhoVatTu] = useState([]);
@@ -372,17 +372,6 @@ function NhapKhoVatTu({ match, history, permission }) {
           Tạo phiếu
         </Button>
         <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={
-            (permission && !permission.print) || selectedDevice.length === 0
-          }
-        >
-          In phiếu
-        </Button>
-        <Button
           icon={<DownloadOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -681,9 +670,7 @@ function NhapKhoVatTu({ match, history, permission }) {
           className="gx-table-responsive"
           dataSource={dataList}
           size="small"
-          rowClassName={(record) => {
-            return record.isParent ? "editable-row" : "editable-row";
-          }}
+          rowClassName={"editable-row"}
           pagination={{
             onChange: handleTableChange,
             pageSize: pageSize,

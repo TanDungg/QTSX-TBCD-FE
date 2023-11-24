@@ -331,9 +331,18 @@ function SanPham({ match, history, permission }) {
     },
     {
       title: "Hình ảnh",
+      dataIndex: "hinhAnh",
       key: "hinhAnh",
       align: "center",
-      render: (record) => renderHinhAnh(record),
+      render: (value) => (
+        <span>
+          <Image
+            src={BASE_URL_API + value}
+            alt="Hình ảnh"
+            style={{ maxWidth: 100, maxHeight: 100 }}
+          />
+        </span>
+      ),
     },
     {
       title: "Chức năng",

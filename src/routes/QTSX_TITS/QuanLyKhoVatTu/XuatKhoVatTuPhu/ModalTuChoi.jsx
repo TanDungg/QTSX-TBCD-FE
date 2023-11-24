@@ -1,125 +1,66 @@
-import { Modal as AntModal, Form, Card, Input, Button } from "antd";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { DEFAULT_FORM_MODAL } from "src/constants/Config";
-import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
+import { Modal as AntModal, Form, Input, Row, Button } from "antd";
+import React, { useState } from "react";
+import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 const FormItem = Form.Item;
 
-function ModalTuChoi({ openModalFS, openModal, itemData, refesh }) {
-  const { width } = useSelector(({ common }) => common).toJS();
-  const dispatch = useDispatch();
-  const [form] = Form.useForm();
-  const { resetFields, setFieldsValue, validateFields } = form;
+function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
   const [fieldTouch, setFieldTouch] = useState(false);
+  const [form] = Form.useForm();
+  const { resetFields } = form;
 
-  useEffect(() => {
-    if (openModal) {
-      setFieldsValue({
-        modaltuchoi: {
-          maPhieuXuatKhoVatTu: itemData.maPhieuXuatKhoVatTu,
-        },
-      });
-    }
-    return () => {
-      dispatch(fetchReset());
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openModal]);
-
-  const XacNhanLyDo = () => {
-    validateFields()
-      .then((values) => {
-        const newData = {
-          id: itemData.id,
-          isXacNhan: false,
-          lyDoTuChoi: values.modaltuchoi.lyDoTuChoi,
-        };
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `lkn_PhieuXuatKhoVatTu/xac-nhan/${itemData.id}`,
-              "PUT",
-              newData,
-              "TUCHOI",
-              "",
-              resolve,
-              reject
-            )
-          );
-        })
-          .then((res) => {
-            if (res.status !== 409) {
-              resetFields();
-              setFieldTouch(false);
-              openModalFS(false);
-              refesh();
-            }
-          })
-          .catch((error) => console.error(error));
-      })
-      .catch((error) => {
-        console.log("error", error);
-      });
+  /**
+   * Khi submit
+   *
+   * @param {*} values
+   */
+  const onFinish = (values) => {
+    saveData(values.tuChoi);
   };
 
+  const saveData = (tc) => {
+    saveTuChoi(tc.lyDoTuChoi);
+    openModalFS(false);
+    resetFields();
+  };
   const handleCancel = () => {
     openModalFS(false);
-    refesh();
   };
 
   return (
     <AntModal
-      title={`Lý do từ chối phiếu xuất kho vật tư`}
+      title="Từ chối phiếu phiếu định mức vật tư"
       open={openModal}
-      width={width > 1000 ? `50%` : "80%"}
+      width={`50%`}
       closable={true}
       onCancel={handleCancel}
       footer={null}
     >
       <div className="gx-main-content">
-        <Card className="th-card-margin-bottom">
-          <Form
-            {...DEFAULT_FORM_MODAL}
-            form={form}
-            name="nguoi-dung-control"
-            onFieldsChange={() => setFieldTouch(true)}
+        <Form
+          {...DEFAULT_FORM_CUSTOM}
+          form={form}
+          name="nguoi-dung-control"
+          onFinish={onFinish}
+          onFieldsChange={() => setFieldTouch(true)}
+        >
+          <FormItem
+            label="Lý do"
+            name={["tuChoi", "lyDoTuChoi"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
           >
-            <FormItem
-              label="Mã phiếu"
-              name={["modaltuchoi", "maPhieuXuatKhoVatTu"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-              ]}
-            >
-              <Input className="input-item" disabled={true} />
-            </FormItem>
-            <FormItem
-              label="Lý do"
-              name={["modaltuchoi", "lyDoTuChoi"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-              ]}
-            >
-              <Input className="input-item" placeholder="Nhập lý do từ chối" />
-            </FormItem>
-          </Form>
-          <div style={{ display: "flex", justifyContent: "center" }}>
-            <Button
-              className="th-btn-margin-bottom-0"
-              type="primary"
-              onClick={XacNhanLyDo}
-              disabled={!fieldTouch}
-            >
-              Xác nhận
+            <Input className="input-item" placeholder="Lý do từ chối" />
+          </FormItem>
+          <Row justify={"center"}>
+            <Button type="danger" htmlType={"submit"} disabled={!fieldTouch}>
+              Từ chối
             </Button>
-          </div>
-        </Card>
+          </Row>
+        </Form>
       </div>
     </AntModal>
   );

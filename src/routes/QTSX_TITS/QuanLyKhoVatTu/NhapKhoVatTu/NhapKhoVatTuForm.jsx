@@ -140,15 +140,15 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  const getUserLap = (info, nguoiLap_Id) => {
+  const getUserLap = (info, nguoiTao_Id) => {
     const params = convertObjectToUrlParams({
-      id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
+      id: nguoiTao_Id ? nguoiTao_Id : info.user_Id,
       donVi_Id: info.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}?${params}`,
+          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : info.user_Id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -162,7 +162,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           phieunhapkhovattu: {
-            userNhan_Id: res.data.Id,
+            nguoiTao_Id: res.data.Id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -249,7 +249,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               }
             );
           setListVatTu(newData);
-          getUserLap(INFO, res.data.userNhan_Id);
+          getUserLap(INFO, res.data.nguoiTao_Id);
           getUserKy(INFO);
           getKho();
           getMaPhieuNhapKho(res.data.phieuNhanHang_Id);
@@ -1035,7 +1035,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người nhập"
-                name={["phieunhapkhovattu", "userNhan_Id"]}
+                name={["phieunhapkhovattu", "nguoiTao_Id"]}
                 rules={[
                   {
                     type: "string",

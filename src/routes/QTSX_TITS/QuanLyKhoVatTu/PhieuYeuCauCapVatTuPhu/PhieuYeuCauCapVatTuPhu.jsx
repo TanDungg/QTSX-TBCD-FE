@@ -275,17 +275,6 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           Tạo phiếu
         </Button>
         <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={
-            (permission && !permission.print) || SelectedKeys.length === 0
-          }
-        >
-          In phiếu
-        </Button>
-        <Button
           icon={<ExportOutlined />}
           className="th-margin-bottom-0"
           type="primary"

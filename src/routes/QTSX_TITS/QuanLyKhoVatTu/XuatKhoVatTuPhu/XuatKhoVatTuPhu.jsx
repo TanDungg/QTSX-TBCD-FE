@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
+import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -140,16 +140,12 @@ function XuatKhoVatTu({ match, history, permission }) {
     const detailItem =
       (permission &&
         permission.cof &&
-        item.userNhan_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác nhận bởi Bên duyệt và Phụ trách bộ phận") ||
+        item.nguoiPTBoPhanDuyet_Id === INFO.user_Id &&
+        item.tinhTrang === "Chưa duyệt") ||
       (permission &&
         permission.cof &&
-        item.userDuyet_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác nhận bởi bên Phụ trách bộ phận") ||
-      (permission &&
-        permission.cof &&
-        item.userPhuTrachBoPhan_Id === INFO.user_Id &&
-        item.tinhTrang === "Chưa duyệt") ? (
+        item.nguoiKeToanDuyet_Id === INFO.user_Id &&
+        item.tinhTrang === "Chờ kế toán duyệt") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -167,7 +163,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
-      item.userLapPhieu_Id === INFO.user_Id &&
+      item.nguoiTao_Id === INFO.user_Id &&
       item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
@@ -186,7 +182,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
-      item.userLapPhieu_Id === INFO.user_Id &&
+      item.nguoiTao_Id === INFO.user_Id &&
       item.tinhTrang === "Chưa duyệt"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
@@ -297,67 +293,83 @@ function XuatKhoVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Xưởng sản xuất",
-      dataIndex: "tenPhongBan",
-      key: "tenPhongBan",
+      title: "Xưởng yêu cầu",
+      dataIndex: "tenXuong",
+      key: "tenXuong",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenPhongBan,
-            value: d.tenPhongBan,
+            text: d.tenXuong,
+            value: d.tenXuong,
           };
         })
       ),
-      onFilter: (value, record) => record.tenPhongBan.includes(value),
+      onFilter: (value, record) => record.tenXuong.includes(value),
       filterSearch: true,
     },
     {
-      title: "Mã phiếu đề nghị cấp vật tư",
-      dataIndex: "maPhieuDeNghiCapVatTu",
-      key: "maPhieuDeNghiCapVatTu",
+      title: "Phiếu yêu cầu",
+      dataIndex: "maPhieuYeuCauCapVatTu",
+      key: "maPhieuYeuCauCapVatTu",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieuDeNghiCapVatTu,
-            value: d.maPhieuDeNghiCapVatTu,
+            text: d.maPhieuYeuCauCapVatTu,
+            value: d.maPhieuYeuCauCapVatTu,
           };
         })
       ),
-      onFilter: (value, record) => record.maPhieuDeNghiCapVatTu.includes(value),
+      onFilter: (value, record) => record.maPhieuYeuCauCapVatTu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Kho xuất",
+      dataIndex: "tenCauTrucKho",
+      key: "tenCauTrucKho",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenCauTrucKho,
+            value: d.tenCauTrucKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenCauTrucKho.includes(value),
       filterSearch: true,
     },
     {
       title: "Người lập",
-      dataIndex: "userLapPhieu",
-      key: "userLapPhieu",
+      dataIndex: "tenNguoiTao",
+      key: "tenNguoiTao",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.userLapPhieu,
-            value: d.userLapPhieu,
+            text: d.tenNguoiTao,
+            value: d.tenNguoiTao,
           };
         })
       ),
-      onFilter: (value, record) => record.userLapPhieu.includes(value),
+      onFilter: (value, record) => record.tenNguoiTao.includes(value),
       filterSearch: true,
     },
     {
       title: "Ngày xuất kho",
-      dataIndex: "ngayXuatKho",
-      key: "ngayXuatKho",
+      dataIndex: "ngay",
+      key: "ngay",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayXuatKho,
-            value: d.ngayXuatKho,
+            text: d.ngay,
+            value: d.ngay,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayXuatKho.includes(value),
+      onFilter: (value, record) => record.ngay.includes(value),
       filterSearch: true,
     },
     {
@@ -375,6 +387,28 @@ function XuatKhoVatTu({ match, history, permission }) {
       ),
       onFilter: (value, record) => record.tinhTrang.includes(value),
       filterSearch: true,
+      render: (value) => (
+        <div>
+          {value && (
+            <Tag
+              color={
+                value === "Chưa duyệt"
+                  ? "orange"
+                  : value === "Đã duyệt"
+                  ? "blue"
+                  : value && value.startsWith("Bị hủy")
+                  ? "red"
+                  : "cyan"
+              }
+              style={{
+                fontSize: 13,
+              }}
+            >
+              {value}
+            </Tag>
+          )}
+        </div>
+      ),
     },
     {
       title: "Chức năng",
@@ -541,21 +575,6 @@ function XuatKhoVatTu({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
-        </Button>
-        <Button
-          icon={<PrinterOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handlePrint}
-          disabled={
-            (permission && !permission.print) ||
-            SelectedKeys.length === 0 ||
-            (SelectedDevice.length > 0 &&
-              (SelectedDevice[0].tinhTrang === "Chưa duyệt" ||
-                SelectedDevice[0].tinhTrang.startsWith("Đã từ chối")))
-          }
-        >
-          In phiếu
         </Button>
         <Button
           icon={<DownloadOutlined />}

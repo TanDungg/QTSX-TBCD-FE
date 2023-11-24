@@ -17,17 +17,18 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
 
   useEffect(() => {
     if (openModal) {
+      const VatTu = itemData.ListVatTu;
       getListViTriKho(
         itemData.tits_qtsx_CauTrucKho_Id,
-        itemData.ListVatTu.tits_qtsx_VatTu_Id
+        VatTu.tits_qtsx_VatTu_Id
       );
-      if (itemData.isCheck === true) {
+      if (VatTu.isCheck === true) {
         setSelectedViTri(
-          itemData.chiTiet_LuuVatTus && itemData.chiTiet_LuuVatTus
+          VatTu.list_ChiTietLuuKhos && VatTu.list_ChiTietLuuKhos
         );
         const lstKey =
-          itemData.chiTiet_LuuVatTus &&
-          itemData.chiTiet_LuuVatTus.map((data) => data.key);
+          VatTu.list_ChiTietLuuKhos &&
+          VatTu.list_ChiTietLuuKhos.map((data) => data.key);
         setSelectedKeys(lstKey && lstKey);
       }
     }
@@ -37,15 +38,15 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
-  const getListViTriKho = (cauTrucKho_Id, vatTu_Id) => {
+  const getListViTriKho = (tits_qtsx_CauTrucKho_Id, tits_qtsx_VatTu_Id) => {
     const params = convertObjectToUrlParams({
-      cauTrucKho_Id,
-      vatTu_Id,
+      tits_qtsx_CauTrucKho_Id,
+      tits_qtsx_VatTu_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_ViTriLuuKho/list-vi-tri-vat-tu-trong-kho?${params}`,
+          `tits_qtsx_ViTriLuuKhoVatTu/vat-tu-by-kho?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -57,33 +58,34 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
     }).then((res) => {
       if (res && res.data) {
         const newData = res.data.map((data) => {
-          if (itemData.isCheck === true) {
-            const vitri = itemData.chiTiet_LuuVatTus.find(
+          if (itemData.ListVatTu.isCheck === true) {
+            const vitri = itemData.ListVatTu.list_ChiTietLuuKhos.find(
               (vitri) =>
-                data.lkn_ChiTietKhoVatTu_Id.toLowerCase() ===
-                vitri.lkn_ChiTietKhoVatTu_Id.toLowerCase()
+                data.tits_qtsx_ChiTietKhoVatTu_Id.toLowerCase() ===
+                vitri.tits_qtsx_ChiTietKhoVatTu_Id.toLowerCase()
             );
             if (vitri) {
               return {
                 ...data,
-                tenCTKho: itemData.tenCTKho,
-                soLuongThucXuat: vitri.soLuongThucXuat,
+                soLuong: vitri.soLuong,
               };
             } else {
               return {
                 ...data,
-                tenCTKho: itemData.tenCTKho,
-                soLuongThucXuat: 0,
+                soLuong: data.soLuongTonKho,
               };
             }
+          } else {
+            const vitri = `${data.maKe ? `${data.maKe}` : ""}${
+              data.maTang ? ` - ${data.maTang}` : ""
+            }${data.maNgan ? ` - ${data.maNgan}` : ""}`;
+            return {
+              ...data,
+              viTri: vitri ? vitri : null,
+              soLuong: data.soLuongTonKho,
+            };
           }
-          return {
-            ...data,
-            tenCTKho: itemData.tenCTKho,
-            soLuongThucXuat: data.soLuong,
-          };
         });
-        setDisabledSave(newData.length > 0 ? false : true);
         setListViTriKho(newData);
       } else {
         setListViTriKho([]);
@@ -92,18 +94,25 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
   };
 
   const handleInputChange = (val, item) => {
-    const soLuong = val.target.value;
-    if (isEmpty(soLuong) || Number(soLuong) <= 0) {
+    const soLuongXuat = val.target.value;
+    if (isEmpty(soLuongXuat) || Number(soLuongXuat) <= 0) {
       setDisabledSave(true);
       setEditingRecord([...editingRecord, item]);
       item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+    } else if (soLuongXuat > item.soLuongTonKho) {
+      setDisabledSave(true);
+      item.message = `Số lượng xuất không được lớn hơn ${item.soLuongTonKho}`;
+      setEditingRecord([...editingRecord, item]);
     } else {
       const newData =
         editingRecord &&
         editingRecord.filter(
-          (d) => d.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
+          (d) =>
+            d.tits_qtsx_ChiTietKhoVatTu_Id !== item.tits_qtsx_ChiTietKhoVatTu_Id
         );
       if (newData.length !== 0) {
+        setDisabledSave(true);
+      } else if (SelectedViTri.length === 0) {
         setDisabledSave(true);
       } else {
         setDisabledSave(false);
@@ -113,11 +122,23 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
     const newData = [...ListViTriKho];
 
     newData.forEach((ct, index) => {
-      if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
-        ct.soLuongThucXuat = soLuong;
+      if (
+        ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
+      ) {
+        ct.soLuong = soLuongXuat;
       }
     });
     setListViTriKho(newData);
+
+    const newSelect = [...SelectedViTri];
+    newSelect.forEach((ct, index) => {
+      if (
+        ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
+      ) {
+        ct.soLuong = soLuongXuat;
+      }
+    });
+    setSelectedViTri(newSelect);
   };
 
   const renderSoLuongXuat = (item) => {
@@ -125,7 +146,9 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
     let message = "";
     editingRecord &&
       editingRecord.forEach((ct) => {
-        if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+        if (
+          ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
+        ) {
           isEditing = true;
           message = ct.message;
         }
@@ -141,7 +164,7 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
           }}
           className={`input-item`}
           type="number"
-          value={item.soLuongThucXuat}
+          value={item.soLuong}
           onChange={(val) => handleInputChange(val, item)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
@@ -159,8 +182,8 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
     },
     {
       title: "Tên kho",
-      dataIndex: "tenCTKho",
-      key: "tenCTKho",
+      dataIndex: "tenKho",
+      key: "tenKho",
       align: "center",
     },
     {
@@ -182,20 +205,14 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       align: "center",
     },
     {
-      title: "Số lượng trong kho",
-      dataIndex: "soLuong",
-      key: "soLuong",
-      align: "center",
-    },
-    {
-      title: "Thời hạn sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
+      title: "Số lượng tồn kho",
+      dataIndex: "soLuongTonKho",
+      key: "soLuongTonKho",
       align: "center",
     },
     {
       title: "Số lượng xuất",
-      key: "soLuongThucXuat",
+      key: "soLuong",
       align: "center",
       render: (record) => renderSoLuongXuat(record),
     },
@@ -208,25 +225,17 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
   ];
 
   const XacNhanViTri = () => {
-    const SoLuong = SelectedViTri.reduce(
-      (tong, vitri) => tong + Number(vitri.soLuongThucXuat || 0),
-      0
-    );
+    const TongSoLuong =
+      SelectedViTri &&
+      SelectedViTri.reduce(
+        (tong, vitri) => tong + Number(vitri.soLuong || 0),
+        0
+      );
 
     const newData = {
-      vatTu_Id: itemData.vatTu_Id,
-      maVatTu: itemData.maVatTu,
-      tenVatTu: itemData.tenVatTu,
-      soLuongThucXuat: SoLuong,
-      chiTiet_LuuVatTus: SelectedViTri.map((vt) => ({
-        ...vt,
-        viTri:
-          vt.tenKe !== null
-            ? `${vt.tenKe ? `${vt.tenKe}` : ""}${
-                vt.tenTang ? ` - ${vt.tenTang}` : ""
-              }${vt.tenNgan ? ` - ${vt.tenNgan}, ` : ", "}`
-            : itemData.tenCTKho,
-      })),
+      tits_qtsx_VatTu_Id: itemData.ListVatTu.tits_qtsx_VatTu_Id,
+      soLuongThucXuat: TongSoLuong,
+      list_ChiTietLuuKhos: SelectedViTri,
     };
     ThemViTri(newData);
     openModalFS(false);
@@ -247,6 +256,11 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
     onChange: (selectedRowKeys, selectedRows) => {
       const newSelectedViTri = [...selectedRows];
       const newSelectedKeys = [...selectedRowKeys];
+      if (newSelectedViTri.length === 0) {
+        setDisabledSave(true);
+      } else {
+        setDisabledSave(false);
+      }
       setSelectedViTri(newSelectedViTri);
       setSelectedKeys(newSelectedKeys);
     },
@@ -254,8 +268,8 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
 
   const Title = (
     <span>
-      Chọn vị trí xuất kho của vật tư - {itemData.tenVatTu} (Số lượng:{" "}
-      {itemData.soLuong})
+      Chọn vị trí xuất kho của vật tư - {itemData.ListVatTu.tenVatTu} (Số lượng:{" "}
+      {itemData.ListVatTu.soLuongYeuCau})
     </span>
   );
 
@@ -292,7 +306,7 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
               className="th-btn-margin-bottom-0"
               type="primary"
               onClick={XacNhanViTri}
-              disabled={DisabledSave || SelectedViTri.length === 0}
+              disabled={DisabledSave}
             >
               Xác nhận
             </Button>
