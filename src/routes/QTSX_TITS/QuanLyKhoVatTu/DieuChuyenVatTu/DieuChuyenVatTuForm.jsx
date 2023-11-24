@@ -141,15 +141,15 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const getUserLap = (info, nguoiLap_Id) => {
+  const getUserLap = (info, nguoiTao_Id) => {
     const params = convertObjectToUrlParams({
-      id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
+      id: nguoiTao_Id ? nguoiTao_Id : info.user_Id,
       donVi_Id: info.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${info.user_Id}?${params}`,
+          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : info.user_Id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -163,7 +163,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           phieudieuchuyenvattu: {
-            userLap_Id: res.data.Id,
+            nguoiTao_Id: res.data.Id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -201,13 +201,10 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
    *
    */
   const getInfo = (id) => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuDieuChuyen/${id}?${params}`,
+          `tits_qtsx_PhieuDieuChuyen/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -220,16 +217,16 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setInfo(res.data);
-          getUserLap(INFO, res.data.userLap_Id, 1);
-          getListKho();
-          getUserDuyet(INFO);
-          setKhoVatTuDi(res.data.tits_qtsx_CauTrucKhoBegin_Id);
           setFieldsValue({
             phieudieuchuyenvattu: {
               ...res.data,
               ngay: moment(res.data.ngay, "DD/MM/YYYY HH:mm"),
             },
           });
+          getListKho();
+          getUserDuyet(INFO);
+          setKhoVatTuDi(res.data.tits_qtsx_CauTrucKhoBegin_Id);
+          getUserLap(INFO, res.data.nguoiTao_Id);
 
           const newData =
             res.data.list_ChiTiets &&
@@ -716,7 +713,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người lập"
-                name={["phieudieuchuyenvattu", "userLap_Id"]}
+                name={["phieudieuchuyenvattu", "nguoiTao_Id"]}
                 rules={[
                   {
                     type: "string",

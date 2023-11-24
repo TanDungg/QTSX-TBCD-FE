@@ -5,6 +5,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -24,6 +25,7 @@ import {
   getLocalStorage,
   getTokenInfo,
   removeDuplicates,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -43,6 +45,8 @@ function DieuChuyenVatTu({ match, history, permission }) {
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
+  const [selectedDevice, setSelectedDevice] = useState([]);
+  const [selectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -251,6 +255,47 @@ function DieuChuyenVatTu({ match, history, permission }) {
     });
   };
 
+  const handleXuatExcel = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuDieuChuyen/${selectedDevice[0].id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const data = res.data;
+          const newData = {
+            ...data,
+            list_ChiTiets: data.list_ChiTiets && JSON.parse(data.list_ChiTiets),
+          };
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `tits_qtsx_PhieuDieuChuyen/export-file-phieu-dieu-chuyen`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportExcel("PhieuDieuChuyenVatTu", res.data.dataexcel);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -262,6 +307,17 @@ function DieuChuyenVatTu({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
+        </Button>
+        <Button
+          icon={<DownloadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleXuatExcel}
+          disabled={
+            (permission && !permission.add) || selectedDevice.length === 0
+          }
+        >
+          Xuất excel
         </Button>
       </>
     );
@@ -480,6 +536,24 @@ function DieuChuyenVatTu({ match, history, permission }) {
     getListData(keyword, KhoDi, KhoDen, dateString[0], dateString[1], 1);
   };
 
+  const rowSelection = {
+    selectedRowKeys: selectedKeys,
+    selectedRows: selectedDevice,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        selectedDevice.length > 0
+          ? selectedRows.filter((d) => d.key !== selectedDevice[0].key)
+          : [...selectedRows];
+
+      const key =
+        selectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
+          : [...selectedRowKeys];
+      setSelectedDevice(row);
+      setSelectedKeys(key);
+    },
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -590,9 +664,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
           className="gx-table-responsive"
           dataSource={dataList}
           size="small"
-          rowClassName={(record) => {
-            return record.isParent ? "editable-row" : "editable-row";
-          }}
+          rowClassName={"editable-row"}
           pagination={{
             onChange: handleTableChange,
             pageSize: pageSize,
@@ -601,6 +673,13 @@ function DieuChuyenVatTu({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: selectedKeys,
+          }}
         />
       </Card>
     </div>

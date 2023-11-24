@@ -929,9 +929,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
             goBack={goBack}
             handleSave={onFinish}
             saveAndClose={saveAndClose}
-            disabled={
-              type === "new" ? fieldTouch && ListVatTu.length !== 0 : fieldTouch
-            }
+            disabled={type === "new" ? fieldTouch && ListVatTu : fieldTouch}
           />
         ) : null}
       </Card>
@@ -940,7 +938,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
         openModalFS={setActiveModalChonVatTu}
         itemData={{
           kho_Id: KhoVatTu,
-          ListViTriKho: ListVatTu.length !== 0 && ListVatTu,
+          ListViTriKho: ListVatTu && ListVatTu,
         }}
         ThemVatTu={handleThemVatTu}
       />

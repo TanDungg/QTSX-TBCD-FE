@@ -1,5 +1,15 @@
 import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Col,
+  DatePicker,
+  Button,
+  Tag,
+  Image,
+} from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -122,15 +132,15 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  const getUserLap = (info, nguoiLap_Id) => {
+  const getUserLap = (info, nguoiTao_Id) => {
     const params = convertObjectToUrlParams({
-      id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
+      id: nguoiTao_Id ? nguoiTao_Id : info.user_Id,
       donVi_Id: info.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}?${params}`,
+          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : info.user_Id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -144,7 +154,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           phieuyeucaucapvattuphu: {
-            userLapPhieu_Id: res.data.Id,
+            nguoiTao_Id: res.data.Id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -202,7 +212,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
         if (res && res.data) {
           setInfo(res.data);
           getXuong();
-          getUserLap(INFO, res.data.userLapPhieu_Id);
+          getUserLap(INFO, res.data.nguoiTao_Id);
           setFieldsValue({
             phieuyeucaucapvattuphu: {
               ...res.data,
@@ -361,23 +371,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     setListVatTu(newData);
   };
 
-  const renderHinhAnh = (item) => {
-    if (!isEmpty(item.hinhAnh)) {
-      return (
-        <span>
-          <a
-            target="_blank"
-            href={BASE_URL_API + item.hinhAnh}
-            rel="noopener noreferrer"
-          >
-            {item.hinhAnh.split("/")[5]}
-          </a>
-        </span>
-      );
-    }
-    return null;
-  };
-
   let colValues = [
     {
       title: "STT",
@@ -430,9 +423,18 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Hình ảnh",
+      dataIndex: "hinhAnh",
       key: "hinhAnh",
       align: "center",
-      render: (record) => renderHinhAnh(record),
+      render: (value) => (
+        <span>
+          <Image
+            src={BASE_URL_API + value}
+            alt="Hình ảnh"
+            style={{ maxWidth: 100, maxHeight: 100 }}
+          />
+        </span>
+      ),
     },
     {
       title: "Chức năng",
@@ -694,7 +696,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người lập"
-                name={["phieuyeucaucapvattuphu", "userLapPhieu_Id"]}
+                name={["phieuyeucaucapvattuphu", "nguoiTao_Id"]}
                 rules={[
                   {
                     type: "string",

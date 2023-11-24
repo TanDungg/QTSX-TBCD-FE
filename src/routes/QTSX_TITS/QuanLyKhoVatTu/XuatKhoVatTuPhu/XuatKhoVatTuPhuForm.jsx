@@ -13,6 +13,7 @@ import {
   Button,
   Tag,
   Divider,
+  Image,
 } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
@@ -60,6 +61,7 @@ const VatTuForm = ({ history, match, permission }) => {
   const [VatTu, setVatTu] = useState([]);
   const [ListKhoVatTu, setListKhoVatTu] = useState([]);
   const [KhoVatTu, setKhoVatTu] = useState(null);
+  const [DisabledKhoXuat, setDisabledKhoXuat] = useState(false);
   const [ActiveModalChonViTri, setActiveModalChonViTri] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [id, setId] = useState(undefined);
@@ -234,15 +236,15 @@ const VatTuForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const getUserLap = (info, nguoiLap_Id) => {
+  const getUserLap = (info, nguoiTao_Id) => {
     const params = convertObjectToUrlParams({
-      id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
+      id: nguoiTao_Id ? nguoiTao_Id : info.user_Id,
       donVi_Id: info.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}?${params}`,
+          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : info.user_Id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -256,7 +258,7 @@ const VatTuForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           phieuxuatkhovattuphu: {
-            userLapPhieu_Id: res.data.Id,
+            nguoiTao_Id: res.data.Id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -294,13 +296,10 @@ const VatTuForm = ({ history, match, permission }) => {
    *
    */
   const getInfo = (id) => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuPhu/${id}?${params}`,
+          `tits_qtsx_PhieuXuatKhoVatTuPhu/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -316,7 +315,7 @@ const VatTuForm = ({ history, match, permission }) => {
           getXuong();
           getListKho();
           getUserLap(INFO, res.data.nguoiTao_Id);
-          getListPYCCVTP(res.data.xuongSanXuat_Id);
+          getListPYCCVTP(res.data.tits_qtsx_Xuong_Id);
           setFieldsValue({
             phieuxuatkhovattuphu: {
               ...res.data,
@@ -324,32 +323,26 @@ const VatTuForm = ({ history, match, permission }) => {
             },
           });
           const chiTiet =
-            res.data.chiTiet_PhieuXuatKhoVatTus &&
-            JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus);
-
+            res.data.list_ChiTiets && JSON.parse(res.data.list_ChiTiets);
           const newData =
             chiTiet &&
             chiTiet.map((data) => {
-              const SoLuong = data.chiTiet_LuuVatTus.reduce(
-                (tong, sl) => tong + sl.soLuongThucXuat,
-                0
-              );
-              const lstViTri = data.chiTiet_LuuVatTus.map((vt) => ({
-                ...vt,
-                viTri: vt.tenKe
-                  ? `${vt.tenKe ? `${vt.tenKe}` : ""}${
-                      vt.tenTang ? ` - ${vt.tenTang}` : ""
-                    }${vt.tenNgan ? ` - ${vt.tenNgan}, ` : ", "}`
-                  : data.tenCTKho,
-              }));
+              const lstViTri = data.list_ChiTietLuuKhos.map((vt) => {
+                const vitri = `${vt.maKe ? `${vt.maKe}` : ""}${
+                  vt.maTang ? ` - ${vt.maTang}` : ""
+                }${vt.maNgan ? ` - ${vt.maNgan}` : ""}`;
+                return {
+                  ...vt,
+                  viTri: vitri ? vitri : null,
+                };
+              });
               return {
                 ...data,
-                kho_Id: data.kho_Id.toLowerCase(),
-                soLuongThucXuat: SoLuong,
-                chiTiet_LuuVatTus: lstViTri,
+                list_ChiTietLuuKhos: lstViTri,
               };
             });
-          setListVatTu(newData.length > 0 && newData);
+          setListVatTu(newData && newData);
+          setDisabledKhoXuat(true);
         }
       })
       .catch((error) => console.error(error));
@@ -427,15 +420,20 @@ const VatTuForm = ({ history, match, permission }) => {
 
   const ThemViTri = (data) => {
     const newData = ListVatTu.map((listvattu) => {
-      if (listvattu.vatTu_Id.toLowerCase() === data.vatTu_Id.toLowerCase()) {
-        if (data.soLuongThucXuat <= listvattu.soLuong) {
+      if (
+        listvattu.tits_qtsx_VatTu_Id.toLowerCase() ===
+        data.tits_qtsx_VatTu_Id.toLowerCase()
+      ) {
+        if (data.soLuongThucXuat <= listvattu.soLuongYeuCau) {
+          setDisabledKhoXuat(true);
           return {
             ...listvattu,
-            ...data,
+            soLuongThucXuat: data.soLuongThucXuat,
+            list_ChiTietLuuKhos: data.list_ChiTietLuuKhos,
           };
         } else {
           Helpers.alertError(
-            `Số lượng xuất không được lớn hơn ${listvattu.soLuong}`
+            `Số lượng xuất không được lớn hơn ${listvattu.soLuongYeuCau}`
           );
         }
       }
@@ -450,40 +448,43 @@ const VatTuForm = ({ history, match, permission }) => {
       <div>
         {record.list_ChiTietLuuKhos.length > 0 ? (
           <div>
-            {record.list_ChiTietLuuKhos.length !== 0 && (
-              <div>
-                {record.list_ChiTietLuuKhos.map((vt, index) => {
-                  if (vt.viTri === "Kho vật tư XS") {
-                    if (index === 0) {
-                      return (
-                        <Tag
-                          key={index}
-                          style={{ marginRight: 5, color: "#0469B9" }}
-                        >
-                          {vt.viTri}
-                        </Tag>
-                      );
-                    } else {
-                      return null;
-                    }
-                  } else {
+            <div>
+              {record.list_ChiTietLuuKhos.map((vt, index) => {
+                if (!vt.viTri) {
+                  if (index === 0) {
                     return (
                       <Tag
                         key={index}
                         style={{
                           marginRight: 5,
+                          marginBottom: 3,
                           color: "#0469B9",
-                          wordWrap: "break-word",
-                          whiteSpace: "normal",
                         }}
                       >
-                        {vt.viTri}
+                        {vt.tenKho}
                       </Tag>
                     );
+                  } else {
+                    return null;
                   }
-                })}
-              </div>
-            )}
+                } else {
+                  return (
+                    <Tag
+                      key={index}
+                      style={{
+                        marginRight: 5,
+                        marginBottom: 3,
+                        color: "#0469B9",
+                        wordWrap: "break-word",
+                        whiteSpace: "normal",
+                      }}
+                    >
+                      {vt.viTri}
+                    </Tag>
+                  );
+                }
+              })}
+            </div>
             {type === "detail" || type === "xacnhan" ? null : (
               <>
                 <EditOutlined
@@ -579,13 +580,11 @@ const VatTuForm = ({ history, match, permission }) => {
       align: "center",
       render: (value) => (
         <span>
-          <a
-            target="_blank"
-            href={BASE_URL_API + value}
-            rel="noopener noreferrer"
-          >
-            {value.split("/")[5]}
-          </a>
+          <Image
+            src={BASE_URL_API + value}
+            alt="Hình ảnh"
+            style={{ maxWidth: "100%", maxHeight: "100%" }}
+          />
         </span>
       ),
     },
@@ -644,7 +643,7 @@ const VatTuForm = ({ history, match, permission }) => {
       const newData = {
         ...data,
         ngay: data.ngay.format("DD/MM/YYYY"),
-        chiTiet_ChiTietPhieuXuatKhoVatTus: ListVatTu,
+        list_ChiTiets: ListVatTu,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -672,6 +671,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 },
               });
               setFieldTouch(false);
+              setDisabledKhoXuat(false);
               setListVatTu([]);
             }
           } else {
@@ -686,7 +686,7 @@ const VatTuForm = ({ history, match, permission }) => {
         id: id,
         tits_qtsx_PhieuYeuCauCapVatTu_Id: info.tits_qtsx_PhieuYeuCauCapVatTu_Id,
         ngay: data.ngay.format("DD/MM/YYYY"),
-        chiTiet_ChiTietPhieuXuatKhoVatTus: ListVatTu,
+        list_ChiTiets: ListVatTu,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -716,12 +716,11 @@ const VatTuForm = ({ history, match, permission }) => {
   const handleXacNhan = () => {
     const newData = {
       id: id,
-      isXacNhan: true,
     };
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuPhu/xac-nhan/${id}`,
+          `tits_qtsx_PhieuXuatKhoVatTuPhu/duyet/${id}`,
           "PUT",
           newData,
           "XACNHAN",
@@ -733,7 +732,7 @@ const VatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res.status !== 409) {
-          goBack();
+          getInfo(id);
         }
       })
       .catch((error) => console.error(error));
@@ -751,12 +750,28 @@ const VatTuForm = ({ history, match, permission }) => {
     Modal(prop);
   };
 
-  const hanldeTuChoi = () => {
-    setActiveModalTuChoi(true);
-  };
-
-  const handleRefeshModal = () => {
-    goBack();
+  const saveTuChoi = (data) => {
+    const newData = {
+      id: id,
+      lyDoTuChoi: data,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuXuatKhoVatTuPhu/duyet/${id}`,
+          "PUT",
+          newData,
+          "TUCHOI",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) getInfo(id);
+      })
+      .catch((error) => console.error(error));
   };
 
   const formTitle =
@@ -830,7 +845,7 @@ const VatTuForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người lập"
-                name={["phieuxuatkhovattuphu", "userLapPhieu_Id"]}
+                name={["phieuxuatkhovattuphu", "nguoiTao_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -897,7 +912,9 @@ const VatTuForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp={"name"}
                   onSelect={handleSelectXuong}
-                  disabled={type === "new" ? false : true}
+                  disabled={
+                    type === "new" || type === "taophieuxuat" ? false : true
+                  }
                 />
               </FormItem>
             </Col>
@@ -936,13 +953,12 @@ const VatTuForm = ({ history, match, permission }) => {
                     showSearch
                     optionFilterProp={"name"}
                     onSelect={handleSelectListVatTu}
-                    disabled={type === "new" ? false : true}
                   />
                 </FormItem>
               ) : (
                 <FormItem
                   label="Phiếu đề nghị CVT"
-                  name={["phieuxuatkhovattuphu", "maPhieu"]}
+                  name={["phieuxuatkhovattuphu", "maPhieuYeuCauCapVatTu"]}
                   rules={[
                     {
                       type: "string",
@@ -982,7 +998,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp={"name"}
                   onSelect={handleSelectKho}
-                  disabled={type === "new" ? false : true}
+                  disabled={DisabledKhoXuat}
                 />
               </FormItem>
             </Col>
@@ -1038,7 +1054,11 @@ const VatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type !== "detail" ? false : true}
+                  disabled={
+                    type === "new" || type === "edit" || type === "taophieuxuat"
+                      ? false
+                      : true
+                  }
                 />
               </FormItem>
             </Col>
@@ -1070,7 +1090,9 @@ const VatTuForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp="name"
                   disabled={
-                    type === "detail" || type === "xacnhan" ? true : false
+                    type === "new" || type === "edit" || type === "taophieuxuat"
+                      ? false
+                      : true
                   }
                 />
               </FormItem>
@@ -1102,7 +1124,11 @@ const VatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type !== "detail" ? false : true}
+                  disabled={
+                    type === "new" || type === "edit" || type === "taophieuxuat"
+                      ? false
+                      : true
+                  }
                 />
               </FormItem>
             </Col>
@@ -1128,38 +1154,15 @@ const VatTuForm = ({ history, match, permission }) => {
                 <Input
                   className="input-item"
                   placeholder="Nhập nội dung xuất"
-                  disabled={type !== "detail" ? false : true}
+                  disabled={
+                    type === "new" || type === "edit" || type === "taophieuxuat"
+                      ? false
+                      : true
+                  }
                 />
               </FormItem>
             </Col>
-            {info.ngayXuatKho ? (
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Ngày xuất kho"
-                  name={["phieuxuatkhovattuphu", "ngayXuatKho"]}
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
-                >
-                  <DatePicker
-                    format={"DD/MM/YYYY"}
-                    allowClear={false}
-                    disabled
-                  />
-                </FormItem>
-              </Col>
-            ) : null}
-            {info && info.lyDoTuChoi ? (
+            {info.tinhTrang && info.tinhTrang.startsWith("Bị hủy") ? (
               <Col
                 xxl={12}
                 xl={12}
@@ -1173,7 +1176,11 @@ const VatTuForm = ({ history, match, permission }) => {
                   <Input
                     className="input-item"
                     disabled={true}
-                    value={info.lyDoTuChoi}
+                    value={
+                      info.lyDoPTBoPhanTuChoi
+                        ? info.lyDoPTBoPhanTuChoi
+                        : info.lyDoKeToanTuChoi
+                    }
                   />
                 </FormItem>
               </Col>
@@ -1210,7 +1217,12 @@ const VatTuForm = ({ history, match, permission }) => {
             disabled={fieldTouch && ListVatTu.length !== 0}
           />
         ) : null}
-        {type === "xacnhan" && (
+        {(type === "xacnhan" &&
+          info.tinhTrang === "Chưa duyệt" &&
+          info.nguoiPTBoPhanDuyet_Id === INFO.user_Id) ||
+        (type === "xacnhan" &&
+          info.tinhTrang === "Chờ kế toán duyệt" &&
+          info.nguoiKeToanDuyet_Id === INFO.user_Id) ? (
           <Row justify={"end"} style={{ marginTop: 15 }}>
             <Col style={{ marginRight: 15 }}>
               <Button type="primary" onClick={modalXK}>
@@ -1218,12 +1230,12 @@ const VatTuForm = ({ history, match, permission }) => {
               </Button>
             </Col>
             <Col style={{ marginRight: 15 }}>
-              <Button danger onClick={hanldeTuChoi}>
+              <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
                 Từ chối
               </Button>
             </Col>
           </Row>
-        )}
+        ) : null}
       </Card>
       <ModalChonViTri
         openModal={ActiveModalChonViTri}
@@ -1234,8 +1246,7 @@ const VatTuForm = ({ history, match, permission }) => {
       <ModalTuChoi
         openModal={ActiveModalTuChoi}
         openModalFS={setActiveModalTuChoi}
-        itemData={info}
-        refesh={handleRefeshModal}
+        saveTuChoi={saveTuChoi}
       />
     </div>
   );
