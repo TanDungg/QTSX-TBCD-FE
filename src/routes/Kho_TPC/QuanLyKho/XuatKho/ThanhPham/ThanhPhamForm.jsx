@@ -464,9 +464,12 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       key: "tenKe",
       align: "center",
       render: (val) => (
-        <span>{`${val.tenKe}${val.tenTang ? " - " + val.tenTang : ""}${
-          val.tenNgan ? " - " + val.tenNgan : ""
-        }`}</span>
+        <span>
+          {val.tenKe
+            ? val.tenKe +
+              (val.tenTang ? " - " + val.tenTang + " - " + val.tenNgan : "")
+            : val.tenKho}
+        </span>
       ),
     },
     {
@@ -556,6 +559,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
 
   const saveData = (nhapkho, saveQuit = false) => {
     if (type === "new") {
+      console.log(nhapkho);
       const newData = {
         ...nhapkho,
         chiTiet_PhieuXuatKhoThanhPhams: ListSanPham,

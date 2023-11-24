@@ -348,7 +348,6 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
   };
   const props = {
     accept: ".png, .jpge, .jpg",
-
     showUploadList: false,
     maxCount: 1,
   };
@@ -360,7 +359,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
           // href={BASE_URL_API + record.hinhAnhVatTu}
           // rel="noopener noreferrer"
           onClick={() => {
-            setOpenImage(true);
+            setOpenImage({ [record.key]: true });
           }}
         >
           {record.hinhAnh}
@@ -382,17 +381,17 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
         )}
         <Image
           width={100}
-          src={record.file}
+          src={record.fileImage}
           alt="preview"
           style={{
             display: "none",
           }}
           preview={{
-            visible: openImage,
+            visible: openImage[record.key],
             scaleStep: 0.5,
-            src: record.file,
+            src: record.fileImage,
             onVisibleChange: (value) => {
-              setOpenImage(value);
+              setOpenImage({ [record.key]: value });
             },
           }}
         />
@@ -404,14 +403,15 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
           const newData = [...ListVatTu];
           newData.forEach((vt) => {
             if (vt.tits_qtsx_VatPham_Id === record.tits_qtsx_VatPham_Id) {
+              const reader = new FileReader();
+              reader.onload = (e) => (vt.fileImage = e.target.result);
+              reader.readAsDataURL(file);
               vt.file = file;
               vt.hinhAnh = file.name;
             }
           });
           setListVatTu(newData);
-          // const reader = new FileReader();
-          // reader.onload = (e) => setFileChat(e.target.result);
-          // reader.readAsDataURL(file);
+
           return false;
         }}
       >

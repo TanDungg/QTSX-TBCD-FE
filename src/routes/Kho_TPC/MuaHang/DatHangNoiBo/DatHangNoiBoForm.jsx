@@ -285,6 +285,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
         );
       }).then((res) => {
         if (res && res.data) {
+          res.data.diaChi = res.data.diaChi ? res.data.diaChi : "";
           setListNhaCungCap([res.data]);
         } else {
           setListNhaCungCap([]);
@@ -305,7 +306,14 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
         );
       }).then((res) => {
         if (res && res.data) {
-          setListNhaCungCap(res.data);
+          setListNhaCungCap(
+            res.data.map((ct) => {
+              return {
+                ...ct,
+                diaChi: ct.diaChi ? ct.diaChi : "",
+              };
+            })
+          );
         } else {
           setListNhaCungCap([]);
         }

@@ -180,6 +180,24 @@ function TheoDoiHangVe({ match, history, permission }) {
       fixed: "left",
     },
     {
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
+      align: "center",
+      width: 120,
+      fixed: "left",
+      filters: removeDuplicates(
+        map(data, (d) => {
+          return {
+            text: d.maVatTu,
+            value: d.maVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maVatTu.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
@@ -214,7 +232,23 @@ function TheoDoiHangVe({ match, history, permission }) {
       onFilter: (value, record) => record.tenNhomVatTu.includes(value),
       filterSearch: true,
     },
-
+    {
+      title: "Đơn hàng",
+      dataIndex: "maPhieuYeuCau",
+      key: "maPhieuYeuCau",
+      align: "center",
+      width: 120,
+      filters: removeDuplicates(
+        map(data, (d) => {
+          return {
+            text: d.maPhieuYeuCau,
+            value: d.maPhieuYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maPhieuYeuCau.includes(value),
+      filterSearch: true,
+    },
     {
       title: "Hạng mục sử dụng",
       dataIndex: "hangMucSuDung",

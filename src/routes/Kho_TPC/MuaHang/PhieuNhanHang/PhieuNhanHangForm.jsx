@@ -519,7 +519,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Số lượng nhận",
+      title: "Số lượng nhận thực tế",
       key: "soLuongNhan",
       align: "center",
       render: (record) => rendersoLuong(record),

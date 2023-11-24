@@ -44,6 +44,8 @@ import {
 import ModalTuChoi from "./ModalTuChoi";
 import Helper from "src/helpers";
 import dayjs from "dayjs";
+import ModalAddVatTuKHSX from "./ModalAddVatTuKHSX";
+import ModalAddVatTuSanPham from "./ModalAddVatTuSanPham";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -156,6 +158,10 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const [SanPham_Id, setSanPham_Id] = useState(null);
   const [SoLuong, setSoLuong] = useState(null);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
+  const [ActiveModalAddVatTuKHSX, setActiveModalAddVatTuKHSX] = useState(false);
+  const [ActiveModalAddVatTuSanPham, setActiveModalAddVatTuSanPham] =
+    useState(false);
+
   const [File, setFile] = useState("");
   const [disableUpload, setDisableUpload] = useState(false);
   const [FileChat, setFileChat] = useState("");
@@ -380,7 +386,13 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         if (res && res.data) {
           setInfo(res.data);
           const vattu =
-            res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu);
+            res.data.chiTietVatTu &&
+            JSON.parse(res.data.chiTietVatTu).map((ct) => {
+              return {
+                ...ct,
+                lkn_ChiTietBOM_Id: ct.chiTietPhieuMuaHang_Id,
+              };
+            });
           setListVatTu(vattu);
           getUserLap(INFO, res.data.userYeuCau_Id);
           res.data.userYeuCau_Id === INFO.user_Id &&
@@ -579,10 +591,76 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           className={`input-item`}
           type="number"
           value={item.soLuong}
-          disabled={type === "new" || type === "edit" ? false : true}
+          disabled={
+            type === "new" || type === "edit" || type === "xacnhan"
+              ? false
+              : true
+          }
           onChange={(val) => handleInputChange(val, item)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
+  const handleInputChangeHanMucSuDungGhiChu = (val, item, key) => {
+    const text = val.target.value;
+    const newData = [...listVatTu];
+    newData.forEach((ct, index) => {
+      if (ct.lkn_ChiTietBOM_Id === item.lkn_ChiTietBOM_Id) {
+        ct.hangMucSuDung = text;
+      }
+    });
+    setListVatTu(newData);
+    setFieldTouch(true);
+  };
+  const renderHanMucSuDungGhiChu = (item) => {
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          value={item.hangMucSuDung}
+          disabled={
+            type === "new" || type === "edit" || type === "xacnhan"
+              ? false
+              : true
+          }
+          onChange={(val) => handleInputChangeHanMucSuDungGhiChu(val, item)}
+        />
+      </>
+    );
+  };
+  const handleInputChangeGhiChu = (val, item, key) => {
+    const text = val.target.value;
+    const newData = [...listVatTu];
+    newData.forEach((ct, index) => {
+      if (ct.lkn_ChiTietBOM_Id === item.lkn_ChiTietBOM_Id) {
+        ct.ghiChu = text;
+      }
+    });
+    setListVatTu(newData);
+    setFieldTouch(true);
+  };
+  const renderGhiChu = (item) => {
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          value={item.ghiChu}
+          disabled={
+            type === "new" || type === "edit" || type === "xacnhan"
+              ? false
+              : true
+          }
+          onChange={(val) => handleInputChangeGhiChu(val, item)}
+        />
       </>
     );
   };
@@ -666,8 +744,8 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     },
     {
       title: "SL theo định mức",
-      dataIndex: "soLuongTheoDinhMuc",
-      key: "soLuongTheoDinhMuc",
+      dataIndex: "soLuongKeHoach",
+      key: "soLuongKeHoach",
       align: "center",
     },
     {
@@ -684,19 +762,15 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     },
     {
       title: "Hạng mục sử dụng",
-      dataIndex: "hangMucSuDung",
       key: "hangMucSuDung",
       align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+      render: (record) => renderHanMucSuDungGhiChu(record),
     },
     {
       title: "Ghi chú",
-      dataIndex: "ghiChu",
       key: "ghiChu",
       align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+      render: (record) => renderGhiChu(record),
     },
     {
       title: "Chức năng",
@@ -1012,68 +1086,74 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     setXuong(val);
     getSanPham(null, val);
   };
-  const hanldeThem = () => {
-    const params = convertObjectToUrlParams({
-      SanPham_Id: SanPham_Id,
-      phongBan_Id: Xuong,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_DinhMucVatTu/bom-vat-tu-by-san-pham?${params}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data.length !== 0) {
-          const data = res.data[0];
-          const newData =
-            data.chiTietBOM &&
-            JSON.parse(data.chiTietBOM).map((ct) => {
-              return {
-                ...ct,
-                sanPham_Id: data.sanPham_Id,
-                tenSanPham: data.tenSanPham,
-                bom_Id: data.id,
-                lkn_ChiTietBOM_Id: ct.lkn_ChiTietBOM_Id.toLowerCase(),
-                vatTu_Id: ct.vatTu_Id.toLowerCase(),
-                soLuongTheoDinhMuc: Number((ct.dinhMuc * SoLuong).toFixed(6)),
-                ghiChu: "",
-                hangMucSuDung: "",
-                soLuong: Number((ct.dinhMuc * SoLuong).toFixed(6)),
-              };
-            });
+  const hanldeThemKHSX = (data) => {
+    setListVatTu([...listVatTu, ...data]);
+    setActiveModalAddVatTuKHSX(false);
+  };
+  const hanldeThem = (data) => {
+    setListVatTu([...listVatTu, ...data]);
+    setActiveModalAddVatTuSanPham(false);
+    // const params = convertObjectToUrlParams({
+    //   SanPham_Id: SanPham_Id,
+    //   phongBan_Id: Xuong,
+    // });
+    // new Promise((resolve, reject) => {
+    //   dispatch(
+    //     fetchStart(
+    //       `lkn_DinhMucVatTu/bom-vat-tu-by-san-pham?${params}`,
+    //       "GET",
+    //       null,
+    //       "LIST",
+    //       "",
+    //       resolve,
+    //       reject
+    //     )
+    //   );
+    // })
+    //   .then((res) => {
+    //     if (res && res.data.length !== 0) {
+    //       const data = res.data[0];
+    //       const newData =
+    //         data.chiTietBOM &&
+    //         JSON.parse(data.chiTietBOM).map((ct) => {
+    //           return {
+    //             ...ct,
+    //             sanPham_Id: data.sanPham_Id,
+    //             tenSanPham: data.tenSanPham,
+    //             bom_Id: data.id,
+    //             lkn_ChiTietBOM_Id: ct.lkn_ChiTietBOM_Id.toLowerCase(),
+    //             vatTu_Id: ct.vatTu_Id.toLowerCase(),
+    //             soLuongTheoDinhMuc: Number((ct.dinhMuc * SoLuong).toFixed(6)),
+    //             ghiChu: "",
+    //             hangMucSuDung: "",
+    //             soLuong: Number((ct.dinhMuc * SoLuong).toFixed(6)),
+    //           };
+    //         });
 
-          if (newData) {
-            const newListSanPham = ListSanPham.filter(
-              (d) => d.id !== data.sanPham_Id
-            );
-            setListVatTu([...listVatTu, ...newData]);
-            setListSanPham(newListSanPham);
-            setFieldsValue({
-              sanPham: {
-                phongBan_Id: null,
-                sanPham_Id: null,
-                soLuong: null,
-              },
-            });
-            setSanPham_Id(null);
-            setSoLuong(null);
-            setDisabledThem(true);
-          } else {
-            Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
-          }
-        } else {
-          Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
-        }
-      })
-      .catch((error) => console.error(error));
+    //       if (newData) {
+    //         const newListSanPham = ListSanPham.filter(
+    //           (d) => d.id !== data.sanPham_Id
+    //         );
+    //         setListVatTu([...listVatTu, ...newData]);
+    //         setListSanPham(newListSanPham);
+    //         setFieldsValue({
+    //           sanPham: {
+    //             phongBan_Id: null,
+    //             sanPham_Id: null,
+    //             soLuong: null,
+    //           },
+    //         });
+    //         setSanPham_Id(null);
+    //         setSoLuong(null);
+    //         setDisabledThem(true);
+    //       } else {
+    //         Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
+    //       }
+    //     } else {
+    //       Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
+    //     }
+    //   })
+    //   .catch((error) => console.error(error));
   };
 
   const props = {
@@ -1334,6 +1414,33 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
+            {type === "new" && (
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+                align="center"
+              >
+                <Button
+                  onClick={() => setActiveModalAddVatTuKHSX(true)}
+                  type="primary"
+                  icon={<PlusOutlined />}
+                >
+                  Theo KHSX
+                </Button>
+                <Button
+                  onClick={() => setActiveModalAddVatTuSanPham(true)}
+                  type="primary"
+                  icon={<PlusOutlined />}
+                >
+                  Theo sản phẩm
+                </Button>
+              </Col>
+            )}
           </Row>
           <Divider />
           {(type === "UploadFile" ||
@@ -1434,7 +1541,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
               </Col>
             </Row>
           )}
-          {(type === "new" || type === "edit") && (
+          {/* {(type === "new" || type === "edit") && (
             <Row style={{ marginTop: 15 }}>
               <Col
                 xxl={12}
@@ -1548,7 +1655,7 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
                 </Col>
               ) : null}
             </Row>
-          )}
+          )} */}
         </Form>
         <Table
           bordered
@@ -1611,6 +1718,16 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         openModal={ActiveModalTuChoi}
         openModalFS={setActiveModalTuChoi}
         saveTuChoi={saveTuChoi}
+      />
+      <ModalAddVatTuKHSX
+        openModal={ActiveModalAddVatTuKHSX}
+        openModalFS={setActiveModalAddVatTuKHSX}
+        hanldeThem={hanldeThemKHSX}
+      />
+      <ModalAddVatTuSanPham
+        openModal={ActiveModalAddVatTuSanPham}
+        openModalFS={setActiveModalAddVatTuSanPham}
+        hanldeThem={hanldeThem}
       />
     </div>
   );

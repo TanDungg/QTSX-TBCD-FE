@@ -62,9 +62,9 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
     }
   }, [openModal]);
 
-  const getKe = (cauTrucKho_Id) => {
+  const getKe = (tits_qtsx_CauTrucKho_Id) => {
     const params = convertObjectToUrlParams({
-      cauTrucKho_Id,
+      tits_qtsx_CauTrucKho_Id,
       thuTu: 2,
       isThanhPham: false,
     });
@@ -90,9 +90,9 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
       })
       .catch((error) => console.error(error));
   };
-  const getTang = (cauTrucKho_Id) => {
+  const getTang = (tits_qtsx_CauTrucKho_Id) => {
     const params = convertObjectToUrlParams({
-      cauTrucKho_Id,
+      tits_qtsx_CauTrucKho_Id,
       thuTu: 3,
       isThanhPham: false,
     });
@@ -120,8 +120,11 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
       })
       .catch((error) => console.error(error));
   };
-  const getNgan = (cauTrucKho_Id) => {
-    const params = convertObjectToUrlParams({ cauTrucKho_Id, thuTu: 4 });
+  const getNgan = (tits_qtsx_CauTrucKho_Id) => {
+    const params = convertObjectToUrlParams({
+      tits_qtsx_CauTrucKho_Id,
+      thuTu: 4,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
