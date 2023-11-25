@@ -313,7 +313,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           setFieldsValue({
             phieunhapkho: {
               ...res.data,
-              ngayXuatKho: moment(res.data.ngayXuatKho, "DD/MM/YYYY"),
+              ngayXuatKho: moment(res.data.ngayXuatKho, "DD/MM/YYYY HH:mm"),
             },
           });
         }
@@ -427,10 +427,11 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       }
     });
     const disable =
-      item.ke_Id &&
-      item.tang_Id &&
-      item.ngan_Id &&
-      (type === "new" || type === "edit")
+      (item.ke_Id &&
+        item.tang_Id &&
+        item.ngan_Id &&
+        (type === "new" || type === "edit")) ||
+      (!item.ke_Id && (type === "new" || type === "edit"))
         ? false
         : true;
     return (

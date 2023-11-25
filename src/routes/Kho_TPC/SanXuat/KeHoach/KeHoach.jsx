@@ -306,10 +306,11 @@ function KeHoach({ match, history, permission }) {
       const content = val.mauSac.map((ms) => {
         return (
           <p style={{ padding: "0 5px", margin: 0 }}>
-            {ms.tenMauSac} : {ms.soLuong}
+            {ms.tenMauSac && `${ms.tenMauSac} : `} {ms.soLuong}
           </p>
         );
       });
+
       return (
         <Popover content={content} placement="rightBottom">
           <div
@@ -332,8 +333,10 @@ function KeHoach({ match, history, permission }) {
               <span
                 style={{ color: "#0469b9", cursor: "pointer" }}
                 onClick={() => {
-                  setDataEdit(val);
-                  setActiveEditKeHoach(true);
+                  if (val.mauSac[0].tenMauSac) {
+                    setDataEdit(val);
+                    setActiveEditKeHoach(true);
+                  }
                 }}
               >
                 {val.soLuong}

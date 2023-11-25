@@ -371,6 +371,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
               sanPham_Id: res.data.sanPham_Id,
               ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               nguoiKy_Id: res.data.nguoiKy_Id,
+              ghiChu: res.data.ghiChu,
             },
           });
         }
@@ -1127,6 +1128,30 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
                   optionFilterProp="name"
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Ghi chú"
+                name={["dinhmucvattu", "ghiChu"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nhập ghi chú"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                ></Input>
               </FormItem>
             </Col>
             {type === "new" || type === "edit" ? (

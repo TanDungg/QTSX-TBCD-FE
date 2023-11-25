@@ -250,8 +250,6 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
             data[index][MLSP].toString().trim() === "" &&
             data[index][KT] &&
             data[index][KT].toString().trim() === "" &&
-            data[index][MMS] &&
-            data[index][MMS].toString().trim() === "" &&
             data[index][MDVT] &&
             data[index][MDVT].toString().trim() === ""
           ) {

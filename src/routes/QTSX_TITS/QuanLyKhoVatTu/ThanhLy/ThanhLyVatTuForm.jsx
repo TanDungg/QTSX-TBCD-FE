@@ -46,7 +46,11 @@ const FormItem = Form.Item;
 
 const ThanhLyVatTuForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [fieldTouch, setFieldTouch] = useState(false);
@@ -237,12 +241,15 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
 
               return {
                 ...data,
-                lkn_ChiTietKhoVatTu_Id: data.lkn_ChiTietKhoVatTu_Id
-                  ? data.lkn_ChiTietKhoVatTu_Id.toLowerCase()
+                tits_qtsx_ChiTietKhoVatTu_Id: data.tits_qtsx_ChiTietKhoVatTu_Id
+                  ? data.tits_qtsx_ChiTietKhoVatTu_Id.toLowerCase()
                   : createGuid(),
                 vatTu: `${data.maVatTu} - ${data.tenVatTu}${
                   vitri ? ` (${vitri})` : ""
                 }`,
+                fileImage: `${BASE_URL_API}${data.hinhAnh}`,
+                hinhAnhGoc: data.hinhAnh,
+                hinhAnh: data.hinhAnh ? data.hinhAnh.split("/")[5] : null,
               };
             });
           setListVatTu(newData);
@@ -273,7 +280,8 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
 
   const deleteItemAction = (item) => {
     const newData = ListVatTu.filter(
-      (d) => d.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
+      (d) =>
+        d.tits_qtsx_ChiTietKhoVatTu_Id !== item.tits_qtsx_ChiTietKhoVatTu_Id
     );
     setListVatTu(newData);
     setFieldTouch(true);
@@ -303,18 +311,21 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
       item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
     } else if (soLuongThanhLy > item.soLuong) {
       setFieldTouch(false);
-      item.message = `Số lượng không được lớn hơn ${item.soLuong}`;
+      item.message = `Số lượng không được lớn hơn ${item.soLuongTon}`;
       setEditingRecord([...editingRecord, item]);
     } else {
       const newData = editingRecord.filter(
-        (d) => d.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
+        (d) =>
+          d.tits_qtsx_ChiTietKhoVatTu_Id !== item.tits_qtsx_ChiTietKhoVatTu_Id
       );
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...ListVatTu];
     newData.forEach((ct, index) => {
-      if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+      if (
+        ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
+      ) {
         ct.soLuong = soLuongThanhLy;
       }
     });
@@ -324,7 +335,9 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+      if (
+        ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
+      ) {
         isEditing = true;
         message = ct.message;
       }
@@ -343,6 +356,64 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
           onChange={(val) => handleInputChange(val, item)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
+  const handleInputChangeDeXuat = (val, item) => {
+    const deXuat = val.target.value;
+    const newData = [...ListVatTu];
+    newData.forEach((ct, index) => {
+      if (
+        ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
+      ) {
+        ct.deXuat = deXuat;
+      }
+    });
+    setListVatTu(newData);
+    setFieldTouch(true);
+  };
+  const renderDeuXuat = (item) => {
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          value={item.deXuat}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChangeDeXuat(val, item)}
+        />
+      </>
+    );
+  };
+  const handleInputChangeNguyenNhan = (val, item) => {
+    const nguyeNhan = val.target.value;
+    const newData = [...ListVatTu];
+    newData.forEach((ct, index) => {
+      if (
+        ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
+      ) {
+        ct.nguyenNhan = nguyeNhan;
+      }
+    });
+    setListVatTu(newData);
+    setFieldTouch(true);
+  };
+  const renderNguyenNhan = (item) => {
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          value={item.nguyenNhan}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChangeNguyenNhan(val, item)}
+        />
       </>
     );
   };
@@ -370,11 +441,16 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
             onClick={() => {
               const newData = [...ListVatTu];
               newData.forEach((vt) => {
-                if (vt.tits_qtsx_VatPham_Id === record.tits_qtsx_VatPham_Id) {
+                if (
+                  vt.tits_qtsx_ChiTietKhoVatTu_Id ===
+                  record.tits_qtsx_ChiTietKhoVatTu_Id
+                ) {
                   vt.file = null;
-                  vt.hinhAnh = "";
+                  vt.fileImage = null;
+                  vt.hinhAnh = null;
                 }
               });
+              setFieldTouch(true);
               setListVatTu(newData);
             }}
           />
@@ -402,11 +478,15 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
         beforeUpload={(file) => {
           const newData = [...ListVatTu];
           newData.forEach((vt) => {
-            if (vt.tits_qtsx_VatPham_Id === record.tits_qtsx_VatPham_Id) {
+            if (
+              vt.tits_qtsx_ChiTietKhoVatTu_Id ===
+              record.tits_qtsx_ChiTietKhoVatTu_Id
+            ) {
               const reader = new FileReader();
               reader.onload = (e) => (vt.fileImage = e.target.result);
               reader.readAsDataURL(file);
               vt.file = file;
+              setFieldTouch(true);
               vt.hinhAnh = file.name;
             }
           });
@@ -478,6 +558,18 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
       render: (record) => renderHinhAnhVatTu(record),
     },
     {
+      title: "Đề xuất",
+      key: "deXuat",
+      align: "center",
+      render: (record) => renderDeuXuat(record),
+    },
+    {
+      title: "Nguyên nhân",
+      key: "nguyenNhan",
+      align: "center",
+      render: (record) => renderNguyenNhan(record),
+    },
+    {
       title: "Chức năng",
       key: "action",
       align: "center",
@@ -526,78 +618,214 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
         console.log("error", error);
       });
   };
+  const postData = (data, saveQuit = false) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuThanhLy`,
+          "POST",
+          data,
+          "ADD",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          if (saveQuit) {
+            goBack();
+          } else {
+            resetFields();
+            setFieldTouch(false);
+            setListVatTu([]);
+            getData();
+            setFieldsValue({
+              phieuthanhly: {
+                ngay: moment(
+                  getDateNow() + " " + getTimeNow(),
+                  "DD/MM/YYYY HH:mm:ss"
+                ),
+              },
+            });
+          }
+        } else {
+          setFieldTouch(false);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const putData = (data, saveQuit = false) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuThanhLy/${id}`,
+          "PUT",
+          data,
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (saveQuit) {
+          if (res.status !== 409) goBack();
+        } else {
+          getInfo(id);
+          setFieldTouch(false);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
 
   const saveData = (data, saveQuit = false) => {
     if (type === "new") {
-      const newData = {
-        ...data,
-        ngay: data.ngay.format("DD/MM/YYYY HH:mm"),
-        tits_qtsx_PhieuThanhLyChiTiets: ListVatTu,
-        isVatTu: true,
-      };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_PhieuThanhLy`,
-            "POST",
-            newData,
-            "ADD",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res.status !== 409) {
-            if (saveQuit) {
-              goBack();
-            } else {
-              resetFields();
-              setFieldTouch(false);
-              setListVatTu([]);
-              getData();
-              setFieldsValue({
-                phieuthanhly: {
-                  ngay: moment(getDateNow(), "DD/MM/YYYY"),
-                },
+      const formData = new FormData();
+      const key = [];
+      let check = false;
+      ListVatTu.forEach((vt) => {
+        if (vt.file) {
+          formData.append("lstFiles", vt.file);
+          check = true;
+          key.push(vt.tits_qtsx_ChiTietKhoVatTu_Id);
+        }
+      });
+      if (check) {
+        fetch(`${BASE_URL_API}/api/Upload/Multi`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: "Bearer ".concat(INFO.token),
+          },
+        })
+          .then((res) => res.json())
+          .then((path) => {
+            const newListVatTu = [];
+            ListVatTu.forEach((vt) => {
+              let checkPush = false;
+              key.forEach((k, index) => {
+                if (k === vt.tits_qtsx_ChiTietKhoVatTu_Id) {
+                  checkPush = true;
+                  newListVatTu.push({
+                    tits_qtsx_ChiTietKhoBegin_Id:
+                      vt.tits_qtsx_ChiTietKhoBegin_Id,
+                    tits_qtsx_VatPham_Id: vt.tits_qtsx_VatPham_Id,
+                    soLuong: vt.soLuong,
+                    deXuat: vt.deXuat,
+                    hinhAnh: path[index].path,
+                    nguyenNhan: vt.nguyenNhan,
+                  });
+                }
               });
-            }
-          } else {
-            setFieldTouch(false);
+              if (!checkPush) {
+                newListVatTu.push({
+                  tits_qtsx_ChiTietKhoBegin_Id: vt.tits_qtsx_ChiTietKhoBegin_Id,
+                  tits_qtsx_VatPham_Id: vt.tits_qtsx_VatPham_Id,
+                  soLuong: vt.soLuong,
+                  deXuat: vt.deXuat,
+                  nguyenNhan: vt.nguyenNhan,
+                  hinhAnh: null,
+                });
+              }
+            });
+            const newData = {
+              ...data,
+              ngay: data.ngay.format("DD/MM/YYYY HH:mm"),
+              tits_qtsx_PhieuThanhLyChiTiets: newListVatTu,
+              isVatTu: true,
+            };
+            postData(newData, saveQuit);
+          });
+      } else {
+        const newData = {
+          ...data,
+          ngay: data.ngay.format("DD/MM/YYYY HH:mm"),
+          tits_qtsx_PhieuThanhLyChiTiets: ListVatTu,
+          isVatTu: true,
+        };
+        postData(newData, saveQuit);
+      }
+    } else if (type === "edit") {
+      const formData = new FormData();
+      const key = [];
+      const listPath = [];
+
+      let check = false;
+      ListVatTu.forEach((vt) => {
+        if (vt.file) {
+          formData.append("lstFiles", vt.file);
+          check = true;
+          key.push(vt.tits_qtsx_ChiTietKhoVatTu_Id);
+          if (vt.hinhAnh) {
+            listPath.push({
+              stringPath: vt.hinhAnhGoc,
+            });
           }
+        }
+      });
+      if (check) {
+        if (listPath.length > 0) {
+          dispatch(
+            fetchStart(`Upload/RemoveMulti`, "POST", listPath, "EAADIT", "")
+          );
+        }
+        fetch(`${BASE_URL_API}/api/Upload/Multi`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: "Bearer ".concat(INFO.token),
+          },
         })
-        .catch((error) => console.error(error));
-    }
-    if (type === "edit") {
-      const newData = {
-        ...data,
-        ngay: data.ngay.format("DD/MM/YYYY HH:mm"),
-        tits_qtsx_PhieuThanhLyChiTiets: ListVatTu,
-        isVatTu: true,
-      };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_PhieuThanhLy/${id}`,
-            "PUT",
-            newData,
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) goBack();
-          } else {
-            getInfo(id);
-            setFieldTouch(false);
-          }
-        })
-        .catch((error) => console.error(error));
+          .then((res) => res.json())
+          .then((path) => {
+            const newListVatTu = [];
+            ListVatTu.forEach((vt) => {
+              let checkPush = false;
+              key.forEach((k, index) => {
+                if (k === vt.tits_qtsx_ChiTietKhoVatTu_Id) {
+                  checkPush = true;
+                  newListVatTu.push({
+                    tits_qtsx_ChiTietKhoBegin_Id:
+                      vt.tits_qtsx_ChiTietKhoBegin_Id,
+                    tits_qtsx_VatPham_Id: vt.tits_qtsx_VatPham_Id,
+                    soLuong: vt.soLuong,
+                    deXuat: vt.deXuat,
+                    hinhAnh: path[index].path,
+                    nguyenNhan: vt.nguyenNhan,
+                  });
+                }
+              });
+              if (!checkPush) {
+                newListVatTu.push({
+                  tits_qtsx_ChiTietKhoBegin_Id: vt.tits_qtsx_ChiTietKhoBegin_Id,
+                  tits_qtsx_VatPham_Id: vt.tits_qtsx_VatPham_Id,
+                  soLuong: vt.soLuong,
+                  deXuat: vt.deXuat,
+                  nguyenNhan: vt.nguyenNhan,
+                  hinhAnh: vt.hinhAnhGoc ? vt.hinhAnhGoc : null,
+                });
+              }
+            });
+            const newData = {
+              ...data,
+              ngay: data.ngay.format("DD/MM/YYYY HH:mm"),
+              tits_qtsx_PhieuThanhLyChiTiets: newListVatTu,
+              isVatTu: true,
+            };
+            putData(newData, saveQuit);
+          });
+      } else {
+        const newData = {
+          ...data,
+          ngay: data.ngay.format("DD/MM/YYYY HH:mm"),
+          tits_qtsx_PhieuThanhLyChiTiets: ListVatTu,
+          isVatTu: true,
+        };
+        putData(newData, saveQuit);
+      }
     }
   };
 
@@ -625,8 +853,32 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết phiếu thanh lý vật tư -{" "}
-        <Tag color={"blue"} style={{ fontSize: "14px" }}>
+        <Tag
+          color={
+            info.tinhTrang === "Đã xác nhận"
+              ? "blue"
+              : info.tinhTrang === "Đã từ chối"
+              ? "red"
+              : "green"
+          }
+          style={{ fontSize: "14px" }}
+        >
           {info.maPhieu}
+        </Tag>
+        <Tag
+          color={
+            info.tinhTrang === "Đã xác nhận"
+              ? "blue"
+              : info.tinhTrang === "Đã từ chối"
+              ? "red"
+              : "green"
+          }
+          style={{ fontSize: "14px" }}
+        >
+          {info.tinhTrang}
+          {info.LyDoNguoiTruongBoPhanTuChoi
+            ? " - " + info.LyDoNguoiTruongBoPhanTuChoi
+            : null}
         </Tag>
       </span>
     );
@@ -721,7 +973,13 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp={"name"}
                   onSelect={handleSelectKhoThanhLy}
-                  disabled={ListVatTu && ListVatTu.length === 0 ? false : true}
+                  disabled={
+                    ListVatTu &&
+                    ListVatTu.length === 0 &&
+                    (type === "new" || type === "edit")
+                      ? false
+                      : true
+                  }
                 />
               </FormItem>
             </Col>
@@ -768,7 +1026,10 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                   },
                 ]}
               >
-                <Input placeholder="Nhập nội dung thanh lý"></Input>
+                <Input
+                  placeholder="Nhập nội dung thanh lý"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                ></Input>
               </FormItem>
             </Col>
             <Col
@@ -798,6 +1059,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                   placeholder="Trưởng bộ phận"
                   showSearch
                   optionFilterProp={"name"}
+                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -828,6 +1090,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                   placeholder="Duyệt BP kế toán"
                   showSearch
                   optionFilterProp={"name"}
+                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -858,6 +1121,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                   placeholder="Phòng R&D"
                   showSearch
                   optionFilterProp={"name"}
+                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -888,6 +1152,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                   placeholder="Duyệt"
                   showSearch
                   optionFilterProp={"name"}
+                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>

@@ -5,6 +5,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   ImportOutlined,
+  ExportOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -19,6 +20,7 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
+  exportExcel,
   reDataForTable,
   removeDuplicates,
 } from "src/util/Common";
@@ -226,9 +228,35 @@ function SanPham({ match, history, permission }) {
   const handleImport = () => {
     setActiveModal(true);
   };
+  const TaiFileExport = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `SanPham/ExportFileExcel_DanhMucSanPham`,
+          "POST",
+          null,
+          "DOWLOAD",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      exportExcel("FileExportSanPham", res.data.dataexcel);
+    });
+  };
   const addButtonRender = () => {
     return (
       <>
+        <Button
+          icon={<ExportOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={TaiFileExport}
+          disabled={permission && !permission.add}
+        >
+          Xuất Excel
+        </Button>
         <Button
           icon={<ImportOutlined />}
           className="th-margin-bottom-0"

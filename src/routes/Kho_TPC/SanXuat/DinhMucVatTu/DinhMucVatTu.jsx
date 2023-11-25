@@ -386,6 +386,12 @@ function DinhMucVatTu({ permission, history, match }) {
       filterSearch: true,
     },
     {
+      title: "Ghi chú",
+      dataIndex: "ghiChu",
+      key: "ghiChu",
+      align: "center",
+    },
+    {
       title: "Trạng thái",
       dataIndex: "xacNhanDinhMuc",
       key: "xacNhanDinhMuc",

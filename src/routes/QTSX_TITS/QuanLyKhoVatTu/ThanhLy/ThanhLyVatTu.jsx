@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
+import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   CheckCircleOutlined,
   DeleteOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -15,6 +16,7 @@ import {
   EditableTableRow,
   Toolbar,
   Select,
+  Modal,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -27,7 +29,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
-
+import ModalTuChoi from "./ModalTuChoi";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
@@ -41,6 +43,9 @@ function ThanhLyVatTu({ match, history, permission }) {
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
+  const [IdTuChoi, setIdTuChoi] = useState("");
+
+  const [ActiveModal, setActiveModal] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -110,9 +115,31 @@ function ThanhLyVatTu({ match, history, permission }) {
   };
 
   const actionContent = (item) => {
+    const tuChoiItem =
+      permission &&
+      permission.cof &&
+      item.nguoiDuyet_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
+        <a
+          title="Từ chối"
+          onClick={() => {
+            setIdTuChoi(item.id);
+            setActiveModal(true);
+          }}
+        >
+          <CloseCircleOutlined />
+        </a>
+      ) : (
+        <span disabled title="Từ chối">
+          <CloseCircleOutlined />
+        </span>
+      );
     const xacNhanItem =
-      permission && permission.edit && item.nguoiDuyet_Id === INFO.user_Id ? (
-        <a title="Xác nhận">
+      permission &&
+      permission.cof &&
+      item.nguoiDuyet_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
+        <a title="Xác nhận" onClick={() => modalXK(item.id)}>
           <CheckCircleOutlined />
         </a>
       ) : (
@@ -123,7 +150,8 @@ function ThanhLyVatTu({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id ? (
+      item.nguoiTaoPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -139,12 +167,17 @@ function ThanhLyVatTu({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.nguoiTaoPhieu_Id === INFO.user_Id
+      permission &&
+      permission.del &&
+      item.nguoiTaoPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
         {xacNhanItem}
+        <Divider type="vertical" />
+        {tuChoiItem}
         <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
@@ -224,7 +257,7 @@ function ThanhLyVatTu({ match, history, permission }) {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 110,
+      width: 120,
       render: (value) => actionContent(value),
     },
     {
@@ -267,19 +300,19 @@ function ThanhLyVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Ngày yêu cầu",
-      dataIndex: "ngayYeuCau",
-      key: "ngayYeuCau",
+      title: "Ngày thanh lý",
+      dataIndex: "ngay",
+      key: "ngay",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayYeuCau,
-            value: d.ngayYeuCau,
+            text: d.ngay,
+            value: d.ngay,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayYeuCau.includes(value),
+      onFilter: (value, record) => record.ngay.includes(value),
       filterSearch: true,
     },
     {
@@ -296,6 +329,37 @@ function ThanhLyVatTu({ match, history, permission }) {
         })
       ),
       onFilter: (value, record) => record.tenNguoiTaoPhieu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "tinhTrang",
+      key: "tinhTrang",
+      align: "center",
+      render: (val) => {
+        return (
+          <Tag
+            color={
+              val === "Đã xác nhận"
+                ? "blue"
+                : val === "Đã từ chối"
+                ? "red"
+                : "green"
+            }
+          >
+            {val}
+          </Tag>
+        );
+      },
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tinhTrang,
+            value: d.tinhTrang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tinhTrang.includes(value),
       filterSearch: true,
     },
   ];
@@ -341,7 +405,63 @@ function ThanhLyVatTu({ match, history, permission }) {
     setPage(1);
     getListData(keyword, Kho, dateString[0], dateString[1], 1);
   };
-
+  const saveTuChoi = (lyDoNguoiTruongBoPhanTuChoi) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuThanhLy/xac-nhan/${IdTuChoi}`,
+          "PUT",
+          {
+            id: IdTuChoi,
+            isNguoiTruongBoPhanDuyet: false,
+            lyDoNguoiTruongBoPhanTuChoi,
+          },
+          "TUCHOI",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status !== 409) {
+          setPage(1);
+          getListData(keyword, Kho, FromDate, ToDate, 1);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const hanldeXacNhan = (id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuThanhLy/xac-nhan/${id}`,
+          "PUT",
+          { id: id, isNguoiTruongBoPhanDuyet: true },
+          "XACNHAN",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status !== 409) {
+          setPage(1);
+          getListData(keyword, Kho, FromDate, ToDate, 1);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const prop = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận phiếu thanh lý vật tư",
+  };
+  const modalXK = (id) => {
+    Modal({ ...prop, onOk: () => hanldeXacNhan(id) });
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -441,6 +561,11 @@ function ThanhLyVatTu({ match, history, permission }) {
           loading={loading}
         />
       </Card>
+      <ModalTuChoi
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        saveTuChoi={saveTuChoi}
+      />
     </div>
   );
 }

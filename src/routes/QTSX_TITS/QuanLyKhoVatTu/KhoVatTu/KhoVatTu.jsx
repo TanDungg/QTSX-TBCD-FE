@@ -414,7 +414,7 @@ function KhoVatTu({ match, history, permission }) {
       <ContainerHeader
         title="Kho vật tư"
         description="Kho vật tư"
-        buttons={addButtonRender()}
+        // buttons={addButtonRender()}
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
