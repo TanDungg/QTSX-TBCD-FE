@@ -486,9 +486,7 @@ function ImportKeHoach({ match, permission, history }) {
                   d[MSP] &&
                   d[MSP].toString().trim() === "" &&
                   d[TSP] &&
-                  d[TSP].toString().trim() === "" &&
-                  d[MMS] &&
-                  d[MMS].toString().trim() === ""
+                  d[TSP].toString().trim() === ""
                 ) {
                 } else {
                   const slNgay = {};
@@ -633,10 +631,6 @@ function ImportKeHoach({ match, permission, history }) {
     } else if (current.tenSanPham === undefined) {
       setCheckDanger(true);
       setMessageError("Tên sản phẩm không được rỗng");
-      return "red-row";
-    } else if (current.maMauSac === undefined) {
-      setCheckDanger(true);
-      setMessageError("Mã màu sắc không được rỗng");
       return "red-row";
     } else if (DataLoi && DataLoi.length > 0) {
       let check = false;

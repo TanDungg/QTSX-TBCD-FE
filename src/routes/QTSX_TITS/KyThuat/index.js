@@ -10,7 +10,8 @@ const QuyTrinhCongNghe = asyncComponent(() =>
 const QuyTrinhCongNgheForm = asyncComponent(() =>
   import("./QuyTrinhCongNghe/QuyTrinhCongNgheForm")
 );
-
+const BOM = asyncComponent(() => import("./BOM/BOM"));
+const BOMForm = asyncComponent(() => import("./BOM/BOMForm"));
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -30,6 +31,21 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/quy-trinh-cong-nghe/:id/chinh-sua`}
         exact
         component={Auth(QuyTrinhCongNgheForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/bom`}
+        exact
+        component={Auth(BOM, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/bom/them-moi`}
+        exact
+        component={Auth(BOMForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/bom/:id/chinh-sua`}
+        exact
+        component={Auth(BOMForm, menus, pathname, permission)}
       />
     </Switch>
   );

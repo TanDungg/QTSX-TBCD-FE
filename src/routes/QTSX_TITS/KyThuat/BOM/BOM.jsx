@@ -23,19 +23,17 @@ import {
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import ImportSanPham from "./ImportSanPham";
 import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function SanPham({ match, history, permission }) {
+function BOM({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
   const [LoaiSanPham, setLoaiSanPham] = useState(null);
   const [keyword, setKeyword] = useState("");
-  const [ActiveModal, setActiveModal] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -59,7 +57,9 @@ function SanPham({ match, history, permission }) {
       keyword,
       page,
     });
-    dispatch(fetchStart(`tits_qtsx_SanPham?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(`tits_qtsx_QuyTrinhCongNghe?${param}`, "GET", null, "LIST")
+    );
   };
 
   const getLoaiSanPham = () => {
@@ -90,7 +90,7 @@ function SanPham({ match, history, permission }) {
    * Tìm kiếm người dùng
    *
    */
-  const onSearchSanPham = () => {
+  const onSearchQuyTrinhCongNghe = () => {
     getListData(LoaiSanPham, keyword, page);
   };
 
@@ -119,24 +119,24 @@ function SanPham({ match, history, permission }) {
             pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
-          title="Sửa sản phẩm"
+          title="Sửa quy trình công nghệ"
         >
           <EditOutlined />
         </Link>
       ) : (
-        <span disabled title="Sửa sản phẩm">
+        <span disabled title="Sửa quy trình công nghệ">
           <EditOutlined />
         </span>
       );
     const deleteVal =
       permission && permission.del && !item.isUsed
-        ? { onClick: () => deleteItemFunc(item, "sản phẩm") }
+        ? { onClick: () => deleteItemFunc(item, "quy trình công nghệ") }
         : { disabled: true };
     return (
       <div>
         {editItem}
         <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa sản phẩm">
+        <a {...deleteVal} title="Xóa quy trình công nghệ">
           <DeleteOutlined />
         </a>
       </div>
@@ -150,7 +150,7 @@ function SanPham({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item, title) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maSanPham, title);
+    ModalDeleteConfirm(deleteItemAction, item, item.maQuyTrinhCongNghe, title);
   };
 
   /**
@@ -159,7 +159,7 @@ function SanPham({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_SanPham/${item.id}`;
+    let url = `tits_qtsx_QuyTrinhCongNghe/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -193,22 +193,10 @@ function SanPham({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handleImport = () => {
-    setActiveModal(true);
-  };
 
   const addButtonRender = () => {
     return (
       <>
-        <Button
-          icon={<ImportOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleImport}
-          disabled={permission && !permission.add}
-        >
-          Import
-        </Button>
         <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
@@ -225,16 +213,16 @@ function SanPham({ match, history, permission }) {
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
 
-  const renderHinhAnh = (item) => {
-    if (!isEmpty(item.hinhAnh)) {
+  const renderFile = (item) => {
+    if (!isEmpty(item.file)) {
       return (
         <span>
           <a
             target="_blank"
-            href={BASE_URL_API + item.hinhAnh}
+            href={BASE_URL_API + item.file}
             rel="noopener noreferrer"
           >
-            {item.hinhAnh.split("/")[5]}
+            {item.file.split("/")[5]}
           </a>
         </span>
       );
@@ -248,26 +236,42 @@ function SanPham({ match, history, permission }) {
       dataIndex: "key",
       key: "key",
       align: "center",
-      width: 50,
+      width: 45,
     },
     {
-      title: "Mã sản phẩm",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
+      title: "Mã quy trình",
+      dataIndex: "maQuyTrinhCongNghe",
+      key: "maQuyTrinhCongNghe",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maSanPham,
-            value: d.maSanPham,
+            text: d.maQuyTrinhCongNghe,
+            value: d.maQuyTrinhCongNghe,
           };
         })
       ),
-      onFilter: (value, record) => record.maSanPham.includes(value),
+      onFilter: (value, record) => record.maQuyTrinhCongNghe.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên sản phẩm",
+      title: "Tên quy trình",
+      dataIndex: "tenQuyTrinhCongNghe",
+      key: "tenQuyTrinhCongNghe",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenQuyTrinhCongNghe,
+            value: d.tenQuyTrinhCongNghe,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenQuyTrinhCongNghe.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Sản phẩm",
       dataIndex: "tenSanPham",
       key: "tenSanPham",
       align: "center",
@@ -299,51 +303,52 @@ function SanPham({ match, history, permission }) {
       filterSearch: true,
     },
     {
+      title: "Ngày ban hành",
+      dataIndex: "ngayBanHanh",
+      key: "ngayBanHanh",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayBanHanh,
+            value: d.ngayBanHanh,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayBanHanh.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Ngày hiệu lực",
+      dataIndex: "ngayHieuLuc",
+      key: "ngayHieuLuc",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayHieuLuc,
+            value: d.ngayHieuLuc,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayHieuLuc.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Thông số kỹ thuật",
-      dataIndex: "thongSoKyThuat",
-      key: "thongSoKyThuat",
+      key: "file",
       align: "center",
+      render: (record) => renderFile(record),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.thongSoKyThuat,
-            value: d.thongSoKyThuat,
+            text: d.file,
+            value: d.file,
           };
         })
       ),
-      onFilter: (value, record) => record.thongSoKyThuat.includes(value),
+      onFilter: (value, record) => record.file.includes(value),
       filterSearch: true,
-    },
-    {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenDonViTinh,
-            value: d.tenDonViTinh,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenDonViTinh.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Hình ảnh",
-      dataIndex: "hinhAnh",
-      key: "hinhAnh",
-      align: "center",
-      render: (value) => (
-        <span>
-          <Image
-            src={BASE_URL_API + value}
-            alt="Hình ảnh"
-            style={{ maxWidth: 100, maxHeight: 100 }}
-          />
-        </span>
-      ),
     },
     {
       title: "Chức năng",
@@ -389,15 +394,11 @@ function SanPham({ match, history, permission }) {
     getListData(null, keyword, 1);
   };
 
-  const refeshData = () => {
-    getListData(LoaiSanPham, keyword, page);
-  };
-
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Sản phẩm"
-        description="Danh sách sản phẩm"
+        title="Quy trình công nghệ sản phẩm"
+        description="Danh sách quy trình công nghệ sản phẩm"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom">
@@ -462,8 +463,8 @@ function SanPham({ match, history, permission }) {
                   loading,
                   value: keyword,
                   onChange: onChangeKeyword,
-                  onPressEnter: onSearchSanPham,
-                  onSearch: onSearchSanPham,
+                  onPressEnter: onSearchQuyTrinhCongNghe,
+                  onSearch: onSearchQuyTrinhCongNghe,
                   placeholder: "Nhập từ khóa",
                   allowClear: true,
                 }}
@@ -494,13 +495,8 @@ function SanPham({ match, history, permission }) {
           loading={loading}
         />
       </Card>
-      <ImportSanPham
-        openModal={ActiveModal}
-        openModalFS={setActiveModal}
-        refesh={refeshData}
-      />
     </div>
   );
 }
 
-export default SanPham;
+export default BOM;
