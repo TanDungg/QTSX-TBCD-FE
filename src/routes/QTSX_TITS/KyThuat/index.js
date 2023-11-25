@@ -11,6 +11,18 @@ const QuyTrinhCongNgheForm = asyncComponent(() =>
   import("./QuyTrinhCongNghe/QuyTrinhCongNgheForm")
 );
 
+//Danh sách chi tiết
+const DanhSachChiTiet = asyncComponent(() =>
+  import("./DanhSachChiTiet/DanhSachChiTiet")
+);
+const DanhSachChiTietForm = asyncComponent(() =>
+  import("./DanhSachChiTiet/DanhSachChiTietForm")
+);
+
+//OEM
+const OEM = asyncComponent(() => import("./OEM/OEM"));
+const OEMForm = asyncComponent(() => import("./OEM/OEMForm"));
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -30,6 +42,38 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/quy-trinh-cong-nghe/:id/chinh-sua`}
         exact
         component={Auth(QuyTrinhCongNgheForm, menus, pathname, permission)}
+      />
+      {/* Danh sách chi tiết */}
+      <Route
+        path={`${match.url}/danh-sach-chi-tiet`}
+        exact
+        component={Auth(DanhSachChiTiet, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/danh-sach-chi-tiet/them-moi`}
+        exact
+        component={Auth(DanhSachChiTietForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/danh-sach-chi-tiet/:id/chinh-sua`}
+        exact
+        component={Auth(DanhSachChiTietForm, menus, pathname, permission)}
+      />
+      {/* OEM */}
+      <Route
+        path={`${match.url}/oem`}
+        exact
+        component={Auth(OEM, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/oem/them-moi`}
+        exact
+        component={Auth(OEMForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/oem/:id/chinh-sua`}
+        exact
+        component={Auth(OEMForm, menus, pathname, permission)}
       />
     </Switch>
   );
