@@ -78,6 +78,17 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(OEMForm, menus, pathname, permission)}
       />
       <Route
+        path={`${match.url}/oem/:id/chi-tiet`}
+        exact
+        component={Auth(OEMForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/oem/:id/xac-nhan`}
+        exact
+        component={Auth(OEMForm, menus, pathname, permission)}
+      />
+      {/* BOM */}
+      <Route
         path={`${match.url}/bom`}
         exact
         component={Auth(BOM, menus, pathname, permission)}
