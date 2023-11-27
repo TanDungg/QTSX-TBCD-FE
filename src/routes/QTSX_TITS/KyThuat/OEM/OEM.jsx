@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Tag, Col, Image, Row } from "antd";
+import { Card, Button, Divider, Col, Row, DatePicker, Tag } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  ImportOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -19,26 +19,34 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
+  getDateNow,
   reDataForTable,
   removeDuplicates,
+  getLocalStorage,
+  getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
+import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
+const { RangePicker } = DatePicker;
 
-function BOM({ match, history, permission }) {
+function OEM({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
+  const [TuNgay, setTuNgay] = useState(getDateNow(-7));
+  const [DenNgay, setDenNgay] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
 
   useEffect(() => {
     if (permission && permission.view) {
       getSanPham();
-      getListData(SanPham, keyword, page);
+      getListData(SanPham, TuNgay, DenNgay, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -51,13 +59,21 @@ function BOM({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (tits_qtsx_SanPham_Id, keyword, page) => {
+  const getListData = (
+    tits_qtsx_SanPham_Id,
+    tuNgay,
+    denNgay,
+    keyword,
+    page
+  ) => {
     const param = convertObjectToUrlParams({
       tits_qtsx_SanPham_Id,
+      tuNgay,
+      denNgay,
       keyword,
       page,
     });
-    dispatch(fetchStart(`tits_qtsx_BOM?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`tits_qtsx_OEM?${param}`, "GET", null, "LIST"));
   };
 
   const getSanPham = () => {
@@ -88,8 +104,8 @@ function BOM({ match, history, permission }) {
    * Tìm kiếm người dùng
    *
    */
-  const onSearchQuyTrinhCongNghe = () => {
-    getListData(SanPham, keyword, page);
+  const onSearchOEM = () => {
+    getListData(SanPham, TuNgay, DenNgay, keyword, page);
   };
 
   /**
@@ -100,7 +116,7 @@ function BOM({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(SanPham, val.target.value, page);
+      getListData(SanPham, TuNgay, DenNgay, val.target.value, page);
     }
   };
   /**
@@ -110,31 +126,57 @@ function BOM({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
+    const xacnhan =
+      item.nguoiDuyet_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/xac-nhan`,
+            state: { itemData: item, permission },
+          }}
+          title="Xác nhận"
+        >
+          <CheckCircleOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Xác nhận">
+          <CheckCircleOutlined />
+        </span>
+      );
+
     const editItem =
-      permission && permission.edit ? (
+      permission &&
+      permission.edit &&
+      item.nguoiTao_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
-          title="Sửa BOM"
+          title="Sửa OEM"
         >
           <EditOutlined />
         </Link>
       ) : (
-        <span disabled title="Sửa BOM">
+        <span disabled title="Sửa OEM">
           <EditOutlined />
         </span>
       );
     const deleteVal =
-      permission && permission.del && !item.isUsed
-        ? { onClick: () => deleteItemFunc(item, "BOM") }
+      permission &&
+      permission.del &&
+      item.nguoiTao_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xác nhận"
+        ? { onClick: () => deleteItemFunc(item, "OEM") }
         : { disabled: true };
     return (
       <div>
+        {xacnhan}
+        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa BOM">
+        <a {...deleteVal} title="Xóa OEM">
           <DeleteOutlined />
         </a>
       </div>
@@ -148,7 +190,7 @@ function BOM({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item, title) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maBOM, title);
+    ModalDeleteConfirm(deleteItemAction, item, item.maOEM, title);
   };
 
   /**
@@ -157,14 +199,14 @@ function BOM({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_BOM/${item.id}`;
+    let url = `tits_qtsx_OEM/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(SanPham, keyword, page);
+          getListData(SanPham, TuNgay, DenNgay, keyword, page);
         }
       })
       .catch((error) => console.error(error));
@@ -178,7 +220,7 @@ function BOM({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(SanPham, keyword, pagination);
+    getListData(SanPham, TuNgay, DenNgay, keyword, pagination);
   };
 
   /**
@@ -211,23 +253,6 @@ function BOM({ match, history, permission }) {
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
 
-  const renderFile = (item) => {
-    if (!isEmpty(item.file)) {
-      return (
-        <span>
-          <a
-            target="_blank"
-            href={BASE_URL_API + item.file}
-            rel="noopener noreferrer"
-          >
-            {item.file.split("/")[5]}
-          </a>
-        </span>
-      );
-    }
-    return null;
-  };
-
   let renderHead = [
     {
       title: "STT",
@@ -237,55 +262,39 @@ function BOM({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã BOM",
-      dataIndex: "maBOM",
-      key: "maBOM",
+      title: "Mã OEM",
+      dataIndex: "maOEM",
+      key: "maOEM",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maBOM,
-            value: d.maBOM,
+            text: d.maOEM,
+            value: d.maOEM,
           };
         })
       ),
-      onFilter: (value, record) => record.maBOM.includes(value),
+      onFilter: (value, record) => record.maOEM.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên BOM",
-      dataIndex: "tenBOM",
-      key: "tenBOM",
+      title: "Tên OEM",
+      dataIndex: "tenOEM",
+      key: "tenOEM",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenBOM,
-            value: d.tenBOM,
+            text: d.tenOEM,
+            value: d.tenOEM,
           };
         })
       ),
-      onFilter: (value, record) => record.tenBOM.includes(value),
+      onFilter: (value, record) => record.tenOEM.includes(value),
       filterSearch: true,
     },
     {
-      title: "Mã sản phẩm",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.maSanPham,
-            value: d.maSanPham,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.maSanPham.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Tên sản phẩm",
+      title: "Sản phẩm",
       dataIndex: "tenSanPham",
       key: "tenSanPham",
       align: "center",
@@ -395,6 +404,26 @@ function BOM({ match, history, permission }) {
       ),
       onFilter: (value, record) => record.trangThai.includes(value),
       filterSearch: true,
+      render: (value) => (
+        <div>
+          {value && (
+            <Tag
+              color={
+                value === "Chưa duyệt"
+                  ? "orange"
+                  : value === "Đã duyệt"
+                  ? "blue"
+                  : "red"
+              }
+              style={{
+                fontSize: 13,
+              }}
+            >
+              {value}
+            </Tag>
+          )}
+        </div>
+      ),
     },
     {
       title: "Chức năng",
@@ -431,43 +460,47 @@ function BOM({ match, history, permission }) {
   const handleOnSelectSanPham = (value) => {
     setSanPham(value);
     setPage(1);
-    getListData(value, keyword, 1);
+    getListData(value, TuNgay, DenNgay, keyword, 1);
   };
 
-  const handleClearSanPham = (value) => {
+  const handleClearSanPham = () => {
     setSanPham(null);
     setPage(1);
-    getListData(null, keyword, 1);
+    getListData(null, TuNgay, DenNgay, keyword, 1);
+  };
+
+  const handleChangeNgay = (dateString) => {
+    setTuNgay(dateString[0]);
+    setDenNgay(dateString[1]);
+    setPage(1);
+    getListData(SanPham, dateString[0], dateString[1], keyword, 1);
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="BOM"
-        description="Danh sách BOM"
+        title="OEM"
+        description="Danh sách OEM"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom">
         <Row>
           <Col
-            xxl={8}
-            xl={12}
-            lg={16}
-            md={16}
-            sm={20}
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
             xs={24}
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
+            style={{ marginBottom: 8 }}
           >
-            <span style={{ width: "120px" }}>Sản phẩm:</span>
+            <h5>Sản phẩm:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListSanPham ? ListSanPham : []}
               placeholder="Chọn sản phẩm"
               optionsvalue={["id", "tenSanPham"]}
-              style={{ width: "calc(100% - 120px)" }}
+              style={{ width: "100%" }}
               showSearch
               onSelect={handleOnSelectSanPham}
               optionFilterProp="name"
@@ -477,45 +510,48 @@ function BOM({ match, history, permission }) {
             />
           </Col>
           <Col
-            xxl={8}
-            xl={12}
-            lg={16}
-            md={16}
-            sm={20}
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
             xs={24}
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
+            style={{ marginBottom: 8 }}
           >
-            <span
-              style={{
-                width: "120px",
+            <h5>Ngày:</h5>
+            <RangePicker
+              format={"DD/MM/YYYY"}
+              onChange={(date, dateString) => handleChangeNgay(dateString)}
+              defaultValue={[
+                moment(TuNgay, "DD/MM/YYYY"),
+                moment(DenNgay, "DD/MM/YYYY"),
+              ]}
+              allowClear={false}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Tìm kiếm:</h5>
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchOEM,
+                onSearch: onSearchOEM,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
               }}
-            >
-              Tìm kiếm:
-            </span>
-            <div
-              style={{
-                flex: 1,
-                alignItems: "center",
-                marginTop: width < 576 ? 10 : 0,
-              }}
-            >
-              <Toolbar
-                count={1}
-                search={{
-                  title: "Tìm kiếm",
-                  loading,
-                  value: keyword,
-                  onChange: onChangeKeyword,
-                  onPressEnter: onSearchQuyTrinhCongNghe,
-                  onSearch: onSearchQuyTrinhCongNghe,
-                  placeholder: "Nhập từ khóa",
-                  allowClear: true,
-                }}
-              />
-            </div>
+            />
           </Col>
         </Row>
       </Card>
@@ -545,4 +581,4 @@ function BOM({ match, history, permission }) {
   );
 }
 
-export default BOM;
+export default OEM;

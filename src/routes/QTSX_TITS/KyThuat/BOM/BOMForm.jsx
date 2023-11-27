@@ -1,26 +1,46 @@
 import React, { useState, useEffect } from "react";
-import { Button, Card, DatePicker, Form, Spin, Upload } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Divider,
+  Form,
+  Row,
+  Spin,
+  Upload,
+} from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { includes } from "lodash";
-import { Input, Select, FormSubmit } from "src/components/Common";
+import { includes, map } from "lodash";
+import {
+  Input,
+  Select,
+  FormSubmit,
+  ModalDeleteConfirm,
+  EditableTableRow,
+  Table,
+} from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import { getDateNow, getLocalStorage, getTokenInfo } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  getDateNow,
+  getLocalStorage,
+  getTokenInfo,
+} from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import Helpers from "src/helpers";
-import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import moment from "moment";
+import ImportBOM from "./ImportBOM";
+const { EditableRow, EditableCell } = EditableTableRow;
 
 const FormItem = Form.Item;
-
-const initialState = {
-  maQuyTrinhCongNghe: "",
-  tenQuyTrinhCongNghe: "",
-  tits_qtsx_SanPham_Id: "",
-  ngayBanHanh: "",
-  ngayHieuLuc: "",
-  file: "",
-};
 
 function BOMForm({ match, permission, history }) {
   const dispatch = useDispatch();
@@ -34,17 +54,15 @@ function BOMForm({ match, permission, history }) {
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [ListSanPham, setListSanPham] = useState([]);
+  const [ListChiTiet, setListChiTiet] = useState([]);
+  const [ListUserKy, setListUserKy] = useState([]);
+
   const [FileThongSoKyThuat, setFileThongSoKyThuat] = useState(null);
   const [DisableUpload, setDisableUpload] = useState(false);
+  const [ActiveModalImport, setActiveModalImport] = useState(false);
+
   const [info, setInfo] = useState(null);
   const [fieldTouch, setFieldTouch] = useState(false);
-  const {
-    maQuyTrinhCongNghe,
-    tenQuyTrinhCongNghe,
-    tits_qtsx_SanPham_Id,
-    ngayBanHanh,
-    ngayHieuLuc,
-  } = initialState;
   const { setFieldsValue, validateFields, resetFields } = form;
 
   useEffect(() => {
@@ -54,10 +72,11 @@ function BOMForm({ match, permission, history }) {
       } else {
         setType("new");
         getListSanPham();
+        getUserKy(INFO);
         setFieldsValue({
-          quytrinhcongnghe: {
+          BOM: {
             ngayBanHanh: moment(getDateNow(), "DD/MM/YYYY"),
-            ngayHieuLuc: moment(getDateNow(), "DD/MM/YYYY"),
+            ngayApDung: moment(getDateNow(), "DD/MM/YYYY"),
           },
         });
       }
@@ -78,7 +97,30 @@ function BOMForm({ match, permission, history }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  const getUserKy = (info) => {
+    const params = convertObjectToUrlParams({
+      donviId: info.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Account/get-cbnv?${params}&key=1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListUserKy(res.data);
+      } else {
+        setListUserKy([]);
+      }
+    });
+  };
   const getListSanPham = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -95,7 +137,14 @@ function BOMForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListSanPham(res.data);
+          setListSanPham(
+            res.data.map((sp) => {
+              return {
+                ...sp,
+                name: sp.maSanPham + " - " + sp.tenSanPham,
+              };
+            })
+          );
         } else {
           setListSanPham([]);
         }
@@ -112,7 +161,7 @@ function BOMForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_QuyTrinhCongNghe/${id}`,
+          `tits_qtsx_BOM/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -125,6 +174,8 @@ function BOMForm({ match, permission, history }) {
       .then((res) => {
         if (res && res.data) {
           setInfo(res.data);
+          getUserKy(INFO);
+
           setFieldsValue({
             quytrinhcongnghe: {
               ...res.data,
@@ -140,7 +191,178 @@ function BOMForm({ match, permission, history }) {
       })
       .catch((error) => console.error(error));
   };
+  /**
+   * deleteItemFunc: Remove item from list
+   * @param {object} item
+   * @returns
+   * @memberof VaiTro
+   */
+  const deleteItemFunc = (item) => {
+    const title = "sản phẩm";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenSanPham, title);
+  };
 
+  /**
+   * Remove item
+   *
+   * @param {*} item
+   */
+  const deleteItemAction = (item) => {
+    const newData = ListSanPham.filter((d) => d.key !== item.key);
+    setListSanPham(newData);
+  };
+  /**
+   * ActionContent: Action in table
+   * @param {*} item
+   * @returns View
+   * @memberof ChucNang
+   */
+  const actionContent = (item) => {
+    const editItemVal =
+      type === "new" || type === "edit"
+        ? {
+            onClick: () => {
+              // setActiveModalEdit(true);
+              // setTypeAddTable("edit");
+              // setInfoSanPham(item);
+            },
+          }
+        : { disabled: true };
+    const deleteItemVal =
+      type === "new" || type === "edit"
+        ? { onClick: () => deleteItemFunc(item) }
+        : { disabled: true };
+    return (
+      <div>
+        <React.Fragment>
+          <a {...editItemVal} title="Xóa">
+            <EditOutlined />
+          </a>
+          <Divider type="vertical" />
+          <a {...deleteItemVal} title="Xóa">
+            <DeleteOutlined />
+          </a>
+        </React.Fragment>
+      </div>
+    );
+  };
+  let colValues = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      width: 45,
+      align: "center",
+    },
+    {
+      title: "Mã chi tiết",
+      dataIndex: "maChiTiet",
+      key: "maChiTiet",
+      align: "center",
+    },
+    {
+      title: "Tên chi tiết",
+      dataIndex: "tenChiTiet",
+      key: "tenChiTiet",
+      align: "center",
+    },
+    {
+      title: "Vật liệu",
+      dataIndex: "vatLieu",
+      key: "vatLieu",
+      align: "center",
+    },
+    {
+      title: "Xuất xứ",
+      dataIndex: "xuatXu",
+      key: "xuatXu",
+      align: "center",
+    },
+    {
+      title: "Quy cách(mm)",
+      key: "quyCach",
+      align: "center",
+      children: [
+        {
+          title: "Dài",
+          dataIndex: "dai",
+          key: "dai",
+          align: "center",
+        },
+        {
+          title: "Rộng",
+          dataIndex: "rong",
+          key: "rong",
+          align: "center",
+        },
+        {
+          title: "Dày",
+          dataIndex: "day",
+          key: "day",
+          align: "center",
+        },
+        {
+          title: "Do",
+          dataIndex: "dn",
+          key: "dn",
+          align: "center",
+        },
+        {
+          title: "Di",
+          dataIndex: "dt",
+          key: "dt",
+          align: "center",
+        },
+        {
+          title: "Chung",
+          dataIndex: "chung",
+          key: "chung",
+          align: "center",
+        },
+      ],
+    },
+    {
+      title: "SL/SP",
+      dataIndex: "dinhMuc",
+      key: "dinhMuc",
+      align: "center",
+    },
+    {
+      title: "KL/SP",
+      dataIndex: "xuatXu",
+      key: "xuatXu",
+      align: "center",
+    },
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+  ];
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+
+  const columns = map(colValues, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
   /**
    * Khi submit
    *
@@ -154,21 +376,21 @@ function BOMForm({ match, permission, history }) {
    * Lưu và thoát
    *
    */
-  const saveAndClose = () => {
+  const saveAndClose = (value) => {
     validateFields()
       .then((values) => {
-        uploadFile(values.quytrinhcongnghe, true);
+        uploadFile(values.BOM, value);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const uploadFile = (quytrinhcongnghe, saveQuit) => {
-    if (quytrinhcongnghe.file) {
+  const uploadFile = (BOM, saveQuit) => {
+    if (BOM.file) {
       if (type === "new") {
         const formData = new FormData();
-        formData.append("file", quytrinhcongnghe.file.file);
+        formData.append("file", BOM.file.file);
         fetch(`${BASE_URL_API}/api/Upload`, {
           method: "POST",
           body: formData,
@@ -178,17 +400,17 @@ function BOMForm({ match, permission, history }) {
         })
           .then((res) => res.json())
           .then((data) => {
-            quytrinhcongnghe.file = data.path;
-            saveData(quytrinhcongnghe, saveQuit);
+            BOM.file = data.path;
+            saveData(BOM, saveQuit);
           })
           .catch(() => {
             console.log("upload failed.");
           });
       }
       if (type === "edit") {
-        if (quytrinhcongnghe.file.file) {
+        if (BOM.file.file) {
           const formData = new FormData();
-          formData.append("file", quytrinhcongnghe.file.file);
+          formData.append("file", BOM.file.file);
           fetch(
             info.file
               ? `${BASE_URL_API}/api/Upload?stringPath=${info.file}`
@@ -203,14 +425,14 @@ function BOMForm({ match, permission, history }) {
           )
             .then((res) => res.json())
             .then((data) => {
-              quytrinhcongnghe.file = data.path;
-              saveData(quytrinhcongnghe, saveQuit);
+              BOM.file = data.path;
+              saveData(BOM, saveQuit);
             })
             .catch(() => {
               console.log("upload failed.");
             });
         } else {
-          saveData(quytrinhcongnghe, saveQuit);
+          saveData(BOM, saveQuit);
         }
       }
     } else {
@@ -219,17 +441,17 @@ function BOMForm({ match, permission, history }) {
     }
   };
 
-  const saveData = (quytrinhcongnghe, saveQuit = false) => {
+  const saveData = (BOM, saveQuit = false) => {
     const newData = {
-      ...quytrinhcongnghe,
-      ngayBanHanh: quytrinhcongnghe.ngayBanHanh.format("DD/MM/YYYY"),
-      ngayHieuLuc: quytrinhcongnghe.ngayHieuLuc.format("DD/MM/YYYY"),
+      ...BOM,
+      ngayBanHanh: BOM.ngayBanHanh.format("DD/MM/YYYY"),
+      ngayHieuLuc: BOM.ngayHieuLuc.format("DD/MM/YYYY"),
     };
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_QuyTrinhCongNghe`,
+            `tits_qtsx_BOM`,
             "POST",
             newData,
             "ADD",
@@ -249,7 +471,7 @@ function BOMForm({ match, permission, history }) {
               setFieldTouch(false);
               setDisableUpload(false);
               setFieldsValue({
-                quytrinhcongnghe: {
+                BOM: {
                   ngayBanHanh: moment(getDateNow(), "DD/MM/YYYY"),
                   ngayHieuLuc: moment(getDateNow(), "DD/MM/YYYY"),
                 },
@@ -261,15 +483,15 @@ function BOMForm({ match, permission, history }) {
     }
     if (type === "edit") {
       const newData = {
-        ...quytrinhcongnghe,
+        ...BOM,
         id: id,
-        ngayBanHanh: quytrinhcongnghe.ngayBanHanh.format("DD/MM/YYYY"),
-        ngayHieuLuc: quytrinhcongnghe.ngayHieuLuc.format("DD/MM/YYYY"),
+        ngayBanHanh: BOM.ngayBanHanh.format("DD/MM/YYYY"),
+        ngayHieuLuc: BOM.ngayHieuLuc.format("DD/MM/YYYY"),
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_QuyTrinhCongNghe/${id}`,
+            `tits_qtsx_BOM/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -326,10 +548,7 @@ function BOMForm({ match, permission, history }) {
     window.open(`${BASE_URL_API}/${record.fileUrl}`, "_blank");
   };
 
-  const formTitle =
-    type === "new"
-      ? "Thêm mới quy trình công nghệ"
-      : "Chỉnh sửa quy trình công nghệ";
+  const formTitle = type === "new" ? "Thêm mới BOM" : "Chỉnh sửa BOM";
 
   return (
     <div className="gx-main-content">
@@ -343,183 +562,252 @@ function BOMForm({ match, permission, history }) {
             onFinish={onFinish}
             onFieldsChange={() => setFieldTouch(true)}
           >
-            <FormItem
-              label="Mã quy trình"
-              name={["quytrinhcongnghe", "maQuyTrinhCongNghe"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-                {
-                  max: 250,
-                },
-              ]}
-              initialValue={maQuyTrinhCongNghe}
-            >
-              <Input
-                className="input-item"
-                placeholder="Nhập mã quy trình công nghệ"
-              />
-            </FormItem>
-            <FormItem
-              label="Tên quy trình"
-              name={["quytrinhcongnghe", "tenQuyTrinhCongNghe"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-                {
-                  max: 250,
-                },
-              ]}
-              initialValue={tenQuyTrinhCongNghe}
-            >
-              <Input
-                className="input-item"
-                placeholder="Nhập tên quy trình công nghệ"
-              />
-            </FormItem>
-            <FormItem
-              label="Sản phẩm"
-              name={["quytrinhcongnghe", "tits_qtsx_SanPham_Id"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-                {
-                  max: 250,
-                },
-              ]}
-              initialValue={tits_qtsx_SanPham_Id}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListSanPham ? ListSanPham : []}
-                placeholder="Chọn sản phẩm"
-                optionsvalue={["id", "tenSanPham"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp="name"
-              />
-            </FormItem>
-            <FormItem
-              label="Ngày ban hành"
-              name={["quytrinhcongnghe", "ngayBanHanh"]}
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-              initialValue={ngayBanHanh}
-            >
-              <DatePicker
-                format={"DD/MM/YYYY"}
-                allowClear={false}
-                disabled={type === "detail" ? true : false}
-              />
-            </FormItem>
-            <FormItem
-              label="Ngày hiệu lực"
-              name={["quytrinhcongnghe", "ngayHieuLuc"]}
-              rules={[
-                {
-                  required: true,
-                },
-              ]}
-              initialValue={ngayHieuLuc}
-            >
-              <DatePicker
-                format={"DD/MM/YYYY"}
-                allowClear={false}
-                disabled={type === "detail" ? true : false}
-              />
-            </FormItem>
-            <FormItem
-              label="Thông số kỹ thuật"
-              name={["quytrinhcongnghe", "file"]}
-              rules={[
-                {
-                  type: "file",
-                  required: true,
-                },
-              ]}
-            >
-              {!DisableUpload ? (
-                <Upload {...props}>
-                  <Button
-                    style={{
-                      marginBottom: 0,
-                    }}
-                    icon={<UploadOutlined />}
-                    disabled={type === "detail" ? true : false}
-                  >
-                    Tải file thông số kỹ thuật
-                  </Button>
-                </Upload>
-              ) : FileThongSoKyThuat && FileThongSoKyThuat.name ? (
-                <span>
-                  <span
-                    style={{ color: "#0469B9", cursor: "pointer" }}
-                    onClick={() => handleViewFile(FileThongSoKyThuat)}
-                  >
-                    {FileThongSoKyThuat.name.length > 20
-                      ? FileThongSoKyThuat.name.substring(0, 20) + "..."
-                      : FileThongSoKyThuat.name}{" "}
-                  </span>
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    disabled={type === "new" || type === "edit" ? false : true}
-                    onClick={() => {
-                      setFileThongSoKyThuat(null);
-                      setDisableUpload(false);
+            <Row>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Tên BOM"
+                  name={["BOM", "tenBOM"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                    {
+                      max: 250,
+                      message: "Tên BOM không được quá 250 ký tự",
+                    },
+                  ]}
+                >
+                  <Input className="input-item" placeholder="Nhập tên BOM" />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Ngày ban hành"
+                  name={["BOM", "ngayBanHanh"]}
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  <DatePicker
+                    format={"DD/MM/YYYY"}
+                    allowClear={false}
+                    onChange={(dates, dateString) => {
                       setFieldsValue({
-                        quytrinhcongnghe: {
-                          file: null,
+                        BOM: {
+                          ngayBanHanh: moment(dateString, "DD/MM/YYYY"),
                         },
                       });
                     }}
                   />
-                </span>
-              ) : (
-                <span>
-                  <a
-                    target="_blank"
-                    href={BASE_URL_API + FileThongSoKyThuat}
-                    rel="noopener noreferrer"
-                  >
-                    {FileThongSoKyThuat && FileThongSoKyThuat.split("/")[5]}{" "}
-                  </a>
-                  {(type === "new" || type === "edit") && (
-                    <DeleteOutlined
-                      style={{ cursor: "pointer", color: "red" }}
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                      onClick={() => {
-                        setFileThongSoKyThuat(null);
-                        setDisableUpload(false);
-                        setFieldsValue({
-                          quytrinhcongnghe: {
-                            file: null,
-                          },
-                        });
-                      }}
-                    />
-                  )}
-                </span>
-              )}
-            </FormItem>
-            <FormSubmit
-              goBack={goBack}
-              saveAndClose={saveAndClose}
-              disabled={fieldTouch}
-            />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Ngày áp dụng"
+                  name={["BOM", "ngayApDung"]}
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  <DatePicker
+                    format={"DD/MM/YYYY"}
+                    allowClear={false}
+                    onChange={(dates, dateString) => {
+                      setFieldsValue({
+                        BOM: {
+                          ngayApDung: moment(dateString, "DD/MM/YYYY"),
+                        },
+                      });
+                    }}
+                  />
+                </FormItem>
+              </Col>
+
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Sản phẩm"
+                  name={["BOM", "tits_qtsx_SanPham_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListSanPham}
+                    placeholder="Chọn sản phẩm"
+                    optionsvalue={["id", "name"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    optionFilterProp="name"
+                    disabled={type !== "new"}
+                    onSelect={(val) => {}}
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Người kiểm tra"
+                  name={["BOM", "nguoiKiemTra_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListUserKy}
+                    placeholder="Chọn người kiểm tra"
+                    optionsvalue={["id", "fullName"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    optionFilterProp="name"
+                    disabled={type !== "new"}
+                    onSelect={(val) => {}}
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Người duyệt"
+                  name={["BOM", "nguoiPheDuyet_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListUserKy}
+                    placeholder="Chọn người duyệt"
+                    optionsvalue={["id", "fullName"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    optionFilterProp="name"
+                    disabled={type !== "new"}
+                    onSelect={(val) => {}}
+                  />
+                </FormItem>
+              </Col>
+            </Row>
           </Form>
         </Spin>
       </Card>
+      <Card
+        className="th-card-margin-bottom"
+        title="Thông tin vật tư BOM"
+        headStyle={{
+          textAlign: "center",
+          backgroundColor: "#0469B9",
+          color: "#fff",
+        }}
+      >
+        {(type === "new" || type === "edit") && (
+          <Col
+            // xxl={12}
+            // xl={12}
+            // lg={24}
+            // md={24}
+            // sm={24}
+            // xs={24}
+            // style={{ marginBottom: 8 }}
+            span={24}
+            align="end"
+          >
+            {type === "new" && (
+              <Button
+                icon={<UploadOutlined />}
+                onClick={() => setActiveModalImport(true)}
+                type="primary"
+                // disabled={DisableAdd}
+              >
+                Import
+              </Button>
+            )}
+          </Col>
+        )}
+        <Table
+          bordered
+          columns={columns}
+          scroll={{ x: 1300, y: "55vh" }}
+          components={components}
+          className="gx-table-responsive"
+          dataSource={ListChiTiet}
+          size="small"
+          rowClassName={"editable-row"}
+          pagination={false}
+          // loading={loading}
+        />
+      </Card>
+      <FormSubmit
+        goBack={goBack}
+        saveAndClose={saveAndClose}
+        handleSave={saveAndClose}
+        disabled={fieldTouch}
+      />
+      <ImportBOM
+        openModal={ActiveModalImport}
+        openModalFS={setActiveModalImport}
+      />
     </div>
   );
 }

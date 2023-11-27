@@ -7,6 +7,7 @@ import {
   CheckCircleOutlined,
   PrinterOutlined,
   ExportOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -44,6 +45,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const [DenNgay, setDenNgay] = useState(getDateNow());
   const [SelectedDNCVT, setSelectedDNCVT] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
+  const [ActiveModalView, setActiveModalView] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -100,7 +102,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   };
 
   const actionContent = (item) => {
-    const detailItem =
+    const xacNhanItem =
       (permission &&
         permission.cof &&
         item.userKhoVatTu_Id === INFO.user_Id &&
@@ -156,9 +158,17 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
 
+    const searchItem =
+      permission && permission.view
+        ? { onClick: () => setActiveModalView(true) }
+        : { disabled: true };
     return (
       <div>
-        {detailItem}
+        <a {...searchItem} title="Chi tiết vật tư">
+          <SearchOutlined />
+        </a>
+        <Divider type="vertical" />
+        {xacNhanItem}
         <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
@@ -429,7 +439,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 120,
+      width: 130,
       render: (value) => actionContent(value),
     },
   ];
