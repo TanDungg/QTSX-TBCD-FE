@@ -31,14 +31,14 @@ function BOM({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
-  const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
-  const [LoaiSanPham, setLoaiSanPham] = useState(null);
+  const [ListSanPham, setListSanPham] = useState([]);
+  const [SanPham, setSanPham] = useState(null);
   const [keyword, setKeyword] = useState("");
 
   useEffect(() => {
     if (permission && permission.view) {
-      getLoaiSanPham();
-      getListData(LoaiSanPham, keyword, page);
+      getSanPham();
+      getListData(SanPham, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -51,22 +51,20 @@ function BOM({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (tits_qtsx_LoaiSanPham_Id, keyword, page) => {
+  const getListData = (tits_qtsx_SanPham_Id, keyword, page) => {
     const param = convertObjectToUrlParams({
-      tits_qtsx_LoaiSanPham_Id,
+      tits_qtsx_SanPham_Id,
       keyword,
       page,
     });
-    dispatch(
-      fetchStart(`tits_qtsx_QuyTrinhCongNghe?${param}`, "GET", null, "LIST")
-    );
+    dispatch(fetchStart(`tits_qtsx_BOM?${param}`, "GET", null, "LIST"));
   };
 
-  const getLoaiSanPham = () => {
+  const getSanPham = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          "tits_qtsx_LoaiSanPham?page=-1",
+          "tits_qtsx_SanPham?page=-1",
           "GET",
           null,
           "LIST",
@@ -78,9 +76,9 @@ function BOM({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListLoaiSanPham(res.data);
+          setListSanPham(res.data);
         } else {
-          setListLoaiSanPham([]);
+          setListSanPham([]);
         }
       })
       .catch((error) => console.error(error));
@@ -91,7 +89,7 @@ function BOM({ match, history, permission }) {
    *
    */
   const onSearchQuyTrinhCongNghe = () => {
-    getListData(LoaiSanPham, keyword, page);
+    getListData(SanPham, keyword, page);
   };
 
   /**
@@ -102,7 +100,7 @@ function BOM({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(LoaiSanPham, val.target.value, page);
+      getListData(SanPham, val.target.value, page);
     }
   };
   /**
@@ -119,24 +117,24 @@ function BOM({ match, history, permission }) {
             pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
-          title="Sửa quy trình công nghệ"
+          title="Sửa BOM"
         >
           <EditOutlined />
         </Link>
       ) : (
-        <span disabled title="Sửa quy trình công nghệ">
+        <span disabled title="Sửa BOM">
           <EditOutlined />
         </span>
       );
     const deleteVal =
       permission && permission.del && !item.isUsed
-        ? { onClick: () => deleteItemFunc(item, "quy trình công nghệ") }
+        ? { onClick: () => deleteItemFunc(item, "BOM") }
         : { disabled: true };
     return (
       <div>
         {editItem}
         <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa quy trình công nghệ">
+        <a {...deleteVal} title="Xóa BOM">
           <DeleteOutlined />
         </a>
       </div>
@@ -150,7 +148,7 @@ function BOM({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item, title) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maQuyTrinhCongNghe, title);
+    ModalDeleteConfirm(deleteItemAction, item, item.maBOM, title);
   };
 
   /**
@@ -159,14 +157,14 @@ function BOM({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_QuyTrinhCongNghe/${item.id}`;
+    let url = `tits_qtsx_BOM/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(LoaiSanPham, keyword, page);
+          getListData(SanPham, keyword, page);
         }
       })
       .catch((error) => console.error(error));
@@ -180,7 +178,7 @@ function BOM({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(LoaiSanPham, keyword, pagination);
+    getListData(SanPham, keyword, pagination);
   };
 
   /**
@@ -239,39 +237,55 @@ function BOM({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã quy trình",
-      dataIndex: "maQuyTrinhCongNghe",
-      key: "maQuyTrinhCongNghe",
+      title: "Mã BOM",
+      dataIndex: "maBOM",
+      key: "maBOM",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maQuyTrinhCongNghe,
-            value: d.maQuyTrinhCongNghe,
+            text: d.maBOM,
+            value: d.maBOM,
           };
         })
       ),
-      onFilter: (value, record) => record.maQuyTrinhCongNghe.includes(value),
+      onFilter: (value, record) => record.maBOM.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên quy trình",
-      dataIndex: "tenQuyTrinhCongNghe",
-      key: "tenQuyTrinhCongNghe",
+      title: "Tên BOM",
+      dataIndex: "tenBOM",
+      key: "tenBOM",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenQuyTrinhCongNghe,
-            value: d.tenQuyTrinhCongNghe,
+            text: d.tenBOM,
+            value: d.tenBOM,
           };
         })
       ),
-      onFilter: (value, record) => record.tenQuyTrinhCongNghe.includes(value),
+      onFilter: (value, record) => record.tenBOM.includes(value),
       filterSearch: true,
     },
     {
-      title: "Sản phẩm",
+      title: "Mã sản phẩm",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maSanPham,
+            value: d.maSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maSanPham.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Tên sản phẩm",
       dataIndex: "tenSanPham",
       key: "tenSanPham",
       align: "center",
@@ -287,19 +301,19 @@ function BOM({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Loại sản phẩm",
-      dataIndex: "tenLoaiSanPham",
-      key: "tenLoaiSanPham",
+      title: "Lần ban hành",
+      dataIndex: "lanBanHanh",
+      key: "lanBanHanh",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenLoaiSanPham,
-            value: d.tenLoaiSanPham,
+            text: d.lanBanHanh,
+            value: d.lanBanHanh,
           };
         })
       ),
-      onFilter: (value, record) => record.tenLoaiSanPham.includes(value),
+      onFilter: (value, record) => record.lanBanHanh.includes(value),
       filterSearch: true,
     },
     {
@@ -319,35 +333,67 @@ function BOM({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Ngày hiệu lực",
-      dataIndex: "ngayHieuLuc",
-      key: "ngayHieuLuc",
+      title: "Ngày áp dụng",
+      dataIndex: "ngayApDung",
+      key: "ngayApDung",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayHieuLuc,
-            value: d.ngayHieuLuc,
+            text: d.ngayApDung,
+            value: d.ngayApDung,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayHieuLuc.includes(value),
+      onFilter: (value, record) => record.ngayApDung.includes(value),
       filterSearch: true,
     },
     {
-      title: "Thông số kỹ thuật",
-      key: "file",
+      title: "Người kiểm tra",
+      dataIndex: "nguoiKiemTra",
+      key: "nguoiKiemTra",
       align: "center",
-      render: (record) => renderFile(record),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.file,
-            value: d.file,
+            text: d.nguoiKiemTra,
+            value: d.nguoiKiemTra,
           };
         })
       ),
-      onFilter: (value, record) => record.file.includes(value),
+      onFilter: (value, record) => record.nguoiKiemTra.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Người phê duyệt",
+      dataIndex: "nguoiPheDuyet",
+      key: "nguoiPheDuyet",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.nguoiPheDuyet,
+            value: d.nguoiPheDuyet,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.nguoiPheDuyet.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "trangThai",
+      key: "trangThai",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.trangThai,
+            value: d.trangThai,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.trangThai.includes(value),
       filterSearch: true,
     },
     {
@@ -382,14 +428,14 @@ function BOM({ match, history, permission }) {
     },
   };
 
-  const handleOnSelectLoaiSanPham = (value) => {
-    setLoaiSanPham(value);
+  const handleOnSelectSanPham = (value) => {
+    setSanPham(value);
     setPage(1);
     getListData(value, keyword, 1);
   };
 
-  const handleClearLoaiSanPham = (value) => {
-    setLoaiSanPham(null);
+  const handleClearSanPham = (value) => {
+    setSanPham(null);
     setPage(1);
     getListData(null, keyword, 1);
   };
@@ -397,8 +443,8 @@ function BOM({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Quy trình công nghệ sản phẩm"
-        description="Danh sách quy trình công nghệ sản phẩm"
+        title="BOM"
+        description="Danh sách BOM"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom">
@@ -415,19 +461,19 @@ function BOM({ match, history, permission }) {
               alignItems: "center",
             }}
           >
-            <span style={{ width: "120px" }}>Loại sản phẩm:</span>
+            <span style={{ width: "120px" }}>Sản phẩm:</span>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListLoaiSanPham ? ListLoaiSanPham : []}
-              placeholder="Chọn loại sản phẩm"
-              optionsvalue={["id", "tenLoaiSanPham"]}
+              data={ListSanPham ? ListSanPham : []}
+              placeholder="Chọn sản phẩm"
+              optionsvalue={["id", "tenSanPham"]}
               style={{ width: "calc(100% - 120px)" }}
               showSearch
-              onSelect={handleOnSelectLoaiSanPham}
+              onSelect={handleOnSelectSanPham}
               optionFilterProp="name"
               allowClear
-              onClear={handleClearLoaiSanPham}
-              value={LoaiSanPham}
+              onClear={handleClearSanPham}
+              value={SanPham}
             />
           </Col>
           <Col

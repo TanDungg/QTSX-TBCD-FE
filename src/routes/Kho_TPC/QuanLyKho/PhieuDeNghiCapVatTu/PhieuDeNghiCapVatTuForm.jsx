@@ -52,7 +52,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const [ListXuong, setListXuong] = useState([]);
-  const [Xuong, setXuong] = useState([]);
+  const [Xuong, setXuong] = useState("");
   const [ListSanPham, setListSanPham] = useState([]);
   const [listVatTu, setListVatTu] = useState([]);
   const [ListVatTuKhac, setListVatTuKhac] = useState([]);
@@ -172,7 +172,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       nam: ngay[2],
       loaiKeHoach_Id: LOAI_KE_HOACH_SAN_XUAT,
     });
-    console.log(params);
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -222,6 +221,8 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
               ...data,
               soLuong: res.data.soLuongKH * data.dinhMuc + data.dinhMucXaNhua,
               soLuongKH: res.data.soLuongKH,
+              id: res.data.sanPham_Id + data.vatTu_Id,
+              tenSanPham: res.data.tenSanPham,
             };
           });
         setListVatTu(newData);
@@ -230,7 +231,39 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       }
     });
   };
-
+  const getListVatTuTheoXuongVaNgay = () => {
+    const params = convertObjectToUrlParams({
+      phongBan_Id: Xuong,
+      LoaiKeHoach_Id: "3adecca0-3fe1-4433-b93b-0137dc3dfdce",
+      ngay: getFieldValue("capvattusanxuat").ngaySanXuat._i,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_DinhMucVatTu/list-bom-vat-tu-theo-ke-hoach-tung-san-pham?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        const newData = res.data.map((data) => {
+          return {
+            ...data,
+            soLuong: data.soLuongKH * data.dinhMuc + data.dinhMucXaNhua,
+            id: data.sanPham_Id + data.vatTu_Id,
+          };
+        });
+        setListVatTu(newData);
+      } else {
+        setListVatTu([]);
+      }
+    });
+  };
   const getUserLap = (info, nguoiLap_Id, value) => {
     const params = convertObjectToUrlParams({
       id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
@@ -395,7 +428,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter((d) => d.vatTu_Id !== item.vatTu_Id);
+    const newData = listVatTu.filter((d) => d.id !== item.id);
     setListVatTu(newData);
     setFieldTouch(true);
   };
@@ -429,13 +462,13 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       setEditingRecord([...editingRecord, item]);
       item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
     } else {
-      const newData = editingRecord.filter((d) => d.vatTu_Id !== item.vatTu_Id);
+      const newData = editingRecord.filter((d) => d.id !== item.id);
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...listVatTu];
     newData.forEach((ct, index) => {
-      if (ct.vatTu_Id === item.vatTu_Id) {
+      if (ct.id === item.id) {
         ct.soLuong = soLuong;
       }
     });
@@ -446,7 +479,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (ct.vatTu_Id === item.vatTu_Id) {
+      if (ct.id === item.id) {
         isEditing = true;
         message = ct.message;
       }
@@ -491,7 +524,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     setFieldTouch(true);
     const newData = [...listVatTu];
     newData.forEach((ct, index) => {
-      if (ct.vatTu_Id === record.vatTu_Id) {
+      if (ct.id === record.id) {
         ct.hanMucSuDung = hanmuc;
       }
     });
@@ -504,6 +537,18 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       dataIndex: "key",
       key: "key",
       width: 45,
+      align: "center",
+    },
+    {
+      title: "Sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
+      align: "center",
+    },
+    {
+      title: "Số lượng kế hoạch",
+      dataIndex: "soLuongKH",
+      key: "soLuongKH",
       align: "center",
     },
     {
@@ -524,12 +569,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       key: "tenDonViTinh",
       align: "center",
     },
-    {
-      title: "Số lượng kế hoạch",
-      dataIndex: "soLuongKH",
-      key: "soLuongKH",
-      align: "center",
-    },
+
     {
       title: "Định mức",
       dataIndex: "dinhMuc",
@@ -638,7 +678,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
 
   const handleSave = (row) => {
     const newData = [...listVatTu];
-    const index = newData.findIndex((item) => row.vatTu_Id === item.vatTu_Id);
+    const index = newData.findIndex((item) => row.id === item.id);
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
@@ -923,8 +963,12 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     getListSanPham(val, NgaySanXuat.format("DD/MM/YYYY"));
   };
 
-  const handleSelectSanPham = (val) => {
-    getListVatTu(Xuong, val);
+  const handleThemBang = () => {
+    if (getFieldValue("capvattusanxuat").sanPham_Id) {
+      getListVatTu(Xuong, getFieldValue("capvattusanxuat").sanPham_Id);
+    } else {
+      getListVatTuTheoXuongVaNgay(Xuong);
+    }
   };
   const disabledDate = (current) => {
     return current && current < dayjs().startOf("day");
@@ -1059,7 +1103,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                     rules={[
                       {
                         type: "string",
-                        required: true,
                       },
                     ]}
                   >
@@ -1071,8 +1114,16 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                       placeholder="Chọn sản phẩm"
                       showSearch
                       optionFilterProp={"name"}
-                      onSelect={handleSelectSanPham}
+                      // onSelect={handleSelectSanPham}
                       disabled={type === "new" ? false : true}
+                      allowClear={true}
+                      onClear={() => {
+                        setFieldsValue({
+                          capvattusanxuat: {
+                            sanPham_Id: null,
+                          },
+                        });
+                      }}
                     />
                   </FormItem>
                 </Col>
@@ -1242,6 +1293,25 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                       }
                     />
                   </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                  align="center"
+                >
+                  <Button
+                    type="primary"
+                    icon={<PlusOutlined />}
+                    onClick={handleThemBang}
+                    disabled={Xuong === ""}
+                  >
+                    Thêm vào bảng
+                  </Button>
                 </Col>
                 {info.lyDoHuy ? (
                   <Col

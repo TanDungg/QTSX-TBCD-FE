@@ -187,9 +187,11 @@ function SanPhamForm({ match, permission, history }) {
   };
 
   const saveData = (SanPham, saveQuit = false) => {
-    SanPham.chiTietMauSacs = SanPham.mauSac_Id.map((ms) => {
-      return { mauSac_Id: ms };
-    });
+    SanPham.chiTietMauSacs =
+      SanPham.mauSac_Id &&
+      SanPham.mauSac_Id.map((ms) => {
+        return { mauSac_Id: ms };
+      });
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(

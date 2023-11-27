@@ -25,6 +25,7 @@ const OEMForm = asyncComponent(() => import("./OEM/OEMForm"));
 
 const BOM = asyncComponent(() => import("./BOM/BOM"));
 const BOMForm = asyncComponent(() => import("./BOM/BOMForm"));
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -77,6 +78,7 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(OEMForm, menus, pathname, permission)}
       />
+
       <Route
         path={`${match.url}/oem/:id/chi-tiet`}
         exact
