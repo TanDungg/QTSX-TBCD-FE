@@ -209,7 +209,7 @@ function CauTrucKhoVatTu({ match, history, permission }) {
       title: "Mã cấu trúc kho",
       dataIndex: "maCauTrucKho",
       key: "maCauTrucKho",
-      render: (value, record) => renderTenMenu(value, record),
+      // render: (value, record) => renderTenMenu(value, record),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -256,8 +256,8 @@ function CauTrucKhoVatTu({ match, history, permission }) {
     },
     {
       title: "Mã Barcode",
-      dataIndex: "nameId",
-      key: "nameId",
+      dataIndex: "id",
+      key: "id",
       align: "center",
       render: (value) => (
         <div id="myqrcode">

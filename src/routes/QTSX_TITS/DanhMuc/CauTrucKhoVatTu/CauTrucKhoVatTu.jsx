@@ -310,7 +310,7 @@ function CauTrucKhoVatTu({ match, history, permission }) {
         dataIndex: "maCauTrucKho",
         align: "center",
         key: "maCauTrucKho",
-        render: (value, record) => renderTenMenu(value, record),
+        // render: (value, record) => renderTenMenu(value, record),
         filters: removeDuplicates(
           map(dataList, (d) => {
             return {
@@ -349,8 +349,8 @@ function CauTrucKhoVatTu({ match, history, permission }) {
     const BarCode = [
       {
         title: "Mã Barcode",
-        dataIndex: "nameId",
-        key: "nameId",
+        dataIndex: "id",
+        key: "id",
         width: 100,
         align: "center",
         render: (value) => (

@@ -30,6 +30,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import ModalView from "./ModalView";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -46,6 +47,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const [SelectedDNCVT, setSelectedDNCVT] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
   const [ActiveModalView, setActiveModalView] = useState(false);
+  const [idPhieu, setIdPhieu] = useState("");
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -160,7 +162,12 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
 
     const searchItem =
       permission && permission.view
-        ? { onClick: () => setActiveModalView(true) }
+        ? {
+            onClick: () => {
+              setIdPhieu(item.id);
+              setActiveModalView(true);
+            },
+          }
         : { disabled: true };
     return (
       <div>
@@ -590,6 +597,14 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           loading={loading}
         />
       </Card>
+      <ModalView
+        openModal={ActiveModalView}
+        openModalFS={setActiveModalView}
+        id={idPhieu}
+        refesh={() => {
+          getListData(PhongBan, TuNgay, DenNgay, page);
+        }}
+      />
     </div>
   );
 }
