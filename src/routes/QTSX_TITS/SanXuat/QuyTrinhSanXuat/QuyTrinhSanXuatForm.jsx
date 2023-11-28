@@ -53,18 +53,19 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const { loading } = useSelector(({ common }) => common).toJS();
   const [type, setType] = useState("new");
   const [fieldTouch, setFieldTouch] = useState(false);
   const { setFieldsValue, validateFields, resetFields } = form;
   const [id, setId] = useState(undefined);
   const [ListSanPham, setListSanPham] = useState([]);
+  const [SanPham, setSanPham] = useState(null);
+  const [OEM, setOEM] = useState([]);
   const [ListNhanVien, setListNhanVien] = useState([]);
-  const [ActiveModalCongDoan, setActiveModalCongDoan] = useState(false);
   const [ListCongDoan, setListCongDoan] = useState([]);
+  const [ActiveModalCongDoan, setActiveModalCongDoan] = useState(false);
+  const [ListTram, setListTram] = useState([]);
   const [ActiveModalTram, setActiveModalTram] = useState(false);
   const [Tram, setTram] = useState({});
-  const [ActiveModalChiTietTram, setActiveModalChiTietTram] = useState(false);
   const [info, setInfo] = useState(null);
 
   useEffect(() => {
@@ -119,6 +120,67 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           setListSanPham(res.data);
         } else {
           setListSanPham([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListBOM = (tits_qtsx_SanPham_Id) => {
+    const params = convertObjectToUrlParams({
+      tits_qtsx_SanPham_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_QuyTrinhSanXuat/list-BOM-da-duyet?${params}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setFieldsValue({
+            quytrinhsanxuat: {
+              tits_qtsx_BOM_Id: res.data.tenBOM,
+            },
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListOEM = (tits_qtsx_SanPham_Id) => {
+    const params = convertObjectToUrlParams({
+      tits_qtsx_SanPham_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_QuyTrinhSanXuat/list-OEM-da-duyet?${params}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setFieldsValue({
+            quytrinhsanxuat: {
+              tits_qtsx_OEM_Id: res.data.tenOEM,
+            },
+          });
+          setOEM(res.data);
+        } else {
+          setOEM([]);
         }
       })
       .catch((error) => console.error(error));
@@ -184,7 +246,6 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
   };
 
   const handleModalTram = (item) => {
-    console.log(item);
     setTram(item);
     setActiveModalTram(true);
   };
@@ -233,7 +294,12 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
     ModalDeleteConfirm(deleteItemAction, item, item.tenCongDoan, "công đoạn");
   };
 
-  const deleteItemAction = (item) => {};
+  const deleteItemAction = (item) => {
+    const newData = ListCongDoan.filter(
+      (d) => d.tits_qtsx_CongDoan_Id !== item.tits_qtsx_CongDoan_Id
+    );
+    setListCongDoan(newData);
+  };
 
   const handleCheckboxChange = (record) => {
     const newData = ListCongDoan.map((congdoan) => {
@@ -420,7 +486,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       ListCongDoan &&
       ListCongDoan.filter(
         (d) =>
-          (d.tits_qtsx_CongDoan_Id === data.tits_qtsx_CongDoan_Id &&
+          (d.tits_qtsx_Tram_Id === data.tits_qtsx_Tram_Id &&
             d.tits_qtsx_Xuong_Id) === data.tits_qtsx_Xuong_Id
       );
 
@@ -433,6 +499,24 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
     }
   };
 
+  const DataThemTram = (data) => {
+    const congdoan =
+      ListTram &&
+      ListTram.filter(
+        (d) =>
+          (d.tits_qtsx_CongDoan_Id === data.tits_qtsx_CongDoan_Id &&
+            d.tits_qtsx_Xuong_Id) === data.tits_qtsx_Xuong_Id
+      );
+
+    if (congdoan.length !== 0) {
+      Helpers.alertError(
+        `Công đoạn ${data.tenCongDoan} - ${data.tenXuong} đã được thêm`
+      );
+    } else {
+      setListTram([...ListTram, data]);
+    }
+  };
+
   const goBack = () => {
     history.push(
       `${match.url.replace(
@@ -440,6 +524,12 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
         ""
       )}`
     );
+  };
+
+  const handleOnSelectSanPham = (val) => {
+    setSanPham(val);
+    getListBOM(val);
+    getListOEM(val);
   };
 
   const formTitle =
@@ -491,6 +581,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
+                  onSelect={handleOnSelectSanPham}
                   disabled={type === "detail" ? true : false}
                 />
               </FormItem>
@@ -531,80 +622,68 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
                 />
               </FormItem>
             </Col>
-            {/* <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  marginBottom: 10,
-                }}
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{
+                marginBottom: 10,
+              }}
+            >
+              <FormItem
+                label="BOM"
+                name={["quytrinhsanxuat", "tits_qtsx_BOM_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                  {
+                    max: 250,
+                  },
+                ]}
               >
-                <FormItem
-                  label="BOM"
-                  name={["quytrinhsanxuat", "tits_qtsx_BOM_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                    {
-                      max: 250,
-                    },
-                  ]}
-                 
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListSanPham ? ListSanPham : []}
-                    placeholder="Chọn BOM"
-                    optionsvalue={["id", "tenSanPham"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp="name"
-                    disabled={true}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  marginBottom: 10,
-                }}
+                <Input
+                  className="input-item"
+                  placeholder="BOM của sản phẩm"
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{
+                marginBottom: 10,
+              }}
+            >
+              <FormItem
+                label="OEM"
+                name={["quytrinhsanxuat", "tits_qtsx_OEM_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                  {
+                    max: 250,
+                  },
+                ]}
               >
-                <FormItem
-                  label="OEM"
-                  name={["quytrinhsanxuat", "tits_qtsx_OEM_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                    {
-                      max: 250,
-                    },
-                  ]}
-                  
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListSanPham ? ListSanPham : []}
-                    placeholder="Chọn OEM"
-                    optionsvalue={["id", "tenSanPham"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp="name"
-                    disabled={true}
-                  />
-                </FormItem>
-              </Col> */}
+                <Input
+                  className="input-item"
+                  placeholder="OEM của sản phẩm"
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
           </Row>
           <Divider style={{ marginBottom: 15 }} />
           <Row>
@@ -681,7 +760,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
             >
               <FormItem
                 label="Người kiểm tra"
-                name={["phieumuahangngoai", "nguoiThuMua_Id"]}
+                name={["phieumuahangngoai", "nguoiKiemTra_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -712,7 +791,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
             >
               <FormItem
                 label="Người duyệt"
-                name={["phieumuahangngoai", "nguoiThuMua_Id"]}
+                name={["phieumuahangngoai", "nguoiDuyet_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -849,6 +928,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
                   icon={<PlusCircleOutlined />}
                   onClick={() => setActiveModalCongDoan(true)}
                   type="primary"
+                  disabled={SanPham === null ? true : false}
                 >
                   Thêm công đoạn
                 </Button>
@@ -883,8 +963,8 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       <ModalTram
         openModal={ActiveModalTram}
         openModalFS={setActiveModalTram}
-        itemData={Tram}
-        DataThemCongDoan={DataThemCongDoan}
+        itemData={{ tram: Tram, oem: OEM }}
+        DataThemTram={DataThemTram}
       />
     </div>
   );

@@ -1,18 +1,25 @@
-import { Modal as AntModal, Form, Row, Button, Card } from "antd";
-import moment from "moment";
+import { Modal as AntModal, Form, Row, Button, Card, Checkbox } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { Select } from "src/components/Common";
+import {
+  EditableTableRow,
+  ModalDeleteConfirm,
+  Select,
+  Table,
+} from "src/components/Common";
 import { DEFAULT_FORM_CONGDOAN } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
-  getDateNow,
   getLocalStorage,
   getTokenInfo,
 } from "src/util/Common";
+import ModalThongTinKiemSoat from "./ModalChiTietTram";
+import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import { map } from "lodash";
 
 const FormItem = Form.Item;
+const { EditableRow, EditableCell } = EditableTableRow;
 
 function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
   const dispatch = useDispatch();
@@ -26,10 +33,16 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
   const [form] = Form.useForm();
   const { resetFields } = form;
   const [ListTram, setListTram] = useState([]);
+  const [ListThietBi, setListThietBi] = useState([]);
+  const [ListVatTu, setListVatTu] = useState([]);
+  const [ListThongTin, setListThongTin] = useState([]);
+  const [ActiveModalThongTin, setActiveModalThongTin] = useState(false);
 
   useEffect(() => {
     if (openModal) {
       getListTram();
+      getListThietBi();
+      getListVatTu();
     }
     return () => {
       dispatch(fetchReset());
@@ -39,7 +52,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
 
   const getListTram = () => {
     const param = convertObjectToUrlParams({
-      tits_qtsx_Xuong_Id: itemData.tits_qtsx_Xuong_Id,
+      tits_qtsx_Xuong_Id: itemData.tram.tits_qtsx_Xuong_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -55,7 +68,6 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        console.log(res.data);
         setListTram(res.data);
       } else {
         setListTram([]);
@@ -63,24 +75,208 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
     });
   };
 
+  const getListThietBi = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_ThietBi?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListThietBi(res.data);
+      } else {
+        setListThietBi([]);
+      }
+    });
+  };
+
+  const getListVatTu = () => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_OEM_Id: itemData.oem.id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_QuyTrinhSanXuat/list-vat-tu-theo-OEM?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListVatTu(res.data);
+      } else {
+        setListVatTu([]);
+      }
+    });
+  };
+
+  const deleteItemFunc = (item, title) => {
+    ModalDeleteConfirm(deleteItemAction, item, item.tenThongTinKiemSoat, title);
+  };
+
+  const deleteItemAction = (item) => {
+    const newData = ListThongTin.filter(
+      (d) => d.tits_qtsx_ThongTin_Id !== item.tits_qtsx_ThongTin_Id
+    );
+    setListThongTin(newData);
+  };
+
+  const actionContent = (item) => {
+    const deleteVal = {
+      onClick: () => deleteItemFunc(item, "thông tin kiểm soát"),
+    };
+
+    return (
+      <div>
+        <a {...deleteVal} title="Xóa thông tin kiểm soát">
+          <DeleteOutlined />
+        </a>
+      </div>
+    );
+  };
+
+  const handleCheckboxChange = (record, value) => {
+    const newData = ListThongTin.map((thongtin) => {
+      if (thongtin.tits_qtsx_ThongTin_Id === record.tits_qtsx_ThongTin_Id) {
+        return value === "isXem"
+          ? {
+              ...thongtin,
+              isXem: !thongtin.isXem,
+            }
+          : value === "isNhap"
+          ? {
+              ...thongtin,
+              isNhap: !thongtin.isNhap,
+            }
+          : {
+              ...thongtin,
+              isKiemTraSoLo: !thongtin.isKiemTraSoLo,
+            };
+      }
+      return thongtin;
+    });
+
+    setListThongTin(newData);
+  };
+
+  const renderSCL = (record, value) => {
+    return (
+      <Checkbox
+        checked={
+          value === "isXem"
+            ? record.isXem
+            : value === "isNhap"
+            ? record.isNhap
+            : record.isKiemTraSoLo
+        }
+        onChange={() => handleCheckboxChange(record, value)}
+      />
+    );
+  };
+
+  let colValues = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 120,
+      render: (value) => actionContent(value),
+    },
+    {
+      title: "Thứ tự",
+      dataIndex: "thuTu",
+      key: "thuTu",
+      align: "center",
+      width: 120,
+    },
+    {
+      title: "Thông tin kiểm soát",
+      dataIndex: "tenThongTinKiemSoat",
+      key: "tenThongTinKiemSoat",
+      align: "center",
+    },
+    {
+      title: "Xem",
+      key: "isXem",
+      align: "center",
+      render: (record) => renderSCL(record, "isXem"),
+    },
+    {
+      title: "Nhập",
+      key: "isNhap",
+      align: "center",
+      render: (record) => renderSCL(record, "isNhap"),
+    },
+    {
+      title: "Kiểm tra số lô",
+      key: "isKiemTraSoLo",
+      align: "center",
+      render: (record) => renderSCL(record, "isKiemTraSoLo"),
+    },
+  ];
+
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+
+  const columns = map(colValues, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
+
   const onFinish = (values) => {
     const data = values.themtram;
-    // const congdoan = ListCongDoan.filter(
-    //   (d) => d.id === data.tits_qtsx_CongDoan_Id
-    // );
-    // const xuong = ListXuong.filter((d) => d.id === data.tits_qtsx_Xuong_Id);
-    // const newData = {
-    //   ...data,
-    //   tenCongDoan: congdoan[0].tenCongDoan,
-    //   maCongDoan: congdoan[0].maCongDoan,
-    //   tenXuong: xuong[0].tenXuong,
-    //   maXuong: xuong[0].maXuong,
-    //   isChoPhepSCL: true,
-    //   thuTu: 1,
-    // };
-    // DataThemTram(data);
-    // resetFields();
+    const tram = ListTram.filter((d) => d.id === data.tits_qtsx_Tram_Id);
+    const thietbi = ListThietBi.filter(
+      (d) => d.id === data.tits_qtsx_ThietBi_Id
+    );
+    const vattu = ListVatTu.filter((d) => d.id === data.tits_qtsx_VatTu_Id);
+    const newData = {
+      ...data,
+      tits_qtsx_Tram_Id: tram[0].tits_qtsx_Tram_Id,
+      maTram: tram[0].maTram,
+      tenTram: tram[0].tenTram,
+      tits_qtsx_ThietBi_Id: thietbi[0].tits_qtsx_ThietBi_Id,
+      maThietBi: thietbi[0].maThietBi,
+      tenThietBi: thietbi[0].tenThietBi,
+      tits_qtsx_VatTu_Id: vattu[0].tits_qtsx_VatTu_Id,
+      maVatTu: vattu[0].maVatTu,
+      tenVatTu: vattu[0].tenVatTu,
+      thuTu: 1,
+    };
+    DataThemTram(newData);
+    resetFields();
     openModalFS(false);
+  };
+
+  const DataThemThongTin = (data) => {
+    setListThongTin([...ListThongTin, ...data]);
   };
 
   const handleCancel = () => {
@@ -91,7 +287,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
     <AntModal
       title="Thêm trạm"
       open={openModal}
-      width={width > 1200 ? `50%` : `70%`}
+      width={width > 1200 ? `70%` : `100%`}
       closable={true}
       onCancel={handleCancel}
       footer={null}
@@ -119,15 +315,15 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
                 className="heading-select slt-search th-select-heading"
                 data={ListTram}
                 placeholder="Chọn trạm"
-                optionsvalue={["id", "temTram"]}
+                optionsvalue={["id", "tenTram"]}
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp="name"
               />
             </FormItem>
             <FormItem
-              label="Trạm"
-              name={["themtram", "tits_qtsx_CongDoan_Id"]}
+              label="Thiết bị"
+              name={["themtram", "tits_qtsx_ThietBi_Id"]}
               rules={[
                 {
                   type: "string",
@@ -137,20 +333,82 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
             >
               <Select
                 className="heading-select slt-search th-select-heading"
-                data={ListTram}
-                placeholder="Chọn trạm"
-                optionsvalue={["id", "temTram"]}
+                data={ListThietBi}
+                placeholder="Chọn thiết bị"
+                optionsvalue={["id", "tenThietBi"]}
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp="name"
               />
             </FormItem>
+            <FormItem
+              label="Vật tư"
+              name={["themtram", "tits_qtsx_VatTu_Id"]}
+              rules={[
+                {
+                  type: "string",
+                  required: true,
+                },
+              ]}
+            >
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListVatTu}
+                placeholder="Chọn trạm"
+                optionsvalue={["id", "tenVatTu"]}
+                style={{ width: "100%" }}
+                showSearch
+                optionFilterProp="name"
+              />
+            </FormItem>
+            <Card
+              className="th-card-margin-bottom th-card-reset-margin"
+              title={"Công đoạn sản xuất"}
+              headStyle={{
+                textAlign: "center",
+                backgroundColor: "#0469B9",
+                color: "#fff",
+              }}
+            >
+              <div align={"end"}>
+                <Button
+                  icon={<PlusCircleOutlined />}
+                  onClick={() => setActiveModalThongTin(true)}
+                  type="primary"
+                >
+                  Thêm công đoạn
+                </Button>
+              </div>
+
+              <Table
+                bordered
+                columns={columns}
+                scroll={{ x: 1000, y: "55vh" }}
+                components={components}
+                className="gx-table-responsive"
+                dataSource={ListThongTin}
+                size="small"
+                rowClassName={"editable-row"}
+                pagination={false}
+                // loading={loading}
+              />
+            </Card>
             <Row justify={"center"}>
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+              <Button
+                type="primary"
+                htmlType={"submit"}
+                disabled={!fieldTouch && !ListThongTin.length}
+              >
                 Thêm trạm
               </Button>
             </Row>
           </Form>
+          <ModalThongTinKiemSoat
+            openModal={ActiveModalThongTin}
+            openModalFS={setActiveModalThongTin}
+            itemData={ListThietBi}
+            DataThemThongTin={DataThemThongTin}
+          />
         </div>
       </Card>
     </AntModal>
