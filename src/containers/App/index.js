@@ -18,6 +18,7 @@ import MainApp from "./MainApp";
 import SignIn from "../SignIn";
 import InMaQrThongTinVatTu from "src/routes/Kho_TPC/InBarcode/VatTu/InMaQr";
 import InMaQrCauTrucKho from "src/routes/Kho_TPC/InBarcode/CauTrucKho/InMaQr";
+import InMaQrSanPham from "src/routes/Kho_TPC/InBarcode/SanPham/InMaQr";
 
 import { setInitUrl } from "src/appRedux/actions/Auth";
 import {
@@ -41,6 +42,7 @@ import {
   getSessionStorage,
   getTokenInfo,
   setSessionStorage,
+  removeLocalStorage,
 } from "src/util/Common";
 
 // import { messaging } from "src/constants/firebase";
@@ -109,12 +111,11 @@ const App = () => {
     if (
       location &&
       location.pathname &&
-      (location.pathname === "/in-barcode-kho-tpc/vat-tu/inMa" ||
-        location.pathname === "/in-barcode-kho-tpc/cau-truc-kho-vat-tu/inMa" ||
-        location.pathname ===
-          "/in-barcode-kho-tpc/cau-truc-kho-thanh-pham/inMa")
+      location.pathname.includes("in-barcode-kho-tpc")
     ) {
       setSessionStorage("tokenInfo", true);
+    } else {
+      removeLocalStorage("inMa");
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -293,6 +294,11 @@ const App = () => {
             exact
             path="/in-barcode-kho-tpc/vat-tu/inMa"
             component={InMaQrThongTinVatTu}
+          />
+          <Route
+            exact
+            path="/in-barcode-kho-tpc/san-pham/inMa"
+            component={InMaQrSanPham}
           />
           <RestrictedRoute
             path={`${match.url}`}

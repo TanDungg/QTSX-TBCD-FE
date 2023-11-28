@@ -9,6 +9,7 @@ import {
   Button,
   Tag,
   Upload,
+  Image,
 } from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helper from "src/helpers";
@@ -22,6 +23,7 @@ import {
   Table,
   ModalDeleteConfirm,
   EditableTableRow,
+  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API, DEFAULT_FORM_TWO_COL } from "src/constants/Config";
@@ -33,6 +35,7 @@ import {
   reDataForTable,
 } from "src/util/Common";
 import DanhSachImport from "./DanhSachImport";
+import ModalTuChoi from "./ModalTuChoi";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -48,6 +51,7 @@ const OEMForm = ({ history, match, permission }) => {
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [fieldTouch, setFieldTouch] = useState(false);
+  const [DataLoi, setDataLoi] = useState([]);
   const [listVatTu, setListVatTu] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
@@ -55,6 +59,7 @@ const OEMForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [info, setInfo] = useState({});
   const [ActiveModal, setActiveModal] = useState(false);
+  const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
 
   useEffect(() => {
     const load = () => {
@@ -72,9 +77,9 @@ const OEMForm = ({ history, match, permission }) => {
         } else if (permission && !permission.add) {
           history.push("/home");
         }
-      } else if (includes(match.url, "chinh-sua")) {
+      } else if (includes(match.url, "chi-tiet")) {
         if (permission && permission.edit) {
-          setType("edit");
+          setType("detail");
           const { id } = match.params;
           setId(id);
           getSanPham();
@@ -83,9 +88,9 @@ const OEMForm = ({ history, match, permission }) => {
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
-      } else if (includes(match.url, "chi-tiet")) {
+      } else if (includes(match.url, "xac-nhan")) {
         if (permission && permission.edit) {
-          setType("detail");
+          setType("xacnhan");
           const { id } = match.params;
           setId(id);
           getSanPham();
@@ -173,24 +178,37 @@ const OEMForm = ({ history, match, permission }) => {
           const data = res.data;
           setInfo(data);
 
-          const chiTiet =
-            data.chiTiet_NhanHangs &&
-            JSON.parse(data.chiTiet_NhanHangs).map((data) => {
-              return {
-                ...data,
-                soLuongCu: data.soLuong,
-              };
-            });
-          setListVatTu(chiTiet);
-
           setFieldsValue({
             oem: {
               ...data,
               ngayBanHanh: moment(data.ngayBanHanh, "DD/MM/YYYY"),
               ngayApDung: moment(data.ngayApDung, "DD/MM/YYYY"),
-              isLoaiPhieu: data.isLoaiPhieu.toString(),
             },
           });
+          const chiTiet =
+            data.list_ChiTiets &&
+            data.list_ChiTiets.map((listchitiet) => {
+              let stt = 0;
+              return {
+                ...listchitiet,
+                key: "*",
+                list_VatTus: listchitiet.list_VatTus.map((listvattu) => {
+                  stt++;
+                  return {
+                    ...listvattu,
+                    key: stt,
+                  };
+                }),
+              };
+            });
+          const newData = chiTiet;
+
+          chiTiet.forEach((chiTiet) => {
+            if (chiTiet.list_VatTus) {
+              newData.push(...chiTiet.list_VatTus);
+            }
+          });
+          setListVatTu(newData);
         }
       })
       .catch((error) => console.error(error));
@@ -268,60 +286,97 @@ const OEMForm = ({ history, match, permission }) => {
       key: "key",
       align: "center",
       width: 45,
+      onCell: (record) => ({
+        className: record.key === "*" ? "total-row" : "",
+      }),
     },
     {
       title: "Mã vật tư/chi tiết",
       dataIndex: "maVatTuChiTiet",
       key: "maVatTuChiTiet",
       align: "center",
+      onCell: (record) => ({
+        className: record.key === "*" ? "total-row" : "",
+      }),
     },
     {
       title: "Tên vật tư/chi tiết",
       dataIndex: "tenVatTuChiTiet",
       key: "tenVatTuChiTiet",
       align: "center",
+      onCell: (record) => ({
+        className: record.key === "*" ? "total-row" : "",
+      }),
     },
     {
       title: "Mã đơn vị tính",
-      dataIndex: "maDonViTinh",
-      key: "maDonViTinh",
+      dataIndex: type === "new" ? "maDonViTinh" : "tenDonViTinh",
+      key: type === "new" ? "maDonViTinh" : "tenDonViTinh",
       align: "center",
+      onCell: (record) => ({
+        className: record.key === "*" ? "total-row" : "",
+      }),
     },
     {
       title: "Thông số kỹ thuật",
       dataIndex: "thongSoKyThuat",
       key: "thongSoKyThuat",
       align: "center",
+      onCell: (record) => ({
+        className: record.key === "*" ? "total-row" : "",
+      }),
     },
     {
       title: "Vật liệu",
       dataIndex: "vatLieu",
       key: "vatLieu",
       align: "center",
+      onCell: (record) => ({
+        className: record.key === "*" ? "total-row" : "",
+      }),
     },
     {
       title: "Số lượng",
       dataIndex: "dinhMuc",
       key: "dinhMuc",
       align: "center",
+      onCell: (record) => ({
+        className: record.key === "*" ? "total-row" : "",
+      }),
     },
     {
       title: "Mã xưởng nhận",
-      dataIndex: "maXuong",
-      key: "maXuong",
+      dataIndex: type === "new" ? "maXuong" : "tenXuong",
+      key: type === "new" ? "maXuong" : "tenXuong",
       align: "center",
+      onCell: (record) => ({
+        className: record.key === "*" ? "total-row" : "",
+      }),
     },
     {
       title: "Hình ảnh",
+      dataIndex: "hinhAnh",
       key: "hinhAnh",
       align: "center",
-      // render: (record) => renderHinhAnh(record),
+      render: (value) =>
+        value && (
+          <span>
+            <Image
+              src={BASE_URL_API + value}
+              alt="Hình ảnh"
+              style={{ maxWidth: 100, maxHeight: 100 }}
+            />
+          </span>
+        ),
     },
     {
       title: "Ghi chú",
       dataIndex: "moTa",
       key: "moTa",
       align: "center",
+      onCell: (record) => ({
+        className: record.key === "*" ? "total-row" : "",
+      }),
     },
     {
       title: "Lỗi",
@@ -329,35 +384,15 @@ const OEMForm = ({ history, match, permission }) => {
       key: "ghiChuImport",
       align: "center",
     },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-    },
   ];
+
   const components = {
     body: {
       row: EditableRow,
       cell: EditableCell,
     },
   };
-  const handleSave = (row) => {
-    const newData = [...listVatTu];
-    const index = newData.findIndex(
-      (item) =>
-        row.tits_qtsx_PhieuMuaHangChiTiet_Id ===
-        item.tits_qtsx_PhieuMuaHangChiTiet_Id
-    );
-    const item = newData[index];
-    newData.splice(index, 1, {
-      ...item,
-      ...row,
-    });
-    setFieldTouch(true);
-    setListVatTu(newData);
-  };
+
   const columns = map(colValues, (col) => {
     if (!col.editable) {
       return col;
@@ -370,7 +405,6 @@ const OEMForm = ({ history, match, permission }) => {
         dataIndex: col.dataIndex,
         title: col.title,
         info: col.info,
-        handleSave: handleSave,
       }),
     };
   });
@@ -399,13 +433,35 @@ const OEMForm = ({ history, match, permission }) => {
 
   const saveData = (oem, saveQuit = false) => {
     if (type === "new") {
+      const ListChiTiet = [];
+      let children = null;
+
+      listVatTu.forEach((data) => {
+        if (data.key === "*") {
+          children = { ...data, list_VatTus: [] };
+          ListChiTiet.push(children);
+        } else if (children) {
+          children.list_VatTus.push(data);
+        }
+      });
+
       const newData = {
         ...oem,
+        donVi_Id: INFO.donVi_Id,
         ngayBanHanh: oem.ngayBanHanh.format("DD/MM/YYYY"),
-        chiTiet_NhanHangs: listVatTu.map((dt) => {
+        ngayApDung: oem.ngayApDung.format("DD/MM/YYYY"),
+        list_ChiTiets: ListChiTiet.map((listchitiet) => {
           return {
-            ...dt,
-            soLuong: dt.soLuong && parseFloat(dt.soLuong),
+            ...listchitiet,
+            dinhMuc: listchitiet.dinhMuc && parseFloat(listchitiet.dinhMuc),
+            list_VatTus:
+              listchitiet.list_VatTus &&
+              listchitiet.list_VatTus.map((listvattu) => {
+                return {
+                  ...listvattu,
+                  dinhMuc: listvattu.dinhMuc && parseFloat(listvattu.dinhMuc),
+                };
+              }),
           };
         }),
       };
@@ -430,39 +486,32 @@ const OEMForm = ({ history, match, permission }) => {
               resetFields();
               setFieldTouch(false);
               setListVatTu([]);
+              setFieldsValue({
+                oem: {
+                  ngayBanHanh: moment(getDateNow(), "DD/MM/YYYY"),
+                  ngayApDung: moment(getDateNow(), "DD/MM/YYYY"),
+                },
+              });
             }
           } else {
-            setFieldTouch(false);
-          }
-        })
-        .catch((error) => console.error(error));
-    }
-    if (type === "edit") {
-      const newData = {
-        ...oem,
-        id: id,
-        tits_qtsx_PhieuMuaHang_Id: info.tits_qtsx_PhieuMuaHang_Id,
-        ngayBanHanh: oem.ngayBanHanh.format("DD/MM/YYYY"),
-        chiTiet_NhanHangs: listVatTu,
-      };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_OEM/${id}`,
-            "PUT",
-            newData,
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) goBack();
-          } else {
-            getInfo(id);
+            setDataLoi(res.data);
+            const newData = listVatTu.map((data) => {
+              const dt = res.data.find(
+                (item) =>
+                  item.maVatTuChiTiet === data.maVatTuChiTiet &&
+                  item.tenVatTuChiTiet === data.tenVatTuChiTiet
+              );
+
+              if (dt) {
+                return {
+                  ...data,
+                  ghiChuImport: dt.ghiChuImport,
+                };
+              } else {
+                return data;
+              }
+            });
+            setListVatTu(newData);
             setFieldTouch(false);
           }
         })
@@ -470,8 +519,107 @@ const OEMForm = ({ history, match, permission }) => {
     }
   };
 
+  const handleXacNhan = () => {
+    const newData = {
+      id: id,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_OEM/duyet/${id}`,
+          "PUT",
+          newData,
+          "XACNHAN",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          setType("xacnhan");
+          const { id } = match.params;
+          setId(id);
+          getSanPham();
+          getNguoiDuyet(INFO);
+          getInfo(id);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const prop = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận OEM",
+    onOk: handleXacNhan,
+  };
+
+  const modalXK = () => {
+    Modal(prop);
+  };
+
+  const saveTuChoi = (data) => {
+    const newData = {
+      id: id,
+      lyDoTuChoi: data,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_OEM/duyet/${id}`,
+          "PUT",
+          newData,
+          "TUCHOI",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          setType("xacnhan");
+          const { id } = match.params;
+          setId(id);
+          getSanPham();
+          getNguoiDuyet(INFO);
+          getInfo(id);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const handleSelectSanPham = (value) => {
     setSanPham(value);
+    setListVatTu([]);
+  };
+
+  const DanhSachChiTiet = (data) => {
+    setListVatTu(data);
+    setFieldTouch(true);
+    setDataLoi([]);
+  };
+
+  const RowStyle = (current, index) => {
+    if (DataLoi && DataLoi.length > 0) {
+      let check = false;
+      DataLoi.forEach((dt) => {
+        if (
+          current.maVatTuChiTiet.toString() === dt.maVatTuChiTiet.toString() &&
+          current.tenVatTuChiTiet.toString() === dt.tenVatTuChiTiet.toString()
+        ) {
+          check = true;
+        }
+      });
+      if (check) {
+        return "red-row";
+      }
+    } else {
+      return;
+    }
   };
 
   const formTitle =
@@ -482,8 +630,22 @@ const OEMForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết OEM -{" "}
-        <Tag color="blue" style={{ fontSize: "14px" }}>
+        <Tag color={"blue"} style={{ fontSize: "15px" }}>
           {info.maOEM}
+        </Tag>
+        <Tag
+          color={
+            info.trangThai === "Chưa duyệt"
+              ? "orange"
+              : info.trangThai === "Đã duyệt"
+              ? "blue"
+              : "red"
+          }
+          style={{
+            fontSize: "15px",
+          }}
+        >
+          {info.trangThai}
         </Tag>
       </span>
     );
@@ -509,7 +671,16 @@ const OEMForm = ({ history, match, permission }) => {
               xs={24}
               style={{ marginBottom: 8 }}
             >
-              <FormItem label="Tên OEM" name={["oem", "tenOEM"]}>
+              <FormItem
+                label="Tên OEM"
+                name={["oem", "tenOEM"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
                 <Input
                   className="input-item"
                   placeholder="Nhập tên OEM"
@@ -688,12 +859,12 @@ const OEMForm = ({ history, match, permission }) => {
           <Table
             bordered
             columns={columns}
-            scroll={{ x: 900, y: "55vh" }}
+            scroll={{ x: 900, y: "35vh" }}
             components={components}
             className="gx-table-responsive"
-            dataSource={reDataForTable(listVatTu)}
+            dataSource={listVatTu}
             size="small"
-            rowClassName={"editable-row"}
+            rowClassName={DataLoi ? RowStyle : "editable-row"}
             pagination={false}
             // loading={loading}
           />
@@ -707,11 +878,32 @@ const OEMForm = ({ history, match, permission }) => {
           />
         ) : null}
       </Card>
+      {type === "xacnhan" &&
+      info.trangThai === "Chưa duyệt" &&
+      info.nguoiPheDuyet_Id === INFO.user_Id ? (
+        <Row justify={"end"} style={{ marginTop: 15 }}>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="primary" onClick={modalXK}>
+              Xác nhận
+            </Button>
+          </Col>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
+              Từ chối
+            </Button>
+          </Col>
+        </Row>
+      ) : null}
       <DanhSachImport
         openModal={ActiveModal}
         openModalFS={setActiveModal}
-        DanhSachChiTiet={""}
+        DanhSachChiTiet={DanhSachChiTiet}
         itemData={SanPham}
+      />
+      <ModalTuChoi
+        openModal={ActiveModalTuChoi}
+        openModalFS={setActiveModalTuChoi}
+        saveTuChoi={saveTuChoi}
       />
     </div>
   );

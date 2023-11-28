@@ -342,6 +342,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
       );
     return <div>{detail}</div>;
   };
+  
   let renderHead = [
     {
       title: "STT",

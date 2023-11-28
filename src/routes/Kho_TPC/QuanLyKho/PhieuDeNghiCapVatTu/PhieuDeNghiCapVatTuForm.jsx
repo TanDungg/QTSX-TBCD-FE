@@ -219,7 +219,9 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
           res.data.list_VatTus.map((data) => {
             return {
               ...data,
-              soLuong: res.data.soLuongKH * data.dinhMuc + data.dinhMucXaNhua,
+              soLuong: Number(
+                res.data.soLuongKH * data.dinhMuc + data.dinhMucXaNhua
+              ).toFixed(4),
               soLuongKH: res.data.soLuongKH,
               id: res.data.sanPham_Id + data.vatTu_Id,
               tenSanPham: res.data.tenSanPham,
@@ -254,7 +256,9 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
         const newData = res.data.map((data) => {
           return {
             ...data,
-            soLuong: data.soLuongKH * data.dinhMuc + data.dinhMucXaNhua,
+            soLuong: Number(
+              data.soLuongKH * data.dinhMuc + data.dinhMucXaNhua
+            ).toFixed(4),
             id: data.sanPham_Id + data.vatTu_Id,
           };
         });

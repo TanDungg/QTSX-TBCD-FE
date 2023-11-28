@@ -91,7 +91,7 @@ export const getLocalStorage = (key) => {
  * @returns
  */
 export const removeLocalStorage = (key) => {
-  return localStorage.getItem(key);
+  return localStorage.removeItem(key);
 };
 
 /**

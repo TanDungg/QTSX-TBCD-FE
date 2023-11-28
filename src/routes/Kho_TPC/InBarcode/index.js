@@ -7,7 +7,7 @@ const CauTrucKho = asyncComponent(() => import("./CauTrucKho/CauTrucKho"));
 const CauTrucKhoThanhPham = asyncComponent(() =>
   import("./CauTrucKhoThanhPham/CauTrucKhoThanhPham")
 );
-const Ke = asyncComponent(() => import("./Ke/Ke"));
+const SanPham = asyncComponent(() => import("./SanPham/SanPham"));
 const VatTu = asyncComponent(() => import("./VatTu/VatTu"));
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -27,6 +27,11 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/vat-tu`}
         exact
         component={Auth(VatTu, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/san-pham`}
+        exact
+        component={Auth(SanPham, menus, pathname, permission)}
       />
     </Switch>
   );

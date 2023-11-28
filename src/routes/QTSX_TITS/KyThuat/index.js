@@ -11,9 +11,6 @@ const QuyTrinhCongNgheForm = asyncComponent(() =>
   import("./QuyTrinhCongNghe/QuyTrinhCongNgheForm")
 );
 
-const BOM = asyncComponent(() => import("./BOM/BOM"));
-const BOMForm = asyncComponent(() => import("./BOM/BOMForm"));
-
 //Danh sách chi tiết
 const DanhSachChiTiet = asyncComponent(() =>
   import("./DanhSachChiTiet/DanhSachChiTiet")
@@ -26,6 +23,8 @@ const DanhSachChiTietForm = asyncComponent(() =>
 const OEM = asyncComponent(() => import("./OEM/OEM"));
 const OEMForm = asyncComponent(() => import("./OEM/OEMForm"));
 
+const BOM = asyncComponent(() => import("./BOM/BOM"));
+const BOMForm = asyncComponent(() => import("./BOM/BOMForm"));
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -45,21 +44,6 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/quy-trinh-cong-nghe/:id/chinh-sua`}
         exact
         component={Auth(QuyTrinhCongNgheForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/bom`}
-        exact
-        component={Auth(BOM, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/bom/them-moi`}
-        exact
-        component={Auth(BOMForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/bom/:id/chinh-sua`}
-        exact
-        component={Auth(BOMForm, menus, pathname, permission)}
       />
       {/* Danh sách chi tiết */}
       <Route
@@ -92,6 +76,32 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/oem/:id/chinh-sua`}
         exact
         component={Auth(OEMForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/oem/:id/chi-tiet`}
+        exact
+        component={Auth(OEMForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/oem/:id/xac-nhan`}
+        exact
+        component={Auth(OEMForm, menus, pathname, permission)}
+      />
+      {/* BOM */}
+      <Route
+        path={`${match.url}/bom`}
+        exact
+        component={Auth(BOM, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/bom/them-moi`}
+        exact
+        component={Auth(BOMForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/bom/:id/chinh-sua`}
+        exact
+        component={Auth(BOMForm, menus, pathname, permission)}
       />
     </Switch>
   );

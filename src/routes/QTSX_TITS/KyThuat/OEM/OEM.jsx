@@ -127,8 +127,8 @@ function OEM({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const xacnhan =
-      item.nguoiDuyet_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
+      item.nguoiPheDuyet_Id === INFO.user_Id &&
+      item.trangThai === "Chưa duyệt" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -144,37 +144,16 @@ function OEM({ match, history, permission }) {
         </span>
       );
 
-    const editItem =
-      permission &&
-      permission.edit &&
-      item.nguoiTao_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item },
-          }}
-          title="Sửa OEM"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa OEM">
-          <EditOutlined />
-        </span>
-      );
     const deleteVal =
       permission &&
       permission.del &&
       item.nguoiTao_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận"
+      item.trangThai === "Chưa duyệt"
         ? { onClick: () => deleteItemFunc(item, "OEM") }
         : { disabled: true };
     return (
       <div>
         {xacnhan}
-        <Divider type="vertical" />
-        {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa OEM">
           <DeleteOutlined />
@@ -253,6 +232,23 @@ function OEM({ match, history, permission }) {
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
 
+  const renderDetail = (val) => {
+    const detail =
+      permission && permission.view ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${val.id}/chi-tiet`,
+            state: { itemData: val, permission },
+          }}
+        >
+          {val.maOEM}
+        </Link>
+      ) : (
+        <span disabled>{val.maOEM}</span>
+      );
+    return <div>{detail}</div>;
+  };
+
   let renderHead = [
     {
       title: "STT",
@@ -263,9 +259,9 @@ function OEM({ match, history, permission }) {
     },
     {
       title: "Mã OEM",
-      dataIndex: "maOEM",
       key: "maOEM",
       align: "center",
+      render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {

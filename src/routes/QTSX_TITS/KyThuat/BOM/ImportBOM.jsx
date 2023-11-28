@@ -2,6 +2,7 @@ import {
   DeleteOutlined,
   UploadOutlined,
   DownloadOutlined,
+  SettingOutlined,
 } from "@ant-design/icons";
 import {
   Modal as AntModal,
@@ -20,9 +21,14 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
 import { Modal } from "src/components/Common";
-import { exportExcel, reDataForTable } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  exportExcel,
+  reDataForTable,
+} from "src/util/Common";
 import * as XLSX from "xlsx";
 import { EditableTableRow, Table } from "src/components/Common";
+import ModalThietLap from "./ModalThietLap";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -40,6 +46,27 @@ function ImportBOM({
   const [checkDanger, setCheckDanger] = useState(false);
   const [HangTrung, setHangTrung] = useState([]);
   const [DataLoi, setDataLoi] = useState();
+  const [ActiceModalThietLap, setActiceModalThietLap] = useState(false);
+  const [dataThietLap, setDataThietLap] = useState({
+    giaCong: true,
+    ed: true,
+    xiMa: true,
+    nmk: true,
+    kho: true,
+    lazer: true,
+    lazerDamH: true,
+    cuaVong: true,
+    chanDot: true,
+    vatMep: true,
+    khoanLo: true,
+    xhlkr: true,
+    xhkx: true,
+    phunBi: true,
+    son: true,
+    xlr: true,
+    kiemDinh: true,
+    dongKien: true,
+  });
   const [message, setMessageError] = useState([]);
   const renderLoi = (val) => {
     let check = false;
@@ -60,78 +87,587 @@ function ImportBOM({
       <span>{val}</span>
     );
   };
-  let colValues = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      width: 50,
+  let colValues = () => {
+    const ThietLap = {
+      title: "Chuyển",
+      key: "chuyen",
       align: "center",
-    },
-    {
-      title: "Mã sản phẩm",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
-      align: "center",
-      render: (val) => renderLoi(val),
-    },
-    {
-      title: "Tên sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
-      align: "center",
-    },
-    {
-      title: "Lốp",
-      dataIndex: "lop",
-      key: "lop",
-      align: "center",
-    },
-    {
-      title: "Mã màu sắc",
-      dataIndex: "maMauSac",
-      key: "maMauSac",
-      align: "center",
-    },
-    {
-      title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
-      align: "center",
-    },
-    {
-      title: "Đơn giá/ chiếc(VNĐ)",
-      dataIndex: "donGia",
-      key: "donGia",
-      align: "center",
-    },
-    {
-      title: "Vận chuyển/ Chiếc(VNĐ)",
-      dataIndex: "phiVanChuyen",
-      key: "phiVanChuyen",
-      align: "center",
-    },
-    {
-      title: "Thành tiền (VNĐ)",
-      key: "thanhtien",
-      align: "center",
-      render: (val) => (
-        <span>{val && Number(val.donGia) + Number(val.phiVanChuyen)}</span>
-      ),
-    },
-    {
-      title: "Mã màu sắc",
-      dataIndex: "maMauSac",
-      key: "maMauSac",
-      align: "center",
-    },
-    {
-      title: "Ngày bàn giao",
-      dataIndex: "ngay",
-      key: "ngay",
-      align: "center",
-    },
-  ];
+      children: [],
+    };
+    if (dataThietLap.giaCong || dataThietLap.ed || dataThietLap.xiMa) {
+      ThietLap.children.push({
+        title: "THCK(CMC)",
+        key: "THCK(CMC)",
+        align: "center",
+        children: [],
+      });
+      if (dataThietLap.giaCong) {
+        ThietLap.children.forEach((cd) => {
+          if (cd.title === "THCK(CMC)") {
+            cd.children.push({
+              title: "Gia công",
+              dataIndex: "giaCong",
+              key: "giaCong",
+              align: "center",
+              width: 55,
+            });
+          }
+        });
+      }
+      if (dataThietLap.ed) {
+        ThietLap.children.forEach((cd) => {
+          if (cd.title === "THCK(CMC)") {
+            cd.children.push({
+              title: "ED",
+              dataIndex: "eD",
+              key: "eD",
+              align: "center",
+              width: 50,
+            });
+          }
+        });
+      }
+      if (dataThietLap.xiMa) {
+        ThietLap.children.forEach((cd) => {
+          if (cd.title === "THCK(CMC)") {
+            cd.children.push({
+              title: "Xi mạ",
+              key: "xiMa",
+              dataIndex: "xiMa",
+              align: "center",
+              width: 50,
+            });
+          }
+        });
+      }
+    }
+    if (dataThietLap.nmk) {
+      ThietLap.children.push({
+        title: "NMK",
+        dataIndex: "nMK",
+        key: "nMK",
+        align: "center",
+        width: 50,
+      });
+    }
+    if (
+      dataThietLap.kho ||
+      dataThietLap.lazer ||
+      dataThietLap.lazerDamH ||
+      dataThietLap.cuaVong ||
+      dataThietLap.chanDot ||
+      dataThietLap.vatMep ||
+      dataThietLap.khoanLo ||
+      dataThietLap.xhlkr ||
+      dataThietLap.xhkx ||
+      dataThietLap.phunBi ||
+      dataThietLap.son ||
+      dataThietLap.xlr ||
+      dataThietLap.kiemDinh ||
+      dataThietLap.dongKien
+    ) {
+      ThietLap.children.push({
+        title: "Công ty SMRM & Cấu kiện nặng(TITS)",
+        key: "Công ty SMRM & Cấu kiện nặng(TITS)",
+        align: "center",
+        children: [],
+      });
+      if (ThietLap.kho) {
+        ThietLap.children.forEach((cd) => {
+          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+            cd.children.push({
+              title: "Kho",
+              dataIndex: "kho",
+              key: "kho",
+              align: "center",
+              width: 50,
+            });
+          }
+        });
+      }
+      if (
+        dataThietLap.lazer ||
+        dataThietLap.lazerDamH ||
+        dataThietLap.cuaVong ||
+        dataThietLap.chanDot ||
+        dataThietLap.vatMep ||
+        dataThietLap.khoanLo
+      ) {
+        ThietLap.children.forEach((cd) => {
+          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+            cd.children.push({
+              title: "Xưởng GCCT",
+              key: "Xưởng GCCT",
+              align: "center",
+              children: [],
+            });
+          }
+        });
+        if (dataThietLap.lazer) {
+          ThietLap.children.forEach((cd) => {
+            if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+              cd.children.forEach((ct) => {
+                if (ct.title === "Xưởng GCCT") {
+                  ct.children.push({
+                    title: "Lazer",
+                    dataIndex: "lazer",
+                    key: "lazer",
+                    align: "center",
+                    width: 50,
+                  });
+                }
+              });
+            }
+          });
+        }
+        if (dataThietLap.lazerDamH) {
+          ThietLap.children.forEach((cd) => {
+            if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+              cd.children.forEach((ct) => {
+                if (ct.title === "Xưởng GCCT") {
+                  ct.children.push({
+                    title: "Lazer Dầm H",
+                    dataIndex: "lazerDamH",
+                    key: "lazerDamH",
+                    align: "center",
+                    width: 50,
+                  });
+                }
+              });
+            }
+          });
+        }
+        if (dataThietLap.cuaVong) {
+          ThietLap.children.forEach((cd) => {
+            if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+              cd.children.forEach((ct) => {
+                if (ct.title === "Xưởng GCCT") {
+                  ct.children.push({
+                    title: "Cưa vòng",
+                    key: "cuaVong",
+                    dataIndex: "cuaVong",
+                    align: "center",
+                    width: 50,
+                  });
+                }
+              });
+            }
+          });
+        }
+        if (dataThietLap.chanDot) {
+          ThietLap.children.forEach((cd) => {
+            if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+              cd.children.forEach((ct) => {
+                if (ct.title === "Xưởng GCCT") {
+                  ct.children.push({
+                    title: "Chấn/ Đột",
+                    key: "chanDot",
+                    dataIndex: "chanDot",
+                    align: "center",
+                    width: 50,
+                  });
+                }
+              });
+            }
+          });
+        }
+        if (dataThietLap.vatMep) {
+          ThietLap.children.forEach((cd) => {
+            if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+              cd.children.forEach((ct) => {
+                if (ct.title === "Xưởng GCCT") {
+                  ct.children.push({
+                    title: "Vát mép",
+                    key: "vatMep",
+                    dataIndex: "vatMep",
+                    align: "center",
+                    width: 50,
+                  });
+                }
+              });
+            }
+          });
+        }
+        if (dataThietLap.khoanLo) {
+          ThietLap.children.forEach((cd) => {
+            if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+              cd.children.forEach((ct) => {
+                if (ct.title === "Xưởng GCCT") {
+                  ct.children.push({
+                    title: "Khoan lỗ",
+                    key: "khoanLo",
+                    dataIndex: "khoanLo",
+                    align: "center",
+                    width: 55,
+                  });
+                }
+              });
+            }
+          });
+        }
+      }
+      if (ThietLap.xhlkr) {
+        ThietLap.children.forEach((cd) => {
+          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+            cd.children.push({
+              title: "XHLKR",
+              key: "xHLKR",
+              dataIndex: "xHLKR",
+              align: "center",
+              width: 60,
+            });
+          }
+        });
+      }
+      if (ThietLap.xhkx) {
+        ThietLap.children.forEach((cd) => {
+          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+            cd.children.push({
+              title: "XHKX",
+              key: "xHKX",
+              dataIndex: "xHKX",
+              align: "center",
+              width: 55,
+            });
+          }
+        });
+      }
+      if (ThietLap.phunBi) {
+        ThietLap.children.forEach((cd) => {
+          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+            cd.children.push({
+              title: "Phun bi",
+              key: "phunBi",
+              dataIndex: "phunBi",
+              align: "center",
+              width: 55,
+            });
+          }
+        });
+      }
+      if (ThietLap.son) {
+        ThietLap.children.forEach((cd) => {
+          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+            cd.children.push({
+              title: "Sơn",
+              key: "son",
+              dataIndex: "son",
+              align: "center",
+              width: 55,
+            });
+          }
+        });
+      }
+      if (ThietLap.xlr) {
+        ThietLap.children.forEach((cd) => {
+          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+            cd.children.push({
+              title: "X - LR",
+              key: "xLR",
+              dataIndex: "xLR",
+              align: "center",
+              width: 55,
+            });
+          }
+        });
+      }
+      if (ThietLap.kiemDinh) {
+        ThietLap.children.forEach((cd) => {
+          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+            cd.children.push({
+              title: "Kiểm định",
+              key: "kiemDinh",
+              dataIndex: "kiemDinh",
+              align: "center",
+              width: 55,
+            });
+          }
+        });
+      }
+      if (ThietLap.dongKien) {
+        ThietLap.children.forEach((cd) => {
+          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
+            cd.children.push({
+              title: "Đóng kiện",
+              key: "dongKien",
+              dataIndex: "dongKien",
+              align: "center",
+              width: 55,
+            });
+          }
+        });
+      }
+    }
+    return [
+      {
+        title: "STT",
+        dataIndex: "key",
+        key: "key",
+        width: 45,
+        align: "center",
+      },
+      {
+        title: "Mã chi tiết",
+        dataIndex: "maChiTiet",
+        key: "maChiTiet",
+        align: "center",
+        width: 150,
+      },
+      {
+        title: "Tên chi tiết",
+        dataIndex: "tenChiTiet",
+        key: "tenChiTiet",
+        align: "center",
+        width: 150,
+      },
+      {
+        title: "Vật liệu",
+        dataIndex: "vatLieu",
+        key: "vatLieu",
+        align: "center",
+        width: 120,
+      },
+      {
+        title: "Xuất xứ",
+        dataIndex: "xuatXu",
+        key: "xuatXu",
+        align: "center",
+        width: 70,
+      },
+      {
+        title: "Quy cách(mm)",
+        key: "quyCach",
+        align: "center",
+        children: [
+          {
+            title: "Dài",
+            dataIndex: "dai",
+            key: "dai",
+            align: "center",
+            width: 50,
+          },
+          {
+            title: "Rộng",
+            dataIndex: "rong",
+            key: "rong",
+            align: "center",
+            width: 50,
+          },
+          {
+            title: "Dày",
+            dataIndex: "day",
+            key: "day",
+            align: "center",
+            width: 50,
+          },
+          {
+            title: "Do",
+            dataIndex: "dn",
+            key: "dn",
+            align: "center",
+            width: 50,
+          },
+          {
+            title: "Di",
+            dataIndex: "dt",
+            key: "dt",
+            align: "center",
+            width: 50,
+          },
+          {
+            title: "Chung",
+            dataIndex: "chung",
+            key: "chung",
+            align: "center",
+            width: 55,
+          },
+        ],
+      },
+      {
+        title: "SL/SP",
+        dataIndex: "dinhMuc",
+        key: "dinhMuc",
+        align: "center",
+        width: 55,
+      },
+      {
+        title: "KL/SP",
+        dataIndex: "xuatXu",
+        key: "xuatXu",
+        align: "center",
+        width: 55,
+      },
+      // {
+      //   title: "Chuyển",
+      //   key: "chuyen",
+      //   align: "center",
+      //   children: [
+      //     {
+      //       title: "THCK(CMC)",
+      //       key: "THCK(CMC)",
+      //       align: "center",
+      //       children: [],
+      //     },
+      //     {
+      //       title: "NMK",
+      //       dataIndex: "nMK",
+      //       key: "nMK",
+      //       align: "center",
+      //       width: 50,
+      //     },
+      //     {
+      //       title: "Công ty SMRM & Cấu kiện nặng(TITS)",
+      //       key: "Công ty SMRM & Cấu kiện nặng(TITS)",
+      //       align: "center",
+      //       children: [
+      //         {
+      //           title: "Kho",
+      //           dataIndex: "kho",
+      //           key: "kho",
+      //           align: "center",
+      //           width: 50,
+      //         },
+      //         {
+      //           title: "Xưởng GCCT",
+      //           key: "xuongGCCT",
+      //           align: "center",
+      //           children: [
+      //             {
+      //               title: "Lazer",
+      //               dataIndex: "lazer",
+      //               key: "lazer",
+      //               align: "center",
+      //               width: 50,
+      //             },
+      //             {
+      //               title: "Lazer Dầm H",
+      //               dataIndex: "lazerDamH",
+      //               key: "lazerDamH",
+      //               align: "center",
+      //               width: 50,
+      //             },
+      //             {
+      //               title: "Cưa vòng",
+      //               key: "cuaVong",
+      //               dataIndex: "cuaVong",
+      //               align: "center",
+      //               width: 50,
+      //             },
+      //             {
+      //               title: "Chấn/ Đột",
+      //               key: "chanDot",
+      //               dataIndex: "chanDot",
+      //               align: "center",
+      //               width: 50,
+      //             },
+      //             {
+      //               title: "Vát mép",
+      //               key: "vatMep",
+      //               dataIndex: "vatMep",
+      //               align: "center",
+      //               width: 50,
+      //             },
+      //             {
+      //               title: "Khoan lỗ",
+      //               key: "khoanLo",
+      //               dataIndex: "khoanLo",
+      //               align: "center",
+      //               width: 55,
+      //             },
+      //           ],
+      //         },
+      //         {
+      //           title: "XHLKR",
+      //           key: "xHLKR",
+      //           dataIndex: "xHLKR",
+      //           align: "center",
+      //           width: 60,
+      //         },
+      //         {
+      //           title: "XHKX",
+      //           key: "xHKX",
+      //           dataIndex: "xHKX",
+      //           align: "center",
+      //           width: 55,
+      //         },
+      //         {
+      //           title: "Phun bi",
+      //           key: "phunBi",
+      //           dataIndex: "phunBi",
+      //           align: "center",
+      //           width: 55,
+      //         },
+      //         {
+      //           title: "Sơn",
+      //           key: "son",
+      //           dataIndex: "son",
+      //           align: "center",
+      //           width: 55,
+      //         },
+      //         {
+      //           title: "X - LR",
+      //           key: "xLR",
+      //           dataIndex: "xLR",
+      //           align: "center",
+      //           width: 55,
+      //         },
+      //         {
+      //           title: "Kiểm định",
+      //           key: "kiemDinh",
+      //           dataIndex: "kiemDinh",
+      //           align: "center",
+      //           width: 55,
+      //         },
+      //         {
+      //           title: "Đóng kiện",
+      //           key: "dongKien",
+      //           dataIndex: "dongKien",
+      //           align: "center",
+      //           width: 55,
+      //         },
+      //       ],
+      //     },
+      //   ],
+      // },
+      ThietLap,
+      {
+        title: "Ghi chú",
+        key: "ghiChu",
+        align: "center",
+        children: [
+          {
+            title: "Phương pháp gia công",
+            dataIndex: "phuongPhapGiaCong",
+            key: "phuongPhapGiaCong",
+            align: "center",
+            width: 100,
+          },
+        ],
+      },
+      {
+        title: "Phân trạm",
+        dataIndex: "maTram",
+        key: "maTram",
+        align: "center",
+        width: 100,
+      },
+      {
+        title: "Ghi chú kỹ thuật",
+        dataIndex: "moTa",
+        key: "moTa",
+        align: "center",
+        width: 150,
+      },
+      // {
+      //   title: "Chức năng",
+      //   key: "action",
+      //   align: "center",
+      //   width: 80,
+      //   render: (value) => actionContent(value),
+      // },
+    ];
+  };
+
   const components = {
     body: {
       row: EditableRow,
@@ -139,7 +675,7 @@ function ImportBOM({
     },
   };
 
-  const columns = map(colValues, (col) => {
+  const columns = map(colValues(), (col) => {
     if (!col.editable) {
       return col;
     }
@@ -156,11 +692,14 @@ function ImportBOM({
   });
 
   //File mẫu
-  const TaiFileMau = () => {
+  const TaiFileMau = (sanpham_Id) => {
+    const param = convertObjectToUrlParams({
+      sanpham_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_Donhang/export-file-mau`,
+          `tits_qtsx_BOM/export-file?${param}`,
           "POST",
           null,
           "DOWLOAD",
@@ -170,7 +709,7 @@ function ImportBOM({
         )
       );
     }).then((res) => {
-      exportExcel("File_Mau_Thong_Tin_San_Pham", res.data.dataexcel);
+      exportExcel("File_Mau_BOM", res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {
@@ -548,13 +1087,35 @@ function ImportBOM({
     <AntModal
       title="Import thông tin sản phẩm"
       open={openModal}
-      width={`80%`}
+      width={`95%`}
       closable={true}
       onCancel={handleCancel}
       footer={null}
     >
       <div className="gx-main-content">
         <Card className="th-card-margin-bottom th-card-reset-margin">
+          <Row>
+            <Col
+              xxl={2}
+              xl={3}
+              lg={4}
+              md={4}
+              sm={6}
+              xs={7}
+              style={{ marginTop: 8 }}
+              align={"center"}
+            >
+              <Button
+                type="primary"
+                icon={<SettingOutlined />}
+                onClick={() => {
+                  setActiceModalThietLap(true);
+                }}
+              >
+                Thiết lập
+              </Button>
+            </Col>
+          </Row>
           <Row>
             <Col
               xxl={2}
@@ -616,7 +1177,7 @@ function ImportBOM({
           <Table
             style={{ marginTop: 10 }}
             bordered
-            scroll={{ x: "100%", y: "60vh" }}
+            scroll={{ x: 1800, y: "60vh" }}
             columns={columns}
             components={components}
             className="gx-table-responsive"
@@ -636,6 +1197,12 @@ function ImportBOM({
           </Button>
         </Card>
       </div>
+      <ModalThietLap
+        openModal={ActiceModalThietLap}
+        openModalFS={setActiceModalThietLap}
+        dataTL={dataThietLap}
+        saveThietLap={setDataThietLap}
+      />
     </AntModal>
   );
 }
