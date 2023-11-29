@@ -235,7 +235,6 @@ function DanhSachChiTietForm({ match, permission, history }) {
         const formData = new FormData();
         formData.append("lstFiles", danhsachchitiet.hinhAnh.file);
         formData.append("lstFiles", danhsachchitiet.fileDinhKem.file);
-        console.log(formData);
         fetch(`${BASE_URL_API}/api/Upload/Multi`, {
           method: "POST",
           body: formData,
@@ -505,7 +504,7 @@ function DanhSachChiTietForm({ match, permission, history }) {
             </FormItem>
             <FormItem
               label="Sản phẩm"
-               name={["danhsachchitiet", "tits_qtsx_SanPham_Id"]}
+              name={["danhsachchitiet", "tits_qtsx_SanPham_Id"]}
               rules={[
                 {
                   type: "string",

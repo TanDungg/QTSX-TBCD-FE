@@ -35,7 +35,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
   const [ListTram, setListTram] = useState([]);
   const [ListThietBi, setListThietBi] = useState([]);
   const [ListVatTu, setListVatTu] = useState([]);
-  const [ListThongTin, setListThongTin] = useState([]);
+  const [ListThongTinKiemSoat, setListThongTinKiemSoat] = useState([]);
   const [ActiveModalThongTin, setActiveModalThongTin] = useState(false);
 
   useEffect(() => {
@@ -127,10 +127,11 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
   };
 
   const deleteItemAction = (item) => {
-    const newData = ListThongTin.filter(
-      (d) => d.tits_qtsx_ThongTin_Id !== item.tits_qtsx_ThongTin_Id
+    const newData = ListThongTinKiemSoat.filter(
+      (d) =>
+        d.tits_qtsx_ThongTinKiemSoat_Id !== item.tits_qtsx_ThongTinKiemSoat_Id
     );
-    setListThongTin(newData);
+    setListThongTinKiemSoat(newData);
   };
 
   const actionContent = (item) => {
@@ -148,8 +149,11 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
   };
 
   const handleCheckboxChange = (record, value) => {
-    const newData = ListThongTin.map((thongtin) => {
-      if (thongtin.tits_qtsx_ThongTin_Id === record.tits_qtsx_ThongTin_Id) {
+    const newData = ListThongTinKiemSoat.map((thongtin) => {
+      if (
+        thongtin.tits_qtsx_ThongTinKiemSoat_Id ===
+        record.tits_qtsx_ThongTinKiemSoat_Id
+      ) {
         return value === "isXem"
           ? {
               ...thongtin,
@@ -168,7 +172,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
       return thongtin;
     });
 
-    setListThongTin(newData);
+    setListThongTinKiemSoat(newData);
   };
 
   const renderSCL = (record, value) => {
@@ -256,27 +260,29 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
     const thietbi = ListThietBi.filter(
       (d) => d.id === data.tits_qtsx_ThietBi_Id
     );
-    const vattu = ListVatTu.filter((d) => d.id === data.tits_qtsx_VatTu_Id);
+    const vattu = ListVatTu.filter(
+      (d) => d.tits_qtsx_VatTu_Id === data.tits_qtsx_VatTu_Id
+    );
     const newData = {
       ...data,
-      tits_qtsx_Tram_Id: tram[0].tits_qtsx_Tram_Id,
+      tits_qtsx_CongDoan_Id: itemData.tram.tits_qtsx_CongDoan_Id,
       maTram: tram[0].maTram,
       tenTram: tram[0].tenTram,
-      tits_qtsx_ThietBi_Id: thietbi[0].tits_qtsx_ThietBi_Id,
       maThietBi: thietbi[0].maThietBi,
       tenThietBi: thietbi[0].tenThietBi,
-      tits_qtsx_VatTu_Id: vattu[0].tits_qtsx_VatTu_Id,
       maVatTu: vattu[0].maVatTu,
       tenVatTu: vattu[0].tenVatTu,
       thuTu: 1,
+      list_TramChiTiets: ListThongTinKiemSoat,
     };
     DataThemTram(newData);
     resetFields();
+    setListThongTinKiemSoat([]);
     openModalFS(false);
   };
 
   const DataThemThongTin = (data) => {
-    setListThongTin([...ListThongTin, ...data]);
+    setListThongTinKiemSoat([...ListThongTinKiemSoat, ...data]);
   };
 
   const handleCancel = () => {
@@ -303,7 +309,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
           >
             <FormItem
               label="Trạm"
-              name={["themtram", "tits_qtsx_CongDoan_Id"]}
+              name={["themtram", "tits_qtsx_Tram_Id"]}
               rules={[
                 {
                   type: "string",
@@ -354,8 +360,8 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
               <Select
                 className="heading-select slt-search th-select-heading"
                 data={ListVatTu}
-                placeholder="Chọn trạm"
-                optionsvalue={["id", "tenVatTu"]}
+                placeholder="Chọn vật tư"
+                optionsvalue={["tits_qtsx_VatTu_Id", "tenVatTu"]}
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp="name"
@@ -363,7 +369,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
             </FormItem>
             <Card
               className="th-card-margin-bottom th-card-reset-margin"
-              title={"Công đoạn sản xuất"}
+              title={"Thông tin kiểm soát"}
               headStyle={{
                 textAlign: "center",
                 backgroundColor: "#0469B9",
@@ -376,7 +382,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
                   onClick={() => setActiveModalThongTin(true)}
                   type="primary"
                 >
-                  Thêm công đoạn
+                  Thêm thông tin kiểm soát
                 </Button>
               </div>
 
@@ -386,7 +392,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
                 scroll={{ x: 1000, y: "55vh" }}
                 components={components}
                 className="gx-table-responsive"
-                dataSource={ListThongTin}
+                dataSource={ListThongTinKiemSoat}
                 size="small"
                 rowClassName={"editable-row"}
                 pagination={false}
@@ -397,7 +403,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
               <Button
                 type="primary"
                 htmlType={"submit"}
-                disabled={!fieldTouch && !ListThongTin.length}
+                disabled={!fieldTouch && ListThongTinKiemSoat.length === 0}
               >
                 Thêm trạm
               </Button>
@@ -406,7 +412,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
           <ModalThongTinKiemSoat
             openModal={ActiveModalThongTin}
             openModalFS={setActiveModalThongTin}
-            itemData={ListThietBi}
+            itemData={ListThongTinKiemSoat}
             DataThemThongTin={DataThemThongTin}
           />
         </div>

@@ -34,13 +34,20 @@ function ModalThongTinKiemSoat({
   const { width } = useSelector(({ common }) => common).toJS();
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { resetFields } = form;
+  const { resetFields, setFieldsValue } = form;
   const [ListThongTin, setListThongTin] = useState([]);
   const [ThongTinKiemSoat, setThongTinKiemSoat] = useState([]);
 
   useEffect(() => {
     if (openModal) {
       getListThongTin();
+      setFieldsValue({
+        themthongtin: {
+          isXem: false,
+          isNhap: false,
+          isKiemSoatSoLo: false,
+        },
+      });
     }
     return () => {
       dispatch(fetchReset());
@@ -67,9 +74,7 @@ function ModalThongTinKiemSoat({
           return (
             itemData &&
             !itemData.some(
-              (item) =>
-                item.tits_qtsx_ThongTinKiemSoat_Id ===
-                data.tits_qtsx_ThongTinKiemSoat_Id
+              (item) => item.tits_qtsx_ThongTinKiemSoat_Id === data.id
             )
           );
         });
@@ -115,22 +120,25 @@ function ModalThongTinKiemSoat({
         return value === "isXem"
           ? {
               ...thongtin,
-              isXem: !thongtin.isXem,
+              isXem: thongtin.isXem === undefined ? true : !thongtin.isXem,
             }
           : value === "isNhap"
           ? {
               ...thongtin,
-              isNhap: !thongtin.isNhap,
+              isNhap: thongtin.isNhap === undefined ? true : !thongtin.isNhap,
             }
           : {
               ...thongtin,
-              isKiemTraSoLo: !thongtin.isKiemTraSoLo,
+              isKiemTraSoLo:
+                thongtin.isKiemTraSoLo === undefined
+                  ? true
+                  : !thongtin.isKiemTraSoLo,
             };
       }
       return thongtin;
     });
 
-    setListThongTin(newData);
+    setThongTinKiemSoat(newData);
   };
 
   const renderSCL = (record, value) => {
@@ -298,7 +306,7 @@ function ModalThongTinKiemSoat({
             </FormItem>
 
             <FormItem
-              label="Kiểm tra số lo"
+              label="Kiểm tra số lô"
               name={["themthongtin", "isKiemTraSoLo"]}
               valuePropName="checked"
             >
@@ -322,7 +330,7 @@ function ModalThongTinKiemSoat({
             pagination={false}
             // loading={loading}
           />
-          <Row justify={"center"}>
+          <Row justify={"center"} style={{ marginTop: 15 }}>
             <Button
               type="primary"
               onClick={XacNhan}

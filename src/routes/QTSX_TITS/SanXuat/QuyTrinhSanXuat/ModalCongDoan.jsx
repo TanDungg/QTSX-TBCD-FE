@@ -102,6 +102,7 @@ function ModalCongDoan({ openModalFS, openModal, DataThemCongDoan, itemData }) {
       maXuong: xuong[0].maXuong,
       isChoPhepSCL: true,
       thuTu: 1,
+      list_Trams: [],
     };
     DataThemCongDoan(newData);
     resetFields();

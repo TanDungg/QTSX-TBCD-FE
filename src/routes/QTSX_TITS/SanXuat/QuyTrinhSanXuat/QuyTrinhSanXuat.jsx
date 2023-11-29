@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Row } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Card, Button, Divider, Col, Row, Checkbox, Tag, Switch } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -16,6 +21,8 @@ import {
   convertObjectToUrlParams,
   reDataForTable,
   removeDuplicates,
+  getLocalStorage,
+  getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
@@ -25,6 +32,11 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function QuyTrinhSanXuat({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [page, setPage] = useState(1);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
@@ -107,11 +119,28 @@ function QuyTrinhSanXuat({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const editItem =
-      permission && permission.edit ? (
+    const xacnhan =
+      item.nguoiDuyet_Id === INFO.user_Id && item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.tits_qtsx_QuyTrinhSanXuat_Id}/xac-nhan`,
+            state: { itemData: item, permission },
+          }}
+          title="Xác nhận"
+        >
+          <CheckCircleOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Xác nhận">
+          <CheckCircleOutlined />
+        </span>
+      );
+
+    const editItem =
+      permission && permission.edit && item.tinhTrang === "Chưa duyệt" ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.tits_qtsx_QuyTrinhSanXuat_Id}/chinh-sua`,
             state: { itemData: item },
           }}
           title="Sửa quy trình sản xuất"
@@ -123,12 +152,16 @@ function QuyTrinhSanXuat({ match, history, permission }) {
           <EditOutlined />
         </span>
       );
+
     const deleteVal =
-      permission && permission.del && !item.isUsed
+      permission && permission.del && item.tinhTrang === "Chưa duyệt"
         ? { onClick: () => deleteItemFunc(item, "quy trình sản xuất") }
         : { disabled: true };
+
     return (
       <div>
+        {xacnhan}
+        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa quy trình sản xuất">
@@ -154,7 +187,7 @@ function QuyTrinhSanXuat({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_QuyTrinhSanXuat/${item.id}`;
+    let url = `tits_qtsx_QuyTrinhSanXuat/${item.tits_qtsx_QuyTrinhSanXuat_Id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -208,21 +241,89 @@ function QuyTrinhSanXuat({ match, history, permission }) {
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
 
-  const renderFile = (item) => {
-    if (!isEmpty(item.file)) {
-      return (
-        <span>
-          <a
-            target="_blank"
-            href={BASE_URL_API + item.file}
-            rel="noopener noreferrer"
-          >
-            {item.file.split("/")[5]}
-          </a>
-        </span>
+  const renderDetail = (val) => {
+    const detail =
+      permission && permission.view ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${val.tits_qtsx_QuyTrinhSanXuat_Id}/chi-tiet`,
+            state: { itemData: val, permission },
+          }}
+        >
+          {val.maQuyTrinhSanXuat}
+        </Link>
+      ) : (
+        <span disabled>{val.maQuyTrinhSanXuat}</span>
       );
-    }
-    return null;
+    return <div>{detail}</div>;
+  };
+
+  const handleChangeSuDung = (record) => {
+    const newData = {
+      id: record.tits_qtsx_QuyTrinhSanXuat_Id,
+      isSuDung: !record.isSuDung,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_QuyTrinhSanXuat/set-su-dung/${record.tits_qtsx_QuyTrinhSanXuat_Id}`,
+          "PUT",
+          newData,
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          getListData(keyword, SanPham, page);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const handleChangeDefault = (record) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_QuyTrinhSanXuat/set-default/${record.tits_qtsx_QuyTrinhSanXuat_Id}`,
+          "PUT",
+          null,
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          getListData(keyword, SanPham, page);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const renderSuDung = (record) => {
+    return (
+      <Checkbox
+        checked={record.isSuDung}
+        onChange={() => handleChangeSuDung(record)}
+        disabled={record.tinhTrang === "Đã từ chối"}
+      />
+    );
+  };
+
+  const renderDefault = (record) => {
+    return (
+      <Switch
+        checked={record.isDefault}
+        onChange={() => handleChangeDefault(record)}
+        disabled={record.tinhTrang !== "Đã duyệt"}
+      />
+    );
   };
 
   let renderHead = [
@@ -231,13 +332,27 @@ function QuyTrinhSanXuat({ match, history, permission }) {
       dataIndex: "key",
       key: "key",
       align: "center",
-      width: 45,
+      width: 50,
+    },
+    {
+      title: "Sử dụng",
+      key: "isSuDung",
+      align: "center",
+      width: 100,
+      render: (record) => renderSuDung(record),
+    },
+    {
+      title: "Mặc định",
+      key: "isDefault",
+      align: "center",
+      width: 100,
+      render: (record) => renderDefault(record),
     },
     {
       title: "Mã quy trình",
-      dataIndex: "maQuyTrinhSanXuat",
       key: "maQuyTrinhSanXuat",
       align: "center",
+      render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -282,68 +397,104 @@ function QuyTrinhSanXuat({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Loại sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
+      title: "Ngày lập",
+      dataIndex: "ngayTao",
+      key: "ngayTao",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenSanPham,
-            value: d.tenSanPham,
+            text: d.ngayTao,
+            value: d.ngayTao,
           };
         })
       ),
-      onFilter: (value, record) => record.tenSanPham.includes(value),
+      onFilter: (value, record) => record.ngayTao.includes(value),
       filterSearch: true,
     },
     {
-      title: "Ngày ban hành",
-      dataIndex: "ngayBanHanh",
-      key: "ngayBanHanh",
+      title: "Ngày áp dụng",
+      dataIndex: "ngayApDung",
+      key: "ngayApDung",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayBanHanh,
-            value: d.ngayBanHanh,
+            text: d.ngayApDung,
+            value: d.ngayApDung,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayBanHanh.includes(value),
+      onFilter: (value, record) => record.ngayApDung.includes(value),
       filterSearch: true,
     },
     {
-      title: "Ngày hiệu lực",
-      dataIndex: "ngayHieuLuc",
-      key: "ngayHieuLuc",
+      title: "BOM",
+      dataIndex: "maBOM",
+      key: "maBOM",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayHieuLuc,
-            value: d.ngayHieuLuc,
+            text: d.maBOM,
+            value: d.maBOM,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayHieuLuc.includes(value),
+      onFilter: (value, record) => record.maBOM.includes(value),
       filterSearch: true,
     },
     {
-      title: "Thông số kỹ thuật",
-      key: "file",
+      title: "OEM",
+      dataIndex: "maOEM",
+      key: "maOEM",
       align: "center",
-      render: (record) => renderFile(record),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.file,
-            value: d.file,
+            text: d.maOEM,
+            value: d.maOEM,
           };
         })
       ),
-      onFilter: (value, record) => record.file.includes(value),
+      onFilter: (value, record) => record.maOEM.includes(value),
       filterSearch: true,
+    },
+    {
+      title: "Tình trạng",
+      dataIndex: "tinhTrang",
+      key: "tinhTrang",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tinhTrang,
+            value: d.tinhTrang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tinhTrang.includes(value),
+      filterSearch: true,
+      render: (value) => (
+        <div>
+          {value && (
+            <Tag
+              color={
+                value === "Chưa duyệt"
+                  ? "orange"
+                  : value === "Đã duyệt"
+                  ? "blue"
+                  : "red"
+              }
+              style={{
+                fontSize: 13,
+              }}
+            >
+              {value}
+            </Tag>
+          )}
+        </div>
+      ),
     },
     {
       title: "Chức năng",
@@ -471,7 +622,7 @@ function QuyTrinhSanXuat({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 1500, y: "70vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

@@ -27,6 +27,7 @@ function SanPhamHinhAnh({ match, history, permission }) {
   const dispatch = useDispatch();
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
+  const [CongDoan, setCongDoan] = useState(null);
   const [ActiveModalThemHinhAnh, setActiveModalThemHinhAnh] = useState(false);
 
   useEffect(() => {
@@ -178,13 +179,17 @@ function SanPhamHinhAnh({ match, history, permission }) {
     getListData(value);
   };
 
-  const ButtonAdd = () => {
-    const deleteVal = {
-      onClick: () => setActiveModalThemHinhAnh(true),
+  const handleThemHinhAnh = (data) => {
+    setActiveModalThemHinhAnh(true);
+    setCongDoan(data.tits_qtsx_CongDoan_Id);
+  };
+  const ButtonAdd = (dt) => {
+    const AddHinhAnh = {
+      onClick: () => handleThemHinhAnh(dt),
     };
     return (
       <div>
-        <a {...deleteVal} title="Thêm hình ảnh" style={{ fontSize: 20 }}>
+        <a {...AddHinhAnh} title="Thêm hình ảnh" style={{ fontSize: 20 }}>
           <PlusCircleOutlined />
         </a>
       </div>
@@ -230,687 +235,127 @@ function SanPhamHinhAnh({ match, history, permission }) {
           </Col>
         </Row>
       </Card>
-      <Row span={24}>
-        {/* {dataList.map((data) => {
-              return ( */}
-        <Col
-          xxl={8}
-          xl={8}
-          lg={12}
-          md={12}
-          sm={20}
-          xs={24}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-around",
-          }}
-        >
-          <Card
-            className="th-card-margin-bottom th-card-reset-margin"
-            style={{
-              width: "500px",
-              height: "500px",
-              display: "start",
-              justifyContent: "space-around",
-              alignItems: "center",
-              borderRadius: 15,
-              overflowY: "relative",
-            }}
-          >
-            <ContainerHeader
-              title="GCCT"
-              buttons={ButtonAdd()}
-              style={{ position: "sticky", top: 0, zIndex: 1 }}
-            />
-            <div style={{ overflowY: "auto", maxHeight: "410px" }}>
-              <div
+      {data.map((dt) => {
+        return (
+          <div>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={20}
+              xs={24}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-around",
+              }}
+            >
+              <Card
+                className="th-card-margin-bottom th-card-reset-margin"
                 style={{
+                  width: "500px",
+                  height: "500px",
+                  display: "start",
+                  justifyContent: "space-around",
                   alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                  marginBottom: 10,
-                  maxWidth: "420px",
-                  overflowWrap: "break-word",
+                  borderRadius: 15,
+                  overflowY: "relative",
                 }}
               >
-                <span style={{ fontWeight: "bold" }}>Khu vực:</span>
-                <br />
-                <span style={{}}>Mô tả:</span>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <div
-                    style={{ position: "relative", display: "inline-block" }}
-                  >
-                    <Image
-                      width={130}
-                      height={130}
-                      style={{
-                        padding: 5,
-                        borderRadius: 15,
-                      }}
-                      src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                    />
-                    <Button
-                      title="Xóa hình ảnh"
-                      style={{
-                        width: 25,
-                        height: 30,
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "red",
-                        backgroundColor: "white",
-                        borderRadius: 15,
-                        transition: "background-color 0.3s ease",
-                      }}
-                      onClick={handleDeleteClick}
-                    >
-                      <DeleteOutlined style={{ fontSize: 15 }} />
-                    </Button>
-                  </div>
-                  <div
-                    style={{ position: "relative", display: "inline-block" }}
-                  >
-                    <Image
-                      width={130}
-                      height={130}
-                      style={{
-                        padding: 5,
-                        borderRadius: 15,
-                      }}
-                      src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                    />
-                    <Button
-                      title="Xóa hình ảnh"
-                      style={{
-                        width: 25,
-                        height: 30,
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "red",
-                        backgroundColor: "white",
-                        borderRadius: 15,
-                        transition: "background-color 0.3s ease",
-                      }}
-                      onClick={handleDeleteClick}
-                    >
-                      <DeleteOutlined style={{ fontSize: 15 }} />
-                    </Button>
-                  </div>
-                  <div
-                    style={{ position: "relative", display: "inline-block" }}
-                  >
-                    <Image
-                      width={130}
-                      height={130}
-                      style={{
-                        padding: 5,
-                        borderRadius: 15,
-                      }}
-                      src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                    />
-                    <Button
-                      title="Xóa hình ảnh"
-                      style={{
-                        width: 25,
-                        height: 30,
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "red",
-                        backgroundColor: "white",
-                        borderRadius: 15,
-                        transition: "background-color 0.3s ease",
-                      }}
-                      onClick={handleDeleteClick}
-                    >
-                      <DeleteOutlined style={{ fontSize: 15 }} />
-                    </Button>
-                  </div>
+                <ContainerHeader
+                  title={dt.tenCongDoan}
+                  buttons={ButtonAdd(dt)}
+                  style={{ position: "sticky", top: 0, zIndex: 1 }}
+                />
+                <div style={{ overflowY: "auto", maxHeight: "410px" }}>
+                  {dt.list_KhuVucs &&
+                    dt.list_KhuVucs.map((khuvuc) => {
+                      return (
+                        <div
+                          style={{
+                            alignItems: "center",
+                            justifyContent: "center",
+                            flexDirection: "column",
+                            marginBottom: 10,
+                            maxWidth: "420px",
+                            overflowWrap: "break-word",
+                          }}
+                        >
+                          <span style={{ fontWeight: "bold" }}>
+                            Khu vực: {khuvuc.tenKhuVuc}
+                          </span>
+                          <br />
+                          <span style={{}}>Mô tả: {khuvuc.moTa}</span>
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "row",
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            {dt.list_HinhAnhs &&
+                              dt.list_HinhAnhs.map((hinhanh) => {
+                                return (
+                                  <div
+                                    style={{
+                                      position: "relative",
+                                      display: "inline-block",
+                                    }}
+                                  >
+                                    <Image
+                                      width={130}
+                                      height={130}
+                                      style={{
+                                        padding: 5,
+                                        borderRadius: 15,
+                                      }}
+                                      src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+                                    />
+                                    <Button
+                                      title="Xóa hình ảnh"
+                                      style={{
+                                        width: 25,
+                                        height: 30,
+                                        position: "absolute",
+                                        top: 0,
+                                        right: 0,
+                                        cursor: "pointer",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        color: "red",
+                                        backgroundColor: "white",
+                                        borderRadius: 15,
+                                        transition:
+                                          "background-color 0.3s ease",
+                                      }}
+                                      onClick={handleDeleteClick}
+                                    >
+                                      <DeleteOutlined
+                                        style={{ fontSize: 15 }}
+                                      />
+                                    </Button>
+                                  </div>
+                                );
+                              })}
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
-              </div>
-              <div
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                  marginBottom: 10,
-                }}
-              >
-                <span style={{ fontWeight: "bold" }}>Khu vực:</span>
-                <br />
-                <span style={{}}>Mô tả:</span>
-                <div style={{ display: "flex", flexDirection: "row" }}>
-                  <Image
-                    width={130}
-                    height={130}
-                    style={{
-                      padding: 5,
-                      borderRadius: 15,
-                    }}
-                    src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                  />
-
-                  <Image
-                    width={130}
-                    height={130}
-                    style={{
-                      padding: 5,
-                      borderRadius: 15,
-                    }}
-                    src="https://bold.vn/wp-content/uploads/2019/05/bold-academy-5.jpg"
-                  />
-                </div>
-              </div>
-              <div
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                }}
-              >
-                <span style={{ marginBottom: 10, fontWeight: "bold" }}>
-                  Khu vực:
-                </span>
-                <br />
-                <span style={{ marginBottom: 10 }}>Mô tả:</span>
-                <div style={{ display: "flex", flexDirection: "row" }}>
-                  <Image
-                    width={130}
-                    height={130}
-                    style={{
-                      padding: 5,
-                      borderRadius: 15,
-                    }}
-                    src="https://1.bp.blogspot.com/-HugzmnLycdc/X2yfMdqfrqI/AAAAAAAAIpM/fQBBxyAQGWswIhX85hT--TPeLq0teSDlwCLcBGAsYHQ/s640/anh-dep-viet-nam-2.jpg"
-                  />
-                  <Image
-                    width={130}
-                    height={130}
-                    style={{
-                      padding: 5,
-                      borderRadius: 15,
-                    }}
-                    src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                  />
-                </div>
-              </div>
-            </div>
-          </Card>
-        </Col>
-        <Col
-          xxl={8}
-          xl={8}
-          lg={12}
-          md={12}
-          sm={20}
-          xs={24}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-around",
-          }}
-        >
-          <Card
-            className="th-card-margin-bottom th-card-reset-margin"
-            style={{
-              width: "500px",
-              height: "500px",
-              display: "start",
-              justifyContent: "space-around",
-              alignItems: "center",
-              borderRadius: 15,
-              overflowY: "relative",
-            }}
-          >
-            <ContainerHeader
-              title="Sơn"
-              buttons={ButtonAdd()}
-              style={{ position: "sticky", top: 0, zIndex: 1 }}
-            />
-            <div style={{ overflowY: "auto", maxHeight: "410px" }}>
-              <div
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                  marginBottom: 10,
-                  maxWidth: "420px",
-                  overflowWrap: "break-word",
-                }}
-              >
-                <span style={{ fontWeight: "bold" }}>Khu vực:</span>
-                <br />
-                <span style={{}}>Mô tả:</span>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <div
-                    style={{ position: "relative", display: "inline-block" }}
-                  >
-                    <Image
-                      width={130}
-                      height={130}
-                      style={{
-                        padding: 5,
-                        borderRadius: 15,
-                      }}
-                      src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                    />
-                    <Button
-                      title="Xóa hình ảnh"
-                      style={{
-                        width: 25,
-                        height: 30,
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "red",
-                        backgroundColor: "white",
-                        borderRadius: 15,
-                        transition: "background-color 0.3s ease",
-                      }}
-                      onClick={handleDeleteClick}
-                    >
-                      <DeleteOutlined style={{ fontSize: 15 }} />
-                    </Button>
-                  </div>
-                  <div
-                    style={{ position: "relative", display: "inline-block" }}
-                  >
-                    <Image
-                      width={130}
-                      height={130}
-                      style={{
-                        padding: 5,
-                        borderRadius: 15,
-                      }}
-                      src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                    />
-                    <Button
-                      title="Xóa hình ảnh"
-                      style={{
-                        width: 25,
-                        height: 30,
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "red",
-                        backgroundColor: "white",
-                        borderRadius: 15,
-                        transition: "background-color 0.3s ease",
-                      }}
-                      onClick={handleDeleteClick}
-                    >
-                      <DeleteOutlined style={{ fontSize: 15 }} />
-                    </Button>
-                  </div>
-                  <div
-                    style={{ position: "relative", display: "inline-block" }}
-                  >
-                    <Image
-                      width={130}
-                      height={130}
-                      style={{
-                        padding: 5,
-                        borderRadius: 15,
-                      }}
-                      src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                    />
-                    <Button
-                      title="Xóa hình ảnh"
-                      style={{
-                        width: 25,
-                        height: 30,
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "red",
-                        backgroundColor: "white",
-                        borderRadius: 15,
-                        transition: "background-color 0.3s ease",
-                      }}
-                      onClick={handleDeleteClick}
-                    >
-                      <DeleteOutlined style={{ fontSize: 15 }} />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              <div
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                  marginBottom: 10,
-                }}
-              >
-                <span style={{ fontWeight: "bold" }}>Khu vực:</span>
-                <br />
-                <span style={{}}>Mô tả:</span>
-                <div style={{ display: "flex", flexDirection: "row" }}>
-                  <Image
-                    width={130}
-                    height={130}
-                    style={{
-                      padding: 5,
-                      borderRadius: 15,
-                    }}
-                    src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                  />
-
-                  <Image
-                    width={130}
-                    height={130}
-                    style={{
-                      padding: 5,
-                      borderRadius: 15,
-                    }}
-                    src="https://bold.vn/wp-content/uploads/2019/05/bold-academy-5.jpg"
-                  />
-                </div>
-              </div>
-              <div
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                }}
-              >
-                <span style={{ marginBottom: 10, fontWeight: "bold" }}>
-                  Khu vực:
-                </span>
-                <br />
-                <span style={{ marginBottom: 10 }}>Mô tả:</span>
-                <div style={{ display: "flex", flexDirection: "row" }}>
-                  <Image
-                    width={130}
-                    height={130}
-                    style={{
-                      padding: 5,
-                      borderRadius: 15,
-                    }}
-                    src="https://1.bp.blogspot.com/-HugzmnLycdc/X2yfMdqfrqI/AAAAAAAAIpM/fQBBxyAQGWswIhX85hT--TPeLq0teSDlwCLcBGAsYHQ/s640/anh-dep-viet-nam-2.jpg"
-                  />
-                  <Image
-                    width={130}
-                    height={130}
-                    style={{
-                      padding: 5,
-                      borderRadius: 15,
-                    }}
-                    src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                  />
-                </div>
-              </div>
-            </div>
-          </Card>
-        </Col>
-        <Col
-          xxl={8}
-          xl={8}
-          lg={12}
-          md={12}
-          sm={20}
-          xs={24}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-around",
-          }}
-        >
-          <Card
-            className="th-card-margin-bottom th-card-reset-margin"
-            style={{
-              width: "500px",
-              height: "500px",
-              display: "start",
-              justifyContent: "space-around",
-              alignItems: "center",
-              borderRadius: 15,
-              overflowY: "relative",
-            }}
-          >
-            <ContainerHeader
-              title="Hàn"
-              buttons={ButtonAdd()}
-              style={{ position: "sticky", top: 0, zIndex: 1 }}
-            />
-            <div style={{ overflowY: "auto", maxHeight: "410px" }}>
-              <div
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                  marginBottom: 10,
-                  maxWidth: "420px",
-                  overflowWrap: "break-word",
-                }}
-              >
-                <span style={{ fontWeight: "bold" }}>Khu vực:</span>
-                <br />
-                <span style={{}}>Mô tả:</span>
-                <div
-                  style={{
-                    display: "flex",
-                    flexDirection: "row",
-                    flexWrap: "wrap",
-                  }}
-                >
-                  <div
-                    style={{ position: "relative", display: "inline-block" }}
-                  >
-                    <Image
-                      width={130}
-                      height={130}
-                      style={{
-                        padding: 5,
-                        borderRadius: 15,
-                      }}
-                      src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                    />
-                    <Button
-                      title="Xóa hình ảnh"
-                      style={{
-                        width: 25,
-                        height: 30,
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "red",
-                        backgroundColor: "white",
-                        borderRadius: 15,
-                        transition: "background-color 0.3s ease",
-                      }}
-                      onClick={handleDeleteClick}
-                    >
-                      <DeleteOutlined style={{ fontSize: 15 }} />
-                    </Button>
-                  </div>
-                  <div
-                    style={{ position: "relative", display: "inline-block" }}
-                  >
-                    <Image
-                      width={130}
-                      height={130}
-                      style={{
-                        padding: 5,
-                        borderRadius: 15,
-                      }}
-                      src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                    />
-                    <Button
-                      title="Xóa hình ảnh"
-                      style={{
-                        width: 25,
-                        height: 30,
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "red",
-                        backgroundColor: "white",
-                        borderRadius: 15,
-                        transition: "background-color 0.3s ease",
-                      }}
-                      onClick={handleDeleteClick}
-                    >
-                      <DeleteOutlined style={{ fontSize: 15 }} />
-                    </Button>
-                  </div>
-                  <div
-                    style={{ position: "relative", display: "inline-block" }}
-                  >
-                    <Image
-                      width={130}
-                      height={130}
-                      style={{
-                        padding: 5,
-                        borderRadius: 15,
-                      }}
-                      src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                    />
-                    <Button
-                      title="Xóa hình ảnh"
-                      style={{
-                        width: 25,
-                        height: 30,
-                        position: "absolute",
-                        top: 0,
-                        right: 0,
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "center",
-                        color: "red",
-                        backgroundColor: "white",
-                        borderRadius: 15,
-                        transition: "background-color 0.3s ease",
-                      }}
-                      onClick={handleDeleteClick}
-                    >
-                      <DeleteOutlined style={{ fontSize: 15 }} />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              <div
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                  marginBottom: 10,
-                }}
-              >
-                <span style={{ fontWeight: "bold" }}>Khu vực:</span>
-                <br />
-                <span style={{}}>Mô tả:</span>
-                <div style={{ display: "flex", flexDirection: "row" }}>
-                  <Image
-                    width={130}
-                    height={130}
-                    style={{
-                      padding: 5,
-                      borderRadius: 15,
-                    }}
-                    src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                  />
-
-                  <Image
-                    width={130}
-                    height={130}
-                    style={{
-                      padding: 5,
-                      borderRadius: 15,
-                    }}
-                    src="https://bold.vn/wp-content/uploads/2019/05/bold-academy-5.jpg"
-                  />
-                </div>
-              </div>
-              <div
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  flexDirection: "column",
-                }}
-              >
-                <span style={{ marginBottom: 10, fontWeight: "bold" }}>
-                  Khu vực:
-                </span>
-                <br />
-                <span style={{ marginBottom: 10 }}>Mô tả:</span>
-                <div style={{ display: "flex", flexDirection: "row" }}>
-                  <Image
-                    width={130}
-                    height={130}
-                    style={{
-                      padding: 5,
-                      borderRadius: 15,
-                    }}
-                    src="https://1.bp.blogspot.com/-HugzmnLycdc/X2yfMdqfrqI/AAAAAAAAIpM/fQBBxyAQGWswIhX85hT--TPeLq0teSDlwCLcBGAsYHQ/s640/anh-dep-viet-nam-2.jpg"
-                  />
-                  <Image
-                    width={130}
-                    height={130}
-                    style={{
-                      padding: 5,
-                      borderRadius: 15,
-                    }}
-                    src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
-                  />
-                </div>
-              </div>
-            </div>
-          </Card>
-        </Col>
-        {/* );
-            })} */}
-      </Row>
+              </Card>
+            </Col>
+          </div>
+        );
+      })}
       <ModalThemHinhAnh
         openModal={ActiveModalThemHinhAnh}
         openModalFS={setActiveModalThemHinhAnh}
+        itemData={{
+          tits_qtsx_CongDoan_Id: SanPham,
+          tits_qtsx_CongDoan_Id: CongDoan,
+        }}
         // saveTuChoi={saveTuChoi}
       />
     </div>

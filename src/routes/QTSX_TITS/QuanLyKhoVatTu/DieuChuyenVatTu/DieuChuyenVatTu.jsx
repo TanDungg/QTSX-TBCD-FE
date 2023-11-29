@@ -36,7 +36,11 @@ const { RangePicker } = DatePicker;
 function DieuChuyenVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [ListKhoDi, setListKhoDi] = useState([]);
   const [KhoDi, setKhoDi] = useState(null);
   const [ListKhoDen, setListKhoDen] = useState([]);
@@ -342,7 +346,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
       );
     return <div>{detail}</div>;
   };
-  
+
   let renderHead = [
     {
       title: "STT",
