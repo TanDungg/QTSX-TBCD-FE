@@ -41,7 +41,7 @@ const ContainerHeader = ({ title, description, buttons, back, classCss }) => {
   return (
     <div
       className="gx-page-heading"
-      style={{ marginBottom: width > 475 ? 20 : 0 }}
+      style={{ marginBottom: width > 475 ? 10 : 0 }}
     >
       <div
         className={`${classCss}-display`}

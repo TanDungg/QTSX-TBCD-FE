@@ -133,72 +133,48 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
       key: "key",
       align: "center",
       width: 45,
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Mã vật tư/chi tiết",
       dataIndex: "maVatTuChiTiet",
       key: "maVatTuChiTiet",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Tên vật tư/chi tiết",
       dataIndex: "tenVatTuChiTiet",
       key: "tenVatTuChiTiet",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Mã đơn vị tính",
       dataIndex: "maDonViTinh",
       key: "maDonViTinh",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Thông số kỹ thuật",
       dataIndex: "thongSoKyThuat",
       key: "thongSoKyThuat",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Vật liệu",
       dataIndex: "vatLieu",
       key: "vatLieu",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Số lượng",
       dataIndex: "dinhMuc",
       key: "dinhMuc",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Mã xưởng nhận",
       dataIndex: "maXuong",
       key: "maXuong",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Hình ảnh",
@@ -206,18 +182,12 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
       align: "center",
       render: (record) => renderHinhAnh(record),
       width: 200,
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Ghi chú",
       dataIndex: "moTa",
       key: "moTa",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
   ];
   const components = {
@@ -579,7 +549,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
         return isPNG || Upload.LIST_IGNORE;
       } else {
         xuLyExcel(file);
-        setCheckDanger(false)
+        setCheckDanger(false);
         return false;
       }
     },

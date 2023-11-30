@@ -25,6 +25,12 @@ const OEMForm = asyncComponent(() => import("./OEM/OEMForm"));
 
 const BOM = asyncComponent(() => import("./BOM/BOM"));
 const BOMForm = asyncComponent(() => import("./BOM/BOMForm"));
+
+//Sản phẩm hình ảnh
+const SanPhamHinhAnh = asyncComponent(() =>
+  import("./SanPhamHinhAnh/SanPhamHinhAnh")
+);
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -77,6 +83,7 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(OEMForm, menus, pathname, permission)}
       />
+
       <Route
         path={`${match.url}/oem/:id/chi-tiet`}
         exact
@@ -102,6 +109,12 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/bom/:id/chinh-sua`}
         exact
         component={Auth(BOMForm, menus, pathname, permission)}
+      />
+      {/* Sản phẩm hình ảnh */}
+      <Route
+        path={`${match.url}/san-pham-hinh-anh`}
+        exact
+        component={Auth(SanPhamHinhAnh, menus, pathname, permission)}
       />
     </Switch>
   );
