@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
+import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -119,7 +119,7 @@ function DeNghiMuaHang({ match, history, permission }) {
       permission &&
       permission.edit &&
       item.tinhTrang === "Chưa xác nhận" &&
-      item.nguoiDuyet_Id === INFO.user_Id ? (
+      item.nguoiTaoPhieu_Id === INFO.user_Id ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -138,7 +138,7 @@ function DeNghiMuaHang({ match, history, permission }) {
       permission &&
       permission.del &&
       item.tinhTrang === "Chưa xác nhận" &&
-      item.nguoiDuyet_Id === INFO.user_Id
+      item.nguoiTaoPhieu_Id === INFO.user_Id
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -452,6 +452,26 @@ function DeNghiMuaHang({ match, history, permission }) {
       ),
       onFilter: (value, record) => record.tinhTrang.includes(value),
       filterSearch: true,
+      render: (value) => (
+        <div>
+          {value && (
+            <Tag
+              color={
+                value === "Chưa xác nhận"
+                  ? "orange"
+                  : value === "Đã xác nhận"
+                  ? "blue"
+                  : "red"
+              }
+              style={{
+                fontSize: 13,
+              }}
+            >
+              {value}
+            </Tag>
+          )}
+        </div>
+      ),
     },
 
     {

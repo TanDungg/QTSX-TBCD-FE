@@ -1108,6 +1108,41 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                   style={{ marginBottom: 8 }}
                 >
                   <FormItem
+                    label="CV thu mua"
+                    name={["phieumuahangngoai", "nguoiThuMua_Id"]}
+                    rules={[
+                      {
+                        required: true,
+                        type: "string",
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUserKy}
+                      placeholder="Chọn người thu mua"
+                      optionsvalue={["user_Id", "fullName"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp="name"
+                      disabled={
+                        type === "xacnhan" && info.tinhTrang === "Chưa xác nhận"
+                          ? false
+                          : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
                     label="File xác nhận"
                     name={["phieumuahangngoai", "fileXacNhan"]}
                   >
@@ -1158,40 +1193,6 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                         </a>
                       </span>
                     )}
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="CV thu mua"
-                    name={["phieumuahangngoai", "nguoiThuMua_Id"]}
-                    rules={[
-                      {
-                        type: "string",
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUserKy}
-                      placeholder="Chọn người thu mua"
-                      optionsvalue={["user_Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={
-                        type === "xacnhan" && info.tinhTrang === "Chưa xác nhận"
-                          ? false
-                          : true
-                      }
-                    />
                   </FormItem>
                 </Col>
                 <Col

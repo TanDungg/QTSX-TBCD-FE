@@ -253,7 +253,8 @@ function SanPhamHinhAnh({ match, history, permission }) {
                                       position: "relative",
                                       display: "inline-block",
                                       borderRadius: 15,
-                                      marginRight: 5,
+                                      marginRight: 10,
+                                      marginBottom: 10,
                                     }}
                                   >
                                     <Image
@@ -262,6 +263,7 @@ function SanPhamHinhAnh({ match, history, permission }) {
                                       style={{
                                         borderRadius: 15,
                                         border: "1px solid #c8c8c8",
+                                        padding: 10,
                                       }}
                                       src={BASE_URL_API + hinhanh.hinhAnh}
                                     />
@@ -278,7 +280,8 @@ function SanPhamHinhAnh({ match, history, permission }) {
                                         alignItems: "center",
                                         justifyContent: "center",
                                         color: "red",
-                                        backgroundColor: "white",
+                                        backgroundColor: "#fff",
+                                        borderColor: "#c8c8c8",
                                         borderRadius: 15,
                                         transition:
                                           "background-color 0.3s ease",
