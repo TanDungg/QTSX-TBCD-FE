@@ -9,6 +9,8 @@ const CauTrucKhoThanhPham = asyncComponent(() =>
 );
 const SanPham = asyncComponent(() => import("./SanPham/SanPham"));
 const VatTu = asyncComponent(() => import("./VatTu/VatTu"));
+const VatTuForm = asyncComponent(() => import("./VatTu/VatTuForm"));
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -27,6 +29,16 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/vat-tu`}
         exact
         component={Auth(VatTu, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/vat-tu/them-moi`}
+        exact
+        component={Auth(VatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/vat-tu/:id/chinh-sua`}
+        exact
+        component={Auth(VatTuForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/san-pham`}

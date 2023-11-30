@@ -48,7 +48,9 @@ function InMaQr() {
                 }}
               >
                 <QRCode
-                  value={d && d.id}
+                  value={
+                    d && d.vatTu_Id + (d.hanSuDung ? "_" + d.hanSuDung : "")
+                  }
                   style={{ width: 50, height: 50, marginBottom: 3 }}
                 />
                 <span style={{ fontSize: 10, fontWeight: "bold" }}>

@@ -499,24 +499,26 @@ function ImportKeHoach({ match, permission, history }) {
                       slNgay[index] = d[index];
                     }
                   }
-                  NewData.push({
-                    maSanPham: d[MSP]
-                      ? d[MSP].toString().trim() !== ""
-                        ? d[MSP].toString().trim()
-                        : undefined
-                      : undefined,
-                    tenSanPham: d[TSP]
-                      ? d[TSP].toString().trim() !== ""
-                        ? d[TSP].toString().trim()
-                        : undefined
-                      : undefined,
-                    maMauSac: d[MMS]
-                      ? d[MMS].toString().trim() !== ""
-                        ? d[MMS].toString().trim()
-                        : undefined
-                      : undefined,
-                    ...slNgay,
-                  });
+                  if (Object.keys(slNgay).length > 0) {
+                    NewData.push({
+                      maSanPham: d[MSP]
+                        ? d[MSP].toString().trim() !== ""
+                          ? d[MSP].toString().trim()
+                          : undefined
+                        : undefined,
+                      tenSanPham: d[TSP]
+                        ? d[TSP].toString().trim() !== ""
+                          ? d[TSP].toString().trim()
+                          : undefined
+                        : undefined,
+                      maMauSac: d[MMS]
+                        ? d[MMS].toString().trim() !== ""
+                          ? d[MMS].toString().trim()
+                          : undefined
+                        : undefined,
+                      ...slNgay,
+                    });
+                  }
                 }
                 // Data.push(data[index][MSP]);
               });
@@ -641,18 +643,6 @@ function ImportKeHoach({ match, permission, history }) {
       });
       if (check) {
         setCheckDanger(true);
-        return "red-row";
-      }
-    } else {
-      let check = false;
-      for (let index = 1; index <= getNumberDayOfMonth(Thang, Nam); index++) {
-        if (current[index]) {
-          check = true;
-        }
-      }
-      if (!check) {
-        setCheckDanger(true);
-        setMessageError(`Số lượng kế hoạch không được rỗng`);
         return "red-row";
       }
     }

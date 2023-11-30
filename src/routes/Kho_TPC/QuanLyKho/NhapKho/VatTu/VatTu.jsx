@@ -530,14 +530,13 @@ function VatTu({ match, history, permission }) {
       ) {
         const row =
           selectedDevice.length > 0
-            ? selectedRows.filter((d) => d.key !== selectedDevice[0].key)
+            ? selectedRows.filter(
+                (d) => d.key !== selectedDevice[0].key && d.isDuyet === true
+              )
             : [...selectedRows];
-
-        const key =
-          selectedKeys.length > 0
-            ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
-            : [...selectedRowKeys];
-
+        const key = row.map((r) => {
+          return r.key;
+        });
         setSelectedDevice(row);
         setSelectedKeys(key);
       }

@@ -56,6 +56,7 @@ function BOMForm({ match, permission, history }) {
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListChiTiet, setListChiTiet] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
+  const [SanPham, setSanPham] = useState("");
 
   const [FileThongSoKyThuat, setFileThongSoKyThuat] = useState(null);
   const [DisableUpload, setDisableUpload] = useState(false);
@@ -876,7 +877,7 @@ function BOMForm({ match, permission, history }) {
                     showSearch
                     optionFilterProp="name"
                     disabled={type !== "new"}
-                    onSelect={(val) => {}}
+                    onSelect={(val) => setSanPham(val)}
                   />
                 </FormItem>
               </Col>
@@ -974,7 +975,7 @@ function BOMForm({ match, permission, history }) {
                 icon={<UploadOutlined />}
                 onClick={() => setActiveModalImport(true)}
                 type="primary"
-                // disabled={DisableAdd}
+                disabled={SanPham === ""}
               >
                 Import
               </Button>
@@ -1003,6 +1004,7 @@ function BOMForm({ match, permission, history }) {
       <ImportBOM
         openModal={ActiveModalImport}
         openModalFS={setActiveModalImport}
+        SanPham={SanPham}
       />
     </div>
   );

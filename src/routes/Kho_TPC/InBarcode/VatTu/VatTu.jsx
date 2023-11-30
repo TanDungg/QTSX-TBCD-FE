@@ -1,185 +1,411 @@
-import React, { useState, useEffect } from "react";
-import { Card, Form, Spin, DatePicker } from "antd";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  PlusOutlined,
+  QrcodeOutlined,
+} from "@ant-design/icons";
+import { Button, Card, Col, Divider } from "antd";
+import find from "lodash/find";
+import isEmpty from "lodash/isEmpty";
+import map from "lodash/map";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Input, Select, FormSubmit } from "src/components/Common";
-import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { Link } from "react-router-dom";
+import {
+  // getLocalStorage,
+  reDataForTable,
+  setLocalStorage,
+  treeToFlatlist,
+} from "src/util/Common";
+import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
+import { removeDuplicates } from "src/util/Common";
+import {
+  EditableTableRow,
+  ModalDeleteConfirm,
+  Table,
+  Toolbar,
+} from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { getDateNow, setLocalStorage } from "src/util/Common";
-import moment from "moment";
-import dayjs from "dayjs";
-const FormItem = Form.Item;
+import { convertObjectToUrlParams } from "src/util/Common";
+import QRCode from "qrcode.react";
+import { remove } from "lodash";
+
+const { EditableRow, EditableCell } = EditableTableRow;
 
 function VatTu({ match, permission, history }) {
+  // document.title = `Kho linh kiện nhựa | ${APP_NAME}`;
   const dispatch = useDispatch();
-  const [form] = Form.useForm();
-  const { loading } = useSelector(({ common }) => common).toJS();
-  const [ListVatTu, setListVatTu] = useState([]);
-  const [fieldTouch, setFieldTouch] = useState(false);
-
-  const { setFieldsValue, validateFields, resetFields } = form;
+  // const INFO = getLocalStorage("menu");
+  const { width, data, loading } = useSelector(({ common }) => common).toJS();
+  const [keyword, setKeyword] = useState("");
+  const { totalRow } = data;
+  const [selectedDevice, setSelectedDevice] = useState([]);
+  const [selectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
-    if (permission && !permission.view) {
+    if (permission && permission.view) {
+      getListData(keyword);
+    } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
-    } else {
-      getVatTu();
     }
-    return () => {
-      dispatch(fetchReset());
-    };
+    return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   /**
-   * Lấy thông tin info
+   * Get menu list
    *
-   * @param {*} id
    */
-  const getInfo = (id) => {
+  /**
+   * Load danh sách người dùng
+   * @param keyword Từ khóa
+   * @param page Trang
+   * @param pageSize
+   */
+  const getListData = (keyword) => {
+    let param = convertObjectToUrlParams({ keyword });
+    dispatch(fetchStart(`lkn_QRCodeVatTu?${param}`, "GET", null, "LIST"));
+  };
+
+  /**
+   * Tìm kiếm người dùng
+   *
+   */
+  const onSearchNguoiDung = () => {
+    getListData(keyword);
+  };
+
+  /**
+   * Thay đổi keyword
+   *
+   * @param {*} val
+   */
+  const onChangeKeyword = (val) => {
+    setKeyword(val.target.value);
+    if (isEmpty(val.target.value)) {
+      getListData(val.target.value);
+    }
+  };
+  /**
+   * deleteItemFunc: Remove item from list
+   * @param {object} item
+   * @returns
+   * @memberof VaiTro
+   */
+  const deleteItemFunc = (item) => {
+    const title = "mã barcode";
+    ModalDeleteConfirm(deleteItemAction, item, item.maVatTu, title);
+  };
+
+  /**
+   * Remove item
+   *
+   * @param {*} item
+   */
+  const deleteItemAction = (item) => {
+    let url = `lkn_QRCodeVatTu/${item.id}`;
     new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(`VatTu/${id}`, "GET", null, "DETAIL", "", resolve, reject)
-      );
+      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        if (res && res.data) {
-          setFieldsValue({
-            vattu: {
-              tenDonViTinh: res.data.tenDonViTinh,
-            },
-          });
-        }
+        getListData(keyword);
       })
       .catch((error) => console.error(error));
   };
 
   /**
-   * Lấy danh sách menu
-   *
+   * ActionContent: Action in table
+   * @param {*} item
+   * @returns View
+   * @memberof ChucNang
    */
-  const getVatTu = async () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart("VatTu?page=-1", "GET", null, "LIST", "", resolve, reject)
+  const actionContent = (item) => {
+    const editItem =
+      permission && permission.edit ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/chinh-sua`,
+            state: { itemData: item, permission },
+          }}
+          title="Sửa"
+        >
+          <EditOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Sửa">
+          <EditOutlined />
+        </span>
       );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListVatTu(
-            res.data.map((sp) => {
-              return {
-                ...sp,
-                name: sp.maVatTu + " - " + sp.tenVatTu,
-              };
-            })
-          );
-        } else {
-          setListVatTu([]);
-        }
-      })
-      .catch((error) => console.error(error));
+    const deleteItemVal =
+      permission && permission.del
+        ? { onClick: () => deleteItemFunc(item) }
+        : { disabled: true };
+    return (
+      <div>
+        <React.Fragment>
+          {editItem}
+          <Divider type="vertical" />
+          <a {...deleteItemVal} title="Xóa">
+            <DeleteOutlined />
+          </a>
+        </React.Fragment>
+      </div>
+    );
   };
+
+  let dataList = reDataForTable(data);
+
+  let colValues = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      width: 45,
+      align: "center",
+    },
+    {
+      title: "Mã vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenVatTu,
+            value: d.tenVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenVatTu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenVatTu,
+            value: d.tenVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenVatTu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Hạn sử dụng",
+      dataIndex: "hanSuDung",
+      key: "hanSuDung",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.hanSuDung,
+            value: d.hanSuDung,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.hanSuDung.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Mã barcode",
+      key: "hanSuDung",
+      align: "center",
+      render: (value) => (
+        <div id="myqrcode">
+          <QRCode
+            value={value}
+            bordered={false}
+            style={{ width: 50, height: 50 }}
+          />
+        </div>
+      ),
+    },
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+  ];
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+
+  const columns = map(colValues, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
+
   /**
-   * Khi submit
+   * Redirect to create new organization
    *
-   * @param {*} values
+   * @memberof ChucNang
    */
-  const onFinish = (values) => {
-    const newData = [];
-    ListVatTu.forEach((sp) => {
-      if (sp.id === values.vattu.vatTu_Id) {
-        newData.push({
-          id:
-            sp.id +
-            (values.vattu.hanSuDung ? "_" + values.vattu.hanSuDung._i : ""),
-          maVatTu: sp.maVatTu,
-          tenVatTu: sp.tenVatTu,
-          hanSuDung: values.vattu.hanSuDung
-            ? values.vattu.hanSuDung._i
-            : undefined,
-        });
-      }
+  const handleRedirect = () => {
+    history.push({
+      pathname: `${match.url}/them-moi`,
     });
-    setLocalStorage("inMa", newData);
+  };
+  const handlePrint = () => {
+    // history.push({
+    //   pathname: `${match.url}/inMa`,
+    //   state: { VatTu: selectedDevice },
+    // });
+    setLocalStorage("inMa", selectedDevice);
     window.open(`${match.url}/inMa`, "_blank");
   };
+  const addButtonRender = () => {
+    return (
+      <>
+        <Button
+          icon={<QrcodeOutlined />}
+          className="th-btn-margin-bottom-0"
+          type="primary"
+          onClick={handlePrint}
+          disabled={permission && !permission.add}
+        >
+          In mã
+        </Button>
+        <Button
+          icon={<PlusOutlined />}
+          className="th-btn-margin-bottom-0"
+          type="primary"
+          onClick={handleRedirect}
+          disabled={permission && !permission.add}
+        >
+          Thêm mới
+        </Button>
+      </>
+    );
+  };
+  function hanldeRemoveSelected(device) {
+    const newDevice = remove(selectedDevice, (d) => {
+      return d.key !== device.key;
+    });
+    const newKeys = remove(selectedKeys, (d) => {
+      return d !== device.key;
+    });
+    setSelectedDevice(newDevice);
+    setSelectedKeys(newKeys);
+  }
 
-  const formTitle = "In Barcode vật tư";
-  const disabledDate = (current) => {
-    return current && current < dayjs().startOf("day");
+  const rowSelection = {
+    selectedRowKeys: selectedKeys,
+    selectedRows: selectedDevice,
+    onChange: (selectedRowKeys, selectedRows) => {
+      const newSelectedDevice = [...selectedRows];
+      const newSelectedKey = [...selectedRowKeys];
+      setSelectedDevice(newSelectedDevice);
+      setSelectedKeys(newSelectedKey);
+    },
   };
   return (
     <div className="gx-main-content">
-      <ContainerHeader title={formTitle} />
-      <Card className="th-card-margin-bottom">
-        <Spin spinning={loading}>
-          <Form
-            {...DEFAULT_FORM_CUSTOM}
-            form={form}
-            name="nguoi-dung-control"
-            onFinish={onFinish}
-            onFieldsChange={() => setFieldTouch(true)}
+      <ContainerHeader
+        title={"Mã Barcode vật tư"}
+        description="Mã Barcode vật tư"
+        buttons={addButtonRender()}
+      />
+      <Card className="th-card-margin-bottom ">
+        <Col
+          xxl={8}
+          xl={12}
+          lg={16}
+          md={16}
+          sm={20}
+          xs={24}
+          style={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <span
+            style={{
+              width: "80px",
+            }}
           >
-            <FormItem
-              label="Vật tư"
-              name={["vattu", "vatTu_Id"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-              ]}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListVatTu ? ListVatTu : []}
-                placeholder="Chọn vật tư"
-                optionsvalue={["id", "name"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp="name"
-                onSelect={(val) => getInfo(val)}
-              />
-            </FormItem>
-            <FormItem
-              label="Đơn vị tính"
-              name={["vattu", "tenDonViTinh"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-              ]}
-            >
-              <Input placeholder="Đơn vị tính" disabled={true} />
-            </FormItem>
-            <FormItem label="Hạn sử dụng" name={["vattu", "hanSuDung"]}>
-              <DatePicker
-                format={"DD/MM/YYYY"}
-                placeholder="Chọn hạn sử dụng"
-                style={{ width: 200 }}
-                disabledDate={disabledDate}
-                onChange={(date, dateString) => {
-                  if (dateString === "") {
-                    setFieldsValue({
-                      vattu: {
-                        hanSuDung: null,
-                      },
-                    });
-                  } else {
-                    setFieldsValue({
-                      vattu: {
-                        hanSuDung: moment(dateString, "DD/MM/YYYY"),
-                      },
-                    });
-                  }
-                }}
-              />
-            </FormItem>
-
-            <FormSubmit content={"Tạo mã Barcode"} disabled={fieldTouch} />
-          </Form>
-        </Spin>
+            Tìm kiếm:
+          </span>
+          <div
+            style={{
+              flex: 1,
+              alignItems: "center",
+              marginTop: width < 576 ? 10 : 0,
+            }}
+          >
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchNguoiDung,
+                onSearch: onSearchNguoiDung,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
+              }}
+            />
+          </div>
+        </Col>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
+        <Table
+          bordered
+          columns={columns}
+          scroll={{ x: 900, y: "55vh" }}
+          components={components}
+          className="gx-table-responsive"
+          dataSource={dataList}
+          size="small"
+          rowClassName={"editable-row"}
+          pagination={{
+            pageSize: 20,
+            total: totalRow,
+            showSizeChanger: false,
+            showQuickJumper: true,
+          }}
+          loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            preserveSelectedRowKeys: true,
+            selectedRowKeys: selectedKeys,
+            getCheckboxProps: (record) => ({}),
+          }}
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (e) => {
+                const found = find(selectedKeys, (k) => k === record.key);
+                if (found === undefined) {
+                  setSelectedDevice([...selectedDevice, record]);
+                  setSelectedKeys([...selectedKeys, record.key]);
+                } else {
+                  hanldeRemoveSelected(record);
+                }
+              },
+            };
+          }}
+        />
       </Card>
     </div>
   );
