@@ -2,32 +2,25 @@ import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Col, Row, Image } from "antd";
 import {
   CopyOutlined,
-  EditOutlined,
   DeleteOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import { map } from "lodash";
-import {
-  ModalDeleteConfirm,
-  EditableTableRow,
-  Select,
-} from "src/components/Common";
+import { ModalDeleteConfirm, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import Helpers from "src/helpers";
+import { BASE_URL_API } from "src/constants/Config";
 import ModalThemHinhAnh from "./ModalThemHinhAnh";
-
-const { EditableRow, EditableCell } = EditableTableRow;
+import ModalSaoChep from "./ModalSaoChep";
 
 function SanPhamHinhAnh({ match, history, permission }) {
-  const { width, loading, data } = useSelector(({ common }) => common).toJS();
+  const { data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
   const [CongDoan, setCongDoan] = useState(null);
+  const [ActiveModalSaoChep, setActiveModalSaoChep] = useState(false);
   const [ActiveModalThemHinhAnh, setActiveModalThemHinhAnh] = useState(false);
 
   useEffect(() => {
@@ -39,7 +32,7 @@ function SanPhamHinhAnh({ match, history, permission }) {
 
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ActiveModalSaoChep, ActiveModalThemHinhAnh]);
 
   /**
    * Lấy dữ liệu về
@@ -80,82 +73,8 @@ function SanPhamHinhAnh({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const editItem =
-      permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item },
-          }}
-          title="Sửa quy trình công nghệ"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa quy trình công nghệ">
-          <EditOutlined />
-        </span>
-      );
-    const deleteVal =
-      permission && permission.del && !item.isUsed
-        ? { onClick: () => deleteItemFunc(item, "quy trình công nghệ") }
-        : { disabled: true };
-    return (
-      <div>
-        {editItem}
-        <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa quy trình công nghệ">
-          <DeleteOutlined />
-        </a>
-      </div>
-    );
-  };
-
-  /**
-   * deleteItemFunc: Xoá item theo item
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item, title) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maQuyTrinhCongNghe, title);
-  };
-
-  /**
-   * Xóa item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    let url = `tits_qtsx_SanPhamHinhAnh/${item.id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        // Reload lại danh sách
-        if (res.status !== 409) {
-          getListData(SanPham);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
+  const handleSaoChep = () => {
+    setActiveModalSaoChep(true);
   };
 
   const addButtonRender = () => {
@@ -165,7 +84,7 @@ function SanPhamHinhAnh({ match, history, permission }) {
           icon={<CopyOutlined />}
           className="th-margin-bottom-0"
           type="primary"
-          onClick={handleRedirect}
+          onClick={handleSaoChep}
           disabled={permission && !permission.add}
         >
           Sao chép
@@ -179,10 +98,15 @@ function SanPhamHinhAnh({ match, history, permission }) {
     getListData(value);
   };
 
+  const handleRefeshModal = () => {
+    getListData(SanPham);
+  };
+
   const handleThemHinhAnh = (data) => {
     setActiveModalThemHinhAnh(true);
     setCongDoan(data.tits_qtsx_CongDoan_Id);
   };
+
   const ButtonAdd = (dt) => {
     const AddHinhAnh = {
       onClick: () => handleThemHinhAnh(dt),
@@ -196,9 +120,28 @@ function SanPhamHinhAnh({ match, history, permission }) {
     );
   };
 
-  const handleDeleteClick = () => {
-    Helpers.alertSuccessMessage("Xóa thành công!");
+  const handleDeleteClick = (item) => {
+    ModalDeleteConfirm(deleteItemAction, item, item.tenKhuVuc, "hình ảnh của ");
   };
+
+  /**
+   * Xóa item
+   *
+   * @param {*} item
+   */
+  const deleteItemAction = (item) => {
+    let url = `tits_qtsx_SanPhamHinhAnh/${item.id}`;
+    new Promise((resolve, reject) => {
+      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          getListData(SanPham);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -235,9 +178,9 @@ function SanPhamHinhAnh({ match, history, permission }) {
           </Col>
         </Row>
       </Card>
-      {data.map((dt) => {
-        return (
-          <div>
+      <Row>
+        {data.map((dt) => {
+          return (
             <Col
               xxl={8}
               xl={8}
@@ -258,9 +201,10 @@ function SanPhamHinhAnh({ match, history, permission }) {
                   height: "500px",
                   display: "start",
                   justifyContent: "space-around",
-                  alignItems: "center",
-                  borderRadius: 15,
                   overflowY: "relative",
+                  alignItems: "center",
+                  borderColor: "#0469B9",
+                  borderRadius: 15,
                 }}
               >
                 <ContainerHeader
@@ -268,9 +212,15 @@ function SanPhamHinhAnh({ match, history, permission }) {
                   buttons={ButtonAdd(dt)}
                   style={{ position: "sticky", top: 0, zIndex: 1 }}
                 />
-                <div style={{ overflowY: "auto", maxHeight: "410px" }}>
+                <Divider />
+                <div
+                  style={{
+                    overflowY: "auto",
+                    maxHeight: "410px",
+                  }}
+                >
                   {dt.list_KhuVucs &&
-                    dt.list_KhuVucs.map((khuvuc) => {
+                    JSON.parse(dt.list_KhuVucs).map((khuvuc) => {
                       return (
                         <div
                           style={{
@@ -282,8 +232,8 @@ function SanPhamHinhAnh({ match, history, permission }) {
                             overflowWrap: "break-word",
                           }}
                         >
-                          <span style={{ fontWeight: "bold" }}>
-                            Khu vực: {khuvuc.tenKhuVuc}
+                          <span style={{ fontWeight: "bold", fontSize: 15 }}>
+                            {khuvuc.tenKhuVuc}
                           </span>
                           <br />
                           <span style={{}}>Mô tả: {khuvuc.moTa}</span>
@@ -292,25 +242,28 @@ function SanPhamHinhAnh({ match, history, permission }) {
                               display: "flex",
                               flexDirection: "row",
                               flexWrap: "wrap",
+                              marginTop: "10px",
                             }}
                           >
-                            {dt.list_HinhAnhs &&
-                              dt.list_HinhAnhs.map((hinhanh) => {
+                            {khuvuc.list_HinhAnhs &&
+                              khuvuc.list_HinhAnhs.map((hinhanh) => {
                                 return (
                                   <div
                                     style={{
                                       position: "relative",
                                       display: "inline-block",
+                                      borderRadius: 15,
+                                      marginRight: 5,
                                     }}
                                   >
                                     <Image
                                       width={130}
                                       height={130}
                                       style={{
-                                        padding: 5,
                                         borderRadius: 15,
+                                        border: "1px solid #c8c8c8",
                                       }}
-                                      src="https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png"
+                                      src={BASE_URL_API + hinhanh.hinhAnh}
                                     />
                                     <Button
                                       title="Xóa hình ảnh"
@@ -318,8 +271,8 @@ function SanPhamHinhAnh({ match, history, permission }) {
                                         width: 25,
                                         height: 30,
                                         position: "absolute",
-                                        top: 0,
-                                        right: 0,
+                                        top: -5,
+                                        right: -5,
                                         cursor: "pointer",
                                         display: "flex",
                                         alignItems: "center",
@@ -330,7 +283,12 @@ function SanPhamHinhAnh({ match, history, permission }) {
                                         transition:
                                           "background-color 0.3s ease",
                                       }}
-                                      onClick={handleDeleteClick}
+                                      onClick={() =>
+                                        handleDeleteClick({
+                                          id: hinhanh.tits_qtsx_SanPhamHinhAnh_Id,
+                                          tenKhuVuc: khuvuc.tenKhuVuc,
+                                        })
+                                      }
                                     >
                                       <DeleteOutlined
                                         style={{ fontSize: 15 }}
@@ -339,6 +297,7 @@ function SanPhamHinhAnh({ match, history, permission }) {
                                   </div>
                                 );
                               })}
+                            <Divider />
                           </div>
                         </div>
                       );
@@ -346,17 +305,22 @@ function SanPhamHinhAnh({ match, history, permission }) {
                 </div>
               </Card>
             </Col>
-          </div>
-        );
-      })}
+          );
+        })}
+      </Row>
       <ModalThemHinhAnh
         openModal={ActiveModalThemHinhAnh}
         openModalFS={setActiveModalThemHinhAnh}
         itemData={{
-          tits_qtsx_CongDoan_Id: SanPham,
+          tits_qtsx_SanPham_Id: SanPham,
           tits_qtsx_CongDoan_Id: CongDoan,
         }}
-        // saveTuChoi={saveTuChoi}
+        refesh={handleRefeshModal}
+      />
+      <ModalSaoChep
+        openModal={ActiveModalSaoChep}
+        openModalFS={setActiveModalSaoChep}
+        refesh={handleRefeshModal}
       />
     </div>
   );
