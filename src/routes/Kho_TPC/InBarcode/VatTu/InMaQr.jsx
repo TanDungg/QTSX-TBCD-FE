@@ -48,11 +48,11 @@ function InMaQr() {
                 }}
               >
                 <QRCode
-                  value={d && d.lkn_ChiTietKhoVatTu_Id}
+                  value={d && d.id}
                   style={{ width: 50, height: 50, marginBottom: 3 }}
                 />
                 <span style={{ fontSize: 10, fontWeight: "bold" }}>
-                  {d && d.thoiGianSuDung}
+                  {d && d.hanSuDung}
                 </span>
               </div>
               <div
@@ -67,7 +67,7 @@ function InMaQr() {
               >
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: 10,
                     whiteSpace: "break-spaces",
                     wordBreak: "break-all",
                     padding: "0px 5px",
@@ -78,7 +78,7 @@ function InMaQr() {
                 </span>
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: 10,
                     fontWeight: "bold",
                     marginBottom: 2,
                     textTransform: "uppercase",

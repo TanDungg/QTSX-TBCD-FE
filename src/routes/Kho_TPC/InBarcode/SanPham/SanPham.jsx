@@ -45,6 +45,8 @@ function SanPham({ match, permission, history }) {
         if (res && res.data) {
           if (res.data.mauSac) {
             setListMauSac(JSON.parse(res.data.mauSac));
+          } else {
+            setListMauSac([]);
           }
           setFieldsValue({
             SanPham: {
@@ -95,7 +97,7 @@ function SanPham({ match, permission, history }) {
         newData.push({
           id:
             sp.id +
-            (values.SanPham.mauSac_Id ? "_" + values.SanPham.mauSac_Id : null),
+            (values.SanPham.mauSac_Id ? "_" + values.SanPham.mauSac_Id : ""),
           maSanPham: sp.maSanPham,
           tenSanPham: sp.tenSanPham,
         });

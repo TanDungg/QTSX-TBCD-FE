@@ -6,6 +6,7 @@ import {
   DeleteOutlined,
   PrinterOutlined,
   DownloadOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -153,37 +154,35 @@ function VatTu({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const editItem =
+    const xacNhanItem =
       permission &&
-      permission.edit &&
-      item.userNhan_Id === INFO.user_Id &&
-      moment(getDateNow(-1), "DD/MM/YYYY") <=
-        moment(item.ngayNhan, "DD/MM/YYYY") ? (
+      permission.cof &&
+      !item.isDuyet &&
+      item.tinhTrang === "Chưa xử lý" ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/xac-nhan`,
             state: { itemData: item },
           }}
-          title="Sửa"
+          title="Duyệt phiếu"
         >
-          <EditOutlined />
+          <CheckCircleOutlined />
         </Link>
       ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
+        <span disabled title="Duyệt phiếu">
+          <CheckCircleOutlined />
         </span>
       );
     const deleteVal =
       permission &&
       permission.del &&
-      item.userNhan_Id === INFO.user_Id &&
-      moment(getDateNow(-1), "DD/MM/YYYY") <=
-        moment(item.ngayNhan, "DD/MM/YYYY")
+      !item.isDuyet &&
+      item.tinhTrang === "Chưa xử lý"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {editItem}
+        {xacNhanItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
           <DeleteOutlined />
@@ -213,7 +212,7 @@ function VatTu({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuNhapKhoVatTu?id=${item.id}`;
+    let url = `lkn_PhieuNhapKhoVatTu/delete-phieu-nhap-kho-vat-tu?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -269,6 +268,7 @@ function VatTu({ match, history, permission }) {
         if (res && res.data) {
           const newData = {
             ...res.data,
+            ngayNhan: res.data.ngayNhan.split(" ")[0],
             lstpnkvtct:
               res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu),
           };
@@ -348,7 +348,7 @@ function VatTu({ match, history, permission }) {
   const addButtonRender = () => {
     return (
       <>
-        <Button
+        {/* <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -356,7 +356,7 @@ function VatTu({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
-        </Button>
+        </Button> */}
         <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
@@ -402,6 +402,13 @@ function VatTu({ match, history, permission }) {
   };
   let renderHead = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -425,70 +432,6 @@ function VatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Ngày nhập",
-      dataIndex: "ngayNhan",
-      key: "ngayNhan",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.ngayNhan,
-            value: d.ngayNhan,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.ngayNhan.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Nhà cung cấp",
-      dataIndex: "tenNhaCungCap",
-      key: "tenNhaCungCap",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenNhaCungCap,
-            value: d.tenNhaCungCap,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenNhaCungCap.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Số hóa đơn",
-      dataIndex: "soHoaDon",
-      key: "soHoaDon",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.soHoaDon,
-            value: d.soHoaDon,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.soHoaDon.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Người nhận",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenNguoiYeuCau,
-            value: d.tenNguoiYeuCau,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenNguoiYeuCau.includes(value),
-      filterSearch: true,
-    },
-    {
       title: "Kho",
       dataIndex: "tenCauTrucKho",
       key: "tenCauTrucKho",
@@ -505,11 +448,52 @@ function VatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Chức năng",
-      key: "action",
+      title: "Người nhập",
+      dataIndex: "tenNguoiYeuCau",
+      key: "tenNguoiYeuCau",
       align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiYeuCau,
+            value: d.tenNguoiYeuCau,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNguoiYeuCau.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Ngày nhập",
+      dataIndex: "ngayNhan",
+      key: "ngayNhan",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayNhan,
+            value: d.ngayNhan,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayNhan.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "tinhTrang",
+      key: "tinhTrang",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tinhTrang,
+            value: d.tinhTrang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tinhTrang.includes(value),
+      filterSearch: true,
     },
   ];
 
@@ -540,18 +524,23 @@ function VatTu({ match, history, permission }) {
     selectedRows: selectedDevice,
 
     onChange: (selectedRowKeys, selectedRows) => {
-      const row =
-        selectedDevice.length > 0
-          ? selectedRows.filter((d) => d.key !== selectedDevice[0].key)
-          : [...selectedRows];
+      if (
+        (selectedRows.length > 0 && selectedRows[0].isDuyet) ||
+        selectedRows.length === 0
+      ) {
+        const row =
+          selectedDevice.length > 0
+            ? selectedRows.filter((d) => d.key !== selectedDevice[0].key)
+            : [...selectedRows];
 
-      const key =
-        selectedKeys.length > 0
-          ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
-          : [...selectedRowKeys];
+        const key =
+          selectedKeys.length > 0
+            ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
+            : [...selectedRowKeys];
 
-      setSelectedDevice(row);
-      setSelectedKeys(key);
+        setSelectedDevice(row);
+        setSelectedKeys(key);
+      }
     },
   };
 

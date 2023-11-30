@@ -111,7 +111,8 @@ const App = () => {
     if (
       location &&
       location.pathname &&
-      location.pathname.includes("in-barcode-kho-tpc")
+      (location.pathname.includes("in-barcode-kho-tpc") ||
+        location.pathname.includes("quan-ly-kho-tpc"))
     ) {
       setSessionStorage("tokenInfo", true);
     } else {

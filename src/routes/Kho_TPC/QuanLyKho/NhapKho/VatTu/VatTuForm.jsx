@@ -1,5 +1,20 @@
-import { DeleteOutlined } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, DatePicker, Tag } from "antd";
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  RollbackOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Col,
+  DatePicker,
+  Tag,
+  Divider,
+  Button,
+} from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -11,6 +26,7 @@ import {
   Select,
   Table,
   ModalDeleteConfirm,
+  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
@@ -155,7 +171,7 @@ const VatTuForm = ({ history, match, permission }) => {
         } else if (permission && !permission.add) {
           history.push("/home");
         }
-      } else if (includes(match.url, "chinh-sua")) {
+      } else if (includes(match.url, "xac-nhan")) {
         if (permission && permission.edit) {
           setType("edit");
           const { id } = match.params;
@@ -401,8 +417,6 @@ const VatTuForm = ({ history, match, permission }) => {
             JSON.parse(res.data.chiTietVatTu).map((data) => {
               return {
                 ...data,
-                lkn_ChiTietPhieuNhanHang_Id:
-                  data.lkn_ChiTietPhieuNhanHang_Id.toLowerCase(),
                 thoiGianSuDung: data.thoiGianSuDung
                   ? data.thoiGianSuDung
                   : null,
@@ -441,7 +455,7 @@ const VatTuForm = ({ history, match, permission }) => {
         type === "new"
           ? "/them-moi"
           : type === "edit"
-          ? `/${id}/chinh-sua`
+          ? `/${id}/xac-nhan`
           : type === "detail"
           ? `/${id}/chi-tiet`
           : `/${id}/xac-nhan`,
@@ -605,12 +619,7 @@ const VatTuForm = ({ history, match, permission }) => {
       width: 45,
       align: "center",
     },
-    {
-      title: "Sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
-      align: "center",
-    },
+
     {
       title: "Mã vật tư",
       dataIndex: "maVatTu",
@@ -629,19 +638,33 @@ const VatTuForm = ({ history, match, permission }) => {
       key: "tenDonViTinh",
       align: "center",
     },
+
+    {
+      title: "Thời gian sử dụng",
+      dataIndex: "thoiGianSuDung",
+      key: "thoiGianSuDung",
+      align: "center",
+    },
+    {
+      title: "Vị trí",
+      key: "viTri",
+      align: "center",
+      render: (val) => {
+        return (
+          <span>
+            {val.tenKe && val.tenKe}
+            {val.tenTang && ` - ${val.tenTang}`}
+            {val.tenNgan && ` - ${val.tenNgan}`}
+          </span>
+        );
+      },
+    },
     {
       title: "Số lượng",
       render: (record) => rendersoLuong(record),
 
       key: "soLuongNhap",
       align: "center",
-    },
-    {
-      title: "Thời gian sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
-      align: "center",
-      render: (val, record) => renderDatePicker(val, record),
     },
     {
       title: "Ghi chú",
@@ -702,67 +725,71 @@ const VatTuForm = ({ history, match, permission }) => {
     saveData(values.phieunhapkho);
   };
 
-  const saveAndClose = (val) => {
-    validateFields()
-      .then((values) => {
-        if (listVatTu.length === 0) {
-          Helpers.alertError("Danh sách vật tư rỗng");
-        } else {
-          saveData(values.phieunhapkho, val);
-        }
-      })
-      .catch((error) => {
-        console.log("error", error);
-      });
-  };
-
-  const saveData = (nhapkho, saveQuit = false) => {
-    if (type === "new") {
-      const newData = {
-        ...nhapkho,
-        chiTiet_PhieuNhapKhoVatTus: listVatTu,
-        ngayHoaDon: nhapkho.ngayHoaDon._i,
-        ngayNhan: nhapkho.ngayNhan._i,
-      };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `lkn_PhieuNhapKhoVatTu`,
-            "POST",
-            newData,
-            "ADD",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res.status !== 409) {
-            if (saveQuit) {
-              goBack();
-            } else {
-              resetFields();
-              getUserLap(INFO);
-              getNhaCungCap();
-              getUserKy(INFO);
-              getKho();
-              getMaPhieu();
-              setFieldsValue({
-                phieunhapkho: {
-                  ngayNhan: moment(getDateNow(), "DD/MM/YYYY HH:mm:ss"),
-                  ngayHoaDon: moment(getDateNow(), "DD/MM/YYYY"),
-                },
-              });
-              setFieldTouch(false);
-              setListVatTu([]);
-            }
+  const saveAndClose = (val, isDuyet) => {
+    if (isDuyet) {
+      validateFields()
+        .then((values) => {
+          if (listVatTu.length === 0) {
+            Helpers.alertError("Danh sách vật tư rỗng");
           } else {
-            setFieldTouch(false);
+            saveData(values.phieunhapkho, val, isDuyet);
           }
         })
-        .catch((error) => console.error(error));
+        .catch((error) => {
+          console.log("error", error);
+        });
+    } else {
+      saveData(form.getFieldValue("phieunhapkho"), val, isDuyet);
     }
+  };
+
+  const saveData = (nhapkho, saveQuit = false, isDuyet = true) => {
+    // if (type === "new") {
+    //   const newData = {
+    //     ...nhapkho,
+    //     chiTiet_PhieuNhapKhoVatTus: listVatTu,
+    //     ngayHoaDon: nhapkho.ngayHoaDon && nhapkho.ngayHoaDon._i,
+    //     ngayNhan: nhapkho.ngayNhan._i,
+    //   };
+    //   new Promise((resolve, reject) => {
+    //     dispatch(
+    //       fetchStart(
+    //         `lkn_PhieuNhapKhoVatTu`,
+    //         "POST",
+    //         newData,
+    //         "ADD",
+    //         "",
+    //         resolve,
+    //         reject
+    //       )
+    //     );
+    //   })
+    //     .then((res) => {
+    //       if (res.status !== 409) {
+    //         if (saveQuit) {
+    //           goBack();
+    //         } else {
+    //           resetFields();
+    //           getUserLap(INFO);
+    //           getNhaCungCap();
+    //           getUserKy(INFO);
+    //           getKho();
+    //           getMaPhieu();
+    //           setFieldsValue({
+    //             phieunhapkho: {
+    //               ngayNhan: moment(getDateNow(), "DD/MM/YYYY HH:mm:ss"),
+    //               ngayHoaDon: moment(getDateNow(), "DD/MM/YYYY"),
+    //             },
+    //           });
+    //           setFieldTouch(false);
+    //           setListVatTu([]);
+    //         }
+    //       } else {
+    //         setFieldTouch(false);
+    //       }
+    //     })
+    //     .catch((error) => console.error(error));
+    // }
     if (type === "edit") {
       const newData = {
         id: id,
@@ -773,8 +800,10 @@ const VatTuForm = ({ history, match, permission }) => {
             lkn_PhieuNhapKhoVatTu_Id: id,
           };
         }),
-        ngayHoaDon: nhapkho.ngayHoaDon._i,
+        ngayHoaDon: nhapkho.ngayHoaDon && nhapkho.ngayHoaDon._i,
         ngayNhan: nhapkho.ngayNhan._i,
+        isDuyet: isDuyet,
+        lyDoTuChoi: !isDuyet ? "Từ chối" : undefined,
       };
 
       new Promise((resolve, reject) => {
@@ -795,6 +824,7 @@ const VatTuForm = ({ history, match, permission }) => {
             if (res.status !== 409) goBack();
           } else {
             getInfo(id);
+            setType("detail");
             setFieldTouch(false);
           }
         })
@@ -806,47 +836,47 @@ const VatTuForm = ({ history, match, permission }) => {
     type === "new" ? (
       "Tạo phiếu nhập kho vật tư "
     ) : type === "edit" ? (
-      "Chỉnh sửa phiếu nhập kho vật tư"
+      "Duyệt phiếu nhập kho vật tư"
     ) : (
       <span>
         Chi tiết phiếu nhập kho vật tư -{" "}
-        <Tag color={"success"}>{info.maPhieuNhapKhoVatTu}</Tag>
+        <Tag
+          color={
+            info.tinhTrang === "Chưa xử lý"
+              ? "blue"
+              : info.tinhTrang === "Phiếu đã bị từ chối"
+              ? "red"
+              : "success"
+          }
+        >
+          {info.maPhieuNhapKhoVatTu} - {info.tinhTrang}
+        </Tag>
       </span>
     );
-
-  const hanldeSelectMaPhieu = (value) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuNhanHang/phieu-nhan-hang-chua-du?id=${value}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const newVatTu =
-            res.data.chiTietVatTu &&
-            JSON.parse(res.data.chiTietVatTu)
-              .filter((ct) => Number(ct.soLuongNhan) > 0)
-              .map((ct) => ({
-                ...ct,
-                soLuongNhap: ct.soLuongNhan,
-                lkn_ChiTietPhieuNhanHang_Id:
-                  ct.lkn_ChiTietPhieuNhanHang_Id.toLowerCase(),
-                thoiGianSuDung: getDateNow(),
-              }));
-          setListVatTu(newVatTu || []);
-        }
-      })
-      .catch((error) => console.error(error));
+  const prop = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận duyệt phiếu nhập kho",
+    onOk: () => {
+      saveAndClose(false, true);
+    },
   };
-
+  const modalDuyet = () => {
+    Modal(prop);
+  };
+  const prop1 = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận từ chối phiếu nhập kho",
+    onOk: () => {
+      saveAndClose(false, false);
+    },
+  };
+  const modalTuChoi = () => {
+    Modal(prop1);
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -918,7 +948,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            {/* <Col span={12}>
               <FormItem
                 label="Phiếu nhận hàng"
                 name={["phieunhapkho", "phieuNhanHang_Id"]}
@@ -941,7 +971,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   onSelect={hanldeSelectMaPhieu}
                 />
               </FormItem>
-            </Col>
+            </Col> */}
             <Col span={12}>
               <FormItem
                 label="Số hóa đơn"
@@ -965,15 +995,22 @@ const VatTuForm = ({ history, match, permission }) => {
                 rules={[]}
               >
                 <DatePicker
-                  disabled={type === "new" ? false : true}
+                  disabled={type === "new" || type === "edit" ? false : true}
                   format={"DD/MM/YYYY"}
-                  allowClear={false}
                   onChange={(date, dateString) => {
-                    setFieldsValue({
-                      phieunhapkho: {
-                        ngayHoaDon: moment(dateString, "DD/MM/YYYY"),
-                      },
-                    });
+                    if (dateString === "") {
+                      setFieldsValue({
+                        phieunhapkho: {
+                          ngayHoaDon: null,
+                        },
+                      });
+                    } else {
+                      setFieldsValue({
+                        phieunhapkho: {
+                          ngayHoaDon: moment(dateString, "DD/MM/YYYY"),
+                        },
+                      });
+                    }
                   }}
                 />
               </FormItem>
@@ -1036,7 +1073,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -1124,12 +1161,47 @@ const VatTuForm = ({ history, match, permission }) => {
           // loading={loading}
         />
         {type === "new" || type === "edit" ? (
-          <FormSubmit
-            goBack={goBack}
-            handleSave={saveAndClose}
-            saveAndClose={saveAndClose}
-            disabled={fieldTouch}
-          />
+          // <FormSubmit
+          //   goBack={goBack}
+          //   handleSave={saveAndClose}
+          //   saveAndClose={saveAndClose}
+          //   disabled={fieldTouch}
+          //   content={"Duyệt"}
+          // />
+          <>
+            <Divider />
+            <Row style={{ marginTop: 20 }}>
+              <Col style={{ marginBottom: 8, textAlign: "center" }} span={24}>
+                <Button
+                  className="th-btn-margin-bottom-0"
+                  icon={<RollbackOutlined />}
+                  onClick={goBack}
+                  style={{ marginTop: 10 }}
+                >
+                  Quay lại
+                </Button>
+                <Button
+                  disabled={!fieldTouch}
+                  className="th-btn-margin-bottom-0"
+                  type="primary"
+                  onClick={() => modalDuyet()}
+                  icon={<SaveOutlined />}
+                  style={{ marginTop: 10 }}
+                >
+                  Duyệt
+                </Button>
+                <Button
+                  // disabled={!fieldTouch}
+                  className="th-btn-margin-bottom-0"
+                  icon={<CloseOutlined />}
+                  style={{ marginTop: 10 }}
+                  onClick={() => modalTuChoi()}
+                >
+                  Từ chối
+                </Button>
+              </Col>
+            </Row>
+          </>
         ) : null}
       </Card>
     </div>
