@@ -1,12 +1,58 @@
-import { Modal as AntModal, Form, Input, Row, Button } from "antd";
-import React, { useState } from "react";
+import { Modal as AntModal, Form, Row, Button, Card, Divider } from "antd";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { fetchReset, fetchStart } from "src/appRedux/actions";
+import { Select } from "src/components/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { getLocalStorage, getTokenInfo } from "src/util/Common";
 const FormItem = Form.Item;
 
-function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
+function ModalSaoChep({ openModalFS, openModal, itemData, refesh }) {
+  const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { resetFields } = form;
+  const { setFieldsValue, resetFields } = form;
+  const [ListSanPhamGoc, setListSanPhamGoc] = useState([]);
+  const [ListSanPhamCopy, setListSanPhamCopy] = useState([]);
+
+  useEffect(() => {
+    if (openModal) {
+      getListSanPham();
+    }
+    return () => {
+      dispatch(fetchReset());
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openModal]);
+
+  const getListSanPham = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          "tits_qtsx_SanPham?page=-1",
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListSanPhamGoc(res.data);
+        } else {
+          setListSanPhamGoc([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
 
   /**
    * Khi submit
@@ -14,21 +60,51 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.tuChoi);
+    const data = values.themhinhanh;
+    saveData(data);
   };
 
-  const saveData = (tc) => {
-    saveTuChoi(tc.lyDoTuChoi);
-    openModalFS(false);
-    resetFields();
+  const saveData = (data) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_SanPhamHinhAnh/san-pham-hinh-anh-copy`,
+          "POST",
+          data,
+          "ADD",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status !== 409) {
+          openModalFS(false);
+          resetFields();
+        }
+      })
+      .catch((error) => console.error(error));
   };
+
+  const handleSelectSanPham = (value) => {
+    setFieldsValue({
+      themhinhanh: {
+        tits_qtsx_SanPham_Id: null,
+      },
+    });
+    const newData = ListSanPhamGoc.filter((d) => d.id !== value);
+    setListSanPhamCopy(newData);
+  };
+
   const handleCancel = () => {
     openModalFS(false);
+    resetFields();
   };
 
   return (
     <AntModal
-      title="Từ chối phiếu phiếu định mức vật tư"
+      title="Sao chép hình ảnh"
       open={openModal}
       width={`50%`}
       closable={true}
@@ -36,34 +112,66 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
       footer={null}
     >
       <div className="gx-main-content">
-        <Form
-          {...DEFAULT_FORM_CUSTOM}
-          form={form}
-          name="nguoi-dung-control"
-          onFinish={onFinish}
-          onFieldsChange={() => setFieldTouch(true)}
-        >
-          <FormItem
-            label="Lý do"
-            name={["tuChoi", "lyDoTuChoi"]}
-            rules={[
-              {
-                type: "string",
-                required: true,
-              },
-            ]}
+        <Card className="th-card-margin-bottom">
+          <Form
+            {...DEFAULT_FORM_CUSTOM}
+            form={form}
+            name="nguoi-dung-control"
+            onFinish={onFinish}
+            onFieldsChange={() => setFieldTouch(true)}
           >
-            <Input className="input-item" placeholder="Lý do từ chối" />
-          </FormItem>
-          <Row justify={"center"}>
-            <Button type="danger" htmlType={"submit"} disabled={!fieldTouch}>
-              Từ chối
-            </Button>
-          </Row>
-        </Form>
+            <FormItem
+              label="Sản phẩm gốc"
+              name={["themhinhanh", "tits_qtsx_SanPham_Copy_Id"]}
+              rules={[
+                {
+                  type: "string",
+                  required: true,
+                },
+              ]}
+            >
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListSanPhamGoc ? ListSanPhamGoc : []}
+                placeholder="Chọn sản phẩm"
+                optionsvalue={["id", "tenSanPham"]}
+                style={{ width: "100%" }}
+                showSearch
+                optionFilterProp="name"
+                onSelect={handleSelectSanPham}
+              />
+            </FormItem>
+            <FormItem
+              label="Sản phẩm sao chép"
+              name={["themhinhanh", "tits_qtsx_SanPham_Id"]}
+              rules={[
+                {
+                  type: "string",
+                  required: true,
+                },
+              ]}
+            >
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListSanPhamCopy ? ListSanPhamCopy : []}
+                placeholder="Chọn sản phẩm"
+                optionsvalue={["id", "tenSanPham"]}
+                style={{ width: "100%" }}
+                showSearch
+                optionFilterProp="name"
+              />
+            </FormItem>
+            <Divider />
+            <Row justify={"center"}>
+              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+                Sao chép
+              </Button>
+            </Row>
+          </Form>
+        </Card>
       </div>
     </AntModal>
   );
 }
 
-export default ModalTuChoi;
+export default ModalSaoChep;

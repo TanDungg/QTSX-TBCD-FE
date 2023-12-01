@@ -229,7 +229,6 @@ function ModalThongTinKiemSoat({
       ...data,
       tenThongTinKiemSoat: thongtin[0].tenThongTinKiemSoat,
       maThongTinKiemSoat: thongtin[0].maThongTinKiemSoat,
-      thuTu: 1,
     };
     setThongTinKiemSoat([...ThongTinKiemSoat, newData]);
 

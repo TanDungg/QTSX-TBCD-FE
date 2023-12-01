@@ -1,4 +1,12 @@
-import { Modal as AntModal, Form, Row, Button, Card, Checkbox } from "antd";
+import {
+  Modal as AntModal,
+  Form,
+  Row,
+  Button,
+  Card,
+  Checkbox,
+  Input,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
@@ -366,6 +374,17 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
                 showSearch
                 optionFilterProp="name"
               />
+            </FormItem>
+            <FormItem
+              label="Thứ tự"
+              name={["themtram", "thuTu"]}
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              <Input className="input-item" placeholder="Thứ tự" />
             </FormItem>
             <Card
               className="th-card-margin-bottom th-card-reset-margin"

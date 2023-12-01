@@ -536,18 +536,18 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
         <Tag color={"blue"} style={{ fontSize: 15 }}>
           {info && info.maPhieu}
         </Tag>
-        <Tag
+        {/* <Tag
           color={
-            info && info.tinhTrang === "Chưa xác nhận"
+            info && info.tinhTrangPhieu === "Chưa nhận"
               ? "orange"
-              : info && info.tinhTrang === "Đã xác nhận"
+              : info && info.tinhTrangPhieu === "Đã nhận"
               ? "blue"
               : "red"
           }
           style={{ fontSize: 15 }}
         >
-          {info && info.tinhTrang}
-        </Tag>
+          {info && info.tinhTrangPhieu}
+        </Tag> */}
       </span>
     );
 

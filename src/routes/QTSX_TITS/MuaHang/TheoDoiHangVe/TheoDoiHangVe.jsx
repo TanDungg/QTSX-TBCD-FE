@@ -309,7 +309,26 @@ function TheoDoiHangVe({ match, history, permission }) {
       ),
       onFilter: (value, record) => record.ketQua.includes(value),
       filterSearch: true,
-      render: (value) => renderColumn(value, "ketQua"),
+      render: (value) => (
+        <div>
+          {value && (
+            <Tag
+              color={
+                value === "Đang giao hàng"
+                  ? "orange"
+                  : value === "Hoàn thành"
+                  ? "blue"
+                  : "red"
+              }
+              style={{
+                fontSize: 13,
+              }}
+            >
+              {value}
+            </Tag>
+          )}
+        </div>
+      ),
     },
     {
       title: "Ghi chú",

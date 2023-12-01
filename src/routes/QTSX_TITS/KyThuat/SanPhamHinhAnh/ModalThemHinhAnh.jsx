@@ -10,11 +10,14 @@ import {
   Divider,
 } from "antd";
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { fetchStart } from "src/appRedux/actions";
 import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { getLocalStorage, getTokenInfo } from "src/util/Common";
 const FormItem = Form.Item;
 
-function ModalThemHinhAnh({ openModalFS, openModal, itemData, ThemHinhAnh }) {
+function ModalThemHinhAnh({ openModalFS, openModal, itemData, refesh }) {
+  const dispatch = useDispatch();
   const INFO = {
     ...getLocalStorage("menu"),
     user_Id: getTokenInfo().id,
@@ -31,10 +34,9 @@ function ModalThemHinhAnh({ openModalFS, openModal, itemData, ThemHinhAnh }) {
    */
   const onFinish = (values) => {
     const data = values.themhinhanh;
-    console.log(values.themhinhanh);
     const formData = new FormData();
     data.list_SanPhamHinhAnhs.fileList.map((file) => {
-      formData.append("lstFiles", file);
+      formData.append("lstFiles", file.originFileObj);
     });
     fetch(`${BASE_URL_API}/api/Upload/Multi/Image`, {
       method: "POST",
@@ -44,22 +46,51 @@ function ModalThemHinhAnh({ openModalFS, openModal, itemData, ThemHinhAnh }) {
       },
     })
       .then((res) => res.json())
-      .then((data) => {
-        console.log(data);
-        // saveData(data, saveQuit);
+      .then((path) => {
+        const newData = {
+          ...itemData,
+          ...data,
+          list_SanPhamHinhAnhs: path.map((p) => {
+            return {
+              hinhAnh: p.path,
+            };
+          }),
+        };
+        saveData(newData);
       })
       .catch(() => {
         console.log("upload failed.");
       });
   };
 
-  const saveData = (tc) => {
-    ThemHinhAnh(tc.lyDoTuChoi);
-    openModalFS(false);
-    resetFields();
+  const saveData = (data) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_SanPhamHinhAnh`,
+          "POST",
+          data,
+          "ADD",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status !== 409) {
+          openModalFS(false);
+          resetFields();
+          refesh();
+        }
+      })
+      .catch((error) => console.error(error));
   };
+
   const handleCancel = () => {
     openModalFS(false);
+    resetFields();
+    refesh();
   };
 
   return (
@@ -121,6 +152,7 @@ function ModalThemHinhAnh({ openModalFS, openModal, itemData, ThemHinhAnh }) {
                 headers={{
                   Authorization: "Bearer ".concat(INFO.token),
                 }}
+                beforeUpload={() => false}
               >
                 <Button icon={<UploadOutlined />}>Tải hình ảnh sản phẩm</Button>
               </Upload>

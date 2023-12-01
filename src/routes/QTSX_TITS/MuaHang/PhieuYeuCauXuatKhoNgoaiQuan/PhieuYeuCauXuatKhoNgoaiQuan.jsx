@@ -314,47 +314,42 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
       onFilter: (value, record) => record.ngayYeuCau.includes(value),
       filterSearch: true,
     },
-    {
-      title: "Tình trạng",
-      dataIndex: "tinhTrangPhieu",
-      key: "tinhTrangPhieu",
-      align: "center",
-      filters: removeDuplicates(
-        map(data, (d) => {
-          return {
-            text: d.tinhTrangPhieu,
-            value: d.tinhTrangPhieu,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tinhTrangPhieu.includes(value),
-      filterSearch: true,
-      render: (value) => (
-        <div>
-          {value && (
-            <Tag
-              style={{
-                borderColor:
-                  value === "Chưa nhận"
-                    ? "red"
-                    : value === "Đã nhận"
-                    ? "blue"
-                    : "orange",
-                color:
-                  value === "Chưa nhận"
-                    ? "red"
-                    : value === "Đã nhận"
-                    ? "blue"
-                    : "orange",
-                fontSize: 13,
-              }}
-            >
-              {value}
-            </Tag>
-          )}
-        </div>
-      ),
-    },
+    // {
+    //   title: "Tình trạng",
+    //   dataIndex: "tinhTrangPhieu",
+    //   key: "tinhTrangPhieu",
+    //   align: "center",
+    //   filters: removeDuplicates(
+    //     map(data, (d) => {
+    //       return {
+    //         text: d.tinhTrangPhieu,
+    //         value: d.tinhTrangPhieu,
+    //       };
+    //     })
+    //   ),
+    //   onFilter: (value, record) => record.tinhTrangPhieu.includes(value),
+    //   filterSearch: true,
+    //   render: (value) => (
+    //     <div>
+    //       {value && (
+    //         <Tag
+    //           color={
+    //             value === "Chưa nhận"
+    //               ? "orange"
+    //               : value === "Đã nhận"
+    //               ? "blue"
+    //               : "red"
+    //           }
+    //           style={{
+    //             fontSize: 13,
+    //           }}
+    //         >
+    //           {value}
+    //         </Tag>
+    //       )}
+    //     </div>
+    //   ),
+    // },
     {
       title: "Chức năng",
       key: "action",

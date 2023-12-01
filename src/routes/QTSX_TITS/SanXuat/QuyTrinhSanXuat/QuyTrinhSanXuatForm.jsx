@@ -13,7 +13,7 @@ import {
   Tag,
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { includes, map } from "lodash";
+import { includes, isEmpty, map } from "lodash";
 import {
   Input,
   Select,
@@ -30,6 +30,7 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  reDataForTable,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
@@ -65,6 +66,8 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
   const [Tram, setTram] = useState(null);
   const [info, setInfo] = useState({});
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
+  const [editingRecord, setEditingRecord] = useState([]);
+  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
@@ -272,7 +275,6 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           });
           const congdoan =
             data.list_CongDoans && JSON.parse(data.list_CongDoans);
-          console.log(congdoan);
           setSanPham(data.tits_qtsx_SanPham_Id);
           getListBOM(data.tits_qtsx_SanPham_Id);
           getListOEM(data.tits_qtsx_SanPham_Id);
@@ -349,6 +351,81 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
     );
   };
 
+  const handleInputChange = (val, item) => {
+    const ThuTu = val.target.value;
+    if (isEmpty(ThuTu) || Number(ThuTu) <= 0) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Thứ tự phải là số lớn hơn 0 và bắt buộc";
+    } else {
+      const newData = editingRecord.filter(
+        (d) => d.tits_qtsx_CongDoan_Id !== item.tits_qtsx_CongDoan_Id
+      );
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
+    }
+    const newData = [...ListCongDoan];
+    newData.forEach((ct, index) => {
+      if (ct.tits_qtsx_CongDoan_Id === item.tits_qtsx_CongDoan_Id) {
+        ct.thuTu = ThuTu;
+      }
+    });
+    setListCongDoan(newData);
+  };
+
+  const onChangeValue = (val, record) => {
+    const newData = {
+      tits_qtsx_QuyTrinhSanXuatCongDoan_Id:
+        record.tits_qtsx_QuyTrinhSanXuatCongDoan_Id,
+      thuTu: val.target.value,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_QuyTrinhSanXuat/doi-thu-tu-cong-doan`,
+          "PUT",
+          newData,
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res.status !== 409) {
+        getInfo(id);
+      }
+    });
+  };
+
+  const renderThuTu = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.tits_qtsx_CongDoan_Id === item.tits_qtsx_CongDoan_Id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.thuTu}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChange(val, item)}
+          onBlur={(val) => onChangeValue(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
+
   let colValues = [
     {
       title: "Chức năng",
@@ -359,10 +436,10 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
     },
     {
       title: "Thứ tự",
-      dataIndex: "thuTu",
       key: "thuTu",
       align: "center",
       width: 120,
+      render: (value) => renderThuTu(value),
     },
     {
       title: "Công đoạn",
@@ -447,6 +524,95 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
     );
   };
 
+  const handleInputChangeTram = (val, item) => {
+    const ThuTu = val.target.value;
+    if (isEmpty(ThuTu) || Number(ThuTu) <= 0) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Thứ tự phải là số lớn hơn 0 và bắt buộc";
+    } else {
+      const newData = editingRecord.filter(
+        (d) =>
+          d.tits_qtsx_QuyTrinhSanXuatTram_Id !==
+          item.tits_qtsx_QuyTrinhSanXuatTram_Id
+      );
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
+    }
+    const newData = [...ListCongDoan];
+    newData.forEach((ct, index) => {
+      if (
+        ct.tits_qtsx_QuyTrinhSanXuatCongDoan_Id ===
+        item.tits_qtsx_QuyTrinhSanXuatCongDoan_Id
+      ) {
+        ct.list_Trams.forEach((tram, index) => {
+          if (
+            tram.tits_qtsx_QuyTrinhSanXuatTram_Id ===
+            item.tits_qtsx_QuyTrinhSanXuatTram_Id
+          ) {
+            tram.thuTu = ThuTu;
+          }
+        });
+      }
+    });
+    setListCongDoan(newData);
+  };
+
+  const onChangeValueTram = (val, record) => {
+    const newData = {
+      tits_qtsx_QuyTrinhSanXuatTram_Id: record.tits_qtsx_QuyTrinhSanXuatTram_Id,
+      thuTu: val.target.value,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_QuyTrinhSanXuat/doi-thu-tu-tram`,
+          "PUT",
+          newData,
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res.status !== 409) {
+        getInfo(id);
+      }
+    });
+  };
+
+  const renderThuTuTram = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (
+        ct.tits_qtsx_QuyTrinhSanXuatTram_Id ===
+        item.tits_qtsx_QuyTrinhSanXuatTram_Id
+      ) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.thuTu}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onBlur={(val) => onChangeValueTram(val, item)}
+          onChange={(val) => handleInputChangeTram(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
+
   let colValuesTram = [
     {
       title: "Chức năng",
@@ -457,10 +623,10 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
     },
     {
       title: "Thứ tự",
-      dataIndex: "thuTu",
       key: "thuTu",
       align: "center",
       width: 120,
+      render: (value) => renderThuTuTram(value),
     },
     {
       title: "Mã trạm",
@@ -583,7 +749,6 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
         ngayApDung: quytrinhsanxuat.ngayApDung.format("DD/MM/YYYY"),
         list_CongDoans: ListCongDoan,
       };
-      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -1197,13 +1362,14 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
               scroll={{ x: 1000, y: "55vh" }}
               components={components}
               className="gx-table-responsive"
-              dataSource={ListCongDoan}
+              dataSource={reDataForTable(ListCongDoan)}
               size="small"
               rowClassName={"editable-row"}
               pagination={false}
               expandable={{
                 expandedRowRender: (record) => (
                   <Table
+                    key={record.tits_qtsx_QuyTrinhSanXuat_Id}
                     style={{
                       marginBottom: "10px",
                       marginLeft: "50px",
@@ -1214,7 +1380,9 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
                     scroll={{ x: 500 }}
                     components={components}
                     className="gx-table-responsive th-F1D065-head"
-                    dataSource={record.list_Trams && record.list_Trams}
+                    dataSource={reDataForTable(
+                      record.list_Trams && record.list_Trams
+                    )}
                     size="small"
                     rowClassName={"editable-row"}
                     pagination={false}

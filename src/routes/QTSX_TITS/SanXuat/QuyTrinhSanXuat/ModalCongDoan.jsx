@@ -1,4 +1,12 @@
-import { Modal as AntModal, Form, Row, Button, Card } from "antd";
+import {
+  Modal as AntModal,
+  Form,
+  Row,
+  Button,
+  Card,
+  Input,
+  Switch,
+} from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -100,8 +108,6 @@ function ModalCongDoan({ openModalFS, openModal, DataThemCongDoan, itemData }) {
       maCongDoan: congdoan[0].maCongDoan,
       tenXuong: xuong[0].tenXuong,
       maXuong: xuong[0].maXuong,
-      isChoPhepSCL: true,
-      thuTu: 1,
       list_Trams: [],
     };
     DataThemCongDoan(newData);
@@ -175,6 +181,24 @@ function ModalCongDoan({ openModalFS, openModal, DataThemCongDoan, itemData }) {
                 showSearch
                 optionFilterProp="name"
               />
+            </FormItem>
+            <FormItem
+              label="Thứ tự"
+              name={["themcongdoan", "thuTu"]}
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              <Input className="input-item" placeholder="Thứ tự" />
+            </FormItem>
+            <FormItem
+              label="Cho phép SCL"
+              name={["themcongdoan", "isChoPhepSCL"]}
+              valuePropName="checked"
+            >
+              <Switch />
             </FormItem>
             <Row justify={"center"}>
               <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
