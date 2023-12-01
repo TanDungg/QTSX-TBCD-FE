@@ -131,18 +131,7 @@ function XuatKhoVatTu({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      (permission &&
-        permission.cof &&
-        item.userNhan_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác nhận bởi Bên duyệt và Phụ trách bộ phận") ||
-      (permission &&
-        permission.cof &&
-        item.userDuyet_Id === INFO.user_Id &&
-        item.tinhTrang === "Đã xác nhận bởi bên Phụ trách bộ phận") ||
-      (permission &&
-        permission.cof &&
-        item.userPhuTrachBoPhan_Id === INFO.user_Id &&
-        item.tinhTrang === "Chưa duyệt") ? (
+      permission && permission.cof && item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -157,38 +146,32 @@ function XuatKhoVatTu({ match, history, permission }) {
           <CheckCircleOutlined />
         </span>
       );
-    const editItem =
-      permission &&
-      permission.edit &&
-      item.userLapPhieu_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa duyệt" ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
+    // const editItem =
+    //   permission && permission.edit ? (
+    //     <Link
+    //       to={{
+    //         pathname: `${match.url}/${item.id}/chinh-sua`,
+    //         state: { itemData: item },
+    //       }}
+    //       title="Sửa"
+    //     >
+    //       <EditOutlined />
+    //     </Link>
+    //   ) : (
+    //     <span disabled title="Sửa">
+    //       <EditOutlined />
+    //     </span>
+    //   );
     const deleteVal =
-      permission &&
-      permission.del &&
-      item.userLapPhieu_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa duyệt"
+      permission && permission.del && item.tinhTrang === "Chưa duyệt"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
         {detailItem}
         <Divider type="vertical" />
-        {editItem}
-        <Divider type="vertical" />
+        {/* {editItem}
+        <Divider type="vertical" /> */}
         <a {...deleteVal} title="Xóa">
           <DeleteOutlined />
         </a>
@@ -334,18 +317,18 @@ function XuatKhoVatTu({ match, history, permission }) {
     },
     {
       title: "Ngày xuất kho",
-      dataIndex: "ngayXuatKho",
-      key: "ngayXuatKho",
+      dataIndex: "ngayTao",
+      key: "ngayTao",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayXuatKho,
-            value: d.ngayXuatKho,
+            text: d.ngayTao,
+            value: d.ngayTao,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayXuatKho.includes(value),
+      onFilter: (value, record) => record.ngayTao.includes(value),
       filterSearch: true,
     },
     {
@@ -395,16 +378,16 @@ function XuatKhoVatTu({ match, history, permission }) {
     };
   });
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
-  };
+  // /**
+  //  * Chuyển tới trang thêm mới chức năng
+  //  *
+  //  * @memberof ChucNang
+  //  */
+  // const handleRedirect = () => {
+  //   history.push({
+  //     pathname: `${match.url}/them-moi`,
+  //   });
+  // };
 
   const handlePrint = () => {
     const params = convertObjectToUrlParams({
@@ -425,22 +408,11 @@ function XuatKhoVatTu({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const listVatTu =
-            res.data.chiTiet_PhieuXuatKhoVatTus &&
-            JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus).map((list) => {
-              const SoLuong = list.chiTiet_LuuVatTus.reduce(
-                (tong, sl) => tong + sl.soLuongThucXuat,
-                0
-              );
-              return {
-                ...list,
-                soLuongThucXuat: SoLuong,
-              };
-            });
           const newData = {
             ...res.data,
             boPhan: res.data.tenPhongBan,
-            lstpxkvtct: listVatTu,
+            list_VatTus:
+              res.data.list_VatTus && JSON.parse(res.data.list_VatTus),
           };
 
           new Promise((resolve, reject) => {
@@ -466,62 +438,27 @@ function XuatKhoVatTu({ match, history, permission }) {
   };
 
   const handleXuatExcel = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuXuatKhoVatTu/export-file-excel-xuat-kho`,
+          "POST",
+          [],
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      exportExcel("PhieuXuatKhoVatTu", res.data.dataexcel);
     });
-    const fetchAllData = DataXuatExcel.map((data) => {
-      return new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `lkn_PhieuXuatKhoVatTu/${data.id}?${params}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      });
-    });
-
-    Promise.all(fetchAllData)
-      .then((responses) => {
-        const DataXuat = responses.map((res) => {
-          if (res && res.data) {
-            return {
-              ...res.data,
-              chiTiet_PhieuXuatKhoVatTus: res.data.chiTiet_PhieuXuatKhoVatTus
-                ? JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus)
-                : null,
-            };
-          } else {
-            return null;
-          }
-        });
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `lkn_PhieuXuatKhoVatTu/export-file-excel-xuat-kho`,
-              "POST",
-              DataXuat,
-              "",
-              "",
-              resolve,
-              reject
-            )
-          );
-        }).then((res) => {
-          exportExcel("PhieuXuatKhoVatTu", res.data.dataexcel);
-        });
-      })
-      .catch((error) => console.error(error));
   };
 
   const addButtonRender = () => {
     return (
       <>
-        <Button
+        {/* <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -529,7 +466,7 @@ function XuatKhoVatTu({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
-        </Button>
+        </Button> */}
         <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
@@ -582,18 +519,23 @@ function XuatKhoVatTu({ match, history, permission }) {
     selectedRows: SelectedDevice,
 
     onChange: (selectedRowKeys, selectedRows) => {
-      const row =
-        SelectedDevice.length > 0
-          ? selectedRows.filter((d) => d.key !== SelectedDevice[0].key)
-          : [...selectedRows];
-
-      const key =
-        SelectedKeys.length > 0
-          ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
-          : [...selectedRowKeys];
-
-      setSelectedDevice(row);
-      setSelectedKeys(key);
+      if (
+        (selectedRows.length > 0 && selectedRows[0].tinhTrang === "Đã duyệt") ||
+        selectedRows.length === 0
+      ) {
+        const row =
+          SelectedDevice.length > 0
+            ? selectedRows.filter(
+                (d) =>
+                  d.key !== SelectedDevice[0].key && d.tinhTrang === "Đã duyệt"
+              )
+            : [...selectedRows];
+        const key = row.map((r) => {
+          return r.key;
+        });
+        setSelectedDevice(row);
+        setSelectedKeys(key);
+      }
     },
   };
 

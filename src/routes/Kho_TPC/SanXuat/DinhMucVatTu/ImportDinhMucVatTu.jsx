@@ -155,7 +155,6 @@ function ImportDinhMucVatTu({
         type: "binary",
       });
       const worksheet = workbook.Sheets["Định mức vật tư"];
-
       const checkMau =
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
@@ -249,9 +248,7 @@ function ImportDinhMucVatTu({
         const GC = "Ghi chú";
         const BB = "Bắt buộc";
         const NewData = [];
-
         data.forEach((d, index) => {
-          console.log(data[index][TVT].toString().trim() === "");
           if (
             data[index][TVT] &&
             data[index][TVT].toString().trim() !== "" &&
@@ -316,9 +313,9 @@ function ImportDinhMucVatTu({
                 row.push(i + 1);
                 row.push(j + 1);
               }
-              if (NewData[i].isBatBuoc) {
-                checkIsBatBuoc = true;
-              }
+            }
+            if (NewData[i].isBatBuoc) {
+              checkIsBatBuoc = true;
             }
           }
           if (indices.length > 0) {
@@ -372,7 +369,7 @@ function ImportDinhMucVatTu({
     const newData = dataView.map((dt) => {
       return {
         ...dt,
-        isBatBuoc: dt.isBatBuoc === "x",
+        isBatBuoc: dt.isBatBuoc.toLowerCase() === "x",
       };
     });
     new Promise((resolve, reject) => {

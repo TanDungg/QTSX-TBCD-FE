@@ -351,12 +351,20 @@ function KeHoach({ match, history, permission }) {
   };
   let colValues = [
     {
+      title: "Chức năng",
+      align: "center",
+      key: "action",
+      width: 80,
+      render: (item) => actionContent(item),
+      fixed: width > 992 ? "left" : "none",
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
       width: 45,
       align: "center",
-      fixed: width > 768 ? "left" : "none",
+      fixed: width > 992 ? "left" : "none",
     },
     {
       title: "Mã sản phẩm",
@@ -364,7 +372,7 @@ function KeHoach({ match, history, permission }) {
       key: "maSanPham",
       align: "center",
       width: 120,
-      fixed: width > 768 ? "left" : "none",
+      fixed: width > 992 ? "left" : "none",
     },
     {
       title: "Tên sản phẩm",
@@ -372,6 +380,14 @@ function KeHoach({ match, history, permission }) {
       align: "center",
       key: "tenSanPham",
       width: 120,
+      fixed: width > 768 ? "left" : "none",
+    },
+    {
+      title: "Tổng",
+      dataIndex: "tong",
+      align: "center",
+      key: "tong",
+      width: 50,
       fixed: width > 768 ? "left" : "none",
     },
     {
@@ -389,20 +405,6 @@ function KeHoach({ match, history, permission }) {
             render: (val, record) => render(val, record),
           };
         }),
-    },
-    {
-      title: "Tổng",
-      dataIndex: "tong",
-      align: "center",
-      key: "tong",
-      width: 50,
-    },
-    {
-      title: "Chức năng",
-      align: "center",
-      key: "action",
-      width: 80,
-      render: (item) => actionContent(item),
     },
   ];
   const components = {

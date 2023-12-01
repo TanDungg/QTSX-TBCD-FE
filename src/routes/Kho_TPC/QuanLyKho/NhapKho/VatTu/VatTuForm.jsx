@@ -812,7 +812,7 @@ const VatTuForm = ({ history, match, permission }) => {
             `lkn_PhieuNhapKhoVatTu/${id}`,
             "PUT",
             newData,
-            "EDIT",
+            !isDuyet ? "TUCHOI" : "XACNHAN",
             "",
             resolve,
             reject

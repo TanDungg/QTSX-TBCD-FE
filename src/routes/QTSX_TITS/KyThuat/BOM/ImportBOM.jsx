@@ -173,7 +173,7 @@ function ImportBOM({
         align: "center",
         children: [],
       });
-      if (ThietLap.kho) {
+      if (dataThietLap.kho) {
         ThietLap.children.forEach((cd) => {
           if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
             cd.children.push({
@@ -462,14 +462,14 @@ function ImportBOM({
             width: 50,
           },
           {
-            title: "Do",
+            title: "Dn",
             dataIndex: "dn",
             key: "dn",
             align: "center",
             width: 50,
           },
           {
-            title: "Di",
+            title: "Dt",
             dataIndex: "dt",
             key: "dt",
             align: "center",
@@ -672,39 +672,6 @@ function ImportBOM({
           .trim() === "Kl/xe" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 31, r: 5 }, e: { c: 31, r: 5 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 31, r: 5 }, e: { c: 31, r: 5 } },
-          })[0]
-          .toString()
-          .trim() === "Phương pháp gia công" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 32, r: 5 }, e: { c: 32, r: 5 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 32, r: 5 }, e: { c: 32, r: 5 } },
-          })[0]
-          .toString()
-          .trim() === "Mã trạm" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 33, r: 5 }, e: { c: 33, r: 5 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 33, r: 5 }, e: { c: 33, r: 5 } },
-          })[0]
-          .toString()
-          .trim() === "Ghi chú kĩ thuật" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
           range: { s: { c: 5, r: 8 }, e: { c: 5, r: 8 } },
         })[0] &&
         XLSX.utils
@@ -746,7 +713,7 @@ function ImportBOM({
             range: { s: { c: 8, r: 8 }, e: { c: 8, r: 8 } },
           })[0]
           .toString()
-          .trim() === "DO" &&
+          .trim() === "Dn" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 9, r: 8 }, e: { c: 9, r: 8 } },
@@ -757,7 +724,7 @@ function ImportBOM({
             range: { s: { c: 9, r: 8 }, e: { c: 9, r: 8 } },
           })[0]
           .toString()
-          .trim() === "DI" &&
+          .trim() === "Dt" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 10, r: 8 }, e: { c: 10, r: 8 } },
@@ -773,7 +740,7 @@ function ImportBOM({
           header: 1,
           range: { s: { c: 13, r: 5 }, e: { c: 13, r: 5 } },
         })[0] &&
-        !XLSX.utils
+        XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 13, r: 5 }, e: { c: 13, r: 5 } },
@@ -1665,9 +1632,53 @@ function ImportBOM({
           ) {
             checkMau = false;
           }
+          if (
+            XLSX.utils.sheet_to_json(worksheet, {
+              header: 1,
+              range: { s: { c: colum + 1, r: 5 }, e: { c: colum + 1, r: 5 } },
+            })[0] &&
+            !XLSX.utils
+              .sheet_to_json(worksheet, {
+                header: 1,
+                range: { s: { c: colum + 1, r: 5 }, e: { c: colum + 1, r: 5 } },
+              })[0]
+              .toString()
+              .trim() === "Phương pháp gia công"
+          ) {
+            checkMau = false;
+          }
+          if (
+            XLSX.utils.sheet_to_json(worksheet, {
+              header: 1,
+              range: { s: { c: colum + 2, r: 5 }, e: { c: colum + 2, r: 5 } },
+            })[0] &&
+            !XLSX.utils
+              .sheet_to_json(worksheet, {
+                header: 1,
+                range: { s: { c: colum + 2, r: 5 }, e: { c: colum + 2, r: 5 } },
+              })[0]
+              .toString()
+              .trim() === "Mã trạm"
+          ) {
+            checkMau = false;
+          }
+          if (
+            XLSX.utils.sheet_to_json(worksheet, {
+              header: 1,
+              range: { s: { c: colum + 3, r: 5 }, e: { c: colum + 3, r: 5 } },
+            })[0] &&
+            !XLSX.utils
+              .sheet_to_json(worksheet, {
+                header: 1,
+                range: { s: { c: colum + 3, r: 5 }, e: { c: colum + 3, r: 5 } },
+              })[0]
+              .toString()
+              .trim() === "Ghi chú kĩ thuật"
+          ) {
+            checkMau = false;
+          }
         }
       }
-
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
           range: 5,
@@ -1901,10 +1912,10 @@ function ImportBOM({
               d["Lazer"].toString().trim() !== "") ||
               (((d.Chung && d.Chung !== 0) || d.Chung === 0) &&
                 d.Chung.toString().trim() !== "") ||
-              (((d.DO && d.DO !== 0) || d.DO === 0) &&
-                d.DO.toString().trim() !== "") ||
-              (((d.DI && d.DI !== 0) || d.DI === 0) &&
-                d.DI.toString().trim() !== "") ||
+              (((d.Dn && d.Dn !== 0) || d.Dn === 0) &&
+                d.Dn.toString().trim() !== "") ||
+              (((d.Dt && d.Dt !== 0) || d.Dt === 0) &&
+                d.Dt.toString().trim() !== "") ||
               (((d["Dài"] && d["Dài"] !== 0) || d["Dài"] === 0) &&
                 d["Dài"].toString().trim() !== "") ||
               (((d["Rộng"] && d["Rộng"] !== 0) || d["Rộng"] === 0) &&
@@ -2079,6 +2090,12 @@ function ImportBOM({
   };
 
   const handleSubmit = () => {
+    const indexCTCum = [];
+    dataView.forEach((ct, i) => {
+      if (ct.stt === "*") {
+        indexCTCum.push(i);
+      }
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -2138,40 +2155,24 @@ function ImportBOM({
 
   const RowStyle = (current, index) => {
     if (HangTrung.length > 0) {
-      HangTrung.forEach((maSanPham) => {
-        if (current.maSanPham === maSanPham) {
+      HangTrung.forEach((maChiTiet) => {
+        if (current.maChiTiet === maChiTiet) {
           setCheckDanger(true);
           return "red-row";
         }
       });
-    } else if (current.tenSanPham === undefined) {
+    } else if (current.tenChiTiet === undefined) {
       setCheckDanger(true);
-      setMessageError("Tên sản phẩm không được rỗng");
+      setMessageError("Tên chi tiết không được rỗng");
       return "red-row";
-    } else if (current.maSanPham === undefined) {
+    } else if (current.maChiTiet === undefined) {
       setCheckDanger(true);
-      setMessageError("Mã sản phẩm không được rỗng");
-      return "red-row";
-    } else if (current.soLuong === undefined) {
-      setCheckDanger(true);
-      setMessageError("Số lượng không được rỗng");
-      return "red-row";
-    } else if (current.maMauSac === undefined) {
-      setCheckDanger(true);
-      setMessageError("Mã màu sắc không được rỗng");
-      return "red-row";
-    } else if (current.donGia === undefined) {
-      setCheckDanger(true);
-      setMessageError("Đơn giá không được rỗng");
-      return "red-row";
-    } else if (current.phiVanChuyen === undefined) {
-      setCheckDanger(true);
-      setMessageError("Phí vận chuyển không được rỗng");
+      setMessageError("Mã chi tiết không được rỗng");
       return "red-row";
     } else if (DataLoi && DataLoi.length > 0) {
       let check = false;
       DataLoi.forEach((dt) => {
-        if (current.maSanPham.toString() === dt.maSanPham.toString()) {
+        if (current.maChiTiet.toString() === dt.maChiTiet.toString()) {
           check = true;
         }
       });

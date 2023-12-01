@@ -164,18 +164,18 @@ function VatTu({ match, permission, history }) {
     },
     {
       title: "Mã vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenVatTu,
-            value: d.tenVatTu,
+            text: d.maVatTu,
+            value: d.maVatTu,
           };
         })
       ),
-      onFilter: (value, record) => record.tenVatTu.includes(value),
+      onFilter: (value, record) => record.maVatTu.includes(value),
       filterSearch: true,
     },
     {
