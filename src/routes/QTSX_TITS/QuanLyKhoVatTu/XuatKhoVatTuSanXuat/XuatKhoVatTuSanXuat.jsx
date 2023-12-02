@@ -73,7 +73,12 @@ function XuatKhoVatTu({ match, history, permission }) {
       page,
     });
     dispatch(
-      fetchStart(`tits_qtsx_PhieuXuatKhoVatTuPhu?${param}`, "GET", null, "LIST")
+      fetchStart(
+        `tits_qtsx_PhieuXuatKhoVatTuSanXuat?${param}`,
+        "GET",
+        null,
+        "LIST"
+      )
     );
     const paramXuat = convertObjectToUrlParams({
       keyword,
@@ -85,7 +90,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuPhu?${paramXuat}`,
+          `tits_qtsx_PhieuXuatKhoVatTuSanXuat?${paramXuat}`,
           "GET",
           null,
           "DETAIL",
@@ -209,7 +214,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       deleteItemAction,
       item,
       item.maPhieu,
-      "phiếu xuất kho vật tư phụ"
+      "phiếu xuất kho vật tư sản xuất"
     );
   };
 
@@ -219,7 +224,7 @@ function XuatKhoVatTu({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_PhieuXuatKhoVatTuPhu/${item.id}`;
+    let url = `tits_qtsx_PhieuXuatKhoVatTuSanXuat/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -458,7 +463,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuPhu/${SelectedDevice[0].id}?${params}`,
+          `tits_qtsx_PhieuXuatKhoVatTuSanXuat/${SelectedDevice[0].id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -491,7 +496,7 @@ function XuatKhoVatTu({ match, history, permission }) {
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `tits_qtsx_PhieuXuatKhoVatTuPhu/export-pdf`,
+                `tits_qtsx_PhieuXuatKhoVatTuSanXuat/export-pdf`,
                 "POST",
                 newData,
                 "",
@@ -518,7 +523,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       return new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_PhieuXuatKhoVatTuPhu/${data.id}?${params}`,
+            `tits_qtsx_PhieuXuatKhoVatTuSanXuat/${data.id}?${params}`,
             "GET",
             null,
             "DETAIL",
@@ -547,7 +552,7 @@ function XuatKhoVatTu({ match, history, permission }) {
         new Promise((resolve, reject) => {
           dispatch(
             fetchStart(
-              `tits_qtsx_PhieuXuatKhoVatTuPhu/export-file-excel-xuat-kho`,
+              `tits_qtsx_PhieuXuatKhoVatTuSanXuat/export-file-excel-xuat-kho`,
               "POST",
               DataXuat,
               "",
@@ -630,8 +635,8 @@ function XuatKhoVatTu({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phiếu xuất kho vật tư phụ"
-        description="Danh sách phiếu xuất kho vật tư phụ"
+        title="Phiếu xuất kho vật tư sản xuất"
+        description="Danh sách phiếu xuất kho vật tư sản xuất"
         buttons={addButtonRender()}
       />
 

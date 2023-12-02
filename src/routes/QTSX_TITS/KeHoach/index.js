@@ -116,7 +116,7 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/ke-hoach-san-xuat/tong/import`}
         exact
         component={Auth(ImportKeHoachTong, menus, pathname, permission)}
-      />{" "}
+      />
       <Route
         path={`${match.url}/ke-hoach-san-xuat/kh-chi-tiet/import`}
         exact
@@ -126,7 +126,7 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/ke-hoach-san-xuat/kh-chi-tiet`}
         exact
         component={Auth(KeHoachChiTiet, menus, pathname, permission)}
-      />{" "}
+      />
       <Route
         path={`${match.url}/ke-hoach-giao-xe/import`}
         exact

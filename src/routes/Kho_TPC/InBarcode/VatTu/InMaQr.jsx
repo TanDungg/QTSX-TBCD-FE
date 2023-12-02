@@ -26,8 +26,8 @@ function InMaQr() {
               key={index}
               className={"print-page"}
               style={{
-                width: "45mm",
-                height: "28mm",
+                width: "48mm",
+                height: "30mm",
                 margin: 10,
                 border: "1px solid #000",
                 borderRadius: 5,
@@ -43,8 +43,7 @@ function InMaQr() {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  marginTop: 5,
-                  marginLeft: 5,
+                  marginLeft: 8,
                 }}
               >
                 <QRCode
@@ -64,7 +63,7 @@ function InMaQr() {
                   flexDirection: "column",
                   alignItems: "center",
                   textAlign: "center",
-                  marginLeft: 5,
+                  margin: "0px 5px",
                 }}
               >
                 <span
@@ -72,8 +71,6 @@ function InMaQr() {
                     fontSize: 10,
                     whiteSpace: "break-spaces",
                     wordBreak: "break-all",
-                    padding: "0px 5px",
-                    marginBottom: 2,
                   }}
                 >
                   {d && d.maVatTu}
@@ -82,7 +79,6 @@ function InMaQr() {
                   style={{
                     fontSize: 10,
                     fontWeight: "bold",
-                    marginBottom: 2,
                     textTransform: "uppercase",
                   }}
                 >
