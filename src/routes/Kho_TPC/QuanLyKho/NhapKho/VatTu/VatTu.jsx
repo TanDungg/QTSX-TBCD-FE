@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
+import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -45,13 +45,11 @@ function VatTu({ match, history, permission }) {
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [DataXuatExcel, setDataXuatExcel] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
       getKho();
-      loadData(keyword, Kho, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -74,35 +72,6 @@ function VatTu({ match, history, permission }) {
       donVi_Id: INFO.donVi_Id,
     });
     dispatch(fetchStart(`lkn_PhieuNhapKhoVatTu?${param}`, "GET", null, "LIST"));
-    const paramXuat = convertObjectToUrlParams({
-      cauTrucKho_Id,
-      tuNgay,
-      denNgay,
-      keyword,
-      page: -1,
-      donVi_Id: INFO.donVi_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuNhapKhoVatTu?${paramXuat}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDataXuatExcel(res.data);
-        } else {
-          setDataXuatExcel([]);
-        }
-      })
-      .catch((error) => console.error(error));
   };
 
   const getKho = () => {
@@ -122,6 +91,8 @@ function VatTu({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListKho(res.data);
+          setKho(res.data[0].id);
+          loadData(keyword, res.data[0].id, FromDate, ToDate, page);
         } else {
           setListKho([]);
         }
@@ -296,53 +267,26 @@ function VatTu({ match, history, permission }) {
 
   const handleXuatExcel = () => {
     const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
+      keyword: keyword,
+      cauTrucKho_Id: Kho,
+      tuNgay: FromDate,
+      denNgay: ToDate,
     });
-    const fetchAllData = DataXuatExcel.map((data) => {
-      return new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `lkn_PhieuNhapKhoVatTu/${data.id}?${params}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuNhapKhoVatTu/export-file-excel-nhap-kho?${params}`,
+          "POST",
+          null,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      exportExcel("PhieuNhapKhoVatTu", res.data.dataexcel);
     });
-
-    Promise.all(fetchAllData)
-      .then((responses) => {
-        const DataXuat = responses.map((res) => {
-          if (res && res.data) {
-            return {
-              ...res.data,
-              chiTietVatTu: res.data.chiTietVatTu
-                ? JSON.parse(res.data.chiTietVatTu)
-                : null,
-            };
-          }
-        });
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `lkn_PhieuNhapKhoVatTu/export-file-excel-nhap-kho`,
-              "POST",
-              DataXuat,
-              "",
-              "",
-              resolve,
-              reject
-            )
-          );
-        }).then((res) => {
-          exportExcel("PhieuNhapKhoVatTu", res.data.dataexcel);
-        });
-      })
-      .catch((error) => console.error(error));
   };
 
   const addButtonRender = () => {
@@ -480,10 +424,26 @@ function VatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Trạng thái",
+      title: "Tình trạng",
       dataIndex: "tinhTrang",
       key: "tinhTrang",
       align: "center",
+      render: (val) => {
+        return (
+          <Tag
+            color={
+              val === "Phiếu đã được duyệt"
+                ? "green"
+                : val === "Chưa xử lý"
+                ? "blue"
+                : "red"
+            }
+          >
+            {" "}
+            {val}
+          </Tag>
+        );
+      },
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -582,8 +542,8 @@ function VatTu({ match, history, permission }) {
               onSelect={handleOnSelectKho}
               value={Kho}
               onChange={(value) => setKho(value)}
-              allowClear
-              onClear={handleClearKho}
+              // allowClear
+              // onClear={handleClearKho}
             />
           </Col>
 

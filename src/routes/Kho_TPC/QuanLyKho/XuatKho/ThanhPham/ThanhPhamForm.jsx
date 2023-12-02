@@ -1,4 +1,10 @@
-import { DeleteOutlined, ShoppingCartOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  RollbackOutlined,
+  SaveOutlined,
+  ShoppingCartOutlined,
+} from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -21,6 +27,7 @@ import {
   Select,
   Table,
   ModalDeleteConfirm,
+  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
@@ -179,6 +186,15 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       } else if (includes(match.url, "chi-tiet")) {
         if (permission && permission.edit) {
           setType("detail");
+          const { id } = match.params;
+          setId(id);
+          getInfo(id);
+        } else if (permission && !permission.edit) {
+          history.push("/home");
+        }
+      } else if (includes(match.url, "xac-nhan")) {
+        if (permission && permission.edit) {
+          setType("xacnhan");
           const { id } = match.params;
           setId(id);
           getInfo(id);
@@ -647,10 +663,35 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       "Tạo phiếu xuất kho thành phẩm "
     ) : type === "edit" ? (
       "Chỉnh sửa phiếu xuất kho thành phẩm"
-    ) : (
+    ) : type === "detail" ? (
       <span>
         Chi tiết phiếu xuất kho thành phẩm -{" "}
-        <Tag color={"success"}>{info.maPhieuXuatKhoThanhPham}</Tag>
+        <Tag
+          color={
+            info && info.tinhTrang === "Đã duyệt"
+              ? "green"
+              : info && info.tinhTrang === "Chưa duyệt"
+              ? "blue"
+              : "red"
+          }
+        >
+          {info.maPhieuXuatKhoThanhPham} - {info.tinhTrang}
+        </Tag>
+      </span>
+    ) : (
+      <span>
+        Xác nhận phiếu xuất kho thành phẩm -{" "}
+        <Tag
+          color={
+            info && info.tinhTrang === "Đã duyệt"
+              ? "green"
+              : info && info.tinhTrang === "Chưa duyệt"
+              ? "blue"
+              : "red"
+          }
+        >
+          {info.maPhieuXuatKhoThanhPham} - {info.tinhTrang}
+        </Tag>
       </span>
     );
   const addSanPham = (vaL) => {
@@ -686,6 +727,55 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   const handleSelectKho = (val) => {
     setKho(val);
     setDisableThemSanPham(false);
+  };
+  const saveDuyetTuChoi = (isDuyet) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuXuatKhoThanhPham/duyet/${id}`,
+          "PUT",
+          {
+            id: id,
+            lyDoTuChoi: !isDuyet ? "Từ chối" : undefined,
+          },
+          !isDuyet ? "TUCHOI" : "XACNHAN",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          getInfo(id);
+          setFieldTouch(false);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const prop = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận duyệt phiếu xuất kho",
+    onOk: () => {
+      saveDuyetTuChoi(true);
+    },
+  };
+  const modalDuyet = () => {
+    Modal(prop);
+  };
+  const prop1 = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận từ chối phiếu xuất kho",
+    onOk: () => {
+      saveDuyetTuChoi(false);
+    },
+  };
+  const modalTuChoi = () => {
+    Modal(prop1);
   };
   return (
     <div className="gx-main-content">
@@ -877,6 +967,41 @@ const ThanhPhamForm = ({ history, match, permission }) => {
             saveAndClose={saveAndClose}
             disabled={fieldTouch}
           />
+        ) : null}
+        {type === "xacnhan" && info.tinhTrang === "Chưa duyệt" ? (
+          <>
+            <Divider />
+            <Row style={{ marginTop: 20 }}>
+              <Col style={{ marginBottom: 8, textAlign: "center" }} span={24}>
+                <Button
+                  className="th-btn-margin-bottom-0"
+                  icon={<RollbackOutlined />}
+                  onClick={goBack}
+                  style={{ marginTop: 10 }}
+                >
+                  Quay lại
+                </Button>
+                <Button
+                  className="th-btn-margin-bottom-0"
+                  type="primary"
+                  onClick={() => modalDuyet()}
+                  icon={<SaveOutlined />}
+                  style={{ marginTop: 10 }}
+                >
+                  Duyệt
+                </Button>
+                <Button
+                  className="th-btn-margin-bottom-0"
+                  icon={<CloseOutlined />}
+                  style={{ marginTop: 10 }}
+                  onClick={() => modalTuChoi()}
+                  type="danger"
+                >
+                  Từ chối
+                </Button>
+              </Col>
+            </Row>
+          </>
         ) : null}
         <ModalThemKe
           openModal={ActiveModal}

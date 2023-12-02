@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
+import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -49,7 +49,6 @@ function XuatKhoVatTu({ match, history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       getKho();
-      getListData(Kho, TuNgay, DenNgay, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -62,41 +61,14 @@ function XuatKhoVatTu({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (PhongBan_Id, tuNgay, denNgay, page) => {
+  const getListData = (kho_Id, tuNgay, denNgay, page) => {
     const param = convertObjectToUrlParams({
-      PhongBan_Id,
+      kho_Id,
       tuNgay,
       denNgay,
       page,
     });
     dispatch(fetchStart(`lkn_PhieuXuatKhoVatTu?${param}`, "GET", null, "LIST"));
-    const paramXuat = convertObjectToUrlParams({
-      PhongBan_Id,
-      tuNgay,
-      denNgay,
-      page: -1,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuXuatKhoVatTu?${paramXuat}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDataXuatExcel(res.data);
-        } else {
-          setDataXuatExcel([]);
-        }
-      })
-      .catch((error) => console.error(error));
   };
 
   const getKho = () => {
@@ -116,6 +88,8 @@ function XuatKhoVatTu({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListKho(res.data);
+          setKho(res.data[0].id);
+          getListData(res.data[0].id, TuNgay, DenNgay, page);
         } else {
           setListKho([]);
         }
@@ -245,6 +219,13 @@ function XuatKhoVatTu({ match, history, permission }) {
   };
   let renderHead = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 120,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -336,6 +317,22 @@ function XuatKhoVatTu({ match, history, permission }) {
       dataIndex: "tinhTrang",
       key: "tinhTrang",
       align: "center",
+      render: (val) => {
+        return (
+          <Tag
+            color={
+              val === "Đã duyệt"
+                ? "green"
+                : val === "Chưa duyệt"
+                ? "blue"
+                : "red"
+            }
+          >
+            {" "}
+            {val}
+          </Tag>
+        );
+      },
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -346,13 +343,6 @@ function XuatKhoVatTu({ match, history, permission }) {
       ),
       onFilter: (value, record) => record.tinhTrang.includes(value),
       filterSearch: true,
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 120,
-      render: (value) => actionContent(value),
     },
   ];
 
@@ -438,12 +428,17 @@ function XuatKhoVatTu({ match, history, permission }) {
   };
 
   const handleXuatExcel = () => {
+    const params = convertObjectToUrlParams({
+      kho_Id: Kho,
+      tuNgay: TuNgay,
+      denNgay: DenNgay,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuXuatKhoVatTu/export-file-excel-xuat-kho`,
+          `lkn_PhieuXuatKhoVatTu/export-file-excel-xuat-kho?${params}`,
           "POST",
-          [],
+          null,
           "",
           "",
           resolve,
@@ -517,7 +512,6 @@ function XuatKhoVatTu({ match, history, permission }) {
   const rowSelection = {
     selectedRowKeys: SelectedKeys,
     selectedRows: SelectedDevice,
-
     onChange: (selectedRowKeys, selectedRows) => {
       if (
         (selectedRows.length > 0 && selectedRows[0].tinhTrang === "Đã duyệt") ||

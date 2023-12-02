@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -39,7 +44,6 @@ function ThanhPham({ match, history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       getKho();
-      loadData(keyword, Kho, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -82,6 +86,8 @@ function ThanhPham({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListKho(res.data);
+          setKho(res.data[0].id);
+          loadData(keyword, res.data[0].id, FromDate, ToDate, page);
         } else {
           setListKho([]);
         }
@@ -101,12 +107,24 @@ function ThanhPham({ match, history, permission }) {
   };
 
   const actionContent = (item) => {
+    const confirmItem =
+      permission && permission.cof && item.tinhTrang === "Chưa duyệt" ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/xac-nhan`,
+            state: { itemData: item, permission },
+          }}
+          title="Xác nhận"
+        >
+          <CheckCircleOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Xác nhận">
+          <CheckCircleOutlined />
+        </span>
+      );
     const editItem =
-      permission &&
-      permission.edit &&
-      item.userLap_Id === INFO.user_Id &&
-      moment(getDateNow(-1), "DD/MM/YYYY") <=
-        moment(item.ngayXuatKho, "DD/MM/YYYY") ? (
+      permission && permission.edit && item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -122,15 +140,13 @@ function ThanhPham({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission &&
-      permission.del &&
-      item.userLap_Id === INFO.user_Id &&
-      moment(getDateNow(-1), "DD/MM/YYYY") <=
-        moment(item.ngayXuatKho, "DD/MM/YYYY")
+      permission && permission.del && item.tinhTrang === "Chưa duyệt"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
+        {confirmItem}
+        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -211,6 +227,13 @@ function ThanhPham({ match, history, permission }) {
   };
 
   let renderHead = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -301,11 +324,26 @@ function ThanhPham({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Chức năng",
-      key: "action",
+      title: "Tình trạng",
+      dataIndex: "tinhTrang",
+      key: "tinhTrang",
       align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
+      render: (val) => {
+        return (
+          <Tag
+            color={
+              val === "Đã duyệt"
+                ? "green"
+                : val === "Chưa duyệt"
+                ? "blue"
+                : "red"
+            }
+          >
+            {" "}
+            {val}
+          </Tag>
+        );
+      },
     },
   ];
 
@@ -373,8 +411,8 @@ function ThanhPham({ match, history, permission }) {
               onSelect={handleOnSelectKho}
               value={Kho}
               onChange={(value) => setKho(value)}
-              allowClear
-              onClear={handleClearKho}
+              // allowClear
+              // onClear={handleClearKho}
             />
           </Col>
 

@@ -1,4 +1,10 @@
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  PlusOutlined,
+  RollbackOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -21,6 +27,7 @@ import {
   Select,
   Table,
   ModalDeleteConfirm,
+  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
@@ -28,6 +35,7 @@ import {
   convertObjectToUrlParams,
   getDateNow,
   getLocalStorage,
+  getTimeNow,
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
@@ -154,14 +162,17 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           getKho();
           setFieldsValue({
             phieunhapkho: {
-              ngayNhap: moment(getDateNow(), "DD/MM/YYYY"),
+              ngayNhap: moment(
+                getDateNow() + " " + getTimeNow(),
+                "DD/MM/YYYY HH:mm"
+              ),
               ngaySanXuat: moment(getDateNow(), "DD/MM/YYYY"),
             },
           });
         } else if (permission && !permission.add) {
           history.push("/home");
         }
-      } else if (includes(match.url, "chinh-sua")) {
+      } else if (includes(match.url, "xac-nhan")) {
         if (permission && permission.edit) {
           setType("edit");
           const { id } = match.params;
@@ -297,7 +308,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           setFieldsValue({
             phieunhapkho: {
               ...res.data,
-              ngayNhap: moment(res.data.ngayNhap, "DD/MM/YYYY"),
+              ngayNhap: moment(res.data.ngayNhap, "DD/MM/YYYY  HH:mm"),
               ngaySanXuat: moment(res.data.ngaySanXuat, "DD/MM/YYYY"),
             },
           });
@@ -315,7 +326,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         type === "new"
           ? "/them-moi"
           : type === "edit"
-          ? `/${id}/chinh-sua`
+          ? `/${id}/xac-nhan`
           : `/${id}/chi-tiet`,
         ""
       )}`
@@ -481,6 +492,20 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       // render: (val, record) => renderMauSac(val, record),
     },
     {
+      title: "Vị trí",
+      key: "viTri",
+      align: "center",
+      render: (val) => {
+        return (
+          <span>
+            {val.tenKe && val.tenKe}
+            {val.tenTang && ` - ${val.tenTang}`}
+            {val.tenNgan && ` - ${val.tenNgan}`}
+          </span>
+        );
+      },
+    },
+    {
       title: "Số lượng",
       key: "soLuongNhap",
       align: "center",
@@ -544,82 +569,82 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     saveData(values.phieunhapkho);
   };
 
-  const saveAndClose = (val) => {
-    validateFields()
-      .then((values) => {
-        if (ListSanPham.length === 0) {
-          Helpers.alertError("Danh sách sản phẩm rỗng");
-        } else {
-          saveData(values.phieunhapkho, val);
-        }
-      })
-      .catch((error) => {
-        console.log("error", error);
-      });
-  };
-
-  const saveData = (nhapkho, saveQuit = false) => {
-    if (type === "new") {
-      const newData = {
-        ...nhapkho,
-        chiTiet_PhieuNhapKhoThanhPhams: ListSanPham.map((tp) => {
-          return {
-            ...tp,
-            lst_ChiTiets: tp.lst_ChiTiets,
-          };
-        }),
-        ngaySanXuat: nhapkho.ngaySanXuat._i,
-        ngayNhap: nhapkho.ngayNhap._i,
-      };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `lkn_PhieuNhapKhoThanhPham`,
-            "POST",
-            newData,
-            "ADD",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res.status !== 409) {
-            if (saveQuit) {
-              goBack();
-            } else {
-              resetFields();
-              setFieldTouch(false);
-              setListSanPham([]);
-              getUserLap(INFO);
-              getXuong();
-              setFieldsValue({
-                phieunhapkho: {
-                  ngayNhap: moment(getDateNow(), "DD/MM/YYYY"),
-                  ngaySanXuat: moment(getDateNow(), "DD/MM/YYYY"),
-                },
-              });
-            }
+  const saveAndClose = (val, isDuyet) => {
+    if (isDuyet) {
+      validateFields()
+        .then((values) => {
+          if (ListSanPham.length === 0) {
+            Helpers.alertError("Danh sách sản phẩm rỗng");
           } else {
-            setFieldTouch(false);
+            saveData(values.phieunhapkho, val);
           }
         })
-        .catch((error) => console.error(error));
+        .catch((error) => {
+          console.log("error", error);
+        });
+    } else {
+      saveData(form.getFieldValue("phieunhapkho"), val, isDuyet);
     }
+  };
+
+  const saveData = (nhapkho, saveQuit = false, isDuyet = true) => {
+    // if (type === "new") {
+    //   const newData = {
+    //     ...nhapkho,
+    //     chiTiet_PhieuNhapKhoThanhPhams: ListSanPham.map((tp) => {
+    //       return {
+    //         ...tp,
+    //         lst_ChiTiets: tp.lst_ChiTiets,
+    //       };
+    //     }),
+    //     ngaySanXuat: nhapkho.ngaySanXuat._i,
+    //     ngayNhap: nhapkho.ngayNhap._i,
+    //   };
+    //   new Promise((resolve, reject) => {
+    //     dispatch(
+    //       fetchStart(
+    //         `lkn_PhieuNhapKhoThanhPham`,
+    //         "POST",
+    //         newData,
+    //         "ADD",
+    //         "",
+    //         resolve,
+    //         reject
+    //       )
+    //     );
+    //   })
+    //     .then((res) => {
+    //       if (res.status !== 409) {
+    //         if (saveQuit) {
+    //           goBack();
+    //         } else {
+    //           resetFields();
+    //           setFieldTouch(false);
+    //           setListSanPham([]);
+    //           getUserLap(INFO);
+    //           getXuong();
+    //           setFieldsValue({
+    //             phieunhapkho: {
+    //               ngayNhap: moment(getDateNow(), "DD/MM/YYYY"),
+    //               ngaySanXuat: moment(getDateNow(), "DD/MM/YYYY"),
+    //             },
+    //           });
+    //         }
+    //       } else {
+    //         setFieldTouch(false);
+    //       }
+    //     })
+    //     .catch((error) => console.error(error));
+    // }
     if (type === "edit") {
       const newData = {
         id: id,
-        ...info,
         ...nhapkho,
-        chiTiet_PhieuNhapKhoThanhPhams: ListSanPham.map((vt) => {
-          return {
-            ...vt,
-            lkn_PhieuNhapKhoThanhPham_Id: id,
-          };
-        }),
+        chiTiet_PhieuNhapKhoThanhPhams: ListSanPham,
         ngaySanXuat: nhapkho.ngaySanXuat._i,
         ngayNhap: nhapkho.ngayNhap._i,
+        isDuyet: isDuyet,
+        lyDoTuChoi: !isDuyet ? "Từ chối" : undefined,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -627,7 +652,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
             `lkn_PhieuNhapKhoThanhPham/${id}`,
             "PUT",
             newData,
-            "EDIT",
+            !isDuyet ? "TUCHOI" : "XACNHAN",
             "",
             resolve,
             reject
@@ -650,11 +675,21 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     type === "new" ? (
       "Tạo phiếu nhập kho thành phẩm "
     ) : type === "edit" ? (
-      "Chỉnh sửa phiếu nhập kho thành phẩm"
+      "Xác nhận phiếu nhập kho thành phẩm"
     ) : (
       <span>
         Chi tiết phiếu nhập kho thành phẩm -{" "}
-        <Tag color={"success"}>{info.maPhieuNhapKhoThanhPham}</Tag>
+        <Tag
+          color={
+            info && info.tinhTrang === "Phiếu đã được duyệt"
+              ? "green"
+              : info && info.tinhTrang === "Chưa xử lý"
+              ? "blue"
+              : "red"
+          }
+        >
+          {info.maPhieuNhapKhoThanhPham} - {info.tinhTrang}
+        </Tag>
       </span>
     );
 
@@ -676,6 +711,30 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   const dataList = reDataForTable(ListSanPham);
   const disabledDate = (current) => {
     return current && current > dayjs().startOf("day");
+  };
+  const prop = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận duyệt phiếu nhập kho",
+    onOk: () => {
+      saveAndClose(false, true);
+    },
+  };
+  const modalDuyet = () => {
+    Modal(prop);
+  };
+  const prop1 = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận từ chối phiếu nhập kho",
+    onOk: () => {
+      saveAndClose(false, false);
+    },
+  };
+  const modalTuChoi = () => {
+    Modal(prop1);
   };
   return (
     <div className="gx-main-content">
@@ -742,7 +801,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -765,7 +824,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -782,7 +841,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
               >
                 <DatePicker
                   format={"DD/MM/YYYY"}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" ? false : true}
                   disabledDate={disabledDate}
                   allowClear={false}
                   onChange={(date, dateString) => {
@@ -806,20 +865,20 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                 ]}
               >
                 <DatePicker
-                  format={"DD/MM/YYYY"}
+                  format={"DD/MM/YYYY HH:mm"}
                   disabled={true}
                   allowClear={false}
                   onChange={(date, dateString) => {
                     setFieldsValue({
                       phieunhapkho: {
-                        ngayNhap: moment(dateString, "DD/MM/YYYY"),
+                        ngayNhap: moment(dateString, "DD/MM/YYYY HH:mm"),
                       },
                     });
                   }}
                 />
               </FormItem>
             </Col>
-            {type === "new" || type === "edit" ? (
+            {type === "new" ? (
               <Col span={12} align="center">
                 <Button
                   icon={<PlusOutlined />}
@@ -844,13 +903,40 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           rowClassName={"editable-row"}
           pagination={false}
         />
-        {type === "new" || type === "edit" ? (
-          <FormSubmit
-            goBack={goBack}
-            handleSave={saveAndClose}
-            saveAndClose={saveAndClose}
-            disabled={fieldTouch}
-          />
+        {type === "edit" && info.tinhTrang === "Chưa xử lý" ? (
+          <>
+            <Divider />
+            <Row style={{ marginTop: 20 }}>
+              <Col style={{ marginBottom: 8, textAlign: "center" }} span={24}>
+                <Button
+                  className="th-btn-margin-bottom-0"
+                  icon={<RollbackOutlined />}
+                  onClick={goBack}
+                  style={{ marginTop: 10 }}
+                >
+                  Quay lại
+                </Button>
+                <Button
+                  className="th-btn-margin-bottom-0"
+                  type="primary"
+                  onClick={() => modalDuyet()}
+                  icon={<SaveOutlined />}
+                  style={{ marginTop: 10 }}
+                >
+                  Duyệt
+                </Button>
+                <Button
+                  // disabled={!fieldTouch}
+                  className="th-btn-margin-bottom-0"
+                  icon={<CloseOutlined />}
+                  style={{ marginTop: 10 }}
+                  onClick={() => modalTuChoi()}
+                >
+                  Từ chối
+                </Button>
+              </Col>
+            </Row>
+          </>
         ) : null}
         <AddSanPhamModal
           openModal={ActiveModal}

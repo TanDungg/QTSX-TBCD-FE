@@ -83,7 +83,6 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(OEMForm, menus, pathname, permission)}
       />
-
       <Route
         path={`${match.url}/oem/:id/chi-tiet`}
         exact
@@ -107,6 +106,16 @@ const App = ({ match, location, menus, permission }) => {
       />
       <Route
         path={`${match.url}/bom/:id/chinh-sua`}
+        exact
+        component={Auth(BOMForm, menus, pathname, permission)}
+      />{" "}
+      <Route
+        path={`${match.url}/bom/:id/xac-nhan`}
+        exact
+        component={Auth(BOMForm, menus, pathname, permission)}
+      />{" "}
+      <Route
+        path={`${match.url}/bom/:id/chi-tiet`}
         exact
         component={Auth(BOMForm, menus, pathname, permission)}
       />

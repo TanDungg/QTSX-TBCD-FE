@@ -295,16 +295,9 @@ const VatTuForm = ({ history, match, permission }) => {
             setType("xacnhan");
           setFieldsValue({
             phieuxuatkhovattu: {
-              phongBan_Id: res.data.phongBan_Id,
-              phieuDeNghiCapVatTu_Id: res.data.phieuDeNghiCapVatTu_Id,
-              maPhieuDeNghiCapVatTu: res.data.maPhieuDeNghiCapVatTu,
-              tenSanPham: res.data.tenSanPham,
+              ...res.data,
               ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               ngayXuatKho: moment(res.data.ngayXuatKho, "DD/MM/YYYY"),
-              lyDoXuat: res.data.lyDoXuat,
-              userNhan_Id: res.data.userNhan_Id,
-              userDuyet_Id: res.data.userDuyet_Id,
-              userPhuTrachBoPhan_Id: res.data.userPhuTrachBoPhan_Id,
             },
           });
           const chiTiet =
@@ -313,10 +306,6 @@ const VatTuForm = ({ history, match, permission }) => {
           const newData =
             chiTiet &&
             chiTiet.map((data) => {
-              // const SoLuong = data.chiTiet_LuuVatTus.reduce(
-              //   (tong, sl) => tong + sl.soLuongThucXuat,
-              //   0
-              // );
               const lstViTri = data.list_ChiTietLuuKhos.map((vt) => ({
                 ...vt,
                 viTri: vt.tenKe
@@ -327,7 +316,7 @@ const VatTuForm = ({ history, match, permission }) => {
               }));
               return {
                 ...data,
-                kho_Id: data.kho_Id.toLowerCase(),
+                kho_Id: data.kho_Id,
                 soLuongThucXuat: data.soLuongThucXuat,
                 chiTiet_LuuVatTus: lstViTri,
               };
@@ -512,11 +501,18 @@ const VatTuForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Kho",
-      key: "kho_Id",
+      title: "Vị trí",
+      key: "viTri",
       align: "center",
-      render: (record) => renderListKho(record),
-      width: 200,
+      render: (val) => {
+        return (
+          <span>
+            {val.tenKe && val.tenKe}
+            {val.tenTang && ` - ${val.tenTang}`}
+            {val.tenNgan && ` - ${val.tenNgan}`}
+          </span>
+        );
+      },
     },
     {
       title: "Vị trí trong kho",
@@ -863,6 +859,28 @@ const VatTuForm = ({ history, match, permission }) => {
               <FormItem
                 label="Phiếu đề nghị CVT"
                 name={["phieuxuatkhovattu", "maPhieuDeNghiCapVatTu"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Input className="input-item" disabled={true} />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Kho xuất"
+                name={["phieuxuatkhovattu", "tenKho"]}
                 rules={[
                   {
                     type: "string",

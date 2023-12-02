@@ -11,6 +11,7 @@ import {
   Upload,
   Popover,
   Alert,
+  Tag,
 } from "antd";
 import Helper from "src/helpers";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,6 +23,7 @@ import {
   ModalDeleteConfirm,
   EditableTableRow,
   Table,
+  Modal,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
@@ -40,6 +42,9 @@ import {
   DownloadOutlined,
   SettingOutlined,
   UploadOutlined,
+  RollbackOutlined,
+  SaveOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import * as XLSX from "xlsx";
 import moment from "moment";
@@ -114,12 +119,34 @@ function BOMForm({ match, permission, history }) {
           },
         });
       }
-    } else {
+    } else if (includes(match.url, "chinh-sua")) {
       if (permission && !permission.edit) {
         history.push("/home");
       } else {
         if (match.params.id) {
           setType("edit");
+          setId(match.params.id);
+          getInfo(match.params.id);
+          getListSanPham();
+        }
+      }
+    } else if (includes(match.url, "xac-nhan")) {
+      if (permission && !permission.cof) {
+        history.push("/home");
+      } else {
+        if (match.params.id) {
+          setType("xacnhan");
+          setId(match.params.id);
+          getInfo(match.params.id);
+          getListSanPham();
+        }
+      }
+    } else if (includes(match.url, "chi-tiet")) {
+      if (permission && !permission.cof) {
+        history.push("/home");
+      } else {
+        if (match.params.id) {
+          setType("detail");
           setId(match.params.id);
           getInfo(match.params.id);
           getListSanPham();
@@ -209,9 +236,39 @@ function BOMForm({ match, permission, history }) {
         if (res && res.data) {
           setInfo(res.data);
           getUserKy(INFO);
-
+          setListChiTiet(
+            res.data.list_ChiTiets.map((ct) => {
+              return {
+                ...ct,
+                STT: ct.thuTuNguoiDung,
+                dai: ct.quyCach.dai,
+                rong: ct.quyCach.rong,
+                day: ct.quyCach.day,
+                dn: ct.quyCach.dn,
+                dt: ct.quyCach.dt,
+                chanDot: ct.thuTuChuyen.chanDot,
+                cuaVong: ct.thuTuChuyen.cuaVong,
+                dongKien: ct.thuTuChuyen.dongKien,
+                eD: ct.thuTuChuyen.eD,
+                giaCong: ct.thuTuChuyen.giaCong,
+                kho: ct.thuTuChuyen.kho,
+                khoanLo: ct.thuTuChuyen.khoanLo,
+                kiemDinh: ct.thuTuChuyen.kiemDinh,
+                lazer: ct.thuTuChuyen.lazer,
+                lazerDamH: ct.thuTuChuyen.lazerDamH,
+                nMK: ct.thuTuChuyen.nMK,
+                phunBi: ct.thuTuChuyen.phunBi,
+                son: ct.thuTuChuyen.son,
+                vatMep: ct.thuTuChuyen.vatMep,
+                xHKX: ct.thuTuChuyen.xHKX,
+                xHLKR: ct.thuTuChuyen.xHLKR,
+                xLR: ct.thuTuChuyen.xLR,
+                xiMa: ct.thuTuChuyen.xiMa,
+              };
+            })
+          );
           setFieldsValue({
-            quytrinhcongnghe: {
+            BOM: {
               ...res.data,
               ngayBanHanh: moment(res.data.ngayBanHanh, "DD/MM/YYYY"),
               ngayApDung: moment(res.data.ngayApDung, "DD/MM/YYYY"),
@@ -1974,7 +2031,7 @@ function BOMForm({ match, permission, history }) {
               khoiLuong:
                 (d[KL] && d[KL] !== 0) || d[KL] === 0
                   ? d[KL].toString().trim() !== ""
-                    ? d[KL].toString().trim()
+                    ? Number(d[KL].toString().trim()).toFixed(3)
                     : undefined
                   : undefined,
               dinhMuc:
@@ -2352,7 +2409,7 @@ function BOMForm({ match, permission, history }) {
    * @param {*} values
    */
   const onFinish = (values) => {
-    uploadFile(values.quytrinhcongnghe);
+    saveData(values.BOM);
   };
 
   /**
@@ -2362,30 +2419,55 @@ function BOMForm({ match, permission, history }) {
   const saveAndClose = (value) => {
     validateFields()
       .then((values) => {
-        uploadFile(values.BOM, value);
+        saveData(values.BOM, value);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const uploadFile = (BOM, saveQuit) => {
-    if (type === "new") {
-      saveData(BOM, saveQuit);
-    }
-    if (type === "edit") {
-    }
-  };
-
   const saveData = (BOM, saveQuit = false) => {
-    const newData = {
-      ...BOM,
-      donVi_Id: INFO.donVi_Id,
-      ngayBanHanh: BOM.ngayBanHanh.format("DD/MM/YYYY"),
-      ngayApDung: BOM.ngayApDung.format("DD/MM/YYYY"),
-      list_CumChiTiets: ListChiTiet,
-    };
     if (type === "new") {
+      const newData = {
+        ...BOM,
+        donVi_Id: INFO.donVi_Id,
+        ngayBanHanh: BOM.ngayBanHanh.format("DD/MM/YYYY"),
+        ngayApDung: BOM.ngayApDung.format("DD/MM/YYYY"),
+        list_ChiTiets: ListChiTiet.map((ct) => {
+          return {
+            ...ct,
+            thuTuNguoiDung: ct.STT,
+            thuTuChuyen: {
+              giaCong: ct.giaCong ? ct.giaCong : undefined,
+              eD: ct.eD ? ct.eD : undefined,
+              xiMa: ct.xiMa ? ct.xiMa : undefined,
+              nMK: ct.nMK ? ct.nMK : undefined,
+              kho: ct.kho ? ct.kho : undefined,
+              lazer: ct.lazer ? ct.lazer : undefined,
+              lazerDamH: ct.lazerDamH ? ct.lazerDamH : undefined,
+              cuaVong: ct.cuaVong ? ct.cuaVong : undefined,
+              chanDot: ct.chanDot ? ct.chanDot : undefined,
+              vatMep: ct.vatMep ? ct.vatMep : undefined,
+              khoanLo: ct.khoanLo ? ct.khoanLo : undefined,
+              xHLKR: ct.xHLKR ? ct.xHLKR : undefined,
+              xHKX: ct.xHKX ? ct.xHKX : undefined,
+              phunBi: ct.phunBi ? ct.phunBi : undefined,
+              son: ct.son ? ct.son : undefined,
+              xLR: ct.xLR ? ct.xLR : undefined,
+              kiemDinh: ct.kiemDinh ? ct.kiemDinh : undefined,
+              dongKien: ct.dongKien ? ct.dongKien : undefined,
+            },
+            quyCach: {
+              dai: ct.dai ? ct.dai : undefined,
+              rong: ct.rong ? ct.rong : undefined,
+              day: ct.day ? ct.day : undefined,
+              dn: ct.dn ? ct.dn : undefined,
+              dt: ct.dt ? ct.dt : undefined,
+              chung: ct.chung ? ct.chung : undefined,
+            },
+          };
+        }),
+      };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -2418,9 +2500,9 @@ function BOMForm({ match, permission, history }) {
           }
         })
         .catch((error) => console.error(error));
-    }
-    if (type === "edit") {
+    } else if (type === "edit") {
       const newData = {
+        ...info,
         ...BOM,
         id: id,
         ngayBanHanh: BOM.ngayBanHanh.format("DD/MM/YYYY"),
@@ -2452,7 +2534,55 @@ function BOMForm({ match, permission, history }) {
         .catch((error) => console.log(error));
     }
   };
-
+  const saveDuyetTuChoi = (isDuyet) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_BOM/duyet/${id}`,
+          "PUT",
+          {
+            id: id,
+            lyDoTuChoi: !isDuyet ? "Từ chối" : undefined,
+          },
+          !isDuyet ? "TUCHOI" : "XACNHAN",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          getInfo(id);
+          setFieldTouch(false);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const prop = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận duyệt phiếu xuất kho",
+    onOk: () => {
+      saveDuyetTuChoi(true);
+    },
+  };
+  const modalDuyet = () => {
+    Modal(prop);
+  };
+  const prop1 = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận từ chối phiếu xuất kho",
+    onOk: () => {
+      saveDuyetTuChoi(false);
+    },
+  };
+  const modalTuChoi = () => {
+    Modal(prop1);
+  };
   /**
    * Quay lại trang sản phẩm
    *
@@ -2460,12 +2590,41 @@ function BOMForm({ match, permission, history }) {
   const goBack = () => {
     history.push(
       `${match.url.replace(
-        type === "new" ? "/them-moi" : `/${match.params.id}/chinh-sua`,
+        type === "new"
+          ? "/them-moi"
+          : type === "edit"
+          ? `/${match.params.id}/chinh-sua`
+          : type === "xacnhan"
+          ? `/${match.params.id}/xac-nhan`
+          : `/${match.params.id}/chi-tiet`,
         ""
       )}`
     );
   };
-  const formTitle = type === "new" ? "Thêm mới BOM" : "Chỉnh sửa BOM";
+  const formTitle =
+    type === "new" ? (
+      "Thêm mới BOM"
+    ) : type === "edit" ? (
+      "Chỉnh sửa BOM"
+    ) : type === "xacnhan" ? (
+      "Duyệt BOM"
+    ) : (
+      <span>
+        Chi tiết BOM{" "}
+        <Tag
+          style={{ fontSize: 14 }}
+          color={
+            info && info.tinhTrang === "Đã xác nhận"
+              ? "green"
+              : info && info.tinhTrang === "Chưa xác nhận"
+              ? "blue"
+              : "red"
+          }
+        >
+          {info && info.maBOM} - {info && info.tinhTrang}
+        </Tag>
+      </span>
+    );
 
   return (
     <div className="gx-main-content">
@@ -2503,7 +2662,11 @@ function BOMForm({ match, permission, history }) {
                     },
                   ]}
                 >
-                  <Input className="input-item" placeholder="Nhập tên BOM" />
+                  <Input
+                    className="input-item"
+                    placeholder="Nhập tên BOM"
+                    disabled={type !== "new" && type !== "edit"}
+                  />
                 </FormItem>
               </Col>
               <Col
@@ -2526,6 +2689,7 @@ function BOMForm({ match, permission, history }) {
                 >
                   <DatePicker
                     format={"DD/MM/YYYY"}
+                    disabled={type !== "new" && type !== "edit"}
                     allowClear={false}
                     onChange={(dates, dateString) => {
                       setFieldsValue({
@@ -2556,6 +2720,7 @@ function BOMForm({ match, permission, history }) {
                   ]}
                 >
                   <DatePicker
+                    disabled={type !== "new" && type !== "edit"}
                     format={"DD/MM/YYYY"}
                     allowClear={false}
                     onChange={(dates, dateString) => {
@@ -2596,7 +2761,7 @@ function BOMForm({ match, permission, history }) {
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
-                    disabled={type !== "new"}
+                    disabled={type !== "new" && type !== "edit"}
                     onSelect={(val) => setSanPham(val)}
                   />
                 </FormItem>
@@ -2628,7 +2793,7 @@ function BOMForm({ match, permission, history }) {
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
-                    disabled={type !== "new"}
+                    disabled={type !== "new" && type !== "edit"}
                     onSelect={(val) => {}}
                   />
                 </FormItem>
@@ -2660,7 +2825,7 @@ function BOMForm({ match, permission, history }) {
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
-                    disabled={type !== "new"}
+                    disabled={type !== "new" && type !== "edit"}
                     onSelect={(val) => {}}
                   />
                 </FormItem>
@@ -2678,7 +2843,7 @@ function BOMForm({ match, permission, history }) {
           color: "#fff",
         }}
       >
-        {(type === "new" || type === "edit") && (
+        {type === "new" && (
           <>
             <Row>
               <Col
@@ -2780,12 +2945,49 @@ function BOMForm({ match, permission, history }) {
           rowClassName={RowStyle}
         />
       </Card>
-      <FormSubmit
-        goBack={goBack}
-        saveAndClose={saveAndClose}
-        handleSave={saveAndClose}
-        disabled={fieldTouch}
-      />
+      {type === "new" || type === "edit" ? (
+        <FormSubmit
+          goBack={goBack}
+          saveAndClose={saveAndClose}
+          handleSave={saveAndClose}
+          disabled={fieldTouch}
+        />
+      ) : null}
+      {type === "xacnhan" && (
+        <>
+          <Divider />
+          <Row>
+            <Col style={{ marginBottom: 8, textAlign: "center" }} span={24}>
+              <Button
+                className="th-btn-margin-bottom-0"
+                icon={<RollbackOutlined />}
+                onClick={goBack}
+                style={{ marginTop: 10 }}
+              >
+                Quay lại
+              </Button>
+              <Button
+                className="th-btn-margin-bottom-0"
+                type="primary"
+                onClick={() => modalDuyet()}
+                icon={<SaveOutlined />}
+                style={{ marginTop: 10 }}
+              >
+                Duyệt
+              </Button>
+              <Button
+                className="th-btn-margin-bottom-0"
+                icon={<CloseOutlined />}
+                style={{ marginTop: 10 }}
+                onClick={() => modalTuChoi()}
+                type="danger"
+              >
+                Từ chối
+              </Button>
+            </Col>
+          </Row>
+        </>
+      )}
       <ModalThietLap
         openModal={ActiceModalThietLap}
         openModalFS={setActiceModalThietLap}

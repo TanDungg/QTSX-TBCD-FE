@@ -157,7 +157,7 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(NhapKhoThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/nhap-kho/thanh-pham/:id/chinh-sua`}
+        path={`${match.url}/nhap-kho/thanh-pham/:id/xac-nhan`}
         exact
         component={Auth(NhapKhoThanhPhamForm, menus, pathname, permission)}
       />
@@ -228,6 +228,11 @@ const App = ({ match, location, menus, permission }) => {
       />
       <Route
         path={`${match.url}/xuat-kho/thanh-pham/:id/chi-tiet`}
+        exact
+        component={Auth(XuatKhoThanhPhamForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/xuat-kho/thanh-pham/:id/xac-nhan`}
         exact
         component={Auth(XuatKhoThanhPhamForm, menus, pathname, permission)}
       />

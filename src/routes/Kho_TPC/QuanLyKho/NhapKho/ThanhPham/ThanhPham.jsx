@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -39,7 +44,6 @@ function ThanhPham({ match, history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       getKho();
-      loadData(keyword, Kho, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -69,7 +73,7 @@ function ThanhPham({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=true`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=101&&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -82,6 +86,8 @@ function ThanhPham({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListKho(res.data);
+          setKho(res.data[0].id);
+          loadData(keyword, res.data[0].id, FromDate, ToDate, page);
         } else {
           setListKho([]);
         }
@@ -115,38 +121,48 @@ function ThanhPham({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const editItem =
-      permission &&
-      permission.edit &&
-      item.userLap_Id === INFO.user_Id &&
-      moment(getDateNow(-1), "DD/MM/YYYY") <=
-        moment(item.ngayNhap, "DD/MM/YYYY") ? (
+    const confirmItem =
+      permission && permission.cof && item.tinhTrang === "Chưa xử lý" ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item },
+            pathname: `${match.url}/${item.id}/xac-nhan`,
+            state: { itemData: item, permission },
           }}
-          title="Sửa"
+          title="Xác nhận"
         >
-          <EditOutlined />
+          <CheckCircleOutlined />
         </Link>
       ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
+        <span disabled title="Xác nhận">
+          <CheckCircleOutlined />
         </span>
       );
+    // const editItem =
+    //   permission && permission.edit && item.tinhTrang === "Chưa xử lý" ? (
+    //     <Link
+    //       to={{
+    //         pathname: `${match.url}/${item.id}/chinh-sua`,
+    //         state: { itemData: item },
+    //       }}
+    //       title="Sửa"
+    //     >
+    //       <EditOutlined />
+    //     </Link>
+    //   ) : (
+    //     <span disabled title="Sửa">
+    //       <EditOutlined />
+    //     </span>
+    //   );
     const deleteVal =
-      permission &&
-      permission.del &&
-      item.userLap_Id === INFO.user_Id &&
-      moment(getDateNow(-1), "DD/MM/YYYY") <=
-        moment(item.ngayNhap, "DD/MM/YYYY")
+      permission && permission.del && item.tinhTrang === "Chưa xử lý"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {editItem}
+        {confirmItem}
         <Divider type="vertical" />
+        {/* {editItem}
+        <Divider type="vertical" /> */}
         <a {...deleteVal} title="Xóa">
           <DeleteOutlined />
         </a>
@@ -212,7 +228,7 @@ function ThanhPham({ match, history, permission }) {
   const addButtonRender = () => {
     return (
       <>
-        <Button
+        {/* <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -220,7 +236,7 @@ function ThanhPham({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
-        </Button>
+        </Button> */}
         {/* <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
@@ -255,6 +271,13 @@ function ThanhPham({ match, history, permission }) {
     return <div>{detail}</div>;
   };
   let renderHead = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -344,11 +367,36 @@ function ThanhPham({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Chức năng",
-      key: "action",
+      title: "Tình trạng",
+      dataIndex: "tinhTrang",
+      key: "tinhTrang",
       align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
+      render: (val) => {
+        return (
+          <Tag
+            color={
+              val === "Phiếu đã được duyệt"
+                ? "green"
+                : val === "Chưa xử lý"
+                ? "blue"
+                : "red"
+            }
+          >
+            {" "}
+            {val}
+          </Tag>
+        );
+      },
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tinhTrang,
+            value: d.tinhTrang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tinhTrang.includes(value),
+      filterSearch: true,
     },
   ];
 
@@ -413,8 +461,8 @@ function ThanhPham({ match, history, permission }) {
               onSelect={handleOnSelectKho}
               value={Kho}
               onChange={(value) => setKho(value)}
-              allowClear
-              onClear={handleClearKho}
+              // allowClear
+              // onClear={handleClearKho}
             />
           </Col>
 

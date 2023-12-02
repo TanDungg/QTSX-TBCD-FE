@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Tag, Col, Image, Row } from "antd";
+import { Card, Button, Divider, Tag, Col, Row, DatePicker } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   ImportOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -19,11 +20,14 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
+  getDateNow,
   reDataForTable,
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
+import moment from "moment";
+const { RangePicker } = DatePicker;
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -34,11 +38,12 @@ function BOM({ match, history, permission }) {
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
   const [keyword, setKeyword] = useState("");
-
+  const [TuNgay, setTuNgay] = useState(getDateNow(-7));
+  const [DenNgay, setDenNgay] = useState(getDateNow());
   useEffect(() => {
     if (permission && permission.view) {
       getSanPham();
-      getListData(SanPham, keyword, page);
+      getListData(SanPham, TuNgay, DenNgay, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -51,10 +56,18 @@ function BOM({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (tits_qtsx_SanPham_Id, keyword, page) => {
+  const getListData = (
+    tits_qtsx_SanPham_Id,
+    ngayBatDau,
+    ngayKetThuc,
+    keyword,
+    page
+  ) => {
     const param = convertObjectToUrlParams({
       tits_qtsx_SanPham_Id,
       keyword,
+      ngayBatDau,
+      ngayKetThuc,
       page,
     });
     dispatch(fetchStart(`tits_qtsx_BOM?${param}`, "GET", null, "LIST"));
@@ -88,8 +101,8 @@ function BOM({ match, history, permission }) {
    * Tìm kiếm người dùng
    *
    */
-  const onSearchQuyTrinhCongNghe = () => {
-    getListData(SanPham, keyword, page);
+  const onSearchBOM = () => {
+    getListData(SanPham, TuNgay, DenNgay, keyword, page);
   };
 
   /**
@@ -100,7 +113,7 @@ function BOM({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(SanPham, val.target.value, page);
+      getListData(SanPham, TuNgay, DenNgay, val.target.value, page);
     }
   };
   /**
@@ -110,8 +123,24 @@ function BOM({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
+    const confirmItem =
+      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/xac-nhan`,
+            state: { itemData: item, permission },
+          }}
+          title="Xác nhận"
+        >
+          <CheckCircleOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Xác nhận">
+          <CheckCircleOutlined />
+        </span>
+      );
     const editItem =
-      permission && permission.edit ? (
+      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -127,11 +156,13 @@ function BOM({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && !item.isUsed
+      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
         ? { onClick: () => deleteItemFunc(item, "BOM") }
         : { disabled: true };
     return (
       <div>
+        {confirmItem}
+        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa BOM">
@@ -164,7 +195,7 @@ function BOM({ match, history, permission }) {
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(SanPham, keyword, page);
+          getListData(SanPham, TuNgay, DenNgay, keyword, page);
         }
       })
       .catch((error) => console.error(error));
@@ -178,7 +209,7 @@ function BOM({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(SanPham, keyword, pagination);
+    getListData(SanPham, TuNgay, DenNgay, keyword, pagination);
   };
 
   /**
@@ -208,27 +239,31 @@ function BOM({ match, history, permission }) {
     );
   };
   const { totalRow, pageSize } = data;
-
-  let dataList = reDataForTable(data.datalist, page, pageSize);
-
-  const renderFile = (item) => {
-    if (!isEmpty(item.file)) {
-      return (
-        <span>
-          <a
-            target="_blank"
-            href={BASE_URL_API + item.file}
-            rel="noopener noreferrer"
-          >
-            {item.file.split("/")[5]}
-          </a>
-        </span>
+  const renderDetail = (val) => {
+    const detail =
+      permission && permission.view ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${val.id}/chi-tiet`,
+            state: { itemData: val, permission },
+          }}
+        >
+          {val.maBOM}
+        </Link>
+      ) : (
+        <span disabled>{val.maBOM}</span>
       );
-    }
-    return null;
+    return <div>{detail}</div>;
   };
-
+  let dataList = reDataForTable(data.datalist, page, pageSize);
   let renderHead = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 100,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -238,9 +273,11 @@ function BOM({ match, history, permission }) {
     },
     {
       title: "Mã BOM",
-      dataIndex: "maBOM",
+      // dataIndex: "maBOM",
       key: "maBOM",
       align: "center",
+      render: (val) => renderDetail(val),
+
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -350,58 +387,67 @@ function BOM({ match, history, permission }) {
     },
     {
       title: "Người kiểm tra",
-      dataIndex: "nguoiKiemTra",
-      key: "nguoiKiemTra",
+      dataIndex: "tenNguoiKiemTra",
+      key: "tenNguoiKiemTra",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.nguoiKiemTra,
-            value: d.nguoiKiemTra,
+            text: d.tenNguoiKiemTra,
+            value: d.tenNguoiKiemTra,
           };
         })
       ),
-      onFilter: (value, record) => record.nguoiKiemTra.includes(value),
+      onFilter: (value, record) => record.tenNguoiKiemTra.includes(value),
       filterSearch: true,
     },
     {
       title: "Người phê duyệt",
-      dataIndex: "nguoiPheDuyet",
-      key: "nguoiPheDuyet",
+      dataIndex: "tenNguoiPheDuyet",
+      key: "tenNguoiPheDuyet",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.nguoiPheDuyet,
-            value: d.nguoiPheDuyet,
+            text: d.tenNguoiPheDuyet,
+            value: d.tenNguoiPheDuyet,
           };
         })
       ),
-      onFilter: (value, record) => record.nguoiPheDuyet.includes(value),
+      onFilter: (value, record) => record.tenNguoiPheDuyet.includes(value),
       filterSearch: true,
     },
     {
       title: "Trạng thái",
-      dataIndex: "trangThai",
-      key: "trangThai",
+      dataIndex: "tinhTrang",
+      key: "tinhTrang",
       align: "center",
+      render: (val) => {
+        return (
+          <Tag
+            color={
+              val === "Đã xác nhận"
+                ? "green"
+                : val === "Chưa xác nhận"
+                ? "blue"
+                : "red"
+            }
+          >
+            {" "}
+            {val}
+          </Tag>
+        );
+      },
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.trangThai,
-            value: d.trangThai,
+            text: d.tinhTrang,
+            value: d.tinhTrang,
           };
         })
       ),
-      onFilter: (value, record) => record.trangThai.includes(value),
+      onFilter: (value, record) => record.tinhTrang.includes(value),
       filterSearch: true,
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 100,
-      render: (value) => actionContent(value),
     },
   ];
 
@@ -429,17 +475,26 @@ function BOM({ match, history, permission }) {
   };
 
   const handleOnSelectSanPham = (value) => {
-    setSanPham(value);
-    setPage(1);
-    getListData(value, keyword, 1);
+    if (SanPham !== value) {
+      setSanPham(value);
+      setPage(1);
+      getListData(value, TuNgay, DenNgay, keyword, 1);
+    }
   };
 
   const handleClearSanPham = (value) => {
     setSanPham(null);
     setPage(1);
-    getListData(null, keyword, 1);
+    getListData("", TuNgay, DenNgay, keyword, 1);
   };
-
+  const handleChangeNgay = (dateString) => {
+    if (TuNgay !== dateString[0] && DenNgay !== dateString[1]) {
+      setTuNgay(dateString[0]);
+      setDenNgay(dateString[1]);
+      setPage(1);
+      getListData(SanPham, dateString[0], dateString[1], keyword, 1);
+    }
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -457,11 +512,10 @@ function BOM({ match, history, permission }) {
             sm={20}
             xs={24}
             style={{
-              display: "flex",
               alignItems: "center",
             }}
           >
-            <span style={{ width: "120px" }}>Sản phẩm:</span>
+            <h5>Sản phẩm:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListSanPham ? ListSanPham : []}
@@ -477,6 +531,26 @@ function BOM({ match, history, permission }) {
             />
           </Col>
           <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Ngày:</h5>
+            <RangePicker
+              format={"DD/MM/YYYY"}
+              onChange={(date, dateString) => handleChangeNgay(dateString)}
+              defaultValue={[
+                moment(TuNgay, "DD/MM/YYYY"),
+                moment(DenNgay, "DD/MM/YYYY"),
+              ]}
+              allowClear={false}
+            />
+          </Col>
+          <Col
             xxl={8}
             xl={12}
             lg={16}
@@ -484,38 +558,23 @@ function BOM({ match, history, permission }) {
             sm={20}
             xs={24}
             style={{
-              display: "flex",
               alignItems: "center",
             }}
           >
-            <span
-              style={{
-                width: "120px",
+            <h5>Tìm kiếm:</h5>
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchBOM,
+                onSearch: onSearchBOM,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
               }}
-            >
-              Tìm kiếm:
-            </span>
-            <div
-              style={{
-                flex: 1,
-                alignItems: "center",
-                marginTop: width < 576 ? 10 : 0,
-              }}
-            >
-              <Toolbar
-                count={1}
-                search={{
-                  title: "Tìm kiếm",
-                  loading,
-                  value: keyword,
-                  onChange: onChangeKeyword,
-                  onPressEnter: onSearchQuyTrinhCongNghe,
-                  onSearch: onSearchQuyTrinhCongNghe,
-                  placeholder: "Nhập từ khóa",
-                  allowClear: true,
-                }}
-              />
-            </div>
+            />
           </Col>
         </Row>
       </Card>

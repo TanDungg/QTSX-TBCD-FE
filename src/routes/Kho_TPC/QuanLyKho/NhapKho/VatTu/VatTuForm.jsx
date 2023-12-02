@@ -824,7 +824,7 @@ const VatTuForm = ({ history, match, permission }) => {
             if (res.status !== 409) goBack();
           } else {
             getInfo(id);
-            setType("detail");
+            setType("xacnhan");
             setFieldTouch(false);
           }
         })
@@ -1160,7 +1160,7 @@ const VatTuForm = ({ history, match, permission }) => {
           pagination={false}
           // loading={loading}
         />
-        {type === "new" || type === "edit" ? (
+        {type === "edit" && info.tinhTrang === "Chưa xử lý" ? (
           // <FormSubmit
           //   goBack={goBack}
           //   handleSave={saveAndClose}
