@@ -26,8 +26,8 @@ function InMaQr() {
               key={index}
               className={"print-page"}
               style={{
-                width: "45mm",
-                height: "20mm",
+                width: "48mm",
+                height: "30mm",
                 margin: 10,
                 border: "1px solid #000",
                 borderRadius: 5,
@@ -43,14 +43,10 @@ function InMaQr() {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  marginTop: 5,
-                  marginLeft: 5,
+                  marginLeft: 8,
                 }}
               >
-                <QRCode
-                  value={d && d.id}
-                  style={{ width: 50, height: 50, marginBottom: 3 }}
-                />
+                <QRCode value={d && d.id} style={{ width: 60, height: 60 }} />
               </div>
               <div
                 style={{
@@ -59,25 +55,20 @@ function InMaQr() {
                   flexDirection: "column",
                   alignItems: "center",
                   textAlign: "center",
-                  marginLeft: 5,
+                  margin: "0px 5px",
                 }}
               >
                 <span
                   style={{
-                    fontSize: 9,
-                    whiteSpace: "break-spaces",
-                    wordBreak: "break-all",
-                    padding: "0px 5px",
-                    marginBottom: 2,
+                    fontSize: 11,
                   }}
                 >
                   {d && d.maSanPham}
                 </span>
                 <span
                   style={{
-                    fontSize: 9,
+                    fontSize: 11,
                     fontWeight: "bold",
-                    marginBottom: 2,
                     textTransform: "uppercase",
                   }}
                 >

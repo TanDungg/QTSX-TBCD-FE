@@ -78,7 +78,7 @@ function KeHoachChiTiet({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const newData = res.data.map((sp) => {
+          const newData = res.data.keHoach.map((sp) => {
             const ctkh = [];
             let t = 0;
             JSON.parse(sp.chiTietKeHoach).forEach((ct) => {
@@ -347,9 +347,11 @@ function KeHoachChiTiet({ match, history, permission }) {
     setXuong(value);
     setVersion(null);
   };
+
   const handleImport = () => {
     history.push(`${match.url}/import`);
   };
+
   const addButtonRender = () => {
     return (
       <>
@@ -358,7 +360,7 @@ function KeHoachChiTiet({ match, history, permission }) {
           className="th-btn-margin-bottom-0"
           type="primary"
           onClick={handleImport}
-          disabled={permission && !permission.add}
+          disabled={permission && permission.add}
         >
           Import
         </Button>

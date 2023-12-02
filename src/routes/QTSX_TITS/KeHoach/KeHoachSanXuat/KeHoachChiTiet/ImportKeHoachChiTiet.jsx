@@ -60,9 +60,9 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
   useEffect(() => {
     if (includes(match.url, "import")) {
       if (permission && !permission.add) {
-        history.push("/home");
-      } else if (permission && permission.add) {
         getData();
+      } else if (permission && permission.add) {
+        history.push("/home");
       }
     }
 
@@ -281,7 +281,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
         )
       );
     }).then((res) => {
-      exportExcel(`File_Mau_San_Xuat_Chi_Tiet}`, res.data.dataexcel);
+      exportExcel(`File_Mau_San_Xuat_Chi_Tiet`, res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {

@@ -68,7 +68,7 @@ function KeHoachTong({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const newData = res.data.map((sp) => {
+          const newData = res.data.keHoach.map((sp) => {
             const ctkh = {};
             let t = 0;
             JSON.parse(sp.chiTietKeHoach).forEach((ct) => {

@@ -26,8 +26,8 @@ function InMaQr() {
               key={index}
               className={"print-page"}
               style={{
-                width: "45mm",
-                height: "28mm",
+                width: "48mm",
+                height: "30mm",
                 margin: 10,
                 border: "1px solid #000",
                 borderRadius: 5,
@@ -43,19 +43,13 @@ function InMaQr() {
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  marginTop: 5,
-                  marginLeft: 5,
+                  marginLeft: 8,
                 }}
               >
-                <span
-                  style={{ fontSize: 10, fontWeight: "bold", marginBottom: 3 }}
-                >
+                <span style={{ fontSize: 10, fontWeight: "bold" }}>
                   Vị trí kho:
                 </span>
-                <QRCode
-                  value={d && d.id}
-                  style={{ width: 50, height: 50, marginBottom: 3 }}
-                />
+                <QRCode value={d && d.id} style={{ width: 60, height: 60 }} />
                 <span style={{ fontSize: 11, fontWeight: "bold" }}>
                   {d && d.stt}
                 </span>
@@ -67,26 +61,23 @@ function InMaQr() {
                   flexDirection: "column",
                   alignItems: "center",
                   textAlign: "center",
+                  margin: "0px 5px",
                 }}
               >
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     whiteSpace: "break-spaces",
                     wordBreak: "break-all",
-                    padding: "0px 5px",
-                    marginBottom: 2,
                   }}
                 >
                   {d && d.maCauTrucKho}
                 </span>
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: "bold",
-                    margin: 2,
-                    // whiteSpace: "break-spaces",
-                    // wordBreak: "break-all",
+                    margin: "2px 0px",
                   }}
                 >
                   {d && d.tenCauTrucKho}
@@ -97,32 +88,12 @@ function InMaQr() {
                     fontWeight: "bold",
                     marginBottom: 2,
                     textTransform: "uppercase",
-                    // whiteSpace: "break-spaces",
-                    // wordBreak: "break-all",
                   }}
                 >
                   {d && d.tenPhongBan}
                 </span>
               </div>
             </Col>
-            // <Col className="inMa-BarCode" style={{ width: 114, height: 152 }}>
-            //   <QRCode
-            //     value={d && d.id}
-            //     style={{ marginTop: 7, width: 100, height: 100 }}
-            //   />
-            //   <p
-            //     style={{
-            //       fontSize: 11,
-            //       margin: 0,
-            //       color: "black",
-            //       fontWeight: "bold",
-            //       whiteSpace: "break-spaces",
-            //       wordBreak: "break-all",
-            //     }}
-            //   >
-            //     {d && d.maKe ? d.maKe : d.maCauTrucKho}
-            //   </p>
-            // </Col>
           );
         })}
     </Row>
