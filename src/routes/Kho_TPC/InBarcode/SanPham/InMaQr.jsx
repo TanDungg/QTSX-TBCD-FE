@@ -27,7 +27,7 @@ function InMaQr() {
               className={"print-page"}
               style={{
                 width: "48mm",
-                height: "30mm",
+                height: "28mm",
                 margin: 10,
                 border: "1px solid #000",
                 borderRadius: 5,
@@ -60,14 +60,14 @@ function InMaQr() {
               >
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 10,
                   }}
                 >
                   {d && d.maSanPham}
                 </span>
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: "bold",
                     textTransform: "uppercase",
                   }}

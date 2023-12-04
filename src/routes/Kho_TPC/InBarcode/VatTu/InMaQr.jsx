@@ -27,7 +27,7 @@ function InMaQr() {
               className={"print-page"}
               style={{
                 width: "48mm",
-                height: "30mm",
+                height: "28mm",
                 margin: 10,
                 border: "1px solid #000",
                 borderRadius: 5,
@@ -50,7 +50,7 @@ function InMaQr() {
                   value={
                     d && d.vatTu_Id + (d.hanSuDung ? "_" + d.hanSuDung : "")
                   }
-                  style={{ width: 50, height: 50, marginBottom: 3 }}
+                  style={{ width: 60, height: 60 }}
                 />
                 <span style={{ fontSize: 10, fontWeight: "bold" }}>
                   {d && d.hanSuDung}
@@ -77,7 +77,7 @@ function InMaQr() {
                 </span>
                 <span
                   style={{
-                    fontSize: 10,
+                    fontSize: 11,
                     fontWeight: "bold",
                     textTransform: "uppercase",
                   }}
