@@ -26,8 +26,8 @@ function InMaQr() {
               key={index}
               className={"print-page"}
               style={{
-                width: "48mm",
-                height: "28mm",
+                width: "220px",
+                height: "120px",
                 margin: 10,
                 border: "1px solid #000",
                 borderRadius: 5,
@@ -50,9 +50,9 @@ function InMaQr() {
                   value={
                     d && d.vatTu_Id + (d.hanSuDung ? "_" + d.hanSuDung : "")
                   }
-                  style={{ width: 60, height: 60 }}
+                  style={{ width: 70, height: 70 }}
                 />
-                <span style={{ fontSize: 10, fontWeight: "bold" }}>
+                <span style={{ fontSize: 11, fontWeight: "bold" }}>
                   {d && d.hanSuDung}
                 </span>
               </div>
@@ -68,16 +68,17 @@ function InMaQr() {
               >
                 <span
                   style={{
-                    fontSize: 10,
+                    fontSize: 12,
                     whiteSpace: "break-spaces",
                     wordBreak: "break-all",
+                    marginBottom: 2,
                   }}
                 >
                   {d && d.maVatTu}
                 </span>
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: "bold",
                     textTransform: "uppercase",
                   }}

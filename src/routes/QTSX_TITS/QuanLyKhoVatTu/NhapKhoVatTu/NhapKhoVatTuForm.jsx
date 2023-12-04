@@ -338,29 +338,29 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       </div>
     );
   };
-  const renderDatePicker = (record) => {
-    return (
-      <DatePicker
-        format={"DD/MM/YYYY"}
-        disabled={type === "new" || type === "edit" ? false : true}
-        value={record.hanSuDung && moment(record.hanSuDung, "DD/MM/YYYY")}
-        allowClear={false}
-        onChange={(date, dateString) => {
-          const newVatTu = [...listVatTu];
-          newVatTu.forEach((vt, index) => {
-            if (
-              vt.tits_qtsx_PhieuNhanHang_Id ===
-              record.tits_qtsx_PhieuNhanHang_Id
-            ) {
-              newVatTu[index].thoiGianSuDung = dateString;
-            }
-          });
-          setListVatTu(newVatTu);
-          setFieldTouch(true);
-        }}
-      />
-    );
-  };
+  // const renderDatePicker = (record) => {
+  //   return (
+  //     <DatePicker
+  //       format={"DD/MM/YYYY"}
+  //       disabled={type === "new" || type === "edit" ? false : true}
+  //       value={record.hanSuDung && moment(record.hanSuDung, "DD/MM/YYYY")}
+  //       allowClear={false}
+  //       onChange={(date, dateString) => {
+  //         const newVatTu = [...listVatTu];
+  //         newVatTu.forEach((vt, index) => {
+  //           if (
+  //             vt.tits_qtsx_PhieuNhanHang_Id ===
+  //             record.tits_qtsx_PhieuNhanHang_Id
+  //           ) {
+  //             newVatTu[index].thoiGianSuDung = dateString;
+  //           }
+  //         });
+  //         setListVatTu(newVatTu);
+  //         setFieldTouch(true);
+  //       }}
+  //     />
+  //   );
+  // };
 
   const handleInputChange = (val, item) => {
     const soLuongNhap = val.target.value;
@@ -489,12 +489,12 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       align: "center",
       render: (record) => rendersoLuong(record),
     },
-    {
-      title: "Hạn sử dụng",
-      key: "hanSuDung",
-      align: "center",
-      render: (record) => renderDatePicker(record),
-    },
+    // {
+    //   title: "Hạn sử dụng",
+    //   key: "hanSuDung",
+    //   align: "center",
+    //   render: (record) => renderDatePicker(record),
+    // },
     {
       title: "Ghi chú",
       key: "ghiChu",
@@ -886,7 +886,6 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
             return {
               ...data,
               soLuong: data.soLuongChuaNhap,
-              hanSuDung: getDateNow(),
             };
           });
           setListVatTu(newData);

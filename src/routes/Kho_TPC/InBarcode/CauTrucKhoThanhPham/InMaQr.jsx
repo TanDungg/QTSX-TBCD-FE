@@ -26,8 +26,8 @@ function InMaQr() {
               key={index}
               className={"print-page"}
               style={{
-                width: "48mm",
-                height: "28mm",
+                width: "220px",
+                height: "120px",
                 margin: 10,
                 border: "1px solid #000",
                 borderRadius: 5,
@@ -76,14 +76,14 @@ function InMaQr() {
                 <span
                   style={{
                     fontSize: 12,
-                    fontWeight: "bold",
+                    marginBottom: 2,
                   }}
                 >
                   {d && d.tenCauTrucKho}
                 </span>
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: "bold",
                     textTransform: "uppercase",
                   }}

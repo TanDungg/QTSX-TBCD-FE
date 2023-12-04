@@ -510,19 +510,14 @@ function NhapKhoVatTu({ match, history, permission }) {
         <div>
           {value && (
             <Tag
+              color={
+                value === "Chưa xác nhận"
+                  ? "orange"
+                  : value === "Đã xác nhận"
+                  ? "blue"
+                  : "red"
+              }
               style={{
-                borderColor:
-                  value === "Chưa xác nhận"
-                    ? "orange"
-                    : value === "Đã xác nhận"
-                    ? "#0469B9"
-                    : "red",
-                color:
-                  value === "Chưa xác nhận"
-                    ? "orange"
-                    : value === "Đã xác nhận"
-                    ? "#0469B9"
-                    : "red",
                 fontSize: 13,
               }}
             >

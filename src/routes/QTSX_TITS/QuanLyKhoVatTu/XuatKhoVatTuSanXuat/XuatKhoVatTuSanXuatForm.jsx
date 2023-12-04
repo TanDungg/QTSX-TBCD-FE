@@ -258,7 +258,6 @@ const VatTuForm = ({ history, match, permission }) => {
               list_ChiTietLuuKhos: [],
             };
           });
-          console.log(newData);
           setListVatTuTheoOEM(newData);
         } else {
           setListVatTuTheoOEM([]);
@@ -471,10 +470,13 @@ const VatTuForm = ({ history, match, permission }) => {
   const DeleteViTri = (record) => {
     setListVatTuTheoOEM((prevListVatTuTheoOEM) => {
       return prevListVatTuTheoOEM.map((item) => {
-        if (record.vatTu_Id === item.vatTu_Id) {
+        if (
+          record.tits_qtsx_VatTuChiTiet_Id.toLowerCase() ===
+          item.tits_qtsx_VatTuChiTiet_Id.toLowerCase()
+        ) {
           return {
             ...item,
-            chiTiet_LuuVatTus: [],
+            list_ChiTietLuuKhos: [],
           };
         }
         return item;
@@ -485,8 +487,8 @@ const VatTuForm = ({ history, match, permission }) => {
   const ThemViTri = (data) => {
     const newData = ListVatTuTheoOEM.map((listvattutheooem) => {
       if (
-        listvattutheooem.tits_qtsx_VatTu_Id.toLowerCase() ===
-        data.tits_qtsx_VatTu_Id.toLowerCase()
+        listvattutheooem.tits_qtsx_VatTuChiTiet_Id.toLowerCase() ===
+        data.tits_qtsx_VatTuChiTiet_Id.toLowerCase()
       ) {
         if (data.soLuongThucXuat <= listvattutheooem.soLuongYeuCau) {
           setDisabledKhoXuat(true);
