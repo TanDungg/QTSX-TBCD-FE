@@ -342,7 +342,7 @@ function BOMForm({ match, permission, history }) {
     let messageLoi = "";
     if (DataLoi && DataLoi.length > 0) {
       DataLoi.forEach((dt) => {
-        if (dt.maSanPham === val) {
+        if (dt.maChiTiet === val.maChiTiet) {
           check = true;
           messageLoi = dt.ghiChuImport;
         }
@@ -350,10 +350,12 @@ function BOMForm({ match, permission, history }) {
     }
     return check ? (
       <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
-        {val}
+        {val.maChiTiet}
       </Popover>
+    ) : val.STT === "*" ? (
+      <span style={{ fontWeight: "bold" }}>{val.maChiTiet}</span>
     ) : (
-      <span>{val}</span>
+      <span>{val.maChiTiet}</span>
     );
   };
   let colValues = () => {
@@ -688,13 +690,7 @@ function BOMForm({ match, permission, history }) {
         key: "maChiTiet",
         align: "center",
         width: 150,
-        render: (val) => {
-          if (val.STT === "*") {
-            return <span style={{ fontWeight: "bold" }}>{val.maChiTiet}</span>;
-          } else {
-            return <span>{val.maChiTiet}</span>;
-          }
-        },
+        render: (val) => renderLoi(val),
       },
       {
         title: "Tên chi tiết",
@@ -2502,9 +2498,7 @@ function BOMForm({ match, permission, history }) {
         .catch((error) => console.error(error));
     } else if (type === "edit") {
       const newData = {
-        ...info,
         ...BOM,
-        id: id,
         ngayBanHanh: BOM.ngayBanHanh.format("DD/MM/YYYY"),
         ngayApDung: BOM.ngayApDung.format("DD/MM/YYYY"),
       };
@@ -2625,7 +2619,16 @@ function BOMForm({ match, permission, history }) {
         </Tag>
       </span>
     );
-
+  const disableDate = (current) => {
+    return (
+      current && current < form.getFieldValue("BOM").ngayBanHanh.endOf("day")
+    );
+  };
+  const disableDateNgayApDung = (current) => {
+    return (
+      current && current > form.getFieldValue("BOM").ngayApDung.endOf("day")
+    );
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -2689,6 +2692,7 @@ function BOMForm({ match, permission, history }) {
                 >
                   <DatePicker
                     format={"DD/MM/YYYY"}
+                    disabledDate={disableDateNgayApDung}
                     disabled={type !== "new" && type !== "edit"}
                     allowClear={false}
                     onChange={(dates, dateString) => {
@@ -2721,6 +2725,7 @@ function BOMForm({ match, permission, history }) {
                 >
                   <DatePicker
                     disabled={type !== "new" && type !== "edit"}
+                    disabledDate={disableDate}
                     format={"DD/MM/YYYY"}
                     allowClear={false}
                     onChange={(dates, dateString) => {
@@ -2761,7 +2766,7 @@ function BOMForm({ match, permission, history }) {
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
-                    disabled={type !== "new" && type !== "edit"}
+                    disabled={type !== "new"}
                     onSelect={(val) => setSanPham(val)}
                   />
                 </FormItem>
@@ -2943,6 +2948,7 @@ function BOMForm({ match, permission, history }) {
           size="small"
           loading={loading}
           rowClassName={RowStyle}
+          pagination={false}
         />
       </Card>
       {type === "new" || type === "edit" ? (
