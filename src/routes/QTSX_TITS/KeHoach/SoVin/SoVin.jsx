@@ -211,18 +211,18 @@ function SoVin({ match, permission, history }) {
     },
     {
       title: "Đơn hàng",
-      dataIndex: "tenDonHang",
-      key: "tenDonHang",
+      dataIndex: "maPhieu",
+      key: "maPhieu",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenDonHang,
-            value: d.tenDonHang,
+            text: d.maPhieu,
+            value: d.maPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.tenDonHang.includes(value),
+      onFilter: (value, record) => record.maPhieu.includes(value),
       filterSearch: true,
     },
     {
@@ -329,7 +329,7 @@ function SoVin({ match, permission, history }) {
               className="heading-select slt-search th-select-heading"
               data={data.datalist ? data.datalist : []}
               placeholder={"Chọn đơn hàng"}
-              optionsvalue={["tits_qtsx_DonHang_Id", "tenDonHang"]}
+              optionsvalue={["tits_qtsx_DonHang_Id", "maPhieu"]}
               style={{ width: "100%" }}
               onSelect={handleOnSelectDonHang}
               value={DonHang}

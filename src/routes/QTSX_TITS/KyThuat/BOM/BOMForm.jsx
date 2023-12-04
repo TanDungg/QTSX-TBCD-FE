@@ -33,6 +33,7 @@ import {
   getLocalStorage,
   exportExcel,
   getTokenInfo,
+  reDataForTable,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import Helpers from "src/helpers";
@@ -70,18 +71,13 @@ function BOMForm({ match, permission, history }) {
   const [ListChiTiet, setListChiTiet] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [SanPham, setSanPham] = useState("");
-  const [checkDanger, setCheckDanger] = useState(false);
   const [fileName, setFileName] = useState("");
-
-  const [FileThongSoKyThuat, setFileThongSoKyThuat] = useState(null);
-  const [DisableUpload, setDisableUpload] = useState(false);
-  const [ActiveModalImport, setActiveModalImport] = useState(false);
   const [ActiceModalThietLap, setActiceModalThietLap] = useState(false);
   const [message, setMessageError] = useState([]);
   const [DataLoi, setDataLoi] = useState();
   const [HangTrung, setHangTrung] = useState([]);
 
-  const [info, setInfo] = useState(null);
+  const [info, setInfo] = useState({});
   const [fieldTouch, setFieldTouch] = useState(false);
   const { setFieldsValue, validateFields, resetFields } = form;
   const [dataThietLap, setDataThietLap] = useState({
@@ -236,6 +232,7 @@ function BOMForm({ match, permission, history }) {
         if (res && res.data) {
           setInfo(res.data);
           getUserKy(INFO);
+          setDataThietLap(res.data.congDoanSuDung);
           setListChiTiet(
             res.data.list_ChiTiets.map((ct) => {
               return {
@@ -274,10 +271,6 @@ function BOMForm({ match, permission, history }) {
               ngayApDung: moment(res.data.ngayApDung, "DD/MM/YYYY"),
             },
           });
-          if (res.data.file) {
-            setFileThongSoKyThuat(res.data.file);
-            setDisableUpload(true);
-          }
         }
       })
       .catch((error) => console.error(error));
@@ -289,8 +282,8 @@ function BOMForm({ match, permission, history }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "sản phẩm";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenSanPham, title);
+    const title = "chi tiết";
+    ModalDeleteConfirm(deleteItemAction, item, item.maChiTiet, title);
   };
 
   /**
@@ -1986,12 +1979,15 @@ function BOMForm({ match, permission, history }) {
         const NewData = [];
         data.forEach((d) => {
           if (
-            ((d[TCT] && d[TCT] !== 0) || d[TCT] === 0) &&
-            d[TCT].toString().trim() !== "" &&
-            ((d[TCT] && d[TCT] !== 0) || d[TCT] === 0) &&
-            d[MCT].toString().trim() !== "" &&
-            ((d.STT && d.STT !== 0) || d.STT === 0) &&
-            d.STT.toString().trim() !== ""
+            (typeof d[TCT] !== "undefined" &&
+              (d[TCT] !== 0 || d[TCT] === 0) &&
+              d[TCT].toString().trim() !== "") ||
+            (typeof d[MCT] !== "undefined" &&
+              (d[TCT] !== 0 || d[TCT] === 0) &&
+              d[MCT].toString().trim() !== "") ||
+            (typeof d.STT !== "undefined" &&
+              (d.STT !== 0 || d.STT === 0) &&
+              d.STT.toString().trim() !== "")
           ) {
             NewData.push({
               STT:
@@ -2302,41 +2298,49 @@ function BOMForm({ match, permission, history }) {
         if (NewData.length === 0) {
           setFileName(file.name);
           setListChiTiet([]);
-          setCheckDanger(true);
+          setFieldTouch(true);
           setMessageError("Dữ liệu import không được rỗng");
           Helper.alertError("Dữ liệu import không được rỗng");
         } else {
-          // const indices = [];
-          // const row = [];
-          // for (let i = 0; i < NewData.length; i++) {
-          //   for (let j = i + 1; j < NewData.length; j++) {
-          //     if (
-          //       NewData[i].maSanPham === NewData[j].maSanPham &&
-          //       NewData[i].maMauSac === NewData[j].maMauSac &&
-          //       NewData[j].maSanPham !== undefined &&
-          //       NewData[i].maSanPham !== undefined &&
-          //       NewData[j].maMauSac !== undefined &&
-          //       NewData[i].maMauSac !== undefined
-          //     ) {
-          //       indices.push(NewData[i]);
-          //       row.push(i + 1);
-          //       row.push(j + 1);
-          //     }
-          //   }
-          // }
-          // if (indices.length > 0) {
-          //   setMessageError(
-          //     `Hàng ${row.join(", ")} có mã sản phẩm và mã màu sắc trùng nhau`
-          //   );
-          //   Helper.alertError(
-          //     `Hàng ${row.join(", ")} có mã sản phẩm và mã màu sắc trùng nhau`
-          //   );
-          //   setHangTrung(indices);
-          //   setCheckDanger(true);
-          // } else {
-          //   setHangTrung([]);
-          //   setCheckDanger(false);
-          // }
+          let maChiTietSet = new Set();
+          const indices = [];
+          // Duyệt qua từng phần tử trong danh sách
+          NewData.forEach((item, index) => {
+            // Kiểm tra nếu là phần tử có STT = "*"
+            if (item.STT === "*") {
+              // Reset Set khi gặp dấu sao
+              maChiTietSet = new Set();
+            } else {
+              // Kiểm tra xem maChiTiet đã tồn tại trong Set chưa
+              if (
+                maChiTietSet.has(item.maChiTiet) &&
+                item.maChiTiet !== undefined
+              ) {
+                indices.push(
+                  item.STT +
+                    item.maChiTiet +
+                    item.tenChiTiet +
+                    item.vatLieu +
+                    item.dai +
+                    item.rong +
+                    item.day
+                );
+              } else {
+                // Nếu chưa có, thêm vào Set
+                maChiTietSet.add(item.maChiTiet);
+              }
+            }
+          });
+
+          if (indices.length > 0) {
+            setMessageError("Có chi tiết trong 1 cụm trùng nhau");
+            Helper.alertError("Có chi tiết trong 1 cụm trùng nhau");
+            setHangTrung(indices);
+            setFieldTouch(true);
+          } else {
+            setHangTrung([]);
+            setFieldTouch(false);
+          }
           setListChiTiet(NewData);
           setFileName(file.name);
           setDataLoi();
@@ -2344,7 +2348,7 @@ function BOMForm({ match, permission, history }) {
       } else {
         setFileName(file.name);
         setListChiTiet([]);
-        setCheckDanger(true);
+        setFieldTouch(true);
         setMessageError("Mẫu import không hợp lệ");
         Helper.alertError("Mẫu file import không hợp lệ");
       }
@@ -2370,35 +2374,7 @@ function BOMForm({ match, permission, history }) {
     showUploadList: false,
     maxCount: 1,
   };
-  const RowStyle = (current, index) => {
-    if (HangTrung.length > 0) {
-      HangTrung.forEach((maChiTiet) => {
-        if (current.maChiTiet === maChiTiet) {
-          setCheckDanger(true);
-          return "red-row";
-        }
-      });
-    } else if (current.tenChiTiet === undefined) {
-      setCheckDanger(true);
-      setMessageError("Tên chi tiết không được rỗng");
-      return "red-row";
-    } else if (current.maChiTiet === undefined) {
-      setCheckDanger(true);
-      setMessageError("Mã chi tiết không được rỗng");
-      return "red-row";
-    } else if (DataLoi && DataLoi.length > 0) {
-      let check = false;
-      DataLoi.forEach((dt) => {
-        if (current.maChiTiet.toString() === dt.maChiTiet.toString()) {
-          check = true;
-        }
-      });
-      if (check) {
-        setCheckDanger(true);
-        return "red-row";
-      }
-    }
-  };
+
   /**
    * Khi submit
    *
@@ -2429,6 +2405,7 @@ function BOMForm({ match, permission, history }) {
         donVi_Id: INFO.donVi_Id,
         ngayBanHanh: BOM.ngayBanHanh.format("DD/MM/YYYY"),
         ngayApDung: BOM.ngayApDung.format("DD/MM/YYYY"),
+        congDoanSuDung: dataThietLap,
         list_ChiTiets: ListChiTiet.map((ct) => {
           return {
             ...ct,
@@ -2483,9 +2460,9 @@ function BOMForm({ match, permission, history }) {
               goBack();
             } else {
               resetFields();
-              setFileThongSoKyThuat(null);
               setFieldTouch(false);
-              setDisableUpload(false);
+              setListChiTiet([]);
+              setFileName(null);
               setFieldsValue({
                 BOM: {
                   ngayBanHanh: moment(getDateNow(), "DD/MM/YYYY"),
@@ -2601,7 +2578,21 @@ function BOMForm({ match, permission, history }) {
     ) : type === "edit" ? (
       "Chỉnh sửa BOM"
     ) : type === "xacnhan" ? (
-      "Duyệt BOM"
+      <span>
+        Duyệt BOM{" "}
+        <Tag
+          style={{ fontSize: 14 }}
+          color={
+            info && info.tinhTrang === "Đã xác nhận"
+              ? "green"
+              : info && info.tinhTrang === "Chưa xác nhận"
+              ? "blue"
+              : "red"
+          }
+        >
+          {info && info.maBOM} - {info && info.tinhTrang}
+        </Tag>
+      </span>
     ) : (
       <span>
         Chi tiết BOM{" "}
@@ -2628,6 +2619,46 @@ function BOMForm({ match, permission, history }) {
     return (
       current && current > form.getFieldValue("BOM").ngayApDung.endOf("day")
     );
+  };
+  const RowStyle = (current, index) => {
+    if (HangTrung.length > 0) {
+      if (
+        HangTrung.some(
+          (maChiTiet) =>
+            current.STT +
+              current.maChiTiet +
+              current.tenChiTiet +
+              current.vatLieu +
+              current.dai +
+              current.rong +
+              current.day ===
+            maChiTiet
+        )
+      ) {
+        return "red-row";
+      }
+    }
+    if (current.tenChiTiet === undefined) {
+      setFieldTouch(false);
+      setMessageError("Tên chi tiết không được rỗng");
+      return "red-row";
+    }
+    if (current.maChiTiet === undefined) {
+      setFieldTouch(false);
+      setMessageError("Mã chi tiết không được rỗng");
+      return "red-row";
+    }
+    if (DataLoi && DataLoi.length > 0) {
+      if (
+        DataLoi.some(
+          (dt) => current.maChiTiet.toString() === dt.maChiTiet.toString()
+        )
+      ) {
+        setFieldTouch(false);
+        return "red-row";
+      }
+    }
+    return "";
   };
   return (
     <div className="gx-main-content">
@@ -2871,8 +2902,81 @@ function BOMForm({ match, permission, history }) {
                   Thiết lập
                 </Button>
               </Col>
+              <Col xxl={22} xl={21} lg={20} md={20} sm={18} xs={17}>
+                <Row style={{ marginBottom: 5 }}>
+                  {dataThietLap.giaCong ||
+                  dataThietLap.ed ||
+                  dataThietLap.xiMa ? (
+                    <>
+                      <Tag color="#ff9c6e">CMC</Tag>
+                      {dataThietLap.giaCong ? (
+                        <Tag color="green">Gia công</Tag>
+                      ) : null}
+                      {dataThietLap.ed ? <Tag color="green">ED</Tag> : null}
+                      {dataThietLap.xiMa ? (
+                        <Tag color="green">Xi mạ</Tag>
+                      ) : null}
+                    </>
+                  ) : null}
+                </Row>
+                <Divider />
+                <Row>
+                  {dataThietLap.kho ||
+                  dataThietLap.lazer ||
+                  dataThietLap.lazerDamH ||
+                  dataThietLap.cuaVong ||
+                  dataThietLap.chanDot ||
+                  dataThietLap.vatMep ||
+                  dataThietLap.khoanLo ||
+                  dataThietLap.xhlkr ||
+                  dataThietLap.xhkx ||
+                  dataThietLap.phunBi ||
+                  dataThietLap.son ||
+                  dataThietLap.xlr ||
+                  dataThietLap.kiemDinh ||
+                  dataThietLap.dongKien ? (
+                    <>
+                      <Tag color="#ff9c6e">TITS</Tag>
+                      {dataThietLap.kho ? <Tag color="green">Kho</Tag> : null}
+                      {dataThietLap.lazer ? (
+                        <Tag color="green">Lazer</Tag>
+                      ) : null}
+                      {dataThietLap.lazerDamH ? (
+                        <Tag color="green">Lazer Dầm H</Tag>
+                      ) : null}
+                      {dataThietLap.cuaVong ? (
+                        <Tag color="green">Cưa vòng</Tag>
+                      ) : null}
+                      {dataThietLap.chanDot ? (
+                        <Tag color="green">Chấn đột</Tag>
+                      ) : null}
+                      {dataThietLap.vatMep ? (
+                        <Tag color="green">Vát mép</Tag>
+                      ) : null}
+                      {dataThietLap.khoanLo ? (
+                        <Tag color="green">Khoan lỗ</Tag>
+                      ) : null}
+                      {dataThietLap.xhlkr ? (
+                        <Tag color="green">XHLKR</Tag>
+                      ) : null}
+                      {dataThietLap.xhkx ? <Tag color="green">XHKX</Tag> : null}
+                      {dataThietLap.phunBi ? (
+                        <Tag color="green">Phun bi</Tag>
+                      ) : null}
+                      {dataThietLap.son ? <Tag color="green">Sơn</Tag> : null}
+                      {dataThietLap.xlr ? <Tag color="green">X-LR</Tag> : null}
+                      {dataThietLap.kiemDinh ? (
+                        <Tag color="green">Kiểm định</Tag>
+                      ) : null}
+                      {dataThietLap.dongKien ? (
+                        <Tag color="green">Đóng kiện</Tag>
+                      ) : null}
+                    </>
+                  ) : null}
+                </Row>
+              </Col>
             </Row>
-            <Row>
+            <Row style={{ marginTop: 5 }}>
               <Col
                 xxl={2}
                 xl={3}
@@ -2889,7 +2993,7 @@ function BOMForm({ match, permission, history }) {
                 <Upload {...props}>
                   <Button
                     icon={<UploadOutlined />}
-                    danger={checkDanger}
+                    // danger={!fieldTouch}
                     disabled={SanPham === ""}
                   >
                     Tải dữ liệu lên
@@ -2899,14 +3003,14 @@ function BOMForm({ match, permission, history }) {
                   <>
                     <Popover
                       content={
-                        !checkDanger ? (
+                        fieldTouch ? (
                           fileName
                         ) : (
                           <Alert type="error" message={message} banner />
                         )
                       }
                     >
-                      <p style={{ color: checkDanger ? "red" : "#1890ff" }}>
+                      <p style={{ color: !fieldTouch ? "red" : "#1890ff" }}>
                         {fileName.length > 20
                           ? fileName.substring(0, 20) + "..."
                           : fileName}{" "}
@@ -2915,7 +3019,7 @@ function BOMForm({ match, permission, history }) {
                           onClick={() => {
                             setListChiTiet([]);
                             setFileName(null);
-                            setCheckDanger(false);
+                            setFieldTouch(false);
                           }}
                         />
                       </p>
@@ -2944,7 +3048,7 @@ function BOMForm({ match, permission, history }) {
           columns={columns}
           components={components}
           className="gx-table-responsive"
-          dataSource={ListChiTiet}
+          dataSource={reDataForTable(ListChiTiet)}
           size="small"
           loading={loading}
           rowClassName={RowStyle}
@@ -2959,7 +3063,7 @@ function BOMForm({ match, permission, history }) {
           disabled={fieldTouch}
         />
       ) : null}
-      {type === "xacnhan" && (
+      {type === "xacnhan" && info && info.tinhTrang === "Chưa xử lý" && (
         <>
           <Divider />
           <Row>

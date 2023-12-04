@@ -311,7 +311,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 viTri: vt.tenKe
                   ? `${vt.tenKe ? `${vt.tenKe}` : ""}${
                       vt.tenTang ? ` - ${vt.tenTang}` : ""
-                    }${vt.tenNgan ? ` - ${vt.tenNgan}, ` : ", "}`
+                    }${vt.tenNgan ? ` - ${vt.tenNgan}, ` : ""}`
                   : data.tenKho,
               }));
               return {
@@ -418,7 +418,7 @@ const VatTuForm = ({ history, match, permission }) => {
                           key={index}
                           style={{ marginRight: 5, color: "#0469B9" }}
                         >
-                          {vt.viTri}
+                          {vt.viTri} : {vt.SoLuong}
                         </Tag>
                       );
                     } else {
@@ -435,7 +435,7 @@ const VatTuForm = ({ history, match, permission }) => {
                           whiteSpace: "normal",
                         }}
                       >
-                        {vt.viTri}
+                        {vt.viTri} : {vt.SoLuong}
                       </Tag>
                     );
                   }
@@ -500,20 +500,7 @@ const VatTuForm = ({ history, match, permission }) => {
       key: "soLuong",
       align: "center",
     },
-    {
-      title: "Vị trí",
-      key: "viTri",
-      align: "center",
-      render: (val) => {
-        return (
-          <span>
-            {val.tenKe && val.tenKe}
-            {val.tenTang && ` - ${val.tenTang}`}
-            {val.tenNgan && ` - ${val.tenNgan}`}
-          </span>
-        );
-      },
-    },
+
     {
       title: "Vị trí trong kho",
       key: "viTri",

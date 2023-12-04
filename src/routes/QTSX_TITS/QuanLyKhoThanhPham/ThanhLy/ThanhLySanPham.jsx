@@ -33,7 +33,7 @@ import ModalTuChoi from "./ModalTuChoi";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
-function ThanhLyVatTu({ match, history, permission }) {
+function ThanhLySanPham({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -71,7 +71,7 @@ function ThanhLyVatTu({ match, history, permission }) {
       ngayKetThuc,
       keyword,
       page,
-      isVatTu: true,
+      isVatTu: false,
     });
     dispatch(
       fetchStart(`tits_qtsx_PhieuThanhLy?${param}`, "GET", null, "LIST")
@@ -82,7 +82,7 @@ function ThanhLyVatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -458,7 +458,7 @@ function ThanhLyVatTu({ match, history, permission }) {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận phiếu thanh lý vật tư",
+    title: "Xác nhận phiếu thanh lý thành phẩm",
   };
   const modalXK = (id) => {
     Modal({ ...prop, onOk: () => hanldeXacNhan(id) });
@@ -466,8 +466,8 @@ function ThanhLyVatTu({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Thanh lý vật tư"
-        description="Thanh lý vật tư"
+        title="Thanh lý thành phẩm"
+        description="Thanh lý thành phẩm"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
@@ -571,4 +571,4 @@ function ThanhLyVatTu({ match, history, permission }) {
   );
 }
 
-export default ThanhLyVatTu;
+export default ThanhLySanPham;
