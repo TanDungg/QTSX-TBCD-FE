@@ -34,13 +34,13 @@ const DieuChuyenVatTu = asyncComponent(() =>
 const DieuChuyenVatTuForm = asyncComponent(() =>
   import("./DieuChuyenVatTu/DieuChuyenVatTuForm")
 );
-const KhoVatTu = asyncComponent(() => import("./KhoVatTu/KhoVatTu"));
-const LayoutKhoVatTu = asyncComponent(() =>
-  import("./LayoutKhoVatTu/LayoutKhoVatTu")
-);
 const ThanhLyVatTu = asyncComponent(() => import("./ThanhLy/ThanhLyVatTu"));
 const ThanhLyVatTuForm = asyncComponent(() =>
   import("./ThanhLy/ThanhLyVatTuForm")
+);
+const KhoVatTu = asyncComponent(() => import("./KhoVatTu/KhoVatTu"));
+const LayoutKhoVatTu = asyncComponent(() =>
+  import("./LayoutKhoVatTu/LayoutKhoVatTu")
 );
 
 /* Xuất kho vật tư sản xuất */

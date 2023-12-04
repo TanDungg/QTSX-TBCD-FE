@@ -34,6 +34,8 @@ function KeHoachChiTiet({ match, history, permission }) {
   const [ActiveEditKeHoach, setActiveEditKeHoach] = useState(false);
   const [Version, setVersion] = useState("");
   const [dataEdit, setDataEdit] = useState({});
+  const [NguoiXem, setNguoiXem] = useState("");
+  const [ListNguoiXem, setListNguoiXem] = useState([]);
   useEffect(() => {
     if (permission && permission.view) {
       getXuong();
@@ -78,6 +80,15 @@ function KeHoachChiTiet({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
+          setListNguoiXem(
+            res.data.nguoiXem.map((nx) => {
+              return {
+                id: nx.id,
+                name: nx.tenNguoiXem + " - " + nx.ngay,
+              };
+            })
+          );
+          setNguoiXem(res.data.nguoiXem[0].id);
           const newData = res.data.keHoach.map((sp) => {
             const ctkh = [];
             let t = 0;
@@ -436,6 +447,25 @@ function KeHoachChiTiet({ match, history, permission }) {
               style={{ width: "100%" }}
               onSelect={handleOnSelectVersion}
               value={Version}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Người xem:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListNguoiXem ? ListNguoiXem : []}
+              optionsvalue={["id", "name"]}
+              style={{ width: "100%" }}
+              onChange={(value) => setNguoiXem(value)}
+              value={NguoiXem}
             />
           </Col>
         </Row>
