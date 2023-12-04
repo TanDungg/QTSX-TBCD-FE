@@ -18,7 +18,7 @@ function InMaQr() {
   }, []);
 
   return (
-    <Row justify={"center"} style={{ width: "100%" }}>
+    <Row justify={"center"}>
       {listVatTu &&
         listVatTu.map((d, index) => {
           return (
@@ -26,8 +26,8 @@ function InMaQr() {
               key={index}
               className={"print-page"}
               style={{
-                width: "220px",
-                height: "120px",
+                width: "180px",
+                height: "100px",
                 margin: 10,
                 border: "1px solid #000",
                 borderRadius: 5,
@@ -50,9 +50,9 @@ function InMaQr() {
                   value={
                     d && d.vatTu_Id + (d.hanSuDung ? "_" + d.hanSuDung : "")
                   }
-                  style={{ width: 70, height: 70 }}
+                  style={{ width: 55, height: 55 }}
                 />
-                <span style={{ fontSize: 11, fontWeight: "bold" }}>
+                <span style={{ fontSize: 10, fontWeight: "bold" }}>
                   {d && d.hanSuDung}
                 </span>
               </div>
@@ -68,7 +68,7 @@ function InMaQr() {
               >
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: 11,
                     whiteSpace: "break-spaces",
                     wordBreak: "break-all",
                     marginBottom: 2,

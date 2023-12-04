@@ -109,7 +109,7 @@ function NhomLoi({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_NhomLoi/${item.id}`;
+    let url = `/api/tits_qtsx_NhomLoi/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })

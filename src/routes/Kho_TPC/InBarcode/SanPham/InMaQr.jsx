@@ -18,7 +18,7 @@ function InMaQr() {
   }, []);
 
   return (
-    <Row justify={"center"} style={{ width: "100%" }}>
+    <Row justify={"center"}>
       {listVatTu &&
         listVatTu.map((d, index) => {
           return (
@@ -26,8 +26,8 @@ function InMaQr() {
               key={index}
               className={"print-page"}
               style={{
-                width: "220px",
-                height: "120px",
+                width: "180px",
+                height: "100px",
                 margin: 10,
                 border: "1px solid #000",
                 borderRadius: 5,
@@ -46,7 +46,7 @@ function InMaQr() {
                   marginLeft: 8,
                 }}
               >
-                <QRCode value={d && d.id} style={{ width: 70, height: 70 }} />
+                <QRCode value={d && d.id} style={{ width: 55, height: 55 }} />
               </div>
               <div
                 style={{
@@ -60,7 +60,7 @@ function InMaQr() {
               >
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: 10,
                     marginBottom: 2,
                   }}
                 >
@@ -68,7 +68,7 @@ function InMaQr() {
                 </span>
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: "bold",
                     textTransform: "uppercase",
                   }}

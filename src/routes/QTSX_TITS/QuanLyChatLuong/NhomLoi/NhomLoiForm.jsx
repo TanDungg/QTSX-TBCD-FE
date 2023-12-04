@@ -9,13 +9,6 @@ import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { getLocalStorage, getTokenInfo } from "src/util/Common";
 
 const FormItem = Form.Item;
-const initialState = {
-  maNhomLoi: "",
-  tenNhomLoi: "",
-  tits_qtsx_CongDoan_Id: "",
-  isSuDung: true,
-  moTa: "",
-};
 
 const NhomLoiForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
@@ -24,8 +17,6 @@ const NhomLoiForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { maNhomLoi, tenNhomLoi, tits_qtsx_CongDoan_Id, isSuDung, moTa } =
-    initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
   const [ListCongDoan, setListCongDoan] = useState([]);
   const ref = useRef(null);
@@ -226,7 +217,6 @@ const NhomLoiForm = ({ history, match, permission }) => {
                 message: "Mã nhóm lỗi không được quá 50 ký tự",
               },
             ]}
-            initialValue={maNhomLoi}
           >
             <Input
               className="input-item"
@@ -247,7 +237,6 @@ const NhomLoiForm = ({ history, match, permission }) => {
                 message: "Tên nhóm lỗi không được quá 250 ký tự",
               },
             ]}
-            initialValue={tenNhomLoi}
           >
             <Input className="input-item" placeholder="Nhập tên nhóm lỗi" />
           </FormItem>
@@ -260,7 +249,6 @@ const NhomLoiForm = ({ history, match, permission }) => {
                 required: true,
               },
             ]}
-            initialValue={tits_qtsx_CongDoan_Id}
           >
             <Select
               className="heading-select slt-search th-select-heading"
@@ -276,7 +264,6 @@ const NhomLoiForm = ({ history, match, permission }) => {
             label="Sử dụng"
             name={["nhomloi", "isSuDung"]}
             valuePropName="checked"
-            initialValue={isSuDung}
           >
             <Checkbox />
           </FormItem>
@@ -292,7 +279,6 @@ const NhomLoiForm = ({ history, match, permission }) => {
                 message: "Ghi chú không được quá 250 ký tự",
               },
             ]}
-            initialValue={moTa}
           >
             <Input className="input-item" placeholder="Nhập ghi chú" />
           </FormItem>

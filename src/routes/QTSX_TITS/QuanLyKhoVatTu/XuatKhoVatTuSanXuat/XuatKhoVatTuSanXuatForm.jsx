@@ -1129,6 +1129,66 @@ const VatTuForm = ({ history, match, permission }) => {
                   style={{ marginBottom: 8 }}
                 >
                   <FormItem
+                    label="Ngày KHSX"
+                    name={["phieuxuatkhovattusanxuattheoOEM", "ngayKHSX"]}
+                    rules={[
+                      {
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <DatePicker
+                      format={"DD/MM/YYYY"}
+                      allowClear={false}
+                      onChange={(date, dateString) => {
+                        getListSanPham(Xuong, dateString);
+                        setNgayKHSX(dateString, "DD/MM/YYYY");
+                        setFieldsValue({
+                          phieuxuatkhovattusanxuattheoOEM: {
+                            tits_qtsx_SanPham_Id: null,
+                            ngayKHSX: moment(dateString, "DD/MM/YYYY"),
+                          },
+                        });
+                      }}
+                      disabled={type === "new" ? false : true}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="Ngày yêu cầu"
+                    name={["phieuxuatkhovattusanxuattheoOEM", "ngayXuatKho"]}
+                    rules={[
+                      {
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <DatePicker
+                      format={"DD/MM/YYYY"}
+                      allowClear={false}
+                      disabled={true}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
                     label="Xưởng nhận"
                     name={[
                       "phieuxuatkhovattusanxuattheoOEM",
@@ -1186,166 +1246,6 @@ const VatTuForm = ({ history, match, permission }) => {
                       disabled={
                         type === "new" || type === "edit" ? false : true
                       }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Ngày yêu cầu"
-                    name={["phieuxuatkhovattusanxuattheoOEM", "ngayXuatKho"]}
-                    rules={[
-                      {
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <DatePicker
-                      format={"DD/MM/YYYY"}
-                      allowClear={false}
-                      disabled={true}
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Nội dung xuất"
-                    name={["phieuxuatkhovattusanxuattheoOEM", "noiDung"]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Input
-                      className="input-item"
-                      placeholder="Nhập nội dung xuất"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="PT Bộ phận"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoOEM",
-                      "nguoiPTBoPhanDuyet_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUserKy}
-                      placeholder="Chọn phụ trách bộ phận"
-                      optionsvalue={["user_Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="NV thống kê"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoOEM",
-                      "nguoiThongKeDuyet_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUserKy}
-                      placeholder="Chọn nhân viên thống kê duyệt"
-                      optionsvalue={["user_Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Ngày KHSX"
-                    name={["phieuxuatkhovattusanxuattheoOEM", "ngayKHSX"]}
-                    rules={[
-                      {
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <DatePicker
-                      format={"DD/MM/YYYY"}
-                      allowClear={false}
-                      onChange={(date, dateString) => {
-                        getListSanPham(Xuong, dateString);
-                        setNgayKHSX(dateString, "DD/MM/YYYY");
-                        setFieldsValue({
-                          phieuxuatkhovattusanxuattheoOEM: {
-                            tits_qtsx_SanPham_Id: null,
-                            ngayKHSX: moment(dateString, "DD/MM/YYYY"),
-                          },
-                        });
-                      }}
-                      disabled={type === "new" ? false : true}
                     />
                   </FormItem>
                 </Col>
@@ -1479,6 +1379,106 @@ const VatTuForm = ({ history, match, permission }) => {
                       className="input-item"
                       placeholder="Số lượng lô xe"
                       disabled={true}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="PT Bộ phận"
+                    name={[
+                      "phieuxuatkhovattusanxuattheoOEM",
+                      "nguoiPTBoPhanDuyet_Id",
+                    ]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUserKy}
+                      placeholder="Chọn phụ trách bộ phận"
+                      optionsvalue={["user_Id", "fullName"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp="name"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="NV thống kê"
+                    name={[
+                      "phieuxuatkhovattusanxuattheoOEM",
+                      "nguoiThongKeDuyet_Id",
+                    ]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUserKy}
+                      placeholder="Chọn nhân viên thống kê duyệt"
+                      optionsvalue={["user_Id", "fullName"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp="name"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="Nội dung xuất"
+                    name={["phieuxuatkhovattusanxuattheoOEM", "noiDung"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Input
+                      className="input-item"
+                      placeholder="Nhập nội dung xuất"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
                     />
                   </FormItem>
                 </Col>
