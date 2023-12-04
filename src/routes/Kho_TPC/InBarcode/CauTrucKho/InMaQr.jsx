@@ -18,7 +18,7 @@ function InMaQr() {
   }, []);
 
   return (
-    <Row justify={"center"} style={{ width: "100%" }}>
+    <Row justify={"center"}>
       {CauTrucKho &&
         CauTrucKho.map((d, index) => {
           return (
@@ -26,8 +26,8 @@ function InMaQr() {
               key={index}
               className={"print-page"}
               style={{
-                width: "48mm",
-                height: "28mm",
+                width: "220px",
+                height: "120px",
                 margin: 10,
                 border: "1px solid #000",
                 borderRadius: 5,
@@ -51,7 +51,7 @@ function InMaQr() {
                 >
                   Vị trí kho:
                 </span> */}
-                <QRCode value={d && d.id} style={{ width: 60, height: 60 }} />
+                <QRCode value={d && d.id} style={{ width: 70, height: 70 }} />
                 {/* <span style={{ fontSize: 11, fontWeight: "bold" }}>
                 <span style={{ fontSize: 10, fontWeight: "bold" }}>
                   Vị trí kho:
@@ -82,15 +82,15 @@ function InMaQr() {
                 </span> */}
                 <span
                   style={{
-                    fontSize: 12,
-                    fontWeight: "bold",
+                    fontSize: 13,
+                    marginBottom: 2,
                   }}
                 >
                   {d && d.tenCauTrucKho}
                 </span>
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: "bold",
                     textTransform: "uppercase",
                   }}
