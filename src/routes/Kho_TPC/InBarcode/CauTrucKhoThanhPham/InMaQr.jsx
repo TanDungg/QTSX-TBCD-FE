@@ -21,14 +21,15 @@ function InMaQr() {
     <Row justify={"center"}>
       {CauTrucKho &&
         CauTrucKho.map((d, index) => {
+          const item = CauTrucKho.length === 1;
           return (
             <Col
               key={index}
               className={"print-page"}
               style={{
-                width: "170px",
-                height: "104px",
-                margin: 10,
+                width: item ? "160px" : "170px",
+                height: item ? "94px" : "104px",
+                margin: 2,
                 border: "1px solid #000",
                 borderRadius: 5,
                 color: "#000",
