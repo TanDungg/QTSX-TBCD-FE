@@ -279,7 +279,6 @@ function NhaCungCapForm({ match, permission, history }) {
               rules={[
                 {
                   type: "string",
-                  required: true,
                 },
               ]}
             >
@@ -291,7 +290,6 @@ function NhaCungCapForm({ match, permission, history }) {
               rules={[
                 {
                   type: "email",
-                  required: true,
                 },
               ]}
             >
@@ -303,7 +301,6 @@ function NhaCungCapForm({ match, permission, history }) {
               rules={[
                 {
                   type: "string",
-                  required: true,
                 },
                 {
                   pattern: /^\d+$/,

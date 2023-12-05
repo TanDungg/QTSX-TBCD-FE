@@ -77,7 +77,7 @@ function BOMXuongForm({ match, permission, history }) {
   const [DataLoi, setDataLoi] = useState();
   // const [HangTrung, setHangTrung] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
-  const [LoXe, setsetLoXe] = useState("");
+  const [LoXe, setLoXe] = useState();
 
   const [info, setInfo] = useState({});
   const [fieldTouch, setFieldTouch] = useState(false);
@@ -248,7 +248,7 @@ function BOMXuongForm({ match, permission, history }) {
       })
       .catch((error) => console.error(error));
   };
-  const getChiTietDmVatTuThep = (val) => {
+  const getChiTietDmVatTuThep = (val, data) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -264,19 +264,48 @@ function BOMXuongForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListChiTiet(
-            res.data.list_ChiTiets.map((ct) => {
-              return {
-                ...ct,
-                chung: ct.quyCach.chung,
-                dai: ct.quyCach.dai,
-                day: ct.quyCach.day,
-                dn: ct.quyCach.dn,
-                dt: ct.quyCach.dt,
-                rong: ct.quyCach.rong,
-              };
-            })
-          );
+          if (!data) {
+            setListChiTiet(
+              res.data.list_ChiTiets.map((ct) => {
+                return {
+                  ...ct,
+                  chung: ct.quyCach.chung,
+                  dai: ct.quyCach.dai,
+                  day: ct.quyCach.day,
+                  dn: ct.quyCach.dn,
+                  dt: ct.quyCach.dt,
+                  rong: ct.quyCach.rong,
+                  dinhMuc: LoXe ? 1 / LoXe : "",
+                  yeuCauGiao: 1,
+                  tits_qtsx_VatTuChiTiet_Id: ct.id,
+                };
+              })
+            );
+          } else {
+            const newData = [];
+            res.data.list_ChiTiets.forEach((ct) => {
+              data.forEach((dt) => {
+                if (
+                  ct.id.toLowerCase() ===
+                  dt.tits_qtsx_VatTuChiTiet_Id.toLowerCase()
+                ) {
+                  newData.push({
+                    ...ct,
+                    chung: ct.quyCach.chung,
+                    dai: ct.quyCach.dai,
+                    day: ct.quyCach.day,
+                    dn: ct.quyCach.dn,
+                    dt: ct.quyCach.dt,
+                    rong: ct.quyCach.rong,
+                    dinhMuc: dt.dinhMuc,
+                    yeuCauGiao: dt.yeuCauGiao,
+                    tits_qtsx_VatTuChiTiet_Id: ct.id,
+                  });
+                }
+              });
+            });
+            setListChiTiet([...newData]);
+          }
         } else {
           setListChiTiet([]);
         }
@@ -315,7 +344,7 @@ function BOMXuongForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_DinhMucVatTuThep/${id}`,
+          `tits_qtsx_BOMXuong/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -329,25 +358,23 @@ function BOMXuongForm({ match, permission, history }) {
         if (res && res.data) {
           setInfo(res.data);
           getUserKy(INFO);
-          setListChiTiet(
-            res.data.list_ChiTiets.map((ct) => {
-              return {
-                ...ct,
-                dai: ct.quyCach.dai,
-                rong: ct.quyCach.rong,
-                day: ct.quyCach.day,
-                dn: ct.quyCach.dn,
-                dt: ct.quyCach.dt,
-                chung: ct.quyCach.chung,
-              };
-            })
-          );
+          getXuong();
+          setLoXe(res.data.soLuongLo);
+          getUserLap(INFO, res.data.createdBy);
+          res.data.tits_qtsx_DinhMucVatTuThep_Id &&
+            getChiTietDmVatTuThep(
+              res.data.tits_qtsx_DinhMucVatTuThep_Id,
+              JSON.parse(res.data.tits_qtsx_BOMXuongChiTiets)
+            );
+          res.data.isThepTam &&
+            getDMVatTuThep(res.data.isThepTam ? "true" : "false");
+
+          res.data.tits_qtsx_Xuong_Id === XUONG_GCCT && setDisableGCCT(true);
           setFieldsValue({
             BOM: {
               ...res.data,
               isThepTam: res.data.isThepTam ? "true" : "false",
               ngay: moment(res.data.ngay, "DD/MM/YYYY"),
-              ngayApDung: moment(res.data.ngayApDung, "DD/MM/YYYY"),
             },
           });
         }
@@ -361,8 +388,8 @@ function BOMXuongForm({ match, permission, history }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "chi tiết";
-    ModalDeleteConfirm(deleteItemAction, item, item.maChiTiet, title);
+    const title = "vật tư";
+    ModalDeleteConfirm(deleteItemAction, item, item.maVatTu, title);
   };
 
   /**
@@ -371,7 +398,7 @@ function BOMXuongForm({ match, permission, history }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = ListSanPham.filter((d) => d.key !== item.key);
+    const newData = ListSanPham.filter((d) => d.id !== item.id);
     setListSanPham(newData);
   };
   /**
@@ -409,27 +436,27 @@ function BOMXuongForm({ match, permission, history }) {
       </div>
     );
   };
-  const renderLoi = (val) => {
-    let check = false;
-    let messageLoi = "";
-    if (DataLoi && DataLoi.length > 0) {
-      DataLoi.forEach((dt) => {
-        if (dt.maVatTuChiTiet === val.maVatTuChiTiet) {
-          check = true;
-          messageLoi = dt.ghiChuImport;
-        }
-      });
-    }
-    return check ? (
-      <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
-        {val.maVatTuChiTiet}
-      </Popover>
-    ) : val.STT === "*" ? (
-      <span style={{ fontWeight: "bold" }}>{val.maVatTuChiTiet}</span>
-    ) : (
-      <span>{val.maVatTuChiTiet}</span>
-    );
-  };
+  // const renderLoi = (val) => {
+  //   let check = false;
+  //   let messageLoi = "";
+  //   if (DataLoi && DataLoi.length > 0) {
+  //     DataLoi.forEach((dt) => {
+  //       if (dt.maVatTuChiTiet === val.maVatTuChiTiet) {
+  //         check = true;
+  //         messageLoi = dt.ghiChuImport;
+  //       }
+  //     });
+  //   }
+  //   return check ? (
+  //     <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
+  //       {val.maVatTuChiTiet}
+  //     </Popover>
+  //   ) : val.STT === "*" ? (
+  //     <span style={{ fontWeight: "bold" }}>{val.maVatTuChiTiet}</span>
+  //   ) : (
+  //     <span>{val.maVatTuChiTiet}</span>
+  //   );
+  // };
   const handleInputChange = (val, item) => {
     const soLuongNhap = val.target.value;
     if (isEmpty(soLuongNhap) || Number(soLuongNhap) <= 0) {
@@ -444,6 +471,7 @@ function BOMXuongForm({ match, permission, history }) {
     const newData = [...ListChiTiet];
     newData.forEach((ct, index) => {
       if (ct.id === item.id) {
+        ct.dinhMuc = LoXe ? soLuongNhap / LoXe : "";
         ct.yeuCauGiao = soLuongNhap;
       }
     });
@@ -993,25 +1021,12 @@ function BOMXuongForm({ match, permission, history }) {
         ...BOM,
         isThepTam: BOM.isThepTam === "true",
         ngay: BOM.ngay.format("DD/MM/YYYY"),
-        ngayApDung: BOM.ngayApDung.format("DD/MM/YYYY"),
-        list_ChiTiets: ListChiTiet.map((ct) => {
-          return {
-            ...ct,
-            quyCach: {
-              dai: ct.dai ? ct.dai : undefined,
-              rong: ct.rong ? ct.rong : undefined,
-              day: ct.day ? ct.day : undefined,
-              dn: ct.dn ? ct.dn : undefined,
-              dt: ct.dt ? ct.dt : undefined,
-              chung: ct.chung ? ct.chung : undefined,
-            },
-          };
-        }),
+        tits_qtsx_BOMXuongChiTiets: ListChiTiet,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_DinhMucVatTuThep`,
+            `tits_qtsx_BOMXuong`,
             "POST",
             newData,
             "ADD",
@@ -1033,12 +1048,9 @@ function BOMXuongForm({ match, permission, history }) {
               setFieldsValue({
                 BOM: {
                   ngay: moment(getDateNow(), "DD/MM/YYYY"),
-                  ngayApDung: moment(getDateNow(), "DD/MM/YYYY"),
                 },
               });
             }
-          } else {
-            setDataLoi(res.data.list_ChiTiets);
           }
         })
         .catch((error) => console.error(error));
@@ -1047,12 +1059,13 @@ function BOMXuongForm({ match, permission, history }) {
         ...info,
         ...BOM,
         ngay: BOM.ngay.format("DD/MM/YYYY"),
-        ngayApDung: BOM.ngayApDung.format("DD/MM/YYYY"),
+        isThepTam: BOM.isThepTam === "true",
+        tits_qtsx_BOMXuongChiTiets: ListChiTiet,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_DinhMucVatTuThep/${id}`,
+            `tits_qtsx_BOMXuong/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -1079,7 +1092,7 @@ function BOMXuongForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_DinhMucVatTuThep/duyet/${id}`,
+          `tits_qtsx_BOMXuong/duyet/${id}`,
           "PUT",
           {
             id: id,
@@ -1104,7 +1117,7 @@ function BOMXuongForm({ match, permission, history }) {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận duyệt phiếu xuất kho",
+    title: "Xác nhận duyệt BOM Xưởng",
     onOk: () => {
       saveDuyetTuChoi(true);
     },
@@ -1116,7 +1129,7 @@ function BOMXuongForm({ match, permission, history }) {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận từ chối phiếu xuất kho",
+    title: "Xác nhận từ chối BOM Xưởng",
     onOk: () => {
       saveDuyetTuChoi(false);
     },
@@ -1153,14 +1166,14 @@ function BOMXuongForm({ match, permission, history }) {
         <Tag
           style={{ fontSize: 14 }}
           color={
-            info && info.trangThai === "Đã duyệt"
+            info && info.tinhTrang === "Đã duyệt bởi PT bộ phận"
               ? "green"
-              : info && info.trangThai === "Chưa duyệt"
+              : info && info.tinhTrang === "Chưa xử lý"
               ? "blue"
               : "red"
           }
         >
-          {info && info.maDinhMucVatTuThep} - {info && info.trangThai}
+          {info && info.maDinhMucVatTuThep} - {info && info.tinhTrang}
         </Tag>
       </span>
     ) : (
@@ -1169,14 +1182,14 @@ function BOMXuongForm({ match, permission, history }) {
         <Tag
           style={{ fontSize: 14 }}
           color={
-            info && info.trangThai === "Đã duyệt"
+            info && info.tinhTrang === "Đã duyệt bởi PT bộ phận"
               ? "green"
-              : info && info.trangThai === "Chưa duyệt"
+              : info && info.tinhTrang === "Chưa duyệt"
               ? "blue"
               : "red"
           }
         >
-          {info && info.maDinhMucVatTuThep} - {info && info.trangThai}
+          {info && info.maDinhMucVatTuThep} - {info && info.tinhTrang}
         </Tag>
       </span>
     );
@@ -1327,7 +1340,7 @@ function BOMXuongForm({ match, permission, history }) {
                 >
                   <FormItem
                     label="Loại thép"
-                    name={["phieuxuatkhovattu", "isThepTam"]}
+                    name={["BOM", "isThepTam"]}
                     rules={[
                       {
                         type: "string",
@@ -1350,6 +1363,12 @@ function BOMXuongForm({ match, permission, history }) {
                       disabled={type !== "new" && type !== "edit"}
                       onSelect={(val) => {
                         getDMVatTuThep(val);
+                        setListChiTiet([]);
+                        setFieldsValue({
+                          BOM: {
+                            tits_qtsx_DinhMucVatTuThep_Id: null,
+                          },
+                        });
                       }}
                     />
                   </FormItem>
@@ -1414,8 +1433,7 @@ function BOMXuongForm({ match, permission, history }) {
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
-                    disabled={type !== "new"}
-                    onSelect={(val) => setSanPham(val)}
+                    disabled={type !== "new" && type !== "edit"}
                   />
                 </FormItem>
               </Col>
@@ -1431,7 +1449,7 @@ function BOMXuongForm({ match, permission, history }) {
                 >
                   <FormItem
                     label="ĐM vật tư thép"
-                    name={["BOM", "nguoiPheDuyet_Id"]}
+                    name={["BOM", "tits_qtsx_DinhMucVatTuThep_Id"]}
                     rules={[
                       {
                         type: "string",
@@ -1471,15 +1489,31 @@ function BOMXuongForm({ match, permission, history }) {
                   name={["BOM", "soLuongLo"]}
                   rules={[
                     {
-                      type: "string",
                       required: true,
+                    },
+                    {
+                      pattern: /^[1-9]\d*$/,
+                      message: "Lô xe không hợp lệ!",
                     },
                   ]}
                 >
                   <Input
                     placeholder="Nhập lô xe"
+                    type="number"
                     disabled={type !== "new" && type !== "edit"}
-                    onChange={(e) => setLoXe(e.target.value)}
+                    onChange={(e) => {
+                      setLoXe(e.target.value);
+                      if (ListChiTiet.length > 0) {
+                        setListChiTiet([
+                          ...ListChiTiet.map((ct) => {
+                            return {
+                              ...ct,
+                              dinhMuc: ct.yeuCauGiao / e.target.value,
+                            };
+                          }),
+                        ]);
+                      }
+                    }}
                   />
                 </FormItem>
               </Col>
@@ -1494,7 +1528,7 @@ function BOMXuongForm({ match, permission, history }) {
               >
                 <FormItem
                   label="PT bộ phận"
-                  name={["BOM", "nguoiKiemTra_Id"]}
+                  name={["BOM", "nguoiPTBoPhan_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -1617,7 +1651,7 @@ function BOMXuongForm({ match, permission, history }) {
           disabled={fieldTouch}
         />
       ) : null}
-      {type === "xacnhan" && info && info.trangThai === "Chưa duyệt" && (
+      {type === "xacnhan" && info && info.tinhTrang === "Chưa xử lý" && (
         <>
           <Divider />
           <Row>

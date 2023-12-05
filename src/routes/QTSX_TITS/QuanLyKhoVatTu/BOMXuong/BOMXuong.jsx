@@ -121,10 +121,10 @@ function BOMXuong({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const confirmItem =
-      permission && permission.cof && item.tinhTrang === "Chưa duyệt" ? (
+      permission && permission.cof && item.tinhTrang === "Chưa xử lý" ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.tits_qtsx_BOMXuong_Id}/xac-nhan`,
+            pathname: `${match.url}/${item.id}/xac-nhan`,
             state: { itemData: item, permission },
           }}
           title="Xác nhận"
@@ -137,10 +137,10 @@ function BOMXuong({ match, history, permission }) {
         </span>
       );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa duyệt" ? (
+      permission && permission.edit && item.tinhTrang === "Chưa xử lý" ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.tits_qtsx_BOMXuong_Id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
           title="Sửa định mức vật tư thép"
@@ -153,8 +153,8 @@ function BOMXuong({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa duyệt"
-        ? { onClick: () => deleteItemFunc(item, "BOM") }
+      permission && permission.del && item.tinhTrang === "Chưa xử lý"
+        ? { onClick: () => deleteItemFunc(item, "BOM Xưởng") }
         : { disabled: true };
     return (
       <div>
@@ -185,7 +185,7 @@ function BOMXuong({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_BOMXuong/${item.tits_qtsx_BOMXuong_Id}`;
+    let url = `tits_qtsx_BOMXuong/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -304,18 +304,18 @@ function BOMXuong({ match, history, permission }) {
     },
     {
       title: "Người lập phiếu",
-      dataIndex: "ngayApDung",
-      key: "ngayApDung",
+      dataIndex: "tenNguoiTao",
+      key: "tenNguoiTao",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayApDung,
-            value: d.ngayApDung,
+            text: d.tenNguoiTao,
+            value: d.tenNguoiTao,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayApDung.includes(value),
+      onFilter: (value, record) => record.tenNguoiTao.includes(value),
       filterSearch: true,
     },
     {
@@ -344,9 +344,9 @@ function BOMXuong({ match, history, permission }) {
         return (
           <Tag
             color={
-              val === "Đã duyệt"
+              val === "Đã được duyệt bởi PT bộ phận"
                 ? "green"
-                : val === "Chưa duyệt"
+                : val === "Chưa xử lý"
                 ? "blue"
                 : "red"
             }

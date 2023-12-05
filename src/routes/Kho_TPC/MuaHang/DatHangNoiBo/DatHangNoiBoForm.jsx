@@ -286,6 +286,13 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       }).then((res) => {
         if (res && res.data) {
           res.data.diaChi = res.data.diaChi ? res.data.diaChi : "";
+          res.data.nguoiLienHe = res.data.nguoiLienHe
+            ? res.data.nguoiLienHe
+            : "";
+          res.data.soDienThoai = res.data.soDienThoai
+            ? res.data.soDienThoai
+            : "";
+
           setListNhaCungCap([res.data]);
         } else {
           setListNhaCungCap([]);
@@ -311,6 +318,8 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
               return {
                 ...ct,
                 diaChi: ct.diaChi ? ct.diaChi : "",
+                nguoiLienHe: ct.nguoiLienHe ? ct.nguoiLienHe : "",
+                soDienThoai: ct.soDienThoai ? ct.soDienThoai : "",
               };
             })
           );
