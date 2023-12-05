@@ -1,14 +1,32 @@
 import React, { useState, useEffect } from "react";
-import { Button, Card, Form, Image, Spin, Upload } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Row,
+  Spin,
+  Switch,
+  Input,
+  Divider,
+  Image,
+  Empty,
+} from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
-import { Input, Select, FormSubmit } from "src/components/Common";
+import { FormSubmit, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import { getLocalStorage, getTokenInfo, renderPDF } from "src/util/Common";
+import {
+  BASE_URL_API,
+  DEFAULT_FORM_XUATKHONGOAIQUAN,
+} from "src/constants/Config";
+import {
+  convertObjectToUrlParams,
+  getLocalStorage,
+  getTokenInfo,
+} from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import Helpers from "src/helpers";
-import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 
 const FormItem = Form.Item;
 
@@ -22,21 +40,17 @@ function HangMucSuDungForm({ match, permission, history }) {
     token: getTokenInfo().token,
   };
   const { loading } = useSelector(({ common }) => common).toJS();
+  const [fieldTouch, setFieldTouch] = useState(false);
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
+  const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
+  const [LoaiSanPham, setLoaiSanPham] = useState(null);
   const [ListSanPham, setListSanPham] = useState([]);
+  const [SanPham, setSanPham] = useState(null);
   const [ListCongDoan, setListCongDoan] = useState([]);
-  const [ListChiTiet, setListChiTiet] = useState([]);
-  const [ListDonViTinh, setListDonViTinh] = useState([]);
-  const [FileDinhKem, setFileDinhKem] = useState(null);
-  const [DisableUploadFileDinhKem, setDisableUploadFileDinhKem] =
-    useState(false);
-  const [FileHinhAnh, setFileHinhAnh] = useState(null);
-  const [FileAnh, setFileAnh] = useState(null);
-  const [DisableUpload, setDisableUpload] = useState(false);
-  const [OpenImage, setOpenImage] = useState(false);
+  const [CongDoan, setCongDoan] = useState(null);
+  const [ListHinhAnh, setListHinhAnh] = useState([]);
   const [info, setInfo] = useState(null);
-  const [fieldTouch, setFieldTouch] = useState(false);
 
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
@@ -44,10 +58,7 @@ function HangMucSuDungForm({ match, permission, history }) {
         history.push("/home");
       } else {
         setType("new");
-        getDonViTinh();
-        getCongDoan();
-        getChiTiet();
-        getSanPham();
+        getLoaiSanPham();
       }
     } else {
       if (permission && !permission.edit) {
@@ -57,10 +68,6 @@ function HangMucSuDungForm({ match, permission, history }) {
           setType("edit");
           setId(match.params.id);
           getInfo(match.params.id);
-          getSanPham();
-          getCongDoan();
-          getChiTiet();
-          getDonViTinh();
         }
       }
     }
@@ -70,11 +77,39 @@ function HangMucSuDungForm({ match, permission, history }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getSanPham = () => {
+  const getLoaiSanPham = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          "tits_qtsx_SanPham?page=-1",
+          `tits_qtsx_LoaiSanPham?page=-1`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiSanPham(res.data);
+        } else {
+          setListLoaiSanPham([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getSanPham = (tits_qtsx_LoaiSanPham_Id) => {
+    let param = convertObjectToUrlParams({
+      tits_qtsx_LoaiSanPham_Id,
+      page: -1,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_SanPham?${param}`,
           "GET",
           null,
           "LIST",
@@ -94,11 +129,11 @@ function HangMucSuDungForm({ match, permission, history }) {
       .catch((error) => console.error(error));
   };
 
-  const getCongDoan = () => {
+  const getCongDoan = (value) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_CongDoan?donVi_Id=${INFO.donVi_Id}&page=-1`,
+          `tits_qtsx_SanPhamHinhAnh?tits_qtsx_SanPham_Id=${value}`,
           "GET",
           null,
           "LIST",
@@ -113,54 +148,6 @@ function HangMucSuDungForm({ match, permission, history }) {
           setListCongDoan(res.data);
         } else {
           setListCongDoan([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getChiTiet = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_ChiTiet?page=-1`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListChiTiet(res.data);
-        } else {
-          setListChiTiet([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getDonViTinh = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `DonViTinh?donVi_Id=${INFO.donVi_Id}&page=-1`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListDonViTinh(res.data);
-        } else {
-          setListDonViTinh([]);
         }
       })
       .catch((error) => console.error(error));
@@ -189,18 +176,10 @@ function HangMucSuDungForm({ match, permission, history }) {
         if (res && res.data) {
           setInfo(res.data);
           setFieldsValue({
-            danhsachchitiet: {
+            hangmuckiemtra: {
               ...res.data,
             },
           });
-          if (res.data.hinhAnh) {
-            setFileHinhAnh(res.data.hinhAnh);
-            setDisableUpload(true);
-          }
-          if (res.data.fileDinhKem) {
-            setFileDinhKem(res.data.fileDinhKem);
-            setDisableUploadFileDinhKem(true);
-          }
         }
       })
       .catch((error) => console.error(error));
@@ -212,7 +191,7 @@ function HangMucSuDungForm({ match, permission, history }) {
    * @param {*} values
    */
   const onFinish = (values) => {
-    uploadFile(values.danhsachchitiet);
+    saveData(values.hangmuckiemtra);
   };
 
   /**
@@ -222,134 +201,21 @@ function HangMucSuDungForm({ match, permission, history }) {
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        uploadFile(values.danhsachchitiet, true);
+        saveData(values.hangmuckiemtra, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const uploadFile = (danhsachchitiet, saveQuit) => {
-    if (type === "new") {
-      if (danhsachchitiet.hinhAnh && danhsachchitiet.fileDinhKem) {
-        const formData = new FormData();
-        formData.append("lstFiles", danhsachchitiet.hinhAnh.file);
-        formData.append("lstFiles", danhsachchitiet.fileDinhKem.file);
-        fetch(`${BASE_URL_API}/api/Upload/Multi`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(INFO.token),
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            danhsachchitiet.hinhAnh = data[0].path;
-            danhsachchitiet.fileDinhKem = data[1].path;
-            saveData(danhsachchitiet, saveQuit);
-          })
-          .catch(() => {
-            console.log("upload failed.");
-          });
-      } else if (danhsachchitiet.hinhAnh || danhsachchitiet.fileDinhKem) {
-        const formData = new FormData();
-        danhsachchitiet.hinhAnh &&
-          formData.append("lstFiles", danhsachchitiet.hinhAnh.file);
-        danhsachchitiet.fileDinhKem &&
-          formData.append("lstFiles", danhsachchitiet.fileDinhKem.file);
-
-        fetch(`${BASE_URL_API}/api/Upload/Multi`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(INFO.token),
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (danhsachchitiet.hinhAnh) {
-              danhsachchitiet.hinhAnh = data[0].path;
-            } else {
-              danhsachchitiet.fileDinhKem = data[0].path;
-            }
-            saveData(danhsachchitiet, saveQuit);
-          })
-          .catch(() => {
-            console.log("upload failed.");
-          });
-      } else {
-        saveData(danhsachchitiet, saveQuit);
-      }
-    } else {
-      if (
-        danhsachchitiet.hinhAnh &&
-        danhsachchitiet.hinhAnh.file &&
-        danhsachchitiet.fileDinhKem &&
-        danhsachchitiet.fileDinhKem.file
-      ) {
-        const formData = new FormData();
-        formData.append("lstFiles", danhsachchitiet.hinhAnh.file);
-        formData.append("lstFiles", danhsachchitiet.fileDinhKem.file);
-
-        fetch(`${BASE_URL_API}/api/Upload/Multi`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(INFO.token),
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            danhsachchitiet.hinhAnh = data[0].path;
-            danhsachchitiet.fileDinhKem = data[1].path;
-            saveData(danhsachchitiet, saveQuit);
-          })
-          .catch(() => {
-            console.log("upload failed.");
-          });
-      } else if (
-        (danhsachchitiet.hinhAnh && danhsachchitiet.hinhAnh.file) ||
-        (danhsachchitiet.fileDinhKem && danhsachchitiet.fileDinhKem.file)
-      ) {
-        const formData = new FormData();
-        danhsachchitiet.hinhAnh.file &&
-          formData.append("lstFiles", danhsachchitiet.hinhAnh.file);
-        danhsachchitiet.fileDinhKem.file &&
-          formData.append("lstFiles", danhsachchitiet.fileDinhKem.file);
-
-        fetch(`${BASE_URL_API}/api/Upload/Multi`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(INFO.token),
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            if (danhsachchitiet.hinhAnh.file) {
-              danhsachchitiet.hinhAnh = data[0].path;
-            } else {
-              danhsachchitiet.fileDinhKem = data[0].path;
-            }
-            saveData(danhsachchitiet, saveQuit);
-          })
-          .catch(() => {
-            console.log("upload failed.");
-          });
-      } else {
-        saveData(danhsachchitiet, saveQuit);
-      }
-    }
-  };
-
-  const saveData = (danhsachchitiet, saveQuit = false) => {
+  const saveData = (hangmuckiemtra, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
             `tits_qtsx_ChiTiet`,
             "POST",
-            danhsachchitiet,
+            hangmuckiemtra,
             "ADD",
             "",
             resolve,
@@ -363,25 +229,20 @@ function HangMucSuDungForm({ match, permission, history }) {
               goBack();
             } else {
               resetFields();
-              setFileHinhAnh(null);
-              setFileDinhKem(null);
-              setFileAnh(null);
               setFieldTouch(false);
-              setDisableUpload(false);
-              setDisableUploadFileDinhKem(false);
             }
           }
         })
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      danhsachchitiet.id = id;
+      hangmuckiemtra.id = id;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
             `tits_qtsx_ChiTiet/${id}`,
             "PUT",
-            danhsachchitiet,
+            hangmuckiemtra,
             "EDIT",
             "",
             resolve,
@@ -416,347 +277,498 @@ function HangMucSuDungForm({ match, permission, history }) {
     );
   };
 
-  const propshinhanh = {
-    accept: "image/png, image/jpeg",
-    beforeUpload: (file) => {
-      const isPNG = file.type === "image/png" || file.type === "image/jpeg";
-      if (!isPNG) {
-        Helpers.alertError(`${file.name} không phải hình ảnh`);
-      } else {
-        setFileHinhAnh(file);
-        setDisableUpload(true);
-        const reader = new FileReader();
-        reader.onload = (e) => setFileAnh(e.target.result);
-        reader.readAsDataURL(file);
-        return false;
-      }
-    },
-    showUploadList: false,
-    maxCount: 1,
+  const handleOnSelectLoaiSanPham = (value) => {
+    setLoaiSanPham(value);
+    setSanPham(null);
+    getSanPham(value);
   };
 
-  const propsfiledinhkem = {
-    beforeUpload: (file) => {
-      const isFile = file.type === "application/pdf";
-      if (!isFile) {
-        Helpers.alertError(`${file.name} không phải là file pdf`);
-      } else {
-        setFileDinhKem(file);
-        setDisableUploadFileDinhKem(true);
-        return false;
-      }
-    },
-    showUploadList: false,
-    maxCount: 1,
+  const handleOnSelectSanPham = (value) => {
+    setSanPham(value);
+    setCongDoan(null);
+    getCongDoan(value);
   };
 
-  const handleViewFile = (file) => {
-    if (file.type === "application/pdf") {
-      renderPDF(file);
-    } else {
-      setOpenImage(true);
-    }
+  const handleOnSelectCongDoan = (value) => {
+    setCongDoan(value);
+    const newListHinhAnh = ListCongDoan.filter(
+      (congdoan) => congdoan.tits_qtsx_CongDoan_Id === value
+    );
+    console.log(newListHinhAnh);
+    const hinhanh =
+      newListHinhAnh[0].list_KhuVucs &&
+      JSON.parse(newListHinhAnh[0].list_KhuVucs);
+    setListHinhAnh(hinhanh);
   };
 
-  const formTitle = type === "new" ? "Thêm mới chi tiết" : "Chỉnh sửa chi tiết";
+  const formTitle =
+    type === "new"
+      ? "Thêm mới hạng mục kiểm tra"
+      : "Chỉnh sửa hạng mục kiểm tra";
 
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
       <Card className="th-card-margin-bottom">
+        <div>
+          <h3 style={{ fontWeight: "bold" }}>
+            Hạng mục kiểm tra được áp dụng với:
+          </h3>
+        </div>
+        <Row>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={20}
+            xs={24}
+            style={{
+              marginBottom: 8,
+            }}
+          >
+            <h5>Loại sản phẩm:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListLoaiSanPham ? ListLoaiSanPham : []}
+              placeholder="Chọn loại sản phẩm"
+              optionsvalue={["id", "tenLoaiSanPham"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+              onSelect={handleOnSelectLoaiSanPham}
+              value={LoaiSanPham}
+            />
+          </Col>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={20}
+            xs={24}
+            style={{
+              marginBottom: 8,
+            }}
+          >
+            <h5>Sản phẩm:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListSanPham ? ListSanPham : []}
+              placeholder="Chọn sản phẩm"
+              optionsvalue={["id", "tenSanPham"]}
+              style={{ width: "100%" }}
+              showSearch
+              onSelect={handleOnSelectSanPham}
+              optionFilterProp="name"
+              value={SanPham}
+              disabled={LoaiSanPham === null ? true : false}
+            />
+          </Col>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={20}
+            xs={24}
+            style={{
+              marginBottom: 8,
+            }}
+          >
+            <h5>Công đoạn:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListCongDoan ? ListCongDoan : []}
+              placeholder="Chọn công đoạn"
+              optionsvalue={["tits_qtsx_CongDoan_Id", "tenCongDoan"]}
+              style={{ width: "100%" }}
+              showSearch
+              onSelect={handleOnSelectCongDoan}
+              optionFilterProp="name"
+              value={CongDoan}
+              disabled={SanPham === null ? true : false}
+            />
+          </Col>
+        </Row>
+      </Card>
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin chung"}
+        headStyle={{
+          textAlign: "center",
+          backgroundColor: "#0469B9",
+          color: "#fff",
+        }}
+      >
         <Spin spinning={loading}>
           <Form
-            {...DEFAULT_FORM_CUSTOM}
+            {...DEFAULT_FORM_XUATKHONGOAIQUAN}
             form={form}
             name="nguoi-dung-control"
             onFinish={onFinish}
             onFieldsChange={() => setFieldTouch(true)}
           >
-            <FormItem
-              label="Mã chi tiết"
-              name={["danhsachchitiet", "maChiTiet"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-                {
-                  max: 250,
-                },
-              ]}
-            >
-              <Input className="input-item" placeholder="Nhập mã chi tiết" />
-            </FormItem>
-            <FormItem
-              label="Tên chi tiết"
-              name={["danhsachchitiet", "tenChiTiet"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-                {
-                  max: 250,
-                },
-              ]}
-            >
-              <Input className="input-item" placeholder="Nhập tên chi tiết" />
-            </FormItem>
-            <FormItem
-              label="Sản phẩm"
-              name={["danhsachchitiet", "tits_qtsx_SanPham_Id"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-              ]}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListSanPham ? ListSanPham : []}
-                placeholder="Chọn sản phẩm"
-                optionsvalue={["id", "tenSanPham"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp="name"
-              />
-            </FormItem>
-            <FormItem
-              label="Đơn vị tính"
-              name={["danhsachchitiet", "donViTinh_Id"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListDonViTinh ? ListDonViTinh : []}
-                placeholder="Chọn đơn vị tính"
-                optionsvalue={["id", "tenDonViTinh"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp="name"
-              />
-            </FormItem>
-            <FormItem
-              label="Công đoạn"
-              name={["danhsachchitiet", "tits_qtsx_CongDoan_Id"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListCongDoan ? ListCongDoan : []}
-                placeholder="Chọn công đoạn"
-                optionsvalue={["id", "tenCongDoan"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp="name"
-              />
-            </FormItem>
-            <FormItem
-              label="Thông số kỹ thuật"
-              name={["danhsachchitiet", "thongSoKyThuat"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-            >
-              <Input
-                className="input-item"
-                placeholder="Nhập thông số kỹ thuật"
-              />
-            </FormItem>
-            <FormItem
-              label="Chi tiết"
-              name={["danhsachchitiet", "tits_qtsx_ChiTiet_Id"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListChiTiet ? ListChiTiet : []}
-                placeholder="Chọn chi tiết cha"
-                optionsvalue={["id", "tenChiTiet"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp="name"
-              />
-            </FormItem>
-            <FormItem
-              label="Hình ảnh"
-              name={["danhsachchitiet", "hinhAnh"]}
-              rules={[
-                {
-                  type: "file",
-                },
-              ]}
-            >
-              {!DisableUpload ? (
-                <Upload {...propshinhanh}>
-                  <Button
-                    style={{
-                      marginBottom: 0,
-                    }}
-                    icon={<UploadOutlined />}
-                    disabled={type === "detail" ? true : false}
-                  >
-                    Tải file hình ảnh
-                  </Button>
-                </Upload>
-              ) : FileHinhAnh && FileHinhAnh.name ? (
-                <span>
-                  <span
-                    style={{ color: "#0469B9", cursor: "pointer" }}
-                    onClick={() => handleViewFile(FileHinhAnh)}
-                  >
-                    {FileHinhAnh.name.length > 30
-                      ? FileHinhAnh.name.substring(0, 30) + "..."
-                      : FileHinhAnh.name}{" "}
-                  </span>
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    disabled={type === "new" || type === "edit" ? false : true}
-                    onClick={() => {
-                      setFileHinhAnh(null);
-                      setDisableUpload(false);
-                      setFieldsValue({
-                        danhsachchitiet: {
-                          hinhAnh: null,
-                        },
-                      });
-                    }}
+            <Row>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Tên hạng mục kiểm tra"
+                  name={["hangmuckiemtra", "tenHangMucKiemTra"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                    {
+                      max: 250,
+                    },
+                  ]}
+                >
+                  <Input
+                    className="input-item"
+                    placeholder="Nhập tên hạng mục kiểm tra"
                   />
-                  <Image
-                    width={100}
-                    src={FileAnh}
-                    alt="preview"
-                    style={{
-                      display: "none",
-                    }}
-                    preview={{
-                      visible: OpenImage,
-                      scaleStep: 0.5,
-                      src: FileAnh,
-                      onVisibleChange: (value) => {
-                        setOpenImage(value);
-                      },
-                    }}
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Kiểu đánh giá"
+                  name={["hangmuckiemtra", "isNoiDung"]}
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={[
+                      { key: "1", title: "Nội dung" },
+                      { key: "0", title: "Thông số" },
+                    ]}
+                    placeholder="Chọn kiểu đánh giá"
+                    optionsvalue={["key", "title"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    optionFilterProp="name"
                   />
-                </span>
-              ) : (
-                <span>
-                  <a
-                    target="_blank"
-                    href={BASE_URL_API + FileHinhAnh}
-                    rel="noopener noreferrer"
-                  >
-                    {FileHinhAnh && FileHinhAnh.split("/")[5]}{" "}
-                  </a>
-                  {(type === "new" || type === "edit") && (
-                    <DeleteOutlined
-                      style={{ cursor: "pointer", color: "red" }}
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                      onClick={() => {
-                        setFileHinhAnh(null);
-                        setDisableUpload(false);
-                        setFieldsValue({
-                          danhsachchitiet: {
-                            hinhAnh: null,
-                          },
-                        });
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Ghi chú"
+                  name={["hangmuckiemtra", "moTa"]}
+                  rules={[
+                    {
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Input className="input-item" placeholder="Nhập ghi chú" />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Sử dụng hình ảnh chi tiết"
+                  name={["hangmuckiemtra", "isSuDungHinhAnh"]}
+                  valuePropName="checked"
+                >
+                  <Switch />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Sử dụng"
+                  name={["hangmuckiemtra", "isSuDung"]}
+                  valuePropName="checked"
+                >
+                  <Switch />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="File kết quả"
+                  name={["hangmuckiemtra", "isFile"]}
+                  valuePropName="checked"
+                >
+                  <Switch />
+                </FormItem>
+              </Col>
+              <Col lg={12} xs={24} style={{ marginBottom: 8 }}>
+                <h5 style={{ fontWeight: "bold" }}>
+                  Hình ảnh trong công đoạn:
+                </h5>
+                <Card
+                  className="th-card-margin-bottom th-card-reset-margin"
+                  style={{
+                    width: "730px",
+                    height: "400px",
+                    display: "start",
+                    justifyContent: "space-around",
+                    overflowY: "relative",
+                    alignItems: "center",
+                    borderColor: "#c8c8c8",
+                    borderRadius: 15,
+                  }}
+                >
+                  {ListHinhAnh.length > 0 ? (
+                    <div
+                      style={{
+                        overflowY: "auto",
+                        maxHeight: "350px",
                       }}
-                    />
+                    >
+                      {ListHinhAnh.map((khuvuc) => {
+                        return (
+                          <div
+                            style={{
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexDirection: "column",
+                              marginBottom: 10,
+                              maxWidth: "420px",
+                              overflowWrap: "break-word",
+                            }}
+                          >
+                            <span style={{ fontWeight: "bold", fontSize: 15 }}>
+                              {khuvuc.tenKhuVuc}
+                            </span>
+                            <br />
+                            <span style={{}}>Mô tả: {khuvuc.moTa}</span>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                flexWrap: "wrap",
+                                marginTop: "10px",
+                              }}
+                            >
+                              {khuvuc.list_HinhAnhs &&
+                                khuvuc.list_HinhAnhs.map((hinhanh) => {
+                                  return (
+                                    <div
+                                      style={{
+                                        position: "relative",
+                                        display: "inline-block",
+                                        borderRadius: 15,
+                                        marginRight: 10,
+                                        marginBottom: 10,
+                                      }}
+                                    >
+                                      <Image
+                                        width={130}
+                                        height={130}
+                                        style={{
+                                          borderRadius: 15,
+                                          border: "1px solid #c8c8c8",
+                                          padding: 10,
+                                        }}
+                                        src={BASE_URL_API + hinhanh.hinhAnh}
+                                      />
+                                      <Button
+                                        title="Xóa hình ảnh"
+                                        style={{
+                                          width: 25,
+                                          height: 30,
+                                          position: "absolute",
+                                          top: -5,
+                                          right: -5,
+                                          cursor: "pointer",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          color: "red",
+                                          backgroundColor: "#fff",
+                                          borderColor: "#c8c8c8",
+                                          borderRadius: 15,
+                                          transition:
+                                            "background-color 0.3s ease",
+                                        }}
+                                        // onClick={() =>
+                                        //   handleDeleteClick({
+                                        //     id: hinhanh.tits_qtsx_SanPhamHinhAnh_Id,
+                                        //     tenKhuVuc: khuvuc.tenKhuVuc,
+                                        //   })
+                                        // }
+                                      >
+                                        <DeleteOutlined
+                                          style={{ fontSize: 15 }}
+                                        />
+                                      </Button>
+                                    </div>
+                                  );
+                                })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <Empty />
                   )}
-                </span>
-              )}
-            </FormItem>
-            <FormItem
-              label="File đính kèm"
-              name={["danhsachchitiet", "fileDinhKem"]}
-              rules={[
-                {
-                  type: "file",
-                },
-              ]}
-            >
-              {!DisableUploadFileDinhKem ? (
-                <Upload {...propsfiledinhkem}>
-                  <Button
-                    style={{
-                      marginBottom: 0,
-                    }}
-                    icon={<UploadOutlined />}
-                    disabled={type === "detail" ? true : false}
-                  >
-                    Tải file đính kèm
-                  </Button>
-                </Upload>
-              ) : FileDinhKem && FileDinhKem.name ? (
-                <span>
-                  <span
-                    style={{ color: "#0469B9", cursor: "pointer" }}
-                    onClick={() => handleViewFile(FileDinhKem)}
-                  >
-                    {FileDinhKem.name.length > 40
-                      ? FileDinhKem.name.substring(0, 40) + "..."
-                      : FileDinhKem.name}{" "}
-                  </span>
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    disabled={type === "new" || type === "edit" ? false : true}
-                    onClick={() => {
-                      setFileDinhKem(null);
-                      setDisableUpload(false);
-                      setFieldsValue({
-                        danhsachchitiet: {
-                          fileDinhKem: null,
-                        },
-                      });
-                    }}
-                  />
-                </span>
-              ) : (
-                <span>
-                  <a
-                    target="_blank"
-                    href={BASE_URL_API + FileDinhKem}
-                    rel="noopener noreferrer"
-                  >
-                    {FileDinhKem && FileDinhKem.split("/")[5]}{" "}
-                  </a>
-                  {(type === "new" || type === "edit") && (
-                    <DeleteOutlined
-                      style={{ cursor: "pointer", color: "red" }}
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                      onClick={() => {
-                        setFileDinhKem(null);
-                        setDisableUpload(false);
-                        setFieldsValue({
-                          danhsachchitiet: {
-                            fileDinhKem: null,
-                          },
-                        });
+                </Card>
+              </Col>
+              <Col lg={12} xs={24} style={{ marginBottom: 8 }}>
+                <h5 style={{ fontWeight: "bold" }}>Hình ảnh đã chọn:</h5>
+                <Card
+                  className="th-card-margin-bottom th-card-reset-margin"
+                  style={{
+                    width: "730px",
+                    height: "400px",
+                    display: "start",
+                    justifyContent: "space-around",
+                    overflowY: "relative",
+                    alignItems: "center",
+                    borderColor: "#c8c8c8",
+                    borderRadius: 15,
+                  }}
+                >
+                  {ListHinhAnh.length > 0 ? (
+                    <div
+                      style={{
+                        overflowY: "auto",
+                        maxHeight: "350px",
                       }}
-                    />
+                    >
+                      {ListHinhAnh.map((khuvuc) => {
+                        return (
+                          <div
+                            style={{
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexDirection: "column",
+                              marginBottom: 10,
+                              maxWidth: "420px",
+                              overflowWrap: "break-word",
+                            }}
+                          >
+                            <span style={{ fontWeight: "bold", fontSize: 15 }}>
+                              {khuvuc.tenKhuVuc}
+                            </span>
+                            <br />
+                            <span style={{}}>Mô tả: {khuvuc.moTa}</span>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                flexWrap: "wrap",
+                                marginTop: "10px",
+                              }}
+                            >
+                              {khuvuc.list_HinhAnhs &&
+                                khuvuc.list_HinhAnhs.map((hinhanh) => {
+                                  return (
+                                    <div
+                                      style={{
+                                        position: "relative",
+                                        display: "inline-block",
+                                        borderRadius: 15,
+                                        marginRight: 10,
+                                        marginBottom: 10,
+                                      }}
+                                    >
+                                      <Image
+                                        width={130}
+                                        height={130}
+                                        style={{
+                                          borderRadius: 15,
+                                          border: "1px solid #c8c8c8",
+                                          padding: 10,
+                                        }}
+                                        src={BASE_URL_API + hinhanh.hinhAnh}
+                                      />
+                                      <Button
+                                        title="Xóa hình ảnh"
+                                        style={{
+                                          width: 25,
+                                          height: 30,
+                                          position: "absolute",
+                                          top: -5,
+                                          right: -5,
+                                          cursor: "pointer",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          color: "red",
+                                          backgroundColor: "#fff",
+                                          borderColor: "#c8c8c8",
+                                          borderRadius: 15,
+                                          transition:
+                                            "background-color 0.3s ease",
+                                        }}
+                                        // onClick={() =>
+                                        //   handleDeleteClick({
+                                        //     id: hinhanh.tits_qtsx_SanPhamHinhAnh_Id,
+                                        //     tenKhuVuc: khuvuc.tenKhuVuc,
+                                        //   })
+                                        // }
+                                      >
+                                        <DeleteOutlined
+                                          style={{ fontSize: 15 }}
+                                        />
+                                      </Button>
+                                    </div>
+                                  );
+                                })}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <Empty />
                   )}
-                </span>
-              )}
-            </FormItem>
+                </Card>
+              </Col>
+            </Row>
             <FormSubmit
               goBack={goBack}
               saveAndClose={saveAndClose}

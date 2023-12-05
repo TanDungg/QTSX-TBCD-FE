@@ -41,11 +41,11 @@ function HangMucSuDung({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
   const [DisabledModal, setDisabledModal] = useState(false);
   const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
-  const [LoaiSanPham, setLoaiSanPham] = useState([]);
+  const [LoaiSanPham, setLoaiSanPham] = useState(null);
   const [ListSanPham, setListSanPham] = useState([]);
-  const [SanPham, setSanPham] = useState([]);
+  const [SanPham, setSanPham] = useState(null);
   const [ListCongDoan, setListCongDoan] = useState([]);
-  const [CongDoan, setCongDoan] = useState([]);
+  const [CongDoan, setCongDoan] = useState(null);
   const [DataChiTiet, setDataChiTiet] = useState([]);
   const [ChiTiet, setChiTiet] = useState([]);
 
@@ -285,7 +285,7 @@ function HangMucSuDung({ match, history, permission }) {
           onClick={handleRedirect}
           disabled={permission && !permission.add}
         >
-          Tạo mới
+          Thêm mới
         </Button>
       </>
     );
@@ -567,9 +567,21 @@ function HangMucSuDung({ match, history, permission }) {
     getListData(null, null, null, keyword, 1);
   };
 
+  const handleOnSelectSanPham = (value) => {
+    setSanPham(value);
+    // getSanPham(value);
+    getListData(value, null, null, keyword, 1);
+  };
+
+  const handleClearSanPham = (value) => {
+    setSanPham(null);
+    // getSanPham();
+    getListData(null, null, null, keyword, 1);
+  };
+
   const title = (
     <span>
-      Danh sách chi tiết của{" "}
+      Hạng mục kiểm tra của{" "}
       <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
         {ChiTiet && ChiTiet.tenChiTiet}
       </Tag>
@@ -579,8 +591,8 @@ function HangMucSuDung({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Danh sách chi tiết"
-        description="Danh sách chi tiết"
+        title="Hạng mục kiểm tra"
+        description="Hạng mục kiểm tra"
         buttons={addButtonRender()}
       />
 
@@ -627,12 +639,14 @@ function HangMucSuDung({ match, history, permission }) {
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListSanPham ? ListSanPham : []}
-              placeholder="Chọn loại sản phẩm"
+              placeholder="Chọn sản phẩm"
               optionsvalue={["id", "tenSanPham"]}
               style={{ width: "100%" }}
               showSearch
-              // onSelect={handleOnSelectSanPham}
               optionFilterProp="name"
+              onSelect={handleOnSelectSanPham}
+              allowClear
+              onClear={handleClearSanPham}
               value={SanPham}
             />
           </Col>
@@ -651,7 +665,7 @@ function HangMucSuDung({ match, history, permission }) {
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListCongDoan ? ListCongDoan : []}
-              placeholder="Chọn loại sản phẩm"
+              placeholder="Chọn công đoạn"
               optionsvalue={["id", "tenCongDoan"]}
               style={{ width: "100%" }}
               showSearch
