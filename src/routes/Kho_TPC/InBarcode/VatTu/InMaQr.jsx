@@ -26,8 +26,8 @@ function InMaQr() {
               key={index}
               className={"print-page"}
               style={{
-                width: "180px",
-                height: "100px",
+                width: "170px",
+                height: "104px",
                 margin: 10,
                 border: "1px solid #000",
                 borderRadius: 5,

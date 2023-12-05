@@ -26,8 +26,8 @@ function InMaQr() {
               key={index}
               className={"print-page"}
               style={{
-                width: "180px",
-                height: "100px",
+                width: "170px",
+                height: "104px",
                 margin: 10,
                 border: "1px solid #000",
                 borderRadius: 5,
@@ -60,7 +60,7 @@ function InMaQr() {
               >
                 <span
                   style={{
-                    fontSize: 10,
+                    fontSize: 9,
                     marginBottom: 2,
                   }}
                 >
@@ -68,7 +68,7 @@ function InMaQr() {
                 </span>
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: "bold",
                     textTransform: "uppercase",
                   }}
