@@ -44,10 +44,13 @@ import {
   RollbackOutlined,
   SaveOutlined,
   CloseOutlined,
+  PlusOutlined,
 } from "@ant-design/icons";
 import * as XLSX from "xlsx";
 import moment from "moment";
 import { messages } from "src/constants/Messages";
+import ModalAddVatTu from "./ModalAddVatTu";
+import Helpers from "src/helpers";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 const FormItem = Form.Item;
@@ -71,17 +74,17 @@ function BOMXuongForm({ match, permission, history }) {
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
 
-  const [SanPham, setSanPham] = useState("");
-  const [fileName, setFileName] = useState("");
+  const [ActiveModal, setActiveModal] = useState(false);
+  // const [fileName, setFileName] = useState("");
   // const [message, setMessageError] = useState([]);
-  const [DataLoi, setDataLoi] = useState();
+  // const [DataLoi, setDataLoi] = useState();
   // const [HangTrung, setHangTrung] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
   const [LoXe, setLoXe] = useState();
 
   const [info, setInfo] = useState({});
   const [fieldTouch, setFieldTouch] = useState(false);
-  const [DisableGCCT, setDisableGCCT] = useState(false);
+  const [DisableGCCT, setDisableGCCT] = useState();
 
   const { setFieldsValue, validateFields, resetFields } = form;
 
@@ -248,7 +251,7 @@ function BOMXuongForm({ match, permission, history }) {
       })
       .catch((error) => console.error(error));
   };
-  const getChiTietDmVatTuThep = (val, data) => {
+  const getChiTietDmVatTuThep = (val) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -264,48 +267,49 @@ function BOMXuongForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          if (!data) {
-            setListChiTiet(
-              res.data.list_ChiTiets.map((ct) => {
-                return {
-                  ...ct,
-                  chung: ct.quyCach.chung,
-                  dai: ct.quyCach.dai,
-                  day: ct.quyCach.day,
-                  dn: ct.quyCach.dn,
-                  dt: ct.quyCach.dt,
-                  rong: ct.quyCach.rong,
-                  dinhMuc: LoXe ? 1 / LoXe : "",
-                  yeuCauGiao: 1,
-                  tits_qtsx_VatTuChiTiet_Id: ct.id,
-                };
-              })
-            );
-          } else {
-            const newData = [];
-            res.data.list_ChiTiets.forEach((ct) => {
-              data.forEach((dt) => {
-                if (
-                  ct.id.toLowerCase() ===
-                  dt.tits_qtsx_VatTuChiTiet_Id.toLowerCase()
-                ) {
-                  newData.push({
-                    ...ct,
-                    chung: ct.quyCach.chung,
-                    dai: ct.quyCach.dai,
-                    day: ct.quyCach.day,
-                    dn: ct.quyCach.dn,
-                    dt: ct.quyCach.dt,
-                    rong: ct.quyCach.rong,
-                    dinhMuc: dt.dinhMuc,
-                    yeuCauGiao: dt.yeuCauGiao,
-                    tits_qtsx_VatTuChiTiet_Id: ct.id,
-                  });
-                }
-              });
-            });
-            setListChiTiet([...newData]);
-          }
+          // if (!data) {
+          setListChiTiet(
+            res.data.list_ChiTiets.map((ct) => {
+              return {
+                ...ct,
+                chung: ct.quyCach.chung,
+                dai: ct.quyCach.dai,
+                day: ct.quyCach.day,
+                dn: ct.quyCach.dn,
+                dt: ct.quyCach.dt,
+                rong: ct.quyCach.rong,
+                dinhMuc: LoXe ? Number(1 / LoXe).toFixed(3) : "",
+                yeuCauGiao: 1,
+                tits_qtsx_VatTuChiTiet_Id: ct.tits_qtsx_VatTu_Id,
+              };
+            })
+          );
+          // } else {
+          //   const newData = [];
+          //   res.data.list_ChiTiets.forEach((ct) => {
+          //     data.forEach((dt) => {
+          //       if (
+          //         ct.tits_qtsx_VatTu_Id.toLowerCase() ===
+          //         dt.tits_qtsx_VatTuChiTiet_Id.toLowerCase()
+          //       ) {
+          //         newData.push({
+          //           ...ct,
+          //           chung: ct.quyCach.chung,
+          //           dai: ct.quyCach.dai,
+          //           day: ct.quyCach.day,
+          //           dn: ct.quyCach.dn,
+          //           dt: ct.quyCach.dt,
+          //           rong: ct.quyCach.rong,
+          //           dinhMuc: dt.dinhMuc,
+          //           yeuCauGiao: dt.yeuCauGiao,
+          //           tits_qtsx_VatTuChiTiet_Id: ct.tits_qtsx_VatTu_Id,
+          //         });
+          //       }
+          //     });
+          // }
+          //   );
+          //   setListChiTiet([...newData]);
+          // }
         } else {
           setListChiTiet([]);
         }
@@ -361,19 +365,37 @@ function BOMXuongForm({ match, permission, history }) {
           getXuong();
           setLoXe(res.data.soLuongLo);
           getUserLap(INFO, res.data.createdBy);
-          res.data.tits_qtsx_DinhMucVatTuThep_Id &&
-            getChiTietDmVatTuThep(
-              res.data.tits_qtsx_DinhMucVatTuThep_Id,
-              JSON.parse(res.data.tits_qtsx_BOMXuongChiTiets)
-            );
+          setListChiTiet(
+            JSON.parse(res.data.tits_qtsx_BOMXuongChiTiets).map((ct) => {
+              return {
+                ...ct,
+                dai: JSON.parse(ct.quyCach).dai,
+                rong: JSON.parse(ct.quyCach).rong,
+                day: JSON.parse(ct.quyCach).day,
+                dn: JSON.parse(ct.quyCach).dn,
+                dt: JSON.parse(ct.quyCach).dt,
+                chung: JSON.parse(ct.quyCach).chung,
+                maVatTu: ct.maVatTuChiTiet,
+                tenVatTu: ct.tenVatTuChiTiet,
+                yeuCauGiao: Number(ct.yeuCauGiao).toFixed(0),
+              };
+            })
+          );
+
           res.data.isThepTam &&
             getDMVatTuThep(res.data.isThepTam ? "true" : "false");
 
-          res.data.tits_qtsx_Xuong_Id === XUONG_GCCT && setDisableGCCT(true);
+          res.data.tits_qtsx_Xuong_Id === XUONG_GCCT
+            ? setDisableGCCT(true)
+            : setDisableGCCT(false);
           setFieldsValue({
             BOM: {
               ...res.data,
-              isThepTam: res.data.isThepTam ? "true" : "false",
+              isThepTam: res.data.isThepTam
+                ? res.data.isThepTam === true
+                  ? "true"
+                  : "false"
+                : null,
               ngay: moment(res.data.ngay, "DD/MM/YYYY"),
             },
           });
@@ -464,14 +486,16 @@ function BOMXuongForm({ match, permission, history }) {
       setEditingRecord([...editingRecord, item]);
       item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
     } else {
-      const newData = editingRecord.filter((d) => d.id !== item.id);
+      const newData = editingRecord.filter(
+        (d) => d.tits_qtsx_VatTuChiTiet_Id !== item.tits_qtsx_VatTuChiTiet_Id
+      );
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...ListChiTiet];
     newData.forEach((ct, index) => {
-      if (ct.id === item.id) {
-        ct.dinhMuc = LoXe ? soLuongNhap / LoXe : "";
+      if (ct.tits_qtsx_VatTuChiTiet_Id === item.tits_qtsx_VatTuChiTiet_Id) {
+        ct.dinhMuc = LoXe ? Number(soLuongNhap / LoXe).toFixed(3) : "";
         ct.yeuCauGiao = soLuongNhap;
       }
     });
@@ -482,7 +506,7 @@ function BOMXuongForm({ match, permission, history }) {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (ct.id === item.id) {
+      if (ct.tits_qtsx_VatTuChiTiet_Id === item.tits_qtsx_VatTuChiTiet_Id) {
         isEditing = true;
         message = ct.message;
       }
@@ -514,13 +538,13 @@ function BOMXuongForm({ match, permission, history }) {
         align: "center",
       },
       {
-        title: "Mã vật tư",
+        title: DisableGCCT === true ? "Mã vật tư" : "Mã chi tiết",
         dataIndex: "maVatTu",
         key: "maVatTu",
         align: "center",
       },
       {
-        title: "Tên vật tư",
+        title: DisableGCCT === true ? "Tên vật tư" : "Tên chi tiết",
         dataIndex: "tenVatTu",
         key: "tenVatTu",
         align: "center",
@@ -1019,7 +1043,7 @@ function BOMXuongForm({ match, permission, history }) {
     if (type === "new") {
       const newData = {
         ...BOM,
-        isThepTam: BOM.isThepTam === "true",
+        isThepTam: BOM.isThepTam ? BOM.isThepTam === "true" : null,
         ngay: BOM.ngay.format("DD/MM/YYYY"),
         tits_qtsx_BOMXuongChiTiets: ListChiTiet,
       };
@@ -1044,7 +1068,7 @@ function BOMXuongForm({ match, permission, history }) {
               resetFields();
               setFieldTouch(false);
               setListChiTiet([]);
-              setFileName(null);
+              // setFileName(null);
               setFieldsValue({
                 BOM: {
                   ngay: moment(getDateNow(), "DD/MM/YYYY"),
@@ -1059,7 +1083,7 @@ function BOMXuongForm({ match, permission, history }) {
         ...info,
         ...BOM,
         ngay: BOM.ngay.format("DD/MM/YYYY"),
-        isThepTam: BOM.isThepTam === "true",
+        isThepTam: BOM.isThepTam ? BOM.isThepTam === "true" : null,
         tits_qtsx_BOMXuongChiTiets: ListChiTiet,
       };
       new Promise((resolve, reject) => {
@@ -1137,6 +1161,28 @@ function BOMXuongForm({ match, permission, history }) {
   const modalTuChoi = () => {
     Modal(prop1);
   };
+  const addChiTiet = (data) => {
+    let check = false;
+    ListChiTiet.forEach((ct) => {
+      if (
+        ct.tits_qtsx_VatTuChiTiet_Id.toLowerCase() ===
+        data.tits_qtsx_VatTuChiTiet_Id.toLowerCase()
+      ) {
+        Helpers.alertWarning(`Chi tiết ${data.tenVatTu} đã được thêm`);
+        check = true;
+      }
+    });
+    if (!check) {
+      setFieldTouch(true);
+      setListChiTiet([
+        ...ListChiTiet,
+        {
+          ...data,
+          dinhMuc: LoXe ? Number(data.yeuCauGiao / LoXe).toFixed(3) : "",
+        },
+      ]);
+    }
+  };
   /**
    * Quay lại trang sản phẩm
    *
@@ -1173,7 +1219,7 @@ function BOMXuongForm({ match, permission, history }) {
               : "red"
           }
         >
-          {info && info.maDinhMucVatTuThep} - {info && info.tinhTrang}
+          {info && info.maBOMXuong} - {info && info.tinhTrang}
         </Tag>
       </span>
     ) : (
@@ -1189,7 +1235,7 @@ function BOMXuongForm({ match, permission, history }) {
               : "red"
           }
         >
-          {info && info.maDinhMucVatTuThep} - {info && info.tinhTrang}
+          {info && info.maBOMXuong} - {info && info.tinhTrang}
         </Tag>
       </span>
     );
@@ -1508,7 +1554,9 @@ function BOMXuongForm({ match, permission, history }) {
                           ...ListChiTiet.map((ct) => {
                             return {
                               ...ct,
-                              dinhMuc: ct.yeuCauGiao / e.target.value,
+                              dinhMuc: Number(
+                                ct.yeuCauGiao / e.target.value
+                              ).toFixed(3),
                             };
                           }),
                         ]);
@@ -1629,6 +1677,19 @@ function BOMXuongForm({ match, permission, history }) {
             </Row>
           </>
         )} */}
+        {(type === "new" || type === "edit") && DisableGCCT === false ? (
+          <Row>
+            <Col span={24} align="end">
+              <Button
+                icon={<PlusOutlined />}
+                type="primary"
+                onClick={() => setActiveModal(true)}
+              >
+                Thêm chi tiết
+              </Button>
+            </Col>
+          </Row>
+        ) : null}
         <Table
           style={{ marginTop: 10 }}
           bordered
@@ -1686,6 +1747,12 @@ function BOMXuongForm({ match, permission, history }) {
           </Row>
         </>
       )}
+      <ModalAddVatTu
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        addChiTiet={addChiTiet}
+        ListChiTiet={ListChiTiet}
+      />
     </div>
   );
 }

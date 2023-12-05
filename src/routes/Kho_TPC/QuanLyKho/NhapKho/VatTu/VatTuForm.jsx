@@ -437,9 +437,10 @@ const VatTuForm = ({ history, match, permission }) => {
               ngayNhan: res.data.ngayNhan
                 ? moment(res.data.ngayNhan, "DD/MM/YYYY HH:mm:ss")
                 : null,
-              ngayHoaDon: res.data.ngayHoaDon
-                ? moment(res.data.ngayHoaDon, "DD/MM/YYYY")
-                : null,
+              // ngayHoaDon: res.data.ngayHoaDon
+              //   ? moment(res.data.ngayHoaDon, "DD/MM/YYYY")
+              //   : null,
+              userThongKe_Id: INFO.user_Id,
             },
           });
         }
@@ -506,26 +507,26 @@ const VatTuForm = ({ history, match, permission }) => {
       </div>
     );
   };
-  const renderDatePicker = (val, record) => {
-    return (
-      <DatePicker
-        format={"DD/MM/YYYY"}
-        disabled={type === "new" || type === "edit" ? false : true}
-        value={val ? moment(val, "DD/MM/YYYY") : null}
-        onChange={(date, dateString) => {
-          const newVatTu = [...listVatTu];
-          newVatTu.forEach((vt, index) => {
-            if (vt.chiTiet_Id === record.chiTiet_Id) {
-              newVatTu[index].ngayHoaDon =
-                dateString !== "" ? dateString : null;
-            }
-          });
-          setListVatTu(newVatTu);
-          setFieldTouch(true);
-        }}
-      />
-    );
-  };
+  // const renderDatePicker = (val, record) => {
+  //   return (
+  //     <DatePicker
+  //       format={"DD/MM/YYYY"}
+  //       disabled={type === "new" || type === "edit" ? false : true}
+  //       value={val ? moment(val, "DD/MM/YYYY") : null}
+  //       onChange={(date, dateString) => {
+  //         const newVatTu = [...listVatTu];
+  //         newVatTu.forEach((vt, index) => {
+  //           if (vt.chiTiet_Id === record.chiTiet_Id) {
+  //             newVatTu[index].ngayHoaDon =
+  //               dateString !== "" ? dateString : null;
+  //           }
+  //         });
+  //         setListVatTu(newVatTu);
+  //         setFieldTouch(true);
+  //       }}
+  //     />
+  //   );
+  // };
 
   const handleInputChange = (val, item) => {
     const soLuongNhap = val.target.value;
@@ -655,13 +656,13 @@ const VatTuForm = ({ history, match, permission }) => {
         );
       },
     },
-    {
-      title: "Ngày hóa đơn",
-      dataIndex: "ngayHoaDon",
-      key: "ngayHoaDon",
-      align: "center",
-      render: (val, record) => renderDatePicker(val, record),
-    },
+    // {
+    //   title: "Ngày hóa đơn",
+    //   dataIndex: "ngayHoaDon",
+    //   key: "ngayHoaDon",
+    //   align: "center",
+    //   render: (val, record) => renderDatePicker(val, record),
+    // },
     {
       title: "Số hóa đơn",
       dataIndex: "soHoaDon",
@@ -1134,7 +1135,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            {/* <Col span={12}>
               <FormItem
                 label="Phụ trách bộ phận"
                 name={["phieunhapkho", "userPhuTrach_Id"]}
@@ -1156,7 +1157,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
-            </Col>
+            </Col> */}
           </Row>
         </Form>
         <Table

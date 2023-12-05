@@ -139,9 +139,9 @@ function NhapKho({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=${
-            Loai === "sanpham" ? true : false
-          }`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=${
+            Loai === "sanpham" ? 101 : 1
+          }&&isThanhPham=${Loai === "sanpham" ? true : false}`,
           "GET",
           null,
           "DETAIL",
@@ -293,145 +293,189 @@ function NhapKho({ permission, history, match }) {
 
   let dataList = reDataForTable(Data.datalist, page, pageSize);
 
-  let colValues = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      width: 40,
-      align: "center",
-    },
-    {
-      title: Loai === "sanpham" ? "Loại sản phẩm" : "Nhóm vật tư",
-      dataIndex: Loai === "sanpham" ? "tenLoaiSanPham" : "tenNhomVatTu",
-      key: Loai === "sanpham" ? "tenLoaiSanPham" : "tenNhomVatTu",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: Loai === "sanpham" ? d.tenLoaiSanPham : d.tenNhomVatTu,
-            value: Loai === "sanpham" ? d.tenLoaiSanPham : d.tenNhomVatTu,
-          };
-        })
-      ),
-      onFilter: (value, record) =>
-        Loai === "sanpham"
-          ? record.tenLoaiSanPham.includes(value)
-          : record.tenNhomVatTu.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: Loai === "sanpham" ? "Mã sản phẩm" : "Mã vật tư",
-      dataIndex: Loai === "sanpham" ? "maSanPham" : "maVatTu",
-      key: Loai === "sanpham" ? "maSanPham" : "maVatTu",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: Loai === "sanpham" ? d.maSanPham : d.maVatTu,
-            value: Loai === "sanpham" ? d.maSanPham : d.maVatTu,
-          };
-        })
-      ),
-      onFilter: (value, record) =>
-        Loai === "sanpham"
-          ? record.maSanPham.includes(value)
-          : record.maVatTu.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: Loai === "sanpham" ? "Tên sản phẩm" : "Tên vật tư",
-      dataIndex: Loai === "sanpham" ? "tenSanPham" : "tenVatTu",
-      key: Loai === "sanpham" ? "tenSanPham" : "tenVatTu",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: Loai === "sanpham" ? d.tenSanPham : d.tenVatTu,
-            value: Loai === "sanpham" ? d.tenSanPham : d.tenVatTu,
-          };
-        })
-      ),
-      onFilter: (value, record) =>
-        Loai === "sanpham"
-          ? record.tenSanPham.includes(value)
-          : record.tenVatTu.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Kho nhập",
-      dataIndex: "tenCauTrucKho",
-      key: "tenCauTrucKho",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenCauTrucKho,
-            value: d.tenCauTrucKho,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenCauTrucKho.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Màu sắc",
-      dataIndex: "tenMauSac",
-      key: "tenMauSac",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenMauSac,
-            value: d.tenMauSac,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenMauSac.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
-      align: "center",
-    },
-    {
-      title: "Ngày nhập kho",
-      dataIndex: "ngayNhap",
-      key: "ngayNhap",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.ngayNhap,
-            value: d.ngayNhap,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.ngayNhap.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: Loai === "sanpham" ? "Ngày sản xuất" : "Tên nhà cung cấp",
-      dataIndex: Loai === "sanpham" ? "ngaySanXuat" : "tenNhaCungCap",
-      key: Loai === "sanpham" ? "ngaySanXuat" : "tenNhaCungCap",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: Loai === "sanpham" ? d.ngaySanXuat : d.tenNhaCungCap,
-            value: Loai === "sanpham" ? d.ngaySanXuat : d.tenNhaCungCap,
-          };
-        })
-      ),
-      onFilter: (value, record) =>
-        Loai === "sanpham"
-          ? record.ngaySanXuat.includes(value)
-          : record.tenNhaCungCap.includes(value),
-      filterSearch: true,
-    },
-  ];
+  let colValues = () => {
+    const col = [
+      {
+        title: "STT",
+        dataIndex: "key",
+        key: "key",
+        width: 40,
+        align: "center",
+      },
+      {
+        title: Loai === "sanpham" ? "Loại sản phẩm" : "Nhóm vật tư",
+        dataIndex: Loai === "sanpham" ? "tenLoaiSanPham" : "tenNhomVatTu",
+        key: Loai === "sanpham" ? "tenLoaiSanPham" : "tenNhomVatTu",
+        align: "center",
+        filters: removeDuplicates(
+          map(dataList, (d) => {
+            return {
+              text: Loai === "sanpham" ? d.tenLoaiSanPham : d.tenNhomVatTu,
+              value: Loai === "sanpham" ? d.tenLoaiSanPham : d.tenNhomVatTu,
+            };
+          })
+        ),
+        onFilter: (value, record) =>
+          Loai === "sanpham"
+            ? record.tenLoaiSanPham.includes(value)
+            : record.tenNhomVatTu.includes(value),
+        filterSearch: true,
+      },
+      {
+        title: Loai === "sanpham" ? "Mã sản phẩm" : "Mã vật tư",
+        dataIndex: Loai === "sanpham" ? "maSanPham" : "maVatTu",
+        key: Loai === "sanpham" ? "maSanPham" : "maVatTu",
+        align: "center",
+        filters: removeDuplicates(
+          map(dataList, (d) => {
+            return {
+              text: Loai === "sanpham" ? d.maSanPham : d.maVatTu,
+              value: Loai === "sanpham" ? d.maSanPham : d.maVatTu,
+            };
+          })
+        ),
+        onFilter: (value, record) =>
+          Loai === "sanpham"
+            ? record.maSanPham.includes(value)
+            : record.maVatTu.includes(value),
+        filterSearch: true,
+      },
+      {
+        title: Loai === "sanpham" ? "Tên sản phẩm" : "Tên vật tư",
+        dataIndex: Loai === "sanpham" ? "tenSanPham" : "tenVatTu",
+        key: Loai === "sanpham" ? "tenSanPham" : "tenVatTu",
+        align: "center",
+        filters: removeDuplicates(
+          map(dataList, (d) => {
+            return {
+              text: Loai === "sanpham" ? d.tenSanPham : d.tenVatTu,
+              value: Loai === "sanpham" ? d.tenSanPham : d.tenVatTu,
+            };
+          })
+        ),
+        onFilter: (value, record) =>
+          Loai === "sanpham"
+            ? record.tenSanPham.includes(value)
+            : record.tenVatTu.includes(value),
+        filterSearch: true,
+      },
+      {
+        title: "Kho nhập",
+        dataIndex: "tenCauTrucKho",
+        key: "tenCauTrucKho",
+        align: "center",
+        filters: removeDuplicates(
+          map(dataList, (d) => {
+            return {
+              text: d.tenCauTrucKho,
+              value: d.tenCauTrucKho,
+            };
+          })
+        ),
+        onFilter: (value, record) => record.tenCauTrucKho.includes(value),
+        filterSearch: true,
+      },
+      {
+        title: "Màu sắc",
+        dataIndex: "tenMauSac",
+        key: "tenMauSac",
+        align: "center",
+        filters: removeDuplicates(
+          map(dataList, (d) => {
+            return {
+              text: d.tenMauSac,
+              value: d.tenMauSac,
+            };
+          })
+        ),
+        onFilter: (value, record) => record.tenMauSac.includes(value),
+        filterSearch: true,
+      },
+      {
+        title: "Số lượng",
+        dataIndex: "soLuong",
+        key: "soLuong",
+        align: "center",
+      },
+      {
+        title: "Ngày nhập kho",
+        dataIndex: "ngayNhap",
+        key: "ngayNhap",
+        align: "center",
+        filters: removeDuplicates(
+          map(dataList, (d) => {
+            return {
+              text: d.ngayNhap,
+              value: d.ngayNhap,
+            };
+          })
+        ),
+        onFilter: (value, record) => record.ngayNhap.includes(value),
+        filterSearch: true,
+      },
+
+      {
+        title: Loai === "sanpham" ? "Ngày sản xuất" : "Tên nhà cung cấp",
+        dataIndex: Loai === "sanpham" ? "ngaySanXuat" : "tenNhaCungCap",
+        key: Loai === "sanpham" ? "ngaySanXuat" : "tenNhaCungCap",
+        align: "center",
+        filters: removeDuplicates(
+          map(dataList, (d) => {
+            return {
+              text: Loai === "sanpham" ? d.ngaySanXuat : d.tenNhaCungCap,
+              value: Loai === "sanpham" ? d.ngaySanXuat : d.tenNhaCungCap,
+            };
+          })
+        ),
+        onFilter: (value, record) =>
+          Loai === "sanpham"
+            ? record.ngaySanXuat.includes(value)
+            : record.tenNhaCungCap.includes(value),
+        filterSearch: true,
+      },
+    ];
+    if (Loai === "sanpham") {
+      return col;
+    } else {
+      return [
+        ...col,
+        {
+          title: "Ngày hóa đơn",
+          dataIndex: "ngayHoaDon",
+          key: "ngayHoaDon",
+          align: "center",
+          filters: removeDuplicates(
+            map(dataList, (d) => {
+              return {
+                text: d.ngayHoaDon,
+                value: d.ngayHoaDon,
+              };
+            })
+          ),
+          onFilter: (value, record) =>
+            record.ngayHoaDon && record.ngayHoaDon.includes(value),
+          filterSearch: true,
+        },
+        {
+          title: "Số hóa đơn",
+          dataIndex: "soHoaDon",
+          key: "soHoaDon",
+          align: "center",
+          filters: removeDuplicates(
+            map(dataList, (d) => {
+              return {
+                text: d.soHoaDon,
+                value: d.soHoaDon,
+              };
+            })
+          ),
+          onFilter: (value, record) =>
+            record.soHoaDon && record.soHoaDon.includes(value),
+          filterSearch: true,
+        },
+      ];
+    }
+  };
   const components = {
     body: {
       row: EditableRow,
@@ -439,7 +483,7 @@ function NhapKho({ permission, history, match }) {
     },
   };
 
-  const columns = map(colValues, (col) => {
+  const columns = map(colValues(), (col) => {
     if (!col.editable) {
       return col;
     }
