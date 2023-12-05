@@ -26,6 +26,8 @@ const OEMForm = asyncComponent(() => import("./OEM/OEMForm"));
 const BOM = asyncComponent(() => import("./BOM/BOM"));
 const BOMForm = asyncComponent(() => import("./BOM/BOMForm"));
 
+const BOMThep = asyncComponent(() => import("./BOMThep/BOMThep"));
+const BOMThepForm = asyncComponent(() => import("./BOMThep/BOMThepForm"));
 //Sản phẩm hình ảnh
 const SanPhamHinhAnh = asyncComponent(() =>
   import("./SanPhamHinhAnh/SanPhamHinhAnh")
@@ -118,6 +120,32 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/bom/:id/chi-tiet`}
         exact
         component={Auth(BOMForm, menus, pathname, permission)}
+      />
+      {/* BOM Thép */}
+      <Route
+        path={`${match.url}/bom-thep`}
+        exact
+        component={Auth(BOMThep, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/bom-thep/them-moi`}
+        exact
+        component={Auth(BOMThepForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/bom-thep/:id/chinh-sua`}
+        exact
+        component={Auth(BOMThepForm, menus, pathname, permission)}
+      />{" "}
+      <Route
+        path={`${match.url}/bom-thep/:id/xac-nhan`}
+        exact
+        component={Auth(BOMThepForm, menus, pathname, permission)}
+      />{" "}
+      <Route
+        path={`${match.url}/bom-thep/:id/chi-tiet`}
+        exact
+        component={Auth(BOMThepForm, menus, pathname, permission)}
       />
       {/* Sản phẩm hình ảnh */}
       <Route

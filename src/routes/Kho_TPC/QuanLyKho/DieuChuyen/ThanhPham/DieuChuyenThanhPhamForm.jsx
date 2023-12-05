@@ -81,21 +81,21 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
           history.push("/home");
         }
       } else if (includes(match.url, "chi-tiet")) {
-        if (permission && permission.edit) {
+        if (permission && permission.view) {
           setType("detail");
           const { id } = match.params;
           setId(id);
           getInfo(id);
-        } else if (permission && !permission.edit) {
+        } else if (permission && !permission.view) {
           history.push("/home");
         }
       } else if (includes(match.url, "xac-nhan")) {
-        if (permission && permission.edit) {
+        if (permission && permission.cof) {
           setType("xacnhan");
           const { id } = match.params;
           setId(id);
           getInfo(id);
-        } else if (permission && !permission.edit) {
+        } else if (permission && !permission.cof) {
           history.push("/home");
         }
       }
