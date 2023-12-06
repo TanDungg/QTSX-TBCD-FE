@@ -34,6 +34,7 @@ import {
   exportExcel,
   getTokenInfo,
   reDataForTable,
+  isJsonObject,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import {
@@ -369,12 +370,16 @@ function BOMXuongForm({ match, permission, history }) {
             JSON.parse(res.data.tits_qtsx_BOMXuongChiTiets).map((ct) => {
               return {
                 ...ct,
-                dai: JSON.parse(ct.quyCach).dai,
-                rong: JSON.parse(ct.quyCach).rong,
-                day: JSON.parse(ct.quyCach).day,
-                dn: JSON.parse(ct.quyCach).dn,
-                dt: JSON.parse(ct.quyCach).dt,
-                chung: JSON.parse(ct.quyCach).chung,
+                dai: isJsonObject(ct.quyCach) ? JSON.parse(ct.quyCach).dai : "",
+                rong: isJsonObject(ct.quyCach)
+                  ? JSON.parse(ct.quyCach).rong
+                  : "",
+                day: isJsonObject(ct.quyCach) ? JSON.parse(ct.quyCach).day : "",
+                dn: isJsonObject(ct.quyCach) ? JSON.parse(ct.quyCach).dn : "",
+                dt: isJsonObject(ct.quyCach) ? JSON.parse(ct.quyCach).dt : "",
+                chung: isJsonObject(ct.quyCach)
+                  ? JSON.parse(ct.quyCach).chung
+                  : "",
                 maVatTu: ct.maVatTuChiTiet,
                 tenVatTu: ct.tenVatTuChiTiet,
                 yeuCauGiao: Number(ct.yeuCauGiao).toFixed(0),

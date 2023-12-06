@@ -172,13 +172,13 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         } else if (permission && !permission.add) {
           history.push("/home");
         }
-      } else if (includes(match.url, "xac-nhan")) {
-        if (permission && permission.cof) {
+      } else if (includes(match.url, "chinh-sua")) {
+        if (permission && permission.edit) {
           setType("edit");
           const { id } = match.params;
           setId(id);
           getInfo(id);
-        } else if (permission && !permission.cof) {
+        } else if (permission && !permission.edit) {
           history.push("/home");
         }
       } else if (includes(match.url, "chi-tiet")) {
@@ -326,7 +326,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         type === "new"
           ? "/them-moi"
           : type === "edit"
-          ? `/${id}/xac-nhan`
+          ? `/${id}/chinh-sua`
           : `/${id}/chi-tiet`,
         ""
       )}`
@@ -349,10 +349,24 @@ const ThanhPhamForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const chiTiet_PhieuNhapKhoCKDs = ListSanPham.filter(
-      (d) => d.sanPham_Id !== item.sanPham_Id
-    );
-    setListSanPham(chiTiet_PhieuNhapKhoCKDs);
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuNhapKhoThanhPham/delete-chi-tiet-phieu-nhap-kho-thanh-pham?id=${item.lkn_ChiTietPhieuNhapKhoThanhPham_Id}`,
+          "DELETE",
+          null,
+          "DELETE",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        getInfo(id);
+        setFieldTouch(false);
+      })
+      .catch((error) => console.error(error));
   };
   /**
    * ActionContent: Action in table
@@ -375,6 +389,28 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       </div>
     );
   };
+  const updateSoLuong = (soLuongNhap, lkn_ChiTietPhieuNhapKhoThanhPham_Id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuNhapKhoThanhPham/${lkn_ChiTietPhieuNhapKhoThanhPham_Id}`,
+          "PUT",
+          {
+            soLuongNhap,
+          },
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        getInfo(id);
+        setFieldTouch(false);
+      })
+      .catch((error) => console.error(error));
+  };
   const handleInputChange = (val, item) => {
     const soLuongNhap = val.target.value;
     if (isEmpty(soLuongNhap) || Number(soLuongNhap) <= 0) {
@@ -387,14 +423,19 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       item.message = "Số lượng phải nhỏ hơn";
     } else {
       const newData = editingRecord.filter(
-        (d) => d.sanPham_Id !== item.sanPham_Id
+        (d) =>
+          d.lkn_ChiTietPhieuNhapKhoThanhPham_Id !==
+          item.lkn_ChiTietPhieuNhapKhoThanhPham_Id
       );
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...ListSanPham];
     newData.forEach((ct, index) => {
-      if (ct.sanPham_Id === item.sanPham_Id) {
+      if (
+        ct.lkn_ChiTietPhieuNhapKhoThanhPham_Id ===
+        item.lkn_ChiTietPhieuNhapKhoThanhPham_Id
+      ) {
         ct.soLuongNhap = soLuongNhap;
       }
     });
@@ -404,7 +445,10 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (ct.sanPham_Id === item.sanPham_Id) {
+      if (
+        ct.lkn_ChiTietPhieuNhapKhoThanhPham_Id ===
+        item.lkn_ChiTietPhieuNhapKhoThanhPham_Id
+      ) {
         isEditing = true;
         message = ct.message;
       }
@@ -421,6 +465,18 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           value={item.soLuongNhap}
           disabled={type === "new" || type === "edit" ? false : true}
           onChange={(val) => handleInputChange(val, item)}
+          onBlur={(val) =>
+            updateSoLuong(
+              item.soLuongNhap,
+              item.lkn_ChiTietPhieuNhapKhoThanhPham_Id
+            )
+          }
+          // onPressEnter={(val) =>
+          //   updateSoLuong(
+          //     item.soLuongNhap,
+          //     item.lkn_ChiTietPhieuNhapKhoThanhPham_Id
+          //   )
+          // }
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
       </>
@@ -491,20 +547,20 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       align: "center",
       // render: (val, record) => renderMauSac(val, record),
     },
-    {
-      title: "Vị trí",
-      key: "viTri",
-      align: "center",
-      render: (val) => {
-        return (
-          <span>
-            {val.tenKe && val.tenKe}
-            {val.tenTang && ` - ${val.tenTang}`}
-            {val.tenNgan && ` - ${val.tenNgan}`}
-          </span>
-        );
-      },
-    },
+    // {
+    //   title: "Vị trí",
+    //   key: "viTri",
+    //   align: "center",
+    //   render: (val) => {
+    //     return (
+    //       <span>
+    //         {val.tenKe && val.tenKe}
+    //         {val.tenTang && ` - ${val.tenTang}`}
+    //         {val.tenNgan && ` - ${val.tenNgan}`}
+    //       </span>
+    //     );
+    //   },
+    // },
     {
       title: "Số lượng",
       key: "soLuongNhap",
@@ -514,8 +570,9 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     {
       title: "Ghi chú",
       key: "ghiChu",
+      dataIndex: "ghiChu",
       align: "center",
-      render: (record) => renderGhiChu(record),
+      // render: (record) => renderGhiChu(record),
     },
     {
       title: "Chức năng",
@@ -569,25 +626,21 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     saveData(values.phieunhapkho);
   };
 
-  const saveAndClose = (val, isDuyet) => {
-    if (isDuyet) {
-      validateFields()
-        .then((values) => {
-          if (ListSanPham.length === 0) {
-            Helpers.alertError("Danh sách sản phẩm rỗng");
-          } else {
-            saveData(values.phieunhapkho, val);
-          }
-        })
-        .catch((error) => {
-          console.log("error", error);
-        });
-    } else {
-      saveData(form.getFieldValue("phieunhapkho"), val, isDuyet);
-    }
+  const saveAndClose = (val) => {
+    validateFields()
+      .then((values) => {
+        if (ListSanPham.length === 0) {
+          Helpers.alertError("Danh sách sản phẩm rỗng");
+        } else {
+          saveData(values.phieunhapkho, val);
+        }
+      })
+      .catch((error) => {
+        console.log("error", error);
+      });
   };
 
-  const saveData = (nhapkho, saveQuit = false, isDuyet = true) => {
+  const saveData = (nhapkho, saveQuit = false) => {
     // if (type === "new") {
     //   const newData = {
     //     ...nhapkho,
@@ -643,8 +696,8 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         chiTiet_PhieuNhapKhoThanhPhams: ListSanPham,
         ngaySanXuat: nhapkho.ngaySanXuat._i,
         ngayNhap: nhapkho.ngayNhap._i,
-        isDuyet: isDuyet,
-        lyDoTuChoi: !isDuyet ? "Từ chối" : undefined,
+        // isDuyet: isDuyet,
+        // lyDoTuChoi: !isDuyet ? "Từ chối" : undefined,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -652,7 +705,8 @@ const ThanhPhamForm = ({ history, match, permission }) => {
             `lkn_PhieuNhapKhoThanhPham/${id}`,
             "PUT",
             newData,
-            !isDuyet ? "TUCHOI" : "XACNHAN",
+            "EDIT",
+            // !isDuyet ? "TUCHOI" : "XACNHAN",
             "",
             resolve,
             reject
@@ -675,7 +729,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     type === "new" ? (
       "Tạo phiếu nhập kho thành phẩm "
     ) : type === "edit" ? (
-      "Xác nhận phiếu nhập kho thành phẩm"
+      "Chỉnh sửa phiếu nhập kho thành phẩm"
     ) : (
       <span>
         Chi tiết phiếu nhập kho thành phẩm -{" "}
@@ -903,7 +957,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           rowClassName={"editable-row"}
           pagination={false}
         />
-        {type === "edit" && info.tinhTrang === "Chưa xử lý" ? (
+        {/* {type === "edit" && info.tinhTrang === "Chưa xử lý" ? (
           <>
             <Divider />
             <Row style={{ marginTop: 20 }}>
@@ -937,12 +991,15 @@ const ThanhPhamForm = ({ history, match, permission }) => {
               </Col>
             </Row>
           </>
-        ) : null}
-        <AddSanPhamModal
-          openModal={ActiveModal}
-          openModalFS={setActiveModal}
-          addSanPham={addSanPham}
-        />
+        ) : null} */}
+        {/* {type === "edit" && (
+          <FormSubmit
+            goBack={goBack}
+            handleSave={saveAndClose}
+            saveAndClose={saveAndClose}
+            disabled={fieldTouch}
+          />
+        )} */}
       </Card>
     </div>
   );

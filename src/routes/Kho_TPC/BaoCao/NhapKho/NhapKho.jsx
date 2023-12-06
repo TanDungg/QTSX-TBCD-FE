@@ -413,7 +413,22 @@ function NhapKho({ permission, history, match }) {
         onFilter: (value, record) => record.ngayNhap.includes(value),
         filterSearch: true,
       },
-
+      {
+        title: "Mã phiếu",
+        dataIndex: "maPhieu",
+        key: "maPhieu",
+        align: "center",
+        filters: removeDuplicates(
+          map(dataList, (d) => {
+            return {
+              text: d.maPhieu,
+              value: d.maPhieu,
+            };
+          })
+        ),
+        onFilter: (value, record) => record.maPhieu.includes(value),
+        filterSearch: true,
+      },
       {
         title: Loai === "sanpham" ? "Ngày sản xuất" : "Tên nhà cung cấp",
         dataIndex: Loai === "sanpham" ? "ngaySanXuat" : "tenNhaCungCap",

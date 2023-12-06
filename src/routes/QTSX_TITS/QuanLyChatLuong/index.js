@@ -15,7 +15,12 @@ const HangMucKiemTra = asyncComponent(() =>
 const HangMucKiemTraForm = asyncComponent(() =>
   import("./HangMucKiemTra/HangMucKiemTraForm")
 );
-
+const QuanLyChecksheets = asyncComponent(() =>
+  import("./QuanLyChecksheets/QuanLyChecksheets")
+);
+const QuanLyChecksheetsForm = asyncComponent(() =>
+  import("./QuanLyChecksheets/QuanLyChecksheetsForm")
+);
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -66,6 +71,22 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/hang-muc-kiem-tra/:id/chinh-sua`}
         exact
         component={Auth(HangMucKiemTraForm, menus, pathname, permission)}
+      />
+
+      <Route
+        path={`${match.url}/ql-checksheets`}
+        exact
+        component={Auth(QuanLyChecksheets, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/ql-checksheets/them-moi`}
+        exact
+        component={Auth(QuanLyChecksheetsForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/ql-checksheets/:id/chinh-sua`}
+        exact
+        component={Auth(QuanLyChecksheetsForm, menus, pathname, permission)}
       />
     </Switch>
   );

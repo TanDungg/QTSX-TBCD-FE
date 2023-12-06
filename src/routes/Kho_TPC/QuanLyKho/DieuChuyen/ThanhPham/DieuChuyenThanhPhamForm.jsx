@@ -1,4 +1,10 @@
-import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  PlusCircleOutlined,
+  RollbackOutlined,
+  SaveOutlined,
+} from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -22,6 +28,7 @@ import {
   Table,
   EditableTableRow,
   ModalDeleteConfirm,
+  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_DIEUCHUYEN_THANHLY } from "src/constants/Config";
@@ -50,6 +57,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListKhoVatTu, setListKhoVatTu] = useState([]);
   const [ListKhoVatTuDi, setListKhoVatTuDi] = useState([]);
+  const [ListPhieuNhapKho, setListPhieuNhapKho] = useState([]);
   const [ListKhoVatTuDen, setListKhoVatTuDen] = useState([]);
   const [KhoVatTu, setKhoVatTu] = useState(null);
   const [ListUser, setListUser] = useState([]);
@@ -65,7 +73,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
           setType("new");
           setFieldsValue({
             phieudieuchuyen: {
-              ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
+              ngayNhap: moment(getDateNow(), "DD/MM/YYYY"),
             },
           });
         } else if (permission && !permission.add) {
@@ -220,7 +228,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
           setKhoVatTu(res.data.khoDi_Id);
           setFieldsValue({
             phieudieuchuyen: {
-              ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
+              ngayNhap: moment(res.data.ngayNhap, "DD/MM/YYYY"),
               khoDi_Id: res.data.khoDi_Id,
               khoDen_Id: res.data.khoDen_Id,
             },
@@ -467,7 +475,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     if (type === "new") {
       const newData = {
         ...data,
-        ngayYeuCau: data.ngayYeuCau.format("DD/MM/YYYY"),
+        ngayNhap: data.ngayNhap.format("DD/MM/YYYY"),
         chiTiet_PhieuDieuChuyens: ListSanPham,
       };
       new Promise((resolve, reject) => {
@@ -503,7 +511,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
       const newData = {
         ...data,
         id: id,
-        ngayYeuCau: data.ngayYeuCau.format("DD/MM/YYYY"),
+        ngayNhap: data.ngayNhap.format("DD/MM/YYYY"),
         chiTiet_PhieuDieuChuyens: ListSanPham,
       };
       new Promise((resolve, reject) => {
@@ -568,7 +576,30 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
         </Tag>
       </span>
     );
-
+  const prop = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận duyệt phiếu điều chuyển",
+    onOk: () => {
+      saveAndClose(false, true);
+    },
+  };
+  const modalDuyet = () => {
+    Modal(prop);
+  };
+  const prop1 = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận từ chối phiếu điều chuyển",
+    onOk: () => {
+      saveAndClose(false, false);
+    },
+  };
+  const modalTuChoi = () => {
+    Modal(prop1);
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -708,8 +739,39 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
+                label="Phiếu nhập kho"
+                name={["phieudieuchuyen", "lkn_PhieuNhapKhoThanhPham_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListPhieuNhapKho ? ListPhieuNhapKho : []}
+                  optionsvalue={["id", "maPhieu"]}
+                  style={{ width: "100%" }}
+                  placeholder="Phiếu nhập kho"
+                  showSearch
+                  optionFilterProp={"name"}
+                  disabled={type === "new" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
                 label="Ngày điều chuyển"
-                name={["phieudieuchuyen", "ngayYeuCau"]}
+                name={["phieudieuchuyen", "ngayNhap"]}
                 rules={[
                   {
                     required: true,
@@ -756,6 +818,41 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
           pagination={false}
           // loading={loading}
         />
+        {type === "edit" && info.tinhTrang === "Chưa xử lý" ? (
+          <>
+            <Divider />
+            <Row style={{ marginTop: 20 }}>
+              <Col style={{ marginBottom: 8, textAlign: "center" }} span={24}>
+                <Button
+                  className="th-btn-margin-bottom-0"
+                  icon={<RollbackOutlined />}
+                  onClick={goBack}
+                  style={{ marginTop: 10 }}
+                >
+                  Quay lại
+                </Button>
+                <Button
+                  className="th-btn-margin-bottom-0"
+                  type="primary"
+                  onClick={() => modalDuyet()}
+                  icon={<SaveOutlined />}
+                  style={{ marginTop: 10 }}
+                >
+                  Duyệt
+                </Button>
+                <Button
+                  // disabled={!fieldTouch}
+                  className="th-btn-margin-bottom-0"
+                  icon={<CloseOutlined />}
+                  style={{ marginTop: 10 }}
+                  onClick={() => modalTuChoi()}
+                >
+                  Từ chối
+                </Button>
+              </Col>
+            </Row>
+          </>
+        ) : null}
         {type !== "detail" ? (
           <FormSubmit
             goBack={goBack}
