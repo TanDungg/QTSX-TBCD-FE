@@ -30,7 +30,7 @@ import Helpers from "src/helpers";
 
 const FormItem = Form.Item;
 
-function HangMucSuDungForm({ match, permission, history }) {
+function ThemChiTietHMKT({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { setFieldsValue, validateFields, resetFields } = form;
@@ -43,41 +43,28 @@ function HangMucSuDungForm({ match, permission, history }) {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
-  const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
-  const [LoaiSanPham, setLoaiSanPham] = useState(null);
-  const [ListSanPham, setListSanPham] = useState([]);
-  const [SanPham, setSanPham] = useState(null);
-  const [ListCongDoan, setListCongDoan] = useState([]);
-  const [CongDoan, setCongDoan] = useState(null);
+  const [ListHangMucSuDung, setListHangMucSuDung] = useState([]);
+  const [ListDonVi, setListDonVi] = useState([]);
+  const [ListXuong, setListXuong] = useState([]);
+  const [ListTram, setListTram] = useState([]);
   const [ListHinhAnh, setListHinhAnh] = useState([]);
   const [ListHinhAnhDaChon, setListHinhAnhDaChon] = useState([]);
   const [IsSuDungHinhAnh, setIsSuDungHinhAnh] = useState(false);
   const [info, setInfo] = useState(null);
 
   useEffect(() => {
-    if (includes(match.url, "them-moi")) {
-      if (permission && !permission.add) {
-        history.push("/home");
-      } else {
-        setType("new");
-        getLoaiSanPham();
-      }
-    } else if (includes(match.url, "chinh-sua")) {
-      if (permission && permission.edit) {
-        setType("edit");
-        setId(match.params.id);
-        getInfo(match.params.id);
-      } else if (permission && !permission.edit) {
-        history.push("/home");
-      }
-    } else if (includes(match.url, "chi-tiet")) {
-      if (permission && permission.edit) {
-        setType("detail");
-        setId(match.params.id);
-        getInfo(match.params.id);
-      } else if (permission && !permission.edit) {
-        history.push("/home");
-      }
+    if (permission && !permission.add) {
+      history.push("/home");
+    } else {
+      getInfo(match.params.id);
+      getListHangMucSuDung();
+      getListDonVi();
+      getListXuong();
+      setFieldsValue({
+        themchitiet: {
+          donVi_Id: INFO.donVi_Id.toLowerCase(),
+        },
+      });
     }
     return () => {
       dispatch(fetchReset());
@@ -85,96 +72,6 @@ function HangMucSuDungForm({ match, permission, history }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getLoaiSanPham = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_LoaiSanPham?page=-1`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListLoaiSanPham(res.data);
-        } else {
-          setListLoaiSanPham([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getSanPham = (tits_qtsx_LoaiSanPham_Id) => {
-    let param = convertObjectToUrlParams({
-      tits_qtsx_LoaiSanPham_Id,
-      page: -1,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_SanPham?${param}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListSanPham(res.data);
-        } else {
-          setListSanPham([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getCongDoan = (value, key) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_SanPhamHinhAnh?tits_qtsx_SanPham_Id=${value}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListCongDoan(res.data);
-          const newListHinhAnh = res.data.filter(
-            (congdoan) =>
-              congdoan.tits_qtsx_CongDoan_Id.toLowerCase() === key.toLowerCase()
-          );
-          console.log(newListHinhAnh);
-          const hinhanh =
-            newListHinhAnh[0].list_KhuVucs &&
-            JSON.parse(newListHinhAnh[0].list_KhuVucs);
-          setListHinhAnh(hinhanh);
-        } else {
-          setListCongDoan([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  /**
-   * Lấy thông tin info
-   *
-   * @param {*} id
-   */
   const getInfo = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -191,26 +88,94 @@ function HangMucSuDungForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          getLoaiSanPham();
-          setLoaiSanPham(res.data.tits_qtsx_LoaiSanPham_Id);
-          getSanPham(res.data.tits_qtsx_LoaiSanPham_Id);
-          setSanPham(res.data.tits_qtsx_SanPham_Id);
-          getCongDoan(
-            res.data.tits_qtsx_SanPham_Id,
-            res.data.tits_qtsx_CongDoan_Id
-          );
-          setCongDoan(res.data.tits_qtsx_CongDoan_Id);
-
           setInfo(res.data);
-          setFieldsValue({
-            hangmuckiemtra: {
-              ...res.data,
-              isNoiDung:
-                res.data.isNoiDung === true ? "isNoiDung" : "isThongSo",
-            },
-          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
 
-          setListHinhAnhDaChon(res.data.list_HinhAnhs);
+  const getListHangMucSuDung = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_HangMucKiemTra?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListHangMucSuDung(res.data);
+        } else {
+          setListHangMucSuDung([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListDonVi = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(`DonVi?page=-1`, "GET", null, "DETAIL", "", resolve, reject)
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListDonVi(res.data);
+      } else {
+        setListDonVi([]);
+      }
+    });
+  };
+
+  const getListXuong = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_Xuong?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListXuong(res.data);
+        } else {
+          setListXuong([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListTram = (tits_qtsx_Xuong_Id) => {
+    let param = convertObjectToUrlParams({ tits_qtsx_Xuong_Id });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_Tram/tram-by-xuong?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListTram(res.data);
+        } else {
+          setListTram([]);
         }
       })
       .catch((error) => console.error(error));
@@ -258,9 +223,6 @@ function HangMucSuDungForm({ match, permission, history }) {
             hangmuckiemtra.isSuDungHinhAnh === undefined
               ? false
               : hangmuckiemtra.isSuDungHinhAnh,
-          tits_qtsx_SanPham_Id: SanPham,
-          tits_qtsx_CongDoan_Id: CongDoan,
-          list_HinhAnhs: ListHinhAnhDaChon,
         };
         new Promise((resolve, reject) => {
           dispatch(
@@ -282,43 +244,11 @@ function HangMucSuDungForm({ match, permission, history }) {
               } else {
                 resetFields();
                 setFieldTouch(false);
-                setListHinhAnh([]);
-                setListHinhAnhDaChon([]);
-                setLoaiSanPham(null);
-                setSanPham(null);
-                setCongDoan(null);
               }
             }
           })
           .catch((error) => console.error(error));
       }
-    }
-    if (type === "edit") {
-      hangmuckiemtra.id = id;
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_ChiTiet/${id}`,
-            "PUT",
-            hangmuckiemtra,
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.status !== 409) {
-            if (saveQuit) {
-              goBack();
-            } else {
-              setFieldTouch(false);
-              getInfo(id);
-            }
-          }
-        })
-        .catch((error) => console.log(error));
     }
   };
 
@@ -333,32 +263,6 @@ function HangMucSuDungForm({ match, permission, history }) {
         ""
       )}`
     );
-  };
-
-  const handleOnSelectLoaiSanPham = (value) => {
-    setListHinhAnh([]);
-    setLoaiSanPham(value);
-    setSanPham(null);
-    setCongDoan(null);
-    getSanPham(value);
-  };
-
-  const handleOnSelectSanPham = (value) => {
-    setListHinhAnh([]);
-    setSanPham(value);
-    setCongDoan(null);
-    getCongDoan(value);
-  };
-
-  const handleOnSelectCongDoan = (value) => {
-    setCongDoan(value);
-    const newListHinhAnh = ListCongDoan.filter(
-      (congdoan) => congdoan.tits_qtsx_CongDoan_Id === value
-    );
-    const hinhanh =
-      newListHinhAnh[0].list_KhuVucs &&
-      JSON.parse(newListHinhAnh[0].list_KhuVucs);
-    setListHinhAnh(hinhanh);
   };
 
   const handleThemHinhAnh = (item, khuvuc) => {
@@ -412,6 +316,10 @@ function HangMucSuDungForm({ match, permission, history }) {
     setFieldTouch(true);
   };
 
+  const handleSelectXuong = (value) => {
+    getListTram(value);
+  };
+
   const formTitle =
     type === "new"
       ? "Thêm mới hạng mục kiểm tra"
@@ -420,90 +328,6 @@ function HangMucSuDungForm({ match, permission, history }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
-        <div>
-          <h3 style={{ fontWeight: "bold" }}>
-            Hạng mục kiểm tra được áp dụng với:
-          </h3>
-        </div>
-        <Row>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={20}
-            xs={24}
-            style={{
-              marginBottom: 8,
-            }}
-          >
-            <h5>Loại sản phẩm:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListLoaiSanPham ? ListLoaiSanPham : []}
-              placeholder="Chọn loại sản phẩm"
-              optionsvalue={["id", "tenLoaiSanPham"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleOnSelectLoaiSanPham}
-              value={LoaiSanPham}
-              disabled={type === "new" ? false : true}
-            />
-          </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={20}
-            xs={24}
-            style={{
-              marginBottom: 8,
-            }}
-          >
-            <h5>Sản phẩm:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListSanPham ? ListSanPham : []}
-              placeholder="Chọn sản phẩm"
-              optionsvalue={["id", "tenSanPham"]}
-              style={{ width: "100%" }}
-              showSearch
-              onSelect={handleOnSelectSanPham}
-              optionFilterProp="name"
-              value={SanPham}
-              disabled={LoaiSanPham === null || type !== "new" ? true : false}
-            />
-          </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={20}
-            xs={24}
-            style={{
-              marginBottom: 8,
-            }}
-          >
-            <h5>Công đoạn:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListCongDoan ? ListCongDoan : []}
-              placeholder="Chọn công đoạn"
-              optionsvalue={["tits_qtsx_CongDoan_Id", "tenCongDoan"]}
-              style={{ width: "100%" }}
-              showSearch
-              onSelect={handleOnSelectCongDoan}
-              optionFilterProp="name"
-              value={CongDoan}
-              disabled={SanPham === null || type !== "new" ? true : false}
-            />
-          </Col>
-        </Row>
-      </Card>
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
         title={"Thông tin chung"}
@@ -532,55 +356,26 @@ function HangMucSuDungForm({ match, permission, history }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Tên hạng mục kiểm tra"
-                  name={["hangmuckiemtra", "tenHangMucKiemTra"]}
+                  label="Hạng mục kiểm tra cha"
+                  name={["themchitiet", "tits_qtsx_HangMucKiemTra_Id"]}
                   rules={[
                     {
                       type: "string",
-                      required: true,
-                    },
-                    {
-                      max: 250,
-                    },
-                  ]}
-                >
-                  <Input
-                    className="input-item"
-                    placeholder="Nhập tên hạng mục kiểm tra"
-                    disabled={type === "detail" ? true : false}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Kiểu đánh giá"
-                  name={["hangmuckiemtra", "isNoiDung"]}
-                  rules={[
-                    {
                       required: true,
                     },
                   ]}
                 >
                   <Select
                     className="heading-select slt-search th-select-heading"
-                    data={[
-                      { key: "isNoiDung", title: "Nội dung" },
-                      { key: "isThongSo", title: "Thông số" },
+                    data={ListHangMucSuDung ? ListHangMucSuDung : []}
+                    optionsvalue={[
+                      "tits_qtsx_HangMucKiemTra_Id",
+                      "tenHangMucKiemTra",
                     ]}
-                    placeholder="Chọn kiểu đánh giá"
-                    optionsvalue={["key", "title"]}
                     style={{ width: "100%" }}
+                    placeholder="Chọn hạng mục sử dụng cha"
                     showSearch
-                    optionFilterProp="name"
-                    disabled={type === "detail" ? true : false}
+                    optionFilterProp={"name"}
                   />
                 </FormItem>
               </Col>
@@ -594,18 +389,39 @@ function HangMucSuDungForm({ match, permission, history }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Ghi chú"
-                  name={["hangmuckiemtra", "moTa"]}
+                  label="Mã số"
+                  name={["themchitiet", "maSo"]}
                   rules={[
                     {
                       type: "string",
                     },
                   ]}
                 >
+                  <Input className="input-item" placeholder="Nhập mã số" />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Nội dung kiểm tra"
+                  name={["themchitiet", "noiDungKiemTra"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
                   <Input
                     className="input-item"
-                    placeholder="Nhập ghi chú"
-                    disabled={type === "detail" ? true : false}
+                    placeholder="Nhập nội dung kiểm tra"
                   />
                 </FormItem>
               </Col>
@@ -619,17 +435,18 @@ function HangMucSuDungForm({ match, permission, history }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Sử dụng hình ảnh chi tiết"
-                  name={["hangmuckiemtra", "isSuDungHinhAnh"]}
-                  valuePropName="checked"
+                  label="Tiêu chuẩn đánh giá"
+                  name={["themchitiet", "tieuChuanDanhGia"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
                 >
-                  <Switch
-                    onChange={() => {
-                      setListHinhAnh([]);
-                      setListHinhAnhDaChon([]);
-                      setIsSuDungHinhAnh(!IsSuDungHinhAnh);
-                    }}
-                    disabled={type === "detail" ? true : false}
+                  <Input
+                    className="input-item"
+                    placeholder="Nhập tiêu chuẩn đánh giá"
                   />
                 </FormItem>
               </Col>
@@ -643,11 +460,21 @@ function HangMucSuDungForm({ match, permission, history }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Sử dụng"
-                  name={["hangmuckiemtra", "isSuDung"]}
-                  valuePropName="checked"
+                  label="Giá trị tiêu chuẩn MIN"
+                  name={["themchitiet", "giaTriMin"]}
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
                 >
-                  <Switch disabled={type === "detail" ? true : false} />
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    className="input-item"
+                    placeholder="Nhập giá trị tiêu chuẩn MIN"
+                  />
                 </FormItem>
               </Col>
               <Col
@@ -660,11 +487,179 @@ function HangMucSuDungForm({ match, permission, history }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="File kết quả"
-                  name={["hangmuckiemtra", "isFile"]}
-                  valuePropName="checked"
+                  label="Giá trị tiêu chuẩn MAX"
+                  name={["themchitiet", "giaTriMax"]}
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
                 >
-                  <Switch disabled={type === "detail" ? true : false} />
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    className="input-item"
+                    placeholder="Nhập giá trị tiêu chuẩn MAX"
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Giá trị tiêu chuẩn"
+                  name={["themchitiet", "giaTriTieuChuan"]}
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    className="input-item"
+                    placeholder="Nhập giá trị tiêu chuẩn"
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Phương pháp tiêu chuẩn"
+                  name={["themchitiet", "phuongPhapTieuChuan"]}
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Input
+                    className="input-item"
+                    placeholder="Nhập phương pháp tiêu chuẩn"
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Nhà máy"
+                  name={["themchitiet", "donVi_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListDonVi ? ListDonVi : []}
+                    optionsvalue={["id", "tenDonVi"]}
+                    style={{ width: "100%" }}
+                    placeholder="Chọn đơn vị nhà máy"
+                    showSearch
+                    optionFilterProp={"name"}
+                    disabled={true}
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Xưởng"
+                  name={["themchitiet", "tits_qtsx_Xuong_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListXuong ? ListXuong : []}
+                    placeholder="Chọn xưởng"
+                    optionsvalue={["id", "tenXuong"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    optionFilterProp="name"
+                    onSelect={handleSelectXuong}
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Trạm"
+                  name={["themchitiet", "tits_qtsx_Tram_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListTram ? ListTram : []}
+                    placeholder="Chọn trạm"
+                    optionsvalue={["id", "tenTram"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    optionFilterProp="name"
+                    // onSelect={SelectViTriKho}
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Nhập kết quả"
+                  name={["themchitiet", "isNhapKetQua"]}
+                >
+                  <Switch defaultChecked />
                 </FormItem>
               </Col>
               {IsSuDungHinhAnh === false && (
@@ -868,4 +863,4 @@ function HangMucSuDungForm({ match, permission, history }) {
   );
 }
 
-export default HangMucSuDungForm;
+export default ThemChiTietHMKT;

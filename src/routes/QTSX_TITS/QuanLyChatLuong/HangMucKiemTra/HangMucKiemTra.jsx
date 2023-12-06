@@ -8,8 +8,14 @@ import {
   Modal as AntModal,
   Image,
   Tag,
+  Checkbox,
 } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -193,11 +199,28 @@ function HangMucSuDung({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
+    const detail =
+      permission && permission.view ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.tits_qtsx_HangMucKiemTra_Id}/chi-tiet`,
+            state: { itemData: item },
+          }}
+          title="Chi tiết"
+        >
+          <SearchOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Sửa">
+          <SearchOutlined />
+        </span>
+      );
+
     const editItem =
       permission && permission.edit && item.nguoiTao_Id === INFO.user_Id ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
+            pathname: `${match.url}/${item.tits_qtsx_HangMucKiemTra_Id}/chinh-sua`,
             state: { itemData: item },
           }}
           title="Sửa"
@@ -216,6 +239,8 @@ function HangMucSuDung({ match, history, permission }) {
         : { disabled: true };
     return (
       <div>
+        {detail}
+        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -232,7 +257,12 @@ function HangMucSuDung({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maChiTiet, "chi tiết");
+    ModalDeleteConfirm(
+      deleteItemAction,
+      item,
+      item.tenHangMucKiemTra,
+      "hạng mục kiểm tra "
+    );
   };
 
   /**
@@ -241,7 +271,7 @@ function HangMucSuDung({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_HangMucKiemTra/${item.id}`;
+    let url = `tits_qtsx_HangMucKiemTra/${item.tits_qtsx_HangMucKiemTra_Id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -302,10 +332,16 @@ function HangMucSuDung({ match, history, permission }) {
     setDisabledModal(true);
   };
 
-  const renderDetail = (record) => {
+  const renderCheckbox = (record, value) => {
+    return <Checkbox checked={record[value]} disabled={true} />;
+  };
+
+  const renderSoLuongHinhAnh = (record) => {
     return (
       <div>
-        <a onClick={() => XemChiTiet(record)}>{record && record.maChiTiet}</a>
+        <a onClick={() => XemChiTiet(record)}>
+          {record && record.soLuongHinhAnh}
+        </a>
       </div>
     );
   };
@@ -316,58 +352,27 @@ function HangMucSuDung({ match, history, permission }) {
       dataIndex: "key",
       key: "key",
       align: "center",
-      width: 45,
+      width: 50,
     },
     {
-      title: "Mã chi tiết",
-      key: "maChiTiet",
+      title: "Mã sản phẩm",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
       align: "center",
-      render: (record) => renderDetail(record),
+      // render: (record) => renderSoLuongHinhAnh(record),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maChiTiet,
-            value: d.maChiTiet,
+            text: d.maSanPham,
+            value: d.maSanPham,
           };
         })
       ),
-      onFilter: (value, record) => record.maChiTiet.includes(value),
+      onFilter: (value, record) => record.maSanPham.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên chi tiết",
-      dataIndex: "tenChiTiet",
-      key: "tenChiTiet",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenChiTiet,
-            value: d.tenChiTiet,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenChiTiet.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Thông số",
-      dataIndex: "thongSoKyThuat",
-      key: "thongSoKyThuat",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.thongSoKyThuat,
-            value: d.thongSoKyThuat,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.thongSoKyThuat.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Sản phẩm",
+      title: "Tên sản phẩm",
       dataIndex: "tenSanPham",
       key: "tenSanPham",
       align: "center",
@@ -383,7 +388,7 @@ function HangMucSuDung({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Công đoạn",
+      title: "Tên công đoạn",
       dataIndex: "tenCongDoan",
       key: "tenCongDoan",
       align: "center",
@@ -399,36 +404,70 @@ function HangMucSuDung({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Hình ảnh",
-      dataIndex: "hinhAnh",
-      key: "hinhAnh",
+      title: "Tên hạng mục kiểm tra",
+      dataIndex: "tenHangMucKiemTra",
+      key: "tenHangMucKiemTra",
       align: "center",
-      render: (value) =>
-        value && (
-          <span>
-            <Image
-              src={BASE_URL_API + value}
-              alt="Hình ảnh"
-              style={{ maxWidth: 100, maxHeight: 100 }}
-            />
-          </span>
-        ),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenHangMucKiemTra,
+            value: d.tenHangMucKiemTra,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenHangMucKiemTra.includes(value),
+      filterSearch: true,
     },
     {
-      title: "File đính kèm",
-      dataIndex: "fileDinhKem",
-      key: "fileDinhKem",
+      title: "Kiểu đánh giá",
+      dataIndex: "kieuDanhGia",
+      key: "kieuDanhGia",
       align: "center",
-      render: (value) =>
-        value && (
-          <a
-            href={BASE_URL_API + value}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {value && value.split("/")[5]}
-          </a>
-        ),
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.kieuDanhGia,
+            value: d.kieuDanhGia,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.kieuDanhGia.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Sử dụng",
+      key: "isSuDung",
+      align: "center",
+      width: 80,
+      render: (record) => renderCheckbox(record, "isSuDung"),
+    },
+    {
+      title: "File kết quả",
+      key: "isFile",
+      align: "center",
+      width: 80,
+      render: (record) => renderCheckbox(record, "isFile"),
+    },
+    {
+      title: "Thứ tự",
+      dataIndex: "thuTu",
+      key: "thuTu",
+      align: "center",
+      width: 80,
+    },
+    {
+      title: "Hình ảnh sản phẩm",
+      key: "soLuongHinhAnh",
+      align: "center",
+      width: 80,
+      render: (record) => renderSoLuongHinhAnh(record),
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "center",
     },
     {
       title: "Chức năng",
@@ -700,7 +739,7 @@ function HangMucSuDung({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 700, y: "55vh" }}
+          scroll={{ x: 1500, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

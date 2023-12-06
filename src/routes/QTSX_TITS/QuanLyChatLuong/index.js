@@ -15,6 +15,12 @@ const HangMucKiemTra = asyncComponent(() =>
 const HangMucKiemTraForm = asyncComponent(() =>
   import("./HangMucKiemTra/HangMucKiemTraForm")
 );
+const ChiTietHangMucKiemTra = asyncComponent(() =>
+  import("./HangMucKiemTra/ChiTietHangMucKiemTra")
+);
+const ThemChiTietHMKT = asyncComponent(() =>
+  import("./HangMucKiemTra/ThemChiTietHMKT")
+);
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -35,7 +41,6 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(NhomLoiForm, menus, pathname, permission)}
       />
-
       <Route
         path={`${match.url}/loi`}
         exact
@@ -51,7 +56,6 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(LoiForm, menus, pathname, permission)}
       />
-
       <Route
         path={`${match.url}/hang-muc-kiem-tra`}
         exact
@@ -66,6 +70,16 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/hang-muc-kiem-tra/:id/chinh-sua`}
         exact
         component={Auth(HangMucKiemTraForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/hang-muc-kiem-tra/:id/chi-tiet`}
+        exact
+        component={Auth(ChiTietHangMucKiemTra, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/hang-muc-kiem-tra/:id/chi-tiet/them-moi`}
+        exact
+        component={Auth(ThemChiTietHMKT, menus, pathname, permission)}
       />
     </Switch>
   );
