@@ -387,7 +387,7 @@ function KeHoach({ match, history, permission }) {
       dataIndex: "tong",
       align: "center",
       key: "tong",
-      width: 50,
+      width: 70,
       fixed: width > 768 ? "left" : "none",
     },
     {
@@ -401,7 +401,7 @@ function KeHoach({ match, history, permission }) {
             dataIndex: `ngay${id}`,
             key: `ngay${id}`,
             align: "center",
-            width: 40,
+            width: 50,
             render: (val, record) => render(val, record),
           };
         }),

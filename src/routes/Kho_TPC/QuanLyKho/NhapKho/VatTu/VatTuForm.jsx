@@ -172,21 +172,21 @@ const VatTuForm = ({ history, match, permission }) => {
           history.push("/home");
         }
       } else if (includes(match.url, "xac-nhan")) {
-        if (permission && permission.edit) {
+        if (permission && permission.cof) {
           setType("edit");
           const { id } = match.params;
           setId(id);
           getInfo(id);
-        } else if (permission && !permission.edit) {
+        } else if (permission && !permission.cof) {
           history.push("/home");
         }
       } else if (includes(match.url, "chi-tiet")) {
-        if (permission && permission.edit) {
+        if (permission && permission.view) {
           setType("detail");
           const { id } = match.params;
           setId(id);
           getInfo(id);
-        } else if (permission && !permission.edit) {
+        } else if (permission && !permission.view) {
           history.push("/home");
         }
       }
@@ -420,6 +420,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 thoiGianSuDung: data.thoiGianSuDung
                   ? data.thoiGianSuDung
                   : null,
+                soHoaDon: "",
               };
             });
 
@@ -436,9 +437,10 @@ const VatTuForm = ({ history, match, permission }) => {
               ngayNhan: res.data.ngayNhan
                 ? moment(res.data.ngayNhan, "DD/MM/YYYY HH:mm:ss")
                 : null,
-              ngayHoaDon: res.data.ngayHoaDon
-                ? moment(res.data.ngayHoaDon, "DD/MM/YYYY")
-                : null,
+              // ngayHoaDon: res.data.ngayHoaDon
+              //   ? moment(res.data.ngayHoaDon, "DD/MM/YYYY")
+              //   : null,
+              userThongKe_Id: INFO.user_Id,
             },
           });
         }
@@ -480,9 +482,7 @@ const VatTuForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter(
-      (d) => d.lkn_ChiTietPhieuNhanHang_Id !== item.lkn_ChiTietPhieuNhanHang_Id
-    );
+    const newData = listVatTu.filter((d) => d.chiTiet_Id !== item.chiTiet_Id);
     setListVatTu(newData);
   };
 
@@ -507,29 +507,26 @@ const VatTuForm = ({ history, match, permission }) => {
       </div>
     );
   };
-  const renderDatePicker = (val, record) => {
-    return (
-      <DatePicker
-        format={"DD/MM/YYYY"}
-        disabled={type === "new" || type === "edit" ? false : true}
-        value={val ? moment(val, "DD/MM/YYYY") : null}
-        allowClear={false}
-        onChange={(date, dateString) => {
-          const newVatTu = [...listVatTu];
-          newVatTu.forEach((vt, index) => {
-            if (
-              vt.lkn_ChiTietPhieuNhanHang_Id ===
-              record.lkn_ChiTietPhieuNhanHang_Id
-            ) {
-              newVatTu[index].thoiGianSuDung = dateString;
-            }
-          });
-          setListVatTu(newVatTu);
-          setFieldTouch(true);
-        }}
-      />
-    );
-  };
+  // const renderDatePicker = (val, record) => {
+  //   return (
+  //     <DatePicker
+  //       format={"DD/MM/YYYY"}
+  //       disabled={type === "new" || type === "edit" ? false : true}
+  //       value={val ? moment(val, "DD/MM/YYYY") : null}
+  //       onChange={(date, dateString) => {
+  //         const newVatTu = [...listVatTu];
+  //         newVatTu.forEach((vt, index) => {
+  //           if (vt.chiTiet_Id === record.chiTiet_Id) {
+  //             newVatTu[index].ngayHoaDon =
+  //               dateString !== "" ? dateString : null;
+  //           }
+  //         });
+  //         setListVatTu(newVatTu);
+  //         setFieldTouch(true);
+  //       }}
+  //     />
+  //   );
+  // };
 
   const handleInputChange = (val, item) => {
     const soLuongNhap = val.target.value;
@@ -543,15 +540,14 @@ const VatTuForm = ({ history, match, permission }) => {
       item.message = `Số lượng phải nhỏ hơn ${item.soLuongNhan}`;
     } else {
       const newData = editingRecord.filter(
-        (d) =>
-          d.lkn_ChiTietPhieuNhanHang_Id !== item.lkn_ChiTietPhieuNhanHang_Id
+        (d) => d.chiTiet_Id !== item.chiTiet_Id
       );
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...listVatTu];
     newData.forEach((ct, index) => {
-      if (ct.lkn_ChiTietPhieuNhanHang_Id === item.lkn_ChiTietPhieuNhanHang_Id) {
+      if (ct.chiTiet_Id === item.chiTiet_Id) {
         ct.soLuongNhap = soLuongNhap;
       }
     });
@@ -562,7 +558,7 @@ const VatTuForm = ({ history, match, permission }) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (ct.lkn_ChiTietPhieuNhanHang_Id === item.lkn_ChiTietPhieuNhanHang_Id) {
+      if (ct.chiTiet_Id === item.chiTiet_Id) {
         isEditing = true;
         message = ct.message;
       }
@@ -584,18 +580,18 @@ const VatTuForm = ({ history, match, permission }) => {
       </>
     );
   };
-  const changeGhiChu = (val, item) => {
+  const changeGhiChu = (val, item, key) => {
     const ghiChu = val.target.value;
     const newData = [...listVatTu];
     newData.forEach((sp, index) => {
-      if (sp.lkn_ChiTietPhieuNhanHang_Id === item.lkn_ChiTietPhieuNhanHang_Id) {
-        sp.ghiChu = ghiChu;
+      if (sp.chiTiet_Id === item.chiTiet_Id) {
+        sp[key] = ghiChu;
       }
     });
     setListVatTu(newData);
   };
 
-  const renderGhiChu = (item) => {
+  const renderGhiChu = (item, key) => {
     return (
       <>
         <Input
@@ -604,13 +600,14 @@ const VatTuForm = ({ history, match, permission }) => {
             width: "100%",
           }}
           className={`input-item`}
-          value={item.ghiChu}
-          onChange={(val) => changeGhiChu(val, item)}
+          value={item[key]}
+          onChange={(val) => changeGhiChu(val, item, key)}
           disabled={type === "new" || type === "edit" ? false : true}
         />
       </>
     );
   };
+
   let colValues = [
     {
       title: "STT",
@@ -659,6 +656,21 @@ const VatTuForm = ({ history, match, permission }) => {
         );
       },
     },
+    // {
+    //   title: "Ngày hóa đơn",
+    //   dataIndex: "ngayHoaDon",
+    //   key: "ngayHoaDon",
+    //   align: "center",
+    //   render: (val, record) => renderDatePicker(val, record),
+    // },
+    {
+      title: "Số hóa đơn",
+      dataIndex: "soHoaDon",
+      key: "soHoaDon",
+      align: "center",
+      render: (record) => renderGhiChu(record, "soHoaDon"),
+    },
+
     {
       title: "Số lượng",
       render: (record) => rendersoLuong(record),
@@ -670,7 +682,7 @@ const VatTuForm = ({ history, match, permission }) => {
       title: "Ghi chú",
       key: "ghiChu",
       align: "center",
-      render: (record) => renderGhiChu(record),
+      render: (record) => renderGhiChu(record, "ghiChu"),
     },
     {
       title: "Chức năng",
@@ -689,8 +701,7 @@ const VatTuForm = ({ history, match, permission }) => {
   const handleSave = (row) => {
     const newData = [...listVatTu];
     const index = newData.findIndex(
-      (item) =>
-        row.lkn_ChiTietPhieuNhanHang_Id === item.lkn_ChiTietPhieuNhanHang_Id
+      (item) => row.chiTiet_Id === item.chiTiet_Id
     );
     const item = newData[index];
     newData.splice(index, 1, {
@@ -798,6 +809,7 @@ const VatTuForm = ({ history, match, permission }) => {
           return {
             ...vt,
             lkn_PhieuNhapKhoVatTu_Id: id,
+            ngayHoaDon: vt.ngayHoaDon ? vt.ngayHoaDon : null,
           };
         }),
         ngayHoaDon: nhapkho.ngayHoaDon && nhapkho.ngayHoaDon._i,
@@ -1077,7 +1089,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            {/* <Col span={12}>
               <FormItem
                 label="BP.QC"
                 name={["phieunhapkho", "userQC_Id"]}
@@ -1099,7 +1111,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
-            </Col>
+            </Col> */}
             <Col span={12}>
               <FormItem
                 label="Thống kê"
@@ -1123,7 +1135,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col span={12}>
+            {/* <Col span={12}>
               <FormItem
                 label="Phụ trách bộ phận"
                 name={["phieunhapkho", "userPhuTrach_Id"]}
@@ -1145,7 +1157,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
-            </Col>
+            </Col> */}
           </Row>
         </Form>
         <Table

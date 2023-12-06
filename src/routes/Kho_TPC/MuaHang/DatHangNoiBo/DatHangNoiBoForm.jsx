@@ -190,23 +190,23 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
           history.push("/home");
         }
       } else if (includes(match.url, "chi-tiet")) {
-        if (permission && permission.edit) {
+        if (permission && permission.view) {
           setType("detail");
           const { id } = match.params;
           setId(id);
           getInfo(id, true);
           getUserKy(INFO);
-        } else if (permission && !permission.edit) {
+        } else if (permission && !permission.view) {
           history.push("/home");
         }
       } else if (includes(match.url, "xac-nhan")) {
-        if (permission && permission.edit) {
+        if (permission && permission.cof) {
           setType("xacnhan");
           const { id } = match.params;
           setId(id);
           getInfo(id);
           getUserKy(INFO);
-        } else if (permission && !permission.edit) {
+        } else if (permission && !permission.cof) {
           history.push("/home");
         }
       }
@@ -286,6 +286,13 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       }).then((res) => {
         if (res && res.data) {
           res.data.diaChi = res.data.diaChi ? res.data.diaChi : "";
+          res.data.nguoiLienHe = res.data.nguoiLienHe
+            ? res.data.nguoiLienHe
+            : "";
+          res.data.soDienThoai = res.data.soDienThoai
+            ? res.data.soDienThoai
+            : "";
+
           setListNhaCungCap([res.data]);
         } else {
           setListNhaCungCap([]);
@@ -311,6 +318,8 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
               return {
                 ...ct,
                 diaChi: ct.diaChi ? ct.diaChi : "",
+                nguoiLienHe: ct.nguoiLienHe ? ct.nguoiLienHe : "",
+                soDienThoai: ct.soDienThoai ? ct.soDienThoai : "",
               };
             })
           );

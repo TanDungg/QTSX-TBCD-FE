@@ -424,6 +424,23 @@ function VatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
+      title: "Nhà cung cấp",
+      dataIndex: "tenNhaCungCap",
+      key: "tenNhaCungCap",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNhaCungCap,
+            value: d.tenNhaCungCap,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenNhaCungCap && record.tenNhaCungCap.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Tình trạng",
       dataIndex: "tinhTrang",
       key: "tinhTrang",

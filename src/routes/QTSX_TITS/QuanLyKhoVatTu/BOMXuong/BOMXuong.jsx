@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
+import { Card, Button, Divider, Tag, Col, Row, DatePicker } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -19,32 +19,28 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
-  reDataForTable,
   getDateNow,
-  getLocalStorage,
-  getTokenInfo,
+  reDataForTable,
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
-
-const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
-function DieuChuyenThanhPham({ match, history, permission }) {
-  const { loading, data } = useSelector(({ common }) => common).toJS();
-  const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [ListKho, setListKho] = useState([]);
-  const [Kho, setKho] = useState(null);
-  const [FromDate, setFromDate] = useState(getDateNow(-7));
-  const [ToDate, setToDate] = useState(getDateNow());
-  const [keyword, setKeyword] = useState("");
-  const [page, setPage] = useState(1);
+const { EditableRow, EditableCell } = EditableTableRow;
 
+function BOMXuong({ match, history, permission }) {
+  const { width, loading, data } = useSelector(({ common }) => common).toJS();
+  const dispatch = useDispatch();
+  const [page, setPage] = useState(1);
+  const [ListXuong, setListXuong] = useState([]);
+  const [Xuong, setXuong] = useState(null);
+  const [keyword, setKeyword] = useState("");
+  const [TuNgay, setTuNgay] = useState(getDateNow(-7));
+  const [DenNgay, setDenNgay] = useState(getDateNow());
   useEffect(() => {
     if (permission && permission.view) {
-      getKho();
-      getListData(keyword, Kho, FromDate, ToDate, page);
+      getXuong();
+      getListData(Xuong, TuNgay, DenNgay, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -52,33 +48,36 @@ function DieuChuyenThanhPham({ match, history, permission }) {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   /**
    * Lấy dữ liệu về
    *
    */
-  const getListData = (keyword, cauTrucKho_Id, tuNgay, denNgay, page) => {
+  const getListData = (
+    tits_qtsx_Xuong_Id,
+    ngayBatDau,
+    ngayKetThuc,
+    keyword,
+    page
+  ) => {
     const param = convertObjectToUrlParams({
-      cauTrucKho_Id,
-      donVi_Id: INFO.donVi_Id,
-      tuNgay,
-      denNgay,
+      tits_qtsx_Xuong_Id,
       keyword,
+      ngayBatDau,
+      ngayKetThuc,
       page,
-      isKhoThanhPhamBegin: true,
     });
-    dispatch(
-      fetchStart(`lkn_PhieuDieuChuyenThanhPham?${param}`, "GET", null, "LIST")
-    );
+    dispatch(fetchStart(`tits_qtsx_BOMXuong?${param}`, "GET", null, "LIST"));
   };
 
-  const getKho = () => {
+  const getXuong = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=true`,
+          "tits_qtsx_Xuong?page=-1",
           "GET",
           null,
-          "DETAIL",
+          "LIST",
           "",
           resolve,
           reject
@@ -87,19 +86,20 @@ function DieuChuyenThanhPham({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListKho(res.data);
+          setListXuong(res.data);
         } else {
-          setListKho([]);
+          setListXuong([]);
         }
       })
       .catch((error) => console.error(error));
   };
+
   /**
-   * Tìm kiếm sản phẩm
+   * Tìm kiếm người dùng
    *
    */
-  const onSearchDeNghiMuaHang = () => {
-    getListData(keyword, Kho, FromDate, ToDate, page);
+  const onSearchBOM = () => {
+    getListData(Xuong, TuNgay, DenNgay, keyword, page);
   };
 
   /**
@@ -110,7 +110,7 @@ function DieuChuyenThanhPham({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, Kho, FromDate, ToDate, page);
+      getListData(Xuong, TuNgay, DenNgay, val.target.value, page);
     }
   };
   /**
@@ -120,52 +120,49 @@ function DieuChuyenThanhPham({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const xacnhan = (
-      <Link
-        to={{
-          pathname: `${match.url}/${item.id}/duyet`,
-          state: { itemData: item },
-        }}
-        title="Duyệt"
-      >
-        <CheckCircleOutlined />
-      </Link>
-    );
-
+    const confirmItem =
+      permission && permission.cof && item.tinhTrang === "Chưa xử lý" ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/xac-nhan`,
+            state: { itemData: item, permission },
+          }}
+          title="Xác nhận"
+        >
+          <CheckCircleOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Xác nhận">
+          <CheckCircleOutlined />
+        </span>
+      );
     const editItem =
-      permission &&
-      permission.edit &&
-      item.nguoiTao_Id === INFO.user_Id &&
-      moment(getDateNow(-1), "DD/MM/YYYY") <=
-        moment(item.ngayTao, "DD/MM/YYYY") ? (
+      permission && permission.edit && item.tinhTrang === "Chưa xử lý" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
-          title="Sửa"
+          title="Sửa định mức vật tư thép"
         >
           <EditOutlined />
         </Link>
       ) : (
-        <span disabled title="Sửa">
+        <span disabled title="Sửa định mức vật tư thép">
           <EditOutlined />
         </span>
       );
     const deleteVal =
-      permission &&
-      permission.del &&
-      item.nguoiTao_Id === INFO.user_Id &&
-      moment(getDateNow(-1), "DD/MM/YYYY") <= moment(item.ngayTao, "DD/MM/YYYY")
-        ? { onClick: () => deleteItemFunc(item) }
+      permission && permission.del && item.tinhTrang === "Chưa xử lý"
+        ? { onClick: () => deleteItemFunc(item, "BOM Xưởng") }
         : { disabled: true };
     return (
       <div>
-        {xacnhan}
+        {confirmItem}
         <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa">
+        <a {...deleteVal} title="Xóa định mức vật tư thép">
           <DeleteOutlined />
         </a>
       </div>
@@ -178,13 +175,8 @@ function DieuChuyenThanhPham({ match, history, permission }) {
    * @returns
    * @memberof VaiTro
    */
-  const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maPhieuDieuChuyenThanhPham,
-      "phiếu điều chuyển"
-    );
+  const deleteItemFunc = (item, title) => {
+    ModalDeleteConfirm(deleteItemAction, item, item.maBOMXuong, title);
   };
 
   /**
@@ -193,15 +185,14 @@ function DieuChuyenThanhPham({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    console.log(item);
-    let url = `lkn_PhieuDieuChuyenThanhPham?id=${item.id}`;
+    let url = `tits_qtsx_BOMXuong/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(keyword, Kho, FromDate, ToDate, page);
+          getListData(Xuong, TuNgay, DenNgay, keyword, page);
         }
       })
       .catch((error) => console.error(error));
@@ -215,7 +206,7 @@ function DieuChuyenThanhPham({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(keyword, Kho, FromDate, ToDate, pagination);
+    getListData(Xuong, TuNgay, DenNgay, keyword, pagination);
   };
 
   /**
@@ -239,15 +230,12 @@ function DieuChuyenThanhPham({ match, history, permission }) {
           onClick={handleRedirect}
           disabled={permission && !permission.add}
         >
-          Tạo phiếu
+          Thêm mới
         </Button>
       </>
     );
   };
   const { totalRow, pageSize } = data;
-
-  let dataList = reDataForTable(data.datalist, page, pageSize);
-
   const renderDetail = (val) => {
     const detail =
       permission && permission.view ? (
@@ -257,14 +245,22 @@ function DieuChuyenThanhPham({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuDieuChuyenThanhPham}
+          {val.maBOMXuong}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuDieuChuyenThanhPham}</span>
+        <span disabled>{val.maBOMXuong}</span>
       );
     return <div>{detail}</div>;
   };
+  let dataList = reDataForTable(data.datalist, page, pageSize);
   let renderHead = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 100,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -273,72 +269,41 @@ function DieuChuyenThanhPham({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu điều chuyển",
-      key: "maPhieuDieuChuyenThanhPham",
+      title: "Mã định mức",
+      // dataIndex: "maBOM",
+      key: "maBOMXuong",
       align: "center",
       render: (val) => renderDetail(val),
+
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieuDieuChuyenThanhPham,
-            value: d.maPhieuDieuChuyenThanhPham,
+            text: d.maBOMXuong,
+            value: d.maBOMXuong,
           };
         })
       ),
-      onFilter: (value, record) =>
-        record.maPhieuDieuChuyenThanhPham.includes(value),
+      onFilter: (value, record) => record.maBOMXuong.includes(value),
       filterSearch: true,
     },
     {
-      title: "Kho điều chuyển",
-      dataIndex: "tenKhoDi",
-      key: "tenKhoDi",
+      title: "Xưởng",
+      dataIndex: "tenXuong",
+      key: "tenXuong",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenKhoDi,
-            value: d.tenKhoDi,
+            text: d.tenXuong,
+            value: d.tenXuong,
           };
         })
       ),
-      onFilter: (value, record) => record.tenKhoDi.includes(value),
+      onFilter: (value, record) => record.tenXuong.includes(value),
       filterSearch: true,
     },
     {
-      title: "Kho nhận",
-      dataIndex: "tenKhoDen",
-      key: "tenKhoDen",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenKhoDen,
-            value: d.tenKhoDen,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenKhoDen.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Ngày điều chuyển",
-      dataIndex: "ngayTao",
-      key: "ngayTao",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.ngayTao,
-            value: d.ngayTao,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.ngayTao.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Người lập",
+      title: "Người lập phiếu",
       dataIndex: "tenNguoiTao",
       key: "tenNguoiTao",
       align: "center",
@@ -354,10 +319,43 @@ function DieuChuyenThanhPham({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Tình trạng",
+      title: "Ngày lập phiếu",
+      dataIndex: "ngay",
+      key: "ngay",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngay,
+            value: d.ngay,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngay.includes(value),
+      filterSearch: true,
+    },
+
+    {
+      title: "Trạng thái",
       dataIndex: "tinhTrang",
       key: "tinhTrang",
       align: "center",
+      render: (val) => {
+        return (
+          <Tag
+            color={
+              val === "Đã được duyệt bởi PT bộ phận"
+                ? "green"
+                : val === "Chưa xử lý"
+                ? "blue"
+                : "red"
+            }
+          >
+            {" "}
+            {val}
+          </Tag>
+        );
+      },
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -369,21 +367,8 @@ function DieuChuyenThanhPham({ match, history, permission }) {
       onFilter: (value, record) => record.tinhTrang.includes(value),
       filterSearch: true,
     },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
-    },
   ];
 
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
@@ -400,35 +385,56 @@ function DieuChuyenThanhPham({ match, history, permission }) {
     };
   });
 
-  const handleOnSelectKho = (val) => {
-    setKho(val);
-    setPage(1);
-    getListData(keyword, val, FromDate, ToDate, 1);
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
   };
 
-  const handleClearKho = (val) => {
-    setKho("");
-    setPage(1);
-    getListData(keyword, "", FromDate, ToDate, 1);
+  const handleOnSelectXuong = (value) => {
+    if (Xuong !== value) {
+      setXuong(value);
+      setPage(1);
+      getListData(value, TuNgay, DenNgay, keyword, 1);
+    }
   };
-
+  const handleOnSelectLoaiDinhMuc = (value) => {
+    if (DenNgay !== value) {
+      setDenNgay(value);
+      setPage(1);
+      getListData(Xuong, TuNgay, value, keyword, 1);
+    }
+  };
+  const handleOnSelectTrangThai = (value) => {
+    if (TuNgay !== value) {
+      setTuNgay(value);
+      setPage(1);
+      getListData(Xuong, value, DenNgay, keyword, 1);
+    }
+  };
+  const handleClearXuong = (value) => {
+    setXuong(null);
+    setPage(1);
+    getListData("", TuNgay, DenNgay, keyword, 1);
+  };
   const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
-    setPage(1);
-    getListData(keyword, Kho, dateString[0], dateString[1], 1);
+    if (TuNgay !== dateString[0] && DenNgay !== dateString[1]) {
+      setTuNgay(dateString[0]);
+      setDenNgay(dateString[1]);
+      setPage(1);
+      getListData(Xuong, dateString[0], dateString[1], keyword, 1);
+    }
   };
-
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Điều chuyển thành phẩm"
-        description="Điều chuyển thành phẩm"
+        title="Định mức BOM xưởng"
+        description="Danh sách Định mức BOM xưởng"
         buttons={addButtonRender()}
       />
-
-      <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row style={{ marginBottom: 8 }}>
+      <Card className="th-card-margin-bottom">
+        <Row>
           <Col
             xxl={6}
             xl={8}
@@ -436,25 +442,25 @@ function DieuChuyenThanhPham({ match, history, permission }) {
             md={12}
             sm={24}
             xs={24}
-            style={{ marginBottom: 8 }}
+            style={{
+              alignItems: "center",
+            }}
           >
-            <h5>Kho:</h5>
+            <h5>Xưởng:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListKho ? ListKho : []}
-              placeholder="Chọn Kho"
-              optionsvalue={["id", "tenCTKho"]}
+              data={ListXuong ? ListXuong : []}
+              placeholder="Chọn Xưởng"
+              optionsvalue={["id", "tenXuong"]}
               style={{ width: "100%" }}
               showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectKho}
-              value={Kho}
-              onChange={(value) => setKho(value)}
+              onSelect={handleOnSelectXuong}
+              optionFilterProp="name"
               allowClear
-              onClear={handleClearKho}
+              onClear={handleClearXuong}
+              value={Xuong}
             />
           </Col>
-
           <Col
             xxl={6}
             xl={8}
@@ -469,8 +475,8 @@ function DieuChuyenThanhPham({ match, history, permission }) {
               format={"DD/MM/YYYY"}
               onChange={(date, dateString) => handleChangeNgay(dateString)}
               defaultValue={[
-                moment(FromDate, "DD/MM/YYYY"),
-                moment(ToDate, "DD/MM/YYYY"),
+                moment(TuNgay, "DD/MM/YYYY"),
+                moment(DenNgay, "DD/MM/YYYY"),
               ]}
               allowClear={false}
             />
@@ -482,23 +488,28 @@ function DieuChuyenThanhPham({ match, history, permission }) {
             md={12}
             sm={24}
             xs={24}
-            style={{ marginBottom: 8 }}
+            style={{
+              alignItems: "center",
+            }}
           >
             <h5>Tìm kiếm:</h5>
             <Toolbar
               count={1}
               search={{
+                title: "Tìm kiếm",
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchDeNghiMuaHang,
-                onSearch: onSearchDeNghiMuaHang,
+                onPressEnter: onSearchBOM,
+                onSearch: onSearchBOM,
+                placeholder: "Nhập từ khóa",
                 allowClear: true,
-                placeholder: "Tìm kiếm",
               }}
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
           scroll={{ x: 700, y: "70vh" }}
@@ -524,4 +535,4 @@ function DieuChuyenThanhPham({ match, history, permission }) {
   );
 }
 
-export default DieuChuyenThanhPham;
+export default BOMXuong;

@@ -50,7 +50,8 @@ const XuatKhoVatTuSanXuat = asyncComponent(() =>
 const XuatKhoVatTuSanXuatForm = asyncComponent(() =>
   import("./XuatKhoVatTuSanXuat/XuatKhoVatTuSanXuatForm")
 );
-
+const BOMXuong = asyncComponent(() => import("./BOMXuong/BOMXuong"));
+const BOMXuongForm = asyncComponent(() => import("./BOMXuong/BOMXuongForm"));
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -81,7 +82,6 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(NhapKhoVatTuForm, menus, pathname, permission)}
       />
-
       {/* Đề nghị cấp vật tư phụ */}
       <Route
         path={`${match.url}/de-nghi-cap-vat-tu-phu`}
@@ -108,7 +108,6 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(DeNghiCapVatTuPhuForm, menus, pathname, permission)}
       />
-
       {/* Xuất kho vật tư phụ */}
       <Route
         path={`${match.url}/xuat-kho-vat-tu-phu`}
@@ -135,7 +134,6 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(XuatKhoVatTuPhuForm, menus, pathname, permission)}
       />
-
       {/* Điều chuyển vật tư */}
       <Route
         path={`${match.url}/dieu-chuyen`}
@@ -197,7 +195,6 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(LayoutKhoVatTu, menus, pathname, permission)}
       />
-
       {/* Xuất kho vật tư sản xuất */}
       <Route
         path={`${match.url}/xuat-kho-vat-tu-san-xuat`}
@@ -223,6 +220,32 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/xuat-kho-vat-tu-san-xuat/:id/xac-nhan`}
         exact
         component={Auth(XuatKhoVatTuSanXuatForm, menus, pathname, permission)}
+      />
+      {/* BOM Xưởng */}
+      <Route
+        path={`${match.url}/bom-xuong`}
+        exact
+        component={Auth(BOMXuong, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/bom-xuong/them-moi`}
+        exact
+        component={Auth(BOMXuongForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/bom-xuong/:id/chinh-sua`}
+        exact
+        component={Auth(BOMXuongForm, menus, pathname, permission)}
+      />{" "}
+      <Route
+        path={`${match.url}/bom-xuong/:id/xac-nhan`}
+        exact
+        component={Auth(BOMXuongForm, menus, pathname, permission)}
+      />{" "}
+      <Route
+        path={`${match.url}/bom-xuong/:id/chi-tiet`}
+        exact
+        component={Auth(BOMXuongForm, menus, pathname, permission)}
       />
     </Switch>
   );

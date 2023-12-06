@@ -239,7 +239,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu }) {
                 required: true,
               },
               {
-                pattern: /^[1-9]\d*$/,
+                pattern: /^(0\.\d*[1-9]\d*|[1-9]\d*(\.\d+)?)$/,
                 message: "Số lượng không hợp lệ!",
               },
             ]}

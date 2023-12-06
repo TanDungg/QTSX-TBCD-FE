@@ -29,7 +29,14 @@ export const removeDuplicates = (arr) => {
   });
   return uniqueObjects;
 };
-
+export function isJsonObject(str) {
+  try {
+    const obj = JSON.parse(str);
+    return typeof obj === "object" && obj !== null;
+  } catch (e) {
+    return false;
+  }
+}
 export function FileName(value) {
   const parts = value.split("/");
   const fileName = parts[parts.length - 1];

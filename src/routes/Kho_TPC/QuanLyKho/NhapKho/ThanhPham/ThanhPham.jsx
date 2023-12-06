@@ -121,48 +121,48 @@ function ThanhPham({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const confirmItem =
-      permission && permission.cof && item.tinhTrang === "Chưa xử lý" ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <CheckCircleOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <CheckCircleOutlined />
-        </span>
-      );
-    // const editItem =
-    //   permission && permission.edit && item.tinhTrang === "Chưa xử lý" ? (
+    // const confirmItem =
+    //   permission && permission.cof && item.tinhTrang === "Chưa xử lý" ? (
     //     <Link
     //       to={{
-    //         pathname: `${match.url}/${item.id}/chinh-sua`,
-    //         state: { itemData: item },
+    //         pathname: `${match.url}/${item.id}/xac-nhan`,
+    //         state: { itemData: item, permission },
     //       }}
-    //       title="Sửa"
+    //       title="Xác nhận"
     //     >
-    //       <EditOutlined />
+    //       <CheckCircleOutlined />
     //     </Link>
     //   ) : (
-    //     <span disabled title="Sửa">
-    //       <EditOutlined />
+    //     <span disabled title="Xác nhận">
+    //       <CheckCircleOutlined />
     //     </span>
     //   );
+    const editItem =
+      permission && permission.edit ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/chinh-sua`,
+            state: { itemData: item },
+          }}
+          title="Sửa"
+        >
+          <EditOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Sửa">
+          <EditOutlined />
+        </span>
+      );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa xử lý"
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {confirmItem}
-        <Divider type="vertical" />
-        {/* {editItem}
+        {/* {confirmItem}
         <Divider type="vertical" /> */}
+        {editItem}
+        <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
           <DeleteOutlined />
         </a>
@@ -366,38 +366,38 @@ function ThanhPham({ match, history, permission }) {
       onFilter: (value, record) => record.tenCauTrucKho.includes(value),
       filterSearch: true,
     },
-    {
-      title: "Tình trạng",
-      dataIndex: "tinhTrang",
-      key: "tinhTrang",
-      align: "center",
-      render: (val) => {
-        return (
-          <Tag
-            color={
-              val === "Phiếu đã được duyệt"
-                ? "green"
-                : val === "Chưa xử lý"
-                ? "blue"
-                : "red"
-            }
-          >
-            {" "}
-            {val}
-          </Tag>
-        );
-      },
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tinhTrang,
-            value: d.tinhTrang,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tinhTrang.includes(value),
-      filterSearch: true,
-    },
+    // {
+    //   title: "Tình trạng",
+    //   dataIndex: "tinhTrang",
+    //   key: "tinhTrang",
+    //   align: "center",
+    //   render: (val) => {
+    //     return (
+    //       <Tag
+    //         color={
+    //           val === "Phiếu đã được duyệt"
+    //             ? "green"
+    //             : val === "Chưa xử lý"
+    //             ? "blue"
+    //             : "red"
+    //         }
+    //       >
+    //         {" "}
+    //         {val}
+    //       </Tag>
+    //     );
+    //   },
+    //   filters: removeDuplicates(
+    //     map(dataList, (d) => {
+    //       return {
+    //         text: d.tinhTrang,
+    //         value: d.tinhTrang,
+    //       };
+    //     })
+    //   ),
+    //   onFilter: (value, record) => record.tinhTrang.includes(value),
+    //   filterSearch: true,
+    // },
   ];
 
   const components = {
