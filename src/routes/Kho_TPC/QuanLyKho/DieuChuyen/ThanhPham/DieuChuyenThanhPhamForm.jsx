@@ -60,7 +60,9 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
   const [ListUser, setListUser] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
   const [DisabledSave, setDisabledSave] = useState(true);
+  const [selectedDevice, setSelectedDevice] = useState([]);
 
+  const [selectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
@@ -156,7 +158,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
           const newData = res.data.map((data) => {
             return {
               ...data,
-              soLuong: 0,
+              soLuong: data.soLuongTon,
             };
           });
           setListSanPham(newData);
@@ -248,7 +250,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
           ? `/${id}/chinh-sua`
           : type === "detail"
           ? `/${id}/chi-tiet`
-          : `/${id}/xac-nhan`,
+          : `/${id}/duyet`,
         ""
       )}`
     );
@@ -261,8 +263,8 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "vật tư";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
+    const title = "sản phẩm";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenSanPham, title);
   };
 
   /**
@@ -271,7 +273,13 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = ListSanPham.filter((d) => d.maVatTu !== item.maVatTu);
+    const newData = ListSanPham.filter(
+      (d) => d.lkn_ChiTietKhoThanhPham_Id !== item.lkn_ChiTietKhoThanhPham_Id
+    );
+    if (newData.length === 0) {
+      setSelectedDevice([]);
+      setSelectedKeys([]);
+    }
     setListSanPham(newData);
     setFieldTouch(true);
   };
@@ -376,7 +384,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Tên sản phẩm",
+      title: "Số lượng tồn",
       dataIndex: "soLuongTon",
       key: "soLuongTon",
       align: "center",
@@ -541,25 +549,95 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
       "Tạo phiếu điều chuyển thành phẩm "
     ) : type === "edit" ? (
       "Chỉnh sửa phiếu điều chuyển thành phẩm"
-    ) : (
+    ) : type === "detail" ? (
       <span>
         Chi tiết phiếu điều chuyển thành phẩm -{" "}
-        <Tag color={"blue"} style={{ fontSize: "14px" }}>
+        <Tag
+          color={
+            info && info.tinhTrang === "Đã duyệt"
+              ? "green"
+              : info && info.tinhTrang === "Chưa duyệt"
+              ? "blue"
+              : "red"
+          }
+          style={{ fontSize: "14px" }}
+        >
           {info.maPhieuDieuChuyenThanhPham}
         </Tag>
-        <Tag color={"blue"} style={{ fontSize: "14px" }}>
+        <Tag
+          color={
+            info && info.tinhTrang === "Đã duyệt"
+              ? "green"
+              : info && info.tinhTrang === "Chưa duyệt"
+              ? "blue"
+              : "red"
+          }
+          style={{ fontSize: "14px" }}
+        >
+          {info.tinhTrang}
+        </Tag>
+      </span>
+    ) : (
+      <span>
+        Xác nhận phiếu điều chuyển thành phẩm -
+        <Tag
+          color={
+            info && info.tinhTrang === "Đã duyệt"
+              ? "green"
+              : info && info.tinhTrang === "Chưa duyệt"
+              ? "blue"
+              : "red"
+          }
+          style={{ fontSize: "14px" }}
+        >
+          {info.maPhieuDieuChuyenThanhPham}
+        </Tag>
+        <Tag
+          color={
+            info && info.tinhTrang === "Đã duyệt"
+              ? "green"
+              : info && info.tinhTrang === "Chưa duyệt"
+              ? "blue"
+              : "red"
+          }
+          style={{ fontSize: "14px" }}
+        >
           {info.tinhTrang}
         </Tag>
       </span>
     );
-
+  const saveDuyetTuChoi = (isDuyet) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuDieuChuyenThanhPham/duyet/${id}`,
+          "PUT",
+          {
+            id: id,
+            lyDoTuChoi: !isDuyet ? "Từ chối" : undefined,
+          },
+          !isDuyet ? "TUCHOI" : "XACNHAN",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          getInfo(id);
+          setFieldTouch(false);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   const prop = {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
     title: "Xác nhận duyệt phiếu điều chuyển",
     onOk: () => {
-      saveAndClose();
+      saveDuyetTuChoi(true);
     },
   };
 
@@ -572,13 +650,52 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     cancelText: "Hủy",
     title: "Xác nhận từ chối phiếu điều chuyển",
     onOk: () => {
-      saveAndClose();
+      saveDuyetTuChoi(false);
     },
   };
   const modalTuChoi = () => {
     Modal(prop1);
   };
+  const rowSelection = {
+    selectedRowKeys: selectedKeys,
+    selectedRows: selectedDevice,
+    onChange: (selectedRowKeys, selectedRows) => {
+      const newSelectedDevice = [...selectedRows];
+      const newSelectedKey = [...selectedRowKeys];
+      setSelectedDevice(newSelectedDevice);
+      setSelectedKeys(newSelectedKey);
+    },
+  };
+  const hanldleXoaSanPham = () => {
+    let newData = [...ListSanPham];
+    newData = newData.filter(function (objA) {
+      // Kiểm tra xem có đối tượng trong mảng B có cùng lkn_ChiTietKhoThanhPham_Id hay không
+      var existsInArrayB = selectedDevice.some(function (objB) {
+        return (
+          objA.lkn_ChiTietKhoThanhPham_Id === objB.lkn_ChiTietKhoThanhPham_Id
+        );
+      });
 
+      // Nếu không trùng, giữ lại đối tượng
+      return !existsInArrayB;
+    });
+    setListSanPham(newData);
+    setSelectedDevice([]);
+    setSelectedKeys([]);
+    setFieldTouch(true);
+  };
+  const prop2 = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận xóa sản phẩm",
+    onOk: () => {
+      hanldleXoaSanPham();
+    },
+  };
+  const modalXoaSanPham = () => {
+    Modal(prop2);
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -714,17 +831,38 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
             <strong>DANH SÁCH SẢN PHẨM</strong>
           </h2>
         </Row>
+        {type === "edit" && (
+          <Row>
+            <Col span={24}>
+              <Button
+                type="danger"
+                disabled={selectedDevice.length === 0}
+                onClick={modalXoaSanPham}
+              >
+                Xóa
+              </Button>
+            </Col>
+          </Row>
+        )}
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1300, y: "55vh" }}
+          scroll={{ x: 992, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={reDataForTable(ListSanPham)}
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
-          // loading={loading}
+          rowSelection={
+            type === "edit" && {
+              type: "checkbox",
+              ...rowSelection,
+              preserveSelectedRowKeys: true,
+              selectedRowKeys: selectedKeys,
+              getCheckboxProps: (record) => ({}),
+            }
+          }
         />
         {type === "duyet" && info.tinhTrang === "Chưa duyệt" ? (
           <>

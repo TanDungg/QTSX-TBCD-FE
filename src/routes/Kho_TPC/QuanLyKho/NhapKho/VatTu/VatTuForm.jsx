@@ -185,7 +185,7 @@ const VatTuForm = ({ history, match, permission }) => {
           setType("detail");
           const { id } = match.params;
           setId(id);
-          getInfo(id);
+          getInfo(id, "chitiet");
         } else if (permission && !permission.view) {
           history.push("/home");
         }
@@ -199,6 +199,7 @@ const VatTuForm = ({ history, match, permission }) => {
   const getUserKy = (info) => {
     const params = convertObjectToUrlParams({
       donviId: info.donVi_Id,
+      key: 1,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -214,7 +215,7 @@ const VatTuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserKy(res.data.datalist);
+        setListUserKy(res.data);
       } else {
         setListUserKy([]);
       }
@@ -268,6 +269,8 @@ const VatTuForm = ({ history, match, permission }) => {
         );
       }).then((res) => {
         if (res && res.data) {
+          res.data.name =
+            res.data.maNhaCungCap + " - " + res.data.tenNhaCungCap;
           setListNhaCungCap([res.data]);
         } else {
           setListNhaCungCap([]);
@@ -288,7 +291,14 @@ const VatTuForm = ({ history, match, permission }) => {
         );
       }).then((res) => {
         if (res && res.data) {
-          setListNhaCungCap(res.data);
+          setListNhaCungCap(
+            res.data.map((ncc) => {
+              return {
+                ...ncc,
+                name: ncc.maNhaCungCap + " - " + ncc.tenNhaCungCap,
+              };
+            })
+          );
         } else {
           setListNhaCungCap([]);
         }
@@ -393,7 +403,7 @@ const VatTuForm = ({ history, match, permission }) => {
    * Lấy thông tin
    *
    */
-  const getInfo = (id) => {
+  const getInfo = (id, chitiet) => {
     const params = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id,
     });
@@ -440,7 +450,9 @@ const VatTuForm = ({ history, match, permission }) => {
               // ngayHoaDon: res.data.ngayHoaDon
               //   ? moment(res.data.ngayHoaDon, "DD/MM/YYYY")
               //   : null,
-              userThongKe_Id: INFO.user_Id,
+              userThongKe_Id: res.data.userThongKe_Id
+                ? res.data.userThongKe_Id
+                : !chitiet && INFO.user_Id,
             },
           });
         }
@@ -649,9 +661,9 @@ const VatTuForm = ({ history, match, permission }) => {
       render: (val) => {
         return (
           <span>
-            {val.tenKe && val.tenKe}
-            {val.tenTang && ` - ${val.tenTang}`}
-            {val.tenNgan && ` - ${val.tenNgan}`}
+            {val.tenNgan ? val.tenNgan : val.tenKe && val.tenKe}
+            {/* {val.tenTang && ` - ${val.tenTang}`} */}
+            {/* {val.tenNgan && val.tenNgan} */}
           </span>
         );
       },
@@ -1042,7 +1054,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListNhaCungCap}
                   placeholder="Chọn nhà cung cấp"
-                  optionsvalue={["id", "tenNhaCungCap"]}
+                  optionsvalue={["id", "name"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

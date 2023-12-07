@@ -579,7 +579,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       key: "ghiChu",
       dataIndex: "ghiChu",
       align: "center",
-      // render: (record) => renderGhiChu(record),
+      //   render: (record) => renderGhiChu(record),
     },
     {
       title: "Chức năng",

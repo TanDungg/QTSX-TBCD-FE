@@ -571,7 +571,7 @@ function KeHoach({ match, history, permission }) {
         <Table
           style={{ marginTop: 10 }}
           bordered
-          scroll={{ x: 1500 }}
+          scroll={{ x: 1500, y: "65vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

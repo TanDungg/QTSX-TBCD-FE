@@ -308,11 +308,7 @@ const VatTuForm = ({ history, match, permission }) => {
             chiTiet.map((data) => {
               const lstViTri = data.list_ChiTietLuuKhos.map((vt) => ({
                 ...vt,
-                viTri: vt.tenKe
-                  ? `${vt.tenKe ? `${vt.tenKe}` : ""}${
-                      vt.tenTang ? ` - ${vt.tenTang}` : ""
-                    }${vt.tenNgan ? ` - ${vt.tenNgan}, ` : ""}`
-                  : data.tenKho,
+                viTri: vt.tenNgan ? vt.tenNgan : vt.ke ? vt.ke : vt.tenKho,
               }));
               return {
                 ...data,
@@ -849,7 +845,6 @@ const VatTuForm = ({ history, match, permission }) => {
                 rules={[
                   {
                     type: "string",
-                    required: true,
                   },
                 ]}
               >
@@ -937,7 +932,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col
+            {/* <Col
               xxl={12}
               xl={12}
               lg={24}
@@ -998,7 +993,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   disabled={type === "edit" ? false : true}
                 />
               </FormItem>
-            </Col>
+            </Col> */}
           </Row>
         </Form>
         {listVatTu.length !== 0 ? (

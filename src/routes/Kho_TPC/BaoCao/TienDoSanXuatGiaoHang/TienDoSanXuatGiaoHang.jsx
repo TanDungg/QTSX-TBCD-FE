@@ -17,6 +17,7 @@ import {
   getTokenInfo,
   getLocalStorage,
 } from "src/util/Common";
+import { ClearFix } from "react-grid-system";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -74,34 +75,36 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
       .then((res) => {
         if (res && res.data) {
           setData(res.data);
+        } else {
+          setData([]);
         }
       })
       .catch((error) => console.error(error));
-    let params = convertObjectToUrlParams({
-      LoaiKeHoach_Id,
-      phongBan_Id,
-      keyword,
-      page: -1,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_BaoCao/bao-cao-tien-do-sx-gh?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDataXuat(res.data);
-        }
-      })
-      .catch((error) => console.error(error));
+    // let params = convertObjectToUrlParams({
+    //   LoaiKeHoach_Id,
+    //   phongBan_Id,
+    //   keyword,
+    //   page: -1,
+    // });
+    // new Promise((resolve, reject) => {
+    //   dispatch(
+    //     fetchStart(
+    //       `lkn_BaoCao/bao-cao-tien-do-sx-gh?${params}`,
+    //       "GET",
+    //       null,
+    //       "DETAIL",
+    //       "",
+    //       resolve,
+    //       reject
+    //     )
+    //   );
+    // })
+    //   .then((res) => {
+    //     if (res && res.data) {
+    //       setDataXuat(res.data);
+    //     }
+    //   })
+    //   .catch((error) => console.error(error));
   };
 
   const getLoaiKeHoach = () => {
@@ -129,7 +132,6 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
       })
       .catch((error) => console.error(error));
   };
-
   const getXuong = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -190,12 +192,9 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
     });
     return uniqueObjects;
   }
-  const { totalRow, pageSize } = Data;
+  // const { totalRow, pageSize } = Data;
 
-  const dataList = reDataForTable(
-    Data.datalist,
-    page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  const dataList = reDataForTable(Data);
 
   let colValues = [
     {
@@ -302,16 +301,12 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
   });
 
   const XuatExcel = () => {
-    const newData = {
-      loaiKeHoach_Id: LoaiKeHoach,
-      list_ChiTiets: DataXuat,
-    };
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
           `lkn_BaoCao/export-file-excel-tien-do-sx-gh`,
           "POST",
-          newData,
+          Data,
           "",
           "",
           resolve,
@@ -443,13 +438,16 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
           size="small"
           rowClassName={"editable-row"}
           loading={loading}
-          pagination={{
-            onChange: handleTableChange,
-            pageSize: pageSize,
-            total: totalRow,
-            showSizeChanger: false,
-            showQuickJumper: true,
-          }}
+          pagination={
+            false
+            //   {
+            //   onChange: handleTableChange,
+            //   pageSize: pageSize,
+            //   total: totalRow,
+            //   showSizeChanger: false,
+            //   showQuickJumper: true,
+            // }
+          }
         />
       </Card>
     </div>

@@ -104,35 +104,35 @@ function XuatKho({ permission, history, match }) {
         }
       })
       .catch((error) => console.error(error));
-    let paramxuat = convertObjectToUrlParams({
-      keyword,
-      Kho_Id,
-      loaiVT_nhomSP,
-      phongBan_Id,
-      tungay,
-      denngay,
-      page: -1,
-      IsSanPham,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_BaoCao/bao-cao-xuat-kho?${paramxuat}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDataXuat(res.data);
-        }
-      })
-      .catch((error) => console.error(error));
+    // let paramxuat = convertObjectToUrlParams({
+    //   keyword,
+    //   Kho_Id,
+    //   loaiVT_nhomSP,
+    //   phongBan_Id,
+    //   tungay,
+    //   denngay,
+    //   page: -1,
+    //   IsSanPham,
+    // });
+    // new Promise((resolve, reject) => {
+    //   dispatch(
+    //     fetchStart(
+    //       `lkn_BaoCao/bao-cao-xuat-kho?${paramxuat}`,
+    //       "GET",
+    //       null,
+    //       "DETAIL",
+    //       "",
+    //       resolve,
+    //       reject
+    //     )
+    //   );
+    // })
+    //   .then((res) => {
+    //     if (res && res.data) {
+    //       setDataXuat(res.data);
+    //     }
+    //   })
+    //   .catch((error) => console.error(error));
   };
 
   const getKho = (Loai) => {
@@ -289,9 +289,8 @@ function XuatKho({ permission, history, match }) {
     });
     return uniqueObjects;
   }
-  const { totalRow, pageSize } = Data;
 
-  let dataList = reDataForTable(Data.datalist, page, pageSize);
+  let dataList = reDataForTable(Data);
 
   let colValues = [
     {
@@ -391,6 +390,22 @@ function XuatKho({ permission, history, match }) {
       filterSearch: true,
     },
     {
+      title: "Đơn vị tính",
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDonViTinh,
+            value: d.tenDonViTinh,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenDonViTinh.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Số lượng",
       dataIndex: "soLuong",
       key: "soLuong",
@@ -412,21 +427,12 @@ function XuatKho({ permission, history, match }) {
       onFilter: (value, record) => record.ngayXuatKho.includes(value),
       filterSearch: true,
     },
+
     {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
+      title: "Ghi chú",
+      dataIndex: "ghiChu",
+      key: "ghiChu",
       align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenDonViTinh,
-            value: d.tenDonViTinh,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenDonViTinh.includes(value),
-      filterSearch: true,
     },
   ];
   const components = {
@@ -452,17 +458,32 @@ function XuatKho({ permission, history, match }) {
     };
   });
 
-  const handleTaoPhieu = () => {
-    const newData = {
-      isThanhPham: Loai === "sanpham" ? true : false,
-      ctPhieuXuatKho: DataXuat,
-    };
+  const handleTaoPhieu = (
+    keyword,
+    Kho_Id,
+    loaiVT_nhomSP,
+    phongBan_Id,
+    tungay,
+    denngay,
+    page,
+    IsSanPham
+  ) => {
+    let param = convertObjectToUrlParams({
+      keyword,
+      Kho_Id,
+      loaiVT_nhomSP,
+      phongBan_Id,
+      tungay,
+      denngay,
+      page,
+      IsSanPham,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_BaoCao/export-file-excel-xuat-kho`,
+          `lkn_BaoCao/export-file-excel-xuat-kho?${param}`,
           "POST",
-          newData,
+          null,
           "",
           "",
           resolve,
@@ -484,7 +505,18 @@ function XuatKho({ permission, history, match }) {
           icon={<DownloadOutlined />}
           className="th-btn-margin-bottom-0"
           type="primary"
-          onClick={handleTaoPhieu}
+          onClick={() =>
+            handleTaoPhieu(
+              keyword,
+              Kho_Id,
+              null,
+              Xuong,
+              TuNgay,
+              DenNgay,
+              page,
+              Loai === "sanpham" ? true : false
+            )
+          }
           disabled={permission && !permission.add}
         >
           Xuất excel
@@ -801,13 +833,12 @@ function XuatKho({ permission, history, match }) {
           size="small"
           rowClassName={"editable-row"}
           loading={loading}
-          pagination={{
-            onChange: handleTableChange,
-            pageSize: pageSize,
-            total: totalRow,
-            showSizeChanger: false,
-            showQuickJumper: true,
-          }}
+          pagination={
+            false
+            // onChange: handleTableChange,
+            // showSizeChanger: false,
+            // showQuickJumper: true,
+          }
         />
       </Card>
     </div>

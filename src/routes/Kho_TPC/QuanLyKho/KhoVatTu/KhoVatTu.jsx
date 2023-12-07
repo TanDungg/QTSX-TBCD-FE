@@ -253,11 +253,7 @@ function KhoVatTu({ match, history, permission }) {
       align: "center",
       render: (val) => {
         return (
-          <span>
-            {val.tenKe && val.tenKe}
-            {val.tenTang && ` - ${val.tenTang}`}
-            {val.tenNgan && ` - ${val.tenNgan}`}
-          </span>
+          <span>{val.tenNgan ? val.tenNgan : val.tenKe && val.tenKe}</span>
         );
       },
     },
