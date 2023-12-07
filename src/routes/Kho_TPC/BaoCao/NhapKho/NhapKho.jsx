@@ -289,9 +289,9 @@ function NhapKho({ permission, history, match }) {
     });
     return uniqueObjects;
   }
-  const { totalRow, pageSize } = Data;
+  // const { totalRow, pageSize } = Data;
 
-  let dataList = reDataForTable(Data.datalist, page, pageSize);
+  let dataList = reDataForTable(Data);
 
   let colValues = () => {
     const col = [
@@ -388,8 +388,15 @@ function NhapKho({ permission, history, match }) {
             };
           })
         ),
-        onFilter: (value, record) => record.tenMauSac.includes(value),
+        onFilter: (value, record) =>
+          record.tenMauSac && record.tenMauSac.includes(value),
         filterSearch: true,
+      },
+      {
+        title: "Đơn vị tính",
+        dataIndex: "tenDonViTinh",
+        key: "tenDonViTinh",
+        align: "center",
       },
       {
         title: "Số lượng",
@@ -429,31 +436,69 @@ function NhapKho({ permission, history, match }) {
         onFilter: (value, record) => record.maPhieu.includes(value),
         filterSearch: true,
       },
-      {
-        title: Loai === "sanpham" ? "Ngày sản xuất" : "Tên nhà cung cấp",
-        dataIndex: Loai === "sanpham" ? "ngaySanXuat" : "tenNhaCungCap",
-        key: Loai === "sanpham" ? "ngaySanXuat" : "tenNhaCungCap",
-        align: "center",
-        filters: removeDuplicates(
-          map(dataList, (d) => {
-            return {
-              text: Loai === "sanpham" ? d.ngaySanXuat : d.tenNhaCungCap,
-              value: Loai === "sanpham" ? d.ngaySanXuat : d.tenNhaCungCap,
-            };
-          })
-        ),
-        onFilter: (value, record) =>
-          Loai === "sanpham"
-            ? record.ngaySanXuat.includes(value)
-            : record.tenNhaCungCap.includes(value),
-        filterSearch: true,
-      },
     ];
     if (Loai === "sanpham") {
-      return col;
+      return [
+        ...col,
+        {
+          title: "Ngày sản xuất",
+          dataIndex: "ngaySanXuat",
+          key: "ngaySanXuat",
+          align: "center",
+          filters: removeDuplicates(
+            map(dataList, (d) => {
+              return {
+                text: d.ngaySanXuat,
+                value: d.ngaySanXuat,
+              };
+            })
+          ),
+          onFilter: (value, record) => record.ngaySanXuat.includes(value),
+          filterSearch: true,
+        },
+        {
+          title: "Ghi chú",
+          dataIndex: "ghiChu",
+          key: "ghiChu",
+          align: "center",
+        },
+      ];
     } else {
       return [
         ...col,
+        {
+          title: "Mã nhà cung cấp",
+          dataIndex: "maNhaCungCap",
+          key: "maNhaCungCap",
+          align: "center",
+          filters: removeDuplicates(
+            map(dataList, (d) => {
+              return {
+                text: d.maNhaCungCap,
+                value: d.maNhaCungCap,
+              };
+            })
+          ),
+          onFilter: (value, record) =>
+            record.maNhaCungCap && record.maNhaCungCap.includes(value),
+          filterSearch: true,
+        },
+        {
+          title: "Tên nhà cung cấp",
+          dataIndex: "tenNhaCungCap",
+          key: "tenNhaCungCap",
+          align: "center",
+          filters: removeDuplicates(
+            map(dataList, (d) => {
+              return {
+                text: d.tenNhaCungCap,
+                value: d.tenNhaCungCap,
+              };
+            })
+          ),
+          onFilter: (value, record) => record.tenNhaCungCap.includes(value),
+          filterSearch: true,
+        },
         {
           title: "Ngày hóa đơn",
           dataIndex: "ngayHoaDon",
@@ -488,6 +533,12 @@ function NhapKho({ permission, history, match }) {
             record.soHoaDon && record.soHoaDon.includes(value),
           filterSearch: true,
         },
+        {
+          title: "Ghi chú",
+          dataIndex: "ghiChu",
+          key: "ghiChu",
+          align: "center",
+        },
       ];
     }
   };
@@ -514,11 +565,30 @@ function NhapKho({ permission, history, match }) {
     };
   });
 
-  const handleTaoPhieu = () => {
+  const handleTaoPhieu = (
+    keyword,
+    Kho_Id,
+    loaiVT_nhomSP,
+    phongBan_Id,
+    tungay,
+    denngay,
+    page,
+    IsSanPham
+  ) => {
+    let param = convertObjectToUrlParams({
+      keyword,
+      Kho_Id,
+      loaiVT_nhomSP,
+      phongBan_Id,
+      tungay,
+      denngay,
+      page,
+      IsSanPham,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_BaoCao/export-file-excel-bc-nhap-kho`,
+          `lkn_BaoCao/export-file-excel-bc-nhap-kho?${param}`,
           "POST",
           DataXuat,
           "",
@@ -542,7 +612,18 @@ function NhapKho({ permission, history, match }) {
           icon={<DownloadOutlined />}
           className="th-btn-margin-bottom-0"
           type="primary"
-          onClick={handleTaoPhieu}
+          onClick={() =>
+            handleTaoPhieu(
+              keyword,
+              Kho_Id,
+              Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
+              Xuong,
+              TuNgay,
+              DenNgay,
+              page,
+              Loai === "sanpham" ? true : false
+            )
+          }
           disabled={permission && !permission.add}
         >
           Xuất excel
@@ -859,13 +940,16 @@ function NhapKho({ permission, history, match }) {
           size="small"
           rowClassName={"editable-row"}
           loading={loading}
-          pagination={{
-            onChange: handleTableChange,
-            pageSize: pageSize,
-            total: totalRow,
-            showSizeChanger: false,
-            showQuickJumper: true,
-          }}
+          pagination={
+            false
+            //   {
+            //   onChange: handleTableChange,
+            //   pageSize: pageSize,
+            //   total: totalRow,
+            //   showSizeChanger: false,
+            //   showQuickJumper: true,
+            // }
+          }
         />
       </Card>
     </div>

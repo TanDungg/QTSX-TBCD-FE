@@ -68,32 +68,32 @@ function NhapXuatTon({ permission, history, match }) {
         }
       })
       .catch((error) => console.error(error));
-    let params = convertObjectToUrlParams({
-      KeyWord,
-      TuNgay,
-      DenNgay,
-      CauTrucKho_Id,
-      VatTu_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_BaoCao/get-bao-cao-ton-kho?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDataXuat(res.data);
-        }
-      })
-      .catch((error) => console.error(error));
+    // let params = convertObjectToUrlParams({
+    //   KeyWord,
+    //   TuNgay,
+    //   DenNgay,
+    //   CauTrucKho_Id,
+    //   VatTu_Id,
+    // });
+    // new Promise((resolve, reject) => {
+    //   dispatch(
+    //     fetchStart(
+    //       `lkn_BaoCao/get-bao-cao-ton-kho?${params}`,
+    //       "GET",
+    //       null,
+    //       "DETAIL",
+    //       "",
+    //       resolve,
+    //       reject
+    //     )
+    //   );
+    // })
+    //   .then((res) => {
+    //     if (res && res.data) {
+    //       setDataXuat(res.data);
+    //     }
+    //   })
+    //   .catch((error) => console.error(error));
   };
   const getKho = () => {
     new Promise((resolve, reject) => {
@@ -275,20 +275,12 @@ function NhapXuatTon({ permission, history, match }) {
   });
 
   const XuatExcel = () => {
-    const newData = {
-      tuNgay: TuNgay,
-      denNgay: DenNgay,
-      cauTrucKho_Id: CauTrucKho_Id,
-      tenKho: Data.tenKho,
-      maKho: Data.maKho,
-      list_ChiTiets: Data.list_ChiTiets,
-    };
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
           `lkn_BaoCao/export-file-nhap-xuat-ton`,
           "POST",
-          newData,
+          Data,
           "",
           "",
           resolve,
@@ -308,7 +300,7 @@ function NhapXuatTon({ permission, history, match }) {
           classDenNgaye="th-btn-margin-bottom-0"
           type="primary"
           onClick={XuatExcel}
-          disabled={(permission && !permission.add) || DataXuat.length === 0}
+          disabled={(permission && !permission.add) || Data.length === 0}
         >
           Xuất excel
         </Button>

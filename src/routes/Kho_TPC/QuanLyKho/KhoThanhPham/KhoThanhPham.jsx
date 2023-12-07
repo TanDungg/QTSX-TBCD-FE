@@ -281,12 +281,7 @@ function KhoVatTu({ history, permission }) {
       key: "tenKe",
       align: "center",
       render: (val) => (
-        <span>
-          {val.tenKe &&
-            `${val.tenKe}${val.tenTang ? " - " + val.tenTang : ""}${
-              val.tenNgan ? " - " + val.tenNgan : ""
-            }`}
-        </span>
+        <span>{val.tenNgan ? val.tenNgan : val.tenKe && val.tenKe}</span>
       ),
     },
   ];

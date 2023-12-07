@@ -92,34 +92,34 @@ function DieuChuyen({ permission, history, match }) {
         }
       })
       .catch((error) => console.error(error));
-    let params = convertObjectToUrlParams({
-      KhoDi_Id,
-      KhoDen_Id,
-      Keyword,
-      TuNgay,
-      DenNgay,
-      page: -1,
-      IsThanhPham,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_BaoCao/bao-cao-dieu-chuyen?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDataXuat(res.data);
-        }
-      })
-      .catch((error) => console.error(error));
+    // let params = convertObjectToUrlParams({
+    //   KhoDi_Id,
+    //   KhoDen_Id,
+    //   Keyword,
+    //   TuNgay,
+    //   DenNgay,
+    //   page: -1,
+    //   IsThanhPham,
+    // });
+    // new Promise((resolve, reject) => {
+    //   dispatch(
+    //     fetchStart(
+    //       `lkn_BaoCao/bao-cao-dieu-chuyen?${params}`,
+    //       "GET",
+    //       null,
+    //       "DETAIL",
+    //       "",
+    //       resolve,
+    //       reject
+    //     )
+    //   );
+    // })
+    //   .then((res) => {
+    //     if (res && res.data) {
+    //       setDataXuat(res.data);
+    //     }
+    //   })
+    //   .catch((error) => console.error(error));
   };
 
   const getKho = (Loai) => {
@@ -227,12 +227,9 @@ function DieuChuyen({ permission, history, match }) {
     });
     return uniqueObjects;
   }
-  const { totalRow, pageSize } = Data;
+  // const { totalRow, pageSize } = Data;
 
-  const dataList = reDataForTable(
-    Data.datalist,
-    page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  const dataList = reDataForTable(Data);
 
   let colValues = [
     {
@@ -374,7 +371,7 @@ function DieuChuyen({ permission, history, match }) {
         fetchStart(
           `lkn_BaoCao/export-file-excel-dieu-chuyen`,
           "POST",
-          DataXuat,
+          Data,
           "",
           "",
           resolve,
@@ -397,7 +394,7 @@ function DieuChuyen({ permission, history, match }) {
           className="th-btn-margin-bottom-0"
           type="primary"
           onClick={XuatExcel}
-          disabled={(permission && !permission.add) || DataXuat.length === 0}
+          disabled={(permission && !permission.add) || Data.length === 0}
         >
           Xuất excel
         </Button>
@@ -635,13 +632,16 @@ function DieuChuyen({ permission, history, match }) {
           size="small"
           rowClassName={"editable-row"}
           loading={loading}
-          pagination={{
-            onChange: handleTableChange,
-            pageSize: pageSize,
-            total: totalRow,
-            showSizeChanger: false,
-            showQuickJumper: true,
-          }}
+          pagination={
+            false
+            //   {
+            //   onChange: handleTableChange,
+            //   pageSize: pageSize,
+            //   total: totalRow,
+            //   showSizeChanger: false,
+            //   showQuickJumper: true,
+            // }
+          }
         />
       </Card>
     </div>

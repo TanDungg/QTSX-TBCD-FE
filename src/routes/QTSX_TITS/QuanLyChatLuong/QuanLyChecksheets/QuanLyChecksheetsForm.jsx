@@ -3,17 +3,16 @@ import {
   Button,
   Card,
   Col,
-  DatePicker,
+  Collapse,
   Divider,
   Form,
   Row,
   Spin,
   Upload,
-  Popover,
-  Alert,
   Tag,
+  Switch,
+  Image,
 } from "antd";
-import Helper from "src/helpers";
 import { useDispatch, useSelector } from "react-redux";
 import { includes, map } from "lodash";
 import {
@@ -21,37 +20,32 @@ import {
   Select,
   FormSubmit,
   ModalDeleteConfirm,
-  EditableTableRow,
-  Table,
   Modal,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
   getLocalStorage,
-  exportExcel,
   getTokenInfo,
-  reDataForTable,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import {
   DeleteOutlined,
   EditOutlined,
-  DownloadOutlined,
   UploadOutlined,
   RollbackOutlined,
   SaveOutlined,
   CloseOutlined,
+  CaretRightOutlined,
+  PlusCircleOutlined,
 } from "@ant-design/icons";
-import * as XLSX from "xlsx";
 import moment from "moment";
-import { messages } from "src/constants/Messages";
-const { EditableRow, EditableCell } = EditableTableRow;
-
+import Helpers from "src/helpers";
+import ModalHangMuc from "./ModalHangMuc";
 const FormItem = Form.Item;
-
+const { Panel } = Collapse;
 function QuanLyChecksheetsForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
@@ -67,12 +61,13 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
   const [ListChiTiet, setListChiTiet] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [SanPham, setSanPham] = useState("");
-  const [fileName, setFileName] = useState("");
-  const [message, setMessageError] = useState([]);
-  const [DataLoi, setDataLoi] = useState();
-  const [HangTrung, setHangTrung] = useState([]);
-
+  const [disableUpload, setDisableUpload] = useState(false);
+  const [FileChat, setFileChat] = useState("");
+  const [openImage, setOpenImage] = useState(false);
+  const [File, setFile] = useState([]);
   const [info, setInfo] = useState({});
+  const [ActiveModal, setActiveModal] = useState(false);
+
   const [fieldTouch, setFieldTouch] = useState(false);
   const { setFieldsValue, validateFields, resetFields } = form;
 
@@ -85,9 +80,8 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
         getListSanPham();
         getUserKy(INFO);
         setFieldsValue({
-          BOM: {
-            ngayBanHanh: moment(getDateNow(), "DD/MM/YYYY"),
-            ngayApDung: moment(getDateNow(), "DD/MM/YYYY"),
+          checkSheets: {
+            isSuDung: true,
           },
         });
       }
@@ -222,7 +216,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
             })
           );
           setFieldsValue({
-            BOM: {
+            checkSheets: {
               ...res.data,
               isThepTam: res.data.isThepTam ? "true" : "false",
               ngayBanHanh: moment(res.data.ngayBanHanh, "DD/MM/YYYY"),
@@ -288,506 +282,22 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
       </div>
     );
   };
-  const renderLoi = (val) => {
-    let check = false;
-    let messageLoi = "";
-    if (DataLoi && DataLoi.length > 0) {
-      DataLoi.forEach((dt) => {
-        if (dt.maVatTuChiTiet === val.maVatTuChiTiet) {
-          check = true;
-          messageLoi = dt.ghiChuImport;
-        }
-      });
-    }
-    return check ? (
-      <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
-        {val.maVatTuChiTiet}
-      </Popover>
-    ) : val.STT === "*" ? (
-      <span style={{ fontWeight: "bold" }}>{val.maVatTuChiTiet}</span>
-    ) : (
-      <span>{val.maVatTuChiTiet}</span>
-    );
-  };
-  let colValues = () => {
-    return [
-      {
-        title: "STT",
-        dataIndex: "key",
-        key: "key",
-        width: 45,
-        align: "center",
-      },
-      {
-        title: "Mã vật tư",
-        // dataIndex: "maChiTiet",
-        key: "maVatTuChiTiet",
-        align: "center",
-
-        render: (val) => renderLoi(val),
-      },
-      {
-        title: "Tên vật tư",
-        dataIndex: "tenVatTuChiTiet",
-        key: "tenVatTuChiTiet",
-        align: "center",
-      },
-      {
-        title: "Vật liệu",
-        dataIndex: "vatLieu",
-        key: "vatLieu",
-        align: "center",
-      },
-      {
-        title: "Quy cách phôi(mm)",
-        key: "quyCach",
-        align: "center",
-        children: [
-          {
-            title: "Dài",
-            dataIndex: "dai",
-            key: "dai",
-            align: "center",
-            width: 50,
-          },
-          {
-            title: "Rộng",
-            dataIndex: "rong",
-            key: "rong",
-            align: "center",
-            width: 50,
-          },
-          {
-            title: "Dày",
-            dataIndex: "day",
-            key: "day",
-            align: "center",
-            width: 50,
-          },
-          {
-            title: "Dn",
-            dataIndex: "dn",
-            key: "dn",
-            align: "center",
-            width: 50,
-          },
-          {
-            title: "Dt",
-            dataIndex: "dt",
-            key: "dt",
-            align: "center",
-            width: 50,
-          },
-          {
-            title: "Chung",
-            dataIndex: "chung",
-            key: "chung",
-            align: "center",
-            width: 55,
-          },
-        ],
-      },
-      {
-        title: "Khối lượng",
-        dataIndex: "khoiLuong",
-        key: "khoiLuong",
-        align: "center",
-      },
-      {
-        title: "Ghi chú",
-        dataIndex: "moTa",
-        key: "moTa",
-        align: "center",
-      },
-      // {
-      //   title: "Chức năng",
-      //   key: "action",
-      //   align: "center",
-      //   width: 80,
-      //   render: (value) => actionContent(value),
-      // },
-    ];
-  };
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
-
-  const columns = map(colValues(), (col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-      }),
-    };
-  });
-  const TaiFileMau = () => {
-    const param = convertObjectToUrlParams({
-      tits_qtsx_SanPham_Id: SanPham,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_DinhMucVatTuThep/export-file-mau?${param}`,
-          "POST",
-          null,
-          "DOWLOAD",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      exportExcel("File_Mau_DinhMucVatTuThep", res.data.dataexcel);
-    });
-  };
-  const xuLyExcel = (file) => {
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const workbook = XLSX.read(event.target.result, {
-        type: "binary",
-      });
-      const worksheet = workbook.Sheets["Import"];
-      let checkMau =
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "STT" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Mã vật tư" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Tên vật tư" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Vật liệu" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Quy cách" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 10, r: 2 }, e: { c: 10, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 10, r: 2 }, e: { c: 10, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Khối lượng" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 11, r: 2 }, e: { c: 11, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 11, r: 2 }, e: { c: 11, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Ghi chú" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
-          })[0]
-          .toString()
-          .trim() === "Dài" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 5, r: 3 }, e: { c: 5, r: 3 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 5, r: 3 }, e: { c: 5, r: 3 } },
-          })[0]
-          .toString()
-          .trim() === "Rộng" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 6, r: 3 }, e: { c: 6, r: 3 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 6, r: 3 }, e: { c: 6, r: 3 } },
-          })[0]
-          .toString()
-          .trim() === "Dày" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 7, r: 3 }, e: { c: 7, r: 3 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 7, r: 3 }, e: { c: 7, r: 3 } },
-          })[0]
-          .toString()
-          .trim() === "Dn" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 8, r: 3 }, e: { c: 8, r: 3 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 8, r: 3 }, e: { c: 8, r: 3 } },
-          })[0]
-          .toString()
-          .trim() === "Dt" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 9, r: 3 }, e: { c: 9, r: 3 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 9, r: 3 }, e: { c: 9, r: 3 } },
-          })[0]
-          .toString()
-          .trim() === "Chung";
-
-      if (checkMau) {
-        const data = XLSX.utils.sheet_to_json(worksheet, {
-          range: 2,
-        });
-        const data2 = XLSX.utils.sheet_to_json(worksheet, {
-          range: 3,
-        });
-        const MCT = "Mã vật tư";
-        const TCT = "Tên vật tư";
-        const VL = "Vật liệu";
-        const KL = "Khối lượng";
-        const GC = "Ghi chú";
-        const NewData = [];
-        data.forEach((d) => {
-          if (
-            (typeof d[TCT] !== "undefined" &&
-              (d[TCT] !== 0 || d[TCT] === 0) &&
-              d[TCT].toString().trim() !== "") ||
-            (typeof d[MCT] !== "undefined" &&
-              (d[MCT] !== 0 || d[MCT] === 0) &&
-              d[MCT].toString().trim() !== "") ||
-            (typeof d.VL !== "undefined" &&
-              (d.VL !== 0 || d.VL === 0) &&
-              d.VL.toString().trim() !== "")
-          ) {
-            NewData.push({
-              tenVatTuChiTiet:
-                (d[TCT] && d[TCT] !== 0) || d[TCT] === 0
-                  ? d[TCT].toString().trim() !== ""
-                    ? d[TCT].toString().trim()
-                    : undefined
-                  : undefined,
-              maVatTuChiTiet:
-                (d[MCT] && d[MCT] !== 0) || d[MCT] === 0
-                  ? d[MCT].toString().trim() !== ""
-                    ? d[MCT].toString().trim()
-                    : undefined
-                  : undefined,
-              vatLieu:
-                (d[VL] && d[VL] !== 0) || d[VL] === 0
-                  ? d[VL].toString().trim() !== ""
-                    ? d[VL].toString().trim()
-                    : undefined
-                  : undefined,
-              dai:
-                (d["Dài"] && d["Dài"] !== 0) || d["Dài"] === 0
-                  ? d["Dài"].toString().trim() !== ""
-                    ? d["Dài"].toString().trim()
-                    : undefined
-                  : undefined,
-              khoiLuong:
-                (d[KL] && d[KL] !== 0) || d[KL] === 0
-                  ? d[KL].toString().trim() !== ""
-                    ? Number(d[KL].toString().trim()).toFixed(3)
-                    : undefined
-                  : undefined,
-              moTa:
-                (d[GC] && d[GC] !== 0) || d[GC] === 0
-                  ? d[GC].toString().trim() !== ""
-                    ? d[GC].toString().trim()
-                    : undefined
-                  : undefined,
-              rong:
-                (d["Rộng"] && d["Rộng"] !== 0) || d["Rộng"] === 0
-                  ? d["Rộng"].toString().trim() !== ""
-                    ? d["Rộng"].toString().trim()
-                    : undefined
-                  : undefined,
-              day:
-                (d["Dày"] && d["Dày"] !== 0) || d["Dày"] === 0
-                  ? d["Dày"].toString().trim() !== ""
-                    ? d["Dày"].toString().trim()
-                    : undefined
-                  : undefined,
-              chung:
-                (d["Chung"] && d["Chung"] !== 0) || d["Chung"] === 0
-                  ? d["Chung"].toString().trim() !== ""
-                    ? d["Chung"].toString().trim()
-                    : undefined
-                  : undefined,
-              dn:
-                (d["Dn"] && d["Dn"] !== 0) || d["Dn"] === 0
-                  ? d["Dn"].toString().trim() !== ""
-                    ? d["Dn"].toString().trim()
-                    : undefined
-                  : undefined,
-              dt:
-                (d["Dt"] && d["Dt"] !== 0) || d["Dt"] === 0
-                  ? d["Dt"].toString().trim() !== ""
-                    ? d["Dt"].toString().trim()
-                    : undefined
-                  : undefined,
-            });
-          }
-        });
-        data2.forEach((d) => {
-          if (
-            (typeof d["Dài"] !== "undefined" &&
-              (d["Dài"] !== 0 || d["Dài"] === 0) &&
-              d["Dài"].toString().trim() !== "") ||
-            (typeof d["Rộng"] !== "undefined" &&
-              (d["Rộng"] !== 0 || d["Rộng"] === 0) &&
-              d["Rộng"].toString().trim() !== "") ||
-            (typeof d["Dày"] !== "undefined" &&
-              (d["Dày"] !== 0 || d["Dày"] === 0) &&
-              d["Dày"].toString().trim() !== "")
-          ) {
-            NewData.forEach((dt) => {
-              if (dt.maVatTuChiTiet === d.__EMPTY_1) {
-                dt.dai =
-                  (d["Dài"] && d["Dài"] !== 0) || d["Dài"] === 0
-                    ? d["Dài"].toString().trim() !== ""
-                      ? d["Dài"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.rong =
-                  (d["Rộng"] && d["Rộng"] !== 0) || d["Rộng"] === 0
-                    ? d["Rộng"].toString().trim() !== ""
-                      ? d["Rộng"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.day =
-                  (d["Dày"] && d["Dày"] !== 0) || d["Dày"] === 0
-                    ? d["Dày"].toString().trim() !== ""
-                      ? d["Dày"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.chung =
-                  (d["Chung"] && d["Chung"] !== 0) || d["Chung"] === 0
-                    ? d["Chung"].toString().trim() !== ""
-                      ? d["Chung"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.dn =
-                  (d["Dn"] && d["Dn"] !== 0) || d["Dn"] === 0
-                    ? d["Dn"].toString().trim() !== ""
-                      ? d["Dn"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.dt =
-                  (d["Dt"] && d["Dt"] !== 0) || d["Dt"] === 0
-                    ? d["Dt"].toString().trim() !== ""
-                      ? d["Dt"].toString().trim()
-                      : undefined
-                    : undefined;
-              }
-            });
-          }
-        });
-        if (NewData.length === 0) {
-          setFileName(file.name);
-          setListChiTiet([]);
-          setFieldTouch(true);
-          setMessageError("Dữ liệu import không được rỗng");
-          Helper.alertError("Dữ liệu import không được rỗng");
-        } else {
-          setListChiTiet(NewData);
-          setFileName(file.name);
-          setDataLoi();
-        }
-      } else {
-        setFileName(file.name);
-        setListChiTiet([]);
-        setFieldTouch(true);
-        setMessageError("Mẫu import không hợp lệ");
-        Helper.alertError("Mẫu file import không hợp lệ");
-      }
-    };
-    reader.readAsBinaryString(file);
-  };
 
   const props = {
-    accept: ".xls, .xlsx",
+    accept: ".png, .jpg, .jpeg",
     beforeUpload: (file) => {
-      const isPNG =
-        file.type ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+      const isPNG = file.type === "image/png" || file.type === "image/jpeg";
       if (!isPNG) {
-        Helper.alertError(messages.UPLOAD_ERROR);
-        return isPNG || Upload.LIST_IGNORE;
+        Helpers.alertError(`${file.name} không phải hình ảnh`);
       } else {
-        xuLyExcel(file);
+        setFile(file);
+        setDisableUpload(true);
+        const reader = new FileReader();
+        reader.onload = (e) => setFileChat(e.target.result);
+        reader.readAsDataURL(file);
         return false;
       }
     },
-
     showUploadList: false,
     maxCount: 1,
   };
@@ -798,7 +308,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.BOM);
+    saveData(values.checkSheets);
   };
 
   /**
@@ -808,20 +318,20 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
   const saveAndClose = (value) => {
     validateFields()
       .then((values) => {
-        saveData(values.BOM, value);
+        saveData(values.checkSheets, value);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (BOM, saveQuit = false) => {
+  const saveData = (checkSheets, saveQuit = false) => {
     if (type === "new") {
       const newData = {
-        ...BOM,
-        isThepTam: BOM.isThepTam === "true",
-        ngayBanHanh: BOM.ngayBanHanh.format("DD/MM/YYYY"),
-        ngayApDung: BOM.ngayApDung.format("DD/MM/YYYY"),
+        ...checkSheets,
+        isThepTam: checkSheets.isThepTam === "true",
+        ngayBanHanh: checkSheets.ngayBanHanh.format("DD/MM/YYYY"),
+        ngayApDung: checkSheets.ngayApDung.format("DD/MM/YYYY"),
         list_ChiTiets: ListChiTiet.map((ct) => {
           return {
             ...ct,
@@ -857,25 +367,24 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
               resetFields();
               setFieldTouch(false);
               setListChiTiet([]);
-              setFileName(null);
+
               setFieldsValue({
-                BOM: {
+                checkSheets: {
                   ngayBanHanh: moment(getDateNow(), "DD/MM/YYYY"),
                   ngayApDung: moment(getDateNow(), "DD/MM/YYYY"),
                 },
               });
             }
           } else {
-            setDataLoi(res.data.list_ChiTiets);
           }
         })
         .catch((error) => console.error(error));
     } else if (type === "edit") {
       const newData = {
         ...info,
-        ...BOM,
-        ngayBanHanh: BOM.ngayBanHanh.format("DD/MM/YYYY"),
-        ngayApDung: BOM.ngayApDung.format("DD/MM/YYYY"),
+        ...checkSheets,
+        ngayBanHanh: checkSheets.ngayBanHanh.format("DD/MM/YYYY"),
+        ngayApDung: checkSheets.ngayApDung.format("DD/MM/YYYY"),
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -972,12 +481,12 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
   };
   const formTitle =
     type === "new" ? (
-      "Thêm mới định mức vật tư thép"
+      "Thêm mới CheckSheets"
     ) : type === "edit" ? (
-      "Chỉnh sửa định mức vật tư thép"
+      "Chỉnh sửa CheckSheets"
     ) : type === "xacnhan" ? (
       <span>
-        Duyệt định mức vật tư thép{" "}
+        Duyệt CheckSheets{" "}
         <Tag
           style={{ fontSize: 14 }}
           color={
@@ -993,7 +502,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
       </span>
     ) : (
       <span>
-        Chi tiết định mức vật tư thép{" "}
+        Chi tiết CheckSheets{" "}
         <Tag
           style={{ fontSize: 14 }}
           color={
@@ -1008,49 +517,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
         </Tag>
       </span>
     );
-  const disableDate = (current) => {
-    return (
-      current && current < form.getFieldValue("BOM").ngayBanHanh.endOf("day")
-    );
-  };
-  const disableDateNgayApDung = (current) => {
-    return (
-      current && current > form.getFieldValue("BOM").ngayApDung.endOf("day")
-    );
-  };
-  const RowStyle = (current, index) => {
-    if (HangTrung.length > 0) {
-      if (
-        HangTrung.some(
-          (maVatTuChiTiet) => current.maVatTuChiTiety === maVatTuChiTiet
-        )
-      ) {
-        return "red-row";
-      }
-    }
-    if (current.tenVatTuChiTiet === undefined) {
-      setFieldTouch(false);
-      setMessageError("Tên chi tiết không được rỗng");
-      return "red-row";
-    }
-    if (current.maVatTuChiTiet === undefined) {
-      setFieldTouch(false);
-      setMessageError("Mã chi tiết không được rỗng");
-      return "red-row";
-    }
-    if (DataLoi && DataLoi.length > 0) {
-      if (
-        DataLoi.some(
-          (dt) =>
-            current.maVatTuChiTiet.toString() === dt.maVatTuChiTiet.toString()
-        )
-      ) {
-        setFieldTouch(false);
-        return "red-row";
-      }
-    }
-    return "";
-  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -1074,8 +541,68 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Loại định mức"
-                  name={["BOM", "isThepTam"]}
+                  label="Mã hồ sơ chất lượng"
+                  name={["checkSheets", "tenDinhMucVatTuThep"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                    {
+                      max: 250,
+                      message: "Mã hồ sơ chất lượng không được quá 250 ký tự",
+                    },
+                  ]}
+                >
+                  <Input
+                    className="input-item"
+                    placeholder="Nhập mã hồ sơ chất lượng"
+                    disabled={type !== "new" && type !== "edit"}
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Tên hồ sơ chất lượng"
+                  name={["checkSheets", "tenDinhMucVatTuThep"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                    {
+                      max: 250,
+                      message: "Tên hồ sơ chất lượng không được quá 250 ký tự",
+                    },
+                  ]}
+                >
+                  <Input
+                    className="input-item"
+                    placeholder="Nhập tên hồ sơ chất lượng"
+                    disabled={type !== "new" && type !== "edit"}
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Loại sản phẩm"
+                  name={["checkSheets", "tits_qtsx_LoaiSanPham_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -1085,17 +612,8 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                 >
                   <Select
                     className="heading-select slt-search th-select-heading"
-                    data={[
-                      {
-                        id: "true",
-                        name: "Định mức vật tư thép tấm",
-                      },
-                      {
-                        id: "false",
-                        name: "Định mức vật tư thép H",
-                      },
-                    ]}
-                    placeholder="Chọn loại định mức"
+                    data={[]}
+                    placeholder="Chọn loại sản phẩm"
                     optionsvalue={["id", "name"]}
                     style={{ width: "100%" }}
                     disabled={type !== "new"}
@@ -1112,105 +630,8 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Tên định mức"
-                  name={["BOM", "tenDinhMucVatTuThep"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                    {
-                      max: 250,
-                      message: "Tên định mức không được quá 250 ký tự",
-                    },
-                  ]}
-                >
-                  <Input
-                    className="input-item"
-                    placeholder="Nhập tên định mức"
-                    disabled={type !== "new" && type !== "edit"}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Ngày ban hành"
-                  name={["BOM", "ngayBanHanh"]}
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
-                >
-                  <DatePicker
-                    format={"DD/MM/YYYY"}
-                    disabledDate={disableDateNgayApDung}
-                    disabled={type !== "new" && type !== "edit"}
-                    allowClear={false}
-                    onChange={(dates, dateString) => {
-                      setFieldsValue({
-                        BOM: {
-                          ngayBanHanh: moment(dateString, "DD/MM/YYYY"),
-                        },
-                      });
-                    }}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Ngày áp dụng"
-                  name={["BOM", "ngayApDung"]}
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
-                >
-                  <DatePicker
-                    disabled={type !== "new" && type !== "edit"}
-                    disabledDate={disableDate}
-                    format={"DD/MM/YYYY"}
-                    allowClear={false}
-                    onChange={(dates, dateString) => {
-                      setFieldsValue({
-                        BOM: {
-                          ngayApDung: moment(dateString, "DD/MM/YYYY"),
-                        },
-                      });
-                    }}
-                  />
-                </FormItem>
-              </Col>
-
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
                   label="Sản phẩm"
-                  name={["BOM", "tits_qtsx_SanPham_Id"]}
+                  name={["checkSheets", "tits_qtsx_SanPham_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -1241,8 +662,8 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Người kiểm tra"
-                  name={["BOM", "nguoiKiemTra_Id"]}
+                  label="Công đoạn"
+                  name={["checkSheets", "tits_qtsx_CongDoan_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -1253,7 +674,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                   <Select
                     className="heading-select slt-search th-select-heading"
                     data={ListUserKy}
-                    placeholder="Chọn người kiểm tra"
+                    placeholder="Chọn công đoạn"
                     optionsvalue={["id", "fullName"]}
                     style={{ width: "100%" }}
                     showSearch
@@ -1273,26 +694,109 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Người duyệt"
-                  name={["BOM", "nguoiPheDuyet_Id"]}
+                  label="Sử dụng"
+                  name={["checkSheets", "isSuDung"]}
                   rules={[
                     {
-                      type: "string",
                       required: true,
                     },
                   ]}
                 >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListUserKy}
-                    placeholder="Chọn người duyệt"
-                    optionsvalue={["id", "fullName"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp="name"
-                    disabled={type !== "new" && type !== "edit"}
-                    onSelect={(val) => {}}
-                  />
+                  <Switch />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Hình ảnh"
+                  name={["checkSheets", "file"]}
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  {!disableUpload ? (
+                    <Upload {...props}>
+                      <Button
+                        style={{
+                          marginBottom: 0,
+                          height: 25,
+                          lineHeight: "25px",
+                        }}
+                        icon={<UploadOutlined />}
+                        disabled={type === "xacnhan" || type === "detail"}
+                      >
+                        Tải hình ảnh
+                      </Button>
+                    </Upload>
+                  ) : File.name ? (
+                    <span>
+                      <span
+                        style={{ color: "#0469B9", cursor: "pointer" }}
+                        onClick={() => setOpenImage(true)}
+                      >
+                        {File.name.length > 20
+                          ? File.name.substring(0, 20) + "..."
+                          : File.name}{" "}
+                      </span>
+                      <DeleteOutlined
+                        style={{ cursor: "pointer", color: "red" }}
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                        onClick={() => {
+                          setDisableUpload(false);
+                          setFieldsValue({
+                            checkSheets: {
+                              file: undefined,
+                            },
+                          });
+                        }}
+                      />
+                      <Image
+                        width={100}
+                        src={FileChat}
+                        alt="preview"
+                        style={{
+                          display: "none",
+                        }}
+                        preview={{
+                          visible: openImage,
+                          scaleStep: 0.5,
+                          src: FileChat,
+                          onVisibleChange: (value) => {
+                            setOpenImage(value);
+                          },
+                        }}
+                      />
+                    </span>
+                  ) : (
+                    <span>
+                      <a
+                        target="_blank"
+                        href={BASE_URL_API + File}
+                        rel="noopener noreferrer"
+                      >
+                        {File.split("/")[5]}{" "}
+                      </a>
+                      {!info.isXacNhan && (
+                        <DeleteOutlined
+                          style={{ cursor: "pointer", color: "red" }}
+                          onClick={() => {
+                            setDisableUpload(false);
+                          }}
+                        />
+                      )}
+                    </span>
+                  )}
                 </FormItem>
               </Col>
               <Col
@@ -1306,7 +810,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
               >
                 <FormItem
                   label="Ghi chú"
-                  name={["BOM", "moTa"]}
+                  name={["checkSheets", "moTa"]}
                   rules={[
                     {
                       type: "string",
@@ -1323,96 +827,33 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
           </Form>
         </Spin>
       </Card>
-      <Card
-        className="th-card-margin-bottom"
-        title="Thông tin vật tư"
-        headStyle={{
-          textAlign: "center",
-          backgroundColor: "#0469B9",
-          color: "#fff",
-        }}
-      >
-        {type === "new" && (
-          <>
-            <Row style={{ marginTop: 5 }}>
-              <Col
-                xxl={2}
-                xl={3}
-                lg={4}
-                md={4}
-                sm={6}
-                xs={7}
-                style={{ marginTop: 8 }}
-                align={"center"}
-              >
-                Import:
-              </Col>
-              <Col xxl={4} xl={5} lg={7} md={7} xs={17}>
-                <Upload {...props}>
-                  <Button
-                    icon={<UploadOutlined />}
-                    // danger={!fieldTouch}
-                    disabled={SanPham === ""}
-                  >
-                    Tải dữ liệu lên
-                  </Button>
-                </Upload>
-                {fileName && (
-                  <>
-                    <Popover
-                      content={
-                        fieldTouch ? (
-                          fileName
-                        ) : (
-                          <Alert type="error" message={message} banner />
-                        )
-                      }
-                    >
-                      <p style={{ color: !fieldTouch ? "red" : "#1890ff" }}>
-                        {fileName.length > 20
-                          ? fileName.substring(0, 20) + "..."
-                          : fileName}{" "}
-                        <DeleteOutlined
-                          style={{ cursor: "pointer" }}
-                          onClick={() => {
-                            setListChiTiet([]);
-                            setFileName(null);
-                            setFieldTouch(false);
-                          }}
-                        />
-                      </p>
-                    </Popover>
-                  </>
-                )}
-              </Col>
-              <Col>
-                <Button
-                  icon={<DownloadOutlined />}
-                  onClick={TaiFileMau}
-                  className="th-btn-margin-bottom-0"
-                  type="primary"
-                  disabled={SanPham === ""}
-                >
-                  File mẫu
-                </Button>
-              </Col>
-            </Row>
-          </>
+      <Row style={{ marginBottom: 15 }}>
+        <Col span={24}>
+          <h4 style={{ fontWeight: "bold", margin: 0 }}>
+            Hạng mục kiểm tra chất lượng {"  "}
+            <a onClick={() => setActiveModal(true)}>
+              <PlusCircleOutlined />
+            </a>
+          </h4>
+        </Col>
+      </Row>
+      <Collapse
+        accordion
+        expandIcon={({ isActive }) => (
+          <CaretRightOutlined rotate={isActive ? 90 : 0} />
         )}
-        <Table
-          style={{ marginTop: 10 }}
-          bordered
-          scroll={{ x: 1000, y: "60vh" }}
-          columns={columns}
-          components={components}
-          className="gx-table-responsive"
-          dataSource={reDataForTable(ListChiTiet)}
-          size="small"
-          loading={loading}
-          rowClassName={RowStyle}
-          pagination={false}
-        />
-      </Card>
+      >
+        <Panel header="This is panel header 1" key="1">
+          <p>Tezxxt</p>
+        </Panel>
+        <Panel header="This is panel header 2" key="2">
+          <p>Tezxxt</p>
+        </Panel>
+        <Panel header="This is panel header 3" key="3">
+          <p>Tezxxt</p>
+        </Panel>
+      </Collapse>
+
       {type === "new" || type === "edit" ? (
         <FormSubmit
           goBack={goBack}
@@ -1456,6 +897,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
           </Row>
         </>
       )}
+      <ModalHangMuc openModal={ActiveModal} openModalFS={setActiveModal} />
     </div>
   );
 }

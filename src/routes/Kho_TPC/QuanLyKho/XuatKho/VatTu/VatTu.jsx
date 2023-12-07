@@ -297,6 +297,22 @@ function XuatKhoVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
+      title: "Người duyệt",
+      dataIndex: "tenNguoiDuyet",
+      key: "tenNguoiDuyet",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiDuyet,
+            value: d.tenNguoiDuyet,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNguoiDuyet.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Ngày xuất kho",
       dataIndex: "ngayTao",
       key: "ngayTao",

@@ -329,18 +329,12 @@ function TonKho({ permission, history, match }) {
   });
 
   const XuatExcel = () => {
-    const newData = {
-      cauTrucKho_Id: Kho,
-      tuNgay: TuNgay,
-      denNgay: DenNgay,
-      list_ChiTiets: Data,
-    };
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_BaoCao/export-file-bao-cao-ton-kho-theo-kho-sp-vt`,
+          `lkn_BaoCao/export-file-bao-cao-ton-kho-theo-kho-sp-vt}`,
           "POST",
-          newData,
+          Data,
           "",
           "",
           resolve,
@@ -509,12 +503,15 @@ function TonKho({ permission, history, match }) {
           size="small"
           rowClassName={"editable-row"}
           loading={loading}
-          pagination={{
-            pageSize: 20,
-            total: dataList.length,
-            showSizeChanger: false,
-            showQuickJumper: true,
-          }}
+          pagination={
+            false
+            //   {
+            //   pageSize: 20,
+            //   total: dataList.length,
+            //   showSizeChanger: false,
+            //   showQuickJumper: true,
+            // }
+          }
         />
       </Card>
       <ModalChiTietPhieu
