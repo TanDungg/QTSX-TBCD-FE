@@ -1,34 +1,35 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Modal as AntModal, Col } from "antd";
+import { Card, Button, Divider, Row, Col, Switch, Checkbox, Input } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  SearchOutlined,
+  PlusCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map } from "lodash";
+import { isEmpty, map } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
   EditableTableRow,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { reDataForTable, getLocalStorage, getTokenInfo } from "src/util/Common";
+import { reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import ModalThemChiTiet from "./ModalThemChiTiet";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function ChiTietHangMucKiemTra({ match, history, permission }) {
-  const { loading, data, width } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [ListChiTiet, setListChiTiet] = useState([]);
   const [id, setId] = useState(undefined);
-  const [info, setInfo] = useState({});
   const [ActiveModalThemChiTiet, setActiveModalThemChiTiet] = useState(false);
+  const [ChiTiet, setChiTiet] = useState({});
+  const [info, setInfo] = useState({});
+  const [editingRecord, setEditingRecord] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -68,28 +69,34 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
   };
 
   const actionContent = (item) => {
-    const detail =
-      permission && permission.view ? (
+    const add =
+      permission && permission.add ? (
         <Link
-          to={{
-            pathname: `${match.url}/${item.tits_qtsx_HangMucKiemTra_Id}/chi-tiet`,
-            state: { itemData: item },
+          onClick={() => {
+            setChiTiet({
+              ...item,
+              tits_qtsx_SanPham_Id: info && info.tits_qtsx_SanPham_Id,
+              tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
+              isNoiDung: info && info.isNoiDung,
+              isSuDungHinhAnh: info && info.isSuDungHinhAnh,
+            });
+            setActiveModalThemChiTiet(true);
           }}
-          title="Chi tiết"
+          title="Thêm mới"
         >
-          <SearchOutlined />
+          <PlusCircleOutlined />
         </Link>
       ) : (
-        <span disabled title="Sửa">
-          <SearchOutlined />
+        <span disabled title="Thêm mới">
+          <PlusCircleOutlined />
         </span>
       );
 
     const editItem =
-      permission && permission.edit && item.nguoiTao_Id === INFO.user_Id ? (
+      permission && permission.edit ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.tits_qtsx_HangMucKiemTra_Id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
           title="Sửa"
@@ -103,12 +110,12 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       );
 
     const deleteVal =
-      permission && permission.del && item.nguoiTao_Id === INFO.user_Id
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {detail}
+        {add}
         <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
@@ -129,8 +136,8 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.tenHangMucKiemTra,
-      "hạng mục kiểm tra "
+      item.maSo,
+      "chi tiết hạng mục kiểm tra mã số"
     );
   };
 
@@ -140,14 +147,13 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_HangMucKiemTra/${item.tits_qtsx_HangMucKiemTra_Id}`;
+    let url = `tits_qtsx_HangMucKiemTra/chi-tiet/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        // Reload lại danh sách
         if (res.status !== 409) {
-          // getListData(LoaiSanPham, SanPham, CongDoan, keyword, page);
+          getInfo(id);
         }
       })
       .catch((error) => console.error(error));
@@ -179,6 +185,79 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
     );
   };
 
+  const handleInputChangeThuTu = (val, item) => {
+    const ThuTu = val.target.value;
+    if (isEmpty(ThuTu) || Number(ThuTu) <= 0) {
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Thứ tự phải là số lớn hơn 0 và bắt buộc";
+    } else {
+      const newData = editingRecord.filter((d) => d.id !== item.id);
+      setEditingRecord(newData);
+    }
+    const newData = [...ListChiTiet];
+    newData.forEach((ct, index) => {
+      if (ct.id === item.id) {
+        ct.thuTu = ThuTu;
+      }
+    });
+    setListChiTiet(newData);
+  };
+
+  const onChangeValueThuTu = (val, item) => {
+    const newData = {
+      id: item.id,
+      thuTu: val.target.value,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_HangMucKiemTra/doi-thu-tu-hang-muc-kiem-tra-chi-tiet`,
+          "PUT",
+          newData,
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res.status !== 409) {
+        getInfo(id);
+      }
+    });
+  };
+
+  const renderThuTuChiTiet = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.id === item.id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.thuTu}
+          onBlur={(val) => onChangeValueThuTu(val, item)}
+          onChange={(val) => handleInputChangeThuTu(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
+
+  const renderCheckbox = (record) => {
+    return <Checkbox checked={record.isNhapKetQua} disabled={true} />;
+  };
+
   let renderHead = [
     {
       title: "STT",
@@ -188,48 +267,56 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       width: 50,
     },
     {
-      title: "Mã sản phẩm",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
-      align: "center",
-      // render: (record) => renderSoLuongHinhAnh(record),
-    },
-    {
-      title: "Tên sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
+      title: "Mã số",
+      dataIndex: "maSo",
+      key: "maSo",
       align: "center",
     },
     {
-      title: "Tên công đoạn",
-      dataIndex: "tenCongDoan",
-      key: "tenCongDoan",
+      title: "Nội dung kiểm tra",
+      dataIndex: "noiDungKiemTra",
+      key: "noiDungKiemTra",
       align: "center",
     },
     {
-      title: "Tên hạng mục kiểm tra",
-      dataIndex: "tenHangMucKiemTra",
-      key: "tenHangMucKiemTra",
+      title: "Tiêu chuẩn đánh giá",
+      dataIndex: "tieuChuanDanhGia",
+      key: "tieuChuanDanhGia",
       align: "center",
     },
     {
-      title: "Kiểu đánh giá",
-      dataIndex: "kieuDanhGia",
-      key: "kieuDanhGia",
+      title: "Nhập kết quả",
+      key: "isNhapKetQua",
+      align: "center",
+      width: 80,
+      render: (record) => renderCheckbox(record),
+    },
+    {
+      title: info && info.isNoiDung ? "Giá trị tiêu chuẩn" : "Giá trị Min",
+      dataIndex: info && info.isNoiDung ? "giaTriTieuChuan" : "giaTriMin",
+      key: info && info.isNoiDung ? "giaTriTieuChuan" : "giaTriMin",
+      align: "center",
+    },
+    {
+      title: info && info.isNoiDung ? "Phương pháp tiêu chuẩn" : "Giá trị Max",
+      dataIndex: info && info.isNoiDung ? "phuongPhapTieuChuan" : "giaTriMax",
+      key: info && info.isNoiDung ? "phuongPhapTieuChuan" : "giaTriMax",
       align: "center",
     },
     {
       title: "Thứ tự",
-      dataIndex: "thuTu",
       key: "thuTu",
       align: "center",
-      width: 80,
+      width: 100,
+      render: (value) => renderThuTuChiTiet(value),
     },
     {
-      title: "Ghi chú",
-      dataIndex: "moTa",
-      key: "moTa",
+      title: "Hình ảnh sản phẩm",
+      dataIndex: "soLuongHinhAnh",
+      key: "soLuongHinhAnh",
       align: "center",
+      width: 100,
+      // render: (record) => renderSoLuongHinhAnh(record),
     },
     {
       title: "Chức năng",
@@ -262,8 +349,43 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
     };
   });
 
+  const handleRefesh = () => {
+    getInfo(id);
+  };
+
   const goBack = () => {
     history.push(`${match.url.replace(`/${id}/chi-tiet`, "")}`);
+  };
+
+  const renderExpandable = (record, level) => {
+    const childData = record.list_HangMucKiemTraChiTiets;
+
+    if (!childData || childData.length === 0) {
+      return null;
+    }
+
+    return (
+      <Table
+        style={{
+          marginBottom: 10,
+          marginLeft: 20,
+          width: "95%",
+        }}
+        bordered
+        columns={columns}
+        scroll={{ x: 1200 }}
+        components={components}
+        className="gx-table-responsive th-F1D065-head"
+        dataSource={reDataForTable(childData)}
+        size="small"
+        rowClassName="editable-row"
+        pagination={false}
+        expandable={{
+          expandedRowRender: (subRecord) =>
+            renderExpandable(subRecord, level + 1),
+        }}
+      />
+    );
   };
 
   return (
@@ -436,6 +558,33 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
             >
               <span
                 style={{
+                  width: "220px",
+                  fontWeight: "bold",
+                }}
+              >
+                Sử dụng hình ảnh chi tiết:
+              </span>
+              {info && (
+                <span
+                  style={{
+                    width: "calc(100% - 160px)",
+                  }}
+                >
+                  <Switch checked={info.isSuDungHinhAnh} disabled />
+                </span>
+              )}
+            </Col>
+            <Col
+              lg={12}
+              xs={24}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: 15,
+              }}
+            >
+              <span
+                style={{
                   width: "160px",
                   fontWeight: "bold",
                 }}
@@ -459,18 +608,22 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
             columns={columns}
             components={components}
             className="gx-table-responsive"
-            dataSource={ListChiTiet}
+            dataSource={reDataForTable(ListChiTiet)}
             size="small"
-            rowClassName={"editable-row"}
+            rowClassName="editable-row"
             pagination={false}
             loading={loading}
+            expandable={{
+              expandedRowRender: (record) => renderExpandable(record, 1),
+            }}
           />
         </Card>
       </Card>
       <ModalThemChiTiet
         openModal={ActiveModalThemChiTiet}
         openModalFS={setActiveModalThemChiTiet}
-        itemData={info}
+        refesh={handleRefesh}
+        itemData={ChiTiet}
       />
     </div>
   );

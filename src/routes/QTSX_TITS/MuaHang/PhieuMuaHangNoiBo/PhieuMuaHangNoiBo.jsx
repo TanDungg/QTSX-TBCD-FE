@@ -70,7 +70,7 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
   };
 
   const onSearchDonHang = () => {
-    getListData(FromDate, ToDate, keyword, page);
+    getListData(keyword, FromDate, ToDate, page);
   };
 
   const onChangeKeyword = (val) => {
