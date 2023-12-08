@@ -404,24 +404,21 @@ function QuyTrinhCongNghe({ match, history, permission }) {
       <Card className="th-card-margin-bottom">
         <Row>
           <Col
-            xxl={8}
-            xl={12}
-            lg={16}
-            md={16}
-            sm={20}
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
             xs={24}
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
+            style={{ marginBottom: 8 }}
           >
-            <span style={{ width: "120px" }}>Loại sản phẩm:</span>
+            <h5>Loại sản phẩm:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListLoaiSanPham ? ListLoaiSanPham : []}
               placeholder="Chọn loại sản phẩm"
               optionsvalue={["id", "tenLoaiSanPham"]}
-              style={{ width: "calc(100% - 120px)" }}
+              style={{ width: "100%" }}
               showSearch
               onSelect={handleOnSelectLoaiSanPham}
               optionFilterProp="name"
@@ -431,45 +428,28 @@ function QuyTrinhCongNghe({ match, history, permission }) {
             />
           </Col>
           <Col
-            xxl={8}
-            xl={12}
-            lg={16}
-            md={16}
-            sm={20}
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
             xs={24}
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
+            style={{ marginBottom: 8 }}
           >
-            <span
-              style={{
-                width: "120px",
+            <h5>Tìm kiếm:</h5>
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchQuyTrinhCongNghe,
+                onSearch: onSearchQuyTrinhCongNghe,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
               }}
-            >
-              Tìm kiếm:
-            </span>
-            <div
-              style={{
-                flex: 1,
-                alignItems: "center",
-                marginTop: width < 576 ? 10 : 0,
-              }}
-            >
-              <Toolbar
-                count={1}
-                search={{
-                  title: "Tìm kiếm",
-                  loading,
-                  value: keyword,
-                  onChange: onChangeKeyword,
-                  onPressEnter: onSearchQuyTrinhCongNghe,
-                  onSearch: onSearchQuyTrinhCongNghe,
-                  placeholder: "Nhập từ khóa",
-                  allowClear: true,
-                }}
-              />
-            </div>
+            />
           </Col>
         </Row>
       </Card>
