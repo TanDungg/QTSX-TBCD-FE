@@ -9,6 +9,8 @@ import {
   Image,
   Tag,
   Checkbox,
+  Empty,
+  Input,
 } from "antd";
 import {
   PlusOutlined,
@@ -45,15 +47,17 @@ function HangMucSuDung({ match, history, permission }) {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [DisabledModal, setDisabledModal] = useState(false);
   const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
   const [LoaiSanPham, setLoaiSanPham] = useState(null);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
   const [ListCongDoan, setListCongDoan] = useState([]);
   const [CongDoan, setCongDoan] = useState(null);
-  const [DataChiTiet, setDataChiTiet] = useState([]);
-  const [ChiTiet, setChiTiet] = useState([]);
+  const [DisabledModal, setDisabledModal] = useState(false);
+  const [ListHinhAnh, setListHinhAnh] = useState([]);
+  const [HangMuc, setHangMuc] = useState([]);
+  const [editingRecord, setEditingRecord] = useState([]);
+  const [Data, setData] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -69,10 +73,6 @@ function HangMucSuDung({ match, history, permission }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Lấy dữ liệu về
-   *
-   */
   const getListData = (
     tits_qtsx_LoaiSanPham_Id,
     tits_qtsx_SanPham_Id,
@@ -87,9 +87,27 @@ function HangMucSuDung({ match, history, permission }) {
       keyword,
       page,
     });
-    dispatch(
-      fetchStart(`tits_qtsx_HangMucKiemTra?${param}`, "GET", null, "LIST")
-    );
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_HangMucKiemTra?${param}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setData(res.data);
+        } else {
+          setData([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   const getLoaiSanPham = () => {
@@ -320,15 +338,11 @@ function HangMucSuDung({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, pageSize } = data;
-
-  let dataList = reDataForTable(data.datalist, page, pageSize);
+  const { totalRow, pageSize } = Data;
 
   const XemChiTiet = (record) => {
-    setChiTiet(record);
-    setDataChiTiet(
-      reDataForTable(record.ChiTietChild && JSON.parse(record.ChiTietChild))
-    );
+    setHangMuc(record);
+    setListHinhAnh(record.list_HinhAnhs && JSON.parse(record.list_HinhAnhs));
     setDisabledModal(true);
   };
 
@@ -346,6 +360,78 @@ function HangMucSuDung({ match, history, permission }) {
     );
   };
 
+  const handleInputChange = (val, item) => {
+    const ThuTu = val.target.value;
+    if (isEmpty(ThuTu) || Number(ThuTu) <= 0) {
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Thứ tự phải là số lớn hơn 0 và bắt buộc";
+    } else {
+      const newData = editingRecord.filter(
+        (d) =>
+          d.tits_qtsx_HangMucKiemTra_Id !== item.tits_qtsx_HangMucKiemTra_Id
+      );
+      setEditingRecord(newData);
+    }
+    const newData = { ...Data };
+    newData.datalist.forEach((ct, index) => {
+      if (ct.tits_qtsx_HangMucKiemTra_Id === item.tits_qtsx_HangMucKiemTra_Id) {
+        ct.thuTu = ThuTu;
+      }
+    });
+    setData(newData);
+  };
+
+  const onChangeValue = (val, record) => {
+    const newData = {
+      tits_qtsx_HangMucKiemTra_Id: record.tits_qtsx_HangMucKiemTra_Id,
+      thuTu: val.target.value,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_HangMucKiemTra/doi-thu-tu-hang-muc-kiem-tra`,
+          "PUT",
+          newData,
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res.status !== 409) {
+        getListData(LoaiSanPham, SanPham, CongDoan, keyword, 1);
+      }
+    });
+  };
+
+  const renderThuTu = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.tits_qtsx_HangMucKiemTra_Id === item.tits_qtsx_HangMucKiemTra_Id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.thuTu}
+          onChange={(val) => handleInputChange(val, item)}
+          onBlur={(val) => onChangeValue(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
+
   let renderHead = [
     {
       title: "STT",
@@ -359,9 +445,8 @@ function HangMucSuDung({ match, history, permission }) {
       dataIndex: "maSanPham",
       key: "maSanPham",
       align: "center",
-      // render: (record) => renderSoLuongHinhAnh(record),
       filters: removeDuplicates(
-        map(dataList, (d) => {
+        map(Data.datalist, (d) => {
           return {
             text: d.maSanPham,
             value: d.maSanPham,
@@ -377,7 +462,7 @@ function HangMucSuDung({ match, history, permission }) {
       key: "tenSanPham",
       align: "center",
       filters: removeDuplicates(
-        map(dataList, (d) => {
+        map(Data.datalist, (d) => {
           return {
             text: d.tenSanPham,
             value: d.tenSanPham,
@@ -393,7 +478,7 @@ function HangMucSuDung({ match, history, permission }) {
       key: "tenCongDoan",
       align: "center",
       filters: removeDuplicates(
-        map(dataList, (d) => {
+        map(Data.datalist, (d) => {
           return {
             text: d.tenCongDoan,
             value: d.tenCongDoan,
@@ -409,7 +494,7 @@ function HangMucSuDung({ match, history, permission }) {
       key: "tenHangMucKiemTra",
       align: "center",
       filters: removeDuplicates(
-        map(dataList, (d) => {
+        map(Data.datalist, (d) => {
           return {
             text: d.tenHangMucKiemTra,
             value: d.tenHangMucKiemTra,
@@ -425,7 +510,7 @@ function HangMucSuDung({ match, history, permission }) {
       key: "kieuDanhGia",
       align: "center",
       filters: removeDuplicates(
-        map(dataList, (d) => {
+        map(Data.datalist, (d) => {
           return {
             text: d.kieuDanhGia,
             value: d.kieuDanhGia,
@@ -451,10 +536,10 @@ function HangMucSuDung({ match, history, permission }) {
     },
     {
       title: "Thứ tự",
-      dataIndex: "thuTu",
       key: "thuTu",
       align: "center",
-      width: 80,
+      width: 100,
+      render: (record) => renderThuTu(record),
     },
     {
       title: "Hình ảnh sản phẩm",
@@ -500,129 +585,48 @@ function HangMucSuDung({ match, history, permission }) {
     };
   });
 
-  let colChiTiet = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      align: "center",
-      width: 45,
-    },
-    {
-      title: "Mã chi tiết",
-      dataIndex: "maChiTiet",
-      key: "maChiTiet",
-      align: "center",
-    },
-    {
-      title: "Tên chi tiết",
-      dataIndex: "tenChiTiet",
-      key: "tenChiTiet",
-      align: "center",
-    },
-    {
-      title: "Thông số",
-      dataIndex: "thongSoKyThuat",
-      key: "thongSoKyThuat",
-      align: "center",
-    },
-    {
-      title: "Sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
-      align: "center",
-    },
-    {
-      title: "Công đoạn",
-      dataIndex: "tenCongDoan",
-      key: "tenCongDoan",
-      align: "center",
-    },
-    {
-      title: "Hình ảnh",
-      dataIndex: "hinhAnh",
-      key: "hinhAnh",
-      align: "center",
-      render: (value) =>
-        value && (
-          <span>
-            <Image
-              src={BASE_URL_API + value}
-              alt="Hình ảnh"
-              style={{ maxWidth: 100, maxHeight: 100 }}
-            />
-          </span>
-        ),
-    },
-    {
-      title: "File đính kèm",
-      dataIndex: "fileDinhKem",
-      key: "fileDinhKem",
-      align: "center",
-      render: (value) =>
-        value && (
-          <a
-            href={BASE_URL_API + value}
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {value && value.split("/")[5]}
-          </a>
-        ),
-    },
-  ];
-
-  const componentschitiet = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
-  const columnschitiet = map(colChiTiet, (col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-      }),
-    };
-  });
-
   const handleOnSelectLoaiSanPham = (value) => {
     setLoaiSanPham(value);
+    setSanPham(null);
+    setCongDoan(null);
     getSanPham(value);
     getListData(value, null, null, keyword, 1);
   };
 
-  const handleClearLoaiSanPham = (value) => {
+  const handleClearLoaiSanPham = () => {
     setLoaiSanPham(null);
-    getSanPham();
+    setSanPham(null);
+    setCongDoan(null);
     getListData(null, null, null, keyword, 1);
   };
 
   const handleOnSelectSanPham = (value) => {
     setSanPham(value);
-    // getSanPham(value);
-    getListData(value, null, null, keyword, 1);
+    setCongDoan(null);
+    getListData(LoaiSanPham, value, CongDoan, keyword, 1);
   };
 
-  const handleClearSanPham = (value) => {
+  const handleClearSanPham = () => {
     setSanPham(null);
-    // getSanPham();
-    getListData(null, null, null, keyword, 1);
+    setCongDoan(null);
+    getListData(LoaiSanPham, null, CongDoan, keyword, 1);
+  };
+
+  const handleOnSelectCongDoan = (value) => {
+    setCongDoan(value);
+    getListData(LoaiSanPham, SanPham, value, keyword, 1);
+  };
+
+  const handleClearCongDoan = () => {
+    setCongDoan(null);
+    getListData(LoaiSanPham, SanPham, null, keyword, 1);
   };
 
   const title = (
     <span>
-      Hạng mục kiểm tra của{" "}
+      Hình ảnh của hạng mục kiểm tra{" "}
       <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
-        {ChiTiet && ChiTiet.tenChiTiet}
+        {HangMuc && HangMuc.tenHangMucKiemTra}
       </Tag>
     </span>
   );
@@ -708,8 +712,10 @@ function HangMucSuDung({ match, history, permission }) {
               optionsvalue={["id", "tenCongDoan"]}
               style={{ width: "100%" }}
               showSearch
-              // onSelect={handleOnSelectCongDoan}
               optionFilterProp="name"
+              onSelect={handleOnSelectCongDoan}
+              allowClear
+              onClear={handleClearCongDoan}
               value={CongDoan}
             />
           </Col>
@@ -743,7 +749,7 @@ function HangMucSuDung({ match, history, permission }) {
           columns={columns}
           components={components}
           className="gx-table-responsive"
-          dataSource={dataList}
+          dataSource={reDataForTable(Data.datalist)}
           size="small"
           rowClassName={(record) => {
             return record.isParent ? "editable-row" : "editable-row";
@@ -762,22 +768,49 @@ function HangMucSuDung({ match, history, permission }) {
         title={title}
         className="th-card-reset-margin"
         open={DisabledModal}
-        width={width > 786 ? `80%` : "100%"}
+        width={width > 786 ? `50%` : "80%"}
         closable={true}
         onCancel={() => setDisabledModal(false)}
         footer={null}
       >
-        <Table
-          bordered
-          columns={columnschitiet}
-          components={componentschitiet}
-          scroll={{ x: 1200, y: "55vh" }}
-          className="gx-table-responsive"
-          dataSource={DataChiTiet}
-          size="small"
-          loading={loading}
-          pagination={false}
-        />
+        {ListHinhAnh ? (
+          <div
+            style={{
+              overflowY: "auto",
+              maxHeight: "500px",
+            }}
+          >
+            {ListHinhAnh &&
+              ListHinhAnh.map((hinhanh) => {
+                return (
+                  <div
+                    style={{
+                      position: "relative",
+                      display: "inline-block",
+                      borderRadius: 15,
+                      marginRight: 15,
+                      marginBottom: 15,
+                    }}
+                  >
+                    <Image
+                      width={200}
+                      height={200}
+                      style={{
+                        borderRadius: 15,
+                        border: "1px solid #c8c8c8",
+                        padding: 8,
+                      }}
+                      src={BASE_URL_API + hinhanh.hinhAnh}
+                    />
+                  </div>
+                );
+              })}
+          </div>
+        ) : (
+          <div>
+            <Empty style={{ height: "500px" }} />
+          </div>
+        )}
       </AntModal>
     </div>
   );

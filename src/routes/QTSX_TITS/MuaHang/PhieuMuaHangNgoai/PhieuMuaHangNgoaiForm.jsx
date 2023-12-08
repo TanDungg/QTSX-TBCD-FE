@@ -1188,6 +1188,10 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                           target="_blank"
                           href={BASE_URL_API + FileXacNhan && FileXacNhan}
                           rel="noopener noreferrer"
+                          style={{
+                            whiteSpace: "break-spaces",
+                            wordBreak: "break-all",
+                          }}
                         >
                           {FileXacNhan && FileXacNhan.split("/")[5]}{" "}
                         </a>

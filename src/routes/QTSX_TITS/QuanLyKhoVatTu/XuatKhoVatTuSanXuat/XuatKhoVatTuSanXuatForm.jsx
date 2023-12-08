@@ -84,18 +84,11 @@ const VatTuForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           setType("new");
           setFieldsValue(
-            value === 0
-              ? {
-                  phieuxuatkhovattusanxuattheoOEM: {
-                    ngayXuatKho: moment(getDateNow(), "DD/MM/YYYY"),
-                    ngayKHSX: moment(getDateNow(), "DD/MM/YYYY"),
-                  },
-                }
-              : {
-                  phieuxuatkhovattusanxuattheoBOM: {
-                    ngayXuatKho: moment(getDateNow(), "DD/MM/YYYY"),
-                  },
-                }
+            value === 0 && {
+              phieuxuatkhovattusanxuattheoOEM: {
+                ngayKHSX: moment(getDateNow(), "DD/MM/YYYY"),
+              },
+            }
           );
         } else if (permission && !permission.add) {
           history.push("/home");
@@ -382,7 +375,6 @@ const VatTuForm = ({ history, match, permission }) => {
           setFieldsValue({
             phieuxuatkhovattusanxuattheoOEM: {
               ...res.data,
-              ngayXuatKho: moment(res.data.ngayXuatKho, "DD/MM/YYYY"),
             },
           });
           const chiTiet =
@@ -769,11 +761,13 @@ const VatTuForm = ({ history, match, permission }) => {
               getUserLap(INFO, null, value);
               getXuong();
               getListKho();
-              setFieldsValue({
-                phieuxuatkhovattusanxuattheoOEM: {
-                  ngayXuatKho: moment(getDateNow(), "DD/MM/YYYY"),
-                },
-              });
+              setFieldsValue(
+                value === 0 && {
+                  phieuxuatkhovattusanxuattheoOEM: {
+                    ngayKHSX: moment(getDateNow(), "DD/MM/YYYY"),
+                  },
+                }
+              );
               setFieldTouch(false);
               setDisabledKhoXuat(false);
               setListVatTuTheoOEM([]);
@@ -953,18 +947,12 @@ const VatTuForm = ({ history, match, permission }) => {
       resetFields();
       setFieldsValue({
         phieuxuatkhovattusanxuattheoOEM: {
-          ngayXuatKho: moment(getDateNow(), "DD/MM/YYYY"),
           ngayKHSX: moment(getDateNow(), "DD/MM/YYYY"),
         },
       });
       setListVatTuTheoOEM([]);
     } else {
       resetFields();
-      setFieldsValue({
-        phieuxuatkhovattusanxuattheoBOM: {
-          ngayXuatKho: moment(getDateNow(), "DD/MM/YYYY"),
-        },
-      });
     }
   };
 
@@ -1151,31 +1139,6 @@ const VatTuForm = ({ history, match, permission }) => {
                         });
                       }}
                       disabled={type === "new" ? false : true}
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Ngày yêu cầu"
-                    name={["phieuxuatkhovattusanxuattheoOEM", "ngayXuatKho"]}
-                    rules={[
-                      {
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <DatePicker
-                      format={"DD/MM/YYYY"}
-                      allowClear={false}
-                      disabled={true}
                     />
                   </FormItem>
                 </Col>
@@ -1454,34 +1417,7 @@ const VatTuForm = ({ history, match, permission }) => {
                     />
                   </FormItem>
                 </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Nội dung xuất"
-                    name={["phieuxuatkhovattusanxuattheoOEM", "noiDung"]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Input
-                      className="input-item"
-                      placeholder="Nhập nội dung xuất"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
+
                 {info.tinhTrang && info.tinhTrang.startsWith("Bị hủy") ? (
                   <Col
                     xxl={12}
@@ -1725,31 +1661,6 @@ const VatTuForm = ({ history, match, permission }) => {
                       disabled={
                         type === "new" || type === "edit" ? false : true
                       }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Ngày yêu cầu"
-                    name={["phieuxuatkhovattusanxuattheoBOM", "ngayXuatKho"]}
-                    rules={[
-                      {
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <DatePicker
-                      format={"DD/MM/YYYY"}
-                      allowClear={false}
-                      disabled={true}
                     />
                   </FormItem>
                 </Col>

@@ -99,7 +99,6 @@ function DeNghiMuaHang({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      item.nguoiDuyet_Id === INFO.user_Id &&
       item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{

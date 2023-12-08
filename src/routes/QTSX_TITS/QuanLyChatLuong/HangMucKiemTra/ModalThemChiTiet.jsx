@@ -10,8 +10,9 @@ import {
   Image,
   Empty,
   Divider,
+  Tag,
 } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { FormSubmit, Select } from "src/components/Common";
@@ -30,6 +31,7 @@ const FormItem = Form.Item;
 
 function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
   const dispatch = useDispatch();
+  const cardRef = useRef(null);
   const INFO = {
     ...getLocalStorage("menu"),
     user_Id: getTokenInfo().id,
@@ -47,19 +49,34 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
 
   useEffect(() => {
     if (openModal) {
-      getListDonVi();
-      getListXuong();
-      getCongDoan(
-        itemData.tits_qtsx_SanPham_Id,
-        itemData.tits_qtsx_CongDoan_Id
-      );
-      setFieldsValue({
-        themchitiet: {
-          donVi_Id: INFO.donVi_Id.toLowerCase(),
-          tits_qtsx_HangMucKiemTraChiTiet_Id: itemData.maSo,
-          isNhapKetQua: true,
-        },
-      });
+      if (itemData.loai === "new") {
+        getListDonVi();
+        getListXuong();
+        getCongDoan(
+          itemData.tits_qtsx_SanPham_Id,
+          itemData.tits_qtsx_CongDoan_Id
+        );
+        setFieldsValue({
+          themchitiet: {
+            donVi_Id: INFO.donVi_Id.toLowerCase(),
+            maSoCha: itemData.maSo,
+            isNhapKetQua: true,
+          },
+        });
+      } else if (itemData.loai === "edit") {
+        getListDonVi();
+        getListXuong();
+        getListTram(itemData.tits_qtsx_Xuong_Id);
+        getCongDoan(
+          itemData.tits_qtsx_SanPham_Id,
+          itemData.tits_qtsx_CongDoan_Id
+        );
+        setFieldsValue({
+          themchitiet: {
+            ...itemData,
+          },
+        });
+      }
     }
     return () => {
       dispatch(fetchReset());
@@ -221,55 +238,88 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
       setFieldTouch(false);
       Helpers.alertError("Vui lòng chọn hình ảnh");
     } else {
-      const newData = {
-        ...themchitiet,
-        tits_qtsx_HangMucKiemTra_Id: itemData.tits_qtsx_HangMucKiemTra_Id,
-        tits_qtsx_HangMucKiemTraChiTiet_Id: itemData.id,
-        isNhapKetQua:
-          themchitiet.isNhapKetQua === undefined
-            ? false
-            : themchitiet.isNhapKetQua,
-        list_HinhAnhs: ListHinhAnhDaChon,
-      };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_HangMucKiemTra/chi-tiet`,
-            "POST",
-            newData,
-            "ADD",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.status !== 409) {
-            if (saveQuit) {
-              handleCancel();
-            } else {
-              resetFields();
-              setFieldTouch(false);
-              setListHinhAnh([]);
-              setListHinhAnhDaChon([]);
-              getListDonVi();
-              getListXuong();
-              getCongDoan(
-                itemData.tits_qtsx_SanPham_Id,
-                itemData.tits_qtsx_CongDoan_Id
-              );
-              setFieldsValue({
-                themchitiet: {
-                  donVi_Id: INFO.donVi_Id.toLowerCase(),
-                  tits_qtsx_HangMucKiemTraChiTiet_Id: itemData.maSo,
-                  isNhapKetQua: true,
-                },
-              });
-            }
-          }
+      if (itemData.loai === "new") {
+        const newData = {
+          ...themchitiet,
+          tits_qtsx_HangMucKiemTra_Id: itemData.tits_qtsx_HangMucKiemTra_Id,
+          tits_qtsx_HangMucKiemTraChiTiet_Id: itemData.id,
+          isNhapKetQua:
+            themchitiet.isNhapKetQua === undefined
+              ? false
+              : themchitiet.isNhapKetQua,
+          list_HinhAnhs: ListHinhAnhDaChon,
+        };
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `tits_qtsx_HangMucKiemTra/chi-tiet`,
+              "POST",
+              newData,
+              "ADD",
+              "",
+              resolve,
+              reject
+            )
+          );
         })
-        .catch((error) => console.error(error));
+          .then((res) => {
+            if (res && res.status !== 409) {
+              if (saveQuit) {
+                handleCancel();
+              } else {
+                resetFields();
+                setFieldTouch(false);
+                setListHinhAnh([]);
+                setListHinhAnhDaChon([]);
+                getListDonVi();
+                getListXuong();
+                getCongDoan(
+                  itemData.tits_qtsx_SanPham_Id,
+                  itemData.tits_qtsx_CongDoan_Id
+                );
+                setFieldsValue({
+                  themchitiet: {
+                    donVi_Id: INFO.donVi_Id.toLowerCase(),
+                    maSoCha: itemData.maSo,
+                    isNhapKetQua: true,
+                  },
+                });
+              }
+            }
+          })
+          .catch((error) => console.error(error));
+      }
+      if (itemData.loai === "edit") {
+        const newData = {
+          ...themchitiet,
+          id: itemData.id,
+          tits_qtsx_HangMucKiemTra_Id: itemData.tits_qtsx_HangMucKiemTra_Id,
+          isNhapKetQua:
+            themchitiet.isNhapKetQua === undefined
+              ? false
+              : themchitiet.isNhapKetQua,
+          list_HinhAnhs: ListHinhAnhDaChon,
+        };
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `tits_qtsx_HangMucKiemTra/hang-muc-kiem-tra-chi-tiet/${itemData.id}`,
+              "PUT",
+              newData,
+              "EDIT",
+              "",
+              resolve,
+              reject
+            )
+          );
+        })
+          .then((res) => {
+            if (res && res.status !== 409) {
+              handleCancel();
+            }
+          })
+          .catch((error) => console.log(error));
+      }
     }
   };
 
@@ -333,19 +383,44 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
     openModalFS(false);
     refesh();
   };
-
+  const title =
+    itemData.loai === "new" ? (
+      <span>
+        Thêm mới chi tiết hạng mục kiểm tra{" "}
+        <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
+          {itemData && itemData.maSo}
+        </Tag>
+      </span>
+    ) : (
+      <span>
+        Chỉnh sửa chi tiết hạng mục kiểm tra{" "}
+        <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
+          {itemData && itemData.maSo}
+        </Tag>
+      </span>
+    );
   return (
     <AntModal
-      title={`Thêm mới chi tiết hạng mục kiểm tra`}
+      title={title}
       open={openModal}
       width={width > 1000 ? `80%` : "100%"}
       closable={true}
       onCancel={handleCancel}
       footer={null}
-      bodyStyle={{ height: "750px", overflowY: "auto" }}
+      bodyStyle={{
+        height:
+          cardRef.current && cardRef.current.clientHeight <= 640
+            ? cardRef.current && cardRef.current.clientHeight + 60
+            : 700,
+        overflowY: "auto",
+      }}
     >
       <div className="gx-main-content">
-        <Card className="th-card-margin-bottom" style={{ marginBottom: 20 }}>
+        <Card
+          ref={cardRef}
+          className="th-card-margin-bottom"
+          style={{ marginBottom: 20 }}
+        >
           <Form
             {...DEFAULT_FORM_XUATKHONGOAIQUAN}
             form={form}
@@ -365,7 +440,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
               >
                 <FormItem
                   label="Hạng mục kiểm tra cha"
-                  name={["themchitiet", "tits_qtsx_HangMucKiemTraChiTiet_Id"]}
+                  name={["themchitiet", "maSoCha"]}
                   rules={[
                     {
                       type: "string",
@@ -573,6 +648,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
                   name={["themchitiet", "donVi_Id"]}
                   rules={[
                     {
+                      required: true,
                       type: "string",
                     },
                   ]}
@@ -603,6 +679,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
                   name={["themchitiet", "tits_qtsx_Xuong_Id"]}
                   rules={[
                     {
+                      required: true,
                       type: "string",
                     },
                   ]}
@@ -616,6 +693,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
                     showSearch
                     optionFilterProp="name"
                     onSelect={handleSelectXuong}
+                    disabled={itemData.loai === "new" ? false : true}
                   />
                 </FormItem>
               </Col>
@@ -633,6 +711,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
                   name={["themchitiet", "tits_qtsx_Tram_Id"]}
                   rules={[
                     {
+                      required: true,
                       type: "string",
                     },
                   ]}
@@ -645,6 +724,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
+                    disabled={itemData.loai === "new" ? false : true}
                   />
                 </FormItem>
               </Col>

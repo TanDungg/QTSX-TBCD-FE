@@ -470,15 +470,7 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                 xs={24}
                 style={{ marginBottom: 8 }}
               >
-                <FormItem
-                  label="Đơn giá"
-                  name={["themvattu", "donGia"]}
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
-                >
+                <FormItem label="Đơn giá" name={["themvattu", "donGia"]}>
                   <Input
                     className="input-item"
                     placeholder="Nhập đơn giá"

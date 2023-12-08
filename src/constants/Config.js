@@ -1,5 +1,5 @@
-export const BASE_URL_API = "http://erp-api.thacoindustries.com";
-// export const BASE_URL_API = `http://10.14.7.215:1512`;
+// export const BASE_URL_API = "http://erp-api.thacoindustries.com";
+export const BASE_URL_API = `http://10.14.7.215:1512`;
 
 // export const BASE_URL_API = `http://113.176.118.58:82`;
 
@@ -26,11 +26,11 @@ export const DEFAULT_FORM_STYLE = {
 
 export const DEFAULT_FORM_CUSTOM = {
   labelCol: {
-    span: 6,
+    span: 7,
     style: { fontWeight: "bold" },
   },
   wrapperCol: {
-    span: 12,
+    span: 11,
   },
 };
 
