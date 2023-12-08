@@ -831,7 +831,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
             <strong>DANH SÁCH SẢN PHẨM</strong>
           </h2>
         </Row>
-        {type === "edit" && (
+        {(type === "edit" || type === "new") && (
           <Row>
             <Col span={24}>
               <Button
@@ -855,7 +855,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
           rowClassName={"editable-row"}
           pagination={false}
           rowSelection={
-            type === "edit" && {
+            (type === "edit" || type === "new") && {
               type: "checkbox",
               ...rowSelection,
               preserveSelectedRowKeys: true,

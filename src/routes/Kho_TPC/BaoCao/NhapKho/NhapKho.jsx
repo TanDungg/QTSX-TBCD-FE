@@ -24,7 +24,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 
 function NhapKho({ permission, history, match }) {
   const dispatch = useDispatch();
-  const { loading } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
   const [DataXuat, setDataXuat] = useState([]);
@@ -301,31 +301,50 @@ function NhapKho({ permission, history, match }) {
         key: "key",
         width: 40,
         align: "center",
+        fixed: width > 1050 ? "left" : "none",
       },
       {
-        title: Loai === "sanpham" ? "Loại sản phẩm" : "Nhóm vật tư",
-        dataIndex: Loai === "sanpham" ? "tenLoaiSanPham" : "tenNhomVatTu",
-        key: Loai === "sanpham" ? "tenLoaiSanPham" : "tenNhomVatTu",
+        title: "Mã phiếu",
+        dataIndex: "maPhieu",
+        key: "maPhieu",
         align: "center",
+        fixed: width > 1050 ? "left" : "none",
         filters: removeDuplicates(
           map(dataList, (d) => {
             return {
-              text: Loai === "sanpham" ? d.tenLoaiSanPham : d.tenNhomVatTu,
-              value: Loai === "sanpham" ? d.tenLoaiSanPham : d.tenNhomVatTu,
+              text: d.maPhieu,
+              value: d.maPhieu,
             };
           })
         ),
-        onFilter: (value, record) =>
-          Loai === "sanpham"
-            ? record.tenLoaiSanPham.includes(value)
-            : record.tenNhomVatTu.includes(value),
+        onFilter: (value, record) => record.maPhieu.includes(value),
         filterSearch: true,
       },
+      {
+        title: "Ngày nhập",
+        dataIndex: "ngayNhap",
+        key: "ngayNhap",
+        align: "center",
+        width: 100,
+        fixed: width > 1050 ? "left" : "none",
+        filters: removeDuplicates(
+          map(dataList, (d) => {
+            return {
+              text: d.ngayNhap,
+              value: d.ngayNhap,
+            };
+          })
+        ),
+        onFilter: (value, record) => record.ngayNhap.includes(value),
+        filterSearch: true,
+      },
+
       {
         title: Loai === "sanpham" ? "Mã sản phẩm" : "Mã vật tư",
         dataIndex: Loai === "sanpham" ? "maSanPham" : "maVatTu",
         key: Loai === "sanpham" ? "maSanPham" : "maVatTu",
         align: "center",
+        fixed: width > 1050 ? "left" : "none",
         filters: removeDuplicates(
           map(dataList, (d) => {
             return {
@@ -345,6 +364,7 @@ function NhapKho({ permission, history, match }) {
         dataIndex: Loai === "sanpham" ? "tenSanPham" : "tenVatTu",
         key: Loai === "sanpham" ? "tenSanPham" : "tenVatTu",
         align: "center",
+        fixed: width > 1050 ? "left" : "none",
         filters: removeDuplicates(
           map(dataList, (d) => {
             return {
@@ -358,6 +378,21 @@ function NhapKho({ permission, history, match }) {
             ? record.tenSanPham.includes(value)
             : record.tenVatTu.includes(value),
         filterSearch: true,
+      },
+      {
+        title: "Số lượng",
+        dataIndex: "soLuong",
+        key: "soLuong",
+        align: "center",
+        width: 68,
+        fixed: width > 1050 ? "left" : "none",
+      },
+      {
+        title: "Đơn vị tính",
+        dataIndex: "tenDonViTinh",
+        key: "tenDonViTinh",
+        align: "center",
+        width: 85,
       },
       {
         title: "Kho nhập",
@@ -393,47 +428,22 @@ function NhapKho({ permission, history, match }) {
         filterSearch: true,
       },
       {
-        title: "Đơn vị tính",
-        dataIndex: "tenDonViTinh",
-        key: "tenDonViTinh",
-        align: "center",
-      },
-      {
-        title: "Số lượng",
-        dataIndex: "soLuong",
-        key: "soLuong",
-        align: "center",
-      },
-      {
-        title: "Ngày nhập kho",
-        dataIndex: "ngayNhap",
-        key: "ngayNhap",
+        title: Loai === "sanpham" ? "Loại sản phẩm" : "Nhóm vật tư",
+        dataIndex: Loai === "sanpham" ? "tenLoaiSanPham" : "tenNhomVatTu",
+        key: Loai === "sanpham" ? "tenLoaiSanPham" : "tenNhomVatTu",
         align: "center",
         filters: removeDuplicates(
           map(dataList, (d) => {
             return {
-              text: d.ngayNhap,
-              value: d.ngayNhap,
+              text: Loai === "sanpham" ? d.tenLoaiSanPham : d.tenNhomVatTu,
+              value: Loai === "sanpham" ? d.tenLoaiSanPham : d.tenNhomVatTu,
             };
           })
         ),
-        onFilter: (value, record) => record.ngayNhap.includes(value),
-        filterSearch: true,
-      },
-      {
-        title: "Mã phiếu",
-        dataIndex: "maPhieu",
-        key: "maPhieu",
-        align: "center",
-        filters: removeDuplicates(
-          map(dataList, (d) => {
-            return {
-              text: d.maPhieu,
-              value: d.maPhieu,
-            };
-          })
-        ),
-        onFilter: (value, record) => record.maPhieu.includes(value),
+        onFilter: (value, record) =>
+          Loai === "sanpham"
+            ? record.tenLoaiSanPham.includes(value)
+            : record.tenNhomVatTu.includes(value),
         filterSearch: true,
       },
     ];
@@ -471,6 +481,7 @@ function NhapKho({ permission, history, match }) {
           dataIndex: "maNhaCungCap",
           key: "maNhaCungCap",
           align: "center",
+          width: 150,
           filters: removeDuplicates(
             map(dataList, (d) => {
               return {
@@ -488,6 +499,7 @@ function NhapKho({ permission, history, match }) {
           dataIndex: "tenNhaCungCap",
           key: "tenNhaCungCap",
           align: "center",
+          width: 150,
           filters: removeDuplicates(
             map(dataList, (d) => {
               return {
@@ -933,7 +945,7 @@ function NhapKho({ permission, history, match }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 900, y: "45vh" }}
+          scroll={{ x: 1600, y: "45vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}

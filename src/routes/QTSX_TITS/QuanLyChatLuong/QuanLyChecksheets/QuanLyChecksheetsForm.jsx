@@ -58,9 +58,19 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [ListSanPham, setListSanPham] = useState([]);
+  const [ListCongDoan, setListCongDoan] = useState([]);
+
+  const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
+
   const [ListChiTiet, setListChiTiet] = useState([]);
-  const [ListUserKy, setListUserKy] = useState([]);
-  const [SanPham, setSanPham] = useState("");
+  const [ListHangMucKiemTra, setListHangMucKiemTra] = useState([]);
+  const [DataModal, setDataModal] = useState({
+    tits_qtsx_LoaiSanPham_Id: "",
+    tits_qtsx_SanPham_Id: "",
+    tits_qtsx_CongDoan_Id: "",
+    tenSanPham: "",
+    tenCongDoan: "",
+  });
   const [disableUpload, setDisableUpload] = useState(false);
   const [FileChat, setFileChat] = useState("");
   const [openImage, setOpenImage] = useState(false);
@@ -77,8 +87,8 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
         history.push("/home");
       } else {
         setType("new");
-        getListSanPham();
-        getUserKy(INFO);
+        getListLoaiSanPham();
+        getListCongDoan();
         setFieldsValue({
           checkSheets: {
             isSuDung: true,
@@ -93,7 +103,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
           setType("edit");
           setId(match.params.id);
           getInfo(match.params.id);
-          getListSanPham();
+          getListLoaiSanPham();
         }
       }
     } else if (includes(match.url, "xac-nhan")) {
@@ -124,35 +134,42 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const getUserKy = (info) => {
-    const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
-    });
+
+  const getListLoaiSanPham = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `tits_qtsx_LoaiSanPham?page=-1`,
           "GET",
           null,
-          "DETAIL",
+          "LIST",
           "",
           resolve,
           reject
         )
       );
-    }).then((res) => {
-      if (res && res.data) {
-        setListUserKy(res.data);
-      } else {
-        setListUserKy([]);
-      }
-    });
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiSanPham(
+            res.data.map((sp) => {
+              return {
+                ...sp,
+                name: sp.maLoaiSanPham + " - " + sp.tenLoaiSanPham,
+              };
+            })
+          );
+        } else {
+          setListLoaiSanPham([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
-  const getListSanPham = () => {
+  const getListSanPham = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_SanPham?page=-1`,
+          `tits_qtsx_SanPham?page=-1&tits_qtsx_LoaiSanPham_Id=${id}`,
           "GET",
           null,
           "LIST",
@@ -178,7 +195,36 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
       })
       .catch((error) => console.error(error));
   };
-
+  const getListCongDoan = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_CongDoan?page=-1`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListCongDoan(
+            res.data.map((sp) => {
+              return {
+                ...sp,
+                name: sp.maCongDoan + " - " + sp.tenCongDoan,
+              };
+            })
+          );
+        } else {
+          setListCongDoan([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   /**
    * Lấy thông tin info
    *
@@ -201,7 +247,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
       .then((res) => {
         if (res && res.data) {
           setInfo(res.data);
-          getUserKy(INFO);
+
           setListChiTiet(
             res.data.list_ChiTiets.map((ct) => {
               return {
@@ -412,6 +458,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
         .catch((error) => console.log(error));
     }
   };
+
   const saveDuyetTuChoi = (isDuyet) => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -612,11 +659,24 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                 >
                   <Select
                     className="heading-select slt-search th-select-heading"
-                    data={[]}
+                    data={ListLoaiSanPham}
                     placeholder="Chọn loại sản phẩm"
                     optionsvalue={["id", "name"]}
                     style={{ width: "100%" }}
                     disabled={type !== "new"}
+                    showSearch
+                    optionFilterProp="name"
+                    onSelect={(val) => {
+                      getListSanPham(val);
+                      const newData = { ...DataModal };
+                      newData.tits_qtsx_LoaiSanPham_Id = val;
+                      newData.tits_qtsx_SanPham_Id = "";
+                      newData.tenSanPham = "";
+                      setDataModal(newData);
+                      setFieldsValue({
+                        checkSheets: { tits_qtsx_SanPham_Id: null },
+                      });
+                    }}
                   />
                 </FormItem>
               </Col>
@@ -648,7 +708,17 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                     showSearch
                     optionFilterProp="name"
                     disabled={type !== "new"}
-                    onSelect={(val) => setSanPham(val)}
+                    onSelect={(val) => {
+                      const newData = { ...DataModal };
+                      newData.tits_qtsx_SanPham_Id = val;
+                      ListSanPham.forEach((sp) => {
+                        if (sp.id === val) {
+                          newData.tenSanPham =
+                            sp.maSanPham + " - " + sp.tenSanPham;
+                        }
+                      });
+                      setDataModal(newData);
+                    }}
                   />
                 </FormItem>
               </Col>
@@ -673,14 +743,23 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                 >
                   <Select
                     className="heading-select slt-search th-select-heading"
-                    data={ListUserKy}
+                    data={ListCongDoan}
                     placeholder="Chọn công đoạn"
-                    optionsvalue={["id", "fullName"]}
+                    optionsvalue={["id", "name"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
                     disabled={type !== "new" && type !== "edit"}
-                    onSelect={(val) => {}}
+                    onSelect={(val) => {
+                      const newData = { ...DataModal };
+                      newData.tits_qtsx_CongDoan_Id = val;
+                      ListCongDoan.forEach((cd) => {
+                        if (cd.id === val) {
+                          newData.tenCongDoan = cd.tenCongDoan;
+                        }
+                      });
+                      setDataModal(newData);
+                    }}
                   />
                 </FormItem>
               </Col>
@@ -831,7 +910,14 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
         <Col span={24}>
           <h4 style={{ fontWeight: "bold", margin: 0 }}>
             Hạng mục kiểm tra chất lượng {"  "}
-            <a onClick={() => setActiveModal(true)}>
+            <a
+              onClick={() => setActiveModal(true)}
+              disabled={
+                DataModal.tits_qtsx_LoaiSanPham_Id === "" ||
+                DataModal.tits_qtsx_SanPham_Id === "" ||
+                DataModal.tits_qtsx_CongDoan_Id === ""
+              }
+            >
               <PlusCircleOutlined />
             </a>
           </h4>
@@ -843,15 +929,33 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
           <CaretRightOutlined rotate={isActive ? 90 : 0} />
         )}
       >
-        <Panel header="This is panel header 1" key="1">
-          <p>Tezxxt</p>
-        </Panel>
-        <Panel header="This is panel header 2" key="2">
-          <p>Tezxxt</p>
-        </Panel>
-        <Panel header="This is panel header 3" key="3">
-          <p>Tezxxt</p>
-        </Panel>
+        {ListHangMucKiemTra.map((hm) => {
+          return (
+            <Panel
+              header={hm.tenHangMucKiemTra}
+              key={hm.tits_qtsx_HangMucKiemTra_Id}
+            >
+              {hm.list_HangMucKiemTraChiTiets.length > 0 && (
+                <Collapse
+                  accordion
+                  expandIcon={({ isActive }) => (
+                    <CaretRightOutlined rotate={isActive ? 90 : 0} />
+                  )}
+                >
+                  {" "}
+                  {hm.list_HangMucKiemTraChiTiets.map((cthm) => {
+                    return (
+                      <Panel
+                        header={cthm.tenHangMucKiemTra}
+                        key={cthm.tits_qtsx_HangMucKiemTra_Id}
+                      ></Panel>
+                    );
+                  })}
+                </Collapse>
+              )}
+            </Panel>
+          );
+        })}
       </Collapse>
 
       {type === "new" || type === "edit" ? (
@@ -897,7 +1001,12 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
           </Row>
         </>
       )}
-      <ModalHangMuc openModal={ActiveModal} openModalFS={setActiveModal} />
+      <ModalHangMuc
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        DataModal={DataModal}
+        setListHangMuc={setListHangMucKiemTra}
+      />
     </div>
   );
 }

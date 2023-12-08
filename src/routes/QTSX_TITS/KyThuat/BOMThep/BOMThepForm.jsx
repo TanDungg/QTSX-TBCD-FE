@@ -825,6 +825,8 @@ function BOMThepForm({ match, permission, history }) {
         list_ChiTiets: ListChiTiet.map((ct) => {
           return {
             ...ct,
+            tenVatTu: ct.tenVatTuChiTiet,
+            maVatTu: ct.maVatTuChiTiet,
             quyCach: {
               dai: ct.dai ? ct.dai : undefined,
               rong: ct.rong ? ct.rong : undefined,
@@ -866,7 +868,7 @@ function BOMThepForm({ match, permission, history }) {
               });
             }
           } else {
-            setDataLoi(res.data.list_ChiTiets);
+            setDataLoi(res.data);
           }
         })
         .catch((error) => console.error(error));

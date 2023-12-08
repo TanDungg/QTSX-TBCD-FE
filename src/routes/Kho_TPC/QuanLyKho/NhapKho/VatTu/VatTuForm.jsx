@@ -959,7 +959,7 @@ const VatTuForm = ({ history, match, permission }) => {
               >
                 <DatePicker
                   format={"DD/MM/YYYY HH:mm:ss"}
-                  disabled={true}
+                  disabled={type === "new" || type === "edit" ? false : true}
                   showTime
                   allowClear={false}
                   onChange={(date, dateString) => {
