@@ -78,7 +78,6 @@ function NhapKhoVatTu({ match, history, permission }) {
       ngayBatDau,
       ngayKetThuc,
       page,
-      donVi_Id: INFO.donVi_Id,
     });
     dispatch(
       fetchStart(`tits_qtsx_PhieuNhapKhoVatTu?${param}`, "GET", null, "LIST")
@@ -89,7 +88,6 @@ function NhapKhoVatTu({ match, history, permission }) {
       ngayBatDau,
       ngayKetThuc,
       page: -1,
-      donVi_Id: INFO.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(

@@ -81,24 +81,6 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
   };
 
   const actionContent = (item) => {
-    const detailItem =
-      INFO.user_Id === item.nguoiDuyet_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <CheckCircleOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <CheckCircleOutlined />
-        </span>
-      );
-
     const editItem =
       permission &&
       permission.edit &&
@@ -130,8 +112,6 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
 
     return (
       <div>
-        {detailItem}
-        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">

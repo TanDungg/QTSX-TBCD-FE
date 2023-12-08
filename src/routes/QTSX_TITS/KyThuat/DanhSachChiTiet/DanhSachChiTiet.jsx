@@ -470,19 +470,33 @@ function DanhSachChiTiet({ match, history, permission }) {
         description="Danh sách chi tiết"
         buttons={addButtonRender()}
       />
-
-      <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
+      <Card className="th-card-margin-bottom ">
+        <Col
+          xxl={8}
+          xl={12}
+          lg={16}
+          md={16}
+          sm={20}
+          xs={24}
+          style={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <span
+            style={{
+              width: "80px",
+            }}
           >
-            <h5>Tìm kiếm:</h5>
+            Tìm kiếm:
+          </span>
+          <div
+            style={{
+              flex: 1,
+              alignItems: "center",
+              marginTop: width < 576 ? 10 : 0,
+            }}
+          >
             <Toolbar
               count={1}
               search={{
@@ -495,8 +509,10 @@ function DanhSachChiTiet({ match, history, permission }) {
                 placeholder: "Tìm kiếm",
               }}
             />
-          </Col>
-        </Row>
+          </div>
+        </Col>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
           scroll={{ x: 700, y: "55vh" }}

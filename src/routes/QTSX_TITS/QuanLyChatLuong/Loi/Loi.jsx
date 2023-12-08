@@ -325,24 +325,21 @@ function Loi({ match, permission, history }) {
       <Card className="th-card-margin-bottom ">
         <Row>
           <Col
-            xxl={8}
-            xl={12}
-            lg={16}
-            md={16}
-            sm={20}
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
             xs={24}
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
+            style={{ marginBottom: 8 }}
           >
-            <span style={{ width: "80px" }}>Nhóm lỗi:</span>
+            <h5>Loại sản phẩm:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListNhomLoi ? ListNhomLoi : []}
               placeholder="Chọn nhóm lỗi"
               optionsvalue={["id", "tenNhomLoi"]}
-              style={{ width: "calc(100% - 80px)" }}
+              style={{ width: "100%" }}
               optionFilterProp={"name"}
               showSearch
               onSelect={handleSelectNhomLoi}
@@ -352,46 +349,29 @@ function Loi({ match, permission, history }) {
             />
           </Col>
           <Col
-            xxl={8}
-            xl={12}
-            lg={16}
-            md={16}
-            sm={20}
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
             xs={24}
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
+            style={{ marginBottom: 8 }}
           >
-            <span
-              style={{
-                width: "80px",
+            <h5>Tìm kiếm:</h5>
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchNguoiDung,
+                onSearch: onSearchNguoiDung,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
+                onClear: { handleClearSearch },
               }}
-            >
-              Tìm kiếm:
-            </span>
-            <div
-              style={{
-                flex: 1,
-                alignItems: "center",
-                marginTop: width < 576 ? 10 : 0,
-              }}
-            >
-              <Toolbar
-                count={1}
-                search={{
-                  title: "Tìm kiếm",
-                  loading,
-                  value: keyword,
-                  onChange: onChangeKeyword,
-                  onPressEnter: onSearchNguoiDung,
-                  onSearch: onSearchNguoiDung,
-                  placeholder: "Nhập từ khóa",
-                  allowClear: true,
-                  onClear: { handleClearSearch },
-                }}
-              />
-            </div>
+            />
           </Col>
         </Row>
       </Card>

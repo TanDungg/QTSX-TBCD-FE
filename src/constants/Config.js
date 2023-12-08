@@ -26,11 +26,11 @@ export const DEFAULT_FORM_STYLE = {
 
 export const DEFAULT_FORM_CUSTOM = {
   labelCol: {
-    span: 6,
+    span: 7,
     style: { fontWeight: "bold" },
   },
   wrapperCol: {
-    span: 12,
+    span: 11,
   },
 };
 

@@ -353,7 +353,7 @@ function ThemChiTietHMKTForm({ match, permission, history }) {
                 setFieldTouch(false);
                 setListHinhAnh([]);
                 setListHinhAnhDaChon([]);
-                getInfo(id);
+                getInfo(id, type);
                 setFieldsValue({
                   themchitiet: {
                     donVi_Id: INFO.donVi_Id.toLowerCase(),
@@ -396,7 +396,7 @@ function ThemChiTietHMKTForm({ match, permission, history }) {
               goBack();
             } else {
               setFieldTouch(false);
-              getInfo(id);
+              getInfo(id, type);
             }
           }
         })
@@ -761,6 +761,7 @@ function ThemChiTietHMKTForm({ match, permission, history }) {
                     showSearch
                     optionFilterProp="name"
                     onSelect={handleSelectXuong}
+                    disabled={type === "new" ? false : true}
                   />
                 </FormItem>
               </Col>
@@ -790,6 +791,7 @@ function ThemChiTietHMKTForm({ match, permission, history }) {
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
+                    disabled={type === "new" ? false : true}
                   />
                 </FormItem>
               </Col>

@@ -64,11 +64,6 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(PhieuMuaHangNoiBoForm, menus, pathname, permission)}
       />
-      <Route
-        path={`${match.url}/phieu-mua-hang-noi-bo/:id/xac-nhan`}
-        exact
-        component={Auth(PhieuMuaHangNoiBoForm, menus, pathname, permission)}
-      />
       {/* Phiếu mua hàng ngoài */}
       <Route
         path={`${match.url}/phieu-mua-hang-ngoai`}
