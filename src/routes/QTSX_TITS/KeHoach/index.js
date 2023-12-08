@@ -39,9 +39,9 @@ const ImportKeHoachGiaoXe = asyncComponent(() =>
   import("./KeHoachGiaoXe/ImportKeHoachGiaoXe")
 );
 
-const LenhSanXuat = asyncComponent(() => import("./LenhSanXuat/LenSanXuat"));
+const LenhSanXuat = asyncComponent(() => import("./LenhSanXuat/LenhSanXuat"));
 const LenhSanXuatForm = asyncComponent(() =>
-  import("./LenhSanXuat/LenSanXuatForm")
+  import("./LenhSanXuat/LenhSanXuatForm")
 );
 
 const App = ({ match, location, menus, permission }) => {
