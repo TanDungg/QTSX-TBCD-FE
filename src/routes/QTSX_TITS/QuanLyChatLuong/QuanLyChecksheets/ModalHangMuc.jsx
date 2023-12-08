@@ -12,115 +12,68 @@ import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams } from "src/util/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import { Select } from "src/components/Common";
-const CheckboxGroup = Checkbox.Group;
 const FormItem = Form.Item;
 
-function ModalHangMuc({ openModalFS, openModal }) {
+function ModalHangMuc({ openModalFS, openModal, DataModal, setListHangMuc }) {
   const dispatch = useDispatch();
 
   const [fieldTouch, setFieldTouch] = useState(false);
+  const [ListHangMucKiemTra, setListHangMucKiemTra] = useState([]);
+  const [CheckBox, setCheckBox] = useState([]);
+
   const [form] = Form.useForm();
   const { resetFields, setFieldsValue } = form;
 
   useEffect(() => {
     if (openModal) {
+      setFieldsValue({
+        hangMucKiemTra: {
+          sanPham: DataModal.tenSanPham,
+          congDoan: DataModal.tenCongDoan,
+        },
+      });
+      getHangMucKiemTra(DataModal);
     }
   }, [openModal]);
 
-  //   const getKe = (tits_qtsx_CauTrucKho_Id) => {
-  //     const params = convertObjectToUrlParams({
-  //       tits_qtsx_CauTrucKho_Id,
-  //       thuTu: 2,
-  //       isThanhPham: false,
-  //     });
-  //     new Promise((resolve, reject) => {
-  //       dispatch(
-  //         fetchStart(
-  //           `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?${params}`,
-  //           "GET",
-  //           null,
-  //           "DETAIL",
-  //           "",
-  //           resolve,
-  //           reject
-  //         )
-  //       );
-  //     })
-  //       .then((res) => {
-  //         if (res && res.data) {
-  //           setListKe(res.data);
-  //         } else {
-  //           setListKe([]);
-  //         }
-  //       })
-  //       .catch((error) => console.error(error));
-  //   };
-  //   const getTang = (tits_qtsx_CauTrucKho_Id) => {
-  //     const params = convertObjectToUrlParams({
-  //       tits_qtsx_CauTrucKho_Id,
-  //       thuTu: 3,
-  //       isThanhPham: false,
-  //     });
-  //     new Promise((resolve, reject) => {
-  //       dispatch(
-  //         fetchStart(
-  //           `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?${params}`,
-  //           "GET",
-  //           null,
-  //           "DETAIL",
-  //           "",
-  //           resolve,
-  //           reject
-  //         )
-  //       );
-  //     })
-  //       .then((res) => {
-  //         if (res && res.data.length > 0) {
-  //           setListTang(res.data);
-  //           setRequire(true);
-  //         } else {
-  //           setListTang([]);
-  //           setRequire(false);
-  //         }
-  //       })
-  //       .catch((error) => console.error(error));
-  //   };
-  //   const getNgan = (tits_qtsx_CauTrucKho_Id) => {
-  //     const params = convertObjectToUrlParams({
-  //       tits_qtsx_CauTrucKho_Id,
-  //       thuTu: 4,
-  //     });
-  //     new Promise((resolve, reject) => {
-  //       dispatch(
-  //         fetchStart(
-  //           `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?${params}`,
-  //           "GET",
-  //           null,
-  //           "DETAIL",
-  //           "",
-  //           resolve,
-  //           reject
-  //         )
-  //       );
-  //     })
-  //       .then((res) => {
-  //         if (res && res.data) {
-  //           setListNgan(res.data);
-  //         } else {
-  //           setListNgan([]);
-  //         }
-  //       })
-  //       .catch((error) => console.error(error));
-  //   };
+  const getHangMucKiemTra = (DataModal) => {
+    const params = convertObjectToUrlParams({
+      tits_qtsx_CongDoan_Id: DataModal.tits_qtsx_CongDoan_Id,
+      tits_qtsx_LoaiSanPham_Id: DataModal.tits_qtsx_LoaiSanPham_Id,
+      tits_qtsx_SanPham_Id: DataModal.tits_qtsx_SanPham_Id,
+      page: -1,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_HangMucKiemTra?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListHangMucKiemTra(res.data);
+        } else {
+          setListHangMucKiemTra([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const saveData = (vattu) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_ViTriLuuKhoVatTu/vi-tri-luu-kho-vat-tu`,
-          "PUT",
-          [],
-          "EDIT",
+          `tits_qtsx_HangMucKiemTra/list-hang-muc-kiem-tra-theo-list-id`,
+          "POST",
+          CheckBox,
+          "DETAIL",
           "",
           resolve,
           reject
@@ -129,6 +82,7 @@ function ModalHangMuc({ openModalFS, openModal }) {
     })
       .then((res) => {
         if (res && res.status !== 409) {
+          setListHangMuc(res.data);
           resetFields();
 
           openModalFS(false);
@@ -146,27 +100,9 @@ function ModalHangMuc({ openModalFS, openModal }) {
    * @param {*} values
    */
   const onFinish = (values) => {
-    // saveData(values.vatTu);
-    console.log(values.hangMucKiemTra);
+    saveData();
   };
-  //   const handleSelectKe = (val) => {
-  //     getTang(val);
-  //     setListNgan([]);
-  //     setFieldsValue({
-  //       vatTu: {
-  //         tits_qtsx_Tang_Id: null,
-  //         tits_qtsx_Ngan_Id: null,
-  //       },
-  //     });
-  //   };
-  //   const handleSelectTang = (val) => {
-  //     getNgan(val);
-  //     setFieldsValue({
-  //       vatTu: {
-  //         tits_qtsx_Ngan_Id: null,
-  //       },
-  //     });
-  //   };
+
   return (
     <AntModal
       title={"Danh sách hạng mục kiểm tra"}
@@ -194,7 +130,23 @@ function ModalHangMuc({ openModalFS, openModal }) {
             label=" Nhóm hạng mục kiểm tra"
             name={["hangMucKiemTra", "hangMucKiemTra"]}
           >
-            <Checkbox value="A">A</Checkbox>
+            <Row style={{ width: "100%" }}>
+              <Checkbox.Group
+                onChange={(checkedValues) => {
+                  setCheckBox(checkedValues);
+                }}
+              >
+                {ListHangMucKiemTra.map((hm) => {
+                  return (
+                    <Col span={24} style={{ marginBottom: 5 }}>
+                      <Checkbox value={hm.tits_qtsx_HangMucKiemTra_Id}>
+                        {hm.tenHangMucKiemTra}
+                      </Checkbox>
+                    </Col>
+                  );
+                })}
+              </Checkbox.Group>
+            </Row>
           </FormItem>
 
           <Row justify={"center"}>

@@ -438,7 +438,9 @@ const VatTuForm = ({ history, match, permission }) => {
   };
 
   const deleteItemAction = (item) => {
-    const newData = ListVatTuTheoOEM.filter((d) => d.maVatTu !== item.maVatTu);
+    const newData = ListVatTuTheoOEM.filter(
+      (d) => d.tits_qtsx_VatTuChiTiet_Id !== item.tits_qtsx_VatTuChiTiet_Id
+    );
     setListVatTuTheoOEM(newData);
     setFieldTouch(true);
   };
@@ -749,7 +751,7 @@ const VatTuForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_phieuxuatkhovattusanxuattheoOEM`,
+            `tits_qtsx_phieuxuatkhovattusanxuat`,
             "POST",
             newData,
             "ADD",
@@ -795,7 +797,7 @@ const VatTuForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_phieuxuatkhovattusanxuattheoOEM/${id}`,
+            `tits_qtsx_phieuxuatkhovattusanxuat/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -824,7 +826,7 @@ const VatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_phieuxuatkhovattusanxuattheoOEM/duyet/${id}`,
+          `tits_qtsx_phieuxuatkhovattusanxuat/duyet/${id}`,
           "PUT",
           newData,
           "XACNHAN",
@@ -862,7 +864,7 @@ const VatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_phieuxuatkhovattusanxuattheoOEM/duyet/${id}`,
+          `tits_qtsx_phieuxuatkhovattusanxuat/duyet/${id}`,
           "PUT",
           newData,
           "TUCHOI",

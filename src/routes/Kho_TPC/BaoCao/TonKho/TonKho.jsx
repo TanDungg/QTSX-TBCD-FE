@@ -35,7 +35,7 @@ function TonKho({ permission, history, match }) {
   const [Kho, setKho] = useState("");
   const [Info, setInfo] = useState({});
   const [ListKho, setListKho] = useState([]);
-  const [TuNgay, setTuNgay] = useState(getDateNow(-7));
+  const [TuNgay, setTuNgay] = useState(getDateNow(-new Date().getDate() + 1));
   const [DenNgay, setDenNgay] = useState(getDateNow());
   const [keyword, setKeyword] = useState(null);
 
@@ -380,7 +380,7 @@ function TonKho({ permission, history, match }) {
     }
   };
   const handleChangeNgay = (dateString) => {
-    if (TuNgay !== dateString[0] && DenNgay !== dateString[1]) {
+    if (TuNgay !== dateString[0] || DenNgay !== dateString[1]) {
       setTuNgay(dateString[0]);
       setDenNgay(dateString[1]);
       getListData(keyword, dateString[0], dateString[1], Kho);

@@ -391,7 +391,7 @@ function ImportCauTrucKhoThanhPham({
           dataView.map((ctk) => {
             return {
               ...ctk,
-              isCoDinh: ctk.isCoDinh.toLowerCase() === "x",
+              isCoDinh: ctk.isCoDinh && ctk.isCoDinh.toLowerCase() === "x",
             };
           }),
           "IMPORT",

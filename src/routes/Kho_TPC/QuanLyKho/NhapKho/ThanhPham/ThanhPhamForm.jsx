@@ -547,6 +547,12 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
+      title: "Thời gian tạo",
+      dataIndex: "ngayTao",
+      key: "ngayTao",
+      align: "center",
+    },
+    {
       title: "Màu sắc",
       dataIndex: "tenMauSac",
       key: "tenMauSac",
