@@ -10,6 +10,7 @@ import {
   Divider,
   Image,
   Empty,
+  Tag,
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
@@ -30,7 +31,7 @@ import Helpers from "src/helpers";
 
 const FormItem = Form.Item;
 
-function ThemChiTietHMKT({ match, permission, history }) {
+function ThemChiTietHMKTForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { setFieldsValue, validateFields, resetFields } = form;
@@ -42,37 +43,50 @@ function ThemChiTietHMKT({ match, permission, history }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const [fieldTouch, setFieldTouch] = useState(false);
   const [type, setType] = useState("new");
-  const [id, setId] = useState(undefined);
   const [ListHangMucSuDung, setListHangMucSuDung] = useState([]);
   const [ListDonVi, setListDonVi] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
   const [ListTram, setListTram] = useState([]);
   const [ListHinhAnh, setListHinhAnh] = useState([]);
   const [ListHinhAnhDaChon, setListHinhAnhDaChon] = useState([]);
-  const [IsSuDungHinhAnh, setIsSuDungHinhAnh] = useState(false);
+  const [HinhAnhDaChon, setHinhAnhDaChon] = useState([]);
+  const [id, setId] = useState(undefined);
+  const [idChiTiet, setIdChiTiet] = useState(undefined);
   const [info, setInfo] = useState(null);
 
   useEffect(() => {
-    if (permission && !permission.add) {
-      history.push("/home");
-    } else {
-      getInfo(match.params.id);
-      getListHangMucSuDung();
-      getListDonVi();
-      getListXuong();
-      setFieldsValue({
-        themchitiet: {
-          donVi_Id: INFO.donVi_Id.toLowerCase(),
-        },
-      });
+    if (includes(match.url, "them-moi")) {
+      if (permission && !permission.add) {
+        history.push("/home");
+      } else {
+        setType("new");
+        setId(match.params.id);
+        getInfo(match.params.id, "new");
+        getListHangMucSuDung();
+        getListDonVi();
+        getListXuong();
+      }
+    } else if (includes(match.url, "chinh-sua")) {
+      if (permission && !permission.add) {
+        history.push("/home");
+      } else {
+        setType("edit");
+        setId(match.params.id);
+        setIdChiTiet(match.params.idchitiet);
+        getInfo(match.params.id, "edit");
+        getListHangMucSuDung();
+        getListDonVi();
+        getListXuong();
+      }
     }
+
     return () => {
       dispatch(fetchReset());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getInfo = (id) => {
+  const getInfo = (id, key) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -89,6 +103,40 @@ function ThemChiTietHMKT({ match, permission, history }) {
       .then((res) => {
         if (res && res.data) {
           setInfo(res.data);
+          if (key === "edit") {
+            const listData =
+              res.data.list_HangMucKiemTraChiTiets &&
+              res.data.list_HangMucKiemTraChiTiets.filter(
+                (data) => (data.id = match.params.idchitiet)
+              );
+            getListTram(listData[0].tits_qtsx_Xuong_Id);
+            setFieldsValue({
+              themchitiet: {
+                ...listData[0],
+                tenHangMucKiemTra: res.data.tenHangMucKiemTra,
+              },
+            });
+            setHinhAnhDaChon(
+              listData[0].list_HinhAnhs && listData[0].list_HinhAnhs
+            );
+            getCongDoan(
+              res.data.tits_qtsx_SanPham_Id,
+              res.data.tits_qtsx_CongDoan_Id,
+              listData[0].list_HinhAnhs
+            );
+          } else {
+            getCongDoan(
+              res.data.tits_qtsx_SanPham_Id,
+              res.data.tits_qtsx_CongDoan_Id
+            );
+            setFieldsValue({
+              themchitiet: {
+                donVi_Id: INFO.donVi_Id.toLowerCase(),
+                tenHangMucKiemTra: res.data && res.data.tenHangMucKiemTra,
+                isNhapKetQua: true,
+              },
+            });
+          }
         }
       })
       .catch((error) => console.error(error));
@@ -181,13 +229,77 @@ function ThemChiTietHMKT({ match, permission, history }) {
       .catch((error) => console.error(error));
   };
 
+  const getCongDoan = (value, key, hinhanhdachon) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_SanPhamHinhAnh?tits_qtsx_SanPham_Id=${value}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newListHinhAnh = res.data.filter(
+            (congdoan) =>
+              congdoan.tits_qtsx_CongDoan_Id.toLowerCase() === key.toLowerCase()
+          );
+          const hinhanh =
+            newListHinhAnh[0].list_KhuVucs &&
+            JSON.parse(newListHinhAnh[0].list_KhuVucs);
+
+          if (hinhanhdachon) {
+            const newHinhAnh = hinhanh.map((data) => {
+              const filteredHinhAnhs = data.list_HinhAnhs.filter((image) => {
+                return !hinhanhdachon.some(
+                  (selectedImage) =>
+                    selectedImage.tits_qtsx_SanPhamHinhAnh_Id.toLowerCase() ===
+                    image.tits_qtsx_SanPhamHinhAnh_Id.toLowerCase()
+                );
+              });
+              return {
+                ...data,
+                list_HinhAnhs: filteredHinhAnhs,
+              };
+            });
+            setListHinhAnh(newHinhAnh);
+
+            const newHinhAnhDaChon = hinhanhdachon.map((selectedImage) => {
+              const area = hinhanh.find((area) =>
+                area.list_HinhAnhs.some(
+                  (image) =>
+                    image.tits_qtsx_SanPhamHinhAnh_Id.toLowerCase() ===
+                    selectedImage.tits_qtsx_SanPhamHinhAnh_Id.toLowerCase()
+                )
+              );
+              return {
+                ...selectedImage,
+                tenKhuVuc: area.tenKhuVuc,
+              };
+            });
+            setListHinhAnhDaChon(newHinhAnhDaChon);
+          } else {
+            setListHinhAnh(hinhanh);
+          }
+        } else {
+          setListHinhAnh([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   /**
    * Khi submit
    *
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.hangmuckiemtra);
+    saveData(values.themchitiet);
   };
 
   /**
@@ -197,37 +309,32 @@ function ThemChiTietHMKT({ match, permission, history }) {
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.hangmuckiemtra, true);
+        saveData(values.themchitiet, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (hangmuckiemtra, saveQuit = false) => {
+  const saveData = (themchitiet, saveQuit = false) => {
     if (type === "new") {
-      if (ListHinhAnhDaChon.length === 0 && IsSuDungHinhAnh === false) {
+      if (ListHinhAnhDaChon.length === 0 && info && info.isSuDungHinhAnh) {
         setFieldTouch(false);
         Helpers.alertError("Vui lòng chọn hình ảnh");
       } else {
         const newData = {
-          ...hangmuckiemtra,
-          isNoiDung: hangmuckiemtra.isNoiDung === "isNoiDung" ? true : false,
-          isSuDung:
-            hangmuckiemtra.isSuDung === undefined
+          ...themchitiet,
+          tits_qtsx_HangMucKiemTra_Id: info.tits_qtsx_HangMucKiemTra_Id,
+          isNhapKetQua:
+            themchitiet.isNhapKetQua === undefined
               ? false
-              : hangmuckiemtra.isSuDung,
-          isFile:
-            hangmuckiemtra.isFile === undefined ? false : hangmuckiemtra.isFile,
-          isSuDungHinhAnh:
-            hangmuckiemtra.isSuDungHinhAnh === undefined
-              ? false
-              : hangmuckiemtra.isSuDungHinhAnh,
+              : themchitiet.isNhapKetQua,
+          list_HinhAnhs: ListHinhAnhDaChon,
         };
         new Promise((resolve, reject) => {
           dispatch(
             fetchStart(
-              `tits_qtsx_HangMucKiemTra`,
+              `tits_qtsx_HangMucKiemTra/chi-tiet`,
               "POST",
               newData,
               "ADD",
@@ -244,22 +351,63 @@ function ThemChiTietHMKT({ match, permission, history }) {
               } else {
                 resetFields();
                 setFieldTouch(false);
+                setListHinhAnh([]);
+                setListHinhAnhDaChon([]);
+                getInfo(id);
+                setFieldsValue({
+                  themchitiet: {
+                    donVi_Id: INFO.donVi_Id.toLowerCase(),
+                    isNhapKetQua: true,
+                  },
+                });
               }
             }
           })
           .catch((error) => console.error(error));
       }
     }
+    if (type === "edit") {
+      const newData = {
+        ...themchitiet,
+        id: idChiTiet,
+        tits_qtsx_HangMucKiemTra_Id: info.tits_qtsx_HangMucKiemTra_Id,
+        isNhapKetQua:
+          themchitiet.isNhapKetQua === undefined
+            ? false
+            : themchitiet.isNhapKetQua,
+        list_HinhAnhs: ListHinhAnhDaChon,
+      };
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `tits_qtsx_HangMucKiemTra/hang-muc-kiem-tra-chi-tiet/${idChiTiet}`,
+            "PUT",
+            newData,
+            "EDIT",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (res && res.status !== 409) {
+            if (saveQuit) {
+              goBack();
+            } else {
+              setFieldTouch(false);
+              getInfo(id);
+            }
+          }
+        })
+        .catch((error) => console.log(error));
+    }
   };
 
   const goBack = () => {
     history.push(
       `${match.url.replace(
-        type === "new"
-          ? "/them-moi"
-          : type === "edit"
-          ? `/${id}/chinh-sua`
-          : `/${id}/chi-tiet`,
+        type === "new" ? "/them-moi" : `/${idChiTiet}/chinh-sua`,
         ""
       )}`
     );
@@ -318,19 +466,24 @@ function ThemChiTietHMKT({ match, permission, history }) {
 
   const handleSelectXuong = (value) => {
     getListTram(value);
+    setFieldsValue({
+      themchitiet: {
+        tits_qtsx_Tram_Id: null,
+      },
+    });
   };
 
   const formTitle =
     type === "new"
-      ? "Thêm mới hạng mục kiểm tra"
-      : "Chỉnh sửa hạng mục kiểm tra";
+      ? "Thêm mới chi tiết hạng mục kiểm tra"
+      : "Chỉnh sửa chi tiết hạng mục kiểm tra";
 
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin chung"}
+        title={"Thêm mới chi tiết hạng mục kiểm tra"}
         headStyle={{
           textAlign: "center",
           backgroundColor: "#0469B9",
@@ -357,26 +510,14 @@ function ThemChiTietHMKT({ match, permission, history }) {
               >
                 <FormItem
                   label="Hạng mục kiểm tra cha"
-                  name={["themchitiet", "tits_qtsx_HangMucKiemTra_Id"]}
+                  name={["themchitiet", "tenHangMucKiemTra"]}
                   rules={[
                     {
                       type: "string",
-                      required: true,
                     },
                   ]}
                 >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListHangMucSuDung ? ListHangMucSuDung : []}
-                    optionsvalue={[
-                      "tits_qtsx_HangMucKiemTra_Id",
-                      "tenHangMucKiemTra",
-                    ]}
-                    style={{ width: "100%" }}
-                    placeholder="Chọn hạng mục sử dụng cha"
-                    showSearch
-                    optionFilterProp={"name"}
-                  />
+                  <Input className="input-item" disabled />
                 </FormItem>
               </Col>
               <Col
@@ -450,111 +591,119 @@ function ThemChiTietHMKT({ match, permission, history }) {
                   />
                 </FormItem>
               </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Giá trị tiêu chuẩn MIN"
-                  name={["themchitiet", "giaTriMin"]}
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
+              {info && !info.isNoiDung && (
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
                 >
-                  <Input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    className="input-item"
-                    placeholder="Nhập giá trị tiêu chuẩn MIN"
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Giá trị tiêu chuẩn MAX"
-                  name={["themchitiet", "giaTriMax"]}
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
+                  <FormItem
+                    label="Giá trị tiêu chuẩn MIN"
+                    name={["themchitiet", "giaTriMin"]}
+                    rules={[
+                      {
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Input
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      className="input-item"
+                      placeholder="Nhập giá trị tiêu chuẩn MIN"
+                    />
+                  </FormItem>
+                </Col>
+              )}
+              {info && !info.isNoiDung && (
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
                 >
-                  <Input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    className="input-item"
-                    placeholder="Nhập giá trị tiêu chuẩn MAX"
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Giá trị tiêu chuẩn"
-                  name={["themchitiet", "giaTriTieuChuan"]}
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
+                  <FormItem
+                    label="Giá trị tiêu chuẩn MAX"
+                    name={["themchitiet", "giaTriMax"]}
+                    rules={[
+                      {
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Input
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      className="input-item"
+                      placeholder="Nhập giá trị tiêu chuẩn MAX"
+                    />
+                  </FormItem>
+                </Col>
+              )}
+              {info && info.isNoiDung && (
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
                 >
-                  <Input
-                    type="number"
-                    min={0}
-                    step="0.01"
-                    className="input-item"
-                    placeholder="Nhập giá trị tiêu chuẩn"
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Phương pháp tiêu chuẩn"
-                  name={["themchitiet", "phuongPhapTieuChuan"]}
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
+                  <FormItem
+                    label="Giá trị tiêu chuẩn"
+                    name={["themchitiet", "giaTriTieuChuan"]}
+                    rules={[
+                      {
+                        type: "string",
+                      },
+                    ]}
+                  >
+                    <Input
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      className="input-item"
+                      placeholder="Nhập giá trị tiêu chuẩn"
+                    />
+                  </FormItem>
+                </Col>
+              )}
+              {info && info.isNoiDung && (
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
                 >
-                  <Input
-                    className="input-item"
-                    placeholder="Nhập phương pháp tiêu chuẩn"
-                  />
-                </FormItem>
-              </Col>
+                  <FormItem
+                    label="Phương pháp tiêu chuẩn"
+                    name={["themchitiet", "phuongPhapTieuChuan"]}
+                    rules={[
+                      {
+                        type: "string",
+                      },
+                    ]}
+                  >
+                    <Input
+                      className="input-item"
+                      placeholder="Nhập phương pháp tiêu chuẩn"
+                    />
+                  </FormItem>
+                </Col>
+              )}
               <Col
                 xxl={12}
                 xl={12}
@@ -570,7 +719,6 @@ function ThemChiTietHMKT({ match, permission, history }) {
                   rules={[
                     {
                       type: "string",
-                      required: true,
                     },
                   ]}
                 >
@@ -642,7 +790,6 @@ function ThemChiTietHMKT({ match, permission, history }) {
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
-                    // onSelect={SelectViTriKho}
                   />
                 </FormItem>
               </Col>
@@ -658,11 +805,12 @@ function ThemChiTietHMKT({ match, permission, history }) {
                 <FormItem
                   label="Nhập kết quả"
                   name={["themchitiet", "isNhapKetQua"]}
+                  valuePropName="checked"
                 >
-                  <Switch defaultChecked />
+                  <Switch />
                 </FormItem>
               </Col>
-              {IsSuDungHinhAnh === false && (
+              {info && info.isSuDungHinhAnh && (
                 <Col lg={12} xs={24} style={{ marginBottom: 8 }}>
                   <h5 style={{ fontWeight: "bold" }}>
                     Hình ảnh trong công đoạn:
@@ -737,28 +885,26 @@ function ThemChiTietHMKT({ match, permission, history }) {
                                           }}
                                           src={BASE_URL_API + hinhanh.hinhAnh}
                                         />
-                                        {type === "new" && (
-                                          <PlusCircleOutlined
-                                            style={{
-                                              fontSize: 25,
-                                              position: "absolute",
-                                              top: -7,
-                                              right: -5,
-                                              cursor: "pointer",
-                                              display: "flex",
-                                              alignItems: "center",
-                                              justifyContent: "center",
-                                              color: "#0469B9",
-                                              backgroundColor: "#fff",
-                                              borderRadius: 15,
-                                              transition:
-                                                "background-color 0.3s ease",
-                                            }}
-                                            onClick={() =>
-                                              handleThemHinhAnh(hinhanh, khuvuc)
-                                            }
-                                          />
-                                        )}
+                                        <PlusCircleOutlined
+                                          style={{
+                                            fontSize: 25,
+                                            position: "absolute",
+                                            top: -7,
+                                            right: -5,
+                                            cursor: "pointer",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            color: "#0469B9",
+                                            backgroundColor: "#fff",
+                                            borderRadius: 15,
+                                            transition:
+                                              "background-color 0.3s ease",
+                                          }}
+                                          onClick={() =>
+                                            handleThemHinhAnh(hinhanh, khuvuc)
+                                          }
+                                        />
                                       </div>
                                     );
                                   })}
@@ -776,7 +922,7 @@ function ThemChiTietHMKT({ match, permission, history }) {
                   </Card>
                 </Col>
               )}
-              {IsSuDungHinhAnh === false && (
+              {info && info.isSuDungHinhAnh && (
                 <Col lg={12} xs={24} style={{ marginBottom: 8 }}>
                   <h5 style={{ fontWeight: "bold" }}>Hình ảnh đã chọn:</h5>
                   <Card
@@ -820,26 +966,24 @@ function ThemChiTietHMKT({ match, permission, history }) {
                                 }}
                                 src={BASE_URL_API + hinhanh.hinhAnh}
                               />
-                              {type === "new" && (
-                                <MinusCircleOutlined
-                                  style={{
-                                    fontSize: 25,
-                                    position: "absolute",
-                                    top: -7,
-                                    right: -5,
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    color: "red",
-                                    backgroundColor: "#fff",
-                                    borderColor: "#c8c8c8",
-                                    borderRadius: 15,
-                                    transition: "background-color 0.3s ease",
-                                  }}
-                                  onClick={() => handleXoaHinhAnh(hinhanh)}
-                                />
-                              )}
+                              <MinusCircleOutlined
+                                style={{
+                                  fontSize: 25,
+                                  position: "absolute",
+                                  top: -7,
+                                  right: -5,
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  color: "red",
+                                  backgroundColor: "#fff",
+                                  borderColor: "#c8c8c8",
+                                  borderRadius: 15,
+                                  transition: "background-color 0.3s ease",
+                                }}
+                                onClick={() => handleXoaHinhAnh(hinhanh)}
+                              />
                             </div>
                           );
                         })}
@@ -863,4 +1007,4 @@ function ThemChiTietHMKT({ match, permission, history }) {
   );
 }
 
-export default ThemChiTietHMKT;
+export default ThemChiTietHMKTForm;

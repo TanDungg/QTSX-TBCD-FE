@@ -50,6 +50,7 @@ function HangMucSuDungForm({ match, permission, history }) {
   const [ListCongDoan, setListCongDoan] = useState([]);
   const [CongDoan, setCongDoan] = useState(null);
   const [ListHinhAnh, setListHinhAnh] = useState([]);
+  const [HinhAnhDaChon, setHinhAnhDaChon] = useState([]);
   const [ListHinhAnhDaChon, setListHinhAnhDaChon] = useState([]);
   const [IsSuDungHinhAnh, setIsSuDungHinhAnh] = useState(false);
   const [info, setInfo] = useState(null);
@@ -137,7 +138,7 @@ function HangMucSuDungForm({ match, permission, history }) {
       .catch((error) => console.error(error));
   };
 
-  const getCongDoan = (value, key) => {
+  const getCongDoan = (value, key, hinhanhdachon) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -158,11 +159,43 @@ function HangMucSuDungForm({ match, permission, history }) {
             (congdoan) =>
               congdoan.tits_qtsx_CongDoan_Id.toLowerCase() === key.toLowerCase()
           );
-          console.log(newListHinhAnh);
           const hinhanh =
             newListHinhAnh[0].list_KhuVucs &&
             JSON.parse(newListHinhAnh[0].list_KhuVucs);
-          setListHinhAnh(hinhanh);
+
+          if (!hinhanhdachon) {
+            setListHinhAnh(hinhanh);
+          } else {
+            const newHinhAnh = hinhanh.map((data) => {
+              const filteredHinhAnhs = data.list_HinhAnhs.filter((image) => {
+                return !hinhanhdachon.some(
+                  (selectedImage) =>
+                    selectedImage.tits_qtsx_SanPhamHinhAnh_Id.toLowerCase() ===
+                    image.tits_qtsx_SanPhamHinhAnh_Id.toLowerCase()
+                );
+              });
+              return {
+                ...data,
+                list_HinhAnhs: filteredHinhAnhs,
+              };
+            });
+            setListHinhAnh(newHinhAnh);
+
+            const newHinhAnhDaChon = hinhanhdachon.map((selectedImage) => {
+              const area = hinhanh.find((area) =>
+                area.list_HinhAnhs.some(
+                  (image) =>
+                    image.tits_qtsx_SanPhamHinhAnh_Id.toLowerCase() ===
+                    selectedImage.tits_qtsx_SanPhamHinhAnh_Id.toLowerCase()
+                )
+              );
+              return {
+                ...selectedImage,
+                tenKhuVuc: area.tenKhuVuc,
+              };
+            });
+            setListHinhAnhDaChon(newHinhAnhDaChon);
+          }
         } else {
           setListCongDoan([]);
         }
@@ -197,9 +230,11 @@ function HangMucSuDungForm({ match, permission, history }) {
           setSanPham(res.data.tits_qtsx_SanPham_Id);
           getCongDoan(
             res.data.tits_qtsx_SanPham_Id,
-            res.data.tits_qtsx_CongDoan_Id
+            res.data.tits_qtsx_CongDoan_Id,
+            res.data.list_HinhAnhs
           );
           setCongDoan(res.data.tits_qtsx_CongDoan_Id);
+          setHinhAnhDaChon(res.data.list_HinhAnhs);
 
           setInfo(res.data);
           setFieldsValue({
@@ -209,8 +244,6 @@ function HangMucSuDungForm({ match, permission, history }) {
                 res.data.isNoiDung === true ? "isNoiDung" : "isThongSo",
             },
           });
-
-          setListHinhAnhDaChon(res.data.list_HinhAnhs);
         }
       })
       .catch((error) => console.error(error));
@@ -288,19 +321,36 @@ function HangMucSuDungForm({ match, permission, history }) {
                 setSanPham(null);
                 setCongDoan(null);
               }
+            } else {
+              setFieldTouch(false);
             }
           })
           .catch((error) => console.error(error));
       }
     }
     if (type === "edit") {
-      hangmuckiemtra.id = id;
+      const newData = {
+        ...hangmuckiemtra,
+        id: id,
+        isNoiDung: hangmuckiemtra.isNoiDung === "isNoiDung" ? true : false,
+        isSuDung:
+          hangmuckiemtra.isSuDung === undefined
+            ? false
+            : hangmuckiemtra.isSuDung,
+        isFile:
+          hangmuckiemtra.isFile === undefined ? false : hangmuckiemtra.isFile,
+        isSuDungHinhAnh:
+          hangmuckiemtra.isSuDungHinhAnh === undefined
+            ? false
+            : hangmuckiemtra.isSuDungHinhAnh,
+        list_HinhAnhs: ListHinhAnhDaChon,
+      };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_ChiTiet/${id}`,
+            `tits_qtsx_HangMucKiemTra/hang-muc-kiem-tra/${id}`,
             "PUT",
-            hangmuckiemtra,
+            newData,
             "EDIT",
             "",
             resolve,
@@ -624,12 +674,19 @@ function HangMucSuDungForm({ match, permission, history }) {
                   valuePropName="checked"
                 >
                   <Switch
-                    onChange={() => {
+                    onChange={(value) => {
                       setListHinhAnh([]);
                       setListHinhAnhDaChon([]);
+                      if (value === false) {
+                        getCongDoan(
+                          SanPham,
+                          CongDoan,
+                          HinhAnhDaChon && HinhAnhDaChon
+                        );
+                      }
                       setIsSuDungHinhAnh(!IsSuDungHinhAnh);
                     }}
-                    disabled={type === "detail" ? true : false}
+                    disabled={type === "detail" || !CongDoan ? true : false}
                   />
                 </FormItem>
               </Col>
@@ -667,7 +724,7 @@ function HangMucSuDungForm({ match, permission, history }) {
                   <Switch disabled={type === "detail" ? true : false} />
                 </FormItem>
               </Col>
-              {IsSuDungHinhAnh === false && (
+              {!IsSuDungHinhAnh && (
                 <Col lg={12} xs={24} style={{ marginBottom: 8 }}>
                   <h5 style={{ fontWeight: "bold" }}>
                     Hình ảnh trong công đoạn:
@@ -742,28 +799,26 @@ function HangMucSuDungForm({ match, permission, history }) {
                                           }}
                                           src={BASE_URL_API + hinhanh.hinhAnh}
                                         />
-                                        {type === "new" && (
-                                          <PlusCircleOutlined
-                                            style={{
-                                              fontSize: 25,
-                                              position: "absolute",
-                                              top: -7,
-                                              right: -5,
-                                              cursor: "pointer",
-                                              display: "flex",
-                                              alignItems: "center",
-                                              justifyContent: "center",
-                                              color: "#0469B9",
-                                              backgroundColor: "#fff",
-                                              borderRadius: 15,
-                                              transition:
-                                                "background-color 0.3s ease",
-                                            }}
-                                            onClick={() =>
-                                              handleThemHinhAnh(hinhanh, khuvuc)
-                                            }
-                                          />
-                                        )}
+                                        <PlusCircleOutlined
+                                          style={{
+                                            fontSize: 25,
+                                            position: "absolute",
+                                            top: -7,
+                                            right: -5,
+                                            cursor: "pointer",
+                                            display: "flex",
+                                            alignItems: "center",
+                                            justifyContent: "center",
+                                            color: "#0469B9",
+                                            backgroundColor: "#fff",
+                                            borderRadius: 15,
+                                            transition:
+                                              "background-color 0.3s ease",
+                                          }}
+                                          onClick={() =>
+                                            handleThemHinhAnh(hinhanh, khuvuc)
+                                          }
+                                        />
                                       </div>
                                     );
                                   })}
@@ -781,7 +836,7 @@ function HangMucSuDungForm({ match, permission, history }) {
                   </Card>
                 </Col>
               )}
-              {IsSuDungHinhAnh === false && (
+              {!IsSuDungHinhAnh && (
                 <Col lg={12} xs={24} style={{ marginBottom: 8 }}>
                   <h5 style={{ fontWeight: "bold" }}>Hình ảnh đã chọn:</h5>
                   <Card
@@ -825,26 +880,25 @@ function HangMucSuDungForm({ match, permission, history }) {
                                 }}
                                 src={BASE_URL_API + hinhanh.hinhAnh}
                               />
-                              {type === "new" && (
-                                <MinusCircleOutlined
-                                  style={{
-                                    fontSize: 25,
-                                    position: "absolute",
-                                    top: -7,
-                                    right: -5,
-                                    cursor: "pointer",
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "center",
-                                    color: "red",
-                                    backgroundColor: "#fff",
-                                    borderColor: "#c8c8c8",
-                                    borderRadius: 15,
-                                    transition: "background-color 0.3s ease",
-                                  }}
-                                  onClick={() => handleXoaHinhAnh(hinhanh)}
-                                />
-                              )}
+
+                              <MinusCircleOutlined
+                                style={{
+                                  fontSize: 25,
+                                  position: "absolute",
+                                  top: -7,
+                                  right: -5,
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  color: "red",
+                                  backgroundColor: "#fff",
+                                  borderColor: "#c8c8c8",
+                                  borderRadius: 15,
+                                  transition: "background-color 0.3s ease",
+                                }}
+                                onClick={() => handleXoaHinhAnh(hinhanh)}
+                              />
                             </div>
                           );
                         })}

@@ -67,7 +67,6 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
   const [info, setInfo] = useState({});
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [editingRecord, setEditingRecord] = useState([]);
-  const [errors, setErrors] = useState({});
 
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
