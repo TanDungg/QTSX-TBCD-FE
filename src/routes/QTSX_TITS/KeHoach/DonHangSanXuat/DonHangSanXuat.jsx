@@ -482,24 +482,6 @@ function DonHangSanXuat({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Tháng:</h5>
-            <DatePicker
-              picker="month"
-              format={"MM/YYYY"}
-              onChange={(date, dateString) => handleChangeNgay(dateString)}
-              defaultValue={moment(Thang + "/" + Nam, "MM/YYYY")}
-              allowClear={false}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
             <h5>Tìm kiếm:</h5>
             <Toolbar
               count={1}
@@ -514,7 +496,27 @@ function DonHangSanXuat({ match, history, permission }) {
               }}
             />
           </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Tháng:</h5>
+            <DatePicker
+              picker="month"
+              format={"MM/YYYY"}
+              onChange={(date, dateString) => handleChangeNgay(dateString)}
+              defaultValue={moment(Thang + "/" + Nam, "MM/YYYY")}
+              allowClear={false}
+            />
+          </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom">
         <Table
           bordered
           scroll={{ x: 1100, y: "55vh" }}

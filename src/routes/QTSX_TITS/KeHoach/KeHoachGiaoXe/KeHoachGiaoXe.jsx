@@ -1,6 +1,5 @@
 import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
-import { Card, Row, Col, DatePicker, Button, Popover } from "antd";
-
+import { Card, Row, Col, DatePicker, Button } from "antd";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,7 +14,6 @@ import {
   EditableTableRow,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import EditKeHoach from "./EditKeHoach";
 import { convertObjectToUrlParams } from "src/util/Common";
 import moment from "moment";
 
@@ -356,7 +354,6 @@ function KeHoachGiaoXe({ match, history, permission }) {
               onChange={(date, dateString) => handleOnChangeDate(dateString)}
             />
           </Col>
-
           <Col
             xxl={6}
             xl={8}
@@ -398,6 +395,8 @@ function KeHoachGiaoXe({ match, history, permission }) {
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom">
         <Table
           style={{ marginTop: 10 }}
           bordered

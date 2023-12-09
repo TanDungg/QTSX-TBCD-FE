@@ -703,6 +703,8 @@ function XuatKhoVatTu({ match, history, permission }) {
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
           scroll={{ x: 700, y: "70vh" }}

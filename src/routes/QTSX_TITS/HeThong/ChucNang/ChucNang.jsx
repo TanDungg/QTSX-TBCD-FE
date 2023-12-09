@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Row, Col } from "antd";
 import { Icon } from "@ant-design/compatible";
+import { FaCoffee } from "react-icons/fa";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -300,7 +301,7 @@ function ChucNang({ match, history, permission }) {
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row style={{ paddingBottom: 8 }}>
+        <Row>
           <Col
             xxl={2}
             xl={3}
@@ -334,6 +335,8 @@ function ChucNang({ match, history, permission }) {
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
           scroll={{ x: 700, y: "64vh" }}

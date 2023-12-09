@@ -1197,8 +1197,8 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               >
                 <DatePicker
                   format={"DD/MM/YYYY HH:mm:ss"}
-                  disabled={type === "new" || type === "edit" ? false : true}
                   showTime
+                  disabled={type === "new" || type === "edit" ? false : true}
                   allowClear={false}
                   onChange={(date, dateString) => {
                     setFieldsValue({

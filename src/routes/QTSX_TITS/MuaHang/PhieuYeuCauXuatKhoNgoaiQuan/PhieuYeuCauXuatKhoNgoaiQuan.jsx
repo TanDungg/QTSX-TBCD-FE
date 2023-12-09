@@ -314,42 +314,6 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
       onFilter: (value, record) => record.ngayYeuCau.includes(value),
       filterSearch: true,
     },
-    // {
-    //   title: "Tình trạng",
-    //   dataIndex: "tinhTrangPhieu",
-    //   key: "tinhTrangPhieu",
-    //   align: "center",
-    //   filters: removeDuplicates(
-    //     map(data, (d) => {
-    //       return {
-    //         text: d.tinhTrangPhieu,
-    //         value: d.tinhTrangPhieu,
-    //       };
-    //     })
-    //   ),
-    //   onFilter: (value, record) => record.tinhTrangPhieu.includes(value),
-    //   filterSearch: true,
-    //   render: (value) => (
-    //     <div>
-    //       {value && (
-    //         <Tag
-    //           color={
-    //             value === "Chưa nhận"
-    //               ? "orange"
-    //               : value === "Đã nhận"
-    //               ? "blue"
-    //               : "red"
-    //           }
-    //           style={{
-    //             fontSize: 13,
-    //           }}
-    //         >
-    //           {value}
-    //         </Tag>
-    //       )}
-    //     </div>
-    //   ),
-    // },
     {
       title: "Chức năng",
       key: "action",
@@ -418,7 +382,6 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
               allowClear={false}
             />
           </Col>
-
           <Col
             xxl={6}
             xl={8}
@@ -443,6 +406,8 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom">
         <Table
           bordered
           scroll={{ x: 700, y: "55vh" }}

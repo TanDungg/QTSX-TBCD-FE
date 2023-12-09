@@ -10,10 +10,8 @@ import {
   Row,
   Col,
   Button,
-  Divider,
   Tag,
   Upload,
-  Image,
   DatePicker,
 } from "antd";
 import { includes, isEmpty, map } from "lodash";
@@ -28,7 +26,6 @@ import {
   Select,
   Table,
   ModalDeleteConfirm,
-  Modal,
   EditableTableRow,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -43,7 +40,6 @@ import {
 } from "src/util/Common";
 import Helper from "src/helpers";
 import ModalChonVatTu from "./ModalChonVatTu";
-import ModalTuChoi from "./ModalTuChoi";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -65,7 +61,6 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
   const [ListUserKy, setListUserKy] = useState([]);
   const [disableUpload, setDisableUpload] = useState(false);
   const [File, setFile] = useState(null);
-  const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(false);
   const [editingRecord, setEditingRecord] = useState([]);
   const [info, setInfo] = useState({});
@@ -102,17 +97,6 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getInfo(id, true);
-          getListNhaCungCap();
-          getUserKy(INFO);
-        } else if (permission && !permission.edit) {
-          history.push("/home");
-        }
-      } else if (includes(match.url, "xac-nhan")) {
-        if (permission && permission.edit) {
-          setType("xacnhan");
-          const { id } = match.params;
-          setId(id);
-          getInfo(id);
           getListNhaCungCap();
           getUserKy(INFO);
         } else if (permission && !permission.edit) {
@@ -234,9 +218,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           ? "/them-moi"
           : type === "edit"
           ? `/${id}/chinh-sua`
-          : type === "detail" || type === "UploadFile"
-          ? `/${id}/chi-tiet`
-          : `/${id}/xac-nhan`,
+          : `/${id}/chi-tiet`,
         ""
       )}`
     );
@@ -276,7 +258,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
    */
   const actionContent = (item) => {
     const deleteItemVal =
-      permission && permission.del && (type === "new" || type === "edit")
+      permission && permission.del && type !== "detail"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -332,7 +314,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           className={`input-item`}
           type="number"
           value={item.soLuong}
-          disabled={type === "new" || type === "edit" ? false : true}
+          disabled={type === "detail" ? true : false}
           onChange={(val) => handleInputChange(val, item)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
@@ -593,69 +575,6 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
     }
   };
 
-  const hanldeXacNhan = () => {
-    const newData = {
-      id: id,
-      isDuyet: true,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuMuaHangNoiBo/xac-nhan/${id}`,
-          "PUT",
-          newData,
-          "XACNHAN",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) {
-          getInfo(id);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const prop = {
-    type: "confirm",
-    okText: "Xác nhận",
-    cancelText: "Hủy",
-    title: "Xác nhận đơn hàng",
-    onOk: hanldeXacNhan,
-  };
-
-  const modalXK = () => {
-    Modal(prop);
-  };
-
-  const saveTuChoi = (data) => {
-    const newData = {
-      id: id,
-      isXacNhan: false,
-      lyDoTuChoi: data,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuMuaHangNoiBo/xac-nhan/${id}`,
-          "PUT",
-          newData,
-          "TUCHOI",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) getInfo(id);
-      })
-      .catch((error) => console.error(error));
-  };
-
   const DataThemVatTu = (data) => {
     setListVatTu(data);
   };
@@ -756,7 +675,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 <Input
                   className="input-item"
                   placeholder="Nhập tên đơn hàng"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "detail" ? true : false}
                 />
               </FormItem>
             </Col>
@@ -811,7 +730,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "detail" ? true : false}
                 />
               </FormItem>
             </Col>
@@ -866,7 +785,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 <Input
                   className="input-item"
                   placeholder="Nhập bên mua"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "detail" ? true : false}
                 />
               </FormItem>
             </Col>
@@ -891,7 +810,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 <Input
                   className="input-item"
                   placeholder="Nhập địa chỉ bên mua"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "detail" ? true : false}
                 />
               </FormItem>
             </Col>
@@ -922,7 +841,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "detail" ? true : false}
                 />
               </FormItem>
             </Col>
@@ -953,7 +872,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "detail" ? true : false}
                 />
               </FormItem>
             </Col>
@@ -984,7 +903,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "detail" ? true : false}
                 />
               </FormItem>
             </Col>
@@ -1010,7 +929,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 <Input
                   className="input-item"
                   placeholder="Nhập địa điểm giao hàng"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "detail" ? true : false}
                 />
               </FormItem>
             </Col>
@@ -1036,7 +955,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 <Input
                   className="input-item"
                   placeholder="Nhập hình thức thanh toán"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "detail" ? true : false}
                 />
               </FormItem>
             </Col>
@@ -1061,7 +980,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 <Input
                   className="input-item"
                   placeholder="Nhập ghi chú"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "detail" ? true : false}
                 />
               </FormItem>
             </Col>
@@ -1085,7 +1004,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                         marginBottom: 0,
                       }}
                       icon={<UploadOutlined />}
-                      disabled={type === "xacnhan" || type === "detail"}
+                      disabled={type === "detail"}
                     >
                       File đính kèm
                     </Button>
@@ -1102,9 +1021,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                     </span>
                     <DeleteOutlined
                       style={{ cursor: "pointer", color: "red" }}
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
+                      disabled={type === "detail" ? true : false}
                       onClick={() => {
                         setFile(null);
                         setDisableUpload(false);
@@ -1126,7 +1043,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                     >
                       {File.split("/")[5]}{" "}
                     </a>
-                    {type !== "xacnhan" && (
+                    {type !== "detail" && (
                       <DeleteOutlined
                         style={{ cursor: "pointer", color: "red" }}
                         onClick={() => {
@@ -1145,88 +1062,43 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 )}
               </FormItem>
             </Col>
-            {info.tinhTrang === "Đã từ chối" && (
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Lý do từ chối"
-                  name={["phieumuahangngoai", "lyDoDuyetTuChoi"]}
-                  rules={[
-                    {
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Input className="input-item" disabled={true} />
-                </FormItem>
-              </Col>
-            )}
           </Row>
         </Form>
+        <Card
+          className="th-card-margin-bottom th-card-reset-margin"
+          title={"Thông tin vật tư"}
+          headStyle={{
+            textAlign: "center",
+            backgroundColor: "#0469B9",
+            color: "#fff",
+          }}
+        >
+          {type !== "detail" && (
+            <div align={"end"}>
+              <Button
+                icon={<PlusCircleOutlined />}
+                onClick={() => setActiveModalChonVatTu(true)}
+                type="primary"
+              >
+                Thêm vật tư
+              </Button>
+            </div>
+          )}
+          <Table
+            bordered
+            columns={columns}
+            scroll={{ x: 1300, y: "55vh" }}
+            components={components}
+            className="gx-table-responsive"
+            dataSource={reDataForTable(ListVatTu)}
+            size="small"
+            rowClassName={"editable-row"}
+            pagination={false}
+            // loading={loading}
+          />
+        </Card>
       </Card>
-      <Card
-        className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin vật tư"}
-        headStyle={{
-          textAlign: "center",
-          backgroundColor: "#0469B9",
-          color: "#fff",
-        }}
-      >
-        {(type === "new" || type === "edit") && (
-          <div align={"end"}>
-            <Button
-              icon={<PlusCircleOutlined />}
-              onClick={() => setActiveModalChonVatTu(true)}
-              type="primary"
-            >
-              Thêm vật tư
-            </Button>
-          </div>
-        )}
-        <Table
-          bordered
-          columns={columns}
-          scroll={{ x: 1300, y: "55vh" }}
-          components={components}
-          className="gx-table-responsive"
-          dataSource={reDataForTable(ListVatTu)}
-          size="small"
-          rowClassName={"editable-row"}
-          pagination={false}
-          // loading={loading}
-        />
-      </Card>
-      {type === "xacnhan" && info.tinhTrang === "Chưa xác nhận" && (
-        <Row justify={"end"} style={{ marginTop: 15 }}>
-          <Col style={{ marginRight: 15 }}>
-            <Button
-              type="primary"
-              onClick={modalXK}
-              disabled={info.tinhTrang !== "Chưa xác nhận"}
-            >
-              Xác nhận
-            </Button>
-          </Col>
-          <Col style={{ marginRight: 15 }}>
-            <Button
-              type="danger"
-              onClick={() => setActiveModalTuChoi(true)}
-              disabled={info.tinhTrang !== "Chưa xác nhận"}
-            >
-              Từ chối
-            </Button>
-          </Col>
-        </Row>
-      )}
-      {type === "new" || type === "edit" ? (
+      {type === "detail" ? (
         <FormSubmit
           goBack={goBack}
           handleSave={saveAndClose}
@@ -1234,11 +1106,6 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           disabled={fieldTouch && ListVatTu.length !== 0}
         />
       ) : null}
-      <ModalTuChoi
-        openModal={ActiveModalTuChoi}
-        openModalFS={setActiveModalTuChoi}
-        saveTuChoi={saveTuChoi}
-      />
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}

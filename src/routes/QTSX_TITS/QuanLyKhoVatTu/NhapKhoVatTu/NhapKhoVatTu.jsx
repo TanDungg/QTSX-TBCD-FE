@@ -602,7 +602,15 @@ function NhapKhoVatTu({ match, history, permission }) {
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
@@ -619,8 +627,15 @@ function NhapKhoVatTu({ match, history, permission }) {
               onClear={handleClearKho}
             />
           </Col>
-
-          <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Ngày:</h5>
             <RangePicker
               format={"DD/MM/YYYY"}
@@ -648,6 +663,8 @@ function NhapKhoVatTu({ match, history, permission }) {
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           rowSelection={{
             type: "checkbox",

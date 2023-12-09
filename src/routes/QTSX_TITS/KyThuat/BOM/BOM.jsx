@@ -505,15 +505,13 @@ function BOM({ match, history, permission }) {
       <Card className="th-card-margin-bottom">
         <Row>
           <Col
-            xxl={8}
-            xl={12}
-            lg={16}
-            md={16}
-            sm={20}
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
             xs={24}
-            style={{
-              alignItems: "center",
-            }}
+            style={{ marginBottom: 8 }}
           >
             <h5>Sản phẩm:</h5>
             <Select
@@ -521,7 +519,7 @@ function BOM({ match, history, permission }) {
               data={ListSanPham ? ListSanPham : []}
               placeholder="Chọn sản phẩm"
               optionsvalue={["id", "tenSanPham"]}
-              style={{ width: "calc(100% - 120px)" }}
+              style={{ width: "100%" }}
               showSearch
               onSelect={handleOnSelectSanPham}
               optionFilterProp="name"
@@ -551,15 +549,13 @@ function BOM({ match, history, permission }) {
             />
           </Col>
           <Col
-            xxl={8}
-            xl={12}
-            lg={16}
-            md={16}
-            sm={20}
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
             xs={24}
-            style={{
-              alignItems: "center",
-            }}
+            style={{ marginBottom: 8 }}
           >
             <h5>Tìm kiếm:</h5>
             <Toolbar

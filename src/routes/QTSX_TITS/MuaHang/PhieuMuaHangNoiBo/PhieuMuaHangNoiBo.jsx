@@ -538,6 +538,8 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
           scroll={{ x: 1300, y: "55vh" }}
