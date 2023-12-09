@@ -469,6 +469,8 @@ function KeHoachChiTiet({ match, history, permission }) {
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom">
         <Table
           style={{ marginTop: 10 }}
           bordered

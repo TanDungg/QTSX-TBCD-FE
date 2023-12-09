@@ -568,7 +568,7 @@ function DieuChuyen({ match, history, permission }) {
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row style={{ marginBottom: 8 }}>
+        <Row>
           <Col
             xxl={6}
             xl={8}
@@ -661,6 +661,8 @@ function DieuChuyen({ match, history, permission }) {
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
           scroll={{ x: 700, y: "65vh" }}

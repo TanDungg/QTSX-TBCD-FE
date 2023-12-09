@@ -467,6 +467,8 @@ function KhoThanhPham({ match, history, permission }) {
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           // rowSelection={{
           //   type: "checkbox",

@@ -376,7 +376,7 @@ function TheoDoiHangVe({ match, history, permission }) {
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row style={{ marginBottom: 8 }}>
+        <Row>
           <Col
             xxl={6}
             xl={8}
@@ -421,6 +421,8 @@ function TheoDoiHangVe({ match, history, permission }) {
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom">
         <Table
           bordered
           scroll={{ x: 1720, y: "55vh" }}

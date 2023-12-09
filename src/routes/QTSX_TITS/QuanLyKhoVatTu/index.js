@@ -52,6 +52,14 @@ const XuatKhoVatTuSanXuatForm = asyncComponent(() =>
 );
 const BOMXuong = asyncComponent(() => import("./BOMXuong/BOMXuong"));
 const BOMXuongForm = asyncComponent(() => import("./BOMXuong/BOMXuongForm"));
+
+/* Phiếu kiểm tra vật tư */
+const PhieuKiemTraVatTu = asyncComponent(() =>
+  import("./PhieuKiemTraVatTu/PhieuKiemTraVatTu")
+);
+const PhieuKiemTraVatTuForm = asyncComponent(() =>
+  import("./PhieuKiemTraVatTu/PhieuKiemTraVatTuForm")
+);
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -236,16 +244,37 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/bom-xuong/:id/chinh-sua`}
         exact
         component={Auth(BOMXuongForm, menus, pathname, permission)}
-      />{" "}
+      />
       <Route
         path={`${match.url}/bom-xuong/:id/xac-nhan`}
         exact
         component={Auth(BOMXuongForm, menus, pathname, permission)}
-      />{" "}
+      />
       <Route
         path={`${match.url}/bom-xuong/:id/chi-tiet`}
         exact
         component={Auth(BOMXuongForm, menus, pathname, permission)}
+      />
+      {/* Phiếu kiểm tra vật tư */}
+      <Route
+        path={`${match.url}/phieu-kiem-tra-vat-tu`}
+        exact
+        component={Auth(PhieuKiemTraVatTu, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-kiem-tra-vat-tu/them-moi`}
+        exact
+        component={Auth(PhieuKiemTraVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-kiem-tra-vat-tu/:id/chinh-sua`}
+        exact
+        component={Auth(PhieuKiemTraVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-kiem-tra-vat-tu/:id/chi-tiet`}
+        exact
+        component={Auth(PhieuKiemTraVatTuForm, menus, pathname, permission)}
       />
     </Switch>
   );

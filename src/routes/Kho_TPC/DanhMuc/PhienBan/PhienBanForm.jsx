@@ -11,13 +11,6 @@ import Helpers from "src/helpers";
 import { getLocalStorage, getTokenInfo } from "src/util/Common";
 
 const FormItem = Form.Item;
-const initialState = {
-  maPhienBan: "",
-  moTa: "",
-  fileName: "",
-  fileUrl: "",
-  isSuDung: true,
-};
 
 const PhienBanForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
@@ -30,7 +23,6 @@ const PhienBanForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { maPhienBan, moTa, fileName, fileUrl, isSuDung } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   const [FileAPK, setFileAPK] = useState(null);
@@ -71,15 +63,7 @@ const PhienBanForm = ({ history, match, permission }) => {
     setId(id);
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(
-          `lkn_PhienBan/${id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
+        fetchStart(`PhienBan/${id}`, "GET", null, "DETAIL", "", resolve, reject)
       );
     })
       .then((res) => {
@@ -173,17 +157,13 @@ const PhienBanForm = ({ history, match, permission }) => {
   const saveData = (phienban, saveQuit = false) => {
     if (type === "new") {
       if (phienban.fileUrl) {
+        const newData = {
+          ...phienban,
+          phanMem_Id: INFO.phanMem_Id,
+        };
         new Promise((resolve, reject) => {
           dispatch(
-            fetchStart(
-              `lkn_PhienBan`,
-              "POST",
-              phienban,
-              "ADD",
-              "",
-              resolve,
-              reject
-            )
+            fetchStart(`PhienBan`, "POST", newData, "ADD", "", resolve, reject)
           );
         })
           .then((res) => {
@@ -215,7 +195,7 @@ const PhienBanForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `lkn_PhienBan/${id}`,
+            `PhienBan/${id}`,
             "PUT",
             phienban,
             "EDIT",
@@ -303,7 +283,6 @@ const PhienBanForm = ({ history, match, permission }) => {
                 message: "Mã phiên bản không được quá 50 ký tự",
               },
             ]}
-            initialValue={maPhienBan}
           >
             <Input
               className="input-item"
@@ -324,7 +303,6 @@ const PhienBanForm = ({ history, match, permission }) => {
                 message: "Tên file không được quá 250 ký tự",
               },
             ]}
-            initialValue={fileName}
           >
             <Input className="input-item" placeholder="Nhập tên file" />
           </FormItem>
@@ -337,7 +315,6 @@ const PhienBanForm = ({ history, match, permission }) => {
                 required: true,
               },
             ]}
-            initialValue={fileUrl}
           >
             {!DisableUpload ? (
               <Upload {...props}>
@@ -411,7 +388,6 @@ const PhienBanForm = ({ history, match, permission }) => {
                 message: "Mô tả không được quá 250 ký tự",
               },
             ]}
-            initialValue={moTa}
           >
             <Input className="input-item" placeholder="Nhập mô tả" />
           </FormItem>

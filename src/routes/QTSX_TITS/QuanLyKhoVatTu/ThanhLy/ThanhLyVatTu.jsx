@@ -471,7 +471,7 @@ function ThanhLyVatTu({ match, history, permission }) {
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row style={{ marginBottom: 8 }}>
+        <Row>
           <Col
             xxl={6}
             xl={8}
@@ -541,6 +541,8 @@ function ThanhLyVatTu({ match, history, permission }) {
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
           scroll={{ x: 700, y: "54vh" }}

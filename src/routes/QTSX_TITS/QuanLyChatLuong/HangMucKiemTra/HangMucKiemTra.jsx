@@ -743,6 +743,8 @@ function HangMucSuDung({ match, history, permission }) {
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
           scroll={{ x: 1500, y: "55vh" }}
@@ -778,6 +780,8 @@ function HangMucSuDung({ match, history, permission }) {
             style={{
               overflowY: "auto",
               maxHeight: "500px",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
             {ListHinhAnh &&

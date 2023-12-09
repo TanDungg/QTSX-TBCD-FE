@@ -586,6 +586,8 @@ function DeNghiMuaHang({ match, history, permission }) {
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom">
         <Table
           bordered
           scroll={{ x: 1500, y: "55vh" }}

@@ -13,9 +13,10 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
-  exportAPK,
   reDataForTable,
   removeDuplicates,
+  getLocalStorage,
+  getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
@@ -23,6 +24,11 @@ import { BASE_URL_API } from "src/constants/Config";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function PhienBan({ match, history, permission }) {
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [keyword, setKeyword] = useState("");
@@ -44,8 +50,12 @@ function PhienBan({ match, history, permission }) {
    *
    */
   const loadData = (keyword, page) => {
-    const param = convertObjectToUrlParams({ keyword, page });
-    dispatch(fetchStart(`lkn_PhienBan?${param}`, "GET", null, "LIST"));
+    const param = convertObjectToUrlParams({
+      keyword,
+      phanMem_Id: INFO.phanMem_Id,
+      page,
+    });
+    dispatch(fetchStart(`PhienBan?${param}`, "GET", null, "LIST"));
   };
   /**
    * handleTableChange
@@ -111,7 +121,7 @@ function PhienBan({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhienBan/${item.id}`;
+    let url = `PhienBan/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
