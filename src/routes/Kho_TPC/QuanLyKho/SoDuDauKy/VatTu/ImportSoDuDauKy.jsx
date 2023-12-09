@@ -96,23 +96,23 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
       align: "center",
     },
     {
-      title: "Mã vật tư/Mã sản phẩm",
+      title: "Mã vật tư/sản phẩm",
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
       render: (val) => renderMaVatTu(val),
     },
     {
-      title: "Tên vật tư/Tên sản phẩm",
+      title: "Tên vật tư/sản phẩm",
       dataIndex: "tenVatTu",
       align: "center",
       key: "tenVatTu",
     },
     {
-      title: "Mã màu sắc",
-      dataIndex: "maMauSac",
+      title: "Mã ngăn",
+      dataIndex: "maNgan",
       align: "center",
-      key: "maMauSac",
+      key: "maNgan",
     },
     {
       title: "Số lượng",
@@ -125,6 +125,12 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
       dataIndex: "thoiGianSuDung",
       align: "center",
       key: "thoiGianSuDung",
+    },
+    {
+      title: "Ngày nhập",
+      dataIndex: "ngayNhap",
+      align: "center",
+      key: "ngayNhap",
     },
   ];
   const components = {
@@ -155,7 +161,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_SoDuDauKy/export-file-mau?IsThanhPham=false`,
+          `lkn_SoDuDauKy/export-file-mau?cauTrucKho_Id=${Kho}`,
           "POST",
           null,
           "DOWLOAD",
@@ -175,8 +181,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
       const workbook = XLSX.read(event.target.result, {
         type: "binary",
       });
-      const worksheet = workbook.Sheets["Số dư đầu kì"];
-
+      const worksheet = workbook.Sheets["Import"];
       const checkMau =
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
@@ -199,7 +204,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã sản phẩm/Mã vật tư" &&
+          .trim() === "Mã vật tư/sản phẩm" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
@@ -210,7 +215,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Tên sản phẩm/ Tên vật tư" &&
+          .trim() === "Tên vật tư/sản phẩm" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
@@ -221,7 +226,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã màu sắc" &&
+          .trim() === "Thời gian sử dụng" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
@@ -232,7 +237,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Số lượng" &&
+          .trim() === "Mã ngăn" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
@@ -243,15 +248,27 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Thời gian sử dụng";
+          .trim() === "Số lượng" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
+          })[0]
+          .toString()
+          .trim() === "Ngày nhập";
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
           range: 2,
         });
-        const TVT = "Mã sản phẩm/Mã vật tư";
-        const MVT = "Tên sản phẩm/ Tên vật tư";
-        const MMS = "Mã màu sắc";
+        const TVT = "Mã vật tư/sản phẩm";
+        const MVT = "Tên vật tư/sản phẩm";
+        const MMS = "Mã ngăn";
         const SL = "Số lượng";
+        const NN = "Ngày nhập";
         const TGSD = "Thời gian sử dụng";
         const Data = [];
         const NewData = [];
@@ -268,9 +285,14 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
                   ? d[MVT].toString().trim()
                   : undefined
                 : undefined,
-              maMauSac: d[MMS]
+              maNgan: d[MMS]
                 ? d[MMS].toString().trim() !== ""
                   ? d[MMS].toString().trim()
+                  : undefined
+                : undefined,
+              ngayNhap: d[NN]
+                ? d[NN].toString().trim() !== ""
+                  ? d[NN].toString().trim()
                   : undefined
                 : undefined,
               soLuongNhap: d[SL]
@@ -285,7 +307,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
                 : undefined,
             });
           }
-          Data.push(data[index][MVT]);
+          Data.push(data[index][TVT]);
         });
         if (NewData.length === 0) {
           setFileName(file.name);

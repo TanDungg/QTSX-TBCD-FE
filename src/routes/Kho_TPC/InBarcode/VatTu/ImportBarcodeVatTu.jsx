@@ -16,17 +16,17 @@ import {
 import { messages } from "src/constants/Messages";
 import Helper from "src/helpers";
 import map from "lodash/map";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useDispatch } from "react-redux";
-import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { Modal, Select } from "src/components/Common";
+import { fetchStart } from "src/appRedux/actions/Common";
+import { Modal } from "src/components/Common";
 import { exportExcel, reDataForTable } from "src/util/Common";
 import * as XLSX from "xlsx";
 import { EditableTableRow, Table } from "src/components/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
+function ImportBarcodeVatTu({ openModalFS, openModal, loading, refesh }) {
   const dispatch = useDispatch();
   const [dataView, setDataView] = useState([]);
   const [fileName, setFileName] = useState("");
@@ -34,59 +34,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
   const [HangTrung, setHangTrung] = useState([]);
   const [DataLoi, setDataLoi] = useState();
   const [message, setMessageError] = useState([]);
-  const [ListKho, setListKho] = useState([]);
-  const [Disable, setDisable] = useState(true);
-  const [Kho, setKho] = useState("");
 
-  useEffect(() => {
-    if (openModal) {
-      getKho();
-    }
-    return () => dispatch(fetchReset());
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openModal]);
-  const getKho = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=101&&isThanhPham=true`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListKho(res.data);
-        } else {
-          setListKho([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  const renderMaVatTu = (val) => {
-    let check = false;
-    let messageLoi = "";
-    if (DataLoi && DataLoi.length > 0) {
-      DataLoi.forEach((dt) => {
-        if (dt.maVatTu === val) {
-          check = true;
-          messageLoi = dt.ghiChuImport;
-        }
-      });
-    }
-    return check ? (
-      <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
-        {val}
-      </Popover>
-    ) : (
-      <span>{val}</span>
-    );
-  };
   let colValues = [
     {
       title: "STT",
@@ -95,42 +43,30 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
       width: 50,
       align: "center",
     },
+
     {
-      title: "Mã sản phẩm",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      title: "Mã bộ phận",
+      dataIndex: "maBoPhan",
+      key: "maBoPhan",
       align: "center",
-      render: (val) => renderMaVatTu(val),
     },
     {
-      title: "Tên sản phẩm",
-      dataIndex: "tenVatTu",
+      title: "Tên bộ phận",
+      dataIndex: "tenBoPhan",
       align: "center",
-      key: "tenVatTu",
+      key: "tenBoPhan",
     },
     {
-      title: "Mã màu sắc",
-      dataIndex: "maMauSac",
+      title: "Mã Ban/Phòng",
+      dataIndex: "maPhongBan",
       align: "center",
-      key: "maMauSac",
+      key: "maPhongBan",
     },
     {
-      title: "Mã ngăn",
-      dataIndex: "maNgan",
+      title: "Mã bộ phận cha",
+      dataIndex: "maBoPhanCha",
       align: "center",
-      key: "maNgan",
-    },
-    {
-      title: "Số lượng",
-      dataIndex: "soLuongNhap",
-      align: "center",
-      key: "soLuongNhap",
-    },
-    {
-      title: "Ngày nhập",
-      dataIndex: "ngayNhap",
-      align: "center",
-      key: "ngayNhap",
+      key: "maBoPhanCha",
     },
   ];
   const components = {
@@ -161,7 +97,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_SoDuDauKy/export-file-mau?cauTrucKho_Id=${Kho}`,
+          `BoPhan/ExportFileExcel`,
           "POST",
           null,
           "DOWLOAD",
@@ -171,8 +107,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
         )
       );
     }).then((res) => {
-      res.status === 200 &&
-        exportExcel("File_Import_So_Du_Dau_Ky_Thanh_Pham", res.data.dataexcel);
+      exportExcel("File_Mau_Bo_Phan", res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {
@@ -181,13 +116,9 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
       const workbook = XLSX.read(event.target.result, {
         type: "binary",
       });
-      const worksheet = workbook.Sheets["Import"];
+      const worksheet = workbook.Sheets["Bộ phận"];
 
       const checkMau =
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
-        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -195,121 +126,80 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
           })[0]
           .toString()
           .trim() === "STT" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
-        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã sản phẩm" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
-        })[0] &&
+          .trim() === "Mã bộ phận" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Tên sản phẩm" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
-        })[0] &&
+          .trim() === "Tên bộ phận" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã màu sắc" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
-        })[0] &&
+          .trim() === "Mã Ban/Phòng" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã ngăn" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Số lượng" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Ngày nhập";
+          .trim() === "Mã bộ phận cha";
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
           range: 2,
         });
-        const TVT = "Mã sản phẩm";
-        const MVT = "Tên sản phẩm";
-        const MMS = "Mã màu sắc";
-        const SL = "Số lượng";
-        const MN = "Mã ngăn";
-        const NN = "Ngày nhập";
-
+        const MBP = "Mã bộ phận";
+        const TBP = "Tên bộ phận";
+        const MPB = "Mã Ban/Phòng";
+        const MBPC = "Mã bộ phận cha";
         const Data = [];
         const NewData = [];
         data.forEach((d, index) => {
-          if (d[TVT] && d[MVT] && d[SL]) {
+          if (
+            data[index][MBP] &&
+            data[index][MBP].toString().trim() === "" &&
+            data[index][TBP] &&
+            data[index][TBP].toString().trim() === "" &&
+            data[index][MPB] &&
+            data[index][MPB].toString().trim() === "" &&
+            data[index][MBPC] &&
+            data[index][MBPC].toString().trim() === ""
+          ) {
+          } else {
             NewData.push({
-              maVatTu: d[TVT]
-                ? d[TVT].toString().trim() !== ""
-                  ? d[TVT].toString().trim()
+              maBoPhan: data[index][MBP]
+                ? data[index][MBP].toString().trim() !== ""
+                  ? data[index][MBP].toString().trim()
                   : undefined
                 : undefined,
-              tenVatTu: d[MVT]
-                ? d[MVT].toString().trim() !== ""
-                  ? d[MVT].toString().trim()
+              tenBoPhan: data[index][TBP]
+                ? data[index][TBP].toString().trim() !== ""
+                  ? data[index][TBP].toString().trim()
                   : undefined
                 : undefined,
-              maMauSac: d[MMS]
-                ? d[MMS].toString().trim() !== ""
-                  ? d[MMS].toString().trim()
+              maPhongBan: data[index][MPB]
+                ? data[index][MPB].toString().trim() !== ""
+                  ? data[index][MPB].toString().trim()
                   : undefined
                 : undefined,
-              soLuongNhap: d[SL]
-                ? d[SL].toString().trim() !== ""
-                  ? d[SL].toString().trim()
-                  : undefined
-                : undefined,
-              maNgan: d[MN]
-                ? d[MN].toString().trim() !== ""
-                  ? d[MN].toString().trim()
-                  : undefined
-                : undefined,
-              ngayNhap: d[NN]
-                ? d[NN].toString().trim() !== ""
-                  ? d[NN].toString().trim()
+              maBoPhanCha: data[index][MBPC]
+                ? data[index][MBPC].toString().trim() !== ""
+                  ? data[index][MBPC].toString().trim()
                   : undefined
                 : undefined,
             });
           }
-          Data.push(data[index][TVT]);
+          Data.push(data[index][MBP]);
         });
         if (NewData.length === 0) {
           setFileName(file.name);
@@ -337,8 +227,10 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
           setFileName(file.name);
           setDataLoi();
           if (indices.length > 0) {
-            setMessageError(`Hàng ${row.join(", ")} có sản phẩm trùng nhau`);
-            Helper.alertError(`Hàng ${row.join(", ")} có sản phẩm trùng nhau`);
+            setMessageError(`Hàng ${row.join(", ")} có mã bộ phận trùng nhau`);
+            Helper.alertError(
+              `Hàng ${row.join(", ")} có mã bộ phận trùng nhau`
+            );
             setHangTrung(indices);
             setCheckDanger(true);
           } else {
@@ -358,7 +250,6 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
   };
 
   const props = {
-    accept: ".xls, .xlsx",
     beforeUpload: (file) => {
       const isPNG =
         file.type ===
@@ -377,16 +268,12 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
   };
 
   const handleSubmit = () => {
-    const newData = {
-      cauTrucKho_Id: Kho,
-      list_ChiTiets: dataView,
-    };
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_SoDuDauKy/import`,
+          `BoPhan/ImportExel`,
           "POST",
-          newData,
+          dataView,
           "IMPORT",
           "",
           resolve,
@@ -396,7 +283,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
     }).then((res) => {
       if (res.status === 409) {
         setDataLoi(res.data);
-        setMessageError("Import không thành công");
+        setMessageError(res.data.ghiChuImport);
       } else {
         setFileName(null);
         setDataView([]);
@@ -409,7 +296,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận import số dư đầu kỳ",
+    title: "Xác nhận import bộ phận",
     onOk: handleSubmit,
   };
   const modalXK = () => {
@@ -418,32 +305,26 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
 
   const RowStyle = (current, index) => {
     if (HangTrung.length > 0) {
-      HangTrung.forEach((maVatTu) => {
-        if (current.maVatTu === maVatTu) {
+      HangTrung.forEach((maBoPhan) => {
+        if (current.maBoPhan === maBoPhan) {
           setCheckDanger(true);
           return "red-row";
         }
       });
-    } else if (current.maVatTu === undefined) {
+    } else if (current.maBoPhan === undefined) {
       setCheckDanger(true);
-      setMessageError("Mã sản phẩm không được rỗng");
+      setMessageError("Mã bộ phận không được rỗng");
       return "red-row";
-    } else if (current.tenVatTu === undefined) {
+    } else if (current.tenBoPhan === undefined) {
       setCheckDanger(true);
-      setMessageError("Tên sản phẩm không được rỗng");
+      setMessageError("Tên bộ phận không được rỗng");
       return "red-row";
-    } else if (current.soLuongNhap === undefined) {
+    } else if (current.maPhongBan === undefined) {
       setCheckDanger(true);
-      setMessageError("Số lượng không được rỗng");
+      setMessageError("Mã Ban/Phòng không được rỗng");
       return "red-row";
-    } else if (DataLoi && DataLoi.length > 0) {
-      let check = false;
-      DataLoi.forEach((dt) => {
-        if (current.maVatTu.toString() === dt.maVatTu.toString()) {
-          check = true;
-        }
-      });
-      if (check) {
+    } else if (DataLoi) {
+      if (current.maBoPhan.toString() === DataLoi.maBoPhan) {
         setCheckDanger(true);
         return "red-row";
       }
@@ -461,13 +342,10 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
       refesh();
     }
   };
-  const handleOnSelectKho = (val) => {
-    setKho(val);
-    setDisable(false);
-  };
+
   return (
     <AntModal
-      title="Import số dư đầu kỳ"
+      title="Import bộ phận"
       open={openModal}
       width={`80%`}
       closable={true}
@@ -477,29 +355,21 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
       <div className="gx-main-content">
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row>
-            <Col xxl={4} xl={5} lg={7} md={7} xs={17}>
-              <h5>Kho</h5>
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListKho ? ListKho : []}
-                placeholder="Chọn kho"
-                optionsvalue={["id", "tenCTKho"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp={"name"}
-                onSelect={handleOnSelectKho}
-                value={Kho}
-              />
+            <Col
+              xxl={2}
+              xl={3}
+              lg={4}
+              md={4}
+              sm={6}
+              xs={7}
+              style={{ marginTop: 8 }}
+              align={"center"}
+            >
+              Import:
             </Col>
-
             <Col xxl={4} xl={5} lg={7} md={7} xs={17}>
-              <h5>Import</h5>
               <Upload {...props}>
-                <Button
-                  icon={<UploadOutlined />}
-                  disabled={Disable}
-                  danger={checkDanger}
-                >
+                <Button icon={<UploadOutlined />} danger={checkDanger}>
                   Tải dữ liệu lên
                 </Button>
               </Upload>
@@ -532,13 +402,11 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
               )}
             </Col>
             <Col>
-              <h5>Tải file mẫu</h5>
               <Button
                 icon={<DownloadOutlined />}
                 onClick={TaiFileMau}
                 className="th-btn-margin-bottom-0"
                 type="primary"
-                disabled={Disable}
               >
                 File mẫu
               </Button>
@@ -571,4 +439,4 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
   );
 }
 
-export default ImportSoDuDauKy;
+export default ImportBarcodeVatTu;

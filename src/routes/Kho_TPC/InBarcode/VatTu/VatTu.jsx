@@ -3,6 +3,7 @@ import {
   EditOutlined,
   PlusOutlined,
   QrcodeOutlined,
+  UpCircleOutlined,
 } from "@ant-design/icons";
 import { Button, Card, Col, Divider } from "antd";
 import find from "lodash/find";
@@ -29,6 +30,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 import QRCode from "qrcode.react";
 import { remove } from "lodash";
+import ImportBarcodeVatTu from "./ImportBarcodeVatTu";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -41,6 +43,8 @@ function VatTu({ match, permission, history }) {
   const { totalRow } = data;
   const [selectedDevice, setSelectedDevice] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
+  const [ActiveModal, setActiveModal] = useState(false);
+
   useEffect(() => {
     if (permission && permission.view) {
       getListData(keyword);
@@ -277,6 +281,15 @@ function VatTu({ match, permission, history }) {
     return (
       <>
         <Button
+          icon={<UpCircleOutlined />}
+          className="th-btn-margin-bottom-0"
+          type="primary"
+          onClick={handlePrint}
+          disabled={permission && !permission.add}
+        >
+          Import
+        </Button>
+        <Button
           icon={<QrcodeOutlined />}
           className="th-btn-margin-bottom-0"
           type="primary"
@@ -407,6 +420,12 @@ function VatTu({ match, permission, history }) {
           }}
         />
       </Card>
+      <ImportBarcodeVatTu
+        openModal={ActiveModal}
+        openModalFS={setActiveModal}
+        loading={loading}
+        refesh={() => getListData(keyword)}
+      />
     </div>
   );
 }
