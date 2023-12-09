@@ -92,7 +92,6 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(ThemChiTietHMKTForm, menus, pathname, permission)}
       />
-
       <Route
         path={`${match.url}/ql-checksheets`}
         exact
@@ -105,6 +104,11 @@ const App = ({ match, location, menus, permission }) => {
       />
       <Route
         path={`${match.url}/ql-checksheets/:id/chinh-sua`}
+        exact
+        component={Auth(QuanLyChecksheetsForm, menus, pathname, permission)}
+      />{" "}
+      <Route
+        path={`${match.url}/ql-checksheets/:id/chi-tiet`}
         exact
         component={Auth(QuanLyChecksheetsForm, menus, pathname, permission)}
       />

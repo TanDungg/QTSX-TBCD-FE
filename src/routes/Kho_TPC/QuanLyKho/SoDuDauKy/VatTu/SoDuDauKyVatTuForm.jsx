@@ -448,6 +448,18 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
+      title: "Tên ngăn",
+      dataIndex: "tenNgan",
+      key: "tenNgan",
+      align: "center",
+    },
+    {
+      title: "Ngày nhập",
+      dataIndex: "ngayNhap",
+      key: "ngayNhap",
+      align: "center",
+    },
+    {
       title: "Chức năng",
       key: "action",
       align: "center",
@@ -513,11 +525,11 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
   };
 
   const saveData = (DinhMucVatTu, saveQuit = false) => {
-    const newData = {
-      cauTrucKho_Id: DinhMucVatTu.cauTrucKho_Id,
-      list_ChiTiets: listVatTu,
-    };
     if (type === "new") {
+      const newData = {
+        cauTrucKho_Id: DinhMucVatTu.cauTrucKho_Id,
+        list_ChiTiets: listVatTu,
+      };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -554,13 +566,15 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      newData.id = id;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
             `lkn_SoDuDauKy/${id}`,
             "PUT",
-            newData,
+            {
+              id: id,
+              chiTiets: listVatTu,
+            },
             "EDIT",
             "",
             resolve,

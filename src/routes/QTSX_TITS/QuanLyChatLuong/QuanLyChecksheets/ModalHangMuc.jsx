@@ -14,7 +14,13 @@ import { convertObjectToUrlParams } from "src/util/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 const FormItem = Form.Item;
 
-function ModalHangMuc({ openModalFS, openModal, DataModal, setListHangMuc }) {
+function ModalHangMuc({
+  openModalFS,
+  openModal,
+  DataModal,
+  setListHangMuc,
+  listHangMuc,
+}) {
   const dispatch = useDispatch();
 
   const [fieldTouch, setFieldTouch] = useState(false);
@@ -26,6 +32,9 @@ function ModalHangMuc({ openModalFS, openModal, DataModal, setListHangMuc }) {
 
   useEffect(() => {
     if (openModal) {
+      if (listHangMuc.length > 0) {
+        setCheckBox(listHangMuc.map((hm) => hm.tits_qtsx_HangMucKiemTra_Id));
+      }
       setFieldsValue({
         hangMucKiemTra: {
           sanPham: DataModal.tenSanPham,
@@ -132,6 +141,7 @@ function ModalHangMuc({ openModalFS, openModal, DataModal, setListHangMuc }) {
           >
             <Row style={{ width: "100%" }}>
               <Checkbox.Group
+                value={CheckBox}
                 onChange={(checkedValues) => {
                   setCheckBox(checkedValues);
                 }}

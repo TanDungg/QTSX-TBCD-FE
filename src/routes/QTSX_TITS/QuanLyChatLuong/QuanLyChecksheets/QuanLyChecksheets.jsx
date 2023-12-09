@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Tag, Col, Row } from "antd";
+import { Card, Button, Divider, Tag, Col, Row, Checkbox } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
+  SearchOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -23,6 +24,7 @@ import {
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -41,6 +43,7 @@ function QuanLyChecksheets({ match, history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       getSanPham();
+      getListCongDoan();
       getListData(SanPham, LoaiSanPham, CongDoan, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
@@ -94,7 +97,36 @@ function QuanLyChecksheets({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
-
+  const getListCongDoan = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_CongDoan?page=-1`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListCongDoan(
+            res.data.map((sp) => {
+              return {
+                ...sp,
+                name: sp.maCongDoan + " - " + sp.tenCongDoan,
+              };
+            })
+          );
+        } else {
+          setListCongDoan([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   /**
    * Tìm kiếm người dùng
    *
@@ -122,26 +154,26 @@ function QuanLyChecksheets({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const confirmItem =
-      permission && permission.cof && item.tinhTrang === "Chưa duyệt" ? (
+      permission && permission.cof ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.tits_qtsx_DinhMucVatTuThep_Id}/xac-nhan`,
+            pathname: `${match.url}/${item.id}/chi-tiet`,
             state: { itemData: item, permission },
           }}
-          title="Xác nhận"
+          title="Chi tiết"
         >
-          <CheckCircleOutlined />
+          <SearchOutlined />
         </Link>
       ) : (
-        <span disabled title="Xác nhận">
-          <CheckCircleOutlined />
+        <span disabled title="Chi tiết">
+          <SearchOutlined />
         </span>
       );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa duyệt" ? (
+      permission && permission.edit ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.tits_qtsx_DinhMucVatTuThep_Id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
           title="Sửa định mức vật tư thép"
@@ -154,7 +186,7 @@ function QuanLyChecksheets({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa duyệt"
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item, "BOM") }
         : { disabled: true };
     return (
@@ -177,7 +209,7 @@ function QuanLyChecksheets({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item, title) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maDinhMucVatTuThep, title);
+    ModalDeleteConfirm(deleteItemAction, item, item.maCheckSheet, title);
   };
 
   /**
@@ -186,7 +218,7 @@ function QuanLyChecksheets({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_DinhMucVatTuThep/${item.tits_qtsx_DinhMucVatTuThep_Id}`;
+    let url = `tits_qtsx_CheckSheet/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -355,11 +387,30 @@ function QuanLyChecksheets({ match, history, permission }) {
       dataIndex: "file",
       key: "file",
       align: "center",
+      render: (val) => (
+        <a
+          href={`${BASE_URL_API}${val}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {val && val.split("/")[5]}
+        </a>
+      ),
     },
     {
       title: "Sử dụng",
       dataIndex: "isSuDung",
       key: "isSuDung",
+      align: "center",
+      width: 70,
+      render: (val) => {
+        return <Checkbox checked={val} disabled={true} />;
+      },
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
       align: "center",
     },
   ];

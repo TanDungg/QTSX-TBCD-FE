@@ -447,9 +447,9 @@ const VatTuForm = ({ history, match, permission }) => {
               ngayNhan: res.data.ngayNhan
                 ? moment(res.data.ngayNhan, "DD/MM/YYYY HH:mm:ss")
                 : null,
-              // ngayHoaDon: res.data.ngayHoaDon
-              //   ? moment(res.data.ngayHoaDon, "DD/MM/YYYY")
-              //   : null,
+              ngayHoaDon: res.data.ngayHoaDon
+                ? moment(res.data.ngayHoaDon, "DD/MM/YYYY")
+                : null,
               userThongKe_Id: res.data.userThongKe_Id
                 ? res.data.userThongKe_Id
                 : !chitiet && INFO.user_Id,

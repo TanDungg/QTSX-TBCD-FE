@@ -61,8 +61,6 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
   const [ListCongDoan, setListCongDoan] = useState([]);
 
   const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
-
-  const [ListChiTiet, setListChiTiet] = useState([]);
   const [ListHangMucKiemTra, setListHangMucKiemTra] = useState([]);
   const [DataModal, setDataModal] = useState({
     tits_qtsx_LoaiSanPham_Id: "",
@@ -114,7 +112,6 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
           setType("xacnhan");
           setId(match.params.id);
           getInfo(match.params.id);
-          getListSanPham();
         }
       }
     } else if (includes(match.url, "chi-tiet")) {
@@ -125,7 +122,6 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
           setType("detail");
           setId(match.params.id);
           getInfo(match.params.id);
-          getListSanPham();
         }
       }
     }
@@ -234,7 +230,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_DinhMucVatTuThep/${id}`,
+          `tits_qtsx_CheckSheet/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -247,26 +243,22 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
       .then((res) => {
         if (res && res.data) {
           setInfo(res.data);
-
-          setListChiTiet(
-            res.data.list_ChiTiets.map((ct) => {
-              return {
-                ...ct,
-                dai: ct.quyCach.dai,
-                rong: ct.quyCach.rong,
-                day: ct.quyCach.day,
-                dn: ct.quyCach.dn,
-                dt: ct.quyCach.dt,
-                chung: ct.quyCach.chung,
-              };
-            })
-          );
+          getListLoaiSanPham();
+          setFile(res.data.file);
+          setDisableUpload(true);
+          getListSanPham(res.data.tits_qtsx_LoaiSanPham_Id);
+          setDataModal({
+            tits_qtsx_LoaiSanPham_Id: res.data.tits_qtsx_LoaiSanPham_Id,
+            tits_qtsx_SanPham_Id: res.data.tits_qtsx_SanPham_Id,
+            tits_qtsx_CongDoan_Id: res.data.tits_qtsx_CongDoan_Id,
+            tenSanPham: res.data.tenSanPham,
+            tenCongDoan: res.data.tenCongDoan,
+          });
+          getListCongDoan();
+          setListHangMucKiemTra(res.data.tits_qtsx_CheckSheetChiTiets);
           setFieldsValue({
             checkSheets: {
               ...res.data,
-              isThepTam: res.data.isThepTam ? "true" : "false",
-              ngayBanHanh: moment(res.data.ngayBanHanh, "DD/MM/YYYY"),
-              ngayApDung: moment(res.data.ngayApDung, "DD/MM/YYYY"),
             },
           });
         }
@@ -356,15 +348,47 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
   const onFinish = (values) => {
     saveData(values.checkSheets);
   };
-
+  const hanldeXacNhanTaiFile = (checkSheets, val) => {
+    const formData = new FormData();
+    formData.append("file", File);
+    const url = info.file
+      ? `${BASE_URL_API}/api/Upload?stringPath=${info.file}`
+      : `${BASE_URL_API}/api/Upload`;
+    fetch(url, {
+      method: "POST",
+      body: formData,
+      headers: {
+        Authorization: "Bearer ".concat(INFO.token),
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        checkSheets.file = data.path;
+        saveData(checkSheets, val);
+      })
+      .catch(() => {
+        console.log("upload failed.");
+      });
+  };
   /**
    * Lưu và thoát
    *
    */
-  const saveAndClose = (value) => {
+  const saveAndClose = (val) => {
     validateFields()
       .then((values) => {
-        saveData(values.checkSheets, value);
+        if (ListHangMucKiemTra.length === 0) {
+          Helpers.alertError("Danh sách sản phẩm rỗng");
+        } else {
+          if (type === "new") {
+            hanldeXacNhanTaiFile(values.checkSheets, val);
+          } else if (type === "edit" && File.name) {
+            hanldeXacNhanTaiFile(values.checkSheets, val);
+          } else {
+            values.checkSheets.file = info.file;
+            saveData(values.checkSheets, val);
+          }
+        }
       })
       .catch((error) => {
         console.log("error", error);
@@ -375,27 +399,16 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
     if (type === "new") {
       const newData = {
         ...checkSheets,
-        isThepTam: checkSheets.isThepTam === "true",
-        ngayBanHanh: checkSheets.ngayBanHanh.format("DD/MM/YYYY"),
-        ngayApDung: checkSheets.ngayApDung.format("DD/MM/YYYY"),
-        list_ChiTiets: ListChiTiet.map((ct) => {
+        tits_qtsx_CheckSheetChiTiets: ListHangMucKiemTra.map((ct) => {
           return {
-            ...ct,
-            quyCach: {
-              dai: ct.dai ? ct.dai : undefined,
-              rong: ct.rong ? ct.rong : undefined,
-              day: ct.day ? ct.day : undefined,
-              dn: ct.dn ? ct.dn : undefined,
-              dt: ct.dt ? ct.dt : undefined,
-              chung: ct.chung ? ct.chung : undefined,
-            },
+            tits_qtsx_HangMucKiemTra_Id: ct.tits_qtsx_HangMucKiemTra_Id,
           };
         }),
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_DinhMucVatTuThep`,
+            `tits_qtsx_CheckSheet`,
             "POST",
             newData,
             "ADD",
@@ -412,14 +425,8 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
             } else {
               resetFields();
               setFieldTouch(false);
-              setListChiTiet([]);
-
-              setFieldsValue({
-                checkSheets: {
-                  ngayBanHanh: moment(getDateNow(), "DD/MM/YYYY"),
-                  ngayApDung: moment(getDateNow(), "DD/MM/YYYY"),
-                },
-              });
+              setDisableUpload(false);
+              setListHangMucKiemTra([]);
             }
           } else {
           }
@@ -429,13 +436,16 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
       const newData = {
         ...info,
         ...checkSheets,
-        ngayBanHanh: checkSheets.ngayBanHanh.format("DD/MM/YYYY"),
-        ngayApDung: checkSheets.ngayApDung.format("DD/MM/YYYY"),
+        tits_qtsx_CheckSheetChiTiets: ListHangMucKiemTra.map((ct) => {
+          return {
+            tits_qtsx_HangMucKiemTra_Id: ct.tits_qtsx_HangMucKiemTra_Id,
+          };
+        }),
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_DinhMucVatTuThep/${id}`,
+            `tits_qtsx_CheckSheet/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -534,33 +544,15 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
     ) : type === "xacnhan" ? (
       <span>
         Duyệt CheckSheets{" "}
-        <Tag
-          style={{ fontSize: 14 }}
-          color={
-            info && info.trangThai === "Đã duyệt"
-              ? "green"
-              : info && info.trangThai === "Chưa duyệt"
-              ? "blue"
-              : "red"
-          }
-        >
-          {info && info.maDinhMucVatTuThep} - {info && info.trangThai}
+        <Tag style={{ fontSize: 14 }} color={"green"}>
+          {info && info.maCheckSheet}
         </Tag>
       </span>
     ) : (
       <span>
         Chi tiết CheckSheets{" "}
-        <Tag
-          style={{ fontSize: 14 }}
-          color={
-            info && info.trangThai === "Đã duyệt"
-              ? "green"
-              : info && info.trangThai === "Chưa duyệt"
-              ? "blue"
-              : "red"
-          }
-        >
-          {info && info.maDinhMucVatTuThep} - {info && info.trangThai}
+        <Tag style={{ fontSize: 14 }} color="green">
+          {info && info.maCheckSheet}
         </Tag>
       </span>
     );
@@ -589,7 +581,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
               >
                 <FormItem
                   label="Mã hồ sơ chất lượng"
-                  name={["checkSheets", "tenDinhMucVatTuThep"]}
+                  name={["checkSheets", "maCheckSheet"]}
                   rules={[
                     {
                       type: "string",
@@ -619,7 +611,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
               >
                 <FormItem
                   label="Tên hồ sơ chất lượng"
-                  name={["checkSheets", "tenDinhMucVatTuThep"]}
+                  name={["checkSheets", "tenCheckSheet"]}
                   rules={[
                     {
                       type: "string",
@@ -780,8 +772,10 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                       required: true,
                     },
                   ]}
+                  valuePropName="checked"
+                  initialValue={true}
                 >
-                  <Switch />
+                  <Switch disabled={type === "detail"} />
                 </FormItem>
               </Col>
               <Col
@@ -794,7 +788,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Hình ảnh"
+                  label="Bảng vẽ kỹ thuật"
                   name={["checkSheets", "file"]}
                   rules={[
                     {
@@ -813,7 +807,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                         icon={<UploadOutlined />}
                         disabled={type === "xacnhan" || type === "detail"}
                       >
-                        Tải hình ảnh
+                        Tải file
                       </Button>
                     </Upload>
                   ) : File.name ? (
@@ -866,7 +860,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                       >
                         {File.split("/")[5]}{" "}
                       </a>
-                      {!info.isXacNhan && (
+                      {!type === "detail" && (
                         <DeleteOutlined
                           style={{ cursor: "pointer", color: "red" }}
                           onClick={() => {
@@ -909,13 +903,14 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
       <Row style={{ marginBottom: 15 }}>
         <Col span={24}>
           <h4 style={{ fontWeight: "bold", margin: 0 }}>
-            Hạng mục kiểm tra chất lượng {"  "}
+            Hạng mục kiểm tra chất lượng{" "}
             <a
               onClick={() => setActiveModal(true)}
               disabled={
                 DataModal.tits_qtsx_LoaiSanPham_Id === "" ||
                 DataModal.tits_qtsx_SanPham_Id === "" ||
-                DataModal.tits_qtsx_CongDoan_Id === ""
+                DataModal.tits_qtsx_CongDoan_Id === "" ||
+                type === "detail"
               }
             >
               <PlusCircleOutlined />
@@ -942,12 +937,11 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                     <CaretRightOutlined rotate={isActive ? 90 : 0} />
                   )}
                 >
-                  {" "}
                   {hm.list_HangMucKiemTraChiTiets.map((cthm) => {
                     return (
                       <Panel
-                        header={cthm.tenHangMucKiemTra}
-                        key={cthm.tits_qtsx_HangMucKiemTra_Id}
+                        header={cthm.tieuChuanDanhGia}
+                        key={cthm.id}
                       ></Panel>
                     );
                   })}
@@ -1006,6 +1000,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
         openModalFS={setActiveModal}
         DataModal={DataModal}
         setListHangMuc={setListHangMucKiemTra}
+        listHangMuc={ListHangMucKiemTra}
       />
     </div>
   );
