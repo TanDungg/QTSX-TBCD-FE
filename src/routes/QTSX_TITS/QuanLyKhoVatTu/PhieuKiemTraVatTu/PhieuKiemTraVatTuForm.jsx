@@ -153,6 +153,7 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
                   isNgoaiQuan: dt.isNgoaiQuan === true ? "true" : "false",
                   isThongSoKyThuat:
                     dt.isThongSoKyThuat === true ? "true" : "false",
+                  tits_qtsx_Loi_Id: dt.tits_qtsx_Loi_Id.toLowerCase(),
                 };
               })
           );
@@ -198,9 +199,9 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
       setEditingRecord([...editingRecord, record]);
       record.message = "Số lượng kiểm tra không được lớn hơn số lượng nhận";
     } else if (
-      (Number(ThongTinSoLuong) + record.soLuongLoi > record.soLuong &&
+      (Number(ThongTinSoLuong) + Number(record.soLuongLoi) > record.soLuong &&
         key === "soLuongNhap") ||
-      (Number(ThongTinSoLuong) + record.soLuongNhap > record.soLuong &&
+      (Number(ThongTinSoLuong) + Number(record.soLuongNhap) > record.soLuong &&
         key === "soLuongLoi")
     ) {
       setFieldTouch(false);
@@ -566,9 +567,20 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
       const newData = {
         ...phieukiemtravattu,
         id: id,
-        tits_qtsx_phieukiemtravattu_Id: info.tits_qtsx_PhieuNhanHang_Id,
-        ngay: phieukiemtravattu.ngay.format("DD/MM/YYYY"),
-        tits_qtsx_PhieuKiemTraVatTuChiTiets: ListVatTuKiemTra,
+        tits_qtsx_PhieuNhanHang_Id: info.tits_qtsx_PhieuNhanHang_Id,
+        ngay: phieukiemtravattu.ngay.format("DD/MM/YYYY HH:mm:ss"),
+        tits_qtsx_PhieuKiemTraVatTuChiTiets: ListVatTuKiemTra.map((data) => {
+          return {
+            ...data,
+            soLuong: data.soLuong && parseFloat(data.soLuong),
+            soLuongKiemTra:
+              data.soLuongKiemTra && parseFloat(data.soLuongKiemTra),
+            soLuongNhap: data.soLuongNhap && parseFloat(data.soLuongNhap),
+            soLuongLoi: data.soLuongLoi && parseFloat(data.soLuongLoi),
+            isThongSoKyThuat: data.isThongSoKyThuat === "true" ? true : false,
+            isNgoaiQuan: data.isNgoaiQuan === "true" ? true : false,
+          };
+        }),
       };
       new Promise((resolve, reject) => {
         dispatch(
