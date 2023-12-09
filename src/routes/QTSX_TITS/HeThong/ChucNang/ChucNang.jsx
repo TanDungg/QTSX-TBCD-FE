@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Row, Col } from "antd";
 import { Icon } from "@ant-design/compatible";
-import { FaCoffee } from "react-icons/fa";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
