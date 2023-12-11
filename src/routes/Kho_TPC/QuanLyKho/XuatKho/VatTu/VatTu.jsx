@@ -39,7 +39,6 @@ function XuatKhoVatTu({ match, history, permission }) {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
-  const [DataXuatExcel, setDataXuatExcel] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState(null);
   const [TuNgay, setTuNgay] = useState(getDateNow(-7));
@@ -384,16 +383,16 @@ function XuatKhoVatTu({ match, history, permission }) {
     };
   });
 
-  // /**
-  //  * Chuyển tới trang thêm mới chức năng
-  //  *
-  //  * @memberof ChucNang
-  //  */
-  // const handleRedirect = () => {
-  //   history.push({
-  //     pathname: `${match.url}/them-moi`,
-  //   });
-  // };
+  /**
+   * Chuyển tới trang thêm mới chức năng
+   *
+   * @memberof ChucNang
+   */
+  const handleRedirect = () => {
+    history.push({
+      pathname: `${match.url}/them-moi`,
+    });
+  };
 
   const handlePrint = () => {
     const params = convertObjectToUrlParams({
@@ -469,7 +468,7 @@ function XuatKhoVatTu({ match, history, permission }) {
   const addButtonRender = () => {
     return (
       <>
-        {/* <Button
+        <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -477,7 +476,7 @@ function XuatKhoVatTu({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
-        </Button> */}
+        </Button>
         <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"

@@ -6,7 +6,7 @@ import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import { Table } from "src/components/Common";
 import { isEmpty } from "lodash";
 
-function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
+function ModalViTri({ openModalFS, openModal, itemData, ThemViTri }) {
   const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [ListViTriKho, setListViTriKho] = useState([]);
@@ -262,8 +262,8 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
 
   const Title = (
     <span>
-      Chọn vị trí xuất kho của vật tư - {itemData.tenVatTu} (Số lượng:{" "}
-      {itemData.soLuong})
+      {/* Chọn vị trí xuất kho của vật tư - {itemData.tenVatTu} (Số lượng:{" "}
+      {itemData.soLuong}) */}
     </span>
   );
 
@@ -311,4 +311,4 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
   );
 }
 
-export default ModalChonViTri;
+export default ModalViTri;

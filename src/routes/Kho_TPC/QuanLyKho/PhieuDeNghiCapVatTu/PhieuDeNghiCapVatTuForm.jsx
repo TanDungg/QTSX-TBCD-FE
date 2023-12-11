@@ -252,7 +252,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
         )
       );
     }).then((res) => {
-      if (res && res.data) {
+      if (res && res.status !== 409) {
         const newData = res.data.map((data) => {
           return {
             ...data,
@@ -786,6 +786,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
               resetFields();
               setFieldTouch(false);
               setListVatTu([]);
+              setListVatTuKhac([]);
               getUserKy(INFO);
               getUserLap(INFO, null, value);
               getXuong();
