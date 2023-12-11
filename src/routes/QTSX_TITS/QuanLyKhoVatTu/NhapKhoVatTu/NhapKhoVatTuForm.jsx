@@ -663,7 +663,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           const newData = {
             ...phieunhapkhovattu,
             id: id,
-            tits_qtsx_PhieuNhanHang_Id: info.tits_qtsx_PhieuNhanHang_Id,
+            tits_qtsx_PhieuKiemTraVatTu_Id: info.tits_qtsx_PhieuKiemTraVatTu_Id,
             ngayNhapKho: phieunhapkhovattu.ngayNhapKho.format(
               "DD/MM/YYYY HH:mm:ss"
             ),
@@ -693,7 +693,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       const newData = {
         ...phieunhapkhovattu,
         id: id,
-        tits_qtsx_PhieuNhanHang_Id: info.tits_qtsx_PhieuNhanHang_Id,
+        tits_qtsx_PhieuKiemTraVatTu_Id: info.tits_qtsx_PhieuKiemTraVatTu_Id,
         ngayNhapKho: phieunhapkhovattu.ngayNhapKho.format(
           "DD/MM/YYYY HH:mm:ss"
         ),
@@ -749,6 +749,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
+      console.log(phieunhapkhovattu);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -980,9 +981,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                   }}
                   onClick={() => renderPDF(FileChungTu[i] && FileChungTu[i])}
                 >
-                  {FileChungTu[i] && FileChungTu[i].name.length > 30
-                    ? FileChungTu[i].name.substring(0, 30) + "..."
-                    : FileChungTu[i].name}{" "}
+                  {FileChungTu[i].name}{" "}
                 </span>
                 <DeleteOutlined
                   style={{ cursor: "pointer", color: "red" }}

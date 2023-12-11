@@ -13,7 +13,7 @@ const FormSubmit = ({
   return (
     <>
       <Divider />
-      <Row style={{ marginTop: 20 }}>
+      <Row style={{ marginBottom: 10 }}>
         <Col style={{ marginBottom: 8, textAlign: "center" }} span={24}>
           {goBack && (
             <Button

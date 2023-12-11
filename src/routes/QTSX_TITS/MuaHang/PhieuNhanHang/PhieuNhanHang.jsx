@@ -93,9 +93,7 @@ function PhieuNhanHang({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id &&
-      moment(item.ngayTaoPhieu, "DD/MM/YYYY") >=
-        moment(getDateNow(-1), "DD/MM/YYYY") ? (
+      item.nguoiTaoPhieu_Id === INFO.user_Id ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -112,11 +110,7 @@ function PhieuNhanHang({ match, history, permission }) {
       );
 
     const deleteVal =
-      permission &&
-      permission.del &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id &&
-      moment(item.ngayTaoPhieu, "DD/MM/YYYY") >=
-        moment(getDateNow(-1), "DD/MM/YYYY")
+      permission && permission.del && item.nguoiTaoPhieu_Id === INFO.user_Id
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (

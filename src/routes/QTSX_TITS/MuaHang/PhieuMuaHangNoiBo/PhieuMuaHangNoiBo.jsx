@@ -229,7 +229,7 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
         >
           Tạo phiếu
         </Button>
-        <Button
+        {/* <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -237,7 +237,7 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
           disabled={SelectedDonHang.length === 0}
         >
           In phiếu
-        </Button>
+        </Button> */}
       </>
     );
   };
@@ -389,43 +389,42 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
       align: "center",
       render: (record) => renderFile(record),
     },
-    {
-      title: "Tình trạng",
-      dataIndex: "tinhTrang",
-      key: "tinhTrang",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tinhTrang,
-            value: d.tinhTrang,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tinhTrang.includes(value),
-      filterSearch: true,
-      render: (value) => (
-        <div>
-          {value && (
-            <Tag
-              color={
-                value === "Chưa xác nhận"
-                  ? "orange"
-                  : value === "Đã xác nhận"
-                  ? "blue"
-                  : "red"
-              }
-              style={{
-                fontSize: 13,
-              }}
-            >
-              {value}
-            </Tag>
-          )}
-        </div>
-      ),
-    },
-
+    // {
+    //   title: "Tình trạng",
+    //   dataIndex: "tinhTrang",
+    //   key: "tinhTrang",
+    //   align: "center",
+    //   filters: removeDuplicates(
+    //     map(dataList, (d) => {
+    //       return {
+    //         text: d.tinhTrang,
+    //         value: d.tinhTrang,
+    //       };
+    //     })
+    //   ),
+    //   onFilter: (value, record) => record.tinhTrang.includes(value),
+    //   filterSearch: true,
+    //   render: (value) => (
+    //     <div>
+    //       {value && (
+    //         <Tag
+    //           color={
+    //             value === "Chưa xác nhận"
+    //               ? "orange"
+    //               : value === "Đã xác nhận"
+    //               ? "blue"
+    //               : "red"
+    //           }
+    //           style={{
+    //             fontSize: 13,
+    //           }}
+    //         >
+    //           {value}
+    //         </Tag>
+    //       )}
+    //     </div>
+    //   ),
+    // },
     {
       title: "Chức năng",
       key: "action",
