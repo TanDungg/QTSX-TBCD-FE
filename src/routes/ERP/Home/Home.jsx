@@ -95,38 +95,43 @@ function Home({ permission, history }) {
           {data &&
             data.map((dt) => {
               return (
-                <Col
-                  xl={6}
-                  md={8}
-                  sm={12}
-                  xs={24}
-                  align="center"
-                  onClick={() => handleClick(dt)}
-                  style={{
-                    cursor: "pointer",
-                    height: "100%",
-                  }}
-                >
-                  <Card
+                <>
+                  <Col
+                    xxl={6}
+                    xl={8}
+                    lg={12}
+                    md={12}
+                    sm={20}
+                    xs={24}
+                    align="center"
+                    onClick={() => handleClick(dt)}
                     style={{
-                      height: "100%",
-                      marginBottom: 10,
-                    }}
-                    bodyStyle={{
-                      paddingBottom: 0,
+                      cursor: "pointer",
+                      paddingBottom: 10,
                     }}
                   >
-                    <Icon
-                      type={dt.icon}
+                    <Card
                       style={{
-                        fontSize: 100,
-                        color: "#0469B9",
+                        height: "185px",
                         marginBottom: 10,
+                        borderColor: "#0469B9",
                       }}
-                    />
-                    <h4 style={{ color: "#0469B9" }}>{dt.tenPhanMem}</h4>
-                  </Card>
-                </Col>
+                      // bodyStyle={{
+                      //   paddingBottom: 0,
+                      // }}
+                    >
+                      <Icon
+                        type={dt.icon}
+                        style={{
+                          fontSize: 100,
+                          color: "#0469B9",
+                          marginBottom: 10,
+                        }}
+                      />
+                      <h4 style={{ color: "#0469B9" }}>{dt.tenPhanMem}</h4>
+                    </Card>
+                  </Col>
+                </>
               );
             })}
         </Row>

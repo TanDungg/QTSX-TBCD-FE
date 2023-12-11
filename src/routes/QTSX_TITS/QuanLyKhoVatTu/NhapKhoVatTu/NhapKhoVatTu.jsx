@@ -170,9 +170,7 @@ function NhapKhoVatTu({ match, history, permission }) {
       permission &&
       permission.edit &&
       item.nguoiTaoPhieu_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" &&
-      moment(getDateNow(-1), "DD/MM/YYYY") <=
-        moment(item.ngayYeuCau, "DD/MM/YYYY") ? (
+      item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -191,9 +189,7 @@ function NhapKhoVatTu({ match, history, permission }) {
       permission &&
       permission.del &&
       item.nguoiTaoPhieu_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" &&
-      moment(getDateNow(-1), "DD/MM/YYYY") <=
-        moment(item.ngayYeuCau, "DD/MM/YYYY")
+      item.tinhTrang === "Chưa xác nhận"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (

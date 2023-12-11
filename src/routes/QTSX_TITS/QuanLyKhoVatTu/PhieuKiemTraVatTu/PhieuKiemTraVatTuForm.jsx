@@ -1,4 +1,3 @@
-import { DeleteOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Row, Col, DatePicker, Tag } from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helper from "src/helpers";
@@ -10,12 +9,11 @@ import {
   FormSubmit,
   Select,
   Table,
-  ModalDeleteConfirm,
   EditableTableRow,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_TWO_COL } from "src/constants/Config";
-import { getDateNow, reDataForTable } from "src/util/Common";
+import { reDataForTable } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -145,6 +143,7 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
               ngay: moment(data.ngay, "DD/MM/YYYY HH:mm:ss"),
             },
           });
+          console.log(JSON.parse(data.tits_qtsx_PhieuKiemTraVatTuChiTiets));
           setListVatTuKiemTra(
             data.tits_qtsx_PhieuKiemTraVatTuChiTiets &&
               JSON.parse(data.tits_qtsx_PhieuKiemTraVatTuChiTiets).map((dt) => {
@@ -153,7 +152,8 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
                   isNgoaiQuan: dt.isNgoaiQuan === true ? "true" : "false",
                   isThongSoKyThuat:
                     dt.isThongSoKyThuat === true ? "true" : "false",
-                  tits_qtsx_Loi_Id: dt.tits_qtsx_Loi_Id.toLowerCase(),
+                  tits_qtsx_Loi_Id:
+                    dt.tits_qtsx_Loi_Id && dt.tits_qtsx_Loi_Id.toLowerCase(),
                 };
               })
           );

@@ -302,32 +302,25 @@ function ChucNang({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
           <Col
-            xxl={2}
-            xl={3}
-            lg={4}
-            md={4}
-            sm={5}
-            xs={6}
-            align={"center"}
-            style={{ marginTop: 8 }}
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginLeft: 10,
+            }}
           >
-            Phần mềm:
-          </Col>
-          <Col
-            xxl={10}
-            xl={10}
-            lg={20}
-            md={20}
-            sm={19}
-            xs={18}
-            style={{ marginBottom: 8 }}
-          >
+            <span style={{ width: "100px" }}>Phần mềm:</span>
             <Select
               className="heading-select slt-search th-select-heading"
               data={PhanMemSelect ? PhanMemSelect : []}
               placeholder="Chọn phần mềm"
               optionsvalue={["id", "tenPhanMem"]}
-              style={{ width: "100%" }}
+              style={{ width: "calc(100% - 100px)" }}
               value={PhanMem}
               optionFilterProp={"name"}
               showSearch
@@ -338,7 +331,7 @@ function ChucNang({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 700, y: "64vh" }}
+          scroll={{ x: 700, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

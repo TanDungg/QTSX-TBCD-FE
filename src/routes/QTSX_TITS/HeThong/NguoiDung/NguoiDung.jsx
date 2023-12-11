@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Button, Tag, Divider } from "antd";
+import { Card, Button, Tag, Divider, Row, Col } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -337,19 +337,50 @@ function NguoiDung({ match, history, permission }) {
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom">
-        <Toolbar
-          count={1}
-          search={{
-            title: "Tìm kiếm",
-            loading,
-            value: keyword,
-            onChange: onChangeKeyword,
-            onPressEnter: onSearchNguoiDung,
-            onSearch: onSearchNguoiDung,
-            placeholder: "Nhập từ khóa",
-            allowClear: true,
-          }}
-        />
+        <Row>
+          <Col
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginLeft: 10,
+            }}
+          >
+            <span
+              style={{
+                width: "80px",
+              }}
+            >
+              Tìm kiếm:
+            </span>
+            <div
+              style={{
+                flex: 1,
+                alignItems: "center",
+                marginTop: width < 576 ? 10 : 0,
+              }}
+            >
+              <Toolbar
+                count={1}
+                search={{
+                  title: "Tìm kiếm",
+                  loading,
+                  value: keyword,
+                  onChange: onChangeKeyword,
+                  onPressEnter: onSearchNguoiDung,
+                  onSearch: onSearchNguoiDung,
+                  placeholder: "Nhập từ khóa",
+                  allowClear: true,
+                }}
+              />
+            </div>
+          </Col>
+        </Row>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table

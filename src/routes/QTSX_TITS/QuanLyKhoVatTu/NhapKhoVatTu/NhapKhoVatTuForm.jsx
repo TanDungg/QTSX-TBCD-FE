@@ -981,9 +981,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                   }}
                   onClick={() => renderPDF(FileChungTu[i] && FileChungTu[i])}
                 >
-                  {FileChungTu[i] && FileChungTu[i].name.length > 30
-                    ? FileChungTu[i].name.substring(0, 30) + "..."
-                    : FileChungTu[i].name}{" "}
+                  {FileChungTu[i].name}{" "}
                 </span>
                 <DeleteOutlined
                   style={{ cursor: "pointer", color: "red" }}

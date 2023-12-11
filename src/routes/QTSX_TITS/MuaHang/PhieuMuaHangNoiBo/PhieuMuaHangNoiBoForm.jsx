@@ -75,6 +75,8 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           setFieldsValue({
             phieumuahangnoibo: {
               ngayTaoPhieu: moment(getDateNow(), "DD/MM/YYYY"),
+              benMua:
+                "CÔNG TY TNHH SẢN XUẤT SƠ MI RƠ MOÓC VÀ CẤU KIỆN NẶNG THACO INDUSTRIES",
             },
           });
         } else if (permission && !permission.add) {
@@ -527,6 +529,8 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               setFieldsValue({
                 phieumuahangnoibo: {
                   ngayTaoPhieu: moment(getDateNow(), "DD/MM/YYYY"),
+                  benMua:
+                    "CÔNG TY TNHH SẢN XUẤT SƠ MI RƠ MOÓC VÀ CẤU KIỆN NẶNG THACO INDUSTRIES",
                 },
               });
               setDisableUpload(false);
@@ -668,6 +672,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 name={["phieumuahangnoibo", "tenDonHang"]}
                 rules={[
                   {
+                    type: "string",
                     required: true,
                   },
                 ]}
@@ -718,6 +723,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 name={["phieumuahangnoibo", "tits_qtsx_NhaCungCap_Id"]}
                 rules={[
                   {
+                    type: "string",
                     required: true,
                   },
                 ]}
@@ -748,7 +754,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 name={["phieumuahangnoibo", "tits_qtsx_NhaCungCap_Id"]}
                 rules={[
                   {
-                    required: true,
+                    type: "string",
                   },
                 ]}
               >
@@ -778,6 +784,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 name={["phieumuahangnoibo", "benMua"]}
                 rules={[
                   {
+                    type: "string",
                     required: true,
                   },
                 ]}
@@ -785,32 +792,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 <Input
                   className="input-item"
                   placeholder="Nhập bên mua"
-                  disabled={type === "detail" ? true : false}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Địa chỉ bên mua"
-                name={["phieumuahangnoibo", "diaChi"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <Input
-                  className="input-item"
-                  placeholder="Nhập địa chỉ bên mua"
-                  disabled={type === "detail" ? true : false}
+                  disabled={true}
                 />
               </FormItem>
             </Col>
@@ -1098,7 +1080,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           />
         </Card>
       </Card>
-      {type === "detail" ? (
+      {type !== "detail" ? (
         <FormSubmit
           goBack={goBack}
           handleSave={saveAndClose}

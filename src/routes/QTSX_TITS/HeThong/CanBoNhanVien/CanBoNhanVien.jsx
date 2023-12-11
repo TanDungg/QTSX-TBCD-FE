@@ -261,7 +261,7 @@ function CanBoNhanVien({ match, history, permission }) {
         dataIndex: "fullName",
         key: "fullName",
         align: "center",
-        width: 180,
+        width: 150,
         sorter: (a, b) => a.fullName.localeCompare(b.fullName),
       },
       {
@@ -269,7 +269,7 @@ function CanBoNhanVien({ match, history, permission }) {
         dataIndex: "email",
         key: "email",
         align: "center",
-        width: 230,
+        width: 210,
       },
       {
         title: "SĐT",
@@ -299,6 +299,7 @@ function CanBoNhanVien({ match, history, permission }) {
         dataIndex: "tenBoPhan",
         key: "tenBoPhan",
         align: "center",
+        width: 130,
         filters: removeDuplicates(
           map(data.datalist, (d) => {
             return {
@@ -315,6 +316,7 @@ function CanBoNhanVien({ match, history, permission }) {
         dataIndex: "tenPhongBan",
         key: "tenPhongBan",
         align: "center",
+        width: 130,
         filters: removeDuplicates(
           map(data.datalist, (d) => {
             return {
@@ -331,6 +333,7 @@ function CanBoNhanVien({ match, history, permission }) {
         dataIndex: "tenDonVi",
         key: "tenDonVi",
         align: "center",
+        width: 200,
         filters: removeDuplicates(
           map(data.datalist, (d) => {
             return {
@@ -347,7 +350,7 @@ function CanBoNhanVien({ match, history, permission }) {
         dataIndex: "tenDonViTraLuong",
         key: "tenDonViTraLuong",
         align: "center",
-        width: 130,
+        width: 200,
         filters: removeDuplicates(
           map(data.datalist, (d) => {
             return {
@@ -464,57 +467,78 @@ function CanBoNhanVien({ match, history, permission }) {
         buttons={addButtonRender()}
         classCss="gx-position-button-cbnv"
       />
-      <Card className="th-card-margin-bottom th-card-reset-margin">
+      <Card className="th-card-margin-bottom">
         <Row>
           <Col
-            xxl={2}
-            xl={3}
-            lg={4}
-            md={4}
-            sm={5}
-            xs={7}
-            align={"center"}
-            style={{ marginTop: 8 }}
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
           >
-            Đơn vị:
-          </Col>
-          <Col
-            xl={8}
-            lg={20}
-            md={20}
-            sm={19}
-            xs={17}
-            style={{ marginBottom: 8 }}
-          >
+            <span style={{ width: "80px" }}>Đơn vị:</span>
             <Select
               className="heading-select slt-search th-select-heading"
               data={donViSelect ? donViSelect : []}
               placeholder="Chọn đơn vị"
               optionsvalue={["id", "tenDonVi"]}
-              style={{ width: "100%" }}
+              style={{ width: "calc(100% - 80px)" }}
               onSelect={handleOnSelectCBNV}
               value={donVi}
               onChange={(value) => setDonVi(value)}
             />
           </Col>
-          <Col xl={6} lg={24} md={24} xs={24}>
-            <Toolbar
-              count={1}
-              search={{
-                loading,
-                value: keyword,
-                onChange: onChangeKeyword,
-                onPressEnter: onSearchNguoiDung,
-                onSearch: onSearchNguoiDung,
-                placeholder: "Tìm kiếm",
-                allowClear: true,
+          <Col
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <span
+              style={{
+                width: "80px",
               }}
-            />
+            >
+              Tìm kiếm:
+            </span>
+            <div
+              style={{
+                flex: 1,
+                alignItems: "center",
+                marginTop: width < 576 ? 10 : 0,
+              }}
+            >
+              <Toolbar
+                count={1}
+                search={{
+                  loading,
+                  value: keyword,
+                  onChange: onChangeKeyword,
+                  onPressEnter: onSearchNguoiDung,
+                  onSearch: onSearchNguoiDung,
+                  placeholder: "Tìm kiếm",
+                  allowClear: true,
+                }}
+              />
+            </div>
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 1300, y: "55vh" }}
+          scroll={{ x: 1500, y: "50vh" }}
           columns={header()}
           className="gx-table-responsive"
           dataSource={dataList}

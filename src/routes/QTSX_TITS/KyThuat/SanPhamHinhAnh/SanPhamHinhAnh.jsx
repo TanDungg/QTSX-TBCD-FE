@@ -183,7 +183,7 @@ function SanPhamHinhAnh({ match, history, permission }) {
           return (
             <Col
               xxl={8}
-              xl={8}
+              xl={12}
               lg={12}
               md={12}
               sm={20}
@@ -192,12 +192,13 @@ function SanPhamHinhAnh({ match, history, permission }) {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-around",
+                paddingBottom: 10,
               }}
             >
               <Card
                 className="th-card-margin-bottom th-card-reset-margin"
                 style={{
-                  width: "500px",
+                  width: "100%",
                   height: "500px",
                   display: "start",
                   justifyContent: "space-around",
