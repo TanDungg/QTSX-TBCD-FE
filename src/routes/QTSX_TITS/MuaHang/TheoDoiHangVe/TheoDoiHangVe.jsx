@@ -2,18 +2,11 @@ import React, { useEffect, useState } from "react";
 import { Card, Row, Col, DatePicker, Tag } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { map, isEmpty } from "lodash";
-import {
-  Table,
-  EditableTableRow,
-  Toolbar,
-  Select,
-} from "src/components/Common";
+import { Table, EditableTableRow, Toolbar } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   getDateNow,
-  getLocalStorage,
-  getTokenInfo,
   reDataForTable,
   removeDuplicates,
 } from "src/util/Common";
@@ -23,10 +16,9 @@ import moment from "moment";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
-function TheoDoiHangVe({ match, history, permission }) {
+function TheoDoiHangVe({ history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [FromDate, setFromDate] = useState(getDateNow(-7));

@@ -462,12 +462,14 @@ function QuyTrinhCongNgheForm({ match, permission, history }) {
               ) : FileThongSoKyThuat && FileThongSoKyThuat.name ? (
                 <span>
                   <span
-                    style={{ color: "#0469B9", cursor: "pointer" }}
+                    style={{
+                      color: "#0469B9",
+                      cursor: "pointer",
+                      whiteSpace: "break-spaces",
+                    }}
                     onClick={() => handleViewFile(FileThongSoKyThuat)}
                   >
-                    {FileThongSoKyThuat.name.length > 20
-                      ? FileThongSoKyThuat.name.substring(0, 20) + "..."
-                      : FileThongSoKyThuat.name}{" "}
+                    {FileThongSoKyThuat.name}{" "}
                   </span>
                   <DeleteOutlined
                     style={{ cursor: "pointer", color: "red" }}
@@ -489,6 +491,10 @@ function QuyTrinhCongNgheForm({ match, permission, history }) {
                     target="_blank"
                     href={BASE_URL_API + FileThongSoKyThuat}
                     rel="noopener noreferrer"
+                    style={{
+                      whiteSpace: "break-spaces",
+                      wordBreak: "break-all",
+                    }}
                   >
                     {FileThongSoKyThuat && FileThongSoKyThuat.split("/")[5]}{" "}
                   </a>

@@ -109,6 +109,7 @@ function LayoutKhoThanhPham({ history, permission }) {
       )
     );
   };
+
   let renderHead = [
     {
       title: "STT",

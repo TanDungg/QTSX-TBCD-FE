@@ -470,6 +470,22 @@ function NhapKhoVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
+      title: "Phiếu kiểm tra vật tư",
+      dataIndex: "maPhieuKiemTraVatTu",
+      key: "maPhieuKiemTraVatTu",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maPhieuKiemTraVatTu,
+            value: d.maPhieuKiemTraVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maPhieuKiemTraVatTu.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Phiếu nhận hàng",
       dataIndex: "maPhieuNhanHang",
       key: "maPhieuNhanHang",

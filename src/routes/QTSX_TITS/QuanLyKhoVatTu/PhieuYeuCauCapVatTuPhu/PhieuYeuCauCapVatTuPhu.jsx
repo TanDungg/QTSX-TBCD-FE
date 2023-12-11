@@ -5,7 +5,6 @@ import {
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
-  PrinterOutlined,
   ExportOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";

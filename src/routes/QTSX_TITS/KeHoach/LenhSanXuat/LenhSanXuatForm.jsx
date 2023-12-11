@@ -498,12 +498,14 @@ function LenhSanXuatForm({ match, permission, history }) {
               ) : FileDinhKem && FileDinhKem.name ? (
                 <span>
                   <span
-                    style={{ color: "#0469B9", cursor: "pointer" }}
+                    style={{
+                      color: "#0469B9",
+                      cursor: "pointer",
+                      whiteSpace: "break-spaces",
+                    }}
                     onClick={() => handleViewFile(FileDinhKem)}
                   >
-                    {FileDinhKem.name.length > 35
-                      ? FileDinhKem.name.substring(0, 35) + "..."
-                      : FileDinhKem.name}{" "}
+                    {FileDinhKem.name}{" "}
                   </span>
                   <DeleteOutlined
                     style={{ cursor: "pointer", color: "red" }}
@@ -525,6 +527,10 @@ function LenhSanXuatForm({ match, permission, history }) {
                     target="_blank"
                     href={BASE_URL_API + FileDinhKem}
                     rel="noopener noreferrer"
+                    style={{
+                      whiteSpace: "break-spaces",
+                      wordBreak: "break-all",
+                    }}
                   >
                     {FileDinhKem && FileDinhKem.split("/")[5]}{" "}
                   </a>
