@@ -124,7 +124,7 @@ function ThanhPham({ match, history, permission }) {
         </span>
       );
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa duyệt" ? (
+      permission && permission.edit ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,

@@ -71,7 +71,19 @@ function TonKho({ permission, history, match }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setData(res.data);
+          setData(
+            res.data.map((dt) => {
+              return {
+                ...dt,
+                list_PhieuNhapXuats:
+                  dt.list_PhieuNhapXuats && JSON.parse(dt.list_PhieuNhapXuats),
+                list_PhieuNhaps:
+                  dt.list_PhieuNhaps && JSON.parse(dt.list_PhieuNhaps),
+                list_PhieuXuats:
+                  dt.list_PhieuXuats && JSON.parse(dt.list_PhieuXuats),
+              };
+            })
+          );
         }
       })
       .catch((error) => console.error(error));
@@ -332,9 +344,14 @@ function TonKho({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_BaoCao/export-file-bao-cao-ton-kho-theo-kho-sp-vt}`,
+          `lkn_BaoCao/export-file-bao-cao-ton-kho-theo-kho-sp-vt`,
           "POST",
-          Data,
+          {
+            cauTrucKho_Id: Kho,
+            tuNgay: TuNgay,
+            denNgay: DenNgay,
+            list_ChiTiets: Data,
+          },
           "",
           "",
           resolve,

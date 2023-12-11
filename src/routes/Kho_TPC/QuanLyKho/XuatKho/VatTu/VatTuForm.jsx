@@ -325,6 +325,7 @@ const VatTuForm = ({ history, match, permission }) => {
               const lstViTri = data.list_ChiTietLuuKhos.map((vt) => ({
                 ...vt,
                 viTri: vt.tenNgan ? vt.tenNgan : vt.ke ? vt.ke : vt.tenKho,
+                soLuong: vt.SoLuong,
               }));
               return {
                 ...data,
@@ -335,7 +336,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   : data.list_ChiTietLuuKhos[0].ke
                   ? data.list_ChiTietLuuKhos[0].ke
                   : data.list_ChiTietLuuKhos[0].tenKho,
-                chiTiet_LuuVatTus: lstViTri,
+                list_ChiTietLuuKhos: lstViTri,
               };
             });
           setListVatTu(newData.length > 0 && newData);
@@ -371,9 +372,7 @@ const VatTuForm = ({ history, match, permission }) => {
   };
 
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter(
-      (d) => d.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
-    );
+    const newData = listVatTu.filter((d) => d.vatTu_Id !== item.vatTu_Id);
     setListVatTu(newData);
     setFieldTouch(true);
   };
@@ -438,11 +437,11 @@ const VatTuForm = ({ history, match, permission }) => {
   const renderLstViTri = (record) => {
     return (
       <div>
-        {record.chiTiet_LuuVatTus.length > 0 ? (
+        {record.list_ChiTietLuuKhos.length > 0 ? (
           <div>
-            {record.chiTiet_LuuVatTus.length !== 0 && (
+            {record.list_ChiTietLuuKhos.length !== 0 && (
               <div>
-                {record.chiTiet_LuuVatTus.map((vt, index) => {
+                {record.list_ChiTietLuuKhos.map((vt, index) => {
                   return (
                     <Tag
                       key={index}
@@ -626,7 +625,9 @@ const VatTuForm = ({ history, match, permission }) => {
     } else if (type === "new") {
       const newData = {
         ...data,
+        kho_Id: data.tenKho,
         list_VatTus: listVatTu,
+        ngayYeuCau: data.ngayYeuCau._i,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -686,24 +687,40 @@ const VatTuForm = ({ history, match, permission }) => {
     if (!type) {
       let check = false;
       listVatTu.forEach((vt) => {
-        if (
-          vt.lkn_ChiTietKhoVatTu_Id === data.lkn_ChiTietKhoVatTu_Id &&
-          vt.vatTu_Id === data.vatTu_Id
-        ) {
+        if (vt.vatTu_Id === data.vatTu_Id) {
           check = true;
         }
       });
       if (check) {
-        Helpers.alertWarning(
-          `Vật tư ${data.tenVatTu} tại vị trí ${data.viTri} đã được thêm`
-        );
+        Helpers.alertWarning(`Vật tư ${data.tenVatTu} đã được thêm`);
       } else {
-        setListVatTu([...listVatTu, data]);
+        if (listVatTu.length === 0) {
+          setListVatTu(data);
+        } else {
+          const newData = [];
+          const newDataViTri = data;
+
+          listVatTu.forEach((dt) => {
+            let check = false;
+            data.forEach((vt, index) => {
+              if (dt.vatTu_Id.toLowerCase() === vt.vatTu_Id.toLowerCase()) {
+                check = true;
+                newData.push(vt);
+                newDataViTri.splice(index, 1);
+              }
+            });
+            if (!check) {
+              newData.push(dt);
+            }
+          });
+          setFieldTouch(true);
+          setListVatTu([...newData, ...newDataViTri]);
+        }
       }
     } else {
       setListVatTu([
         ...listVatTu.map((vt) => {
-          if (vt.lkn_ChiTietKhoVatTu_Id === data.lkn_ChiTietKhoVatTu_Id) {
+          if (vt.vatTu_Id === data.vatTu_Id) {
             return data;
           } else {
             return vt;
@@ -1096,21 +1113,23 @@ const VatTuForm = ({ history, match, permission }) => {
               </FormItem>
             </Col> */}
           </Row>
-          <Row>
-            <Col span={24} align="end">
-              <Button
-                icon={<PlusOutlined />}
-                type="primary"
-                onClick={() => {
-                  setActiveModalChonViTri(true);
-                  setInfoVatTu(null);
-                }}
-                disabled={Kho === ""}
-              >
-                Thêm vật tư
-              </Button>
-            </Col>
-          </Row>
+          {type === "new" && (
+            <Row>
+              <Col span={24} align="end">
+                <Button
+                  icon={<PlusOutlined />}
+                  type="primary"
+                  onClick={() => {
+                    setActiveModalChonViTri(true);
+                    setInfoVatTu(null);
+                  }}
+                  disabled={Kho === ""}
+                >
+                  Thêm vật tư
+                </Button>
+              </Col>
+            </Row>
+          )}
         </Form>
 
         <Table
@@ -1175,6 +1194,7 @@ const VatTuForm = ({ history, match, permission }) => {
         cauTrucKho_Id={Kho}
         addVatTu={addVatTu}
         infoVatTu={InfoVatTu}
+        listVatTu={listVatTu}
       />
       {/* <ModalViTri
         openModal={ActiveModalChonViTri}
