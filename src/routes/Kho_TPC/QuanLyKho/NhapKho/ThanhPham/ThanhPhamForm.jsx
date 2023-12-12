@@ -755,7 +755,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
               : "red"
           }
         >
-          {info.maPhieuNhapKhoThanhPham} - {info.tinhTrang}
+          {info.maPhieuNhapKhoThanhPham} {info.tinhTrang}
         </Tag>
       </span>
     );

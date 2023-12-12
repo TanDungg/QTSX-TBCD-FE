@@ -144,6 +144,25 @@ function VatTu({ match, history, permission }) {
           <CheckCircleOutlined />
         </span>
       );
+    const editItem =
+      permission &&
+      permission.edit &&
+      item.isDuyet &&
+      item.tinhTrang === "Phiếu đã được duyệt" ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/chinh-sua`,
+            state: { itemData: item },
+          }}
+          title="Sửa phiếu"
+        >
+          <EditOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Sửa phiếu">
+          <EditOutlined />
+        </span>
+      );
     const deleteVal =
       permission &&
       permission.del &&
@@ -154,6 +173,8 @@ function VatTu({ match, history, permission }) {
     return (
       <div>
         {xacNhanItem}
+        <Divider type="vertical" />
+        {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
           <DeleteOutlined />

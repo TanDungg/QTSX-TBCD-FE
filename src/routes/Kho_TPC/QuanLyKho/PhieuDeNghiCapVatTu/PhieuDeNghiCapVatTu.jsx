@@ -298,7 +298,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
         >
           In phiếu
         </Button>
-        <Button
+        {/* <Button
           icon={<ExportOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -312,7 +312,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           }
         >
           Xuất kho
-        </Button>
+        </Button> */}
       </>
     );
   };

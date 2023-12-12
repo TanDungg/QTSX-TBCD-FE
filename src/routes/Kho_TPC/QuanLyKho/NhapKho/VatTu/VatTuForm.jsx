@@ -173,6 +173,15 @@ const VatTuForm = ({ history, match, permission }) => {
         }
       } else if (includes(match.url, "xac-nhan")) {
         if (permission && permission.cof) {
+          setType("duyet");
+          const { id } = match.params;
+          setId(id);
+          getInfo(id);
+        } else if (permission && !permission.cof) {
+          history.push("/home");
+        }
+      } else if (includes(match.url, "chinh-sua")) {
+        if (permission && permission.edit) {
           setType("edit");
           const { id } = match.params;
           setId(id);
@@ -468,11 +477,11 @@ const VatTuForm = ({ history, match, permission }) => {
       `${match.url.replace(
         type === "new"
           ? "/them-moi"
-          : type === "edit"
+          : type === "duyet"
           ? `/${id}/xac-nhan`
           : type === "detail"
           ? `/${id}/chi-tiet`
-          : `/${id}/xac-nhan`,
+          : type === "edit" && `/${id}/chinh-sua`,
         ""
       )}`
     );
@@ -619,91 +628,131 @@ const VatTuForm = ({ history, match, permission }) => {
       </>
     );
   };
-
-  let colValues = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      width: 45,
-      align: "center",
-    },
-
-    {
-      title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
-      align: "center",
-    },
-    {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
-      align: "center",
-    },
-    {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
-      align: "center",
-    },
-
-    {
-      title: "Thời gian sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
-      align: "center",
-    },
-    {
-      title: "Vị trí",
-      key: "viTri",
-      align: "center",
-      render: (val) => {
-        return (
-          <span>
-            {val.tenNgan ? val.tenNgan : val.tenKe && val.tenKe}
-            {/* {val.tenTang && ` - ${val.tenTang}`} */}
-            {/* {val.tenNgan && val.tenNgan} */}
-          </span>
-        );
+  const XacNhanEdit = () => {};
+  const prop2 = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận chỉnh sửa",
+  };
+  const modalEdit = (val) => {
+    Modal({
+      ...prop2,
+      onOk: () => {
+        XacNhanEdit(val);
       },
-    },
-    // {
-    //   title: "Ngày hóa đơn",
-    //   dataIndex: "ngayHoaDon",
-    //   key: "ngayHoaDon",
-    //   align: "center",
-    //   render: (val, record) => renderDatePicker(val, record),
-    // },
-    {
-      title: "Số hóa đơn",
-      dataIndex: "soHoaDon",
-      key: "soHoaDon",
-      align: "center",
-      render: (record) => renderGhiChu(record, "soHoaDon"),
-    },
+    });
+  };
+  let colValues = () => {
+    const col = [
+      {
+        title: "STT",
+        dataIndex: "key",
+        key: "key",
+        width: 45,
+        align: "center",
+      },
+      {
+        title: "Mã vật tư",
+        dataIndex: "maVatTu",
+        key: "maVatTu",
+        align: "center",
+      },
+      {
+        title: "Tên vật tư",
+        dataIndex: "tenVatTu",
+        key: "tenVatTu",
+        align: "center",
+      },
+      {
+        title: "Đơn vị tính",
+        dataIndex: "tenDonViTinh",
+        key: "tenDonViTinh",
+        align: "center",
+      },
 
-    {
-      title: "Số lượng",
-      render: (record) => rendersoLuong(record),
+      {
+        title: "Thời gian sử dụng",
+        dataIndex: "thoiGianSuDung",
+        key: "thoiGianSuDung",
+        align: "center",
+      },
+      {
+        title: "Vị trí",
+        key: "viTri",
+        align: "center",
+        render: (val) => {
+          return (
+            <span>
+              {val.tenNgan ? val.tenNgan : val.tenKe && val.tenKe}
+              {/* {val.tenTang && ` - ${val.tenTang}`} */}
+              {/* {val.tenNgan && val.tenNgan} */}
+            </span>
+          );
+        },
+      },
+      // {
+      //   title: "Ngày hóa đơn",
+      //   dataIndex: "ngayHoaDon",
+      //   key: "ngayHoaDon",
+      //   align: "center",
+      //   render: (val, record) => renderDatePicker(val, record),
+      // },
+      {
+        title: "Số hóa đơn",
+        dataIndex: "soHoaDon",
+        key: "soHoaDon",
+        align: "center",
+        render: (record) => renderGhiChu(record, "soHoaDon"),
+      },
 
-      key: "soLuongNhap",
-      align: "center",
-    },
-    {
-      title: "Ghi chú",
-      key: "ghiChu",
-      align: "center",
-      render: (record) => renderGhiChu(record, "ghiChu"),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-    },
-  ];
+      {
+        title: "Số lượng",
+        render: (record) => rendersoLuong(record),
+
+        key: "soLuongNhap",
+        align: "center",
+      },
+      {
+        title: "Ghi chú",
+        key: "ghiChu",
+        align: "center",
+        render: (record) => renderGhiChu(record, "ghiChu"),
+      },
+      {
+        title: "Chức năng",
+        key: "action",
+        align: "center",
+        width: 80,
+        render: (value) => actionContent(value),
+      },
+    ];
+    if (type === "edit") {
+      return [
+        {
+          title: "Chỉnh sửa",
+          key: "edit",
+          align: "center",
+          width: 80,
+          render: (val) => {
+            return (
+              <Button
+                style={{ margin: 0 }}
+                disable={type !== "edit"}
+                type="primary"
+                onClick={() => modalEdit(val)}
+              >
+                Lưu
+              </Button>
+            );
+          },
+        },
+        ...col,
+      ];
+    } else {
+      return col;
+    }
+  };
   const components = {
     body: {
       row: EditableRow,
@@ -723,7 +772,7 @@ const VatTuForm = ({ history, match, permission }) => {
     setFieldTouch(true);
     setListVatTu(newData);
   };
-  const columns = map(colValues, (col) => {
+  const columns = map(colValues(), (col) => {
     if (!col.editable) {
       return col;
     }
@@ -813,7 +862,7 @@ const VatTuForm = ({ history, match, permission }) => {
     //     })
     //     .catch((error) => console.error(error));
     // }
-    if (type === "edit") {
+    if (type === "duyet") {
       const newData = {
         id: id,
         ...nhapkho,
@@ -859,8 +908,10 @@ const VatTuForm = ({ history, match, permission }) => {
   const formTitle =
     type === "new" ? (
       "Tạo phiếu nhập kho vật tư "
-    ) : type === "edit" ? (
+    ) : type === "duyet" ? (
       "Duyệt phiếu nhập kho vật tư"
+    ) : type === "edit" ? (
+      "Chỉnh sửa phiếu nhập kho vật tư"
     ) : (
       <span>
         Chi tiết phiếu nhập kho vật tư -{" "}
@@ -959,7 +1010,7 @@ const VatTuForm = ({ history, match, permission }) => {
               >
                 <DatePicker
                   format={"DD/MM/YYYY HH:mm:ss"}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" || type === "duyet" ? false : true}
                   showTime
                   allowClear={false}
                   onChange={(date, dateString) => {
@@ -1008,7 +1059,7 @@ const VatTuForm = ({ history, match, permission }) => {
               >
                 <Input
                   placeholder="Số hóa đơn"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" || type === "duyet" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -1019,7 +1070,7 @@ const VatTuForm = ({ history, match, permission }) => {
                 rules={[]}
               >
                 <DatePicker
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" || type === "duyet" ? false : true}
                   format={"DD/MM/YYYY"}
                   onChange={(date, dateString) => {
                     if (dateString === "") {
@@ -1058,7 +1109,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" || type === "duyet" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -1074,7 +1125,7 @@ const VatTuForm = ({ history, match, permission }) => {
               >
                 <Input
                   placeholder="Nội dụng nhập vật tư"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" || type === "duyet" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -1143,7 +1194,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "new" || type === "duyet" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -1184,14 +1235,7 @@ const VatTuForm = ({ history, match, permission }) => {
           pagination={false}
           // loading={loading}
         />
-        {type === "edit" && info.tinhTrang === "Chưa xử lý" ? (
-          // <FormSubmit
-          //   goBack={goBack}
-          //   handleSave={saveAndClose}
-          //   saveAndClose={saveAndClose}
-          //   disabled={fieldTouch}
-          //   content={"Duyệt"}
-          // />
+        {type === "duyet" && info.tinhTrang === "Chưa xử lý" ? (
           <>
             <Divider />
             <Row style={{ marginTop: 20 }}>

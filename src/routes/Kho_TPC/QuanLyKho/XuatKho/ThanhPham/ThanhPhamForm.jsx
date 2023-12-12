@@ -371,11 +371,34 @@ const ThanhPhamForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = ListSanPham.filter(
-      (d) => d.chiTietKho_Id !== item.chiTietKho_Id
-    );
-    setFieldTouch(true);
-    setListSanPham(newData);
+    if (type === "edit" && info.isDuyet) {
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `lkn_PhieuXuatKhoThanhPham/sau-duyet/${item.id}`,
+            "DELETE",
+            null,
+            "DELETE",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (res.status !== 409) {
+            getInfo(id);
+            setFieldTouch(false);
+          }
+        })
+        .catch((error) => console.error(error));
+    } else {
+      const newData = ListSanPham.filter(
+        (d) => d.chiTietKho_Id !== item.chiTietKho_Id
+      );
+      setFieldTouch(true);
+      setListSanPham(newData);
+    }
   };
 
   /**
@@ -443,10 +466,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       }
     });
     const disable =
-      (item.ke_Id &&
-        item.tang_Id &&
-        item.ngan_Id &&
-        (type === "new" || type === "edit")) ||
+      (item.ngan_Id && (type === "new" || type === "edit")) ||
       (!item.ke_Id && (type === "new" || type === "edit"))
         ? false
         : true;
@@ -467,67 +487,141 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       </>
     );
   };
-  let colValues = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      width: 45,
-      align: "center",
-    },
-    {
-      title: "Vị trí",
-      // dataIndex: "tenKe",
-      key: "tenKe",
-      align: "center",
-      render: (val) => (
-        <span>{val.tenNgan ? val.tenNgan : val.ke ? val.ke : val.tenKho}</span>
-      ),
-    },
-    {
-      title: "Mã sản phẩm",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
-      align: "center",
-    },
-    {
-      title: "Tên sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
-      align: "center",
-    },
-    {
-      title: "Lot",
-      dataIndex: "soLot",
-      key: "soLot",
-      align: "center",
-    },
-    {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
-      align: "center",
-    },
-    {
-      title: "Màu sắc",
-      dataIndex: "tenMauSac",
-      key: "tenMauSac",
-      align: "center",
-    },
-    {
-      title: "Số lượng",
-      key: "soLuongXuat",
-      align: "center",
-      render: (record) => rendersoLuong(record),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-    },
-  ];
+  const XacNhanEdit = (data) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuXuatKhoThanhPham/sau-duyet/${data.id}`,
+          "PUT",
+          {
+            id: data.id,
+            lkn_ChiTietKhoThanhPham_Id: data.lkn_ChiTietKhoThanhPham_Id,
+            soLuongXuat: data.soLuongXuat,
+          },
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          getInfo(id);
+          setFieldTouch(false);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const prop2 = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận chỉnh sửa",
+  };
+  const modalEdit = (val) => {
+    Modal({
+      ...prop2,
+      onOk: () => {
+        XacNhanEdit(val);
+      },
+    });
+  };
+  let colValues = () => {
+    const col = [
+      {
+        title: "STT",
+        dataIndex: "key",
+        key: "key",
+        width: 45,
+        align: "center",
+      },
+      {
+        title: "Vị trí",
+        // dataIndex: "tenKe",
+        key: "tenKe",
+        align: "center",
+        render: (val) => (
+          <span>
+            {val.tenNgan ? val.tenNgan : val.tenKe ? val.tenKe : val.tenKho}
+          </span>
+        ),
+      },
+      {
+        title: "Mã sản phẩm",
+        dataIndex: "maSanPham",
+        key: "maSanPham",
+        align: "center",
+      },
+      {
+        title: "Tên sản phẩm",
+        dataIndex: "tenSanPham",
+        key: "tenSanPham",
+        align: "center",
+      },
+      {
+        title: "Lot",
+        dataIndex: "soLot",
+        key: "soLot",
+        align: "center",
+      },
+      {
+        title: "Đơn vị tính",
+        dataIndex: "tenDonViTinh",
+        key: "tenDonViTinh",
+        align: "center",
+      },
+      {
+        title: "Màu sắc",
+        dataIndex: "tenMauSac",
+        key: "tenMauSac",
+        align: "center",
+      },
+      {
+        title: "Số lượng",
+        key: "soLuongXuat",
+        align: "center",
+        render: (record) => rendersoLuong(record),
+      },
+      {
+        title: "Chức năng",
+        key: "action",
+        align: "center",
+        width: 80,
+        render: (value) => actionContent(value),
+      },
+    ];
+    if (type === "edit" && info.isDuyet) {
+      return [
+        {
+          title: "Chỉnh sửa",
+          key: "edit",
+          align: "center",
+          width: 80,
+          render: (val) => {
+            return (
+              <Button
+                style={{ margin: 0 }}
+                disabled={
+                  (val.ngan_Id && type === "edit") ||
+                  (!val.ke_Id && type === "edit")
+                    ? false
+                    : true
+                }
+                type="primary"
+                onClick={() => modalEdit(val)}
+              >
+                Lưu
+              </Button>
+            );
+          },
+        },
+        ...col,
+      ];
+    } else {
+      return col;
+    }
+  };
   const components = {
     body: {
       row: EditableRow,
@@ -535,7 +629,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     },
   };
 
-  const columns = map(colValues, (col) => {
+  const columns = map(colValues(), (col) => {
     if (!col.editable) {
       return col;
     }
@@ -571,7 +665,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
 
   const saveData = (nhapkho, saveQuit = false) => {
     if (type === "new") {
-      console.log(nhapkho);
       const newData = {
         ...nhapkho,
         chiTiet_PhieuXuatKhoThanhPhams: ListSanPham,
@@ -657,7 +750,20 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     type === "new" ? (
       "Tạo phiếu xuất kho thành phẩm "
     ) : type === "edit" ? (
-      "Chỉnh sửa phiếu xuất kho thành phẩm"
+      <span>
+        Chỉnh sửa phiếu xuất kho thành phẩm -{" "}
+        <Tag
+          color={
+            info && info.tinhTrang === "Đã duyệt"
+              ? "green"
+              : info && info.tinhTrang === "Chưa duyệt"
+              ? "blue"
+              : "red"
+          }
+        >
+          {info.maPhieuXuatKhoThanhPham} - {info.tinhTrang}
+        </Tag>
+      </span>
     ) : type === "detail" ? (
       <span>
         Chi tiết phiếu xuất kho thành phẩm -{" "}
@@ -955,7 +1061,8 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           rowClassName={"editable-row"}
           pagination={false}
         />
-        {type === "new" || type === "edit" ? (
+        {type === "new" ||
+        (type === "edit" && info.tinhTrang === "Chưa duyệt") ? (
           <FormSubmit
             goBack={goBack}
             handleSave={saveAndClose}

@@ -112,7 +112,10 @@ function ImportKeHoach({ match, permission, history }) {
         if (res && res.data) {
           const xuong = [];
           res.data.forEach((x) => {
-            if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+            if (
+              x.tenPhongBan.toLowerCase().includes("xưởng") ||
+              x.tenPhongBan.toLowerCase().includes("kho")
+            ) {
               xuong.push(x);
             }
           });
@@ -706,11 +709,11 @@ function ImportKeHoach({ match, permission, history }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Xưởng sản xuất:</h5>
+            <h5>Xưởng/Kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={listXuong ? listXuong : []}
-              placeholder="Chọn xưởng"
+              placeholder="Chọn xưởng/kho"
               optionsvalue={["id", "tenPhongBan"]}
               style={{ width: "100%" }}
               onSelect={hanldeSelectXuong}
