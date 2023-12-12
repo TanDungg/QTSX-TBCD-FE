@@ -211,24 +211,21 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
         if (res && res.data) {
           const data = res.data;
           setInfo(data);
-
-          const chiTiet =
-            data.chiTiet_NhanHangs &&
-            JSON.parse(data.chiTiet_NhanHangs).map((data) => {
-              return {
-                ...data,
-                soLuongCu: data.soLuong,
-              };
-            });
-          setListVatTu(chiTiet);
-
           setFieldsValue({
             phieukiemke: {
               ...data,
               ngay: moment(data.ngay, "DD/MM/YYYY"),
-              isLoaiPhieu: data.isLoaiPhieu.toString(),
             },
           });
+
+          const listHDKK =
+            data.list_HoiDongKiemKe && JSON.parse(data.list_HoiDongKiemKe);
+          setListHoiDongKiemKe(listHDKK);
+
+          const chiTiet =
+            data.tits_qtsx_PhieuKiemKeChiTiets &&
+            JSON.parse(data.tits_qtsx_PhieuKiemKeChiTiets);
+          setListVatTu(chiTiet);
         }
       })
       .catch((error) => console.error(error));
@@ -363,12 +360,6 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
-      align: "center",
-    },
-    {
-      title: "Loại vật tư",
-      dataIndex: "tenLoaiVatTu",
-      key: "tenLoaiVatTu",
       align: "center",
     },
     {

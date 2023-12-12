@@ -240,12 +240,6 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
       align: "center",
     },
     {
-      title: "Loại vật tư",
-      dataIndex: "tenLoaiVatTu",
-      key: "tenLoaiVatTu",
-      align: "center",
-    },
-    {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
@@ -338,12 +332,6 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
-      align: "center",
-    },
-    {
-      title: "Loại vật tư",
-      dataIndex: "tenLoaiVatTu",
-      key: "tenLoaiVatTu",
       align: "center",
     },
     {
