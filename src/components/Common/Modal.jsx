@@ -4,7 +4,7 @@ import PropTypes from "prop-types";
 
 const { confirm } = ModalAnt;
 
-export default function Modal(props) {
+export default function Modal(props, val) {
   if (props.type === "confirm") {
     return confirm({
       okText: "Xác nhận",

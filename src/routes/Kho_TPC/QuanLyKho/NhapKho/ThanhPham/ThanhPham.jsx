@@ -138,10 +138,10 @@ function ThanhPham({ match, history, permission }) {
     //     </span>
     //   );
     const editItem =
-      permission &&
-      permission.edit &&
-      moment(getDateNow(-2), "DD/MM/YYYY") <
-        moment(item.ngayNhap, "DD/MM/YYYY") ? (
+      permission && permission.edit ? (
+        //  &&
+        // moment(getDateNow(-2), "DD/MM/YYYY") <
+        //   moment(item.ngayNhap, "DD/MM/YYYY")
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,

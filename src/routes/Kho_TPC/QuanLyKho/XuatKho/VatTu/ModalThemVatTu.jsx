@@ -15,6 +15,7 @@ function ModalThemVatTu({
   cauTrucKho_Id,
   infoVatTu,
   listVatTu,
+  type,
 }) {
   const [fieldTouch, setFieldTouch] = useState(false);
   const dispatch = useDispatch();
@@ -58,7 +59,7 @@ function ModalThemVatTu({
     })
       .then((res) => {
         if (res && res.data) {
-          if (listVatTu.length > 0) {
+          if (listVatTu.length > 0 && !infoVatTu) {
             const newData = [];
             res.data.forEach((sp) => {
               let check = false;
@@ -126,6 +127,8 @@ function ModalThemVatTu({
                   newDataKey.push(index + 1);
                   newDataViTri.push({
                     ...sp,
+                    ...info,
+                    soLuong: sp.soLuong,
                     viTri: sp.tenNgan
                       ? sp.tenNgan
                       : sp.tenKe
@@ -135,6 +138,8 @@ function ModalThemVatTu({
                   });
                   newData.push({
                     ...sp,
+                    ...info,
+                    soLuong: sp.soLuong,
                     viTri: sp.tenNgan
                       ? sp.tenNgan
                       : sp.tenKe
@@ -163,10 +168,48 @@ function ModalThemVatTu({
                 });
               }
             });
-            setSelectedViTri(newDataViTri);
-            console.log(newData);
-            setSelectedKeys(newDataKey);
-            setListViTri(newData);
+            if (type === "edit") {
+              const dataNew = [];
+              infoVatTu.list_ChiTietLuuKhos.forEach((vt) => {
+                let check = false;
+                newData.forEach((dt) => {
+                  if (
+                    vt.lkn_ChiTietKhoVatTu_Id.toLowerCase() ===
+                    dt.lkn_ChiTietKhoVatTu_Id.toLowerCase()
+                  ) {
+                    dataNew.push({
+                      ...dt,
+                      soLuong: Number(dt.soLuong) + Number(vt.soLuongKho),
+                    });
+                    check = true;
+                  }
+                });
+                if (!check) {
+                  dataNew.push({
+                    ...vt,
+                    vatTu_Id: infoVatTu.vatTu_Id.toLowerCase(),
+                    tenDonViTinh: infoVatTu.tenDonViTinh,
+                    maVatTu: infoVatTu.maVatTu,
+                    tenVatTu: infoVatTu.tenVatTu,
+                    tenNhomVatTu: infoVatTu.tenNhomVatTu,
+                    viTri: vt.tenNgan
+                      ? vt.tenNgan
+                      : vt.tenKe
+                      ? vt.tenKe
+                      : vt.tenKho,
+                    soLuongThucXuat: vt.SoLuong,
+                    soLuong: vt.SoLuong,
+                  });
+                }
+              });
+              setSelectedViTri(dataNew);
+              setSelectedKeys(reDataForTable(dataNew).map((D) => D.key));
+              setListViTri(dataNew);
+            } else {
+              setSelectedViTri(newDataViTri);
+              setSelectedKeys(newDataKey);
+              setListViTri(newData);
+            }
           } else {
             const newData = res.data.map((sp) => {
               return {
@@ -330,12 +373,12 @@ function ModalThemVatTu({
       key: "tenDonViTinh",
       align: "center",
     },
-    {
-      title: "Ghi chú",
-      key: "ghiChu",
-      align: "center",
-      render: (record) => renderGhiChu(record),
-    },
+    // {
+    //   title: "Ghi chú",
+    //   key: "ghiChu",
+    //   align: "center",
+    //   render: (record) => renderGhiChu(record),
+    // },
   ];
 
   const handleSubmit = () => {
@@ -346,6 +389,14 @@ function ModalThemVatTu({
           if (tempArray.length === 0) {
             tempArray.push({
               ...item,
+              ghiChu: values.addVatTu.ghiChu,
+              lkn_ChiTietPhieuXuatKhoVatTu_Id:
+                infoVatTu && infoVatTu.lkn_ChiTietPhieuXuatKhoVatTu_Id,
+              lkn_ChiTietKhoVatTu_Id:
+                infoVatTu && infoVatTu.lkn_ChiTietKhoVatTu_Id,
+              lkn_ChiTietPhieuXuatKhoVatTu_ChiTietKhoVatTu_Id:
+                infoVatTu &&
+                infoVatTu.lkn_ChiTietPhieuXuatKhoVatTu_ChiTietKhoVatTu_Id,
               lkn_ChiTietPhieuDeNghiCapVatTu_Id:
                 infoVatTu && infoVatTu.lkn_ChiTietPhieuDeNghiCapVatTu_Id,
               soLuong:
@@ -355,6 +406,7 @@ function ModalThemVatTu({
               SoLuong: item.soLuong,
               list_ChiTietLuuKhos: [
                 {
+                  ...item,
                   viTri: item.viTri,
                   soLuong: item.soLuongThucXuat,
                   SoLuong: item.soLuongThucXuat,
@@ -371,9 +423,11 @@ function ModalThemVatTu({
                   infoVatTu && infoVatTu.lkn_ChiTietPhieuDeNghiCapVatTu_Id
                     ? infoVatTu.soLuong
                     : null;
+                ta.ghiChu = values.addVatTu.ghiChu;
                 ta.soLuongThucXuat =
                   Number(ta.soLuongThucXuat) + Number(item.soLuongThucXuat);
                 ta.list_ChiTietLuuKhos.push({
+                  ...item,
                   viTri: item.viTri,
                   SoLuong: item.soLuongThucXuat,
                   soLuong: item.soLuongThucXuat,
@@ -384,14 +438,25 @@ function ModalThemVatTu({
             if (!check) {
               tempArray.push({
                 ...item,
+                lkn_ChiTietPhieuXuatKhoVatTu_Id:
+                  infoVatTu && infoVatTu.lkn_ChiTietPhieuXuatKhoVatTu_Id,
+                lkn_ChiTietKhoVatTu_Id:
+                  infoVatTu && infoVatTu.lkn_ChiTietKhoVatTu_Id,
+                lkn_ChiTietPhieuXuatKhoVatTu_ChiTietKhoVatTu_Id:
+                  infoVatTu &&
+                  infoVatTu.lkn_ChiTietPhieuXuatKhoVatTu_ChiTietKhoVatTu_Id,
+                lkn_ChiTietPhieuDeNghiCapVatTu_Id:
+                  infoVatTu && infoVatTu.lkn_ChiTietPhieuDeNghiCapVatTu_Id,
                 soLuong:
                   infoVatTu && infoVatTu.lkn_ChiTietPhieuDeNghiCapVatTu_Id
                     ? infoVatTu.soLuong
                     : null,
                 SoLuong: item.soLuong,
                 soLuongThucXuat: item.soLuongThucXuat,
+                ghiChu: values.addVatTu.ghiChu,
                 list_ChiTietLuuKhos: [
                   {
+                    ...item,
                     viTri: item.viTri,
                     SoLuong: item.soLuongThucXuat,
                     soLuong: item.soLuongThucXuat,
@@ -479,6 +544,9 @@ function ModalThemVatTu({
               onSelect={handleSelectSanPham}
               disabled={infoVatTu}
             />
+          </FormItem>
+          <FormItem label="Ghi chú" name={["addVatTu", "ghiChu"]}>
+            <Input placeholder="Ghi chú"></Input>
           </FormItem>
           {/* <FormItem label="Số lượng trong kho" name={["addVatTu", "soLuong"]}>
             <Input placeholder="Số lượng" disabled={true}></Input>

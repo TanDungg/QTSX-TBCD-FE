@@ -119,22 +119,22 @@ function XuatKhoVatTu({ match, history, permission }) {
           <CheckCircleOutlined />
         </span>
       );
-    // const editItem =
-    //   permission && permission.edit ? (
-    //     <Link
-    //       to={{
-    //         pathname: `${match.url}/${item.id}/chinh-sua`,
-    //         state: { itemData: item },
-    //       }}
-    //       title="Sửa"
-    //     >
-    //       <EditOutlined />
-    //     </Link>
-    //   ) : (
-    //     <span disabled title="Sửa">
-    //       <EditOutlined />
-    //     </span>
-    //   );
+    const editItem =
+      permission && permission.edit ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/chinh-sua`,
+            state: { itemData: item },
+          }}
+          title="Sửa"
+        >
+          <EditOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Sửa">
+          <EditOutlined />
+        </span>
+      );
     const deleteVal =
       permission && permission.del && item.tinhTrang === "Chưa duyệt"
         ? { onClick: () => deleteItemFunc(item) }
@@ -143,8 +143,8 @@ function XuatKhoVatTu({ match, history, permission }) {
       <div>
         {detailItem}
         <Divider type="vertical" />
-        {/* {editItem}
-        <Divider type="vertical" /> */}
+        {editItem}
+        <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
           <DeleteOutlined />
         </a>
@@ -221,7 +221,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 120,
+      width: 100,
       render: (value) => actionContent(value),
     },
     {
@@ -235,6 +235,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       title: "Mã phiếu xuất",
       key: "maPhieuXuatKhoVatTu",
       align: "center",
+      width: 150,
       render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
@@ -264,7 +265,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Mã phiếu đề nghị cấp vật tư",
+      title: "Phiếu đề nghị cấp vật tư",
       dataIndex: "maPhieuDeNghiCapVatTu",
       key: "maPhieuDeNghiCapVatTu",
       align: "center",
@@ -315,6 +316,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       title: "Ngày xuất kho",
       dataIndex: "ngayTao",
       key: "ngayTao",
+      width: 150,
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
@@ -332,6 +334,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       dataIndex: "tinhTrang",
       key: "tinhTrang",
       align: "center",
+      width: 120,
       render: (val) => {
         return (
           <Tag

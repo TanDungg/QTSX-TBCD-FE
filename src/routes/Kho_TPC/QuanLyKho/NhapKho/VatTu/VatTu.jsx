@@ -313,7 +313,7 @@ function VatTu({ match, history, permission }) {
   const addButtonRender = () => {
     return (
       <>
-        {/* <Button
+        <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -321,7 +321,7 @@ function VatTu({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
-        </Button> */}
+        </Button>
         <Button
           icon={<PrinterOutlined />}
           className="th-margin-bottom-0"
