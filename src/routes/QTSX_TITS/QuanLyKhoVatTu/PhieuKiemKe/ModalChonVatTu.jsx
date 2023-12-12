@@ -23,9 +23,10 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
   const [form] = Form.useForm();
   const { resetFields, setFieldsValue } = form;
   const [ListKhoVatTuDi, setListKhoVatTuDi] = useState([]);
-  const [ListVatPham, setListVatPham] = useState([]);
-  const [ListViTriKho, setListViTriKho] = useState([]);
-  const [DataListVatPham, setDataListVatPham] = useState([]);
+  const [ListVatTuDefault, setListVatTuDefault] = useState([]);
+  const [ListVatTu, setListVatTu] = useState([]);
+  const [VatTu, setVatTu] = useState([]);
+  const [DataListVatTu, setDataListVatTu] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
 
   useEffect(() => {
@@ -33,10 +34,10 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
       getListKho();
       setFieldsValue({
         themvattu: {
-          tits_qtsx_CauTrucKhoBegin_Id: itemData.tits_qtsx_CauTrucKhoBegin_Id,
+          tits_qtsx_CauTrucKho_Id: itemData.tits_qtsx_CauTrucKho_Id,
         },
       });
-      getListViTriKho(itemData.tits_qtsx_CauTrucKhoBegin_Id);
+      getListViTriKho(itemData.tits_qtsx_CauTrucKho_Id);
     }
     return () => {
       dispatch(fetchReset());
@@ -68,15 +69,14 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
       .catch((error) => console.error(error));
   };
 
-  const getListViTriKho = (tits_qtsx_CauTrucKho_Id, tits_qtsx_VatTu_Id) => {
+  const getListViTriKho = (tits_qtsx_CauTrucKho_Id) => {
     const params = convertObjectToUrlParams({
       tits_qtsx_CauTrucKho_Id,
-      tits_qtsx_VatTu_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_ViTriLuuKhoVatTu/vat-pham-by-kho?${params}`,
+          `tits_qtsx_ViTriLuuKhoVatTu/vat-tu-by-kho?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -87,80 +87,89 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        if (!tits_qtsx_VatTu_Id) {
-          const newVatTu = res.data.map((data) => {
+        const newData = res.data
+          .map((data) => {
+            const vatTu = `${data.maVatTu} - ${data.tenVatTu}`;
             return {
               ...data,
-              vatPham: `${data.maVatPham} - ${data.tenVatPham}`,
+              vatTu: vatTu,
             };
-          });
-          setListVatPham(newVatTu);
-        } else {
-          const newListViTri = res.data.map((data) => {
-            const vitri = `${data.maKe ? `${data.maKe}` : ""}${
-              data.maTang ? ` - ${data.maTang}` : ""
-            }${data.maNgan ? ` - ${data.maNgan}` : ""}`;
-            return {
-              ...data,
-              viTri: vitri ? vitri : null,
-              soLuong: data.soLuongTonKho,
-            };
-          });
-          const newData = newListViTri.filter((data) => {
+          })
+          .filter((data) => {
             return (
-              itemData.dataListVatPham &&
-              !itemData.dataListVatPham.some(
-                (item) =>
-                  item.tits_qtsx_ChiTietKhoBegin_Id ===
-                  data.tits_qtsx_ChiTietKhoBegin_Id
+              itemData.DataListVatTu &&
+              !itemData.DataListVatTu.some(
+                (item) => item.tits_qtsx_VatTu_Id === data.tits_qtsx_VatTu_Id
               )
             );
           });
-          setListViTriKho(newData);
-        }
+        setListVatTu(newData);
+        setListVatTuDefault(newData);
       } else {
-        setListViTriKho([]);
+        setListVatTu([]);
+        setListVatTuDefault([]);
+      }
+    });
+  };
+
+  const getVatTu = (tits_qtsx_VatTu_Id) => {
+    const params = convertObjectToUrlParams({
+      tits_qtsx_VatTu_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_ViTriLuuKhoVatTu/get-so-luong-ton-kho-vat-tu?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        const newData = {
+          ...res.data,
+          soLuongTrongKho: res.data.soLuongTonKho,
+          soLuongKiemKe: res.data.soLuongTonKho,
+          danhGiaChatLuong: null,
+          moTa: null,
+        };
+        setVatTu([newData]);
       }
     });
   };
 
   const handleInputChange = (val, item) => {
-    const soLuongDieuChuyen = val.target.value;
-    if (isEmpty(soLuongDieuChuyen) || soLuongDieuChuyen === "0") {
+    const slKiemTra = val.target.value;
+    if (isEmpty(slKiemTra) || Number(slKiemTra) <= 0) {
       setFieldTouch(false);
       setEditingRecord([...editingRecord, item]);
       item.message =
         "Số lượng điều chuyển phải lớn hơn hoặc bằng 0 và bắt buộc";
-    } else if (soLuongDieuChuyen > item.soLuongTonKho) {
-      setFieldTouch(false);
-      item.message = `Số lượng điều chuyển không được lớn hơn ${item.soLuongTonKho}`;
-      setEditingRecord([...editingRecord, item]);
     } else {
       const newData = editingRecord.filter(
-        (d) =>
-          d.tits_qtsx_ChiTietKhoBegin_Id !== item.tits_qtsx_ChiTietKhoBegin_Id
+        (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
       );
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
-    const newData = [...ListViTriKho];
+    const newData = [...VatTu];
     newData.forEach((ct, index) => {
-      if (
-        ct.tits_qtsx_ChiTietKhoBegin_Id === item.tits_qtsx_ChiTietKhoBegin_Id
-      ) {
-        ct.soLuong = soLuongDieuChuyen;
+      if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
+        ct.soLuongKiemKe = slKiemTra;
       }
     });
-    setListVatPham(newData);
+    setListVatTu(newData);
   };
 
-  const renderSoLuongDieuChuyen = (item) => {
+  const renderSoLuongKiemKe = (item) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (
-        ct.tits_qtsx_ChiTietKhoBegin_Id === item.tits_qtsx_ChiTietKhoBegin_Id
-      ) {
+      if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
         isEditing = true;
         message = ct.message;
       }
@@ -175,7 +184,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
           }}
           className={`input-item`}
           type="number"
-          value={item.soLuong}
+          value={item.soLuongKiemKe}
           onChange={(val) => handleInputChange(val, item)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
@@ -183,7 +192,27 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
     );
   };
 
-  const renderMoTa = (item) => {
+  const handleInput = (value, item, key) => {
+    const values = value.target.value;
+    setFieldTouch(true);
+    const newData = [...VatTu];
+    newData.forEach((ct, index) => {
+      if (
+        ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id &&
+        key === "danhGiaChatLuong"
+      ) {
+        ct.danhGiaChatLuong = values;
+      } else if (
+        ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id &&
+        key === "moTa"
+      ) {
+        ct.moTa = values;
+      }
+    });
+    setListVatTu(newData);
+  };
+
+  const renderInput = (item, key) => {
     return (
       <Input
         style={{
@@ -191,44 +220,29 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
           width: "100%",
         }}
         className={`input-item`}
-        value={item.moTa}
-        onChange={(val) => handleMoTa(val, item)}
+        value={item[key]}
+        onChange={(val) => handleInput(val, item, key)}
       />
     );
   };
 
-  const handleMoTa = (value, record) => {
-    const ghichu = value.target.value;
-    setFieldTouch(true);
-    const newData = [...ListViTriKho];
-    newData.forEach((ct, index) => {
-      if (
-        ct.tits_qtsx_ChiTietKhoBegin_Id === record.tits_qtsx_ChiTietKhoBegin_Id
-      ) {
-        ct.moTa = ghichu;
-      }
-    });
-    setListVatPham(newData);
-  };
-
   let colValuesViTri = [
     {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      align: "center",
-      width: 50,
-    },
-    {
       title: "Mã vật tư",
-      dataIndex: "maVatPham",
-      key: "maVatPham",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
       align: "center",
     },
     {
       title: "Tên vật tư",
-      dataIndex: "tenVatPham",
-      key: "tenVatPham",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
+      align: "center",
+    },
+    {
+      title: "Loại vật tư",
+      dataIndex: "tenLoaiVatTu",
+      key: "tenLoaiVatTu",
       align: "center",
     },
     {
@@ -238,22 +252,28 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
       align: "center",
     },
     {
-      title: "Vị trí",
-      dataIndex: "viTri",
-      key: "viTri",
+      title: "SL trong kho",
+      dataIndex: "soLuongTrongKho",
+      key: "soLuongTrongKho",
       align: "center",
     },
     {
-      title: "SL điều chuyển",
-      key: "soLuong",
+      title: "SL kiểm kê",
+      key: "soLuongKiemKe",
       align: "center",
-      render: (record) => renderSoLuongDieuChuyen(record),
+      render: (record) => renderSoLuongKiemKe(record),
     },
     {
-      title: "Mô tả",
+      title: "Đánh giá",
+      key: "danhGiaChatLuong",
+      align: "center",
+      render: (record) => renderInput(record, "danhGiaChatLuong"),
+    },
+    {
+      title: "Ghi chú",
       key: "moTa",
       align: "center",
-      render: (record) => renderMoTa(record),
+      render: (record) => renderInput(record, "moTa"),
     },
   ];
 
@@ -285,15 +305,19 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
   };
 
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.tenVatPham, "vật tư");
+    ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, "vật tư");
   };
 
   const deleteItemAction = (item) => {
-    const newData = ListVatPham.filter(
-      (data) =>
-        data.tits_qtsx_ChiTietKhoBegin_Id !== item.tits_qtsx_ChiTietKhoBegin_Id
+    const newData = DataListVatTu.filter(
+      (data) => data.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
     );
-    setListVatPham(newData);
+    setDataListVatTu(newData);
+
+    const newListVattu = ListVatTuDefault.filter(
+      (data) => data.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id
+    );
+    setListVatTu([...ListVatTu, ...newListVattu]);
   };
 
   let colValues = [
@@ -306,14 +330,20 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
     },
     {
       title: "Mã vật tư",
-      dataIndex: "maVatPham",
-      key: "maVatPham",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
       align: "center",
     },
     {
       title: "Tên vật tư",
-      dataIndex: "tenVatPham",
-      key: "tenVatPham",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
+      align: "center",
+    },
+    {
+      title: "Loại vật tư",
+      dataIndex: "tenLoaiVatTu",
+      key: "tenLoaiVatTu",
       align: "center",
     },
     {
@@ -323,19 +353,25 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
       align: "center",
     },
     {
-      title: "Vị trí",
-      dataIndex: "viTri",
-      key: "viTri",
+      title: "SL trong kho",
+      dataIndex: "soLuongTrongKho",
+      key: "soLuongTrongKho",
       align: "center",
     },
     {
-      title: "SL điều chuyển",
-      dataIndex: "soLuong",
-      key: "soLuong",
+      title: "SL kiểm kê",
+      dataIndex: "soLuongKiemKe",
+      key: "soLuongKiemKe",
       align: "center",
     },
     {
-      title: "Mô tả",
+      title: "Đánh giá",
+      dataIndex: "danhGiaChatLuong",
+      key: "danhGiaChatLuong",
+      align: "center",
+    },
+    {
+      title: "Ghi chú",
       dataIndex: "moTa",
       key: "moTa",
       align: "center",
@@ -373,38 +409,36 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
   });
 
   const onFinish = (value) => {
-    const newData = ListViTriKho.filter((data) => data.soLuong !== 0);
-    setDataListVatPham([...DataListVatPham, ...newData]);
+    setDataListVatTu([...DataListVatTu, ...VatTu]);
     setFieldsValue({
       themvattu: {
-        tits_qtsx_CauTrucKhoBegin_Id: itemData.tits_qtsx_CauTrucKhoBegin_Id,
-        tits_qtsx_VatPham_Id: null,
+        tits_qtsx_CauTrucKho_Id: itemData.tits_qtsx_CauTrucKho_Id,
+        tits_qtsx_VatTu_Id: null,
       },
     });
-    setListViTriKho([]);
-    const newListVatPham = ListVatPham.filter(
-      (data) =>
-        data.tits_qtsx_VatPham_Id !== value.themvattu.tits_qtsx_VatPham_Id
+    setVatTu([]);
+    const newListVatTu = ListVatTu.filter(
+      (data) => data.tits_qtsx_VatTu_Id !== value.themvattu.tits_qtsx_VatTu_Id
     );
+    setListVatTu(newListVatTu);
     setFieldTouch(false);
-    setListVatPham(newListVatPham);
   };
 
   const XacNhan = () => {
-    DataThemVatTu(DataListVatPham);
+    DataThemVatTu(DataListVatTu);
     openModalFS(false);
     resetFields();
-    setDataListVatPham([]);
+    setDataListVatTu([]);
   };
 
-  const SelectViTriKho = (value) => {
-    getListViTriKho(itemData.tits_qtsx_CauTrucKhoBegin_Id, value);
+  const handleSelectVatTu = (value) => {
+    getVatTu(value);
   };
 
   const handleCancel = () => {
-    setListVatPham([]);
-    setListViTriKho([]);
-    setDataListVatPham([]);
+    setListVatTu([]);
+    setVatTu([]);
+    setDataListVatTu([]);
     resetFields();
     openModalFS(false);
   };
@@ -439,7 +473,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
               >
                 <FormItem
                   label="Kho điều chuyển"
-                  name={["themvattu", "tits_qtsx_CauTrucKhoBegin_Id"]}
+                  name={["themvattu", "tits_qtsx_CauTrucKho_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -470,7 +504,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
               >
                 <FormItem
                   label="Vật tư"
-                  name={["themvattu", "tits_qtsx_VatPham_Id"]}
+                  name={["themvattu", "tits_qtsx_VatTu_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -480,13 +514,13 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
                 >
                   <Select
                     className="heading-select slt-search th-select-heading"
-                    data={ListVatPham}
+                    data={ListVatTu}
                     placeholder="Chọn tên vật tư"
-                    optionsvalue={["tits_qtsx_VatPham_Id", "vatPham"]}
+                    optionsvalue={["tits_qtsx_VatTu_Id", "vatTu"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
-                    onSelect={SelectViTriKho}
+                    onSelect={handleSelectVatTu}
                   />
                 </FormItem>
               </Col>
@@ -497,7 +531,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
               scroll={{ x: 1300, y: "55vh" }}
               components={components}
               className="gx-table-responsive"
-              dataSource={reDataForTable(ListViTriKho)}
+              dataSource={VatTu}
               size="small"
               rowClassName={"editable-row"}
               pagination={false}
@@ -519,7 +553,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
             scroll={{ x: 1300, y: "55vh" }}
             components={components}
             className="gx-table-responsive"
-            dataSource={reDataForTable(DataListVatPham)}
+            dataSource={reDataForTable(DataListVatTu)}
             size="small"
             rowClassName={"editable-row"}
             pagination={false}
@@ -531,7 +565,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
               className="th-btn-margin-bottom-0"
               type="primary"
               onClick={XacNhan}
-              disabled={DataListVatPham.length === 0}
+              disabled={DataListVatTu.length === 0}
             >
               Xác nhận
             </Button>

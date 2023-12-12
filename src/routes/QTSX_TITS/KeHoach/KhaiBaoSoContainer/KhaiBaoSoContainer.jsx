@@ -396,7 +396,7 @@ function KhaiBaoSoContainer({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 1000, y: "70vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

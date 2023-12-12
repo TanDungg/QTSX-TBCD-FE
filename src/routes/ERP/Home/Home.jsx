@@ -68,7 +68,7 @@ function Home({ permission, history }) {
     <div className="gx-main-content">
       <ContainerHeader
         title={"Ứng dụng"}
-        description="Ứng dụngn"
+        description="Ứng dụng"
         // buttons={addButtonRender()}
       />
       <Card style={{ minHeight: "77vh" }}>

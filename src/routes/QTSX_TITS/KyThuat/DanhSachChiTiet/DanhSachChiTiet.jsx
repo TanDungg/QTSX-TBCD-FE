@@ -3,7 +3,6 @@ import {
   Card,
   Button,
   Divider,
-  Row,
   Col,
   Modal as AntModal,
   Image,
@@ -409,7 +408,7 @@ function DanhSachChiTiet({ match, history, permission }) {
             <Image
               src={BASE_URL_API + value}
               alt="Hình ảnh"
-              style={{ maxWidth: 100, maxHeight: 100 }}
+              style={{ maxWidth: 50, maxHeight: 50 }}
             />
           </span>
         ),
@@ -515,7 +514,7 @@ function DanhSachChiTiet({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 700, y: "55vh" }}
+          scroll={{ x: 1200, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -538,7 +537,7 @@ function DanhSachChiTiet({ match, history, permission }) {
         title={title}
         className="th-card-reset-margin"
         open={DisabledModal}
-        width={width > 786 ? `80%` : "100%"}
+        width={width > 1200 ? `80%` : "100%"}
         closable={true}
         onCancel={() => setDisabledModal(false)}
         footer={null}

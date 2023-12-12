@@ -76,6 +76,7 @@ function KhoVatTu({ match, history, permission }) {
     setSelectedKeys([]);
     setListVatTuSelected([]);
   };
+
   const getKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -491,7 +492,7 @@ function KhoVatTu({ match, history, permission }) {
           //   };
           // }}
           bordered
-          scroll={{ x: 700, y: "60vh" }}
+          scroll={{ x: 1000, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

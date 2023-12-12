@@ -775,7 +775,7 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
           <Table
             bordered
             columns={columns}
-            scroll={{ x: 900, y: "55vh" }}
+            scroll={{ x: 1400, y: "55vh" }}
             components={components}
             className="gx-table-responsive"
             dataSource={reDataForTable(ListVatTuKiemTra)}

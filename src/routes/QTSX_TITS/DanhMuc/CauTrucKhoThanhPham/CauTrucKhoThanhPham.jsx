@@ -594,7 +594,7 @@ function CauTrucKhoVatTu({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 700, y: "50vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

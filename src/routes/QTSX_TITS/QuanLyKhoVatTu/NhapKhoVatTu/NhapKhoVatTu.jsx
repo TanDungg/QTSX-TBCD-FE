@@ -659,7 +659,15 @@ function NhapKhoVatTu({ match, history, permission }) {
               allowClear={false}
             />
           </Col>
-          <Col xl={6} lg={24} md={24} xs={24}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Tìm kiếm:</h5>
             <Toolbar
               count={1}
@@ -686,7 +694,7 @@ function NhapKhoVatTu({ match, history, permission }) {
             selectedRowKeys: selectedKeys,
           }}
           bordered
-          scroll={{ x: 700, y: "55vh" }}
+          scroll={{ x: 1200, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

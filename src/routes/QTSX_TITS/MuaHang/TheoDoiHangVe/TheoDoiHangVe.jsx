@@ -134,7 +134,7 @@ function TheoDoiHangVe({ history, permission }) {
       key: "maVatTu",
       align: "center",
       width: 130,
-      fixed: "left",
+      // fixed: "left",
       filters: removeDuplicates(
         map(data, (d) => {
           return {
@@ -152,7 +152,7 @@ function TheoDoiHangVe({ history, permission }) {
       key: "tenVatTu",
       align: "center",
       width: 180,
-      fixed: "left",
+      // fixed: "left",
       filters: removeDuplicates(
         map(data, (d) => {
           return {
