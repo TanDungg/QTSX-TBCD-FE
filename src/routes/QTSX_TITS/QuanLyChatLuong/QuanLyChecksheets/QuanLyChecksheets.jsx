@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Tag, Col, Row, Checkbox } from "antd";
+import { Card, Button, Divider, Tag, Col, Row, Checkbox, Image } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -387,15 +387,16 @@ function QuanLyChecksheets({ match, history, permission }) {
       dataIndex: "file",
       key: "file",
       align: "center",
-      render: (val) => (
-        <a
-          href={`${BASE_URL_API}${val}`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          {val && val.split("/")[5]}
-        </a>
-      ),
+      render: (value) =>
+        value && (
+          <span>
+            <Image
+              src={BASE_URL_API + value}
+              alt="Hình ảnh"
+              style={{ maxWidth: 50, maxHeight: 50 }}
+            />
+          </span>
+        ),
     },
     {
       title: "Sử dụng",
@@ -582,7 +583,7 @@ function QuanLyChecksheets({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 1200, y: "70vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

@@ -307,7 +307,7 @@ function ChucVu({ history, permission }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 600, y: "55vh" }}
+          scroll={{ x: 700, y: "50vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}

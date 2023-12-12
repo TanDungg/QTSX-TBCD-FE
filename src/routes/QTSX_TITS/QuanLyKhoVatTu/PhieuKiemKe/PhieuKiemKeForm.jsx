@@ -1,26 +1,22 @@
-import {
-  DeleteOutlined,
-  PlusCircleOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import {
   Card,
   Form,
   Input,
   Row,
   Col,
+  DatePicker,
   Button,
   Tag,
-  Upload,
-  DatePicker,
+  Modal as AntModal,
+  Divider,
 } from "antd";
 import { includes, isEmpty, map } from "lodash";
-import Helpers from "src/helpers";
+import Helper from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { BASE_URL_API } from "src/constants/Config";
 import {
   FormSubmit,
   Select,
@@ -36,33 +32,38 @@ import {
   getLocalStorage,
   getTokenInfo,
   reDataForTable,
-  renderPDF,
 } from "src/util/Common";
-import Helper from "src/helpers";
 import ModalChonVatTu from "./ModalChonVatTu";
+import ModalChonHoiDongKiemKe from "./ModalChonHoiDongKiemKe";
+import { useSelector } from "react-redux";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 
-const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
+const PhieuKiemKeForm = ({ history, match, permission }) => {
+  const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = {
     ...getLocalStorage("menu"),
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const [type, setType] = useState("");
-  const [id, setId] = useState(undefined);
-  const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
+  const [type, setType] = useState("new");
+  const [fieldTouch, setFieldTouch] = useState(false);
   const [ListVatTu, setListVatTu] = useState([]);
-  const [ListNhaCungCap, setListNhaCungCap] = useState([]);
-  const [ListUserKy, setListUserKy] = useState([]);
-  const [disableUpload, setDisableUpload] = useState(false);
-  const [File, setFile] = useState(null);
-  const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(false);
+  const [ListUser, setListUser] = useState([]);
+  const [ListKho, setListKho] = useState([]);
+  const [ListNguoiKiemKe, setListNguoiKiemKe] = useState([]);
+  const [Kho, setKho] = useState(null);
   const [editingRecord, setEditingRecord] = useState([]);
+  const [ActiveModalHoiDongKiemKe, setActiveModalHoiDongKiemKe] =
+    useState(false);
+  const [ListHoiDongKiemKe, setListHoiDongKiemKe] = useState([]);
+  const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(false);
+  const [ActiveModalHDKK, setActiveModalHDKK] = useState(false);
+  const [id, setId] = useState(undefined);
   const [info, setInfo] = useState({});
 
   useEffect(() => {
@@ -70,13 +71,12 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
           setType("new");
-          getListNhaCungCap();
-          getUserKy(INFO);
+          getUserLap();
+          getListKho();
+          getListNguoiKiemKe(INFO);
           setFieldsValue({
-            phieumuahangnoibo: {
-              ngayTaoPhieu: moment(getDateNow(), "DD/MM/YYYY"),
-              benMua:
-                "CÔNG TY TNHH SẢN XUẤT SƠ MI RƠ MOÓC VÀ CẤU KIỆN NẶNG THACO INDUSTRIES",
+            phieukiemke: {
+              ngay: moment(getDateNow(), "DD/MM/YYYY"),
             },
           });
         } else if (permission && !permission.add) {
@@ -87,9 +87,8 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           setType("edit");
           const { id } = match.params;
           setId(id);
+          getListNguoiKiemKe(INFO);
           getInfo(id);
-          getListNhaCungCap();
-          getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -98,9 +97,8 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           setType("detail");
           const { id } = match.params;
           setId(id);
-          getInfo(id, true);
-          getListNhaCungCap();
-          getUserKy(INFO);
+          getListNguoiKiemKe(INFO);
+          getInfo(id);
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -111,11 +109,15 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListNhaCungCap = () => {
+  const getUserLap = (nguoiTao_Id) => {
+    const params = convertObjectToUrlParams({
+      id: nguoiTao_Id ? nguoiTao_Id : INFO.user_Id,
+      donVi_Id: INFO.donVi_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_NhaCungCap?page=-1`,
+          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : INFO.user_Id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -126,14 +128,43 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListNhaCungCap(res.data);
+        setListUser([res.data]);
+        setFieldsValue({
+          phieukiemke: {
+            nguoiTao_Id: res.data.Id,
+            tenPhongBan: res.data.tenPhongBan,
+          },
+        });
       } else {
-        setListNhaCungCap([]);
       }
     });
   };
 
-  const getUserKy = (info) => {
+  const getListKho = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=false`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListKho(res.data);
+        } else {
+          setListKho([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListNguoiKiemKe = (info) => {
     const params = convertObjectToUrlParams({
       donviId: info.donVi_Id,
     });
@@ -151,9 +182,9 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserKy(res.data);
+        setListNguoiKiemKe(res.data);
       } else {
-        setListUserKy([]);
+        setListNguoiKiemKe([]);
       }
     });
   };
@@ -162,11 +193,11 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
    * Lấy thông tin
    *
    */
-  const getInfo = (id, check) => {
+  const getInfo = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuMuaHangNoiBo/${id}`,
+          `tits_qtsx_PhieuKiemKe/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -178,37 +209,30 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          const newData = res.data;
-          setInfo(newData);
+          const data = res.data;
+          setInfo(data);
 
-          const vattu =
-            newData.tits_qtsx_PhieuMuaHangNoiBoChiTiets &&
-            JSON.parse(newData.tits_qtsx_PhieuMuaHangNoiBoChiTiets).map(
-              (data) => {
-                return {
-                  ...data,
-                  thanhTien: data.soLuong * data.donGia,
-                };
-              }
-            );
-          setListVatTu(vattu);
-
-          if (newData.file) {
-            setFile(newData.file);
-            setDisableUpload(true);
-          }
+          const chiTiet =
+            data.chiTiet_NhanHangs &&
+            JSON.parse(data.chiTiet_NhanHangs).map((data) => {
+              return {
+                ...data,
+                soLuongCu: data.soLuong,
+              };
+            });
+          setListVatTu(chiTiet);
 
           setFieldsValue({
-            phieumuahangnoibo: {
-              ...newData,
-              ngayTaoPhieu: moment(newData.ngayYeuCau, "DD/MM/YYYY"),
+            phieukiemke: {
+              ...data,
+              ngay: moment(data.ngay, "DD/MM/YYYY"),
+              isLoaiPhieu: data.isLoaiPhieu.toString(),
             },
           });
         }
       })
       .catch((error) => console.error(error));
   };
-
   /**
    * Quay lại trang bộ phận
    *
@@ -220,7 +244,9 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           ? "/them-moi"
           : type === "edit"
           ? `/${id}/chinh-sua`
-          : `/${id}/chi-tiet`,
+          : type === "detail"
+          ? `/${id}/chi-tiet`
+          : `/${id}/xac-nhan`,
         ""
       )}`
     );
@@ -246,9 +272,6 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
     const newData = ListVatTu.filter(
       (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
     );
-    if (newData.length !== 0) {
-      setFieldTouch(true);
-    }
     setListVatTu(newData);
   };
 
@@ -260,7 +283,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
    */
   const actionContent = (item) => {
     const deleteItemVal =
-      permission && permission.del && type !== "detail"
+      permission && permission.del && (type === "new" || type === "edit")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -275,11 +298,11 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
   };
 
   const handleInputChange = (val, item) => {
-    const soLuong = val.target.value;
-    if (isEmpty(soLuong) || Number(soLuong) <= 0) {
+    const slKiemKe = val.target.value;
+    if (isEmpty(slKiemKe) || Number(slKiemKe) <= 0) {
       setFieldTouch(false);
       setEditingRecord([...editingRecord, item]);
-      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+      item.message = "Số lượng nhận phải là số lớn hơn 0 và bắt buộc";
     } else {
       const newData = editingRecord.filter(
         (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
@@ -290,14 +313,13 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
     const newData = [...ListVatTu];
     newData.forEach((ct, index) => {
       if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
-        ct.soLuong = soLuong;
-        ct.thanhTien = soLuong * ct.donGia;
+        ct.soLuong = slKiemKe;
       }
     });
     setListVatTu(newData);
   };
 
-  const rendersoLuong = (item) => {
+  const renderSoLuongKiemKe = (item) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
@@ -315,15 +337,14 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           }}
           className={`input-item`}
           type="number"
-          value={item.soLuong}
-          disabled={type === "detail" ? true : false}
+          value={item.soLuongKiemKe}
+          disabled={type === "new" || type === "edit" ? false : true}
           onChange={(val) => handleInputChange(val, item)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
       </>
     );
   };
-
   let colValues = [
     {
       title: "STT",
@@ -357,33 +378,27 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Đơn hàng",
-      dataIndex: "maPhieu",
-      key: "maPhieu",
+      title: "SL trong kho",
+      dataIndex: "soLuongTrongKho",
+      key: "soLuongTrongKho",
       align: "center",
     },
     {
-      title: "Số lượng",
-      key: "soLuong",
+      title: "SL kiểm kê",
+      key: "soLuongKiemKe",
       align: "center",
-      render: (record) => rendersoLuong(record),
+      render: (record) => renderSoLuongKiemKe(record),
     },
     {
-      title: "Ngày yêu cầu giao",
-      dataIndex: "ngay",
-      key: "ngay",
-      align: "center",
-    },
-    {
-      title: "Đơn giá",
-      dataIndex: "donGia",
-      key: "donGia",
+      title: "Đánh giá",
+      dataIndex: "danhGiaChatLuong",
+      key: "danhGiaChatLuong",
       align: "center",
     },
     {
-      title: "Thành tiền",
-      dataIndex: "thanhTien",
-      key: "thanhTien",
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
       align: "center",
     },
     {
@@ -394,7 +409,6 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       render: (value) => actionContent(value),
     },
   ];
-
   const components = {
     body: {
       row: EditableRow,
@@ -417,22 +431,45 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       }),
     };
   });
+
+  let colValuesHDKK = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 50,
+    },
+    {
+      title: "Họ và tên",
+      dataIndex: "tenNguoiKiemKe",
+      key: "tenNguoiKiemKe",
+      align: "center",
+    },
+    {
+      title: "Chức vụ",
+      dataIndex: "tenChucVu",
+      key: "tenChucVu",
+      align: "center",
+    },
+  ];
+
   /**
    * Khi submit
    *
    * @param {*} values
    */
   const onFinish = (values) => {
-    uploadFile(values.phieumuahangnoibo);
+    saveData(values.phieukiemke);
   };
 
   const saveAndClose = (val) => {
     validateFields()
       .then((values) => {
         if (ListVatTu.length === 0) {
-          Helpers.alertError("Danh sách vật tư rỗng");
+          Helper.alertError("Danh sách vật tư rỗng");
         } else {
-          uploadFile(values.phieumuahangnoibo, val);
+          saveData(values.phieukiemke, val);
         }
       })
       .catch((error) => {
@@ -440,75 +477,26 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       });
   };
 
-  const uploadFile = (phieumuahangnoibo, saveQuit) => {
-    if (type === "new" && phieumuahangnoibo.file) {
-      const formData = new FormData();
-      console.log(phieumuahangnoibo.file.file);
-      formData.append("file", phieumuahangnoibo.file.file);
-      fetch(`${BASE_URL_API}/api/Upload`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: "Bearer ".concat(INFO.token),
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          phieumuahangnoibo.file = data.path;
-          saveData(phieumuahangnoibo, saveQuit);
-        })
-        .catch(() => {
-          console.log("upload failed.");
-        });
-    } else if (
-      type === "edit" &&
-      phieumuahangnoibo.file &&
-      phieumuahangnoibo.file.file
-    ) {
-      const formData = new FormData();
-      formData.append("file", phieumuahangnoibo.file.file);
-      fetch(
-        info.file
-          ? `${BASE_URL_API}/api/Upload?stringPath=${info.file}`
-          : `${BASE_URL_API}/api/Upload`,
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(INFO.token),
-          },
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          phieumuahangnoibo.file = data.path;
-          saveData(phieumuahangnoibo, saveQuit);
-        })
-        .catch(() => {
-          console.log("upload failed.");
-        });
-    } else {
-      saveData(phieumuahangnoibo, saveQuit);
-    }
-  };
-
-  const saveData = (phieumuahangnoibo, saveQuit = false) => {
+  const saveData = (phieukiemke, saveQuit = false) => {
     if (type === "new") {
       const newData = {
-        ...phieumuahangnoibo,
-        ngayTaoPhieu: phieumuahangnoibo.ngayTaoPhieu.format("DD/MM/YYYY"),
-        tits_qtsx_PhieuMuaHangNoiBoChiTiets: ListVatTu.map((dt) => {
+        ...phieukiemke,
+        ngay: phieukiemke.ngay.format("DD/MM/YYYY"),
+        list_HoiDongKiemKe: ListHoiDongKiemKe,
+        tits_qtsx_PhieuKiemKeChiTiets: ListVatTu.map((dt) => {
           return {
             ...dt,
-            soLuong: parseFloat(dt.soLuong),
-            donGia: parseFloat(dt.donGia),
+            soLuongTrongKho:
+              dt.soLuongTrongKho && parseFloat(dt.soLuongTrongKho),
+            soLuongKiemKe: dt.soLuongKiemKe && parseFloat(dt.soLuongKiemKe),
           };
         }),
       };
+      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_PhieuMuaHangNoiBo`,
+            `tits_qtsx_PhieuKiemKe`,
             "POST",
             newData,
             "ADD",
@@ -526,14 +514,13 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               resetFields();
               setFieldTouch(false);
               setListVatTu([]);
+              setListHoiDongKiemKe([]);
+              getUserLap();
               setFieldsValue({
-                phieumuahangnoibo: {
-                  ngayTaoPhieu: moment(getDateNow(), "DD/MM/YYYY"),
-                  benMua:
-                    "CÔNG TY TNHH SẢN XUẤT SƠ MI RƠ MOÓC VÀ CẤU KIỆN NẶNG THACO INDUSTRIES",
+                phieukiemke: {
+                  ngay: moment(getDateNow(), "DD/MM/YYYY"),
                 },
               });
-              setDisableUpload(false);
             }
           } else {
             setFieldTouch(false);
@@ -543,21 +530,16 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
     }
     if (type === "edit") {
       const newData = {
+        ...phieukiemke,
         id: id,
-        ...phieumuahangnoibo,
-        ngayTaoPhieu: phieumuahangnoibo.ngayTaoPhieu.format("DD/MM/YYYY"),
-        tits_qtsx_PhieuMuaHangNoiBoChiTiets: ListVatTu.map((dt) => {
-          return {
-            ...dt,
-            soLuong: parseFloat(dt.soLuong),
-            donGia: parseFloat(dt.donGia),
-          };
-        }),
+        tits_qtsx_PhieuMuaHang_Id: info.tits_qtsx_PhieuMuaHang_Id,
+        ngay: phieukiemke.ngay.format("DD/MM/YYYY"),
+        chiTiet_NhanHangs: ListVatTu,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_PhieuMuaHangNoiBo/${id}`,
+            `tits_qtsx_PhieuKiemKe/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -579,61 +561,37 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
     }
   };
 
-  const DataThemVatTu = (data) => {
-    setListVatTu(data);
+  const hanldeSelectKhoKiemKe = (value) => {
+    setKho(value);
   };
 
-  const props = {
-    accept: ".pdf, .xlsx",
-    beforeUpload: (file) => {
-      const isPDF = file.type === "application/pdf";
-      const isXLSX =
-        file.type ===
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-
-      if (!isPDF && !isXLSX) {
-        Helper.alertError(
-          `${file.name} không phải là file PDF hoặc file Excel`
-        );
-      } else {
-        setFile(file);
-        setDisableUpload(true);
-        return false;
-      }
-    },
-    showUploadList: false,
-    maxCount: 1,
+  const handleChonVatTu = () => {
+    setActiveModalChonVatTu(true);
   };
 
-  const handleViewFile = (file) => {
-    if (file.type === "application/pdf") {
-      renderPDF(file);
-    } else {
+  const handleThemVatTu = (data) => {
+    const newListVatTu = [...ListVatTu, ...data];
+    setListVatTu(newListVatTu);
+    if (type === "edit") {
+      setFieldTouch(true);
     }
+  };
+
+  const handleChonHDKK = (data) => {
+    setListHoiDongKiemKe(data);
+    setFieldTouch(true);
   };
 
   const formTitle =
     type === "new" ? (
-      "Tạo phiếu mua hàng nội bộ "
+      "Tạo phiếu kiểm kê "
     ) : type === "edit" ? (
-      "Chỉnh sửa phiếu mua hàng nội bộ"
+      "Chỉnh sửa phiếu kiểm kê"
     ) : (
       <span>
-        Chi tiết phiếu mua hàng nội bộ -{" "}
-        <Tag color={"blue"} style={{ fontSize: 15 }}>
-          {info && info.maPhieu}
-        </Tag>
-        <Tag
-          color={
-            info && info.tinhTrang === "Chưa xác nhận"
-              ? "orange"
-              : info && info.tinhTrang === "Đã xác nhận"
-              ? "blue"
-              : "red"
-          }
-          style={{ fontSize: 15 }}
-        >
-          {info && info.tinhTrang}
+        Chi tiết phiếu kiểm kê -{" "}
+        <Tag color="blue" style={{ fontSize: "14px" }}>
+          {info.maPhieu}
         </Tag>
       </span>
     );
@@ -641,15 +599,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card
-        className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin đặt hàng"}
-        headStyle={{
-          textAlign: "center",
-          backgroundColor: "#0469B9",
-          color: "#fff",
-        }}
-      >
+      <Card className="th-card-margin-bottom">
         <Form
           {...DEFAULT_FORM_TWO_COL}
           form={form}
@@ -668,8 +618,8 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Tên đơn hàng"
-                name={["phieumuahangnoibo", "tenDonHang"]}
+                label="Người tạo phiếu"
+                name={["phieukiemke", "nguoiTao_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -677,10 +627,12 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                   },
                 ]}
               >
-                <Input
-                  className="input-item"
-                  placeholder="Nhập tên đơn hàng"
-                  disabled={type === "detail" ? true : false}
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListUser ? ListUser : []}
+                  optionsvalue={["Id", "fullName"]}
+                  style={{ width: "100%" }}
+                  disabled={true}
                 />
               </FormItem>
             </Col>
@@ -694,8 +646,62 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Ngày tạo phiếu"
-                name={["phieumuahangnoibo", "ngayTaoPhieu"]}
+                label="Ban/Phòng"
+                name={["phieukiemke", "tenPhongBan"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Input className="input-item" disabled={true} />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Kho kiểm kê"
+                name={["phieukiemke", "tits_qtsx_CauTrucKho_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListKho}
+                  placeholder="Chọn kho kiểm kê"
+                  optionsvalue={["id", "tenCauTrucKho"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  onSelect={hanldeSelectKhoKiemKe}
+                  optionFilterProp="name"
+                  disabled={ListVatTu.length === 0 ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Ngày kiểm kê"
+                name={["phieukiemke", "ngay"]}
                 rules={[
                   {
                     required: true,
@@ -705,7 +711,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 <DatePicker
                   format={"DD/MM/YYYY"}
                   allowClear={false}
-                  disabled={true}
+                  disabled={type === "new" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -719,8 +725,8 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Đơn vị cung cấp"
-                name={["phieumuahangnoibo", "tits_qtsx_NhaCungCap_Id"]}
+                label="Thành viên 2"
+                name={["phieukiemke", "thanhVien2_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -730,100 +736,13 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListNhaCungCap}
-                  placeholder="Chọn đơn vị cung cấp"
-                  optionsvalue={["id", "tenNhaCungCap"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type === "detail" ? true : false}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Địa chỉ"
-                name={["phieumuahangnoibo", "tits_qtsx_NhaCungCap_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListNhaCungCap}
-                  placeholder="Địa chỉ đơn vị cung cấp"
-                  optionsvalue={["id", "diaChi"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Bên mua"
-                name={["phieumuahangnoibo", "benMua"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Input
-                  className="input-item"
-                  placeholder="Nhập bên mua"
-                  disabled={true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Người kiểm tra"
-                name={["phieumuahangnoibo", "nguoiKiemTra_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn người kiểm tra"
+                  data={ListNguoiKiemKe}
+                  placeholder="Chọn thành viên 2"
                   optionsvalue={["user_Id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "detail" ? true : false}
+                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -837,8 +756,8 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Kế toán duyệt"
-                name={["phieumuahangnoibo", "nguoiKeToan_Id"]}
+                label="Thành viên 3"
+                name={["phieukiemke", "thanhVien3_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -848,13 +767,13 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn kế toán duyệt"
+                  data={ListNguoiKiemKe}
+                  placeholder="Chọn thành viên 3"
                   optionsvalue={["user_Id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "detail" ? true : false}
+                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -868,8 +787,8 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Duyệt"
-                name={["phieumuahangnoibo", "nguoiDuyet_Id"]}
+                label="Bộ phận"
+                name={["phieukiemke", "nguoiBoPhan_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -879,13 +798,13 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListUserKy}
-                  placeholder="Chọn người duyệt"
+                  data={ListNguoiKiemKe}
+                  placeholder="Chọn bộ phận"
                   optionsvalue={["user_Id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "detail" ? true : false}
+                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -899,8 +818,8 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Địa chỉ giao hàng"
-                name={["phieumuahangnoibo", "diaChiGiaoHang"]}
+                label="PT bộ phận"
+                name={["phieukiemke", "nguoiPTBoPhan_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -908,10 +827,15 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                   },
                 ]}
               >
-                <Input
-                  className="input-item"
-                  placeholder="Nhập địa điểm giao hàng"
-                  disabled={type === "detail" ? true : false}
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListNguoiKiemKe}
+                  placeholder="Chọn PT bộ phận"
+                  optionsvalue={["user_Id", "fullName"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -925,34 +849,8 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Hình thức thanh toán"
-                name={["phieumuahangnoibo", "hinhThucThanhToan"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Input
-                  className="input-item"
-                  placeholder="Nhập hình thức thanh toán"
-                  disabled={type === "detail" ? true : false}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Ghi chú"
-                name={["phieumuahangnoibo", "moTa"]}
+                label="Nội dung kiểm kê"
+                name={["phieukiemke", "noiDungKiemKe"]}
                 rules={[
                   {
                     type: "string",
@@ -961,8 +859,8 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               >
                 <Input
                   className="input-item"
-                  placeholder="Nhập ghi chú"
-                  disabled={type === "detail" ? true : false}
+                  placeholder="Nhập nội dung kiểm kê"
+                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -975,107 +873,60 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               xs={24}
               style={{ marginBottom: 8 }}
             >
-              <FormItem
-                label="File đính kèm"
-                name={["phieumuahangnoibo", "file"]}
-              >
-                {!disableUpload ? (
-                  <Upload {...props}>
-                    <Button
-                      style={{
-                        marginBottom: 0,
-                      }}
-                      icon={<UploadOutlined />}
-                      disabled={type === "detail"}
-                    >
-                      File đính kèm
-                    </Button>
-                  </Upload>
-                ) : File.name ? (
-                  <span>
-                    <span
-                      style={{
-                        color: "#0469B9",
-                        cursor: "pointer",
-                        whiteSpace: "break-spaces",
-                      }}
-                      onClick={() => handleViewFile(File)}
-                    >
-                      {File.name}{" "}
-                    </span>
-                    <DeleteOutlined
-                      style={{ cursor: "pointer", color: "red" }}
-                      disabled={type === "detail" ? true : false}
-                      onClick={() => {
-                        setFile(null);
-                        setDisableUpload(false);
-                        setFieldTouch(true);
-                        setFieldsValue({
-                          phieumuahangnoibo: {
-                            file: null,
-                          },
-                        });
-                      }}
-                    />
-                  </span>
-                ) : (
-                  <span>
-                    <a
-                      target="_blank"
-                      href={BASE_URL_API + File}
-                      rel="noopener noreferrer"
-                      style={{
-                        whiteSpace: "break-spaces",
-                        wordBreak: "break-all",
-                      }}
-                    >
-                      {File.split("/")[5]}{" "}
-                    </a>
-                    {type !== "detail" && (
-                      <DeleteOutlined
-                        style={{ cursor: "pointer", color: "red" }}
-                        onClick={() => {
-                          setFile(null);
-                          setDisableUpload(false);
-                          setFieldTouch(true);
-                          setFieldsValue({
-                            phieumuahangnoibo: {
-                              file: null,
-                            },
-                          });
-                        }}
-                      />
-                    )}
-                  </span>
+              <FormItem label="Hội đồng kiểm kê">
+                {ListHoiDongKiemKe.length !== 0 && (
+                  <Button
+                    icon={<PlusCircleOutlined />}
+                    className="th-margin-bottom-0"
+                    type="primary"
+                    onClick={() => setActiveModalHDKK(true)}
+                  >
+                    Xem chi tiết
+                  </Button>
+                )}
+                {(type === "new" || type === "edit") && (
+                  <Button
+                    icon={<PlusCircleOutlined />}
+                    className="th-margin-bottom-0"
+                    type="primary"
+                    onClick={() => setActiveModalHoiDongKiemKe(true)}
+                  >
+                    {ListHoiDongKiemKe.length === 0
+                      ? `Thêm hội đồng kiểm kê`
+                      : `Chỉnh sửa hội đồng kiểm kê`}
+                  </Button>
                 )}
               </FormItem>
             </Col>
           </Row>
         </Form>
+        <Divider style={{ marginBottom: 15 }} />
         <Card
           className="th-card-margin-bottom th-card-reset-margin"
-          title={"Thông tin vật tư"}
+          title={"Danh sách vật tư"}
           headStyle={{
             textAlign: "center",
             backgroundColor: "#0469B9",
             color: "#fff",
           }}
         >
-          {type !== "detail" && (
-            <div align={"end"}>
+          {(type === "new" || type === "edit") && (
+            <Row justify={"end"} style={{ padding: "0px 20px 10px 20px" }}>
               <Button
                 icon={<PlusCircleOutlined />}
-                onClick={() => setActiveModalChonVatTu(true)}
+                className="th-margin-bottom-0"
                 type="primary"
+                onClick={handleChonVatTu}
+                disabled={Kho === null ? true : false}
               >
-                Thêm vật tư
+                Chọn vật tư
               </Button>
-            </div>
+            </Row>
           )}
           <Table
             bordered
             columns={columns}
-            scroll={{ x: 1300, y: "55vh" }}
+            scroll={{ x: 900, y: "55vh" }}
             components={components}
             className="gx-table-responsive"
             dataSource={reDataForTable(ListVatTu)}
@@ -1085,23 +936,53 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
             // loading={loading}
           />
         </Card>
+        {type === "new" || type === "edit" ? (
+          <FormSubmit
+            goBack={goBack}
+            handleSave={saveAndClose}
+            saveAndClose={saveAndClose}
+            disabled={fieldTouch}
+          />
+        ) : null}
       </Card>
-      {type !== "detail" ? (
-        <FormSubmit
-          goBack={goBack}
-          handleSave={saveAndClose}
-          saveAndClose={saveAndClose}
-          disabled={fieldTouch && ListVatTu.length !== 0}
-        />
-      ) : null}
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
-        itemData={ListVatTu && ListVatTu}
-        DataThemVatTu={DataThemVatTu}
+        itemData={{
+          tits_qtsx_CauTrucKho_Id: Kho,
+          DataListVatTu: ListVatTu && ListVatTu,
+        }}
+        DataThemVatTu={handleThemVatTu}
       />
+      <ModalChonHoiDongKiemKe
+        openModal={ActiveModalHoiDongKiemKe}
+        openModalFS={setActiveModalHoiDongKiemKe}
+        itemData={ListHoiDongKiemKe}
+        DataChonHDKK={handleChonHDKK}
+      />
+      <AntModal
+        title={`Danh sách hội đồng kiểm kê`}
+        className="th-card-reset-margin"
+        open={ActiveModalHDKK}
+        width={width > 1200 ? `60%` : "80%"}
+        closable={true}
+        onCancel={() => setActiveModalHDKK(false)}
+        footer={null}
+      >
+        <Table
+          bordered
+          columns={colValuesHDKK}
+          scroll={{ x: 700, y: "40vh" }}
+          components={components}
+          className="gx-table-responsive"
+          dataSource={reDataForTable(ListHoiDongKiemKe)}
+          size="small"
+          rowClassName={"editable-row"}
+          pagination={false}
+        />
+      </AntModal>
     </div>
   );
 };
 
-export default PhieuMuaHangNoiBoForm;
+export default PhieuKiemKeForm;

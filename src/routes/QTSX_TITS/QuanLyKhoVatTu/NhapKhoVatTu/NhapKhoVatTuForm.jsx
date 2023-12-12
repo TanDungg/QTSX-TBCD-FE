@@ -977,7 +977,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                     color: "#0469B9",
                     cursor: "pointer",
                     whiteSpace: "break-spaces",
-                    wordBreak: "break-all",
+                    // wordBreak: "break-all",
                   }}
                   onClick={() => renderPDF(FileChungTu[i] && FileChungTu[i])}
                 >
@@ -1126,7 +1126,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               ) : (
                 <FormItem
                   label="Phiếu kiểm tra"
-                  name={["phieunhapkhovattu", "maPhieu"]}
+                  name={["phieunhapkhovattu", "maPhieuKiemTraVatTu"]}
                   rules={[
                     {
                       type: "string",

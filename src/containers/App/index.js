@@ -19,7 +19,7 @@ import SignIn from "../SignIn";
 import InMaQrThongTinVatTu from "src/routes/Kho_TPC/InBarcode/VatTu/InMaQr";
 import InMaQrCauTrucKho from "src/routes/Kho_TPC/InBarcode/CauTrucKho/InMaQr";
 import InMaQrSanPham from "src/routes/Kho_TPC/InBarcode/SanPham/InMaQr";
-
+import InMaQrCodeSoContainer from "src/routes/QTSX_TITS/KeHoach/KhaiBaoSoContainer/InMaQrSoContainer";
 import { setInitUrl } from "src/appRedux/actions/Auth";
 import {
   onLayoutTypeChange,
@@ -300,6 +300,11 @@ const App = () => {
             exact
             path="/in-barcode-kho-tpc/san-pham/inMa"
             component={InMaQrSanPham}
+          />
+          <Route
+            exact
+            path="/ke-hoach-qtsx-tits/khai-bao-so-container/in-ma-Qrcode-SoContainer"
+            component={InMaQrCodeSoContainer}
           />
           <RestrictedRoute
             path={`${match.url}`}

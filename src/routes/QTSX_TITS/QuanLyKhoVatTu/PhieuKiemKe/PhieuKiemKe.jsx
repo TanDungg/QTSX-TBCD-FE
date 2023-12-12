@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  CheckCircleOutlined,
-  DeleteOutlined,
-  CloseCircleOutlined,
-} from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -16,7 +10,6 @@ import {
   EditableTableRow,
   Toolbar,
   Select,
-  Modal,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -29,60 +22,38 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
-import ModalTuChoi from "./ModalTuChoi";
+import { BASE_URL_API } from "src/constants/Config";
+
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
-function ThanhLyVatTu({ match, history, permission }) {
+function PhieuKiemKe({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [ListKho, setListKho] = useState([]);
-  const [Kho, setKho] = useState(null);
-  const [FromDate, setFromDate] = useState(getDateNow(-7));
-  const [ToDate, setToDate] = useState(getDateNow());
-  const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
-  const [IdTuChoi, setIdTuChoi] = useState("");
-
-  const [ActiveModal, setActiveModal] = useState(false);
+  const [ListKho, setListKho] = useState([]);
+  const [Kho, setKho] = useState([]);
+  const [keyword, setKeyword] = useState("");
+  const [TuNgay, setTuNgay] = useState(getDateNow(-7));
+  const [DenNgay, setDenNgay] = useState(getDateNow());
 
   useEffect(() => {
     if (permission && permission.view) {
-      getKho();
+      getListKho();
+      getListData(keyword, Kho, TuNgay, DenNgay, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
-
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListData = (
-    keyword,
-    tits_qtsx_CauTrucKho_Id,
-    ngayBatDau,
-    ngayKetThuc,
-    page
-  ) => {
-    const param = convertObjectToUrlParams({
-      tits_qtsx_CauTrucKho_Id,
-      ngayBatDau,
-      ngayKetThuc,
-      keyword,
-      page,
-      isVatTu: true,
-    });
-    dispatch(
-      fetchStart(`tits_qtsx_PhieuThanhLy?${param}`, "GET", null, "LIST")
-    );
-  };
-
-  const getKho = () => {
+  const getListKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=false`,
           "GET",
           null,
           "DETAIL",
@@ -95,8 +66,6 @@ function ThanhLyVatTu({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListKho(res.data);
-          setKho(res.data[0].id);
-          getListData(keyword, res.data[0].id, FromDate, ToDate, page);
         } else {
           setListKho([]);
         }
@@ -104,55 +73,58 @@ function ThanhLyVatTu({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const onSearchDeNghiMuaHang = () => {
-    getListData(keyword, Kho, FromDate, ToDate, page);
+  /**
+   * Lấy dữ liệu về
+   *
+   */
+  const getListData = (
+    keyword,
+    tits_qtsx_CauTrucKho_Id,
+    tuNgay,
+    denNgay,
+    page
+  ) => {
+    const param = convertObjectToUrlParams({
+      keyword,
+      tits_qtsx_CauTrucKho_Id,
+      tuNgay,
+      denNgay,
+      page,
+    });
+    dispatch(fetchStart(`tits_qtsx_PhieuKiemKe?${param}`, "GET", null, "LIST"));
   };
 
+  /**
+   * Tìm kiếm sản phẩm
+   *
+   */
+  const onSearchPhieuKiemKe = () => {
+    getListData(keyword, Kho, TuNgay, DenNgay, page);
+  };
+
+  /**
+   * Thay đổi keyword
+   *
+   * @param {*} val
+   */
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, Kho, FromDate, ToDate, page);
+      getListData(val.target.value, Kho, TuNgay, DenNgay, page);
     }
   };
 
+  /**
+   * ActionContent: Hành động trên bảng
+   * @param {*} item
+   * @returns View
+   * @memberof ChucNang
+   */
   const actionContent = (item) => {
-    const tuChoiItem =
-      permission &&
-      permission.cof &&
-      item.nguoiDuyet_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
-        <a
-          title="Từ chối"
-          onClick={() => {
-            setIdTuChoi(item.id);
-            setActiveModal(true);
-          }}
-        >
-          <CloseCircleOutlined />
-        </a>
-      ) : (
-        <span disabled title="Từ chối">
-          <CloseCircleOutlined />
-        </span>
-      );
-    const xacNhanItem =
-      permission &&
-      permission.cof &&
-      item.nguoiDuyet_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
-        <a title="Xác nhận" onClick={() => modalXK(item.id)}>
-          <CheckCircleOutlined />
-        </a>
-      ) : (
-        <span disabled title="Xác nhận">
-          <CheckCircleOutlined />
-        </span>
-      );
     const editItem =
       permission &&
       permission.edit &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
+      item.nguoiTaoPhieu_Id === INFO.user_Id ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -167,19 +139,13 @@ function ThanhLyVatTu({ match, history, permission }) {
           <EditOutlined />
         </span>
       );
+
     const deleteVal =
-      permission &&
-      permission.del &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận"
+      permission && permission.del && item.nguoiTaoPhieu_Id === INFO.user_Id
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {xacNhanItem}
-        <Divider type="vertical" />
-        {tuChoiItem}
-        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -189,34 +155,56 @@ function ThanhLyVatTu({ match, history, permission }) {
     );
   };
 
+  /**
+   * deleteItemFunc: Xoá item theo item
+   * @param {object} item
+   * @returns
+   * @memberof VaiTro
+   */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maPhieu, "phiếu thanh lý");
+    ModalDeleteConfirm(deleteItemAction, item, item.maPhieu, "phiếu kiểm kê");
   };
 
+  /**
+   * Xóa item
+   *
+   * @param {*} item
+   */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_PhieuThanhLy/${item.id}`;
+    let url = `tits_qtsx_PhieuKiemKe/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
+        // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(keyword, Kho, FromDate, ToDate, page);
+          getListData(keyword, Kho, TuNgay, DenNgay, page);
         }
       })
       .catch((error) => console.error(error));
   };
 
+  /**
+   * handleTableChange
+   *
+   * Fetch dữ liệu dựa theo thay đổi trang
+   * @param {number} pagination
+   */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(keyword, Kho, FromDate, ToDate, pagination);
+    getListData(keyword, Kho, TuNgay, DenNgay, pagination);
   };
 
+  /**
+   * Chuyển tới trang thêm mới chức năng
+   *
+   * @memberof ChucNang
+   */
   const handleRedirect = () => {
     history.push({
       pathname: `${match.url}/them-moi`,
     });
   };
-
   const addButtonRender = () => {
     return (
       <>
@@ -252,24 +240,16 @@ function ThanhLyVatTu({ match, history, permission }) {
       );
     return <div>{detail}</div>;
   };
-
   let renderHead = [
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 120,
-      render: (value) => actionContent(value),
-    },
     {
       title: "STT",
       dataIndex: "key",
       key: "key",
       align: "center",
-      width: 50,
+      width: 45,
     },
     {
-      title: "Mã phiếu thanh lý",
+      title: "Mã phiếu kiểm kê",
       key: "maPhieu",
       align: "center",
       render: (val) => renderDetail(val),
@@ -285,7 +265,7 @@ function ThanhLyVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Kho thanh lý",
+      title: "Kho kiểm kê",
       dataIndex: "tenCauTrucKho",
       key: "tenCauTrucKho",
       align: "center",
@@ -301,7 +281,23 @@ function ThanhLyVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Ngày thanh lý",
+      title: "Người tạo phiếu",
+      dataIndex: "tenNguoiTao",
+      key: "tenNguoiTao",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiTao,
+            value: d.tenNguoiTao,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenNguoiTao.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Ngày kiểm kê",
       dataIndex: "ngay",
       key: "ngay",
       align: "center",
@@ -317,41 +313,10 @@ function ThanhLyVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Người lập",
-      dataIndex: "tenNguoiTaoPhieu",
-      key: "tenNguoiTaoPhieu",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenNguoiTaoPhieu,
-            value: d.tenNguoiTaoPhieu,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenNguoiTaoPhieu.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Trạng thái",
+      title: "Tình trạng",
       dataIndex: "tinhTrang",
       key: "tinhTrang",
       align: "center",
-      render: (val) => {
-        return (
-          <Tag
-            color={
-              val === "Đã xác nhận"
-                ? "blue"
-                : val === "Đã từ chối"
-                ? "red"
-                : "green"
-            }
-          >
-            {val}
-          </Tag>
-        );
-      },
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -362,6 +327,33 @@ function ThanhLyVatTu({ match, history, permission }) {
       ),
       onFilter: (value, record) => record.tinhTrang.includes(value),
       filterSearch: true,
+      render: (value) => (
+        <div>
+          {value && (
+            <Tag
+              color={
+                value === "Chưa xử lý"
+                  ? "orange"
+                  : value === "Đã duyệt"
+                  ? "blue"
+                  : "red"
+              }
+              style={{
+                fontSize: 13,
+              }}
+            >
+              {value}
+            </Tag>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
     },
   ];
 
@@ -371,7 +363,6 @@ function ThanhLyVatTu({ match, history, permission }) {
       cell: EditableCell,
     },
   };
-
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
@@ -388,88 +379,27 @@ function ThanhLyVatTu({ match, history, permission }) {
     };
   });
 
-  const handleOnSelectKho = (val) => {
-    setKho(val);
+  const handleSelectKho = (value) => {
+    setKho(value);
     setPage(1);
-    getListData(keyword, val, FromDate, ToDate, 1);
-  };
-
-  const handleClearKho = (val) => {
-    setKho("");
-    setPage(1);
-    getListData(keyword, "", FromDate, ToDate, 1);
+    getListData(keyword, value, TuNgay, DenNgay, 1);
   };
 
   const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
+    setTuNgay(dateString[0]);
+    setDenNgay(dateString[1]);
     setPage(1);
     getListData(keyword, Kho, dateString[0], dateString[1], 1);
   };
-  const saveTuChoi = (lyDoNguoiTruongBoPhanTuChoi) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuThanhLy/xac-nhan/${IdTuChoi}`,
-          "PUT",
-          {
-            id: IdTuChoi,
-            isNguoiTruongBoPhanDuyet: false,
-            lyDoNguoiTruongBoPhanTuChoi,
-          },
-          "TUCHOI",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.status !== 409) {
-          setPage(1);
-          getListData(keyword, Kho, FromDate, ToDate, 1);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  const hanldeXacNhan = (id) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuThanhLy/xac-nhan/${id}`,
-          "PUT",
-          { id: id, isNguoiTruongBoPhanDuyet: true },
-          "XACNHAN",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.status !== 409) {
-          setPage(1);
-          getListData(keyword, Kho, FromDate, ToDate, 1);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  const prop = {
-    type: "confirm",
-    okText: "Xác nhận",
-    cancelText: "Hủy",
-    title: "Xác nhận phiếu thanh lý vật tư",
-  };
-  const modalXK = (id) => {
-    Modal({ ...prop, onOk: () => hanldeXacNhan(id) });
-  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Thanh lý vật tư"
-        description="Thanh lý vật tư"
+        title="Phiếu kiểm kê"
+        description="Danh sách phiếu kiểm kê"
         buttons={addButtonRender()}
       />
+
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
           <Col
@@ -490,11 +420,9 @@ function ThanhLyVatTu({ match, history, permission }) {
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectKho}
+              onSelect={handleSelectKho}
               value={Kho}
               onChange={(value) => setKho(value)}
-              allowClear
-              onClear={handleClearKho}
             />
           </Col>
           <Col
@@ -511,12 +439,13 @@ function ThanhLyVatTu({ match, history, permission }) {
               format={"DD/MM/YYYY"}
               onChange={(date, dateString) => handleChangeNgay(dateString)}
               defaultValue={[
-                moment(FromDate, "DD/MM/YYYY"),
-                moment(ToDate, "DD/MM/YYYY"),
+                moment(TuNgay, "DD/MM/YYYY"),
+                moment(DenNgay, "DD/MM/YYYY"),
               ]}
               allowClear={false}
             />
           </Col>
+
           <Col
             xxl={6}
             xl={8}
@@ -533,8 +462,8 @@ function ThanhLyVatTu({ match, history, permission }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchDeNghiMuaHang,
-                onSearch: onSearchDeNghiMuaHang,
+                onPressEnter: onSearchPhieuKiemKe,
+                onSearch: onSearchPhieuKiemKe,
                 allowClear: true,
                 placeholder: "Tìm kiếm",
               }}
@@ -542,10 +471,10 @@ function ThanhLyVatTu({ match, history, permission }) {
           </Col>
         </Row>
       </Card>
-      <Card className="th-card-margin-bottom th-card-reset-margin">
+      <Card className="th-card-margin-bottom">
         <Table
           bordered
-          scroll={{ x: 1000, y: "54vh" }}
+          scroll={{ x: 1200, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -564,13 +493,8 @@ function ThanhLyVatTu({ match, history, permission }) {
           loading={loading}
         />
       </Card>
-      <ModalTuChoi
-        openModal={ActiveModal}
-        openModalFS={setActiveModal}
-        saveTuChoi={saveTuChoi}
-      />
     </div>
   );
 }
 
-export default ThanhLyVatTu;
+export default PhieuKiemKe;

@@ -1,44 +1,43 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Card, Button, Divider, Col, Row, Popover } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  PrinterOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
+import QRCode from "qrcode.react";
 import {
   ModalDeleteConfirm,
   Table,
   EditableTableRow,
   Toolbar,
-  Select,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
-  getDateNow,
-  getLocalStorage,
-  getTokenInfo,
   removeDuplicates,
+  setLocalStorage,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import moment from "moment";
-import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-const { RangePicker } = DatePicker;
 
-function PhieuNhanHang({ match, history, permission }) {
-  const { loading, data } = useSelector(({ common }) => common).toJS();
+function KhaiBaoSoContainer({ match, history, permission }) {
+  const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [FromDate, setFromDate] = useState(getDateNow(-7));
-  const [ToDate, setToDate] = useState(getDateNow());
+  const [selectedSoContainer, setSelectedSoContainer] = useState([]);
+  const [selectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
-      loadData(keyword, FromDate, ToDate, page);
+      getListData(keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -51,24 +50,20 @@ function PhieuNhanHang({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, NgayBatDau, NgayKetThuc, page) => {
+  const getListData = (keyword, page) => {
     const param = convertObjectToUrlParams({
       keyword,
-      NgayBatDau,
-      NgayKetThuc,
       page,
     });
-    dispatch(
-      fetchStart(`tits_qtsx_PhieuNhanHang?${param}`, "GET", null, "LIST")
-    );
+    dispatch(fetchStart(`tits_qtsx_SoContainer?${param}`, "GET", null, "LIST"));
   };
 
   /**
-   * Tìm kiếm sản phẩm
+   * Tìm kiếm người dùng
    *
    */
-  const onSearchPhieuNhanHang = () => {
-    loadData(keyword, FromDate, ToDate, page);
+  const onSearchKhaiBaoSoContainer = () => {
+    getListData(keyword, page);
   };
 
   /**
@@ -79,10 +74,9 @@ function PhieuNhanHang({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, FromDate, ToDate, page);
+      getListData(val.target.value, page);
     }
   };
-
   /**
    * ActionContent: Hành động trên bảng
    * @param {*} item
@@ -91,33 +85,30 @@ function PhieuNhanHang({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const editItem =
-      permission &&
-      permission.edit &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id ? (
+      permission && permission.edit ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
-          title="Sửa"
+          title="Sửa số container"
         >
           <EditOutlined />
         </Link>
       ) : (
-        <span disabled title="Sửa">
+        <span disabled title="Sửa số container">
           <EditOutlined />
         </span>
       );
-
     const deleteVal =
-      permission && permission.del && item.nguoiTaoPhieu_Id === INFO.user_Id
-        ? { onClick: () => deleteItemFunc(item) }
+      permission && permission.del && !item.isUsed
+        ? { onClick: () => deleteItemFunc(item, "số container") }
         : { disabled: true };
     return (
       <div>
         {editItem}
         <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa">
+        <a {...deleteVal} title="Xóa số container">
           <DeleteOutlined />
         </a>
       </div>
@@ -130,8 +121,13 @@ function PhieuNhanHang({ match, history, permission }) {
    * @returns
    * @memberof VaiTro
    */
-  const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maPhieu, "phiếu nhận hàng");
+  const deleteItemFunc = (item, title) => {
+    ModalDeleteConfirm(
+      deleteItemAction,
+      item,
+      item.maKhaiBaoSoContainer,
+      title
+    );
   };
 
   /**
@@ -140,14 +136,14 @@ function PhieuNhanHang({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_PhieuNhanHang?id=${item.id}`;
+    let url = `tits_qtsx_SoContainer/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, FromDate, ToDate, page);
+          getListData(keyword, page);
         }
       })
       .catch((error) => console.error(error));
@@ -161,7 +157,7 @@ function PhieuNhanHang({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, FromDate, ToDate, pagination);
+    getListData(keyword, pagination);
   };
 
   /**
@@ -174,6 +170,7 @@ function PhieuNhanHang({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
+
   const addButtonRender = () => {
     return (
       <>
@@ -184,7 +181,19 @@ function PhieuNhanHang({ match, history, permission }) {
           onClick={handleRedirect}
           disabled={permission && !permission.add}
         >
-          Tạo phiếu
+          Thêm mới
+        </Button>
+        <Button
+          icon={<PrinterOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handlePrint}
+          disabled={
+            (permission && !permission.print) ||
+            selectedSoContainer.length === 0
+          }
+        >
+          In mã QrCode
         </Button>
       </>
     );
@@ -193,22 +202,11 @@ function PhieuNhanHang({ match, history, permission }) {
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
 
-  const renderDetail = (val) => {
-    const detail =
-      permission && permission.view ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${val.id}/chi-tiet`,
-            state: { itemData: val, permission },
-          }}
-        >
-          {val.maPhieu}
-        </Link>
-      ) : (
-        <span disabled>{val.maPhieu}</span>
-      );
-    return <div>{detail}</div>;
+  const handlePrint = () => {
+    setLocalStorage("maQrCodeSoContainer", selectedSoContainer);
+    window.open(`${match.url}/in-ma-Qrcode-SoContainer`, "_blank");
   };
+
   let renderHead = [
     {
       title: "STT",
@@ -218,95 +216,96 @@ function PhieuNhanHang({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu nhận hàng",
-      key: "maPhieu",
+      title: "Mã Qr Code",
+      dataIndex: "id",
+      key: "id",
       align: "center",
-      render: (val) => renderDetail(val),
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.maPhieu,
-            value: d.maPhieu,
-          };
-        })
+      width: 150,
+      render: (value) => (
+        <div id="myqrcode">
+          <Popover content={value}>
+            <QRCode
+              value={value}
+              bordered={false}
+              style={{ width: 50, height: 50 }}
+            />
+          </Popover>
+        </div>
       ),
-      onFilter: (value, record) => record.maPhieu.includes(value),
-      filterSearch: true,
     },
     {
-      title: "Người tạo phiếu",
-      dataIndex: "nguoiTaoPhieu",
-      key: "nguoiTaoPhieu",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.nguoiTaoPhieu,
-            value: d.nguoiTaoPhieu,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.nguoiTaoPhieu.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Mã phiếu mua hàng",
-      dataIndex: "maPhieuMuaHang",
-      key: "maPhieuMuaHang",
+      title: "Số Container",
+      dataIndex: "soContainer",
+      key: "soContainer",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieuMuaHang,
-            value: d.maPhieuMuaHang,
+            text: d.soContainer,
+            value: d.soContainer,
           };
         })
       ),
-      onFilter: (value, record) => record.maPhieuMuaHang.includes(value),
+      onFilter: (value, record) => record.soContainer.includes(value),
       filterSearch: true,
     },
     {
-      title: "Ngày tạo phiếu",
-      dataIndex: "ngayTaoPhieu",
-      key: "ngayTaoPhieu",
+      title: "Số Seal",
+      dataIndex: "soSeal",
+      key: "soSeal",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayTaoPhieu,
-            value: d.ngayTaoPhieu,
+            text: d.soSeal,
+            value: d.soSeal,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayTaoPhieu.includes(value),
+      onFilter: (value, record) => record.soSeal.includes(value),
       filterSearch: true,
     },
     {
-      title: "File đính kèm",
-      dataIndex: "file",
-      key: "file",
+      title: "Dimensions",
+      dataIndex: "dimensions",
+      key: "dimensions",
       align: "center",
-      render: (val) => (
-        <a href={BASE_URL_API + val} target="_blank" rel="noopener noreferrer">
-          {val && val.split("/")[5]}
-        </a>
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.dimensions,
+            value: d.dimensions,
+          };
+        })
       ),
+      onFilter: (value, record) => record.dimensions.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.moTa,
+            value: d.moTa,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.moTa.includes(value),
+      filterSearch: true,
     },
     {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 110,
+      width: 100,
       render: (value) => actionContent(value),
     },
   ];
 
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
@@ -323,73 +322,81 @@ function PhieuNhanHang({ match, history, permission }) {
     };
   });
 
-  const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
-    setPage(1);
-    loadData(keyword, dateString[0], dateString[1], 1);
+  const components = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+
+  const rowSelection = {
+    selectedRowKeys: selectedKeys,
+    selectedRows: selectedSoContainer,
+    onChange: (selectedRowKeys, selectedRows) => {
+      const newSelectedSoContainer = [...selectedRows];
+      const newSelectedKey = [...selectedRowKeys];
+      setSelectedSoContainer(newSelectedSoContainer);
+      setSelectedKeys(newSelectedKey);
+    },
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phiếu nhận hàng"
-        description="Phiếu nhận hàng"
+        title="Khai báo số container"
+        description="Danh sách khai báo số container"
         buttons={addButtonRender()}
       />
-
-      <Card className="th-card-margin-bottom th-card-reset-margin">
+      <Card className="th-card-margin-bottom">
         <Row>
           <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
             xs={24}
-            style={{ marginBottom: 8 }}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginLeft: 10,
+            }}
           >
-            <h5>Ngày:</h5>
-            <RangePicker
-              format={"DD/MM/YYYY"}
-              onChange={(date, dateString) => handleChangeNgay(dateString)}
-              defaultValue={[
-                moment(FromDate, "DD/MM/YYYY"),
-                moment(ToDate, "DD/MM/YYYY"),
-              ]}
-              allowClear={false}
-            />
-          </Col>
-
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Tìm kiếm:</h5>
-            <Toolbar
-              count={1}
-              search={{
-                loading,
-                value: keyword,
-                onChange: onChangeKeyword,
-                onPressEnter: onSearchPhieuNhanHang,
-                onSearch: onSearchPhieuNhanHang,
-                allowClear: true,
-                placeholder: "Tìm kiếm",
+            <span
+              style={{
+                width: "80px",
               }}
-            />
+            >
+              Tìm kiếm:
+            </span>
+            <div
+              style={{
+                flex: 1,
+                alignItems: "center",
+                marginTop: width < 576 ? 10 : 0,
+              }}
+            >
+              <Toolbar
+                count={1}
+                search={{
+                  title: "Tìm kiếm",
+                  loading,
+                  value: keyword,
+                  onChange: onChangeKeyword,
+                  onPressEnter: onSearchKhaiBaoSoContainer,
+                  onSearch: onSearchKhaiBaoSoContainer,
+                  placeholder: "Nhập từ khóa",
+                  allowClear: true,
+                }}
+              />
+            </div>
           </Col>
         </Row>
       </Card>
-      <Card className="th-card-margin-bottom">
+      <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 1200, y: "55vh" }}
+          scroll={{ x: 1000, y: "70vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -406,10 +413,16 @@ function PhieuNhanHang({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            preserveSelectedRowKeys: true,
+            selectedRowKeys: selectedKeys,
+          }}
         />
       </Card>
     </div>
   );
 }
 
-export default PhieuNhanHang;
+export default KhaiBaoSoContainer;

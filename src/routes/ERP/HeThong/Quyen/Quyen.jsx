@@ -265,9 +265,10 @@ function Quyen({ history, permission, location, match }) {
       <Card className="th-card-margin-bottom">
         <Table
           bordered
-          scroll={{ y: "65vh", x: 700 }}
+          scroll={{ y: "65vh", x: 800 }}
           columns={header}
           className="gx-table-responsive"
+          size="small"
           dataSource={flatData}
           pagination={false}
           rowClassName={(record) => {

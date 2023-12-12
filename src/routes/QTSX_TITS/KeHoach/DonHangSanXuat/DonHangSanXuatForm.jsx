@@ -1106,12 +1106,14 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
                 ) : File.name ? (
                   <span>
                     <span
-                      style={{ color: "#0469B9", cursor: "pointer" }}
+                      style={{
+                        color: "#0469B9",
+                        cursor: "pointer",
+                        whiteSpace: "break-spaces",
+                      }}
                       onClick={() => handleViewFile(File)}
                     >
-                      {File.name.length > 20
-                        ? File.name.substring(0, 20) + "..."
-                        : File.name}{" "}
+                      {File.name}{" "}
                     </span>
                     <DeleteOutlined
                       style={{ cursor: "pointer", color: "red" }}
@@ -1151,6 +1153,10 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
                       target="_blank"
                       href={BASE_URL_API + File}
                       rel="noopener noreferrer"
+                      style={{
+                        whiteSpace: "break-spaces",
+                        wordBreak: "break-all",
+                      }}
                     >
                       {File.split("/")[5]}{" "}
                     </a>

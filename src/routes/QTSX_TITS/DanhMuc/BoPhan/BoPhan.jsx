@@ -361,7 +361,7 @@ function BoPhan({ match, permission, history }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 900, y: "55vh" }}
+          scroll={{ x: 700, y: "50vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}

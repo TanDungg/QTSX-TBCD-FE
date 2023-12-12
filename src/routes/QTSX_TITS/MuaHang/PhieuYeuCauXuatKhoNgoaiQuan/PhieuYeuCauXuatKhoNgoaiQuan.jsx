@@ -410,7 +410,7 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
       <Card className="th-card-margin-bottom">
         <Table
           bordered
-          scroll={{ x: 700, y: "55vh" }}
+          scroll={{ x: 1200, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

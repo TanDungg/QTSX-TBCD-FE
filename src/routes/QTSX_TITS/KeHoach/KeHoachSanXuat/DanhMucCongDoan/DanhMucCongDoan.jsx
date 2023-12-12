@@ -524,7 +524,7 @@ function DanhMucCongDoan({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 1200, y: "70vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -544,10 +544,10 @@ function DanhMucCongDoan({ match, history, permission }) {
           expandable={{
             expandedRowRender: (record) => (
               <Table
-                style={{ marginLeft: "80px", width: "94.6%" }}
+                style={{ marginLeft: "50px", width: "94.6%" }}
                 bordered
                 columns={columnsXuong}
-                scroll={{ x: 500 }}
+                scroll={{ x: 900 }}
                 components={components}
                 className="gx-table-responsive th-F1D065-head"
                 dataSource={reDataForTable(record.chiTietXuongs)}
@@ -558,10 +558,10 @@ function DanhMucCongDoan({ match, history, permission }) {
                 expandable={{
                   expandedRowRender: (record) => (
                     <Table
-                      style={{ marginLeft: "80px", width: "94%" }}
+                      style={{ marginLeft: "50px", width: "94%" }}
                       bordered
                       columns={columnsChuyen}
-                      scroll={{ x: 500 }}
+                      scroll={{ x: 900 }}
                       components={components}
                       className="gx-table-responsive th-F1D065-head"
                       dataSource={reDataForTable(record.chiTietChuyens)}
@@ -572,10 +572,10 @@ function DanhMucCongDoan({ match, history, permission }) {
                       expandable={{
                         expandedRowRender: (record) => (
                           <Table
-                            style={{ marginLeft: "80px", width: "93.6%" }}
+                            style={{ marginLeft: "50px", width: "93.6%" }}
                             bordered
                             columns={columnsTram}
-                            scroll={{ x: 500 }}
+                            scroll={{ x: 900 }}
                             components={components}
                             className="gx-table-responsive th-F1D065-head"
                             dataSource={reDataForTable(record.chiTietTrams)}

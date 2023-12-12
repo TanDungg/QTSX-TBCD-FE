@@ -339,7 +339,7 @@ function ChungTu({ match, permission, history }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 300, y: "55vh" }}
+          scroll={{ x: 300, y: "50vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}

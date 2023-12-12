@@ -379,7 +379,7 @@ function Loi({ match, permission, history }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1200, y: "55vh" }}
+          scroll={{ x: 800, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}

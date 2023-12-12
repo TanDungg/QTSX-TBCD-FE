@@ -5,7 +5,6 @@ import {
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
-  PrinterOutlined,
   ExportOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -569,7 +568,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 1000, y: "70vh" }}
+          scroll={{ x: 1200, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

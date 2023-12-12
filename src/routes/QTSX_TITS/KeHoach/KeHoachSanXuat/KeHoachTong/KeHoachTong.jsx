@@ -218,7 +218,7 @@ function KeHoachTong({ match, history, permission }) {
       key: "key",
       width: 45,
       align: "center",
-      fixed: width > 768 ? "left" : "none",
+      fixed: width > 1200 ? "left" : "none",
     },
     {
       title: "Mã sản phẩm",
@@ -226,7 +226,7 @@ function KeHoachTong({ match, history, permission }) {
       key: "maSanPham",
       align: "center",
       width: 120,
-      fixed: width > 768 ? "left" : "none",
+      fixed: width > 1200 ? "left" : "none",
     },
     {
       title: "Tên sản phẩm",
@@ -234,7 +234,7 @@ function KeHoachTong({ match, history, permission }) {
       align: "center",
       key: "tenSanPham",
       width: 120,
-      fixed: width > 768 ? "left" : "none",
+      fixed: width > 1200 ? "left" : "none",
     },
     {
       title: "Loại sản phẩm",
@@ -242,7 +242,7 @@ function KeHoachTong({ match, history, permission }) {
       align: "center",
       key: "tenLoaiSanPham",
       width: 120,
-      fixed: width > 768 ? "left" : "none",
+      fixed: width > 1200 ? "left" : "none",
     },
     {
       title: `Tháng ${Thang} năm ${Nam}`,

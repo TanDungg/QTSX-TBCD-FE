@@ -41,7 +41,14 @@ const ImportKeHoachGiaoXe = asyncComponent(() =>
 
 const LenhSanXuat = asyncComponent(() => import("./LenhSanXuat/LenhSanXuat"));
 const LenhSanXuatForm = asyncComponent(() =>
-  import("./LenhSanXuat/LenSanXuatForm")
+  import("./LenhSanXuat/LenhSanXuatForm")
+);
+
+const KhaiBaoSoContainer = asyncComponent(() =>
+  import("./KhaiBaoSoContainer/KhaiBaoSoContainer")
+);
+const KhaiBaoSoContainerForm = asyncComponent(() =>
+  import("./KhaiBaoSoContainer/KhaiBaoSoContainerForm")
 );
 
 const App = ({ match, location, menus, permission }) => {
@@ -157,6 +164,21 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/lenh-san-xuat/:id/chinh-sua`}
         exact
         component={Auth(LenhSanXuatForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/khai-bao-so-container`}
+        exact
+        component={Auth(KhaiBaoSoContainer, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/khai-bao-so-container/them-moi`}
+        exact
+        component={Auth(KhaiBaoSoContainerForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/khai-bao-so-container/:id/chinh-sua`}
+        exact
+        component={Auth(KhaiBaoSoContainerForm, menus, pathname, permission)}
       />
       {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
     </Switch>
