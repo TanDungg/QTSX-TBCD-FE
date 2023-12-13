@@ -262,6 +262,11 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(DieuChuyenVatTuForm, menus, pathname, permission)}
       />
       <Route
+        path={`${match.url}/dieu-chuyen/vat-tu/:id/xac-nhan`}
+        exact
+        component={Auth(DieuChuyenVatTuForm, menus, pathname, permission)}
+      />
+      <Route
         path={`${match.url}/dieu-chuyen/thanh-pham`}
         exact
         component={Auth(DieuChuyenThanhPham, menus, pathname, permission)}

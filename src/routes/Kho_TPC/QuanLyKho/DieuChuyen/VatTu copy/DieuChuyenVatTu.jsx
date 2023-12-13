@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  CheckCircleOutlined,
-} from "@ant-design/icons";
+import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -35,11 +30,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [ListKho, setListKho] = useState([]);
-  const [ListKhoDen, setListKhoDen] = useState([]);
-
   const [Kho, setKho] = useState(null);
-  const [KhoDen, setKhoDen] = useState(null);
-
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
@@ -47,7 +38,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
 
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(keyword, Kho, FromDate, ToDate, page, KhoDen);
+      getListData(keyword, Kho, FromDate, ToDate, page);
       getKho();
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
@@ -108,7 +99,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    getListData(keyword, Kho, FromDate, ToDate, page, KhoDen);
+    getListData(keyword, Kho, FromDate, ToDate, page);
   };
 
   /**
@@ -119,7 +110,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, Kho, FromDate, ToDate, page, KhoDen);
+      getListData(val.target.value, Kho, FromDate, ToDate, page);
     }
   };
   /**
@@ -129,24 +120,13 @@ function DieuChuyenVatTu({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const confirmItem =
-      permission && permission.cof && !item.isXacNhan ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item },
-          }}
-          title="Xác nhận"
-        >
-          <CheckCircleOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <CheckCircleOutlined />
-        </span>
-      );
+    console.log(item);
     const editItem =
-      permission && permission.edit && !item.isXacNhan ? (
+      permission &&
+      permission.edit &&
+      item.userLap_Id === INFO.user_Id &&
+      moment(getDateNow(-1), "DD/MM/YYYY") <=
+        moment(item.ngayYeuCau, "DD/MM/YYYY") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -162,15 +142,17 @@ function DieuChuyenVatTu({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && !item.isXacNhan
+      permission &&
+      permission.del &&
+      item.userLap_Id === INFO.user_Id &&
+      moment(getDateNow(-1), "DD/MM/YYYY") <=
+        moment(item.ngayYeuCau, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {confirmItem}
+        {editItem}
         <Divider type="vertical" />
-        {/* {editItem}
-        <Divider type="vertical" /> */}
         <a {...deleteVal} title="Xóa">
           <DeleteOutlined />
         </a>
@@ -199,14 +181,15 @@ function DieuChuyenVatTu({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuDieuChuyenVatTuController?id=${item.id}`;
+    console.log(item);
+    let url = `lkn_PhieuDieuChuyen?id=${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(keyword, Kho, FromDate, ToDate, page, KhoDen);
+          getListData(keyword, Kho, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -220,7 +203,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(keyword, Kho, FromDate, ToDate, pagination, KhoDen);
+    getListData(keyword, Kho, FromDate, ToDate, pagination);
   };
 
   /**
@@ -237,7 +220,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
   const addButtonRender = () => {
     return (
       <>
-        {/* <Button
+        <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -245,7 +228,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
-        </Button> */}
+        </Button>
       </>
     );
   };
@@ -270,13 +253,6 @@ function DieuChuyenVatTu({ match, history, permission }) {
     return <div>{detail}</div>;
   };
   let renderHead = [
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
-    },
     {
       title: "STT",
       dataIndex: "key",
@@ -366,37 +342,11 @@ function DieuChuyenVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Tình trạng",
-      dataIndex: "tinhTrang",
-      key: "tinhTrang",
+      title: "Chức năng",
+      key: "action",
       align: "center",
-      width: 140,
-      render: (val) => {
-        return (
-          <Tag
-            color={
-              val === "Đã duyệt"
-                ? "green"
-                : val === "Chưa duyệt"
-                ? "blue"
-                : "red"
-            }
-          >
-            {" "}
-            {val}
-          </Tag>
-        );
-      },
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tinhTrang,
-            value: d.tinhTrang,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tinhTrang.includes(value),
-      filterSearch: true,
+      width: 110,
+      render: (value) => actionContent(value),
     },
   ];
 
@@ -425,30 +375,20 @@ function DieuChuyenVatTu({ match, history, permission }) {
   const handleOnSelectKho = (val) => {
     setKho(val);
     setPage(1);
-    getListData(keyword, val, FromDate, ToDate, 1, KhoDen);
+    getListData(keyword, val, FromDate, ToDate, 1);
   };
 
   const handleClearKho = (val) => {
     setKho("");
     setPage(1);
-    getListData(keyword, "", FromDate, ToDate, 1, KhoDen);
-  };
-  const handleOnSelectKhoDen = (val) => {
-    setKhoDen(val);
-    setPage(1);
-    getListData(keyword, Kho, FromDate, ToDate, 1, val);
+    getListData(keyword, "", FromDate, ToDate, 1);
   };
 
-  const handleClearKhoDen = (val) => {
-    setKhoDen("");
-    setPage(1);
-    getListData(keyword, Kho, FromDate, ToDate, 1, "");
-  };
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    getListData(keyword, Kho, dateString[0], dateString[1], 1, KhoDen);
+    getListData(keyword, Kho, dateString[0], dateString[1], 1);
   };
 
   return (
@@ -470,11 +410,11 @@ function DieuChuyenVatTu({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Kho đi:</h5>
+            <h5>Kho:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListKho ? ListKho : []}
-              placeholder="Chọn Kho đi"
+              placeholder="Chọn Kho"
               optionsvalue={["id", "tenCTKho"]}
               style={{ width: "100%" }}
               showSearch
@@ -486,30 +426,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
               onClear={handleClearKho}
             />
           </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Kho đến:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListKho ? ListKho : []}
-              placeholder="Chọn Kho đến"
-              optionsvalue={["id", "tenCTKho"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectKhoDen}
-              value={KhoDen}
-              allowClear
-              onClear={handleClearKhoDen}
-            />
-          </Col>
+
           <Col
             xxl={6}
             xl={8}

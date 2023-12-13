@@ -1,10 +1,4 @@
-import {
-  CloseOutlined,
-  DeleteOutlined,
-  PlusCircleOutlined,
-  RollbackOutlined,
-  SaveOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -28,7 +22,6 @@ import {
   Table,
   EditableTableRow,
   ModalDeleteConfirm,
-  Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_DIEUCHUYEN_THANHLY } from "src/constants/Config";
@@ -96,7 +89,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
         }
       } else if (includes(match.url, "xac-nhan")) {
         if (permission && permission.cof) {
-          setType("duyet");
+          setType("xacnhan");
           const { id } = match.params;
           setId(id);
           getInfo(id);
@@ -193,31 +186,29 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setInfo(res.data);
-          setFieldTouch(true);
           getUserLap(INFO, res.data.userLap_Id, 1);
           getListKho();
           setKhoVatTuDi(res.data.khoDi_Id);
           setFieldsValue({
             phieudieuchuyen: {
-              ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY HH:mm:ss"),
-              khoDi_Id: res.data.khoBegin_Id,
-              khoDen_Id: res.data.khoEnd_Id,
-              maPhieuDeNghiCapVatTu: res.data.maPhieuDeNghiCapVatTu,
+              ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
+              khoDi_Id: res.data.khoDi_Id,
+              khoDen_Id: res.data.khoDen_Id,
             },
           });
+
           const newData =
-            res.data.list_VatTus &&
-            JSON.parse(res.data.list_VatTus).map((data) => {
+            res.data.chiTietVatTu &&
+            JSON.parse(res.data.chiTietVatTu).map((data) => {
               const vitri = `${data.tenKe ? `${data.tenKe}` : ""}${
                 data.tenTang ? ` - ${data.tenTang}` : ""
               }${data.tenNgan ? ` - ${data.tenNgan}` : ""}`;
 
               return {
                 ...data,
-                lkn_PhieuDieuChuyenVatTuChiTiet_Id:
-                  data.lkn_PhieuDieuChuyenVatTuChiTiet_Id
-                    ? data.lkn_PhieuDieuChuyenVatTuChiTiet_Id.toLowerCase()
-                    : createGuid(),
+                lkn_ChiTietKhoVatTu_Id: data.lkn_ChiTietKhoVatTu_Id
+                  ? data.lkn_ChiTietKhoVatTu_Id.toLowerCase()
+                  : createGuid(),
                 vatTu: `${data.maVatTu} - ${data.tenVatTu}${
                   vitri ? ` (${vitri})` : ""
                 }`,
@@ -266,9 +257,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
    */
   const deleteItemAction = (item) => {
     const newData = ListVatTu.filter(
-      (d) =>
-        d.lkn_PhieuDieuChuyenVatTuChiTiet_Id !==
-        item.lkn_PhieuDieuChuyenVatTuChiTiet_Id
+      (d) => d.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
     );
     setListVatTu(newData);
     setFieldTouch(true);
@@ -308,19 +297,14 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
       setEditingRecord([...editingRecord, item]);
     } else {
       const newData = editingRecord.filter(
-        (d) =>
-          d.lkn_PhieuDieuChuyenVatTuChiTiet_Id !==
-          item.lkn_PhieuDieuChuyenVatTuChiTiet_Id
+        (d) => d.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
       );
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...ListVatTu];
     newData.forEach((ct, index) => {
-      if (
-        ct.lkn_PhieuDieuChuyenVatTuChiTiet_Id ===
-        item.lkn_PhieuDieuChuyenVatTuChiTiet_Id
-      ) {
+      if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
         ct.soLuongDieuChuyen = soLuongDieuChuyen;
       }
     });
@@ -331,10 +315,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (
-        ct.lkn_PhieuDieuChuyenVatTuChiTiet_Id ===
-        item.lkn_PhieuDieuChuyenVatTuChiTiet_Id
-      ) {
+      if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
         isEditing = true;
         message = ct.message;
       }
@@ -350,13 +331,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
           className={`input-item`}
           type="number"
           value={item.soLuongDieuChuyen}
-          disabled={
-            type === "new" ||
-            type === "edit" ||
-            (type === "duyet" && info.tinhTrang === "Chưa duyệt")
-              ? false
-              : true
-          }
+          disabled={type === "new" || type === "edit" ? false : true}
           onChange={(val) => handleInputChange(val, item)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
@@ -383,21 +358,22 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
       key: "tenVatTu",
       align: "center",
     },
-
     {
-      title: "Vị trí",
-      key: "viTri",
+      title: "Tên kệ",
+      dataIndex: "tenKe",
+      key: "tenKe",
       align: "center",
-      render: (val) => (
-        <span>
-          {val.tenNgan ? val.tenNgan : val.tenKe ? val.tenKe : val.tenKho}
-        </span>
-      ),
     },
     {
-      title: "SL tồn",
-      dataIndex: "soLuong",
-      key: "soLuong",
+      title: "Tên tầng",
+      dataIndex: "tenTang",
+      key: "tenTang",
+      align: "center",
+    },
+    {
+      title: "Tên ngăn",
+      dataIndex: "tenNgan",
+      key: "tenNgan",
       align: "center",
     },
     {
@@ -563,119 +539,15 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
       "Tạo phiếu điều chuyển vật tư "
     ) : type === "edit" ? (
       "Chỉnh sửa phiếu điều chuyển vật tư"
-    ) : type === "duyet" ? (
-      <span>
-        Xác nhận phiếu điều chuyển vật tư -{" "}
-        <Tag
-          color={
-            info.tinhTrang === "Chưa duyệt"
-              ? "blue"
-              : info.tinhTrang === "Đã bị từ chối"
-              ? "red"
-              : "success"
-          }
-          style={{ fontSize: "14px" }}
-        >
-          {info.maPhieuDieuChuyenVatTu} - {info.tinhTrang}
-        </Tag>
-      </span>
     ) : (
       <span>
         Chi tiết phiếu điều chuyển vật tư -{" "}
-        <Tag
-          color={
-            info.tinhTrang === "Chưa duyệt"
-              ? "blue"
-              : info.tinhTrang === "Đã bị từ chối"
-              ? "red"
-              : "success"
-          }
-          style={{ fontSize: "14px" }}
-        >
-          {info.maPhieuDieuChuyenVatTu} - {info.tinhTrang}
+        <Tag color={"blue"} style={{ fontSize: "14px" }}>
+          {info.maPhieuDieuChuyen}
         </Tag>
       </span>
     );
-  const DuyetPhieu = (isDuyet) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuDieuChuyenVatTuController/duyet/${id}`,
-          "PUT",
-          {
-            id: id,
-            lyDoTuChoi: isDuyet ? "Từ chối" : undefined,
-            list_VatTus: ListVatTu,
-          },
-          !isDuyet ? "XACNHAN" : "TUCHOI",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) {
-          getInfo(id);
-          goBack();
-          setFieldTouch(false);
-        } else {
-          setFieldTouch(false);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  const XacNhanPhieu = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_PhieuDieuChuyenVatTuController/xac-nhan/${id}`,
-          "PUT",
-          null,
-          "XACNHAN",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) {
-          getInfo(id);
-          goBack();
-          setFieldTouch(false);
-        } else {
-          setFieldTouch(false);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  const prop = {
-    type: "confirm",
-    okText: "Xác nhận",
-    cancelText: "Hủy",
-    title: "Xác nhận phiếu điều chuyển",
-    onOk: () => {
-      info.tinhTrang === "Chưa duyệt"
-        ? DuyetPhieu(false)
-        : info.tinhTrang === "Đã được duyệt" && XacNhanPhieu();
-    },
-  };
-  const modalDuyet = () => {
-    Modal(prop);
-  };
-  const prop1 = {
-    type: "confirm",
-    okText: "Xác nhận",
-    cancelText: "Hủy",
-    title: "Xác nhận từ chối phiếu điều chuyển",
-    onOk: () => {
-      DuyetPhieu(true);
-    },
-  };
-  const modalTuChoi = () => {
-    Modal(prop1);
-  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -789,7 +661,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
                 ]}
               >
                 <DatePicker
-                  format={"DD/MM/YYYY HH:mm:ss"}
+                  format={"DD/MM/YYYY"}
                   allowClear={false}
                   disabled={true}
                 />
@@ -826,28 +698,6 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Phiếu YC vật tư"
-                name={["phieudieuchuyen", "maPhieuDeNghiCapVatTu"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Input className="input-item" disabled={true} />
-              </FormItem>
-            </Col>
           </Row>
         </Form>
         <Divider style={{ marginBottom: 15 }} />
@@ -856,7 +706,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
             <strong>DANH SÁCH VẬT TƯ</strong>
           </h2>
         </Row>
-        {type === "new" ? (
+        {type !== "detail" ? (
           <Row justify={"end"} style={{ padding: "0px 20px 10px 20px" }}>
             <Button
               icon={<PlusCircleOutlined />}
@@ -881,48 +731,13 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
           pagination={false}
           // loading={loading}
         />
-        {type === "new" ? (
+        {type !== "detail" ? (
           <FormSubmit
             goBack={goBack}
             handleSave={onFinish}
             saveAndClose={saveAndClose}
             disabled={fieldTouch && ListVatTu.length !== 0}
           />
-        ) : null}
-        {type === "duyet" ? (
-          <>
-            <Divider />
-            <Row style={{ marginTop: 20 }}>
-              <Col style={{ marginBottom: 8, textAlign: "center" }} span={24}>
-                <Button
-                  className="th-btn-margin-bottom-0"
-                  icon={<RollbackOutlined />}
-                  onClick={goBack}
-                  style={{ marginTop: 10 }}
-                >
-                  Quay lại
-                </Button>
-                <Button
-                  className="th-btn-margin-bottom-0"
-                  type="primary"
-                  onClick={() => modalDuyet()}
-                  disabled={!fieldTouch}
-                  icon={<SaveOutlined />}
-                  style={{ marginTop: 10 }}
-                >
-                  Xác nhận
-                </Button>
-                <Button
-                  className="th-btn-margin-bottom-0"
-                  icon={<CloseOutlined />}
-                  style={{ marginTop: 10 }}
-                  onClick={() => modalTuChoi()}
-                >
-                  Từ chối
-                </Button>
-              </Col>
-            </Row>
-          </>
         ) : null}
       </Card>
       <ModalChonVatTu

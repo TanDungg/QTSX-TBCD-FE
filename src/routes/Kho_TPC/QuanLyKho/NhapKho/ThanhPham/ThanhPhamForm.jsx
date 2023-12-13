@@ -389,14 +389,15 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       </div>
     );
   };
-  const updateSoLuong = (soLuongNhap, lkn_ChiTietPhieuNhapKhoThanhPham_Id) => {
+  const updateSoLuong = (item) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuNhapKhoThanhPham/${lkn_ChiTietPhieuNhapKhoThanhPham_Id}`,
+          `lkn_PhieuNhapKhoThanhPham/${item.lkn_ChiTietPhieuNhapKhoThanhPham_Id}`,
           "PUT",
           {
-            soLuongNhap,
+            soLuongNhap: item.soLuongNhap,
+            ghiChu: item.ghiChu,
           },
           "EDIT",
           "",
@@ -465,12 +466,12 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           value={item.soLuongNhap}
           disabled={type === "new" || type === "edit" ? false : true}
           onChange={(val) => handleInputChange(val, item)}
-          onBlur={(val) =>
-            updateSoLuong(
-              item.soLuongNhap,
-              item.lkn_ChiTietPhieuNhapKhoThanhPham_Id
-            )
-          }
+          // onBlur={(val) =>
+          //   updateSoLuong(
+          //     item.soLuongNhap,
+          //     item.lkn_ChiTietPhieuNhapKhoThanhPham_Id
+          //   )
+          // }
           // onPressEnter={(val) =>
           //   updateSoLuong(
           //     item.soLuongNhap,
@@ -508,93 +509,134 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       </>
     );
   };
-  let colValues = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      width: 45,
-      align: "center",
-    },
-    {
-      title: "Loại sản phẩm",
-      dataIndex: "tenLoaiSanPham",
-      key: "tenLoaiSanPham",
-      align: "center",
-    },
-    {
-      title: "Mã sản phẩm",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
-      align: "center",
-    },
-    {
-      title: "Tên sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
-      align: "center",
-    },
-    {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
-      align: "center",
-    },
-    {
-      title: "Người tạo",
-      dataIndex: "nguoiTao",
-      key: "nguoiTao",
-      align: "center",
-    },
-    {
-      title: "Thời gian tạo",
-      dataIndex: "ngayTao",
-      key: "ngayTao",
-      align: "center",
-    },
-    {
-      title: "Màu sắc",
-      dataIndex: "tenMauSac",
-      key: "tenMauSac",
-      align: "center",
-      // render: (val, record) => renderMauSac(val, record),
-    },
-    // {
-    //   title: "Vị trí",
-    //   key: "viTri",
-    //   align: "center",
-    //   render: (val) => {
-    //     return (
-    //       <span>
-    //         {val.tenKe && val.tenKe}
-    //         {val.tenTang && ` - ${val.tenTang}`}
-    //         {val.tenNgan && ` - ${val.tenNgan}`}
-    //       </span>
-    //     );
-    //   },
-    // },
-    {
-      title: "Số lượng",
-      key: "soLuongNhap",
-      align: "center",
-      render: (record) => rendersoLuong(record),
-    },
+  const prop2 = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận chỉnh sửa",
+  };
+  const modalEdit = (item) => {
+    Modal({
+      ...prop2,
+      onOk: () => {
+        updateSoLuong(item);
+      },
+    });
+  };
+  let colValues = () => {
+    const col = [
+      {
+        title: "STT",
+        dataIndex: "key",
+        key: "key",
+        width: 45,
+        align: "center",
+      },
+      {
+        title: "Loại sản phẩm",
+        dataIndex: "tenLoaiSanPham",
+        key: "tenLoaiSanPham",
+        align: "center",
+      },
+      {
+        title: "Mã sản phẩm",
+        dataIndex: "maSanPham",
+        key: "maSanPham",
+        align: "center",
+      },
+      {
+        title: "Tên sản phẩm",
+        dataIndex: "tenSanPham",
+        key: "tenSanPham",
+        align: "center",
+      },
+      {
+        title: "Đơn vị tính",
+        dataIndex: "tenDonViTinh",
+        key: "tenDonViTinh",
+        align: "center",
+      },
+      {
+        title: "Người tạo",
+        dataIndex: "nguoiTao",
+        key: "nguoiTao",
+        align: "center",
+      },
+      {
+        title: "Thời gian tạo",
+        dataIndex: "ngayTao",
+        key: "ngayTao",
+        align: "center",
+      },
+      {
+        title: "Màu sắc",
+        dataIndex: "tenMauSac",
+        key: "tenMauSac",
+        align: "center",
+        // render: (val, record) => renderMauSac(val, record),
+      },
+      // {
+      //   title: "Vị trí",
+      //   key: "viTri",
+      //   align: "center",
+      //   render: (val) => {
+      //     return (
+      //       <span>
+      //         {val.tenKe && val.tenKe}
+      //         {val.tenTang && ` - ${val.tenTang}`}
+      //         {val.tenNgan && ` - ${val.tenNgan}`}
+      //       </span>
+      //     );
+      //   },
+      // },
+      {
+        title: "Số lượng",
+        key: "soLuongNhap",
+        align: "center",
+        render: (record) => rendersoLuong(record),
+      },
 
-    {
-      title: "Ghi chú",
-      key: "ghiChu",
-      dataIndex: "ghiChu",
-      align: "center",
-      //   render: (record) => renderGhiChu(record),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-    },
-  ];
+      {
+        title: "Ghi chú",
+        key: "ghiChu",
+        dataIndex: "ghiChu",
+        align: "center",
+        render: (record) => renderGhiChu(record),
+      },
+      {
+        title: "Chức năng",
+        key: "action",
+        align: "center",
+        width: 80,
+        render: (value) => actionContent(value),
+      },
+    ];
+    if (type === "edit") {
+      return [
+        {
+          title: "Chỉnh sửa",
+          key: "edit",
+          align: "center",
+          width: 80,
+          render: (val) => {
+            return (
+              <Button
+                style={{ margin: 0 }}
+                disable={type !== "edit"}
+                type="primary"
+                onClick={() => modalEdit(val)}
+              >
+                Lưu
+              </Button>
+            );
+          },
+        },
+        ...col,
+      ];
+    } else {
+      return col;
+    }
+  };
   const components = {
     body: {
       row: EditableRow,
@@ -614,7 +656,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     setFieldTouch(true);
     setListSanPham(newData);
   };
-  const columns = map(colValues, (col) => {
+  const columns = map(colValues(), (col) => {
     if (!col.editable) {
       return col;
     }
