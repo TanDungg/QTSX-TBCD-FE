@@ -453,7 +453,15 @@ const SoVinForm = ({ history, match, permission }) => {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin số VIN"}
+        headStyle={{
+          textAlign: "center",
+          backgroundColor: "#0469B9",
+          color: "#fff",
+        }}
+      >
         <Form
           {...DEFAULT_FORM_CUSTOM}
           form={form}

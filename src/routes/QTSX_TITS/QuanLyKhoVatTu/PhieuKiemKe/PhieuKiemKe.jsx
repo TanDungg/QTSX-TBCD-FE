@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  CheckCircleOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -121,10 +126,28 @@ function PhieuKiemKe({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
+    const duyet =
+      permission && permission.cof && item.tinhTrang === "Chưa xử lý" ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/duyet`,
+            state: { itemData: item, permission },
+          }}
+          title="Xác nhận"
+        >
+          <CheckCircleOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Xác nhận">
+          <CheckCircleOutlined />
+        </span>
+      );
+
     const editItem =
       permission &&
       permission.edit &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id ? (
+      item.nguoiTao_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xử lý" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -141,11 +164,16 @@ function PhieuKiemKe({ match, history, permission }) {
       );
 
     const deleteVal =
-      permission && permission.del && item.nguoiTaoPhieu_Id === INFO.user_Id
+      permission &&
+      permission.del &&
+      item.nguoiTao_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa xử lý"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
+        {duyet}
+        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -334,7 +362,7 @@ function PhieuKiemKe({ match, history, permission }) {
               color={
                 value === "Chưa xử lý"
                   ? "orange"
-                  : value === "Đã duyệt"
+                  : value === "Phiếu đã được duyệt"
                   ? "blue"
                   : "red"
               }

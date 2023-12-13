@@ -907,7 +907,15 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin đơn hàng"}
+        headStyle={{
+          textAlign: "center",
+          backgroundColor: "#0469B9",
+          color: "#fff",
+        }}
+      >
         <Form
           {...DEFAULT_FORM_TWO_COL}
           form={form}
@@ -1174,97 +1182,96 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
               </FormItem>
             </Col>
           </Row>
-          <Divider />
         </Form>
-        <Card
-          title="Thông tin sản phẩm"
-          headStyle={{
-            textAlign: "center",
-            backgroundColor: "#0469B9",
-            color: "#fff",
-          }}
-        >
-          {type === "new" || type === "edit" ? (
-            <Row>
-              <Col span={24} align="end" style={{ marginTop: 8 }}>
-                <Button
-                  icon={<PlusOutlined />}
-                  onClick={() => {
-                    setActiveModal(true);
-                    setTypeSanPham("new");
-                  }}
-                  type="primary"
-                >
-                  Thêm sản phẩm
-                </Button>
-                <Button
-                  icon={<UploadOutlined />}
-                  onClick={() => setActiveModalImport(true)}
-                  type="primary"
-                >
-                  Import
-                </Button>
-              </Col>
-            </Row>
-          ) : null}
-          <Table
-            bordered
-            columns={columns}
-            scroll={{ x: 1300, y: "55vh" }}
-            components={components}
-            className="gx-table-responsive"
-            dataSource={reDataForTable(ListSanPham)}
-            size="small"
-            rowClassName={"editable-row"}
-            pagination={false}
-            // loading={loading}
-          />
-        </Card>
+      </Card>
+      <Card
+        title="Thông tin sản phẩm"
+        headStyle={{
+          textAlign: "center",
+          backgroundColor: "#0469B9",
+          color: "#fff",
+        }}
+      >
         {type === "new" || type === "edit" ? (
-          <FormSubmit
-            goBack={goBack}
-            handleSave={saveAndClose}
-            saveAndClose={saveAndClose}
-            disabled={fieldTouch && ListSanPham.length !== 0}
-          />
+          <Row>
+            <Col span={24} align="end" style={{ marginTop: 8 }}>
+              <Button
+                icon={<PlusOutlined />}
+                onClick={() => {
+                  setActiveModal(true);
+                  setTypeSanPham("new");
+                }}
+                type="primary"
+              >
+                Thêm sản phẩm
+              </Button>
+              <Button
+                icon={<UploadOutlined />}
+                onClick={() => setActiveModalImport(true)}
+                type="primary"
+              >
+                Import
+              </Button>
+            </Col>
+          </Row>
         ) : null}
-        {type === "xacnhan" && info.isXacNhan === null && (
+        <Table
+          bordered
+          columns={columns}
+          scroll={{ x: 1300, y: "55vh" }}
+          components={components}
+          className="gx-table-responsive"
+          dataSource={reDataForTable(ListSanPham)}
+          size="small"
+          rowClassName={"editable-row"}
+          pagination={false}
+          // loading={loading}
+        />
+      </Card>
+      {type === "new" || type === "edit" ? (
+        <FormSubmit
+          goBack={goBack}
+          handleSave={saveAndClose}
+          saveAndClose={saveAndClose}
+          disabled={fieldTouch && ListSanPham.length !== 0}
+        />
+      ) : null}
+      {type === "xacnhan" && info.isXacNhan === null && (
+        <Row justify={"end"} style={{ marginTop: 15 }}>
+          <Col style={{ marginRight: 15 }}>
+            <Button
+              type="primary"
+              onClick={modalXK}
+              disabled={info.fileXacNhan === null}
+            >
+              Xác nhận
+            </Button>
+          </Col>
+          <Col style={{ marginRight: 15 }}>
+            <Button
+              danger
+              onClick={hanldeTuChoi}
+              disabled={info.fileXacNhan === null}
+            >
+              Từ chối
+            </Button>
+          </Col>
+        </Row>
+      )}
+      {type === "UploadFile" &&
+        (!info.isXacNhan || info.isXacNhan !== true) && (
           <Row justify={"end"} style={{ marginTop: 15 }}>
             <Col style={{ marginRight: 15 }}>
               <Button
                 type="primary"
-                onClick={modalXK}
-                disabled={info.fileXacNhan === null}
+                onClick={modalUploadFile}
+                disabled={!disableUpload || !File.name}
               >
-                Xác nhận
-              </Button>
-            </Col>
-            <Col style={{ marginRight: 15 }}>
-              <Button
-                danger
-                onClick={hanldeTuChoi}
-                disabled={info.fileXacNhan === null}
-              >
-                Từ chối
+                Hoàn thành
               </Button>
             </Col>
           </Row>
         )}
-        {type === "UploadFile" &&
-          (!info.isXacNhan || info.isXacNhan !== true) && (
-            <Row justify={"end"} style={{ marginTop: 15 }}>
-              <Col style={{ marginRight: 15 }}>
-                <Button
-                  type="primary"
-                  onClick={modalUploadFile}
-                  disabled={!disableUpload || !File.name}
-                >
-                  Hoàn thành
-                </Button>
-              </Col>
-            </Row>
-          )}
-      </Card>
       <ModalTuChoi
         openModal={ActiveModalTuChoi}
         openModalFS={setActiveModalTuChoi}

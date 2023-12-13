@@ -1052,39 +1052,39 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
             </Col>
           </Row>
         </Form>
-        <Card
-          className="th-card-margin-bottom th-card-reset-margin"
-          title={"Thông tin vật tư"}
-          headStyle={{
-            textAlign: "center",
-            backgroundColor: "#0469B9",
-            color: "#fff",
-          }}
-        >
-          {type !== "detail" && (
-            <div align={"end"}>
-              <Button
-                icon={<PlusCircleOutlined />}
-                onClick={() => setActiveModalChonVatTu(true)}
-                type="primary"
-              >
-                Thêm vật tư
-              </Button>
-            </div>
-          )}
-          <Table
-            bordered
-            columns={columns}
-            scroll={{ x: 1300, y: "55vh" }}
-            components={components}
-            className="gx-table-responsive"
-            dataSource={reDataForTable(ListVatTu)}
-            size="small"
-            rowClassName={"editable-row"}
-            pagination={false}
-            // loading={loading}
-          />
-        </Card>
+      </Card>
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin vật tư"}
+        headStyle={{
+          textAlign: "center",
+          backgroundColor: "#0469B9",
+          color: "#fff",
+        }}
+      >
+        {type !== "detail" && (
+          <div align={"end"}>
+            <Button
+              icon={<PlusCircleOutlined />}
+              onClick={() => setActiveModalChonVatTu(true)}
+              type="primary"
+            >
+              Thêm vật tư
+            </Button>
+          </div>
+        )}
+        <Table
+          bordered
+          columns={columns}
+          scroll={{ x: 1300, y: "55vh" }}
+          components={components}
+          className="gx-table-responsive"
+          dataSource={reDataForTable(ListVatTu)}
+          size="small"
+          rowClassName={"editable-row"}
+          pagination={false}
+          // loading={loading}
+        />
       </Card>
       {type !== "detail" ? (
         <FormSubmit
