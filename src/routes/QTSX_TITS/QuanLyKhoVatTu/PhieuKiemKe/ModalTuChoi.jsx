@@ -28,7 +28,7 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
 
   return (
     <AntModal
-      title="Từ chối phiếu điều chuyển vật tư"
+      title="Từ chối phiếu kiểm kê"
       open={openModal}
       width={`50%`}
       closable={true}

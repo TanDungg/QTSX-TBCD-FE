@@ -116,13 +116,16 @@ const PhienBanForm = ({ history, match, permission }) => {
     if (type === "new" && phienban.fileUrl) {
       const formData = new FormData();
       formData.append("file", phienban.fileUrl.file);
-      fetch(`${BASE_URL_API}/api/Upload`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: "Bearer ".concat(INFO.token),
-        },
-      })
+      fetch(
+        `${BASE_URL_API}/api/Upload/apk?donVi_Id=${INFO.donVi_Id}&maPhienBan=${phienban.maPhienBan}&phanMem_Id=${INFO.phanMem_Id}`,
+        {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: "Bearer ".concat(INFO.token),
+          },
+        }
+      )
         .then((res) => res.json())
         .then((data) => {
           phienban.fileUrl = data.path;
@@ -160,6 +163,7 @@ const PhienBanForm = ({ history, match, permission }) => {
         const newData = {
           ...phienban,
           phanMem_Id: INFO.phanMem_Id,
+          donVi_Id: INFO.donVi_Id,
         };
         new Promise((resolve, reject) => {
           dispatch(
@@ -357,7 +361,7 @@ const PhienBanForm = ({ history, match, permission }) => {
                 style={{ color: "#0469B9", cursor: "pointer" }}
                 onClick={() => handleDownloadAPK()}
               >
-                {FileAPK && FileAPK.split("/")[5]}{" "}
+                {FileAPK && FileAPK.split("/")[6]}{" "}
                 {type === "new" && (
                   <DeleteOutlined
                     style={{ cursor: "pointer", color: "red" }}

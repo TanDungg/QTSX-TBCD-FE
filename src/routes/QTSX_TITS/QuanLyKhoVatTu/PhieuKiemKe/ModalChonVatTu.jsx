@@ -99,7 +99,9 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
             return (
               itemData.DataListVatTu &&
               !itemData.DataListVatTu.some(
-                (item) => item.tits_qtsx_VatTu_Id === data.tits_qtsx_VatTu_Id
+                (item) =>
+                  item.tits_qtsx_VatTu_Id.toLowerCase() ===
+                  data.tits_qtsx_VatTu_Id.toLowerCase()
               )
             );
           });
@@ -151,14 +153,19 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
         "Số lượng điều chuyển phải lớn hơn hoặc bằng 0 và bắt buộc";
     } else {
       const newData = editingRecord.filter(
-        (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
+        (d) =>
+          d.tits_qtsx_VatTu_Id.toLowerCase() !==
+          item.tits_qtsx_VatTu_Id.toLowerCase()
       );
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...VatTu];
     newData.forEach((ct, index) => {
-      if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
+      if (
+        ct.tits_qtsx_VatTu_Id.toLowerCase() ===
+        item.tits_qtsx_VatTu_Id.toLowerCase()
+      ) {
         ct.soLuongKiemKe = slKiemTra;
       }
     });
@@ -169,7 +176,10 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
+      if (
+        ct.tits_qtsx_VatTu_Id.toLowerCase() ===
+        item.tits_qtsx_VatTu_Id.toLowerCase()
+      ) {
         isEditing = true;
         message = ct.message;
       }
@@ -198,12 +208,14 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
     const newData = [...VatTu];
     newData.forEach((ct, index) => {
       if (
-        ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id &&
+        ct.tits_qtsx_VatTu_Id.toLowerCase() ===
+          item.tits_qtsx_VatTu_Id.toLowerCase() &&
         key === "danhGiaChatLuong"
       ) {
         ct.danhGiaChatLuong = values;
       } else if (
-        ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id &&
+        ct.tits_qtsx_VatTu_Id.toLowerCase() ===
+          item.tits_qtsx_VatTu_Id.toLowerCase() &&
         key === "moTa"
       ) {
         ct.moTa = values;

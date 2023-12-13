@@ -53,6 +53,7 @@ function PhienBan({ match, history, permission }) {
     const param = convertObjectToUrlParams({
       keyword,
       phanMem_Id: INFO.phanMem_Id,
+      donVi_Id: INFO.donVi_Id,
       page,
     });
     dispatch(fetchStart(`PhienBan?${param}`, "GET", null, "LIST"));
@@ -180,7 +181,7 @@ function PhienBan({ match, history, permission }) {
           style={{ color: "#0469B9", cursor: "pointer" }}
           onClick={() => handleDownloadAPK(item)}
         >
-          {item.fileUrl.split("/")[5]}
+          {item.fileUrl.split("/")[6]}
         </span>
       );
     }

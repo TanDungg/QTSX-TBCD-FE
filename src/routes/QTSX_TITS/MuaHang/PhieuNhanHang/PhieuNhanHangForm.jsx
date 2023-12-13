@@ -533,6 +533,11 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
               setListVatTu([]);
               setFile("");
               setDisableUpload(false);
+              setFieldsValue({
+                phieunhanhang: {
+                  ngayTaoPhieu: moment(getDateNow(), "DD/MM/YYYY"),
+                },
+              });
             }
           } else {
             setFieldTouch(false);
@@ -634,7 +639,15 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin nhận hàng"}
+        headStyle={{
+          textAlign: "center",
+          backgroundColor: "#0469B9",
+          color: "#fff",
+        }}
+      >
         <Form
           {...DEFAULT_FORM_TWO_COL}
           form={form}
@@ -916,37 +929,37 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
             </Col>
           </Row>
         </Form>
-        <Card
-          className="th-card-margin-bottom th-card-reset-margin"
-          title={"Danh sách vật tư"}
-          headStyle={{
-            textAlign: "center",
-            backgroundColor: "#0469B9",
-            color: "#fff",
-          }}
-        >
-          <Table
-            bordered
-            columns={columns}
-            scroll={{ x: 900, y: "55vh" }}
-            components={components}
-            className="gx-table-responsive"
-            dataSource={reDataForTable(listVatTu)}
-            size="small"
-            rowClassName={"editable-row"}
-            pagination={false}
-            // loading={loading}
-          />
-        </Card>
-        {type === "new" || type === "edit" ? (
-          <FormSubmit
-            goBack={goBack}
-            handleSave={saveAndClose}
-            saveAndClose={saveAndClose}
-            disabled={fieldTouch}
-          />
-        ) : null}
       </Card>
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Danh sách vật tư"}
+        headStyle={{
+          textAlign: "center",
+          backgroundColor: "#0469B9",
+          color: "#fff",
+        }}
+      >
+        <Table
+          bordered
+          columns={columns}
+          scroll={{ x: 900, y: "55vh" }}
+          components={components}
+          className="gx-table-responsive"
+          dataSource={reDataForTable(listVatTu)}
+          size="small"
+          rowClassName={"editable-row"}
+          pagination={false}
+          // loading={loading}
+        />
+      </Card>
+      {type === "new" || type === "edit" ? (
+        <FormSubmit
+          goBack={goBack}
+          handleSave={saveAndClose}
+          saveAndClose={saveAndClose}
+          disabled={fieldTouch}
+        />
+      ) : null}
     </div>
   );
 };

@@ -255,7 +255,7 @@ function ModalChonHoiDongKiemKe({
                   <Select
                     className="heading-select slt-search th-select-heading"
                     data={ListHoiDongKiemKe}
-                    placeholder="Chọn hội đồng kiểm kê"
+                    placeholder="Chức vụ"
                     optionsvalue={["user_Id", "tenChucVu"]}
                     style={{ width: "100%" }}
                     disabled={true}

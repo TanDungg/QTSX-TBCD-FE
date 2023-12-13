@@ -304,6 +304,11 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(PhieuKiemKeForm, menus, pathname, permission)}
       />
+      <Route
+        path={`${match.url}/phieu-kiem-ke/:id/duyet`}
+        exact
+        component={Auth(PhieuKiemKeForm, menus, pathname, permission)}
+      />
     </Switch>
   );
 };
