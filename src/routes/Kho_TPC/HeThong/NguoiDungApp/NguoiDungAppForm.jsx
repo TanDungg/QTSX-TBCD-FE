@@ -147,12 +147,12 @@ function NguoiDungAppForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const listRole = JSON.parse(res.data[0].lkn_ChiTiets).map((ct) => {
+          const listRole = JSON.parse(res.data.lkn_ChiTiets).map((ct) => {
             return ct.lkn_AppMobile_Menu_Id.toLowerCase();
           });
-          getUserInfo(res.data[0].user_Id);
+          getUserInfo(res.data.user_Id);
           const newData = {
-            id: res.data[0].user_Id,
+            id: res.data.user_Id,
             roleNames: listRole,
           };
           setFieldsValue({ user: newData });

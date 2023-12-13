@@ -551,7 +551,9 @@ const VatTuForm = ({ history, match, permission }) => {
     };
 
     const deleteItemVal =
-      permission && permission.del && (type === "new" || type === "edit")
+      permission &&
+      permission.del &&
+      (type === "new" || type === "edit" || type === "duyet")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -639,7 +641,9 @@ const VatTuForm = ({ history, match, permission }) => {
           className={`input-item`}
           type="number"
           value={item.soLuongNhap}
-          disabled={type === "new" || type === "edit" ? false : true}
+          disabled={
+            type === "new" || type === "edit" || type === "duyet" ? false : true
+          }
           onChange={(val) => handleInputChange(val, item)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
@@ -668,7 +672,9 @@ const VatTuForm = ({ history, match, permission }) => {
           className={`input-item`}
           value={item[key]}
           onChange={(val) => changeGhiChu(val, item, key)}
-          disabled={type === "new" || type === "edit" ? false : true}
+          disabled={
+            type === "new" || type === "edit" || type === "duyet" ? false : true
+          }
         />
       </>
     );

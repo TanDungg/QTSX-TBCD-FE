@@ -29,6 +29,20 @@ export const removeDuplicates = (arr) => {
   });
   return uniqueObjects;
 };
+export function formatNumberWithCommaGeneral(number) {
+  if (number.toString().length > 3) {
+    const reversedNumberString = number.toString().split("").reverse().join("");
+    const formattedNumber = reversedNumberString
+      .replace(/(\d{3})/g, "$1.")
+      .split("")
+      .reverse()
+      .join("");
+    return formattedNumber;
+  } else {
+    return number;
+  }
+}
+
 export function isJsonObject(str) {
   try {
     const obj = JSON.parse(str);

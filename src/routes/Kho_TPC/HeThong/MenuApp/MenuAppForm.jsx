@@ -74,7 +74,7 @@ function MenuAppForm({ match, permission, history }) {
     })
       .then((res) => {
         setFieldsValue({
-          chucNang: res.data[0],
+          chucNang: res.data,
         });
       })
       .catch((error) => console.error(error));
@@ -212,6 +212,20 @@ function MenuAppForm({ match, permission, history }) {
               ]}
             >
               <Input className="input-item" placeholder="Nhập tên menu" />
+            </FormItem>
+            <FormItem
+              label="Hình ảnh"
+              name={["chucNang", "hinhAnh"]}
+              rules={[
+                {
+                  type: "string",
+                },
+                {
+                  max: 250,
+                },
+              ]}
+            >
+              <Input className="input-item" placeholder="Nhập Hình ảnh" />
             </FormItem>
 
             <FormSubmit

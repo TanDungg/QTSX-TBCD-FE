@@ -388,6 +388,11 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
       dataIndex: "soLuongTon",
       key: "soLuongTon",
       align: "center",
+      render: (val, record) => (
+        <span>
+          {type === "detail" ? Number(val) + Number(record.soLuong) : val}
+        </span>
+      ),
     },
     {
       title: "SL điều chuyển",
@@ -625,6 +630,7 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res.status !== 409) {
+          goBack();
           getInfo(id);
           setFieldTouch(false);
         }
