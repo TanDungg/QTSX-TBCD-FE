@@ -126,13 +126,7 @@ function NguoiDungAppForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const newData = res.data.map((data) => {
-            return {
-              ...data,
-              quyen: `${data.maQuyenMobile} - ${data.tenQuyenMobile}`,
-            };
-          });
-          setRoleSelect(newData);
+          setRoleSelect(res.data);
         }
       })
       .catch((error) => console.error(error));
@@ -153,12 +147,12 @@ function NguoiDungAppForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const listRole = JSON.parse(res.data.lkn_ChiTiets).map((ct) => {
+          const listRole = JSON.parse(res.data[0].lkn_ChiTiets).map((ct) => {
             return ct.lkn_AppMobile_Menu_Id.toLowerCase();
           });
-          getUserInfo(res.data.user_Id);
+          getUserInfo(res.data[0].user_Id);
           const newData = {
-            id: res.data.user_Id,
+            id: res.data[0].user_Id,
             roleNames: listRole,
           };
           setFieldsValue({ user: newData });
@@ -312,7 +306,7 @@ function NguoiDungAppForm({ match, permission, history }) {
               className="heading-select slt-search th-select-heading"
               data={roleSelect ? roleSelect : []}
               placeholder="Chọn vai trò"
-              optionsvalue={["id", "quyen"]}
+              optionsvalue={["id", "maQuyenMobile"]}
               style={{ width: "100%" }}
               mode={"multiple"}
             />
