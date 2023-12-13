@@ -6,13 +6,7 @@ import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import {
-  getLocalStorage,
-  reDataForTable,
-  treeToFlatlist,
-} from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { removeDuplicates } from "src/util/Common";
 import {
   EditableTableRow,
   ModalDeleteConfirm,
@@ -20,16 +14,28 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { convertObjectToUrlParams } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  getLocalStorage,
+  getTokenInfo,
+  removeDuplicates,
+  reDataForTable,
+  treeToFlatlist,
+} from "src/util/Common";
 import ImportBoPhan from "./ImportBoPhan";
 import { repeat } from "lodash";
+import { APP_NAME } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function BoPhan({ match, permission, history }) {
-  // document.title = `Kho linh kiện nhựa | ${APP_NAME}`;
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
+  // document.title = `${APP_NAME} - ${INFO.tenPhanMem}`;
   const dispatch = useDispatch();
-  const INFO = getLocalStorage("menu");
   const { width, data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const { totalRow } = data;
@@ -44,7 +50,7 @@ function BoPhan({ match, permission, history }) {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  console.log(INFO);
   /**
    * Get menu list
    *

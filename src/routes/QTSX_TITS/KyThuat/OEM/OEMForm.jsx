@@ -364,7 +364,7 @@ const OEMForm = ({ history, match, permission }) => {
             <Image
               src={BASE_URL_API + value}
               alt="Hình ảnh"
-              style={{ maxWidth: 100, maxHeight: 100 }}
+              style={{ maxWidth: 50, maxHeight: 50 }}
             />
           </span>
         ),
