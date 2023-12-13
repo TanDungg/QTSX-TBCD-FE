@@ -221,9 +221,10 @@ function SanPhamHinhAnh({ match, history, permission }) {
                   }}
                 >
                   {dt.list_KhuVucs &&
-                    JSON.parse(dt.list_KhuVucs).map((khuvuc) => {
+                    JSON.parse(dt.list_KhuVucs).map((khuvuc, index) => {
                       return (
                         <div
+                          key={index}
                           style={{
                             alignItems: "center",
                             justifyContent: "center",
@@ -259,8 +260,8 @@ function SanPhamHinhAnh({ match, history, permission }) {
                                     }}
                                   >
                                     <Image
-                                      width={130}
-                                      height={130}
+                                      width={110}
+                                      height={110}
                                       style={{
                                         borderRadius: 15,
                                         border: "1px solid #c8c8c8",
@@ -301,8 +302,10 @@ function SanPhamHinhAnh({ match, history, permission }) {
                                   </div>
                                 );
                               })}
-                            <Divider />
                           </div>
+                          {index !== JSON.parse(dt.list_KhuVucs).length - 1 && (
+                            <Divider />
+                          )}
                         </div>
                       );
                     })}

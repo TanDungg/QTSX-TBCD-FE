@@ -468,9 +468,9 @@ function CanBoNhanVien({ match, history, permission }) {
         classCss="gx-position-button-cbnv"
       />
       <Card className="th-card-margin-bottom">
-        <Row>
+        <Row style={{ paddingLeft: 10 }}>
           <Col
-            xxl={8}
+            xxl={12}
             xl={12}
             lg={16}
             md={16}
