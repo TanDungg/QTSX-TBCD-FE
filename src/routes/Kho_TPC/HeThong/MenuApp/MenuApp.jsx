@@ -250,6 +250,12 @@ function MenuApp({ match, history, permission }) {
       align: "center",
     },
     {
+      title: "Hình ảnh",
+      dataIndex: "hinhAnh",
+      key: "hinhAnh",
+      align: "center",
+    },
+    {
       title: "Chức năng",
       key: "action",
       align: "center",

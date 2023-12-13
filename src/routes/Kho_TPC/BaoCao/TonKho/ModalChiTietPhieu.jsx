@@ -6,19 +6,18 @@ import { map } from "lodash";
 import { EditableTableRow, Table } from "src/components/Common";
 import {
   reDataForTable,
-  getLocalStorage,
-  getTokenInfo,
-  convertObjectToUrlParams,
+  // getLocalStorage,
+  // getTokenInfo,
+  // convertObjectToUrlParams,
 } from "src/util/Common";
 import { BASE_URL_APP } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function ModalChiTietPhieu({ openModalFS, openModal, data, loai, info }) {
-  const { width } = useSelector(({ common }) => common).toJS();
+  // const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [listData, setListData] = useState([]);
+  // const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   useEffect(() => {
     if (openModal) {
     }

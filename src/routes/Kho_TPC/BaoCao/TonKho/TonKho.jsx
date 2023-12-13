@@ -18,7 +18,10 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { convertObjectToUrlParams } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  formatNumberWithCommaGeneral,
+} from "src/util/Common";
 import moment from "moment";
 import ModalChiTietPhieu from "./ModalChiTietPhieu";
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -34,6 +37,13 @@ function TonKho({ permission, history, match }) {
   const [Loai, setLoai] = useState(false);
   const [Kho, setKho] = useState("");
   const [Info, setInfo] = useState({});
+  const [InfoTotal, setInfoTotal] = useState({
+    tonDauKy: 0,
+    soLuongNhap: 0,
+    soLuongXuat: 0,
+    soLuongXuat: 0,
+  });
+
   const [ListKho, setListKho] = useState([]);
   const [TuNgay, setTuNgay] = useState(getDateNow(-new Date().getDate() + 1));
   const [DenNgay, setDenNgay] = useState(getDateNow());
@@ -71,10 +81,23 @@ function TonKho({ permission, history, match }) {
     })
       .then((res) => {
         if (res && res.data) {
+          let tonDauKy = 0;
+          let soLuongNhap = 0;
+          let soLuongXuat = 0;
+          let tonCuoiKy = 0;
+
           setData(
             res.data.map((dt) => {
+              soLuongNhap += dt.soLuongNhap;
+              soLuongXuat += dt.soLuongXuat;
+              tonCuoiKy += dt.tonCuoiKy;
+              tonDauKy += dt.tonDauKy;
               return {
                 ...dt,
+                tonDauKy: formatNumberWithCommaGeneral(dt.tonDauKy),
+                soLuongNhap: formatNumberWithCommaGeneral(dt.soLuongNhap),
+                soLuongXuat: formatNumberWithCommaGeneral(dt.soLuongXuat),
+                tonCuoiKy: formatNumberWithCommaGeneral(dt.tonCuoiKy),
                 list_PhieuNhapXuats:
                   dt.list_PhieuNhapXuats && JSON.parse(dt.list_PhieuNhapXuats),
                 list_PhieuNhaps:
@@ -84,6 +107,12 @@ function TonKho({ permission, history, match }) {
               };
             })
           );
+          setInfoTotal({
+            tonDauKy: formatNumberWithCommaGeneral(tonDauKy),
+            soLuongNhap: formatNumberWithCommaGeneral(soLuongNhap),
+            soLuongXuat: formatNumberWithCommaGeneral(soLuongXuat),
+            tonCuoiKy: formatNumberWithCommaGeneral(tonCuoiKy),
+          });
         }
       })
       .catch((error) => console.error(error));
@@ -194,7 +223,6 @@ function TonKho({ permission, history, match }) {
       title: Loai ? "Tên sản phẩm" : "Tên vật tư",
       dataIndex: "ten",
       key: "ten",
-      align: "center",
       width: 250,
       filters: removeDuplicates(
         map(dataList, (d) => {
@@ -208,113 +236,142 @@ function TonKho({ permission, history, match }) {
       filterSearch: true,
     },
     {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
+      title: `Total:`,
       align: "center",
-      width: 150,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenDonViTinh,
-            value: d.tenDonViTinh,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenDonViTinh.includes(value),
-      filterSearch: true,
+      children: [
+        {
+          title: "Đơn vị tính",
+          dataIndex: "tenDonViTinh",
+          key: "tenDonViTinh",
+          align: "center",
+          width: 90,
+          filters: removeDuplicates(
+            map(dataList, (d) => {
+              return {
+                text: d.tenDonViTinh,
+                value: d.tenDonViTinh,
+              };
+            })
+          ),
+          onFilter: (value, record) => record.tenDonViTinh.includes(value),
+          filterSearch: true,
+        },
+      ],
     },
     {
-      title: "Tồn đầu kỳ",
-      dataIndex: "tonDauKy",
-      key: "tonDauKy",
+      title: `${InfoTotal.tonDauKy}`,
       align: "center",
-      width: 150,
+      children: [
+        {
+          title: "Tồn đầu kỳ",
+          dataIndex: "tonDauKy",
+          key: "tonDauKy",
+          align: "center",
+          width: 150,
+        },
+      ],
     },
     {
-      title: "Số lượng nhập",
-      dataIndex: "soLuongNhap",
-      key: "soLuongNhap",
+      title: `${InfoTotal.soLuongNhap}`,
       align: "center",
-      width: 150,
-      render: (val, record) => {
-        return (
-          <a
-            onClick={() => {
-              setActiveModale(true);
-              setInfo({
-                ma: record.ma,
-                ten: record.ten,
-                isNhap: true,
-              });
-              if (record.list_PhieuNhaps) {
-                setDataView(JSON.parse(record.list_PhieuNhaps));
-              } else {
-                setDataView([]);
-              }
-            }}
-          >
-            {val}
-          </a>
-        );
-      },
+      children: [
+        {
+          title: "Số lượng nhập",
+          dataIndex: "soLuongNhap",
+          key: "soLuongNhap",
+          align: "center",
+          width: 150,
+          render: (val, record) => {
+            return (
+              <a
+                onClick={() => {
+                  setActiveModale(true);
+                  setInfo({
+                    ma: record.ma,
+                    ten: record.ten,
+                    isNhap: true,
+                  });
+                  if (record.list_PhieuNhaps) {
+                    setDataView(record.list_PhieuNhaps);
+                  } else {
+                    setDataView([]);
+                  }
+                }}
+              >
+                {val}
+              </a>
+            );
+          },
+        },
+      ],
     },
     {
-      title: "Số lượng xuất",
-      dataIndex: "soLuongXuat",
-      key: "soLuongXuat",
+      title: `${InfoTotal.soLuongXuat}`,
       align: "center",
-      width: 150,
-      render: (val, record) => {
-        return (
-          <a
-            onClick={() => {
-              setActiveModale(true);
-              setInfo({
-                ma: record.ma,
-                ten: record.ten,
-                isNhap: false,
-              });
-              if (record.list_PhieuXuats) {
-                setDataView(JSON.parse(record.list_PhieuXuats));
-              } else {
-                setDataView([]);
-              }
-            }}
-          >
-            {val}
-          </a>
-        );
-      },
+      children: [
+        {
+          title: "Số lượng xuất",
+          dataIndex: "soLuongXuat",
+          key: "soLuongXuat",
+          align: "center",
+          width: 150,
+          render: (val, record) => {
+            return (
+              <a
+                onClick={() => {
+                  setActiveModale(true);
+                  setInfo({
+                    ma: record.ma,
+                    ten: record.ten,
+                    isNhap: false,
+                  });
+                  if (record.list_PhieuXuats) {
+                    setDataView(record.list_PhieuXuats);
+                  } else {
+                    setDataView([]);
+                  }
+                }}
+              >
+                {val}
+              </a>
+            );
+          },
+        },
+      ],
     },
-
     {
-      title: "Tồn cuối kỳ",
-      dataIndex: "tonCuoiKy",
-      key: "tonCuoiKy",
+      title: `${InfoTotal.tonCuoiKy}`,
       align: "center",
-      width: 150,
-      render: (val, record) => {
-        return (
-          <a
-            onClick={() => {
-              setActiveModale(true);
-              setInfo({
-                ma: record.ma,
-                ten: record.ten,
-                isNhap: undefined,
-              });
-              if (record.list_PhieuNhapXuats) {
-                setDataView(JSON.parse(record.list_PhieuNhapXuats));
-              } else {
-                setDataView([]);
-              }
-            }}
-          >
-            {val}
-          </a>
-        );
-      },
+      children: [
+        {
+          title: "Tồn cuối kỳ",
+          dataIndex: "tonCuoiKy",
+          key: "tonCuoiKy",
+          align: "center",
+          width: 150,
+          render: (val, record) => {
+            return (
+              <a
+                onClick={() => {
+                  setActiveModale(true);
+                  setInfo({
+                    ma: record.ma,
+                    ten: record.ten,
+                    isNhap: undefined,
+                  });
+                  if (record.list_PhieuNhapXuats) {
+                    setDataView(record.list_PhieuNhapXuats);
+                  } else {
+                    setDataView([]);
+                  }
+                }}
+              >
+                {val}
+              </a>
+            );
+          },
+        },
+      ],
     },
   ];
   const components = {
@@ -407,8 +464,8 @@ function TonKho({ permission, history, match }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Báo cáo tồn kho"}
-        description="Báo cáo tồn kho"
+        title={"Báo cáo nhập xuất tồn"}
+        description="Báo cáo nhập xuất tồn"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
