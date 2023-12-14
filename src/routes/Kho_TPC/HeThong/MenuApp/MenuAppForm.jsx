@@ -227,7 +227,21 @@ function MenuAppForm({ match, permission, history }) {
             >
               <Input className="input-item" placeholder="Nhập Hình ảnh" />
             </FormItem>
-
+            <FormItem
+              label="Thứ tự"
+              name={["chucNang", "thuTu"]}
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              <Input
+                className="input-item"
+                type="number"
+                placeholder="Nhập thứ tự"
+              />
+            </FormItem>
             <FormSubmit
               goBack={goBack}
               saveAndClose={saveAndClose}

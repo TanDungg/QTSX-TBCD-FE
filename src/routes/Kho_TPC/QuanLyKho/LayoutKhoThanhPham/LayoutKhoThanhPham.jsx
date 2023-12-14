@@ -137,13 +137,7 @@ function LayoutKhoThanhPham({ history, permission }) {
       key: "viTriLuu",
       align: "center",
       render: (val) => {
-        return (
-          <span>
-            {val.tenKe && val.tenKe}
-            {val.tenTang && ` - ${val.tenTang}`}
-            {val.tenNgan && ` - ${val.tenNgan}`}
-          </span>
-        );
+        return <span>{val.tenNgan ? val.tenNgan : val.tenKe}</span>;
       },
     },
     // {

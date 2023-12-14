@@ -186,17 +186,15 @@ function MenuApp({ match, history, permission }) {
    * @memberof ChucNang
    */
   const handleSave = async (row) => {
-    const dataValue = treeToFlatlist(data);
     // Check data not change
-    const item = find(dataValue, (item) => item.id === row.id);
+    const item = find(data, (item) => item.id === row.id);
     if (!isEmpty(item)) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `Menu/ThuTu/${item.id}`,
-            "PUT",
+            `lkn_AppMobile_Menu/put-appmobile-menu-thu-tu/${item.id}`,
+            "POST",
             {
-              ...item,
               thuTu: row.thuTu,
             },
             "EDIT",
@@ -207,8 +205,8 @@ function MenuApp({ match, history, permission }) {
         );
       })
         .then((res) => {
-          if (res && res.status === 204) {
-            loadData(INFO);
+          if (res && res.status === 200) {
+            loadData();
           }
         })
         .catch((error) => console.error(error));
@@ -254,6 +252,15 @@ function MenuApp({ match, history, permission }) {
       dataIndex: "hinhAnh",
       key: "hinhAnh",
       align: "center",
+    },
+    {
+      title: "Thứ tự",
+      dataIndex: "thuTu",
+      key: "thuTu",
+      align: "center",
+      editable: permission && permission.edit,
+      width: 100,
+      info: { type: "number", required: true },
     },
     {
       title: "Chức năng",

@@ -242,7 +242,7 @@ function BOMThep({ match, history, permission }) {
       permission && permission.view ? (
         <Link
           to={{
-            pathname: `${match.url}/${val.id}/chi-tiet`,
+            pathname: `${match.url}/${val.tits_qtsx_DinhMucVatTuThep_Id}/chi-tiet`,
             state: { itemData: val, permission },
           }}
         >
