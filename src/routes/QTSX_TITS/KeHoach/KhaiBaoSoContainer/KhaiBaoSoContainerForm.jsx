@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { Button, Card, DatePicker, Form, Spin, Upload } from "antd";
+import { Card, Form, Spin } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
-import { Input, Select, FormSubmit } from "src/components/Common";
+import { Input, FormSubmit, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import { getDateNow, getLocalStorage, getTokenInfo } from "src/util/Common";
+import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { getLocalStorage, getTokenInfo } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import Helpers from "src/helpers";
-import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
-import moment from "moment";
 
 const FormItem = Form.Item;
 
@@ -25,10 +22,12 @@ function KhaiBaoSoContainerForm({ match, permission, history }) {
   const { setFieldsValue, validateFields, resetFields } = form;
   const [fieldTouch, setFieldTouch] = useState(false);
   const [type, setType] = useState("new");
+  const [ListSoVin, setListSoVin] = useState([]);
   const [id, setId] = useState(undefined);
   const [info, setInfo] = useState(null);
 
   useEffect(() => {
+    getListSoVIN();
     if (includes(match.url, "them-moi")) {
       if (permission && !permission.add) {
         history.push("/home");
@@ -51,6 +50,30 @@ function KhaiBaoSoContainerForm({ match, permission, history }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const getListSoVIN = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_SoContainer/list-so-VIN-chua-dong-cont`,
+          "GET",
+          null,
+          "LIST",
+          "listRole",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListSoVin(res.data);
+        } else {
+          setListSoVin([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
 
   /**
    * Lấy thông tin info
@@ -108,32 +131,33 @@ function KhaiBaoSoContainerForm({ match, permission, history }) {
   };
 
   const saveData = (khaibaosocontainer, saveQuit = false) => {
-    if (type === "new") {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_SoContainer`,
-            "POST",
-            khaibaosocontainer,
-            "ADD",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.status !== 409) {
-            if (saveQuit) {
-              goBack();
-            } else {
-              resetFields();
-              setFieldTouch(false);
-            }
-          }
-        })
-        .catch((error) => console.error(error));
-    }
+    console.log(khaibaosocontainer);
+    // if (type === "new") {
+    //   new Promise((resolve, reject) => {
+    //     dispatch(
+    //       fetchStart(
+    //         `tits_qtsx_SoContainer`,
+    //         "POST",
+    //         khaibaosocontainer,
+    //         "ADD",
+    //         "",
+    //         resolve,
+    //         reject
+    //       )
+    //     );
+    //   })
+    //     .then((res) => {
+    //       if (res && res.status !== 409) {
+    //         if (saveQuit) {
+    //           goBack();
+    //         } else {
+    //           resetFields();
+    //           setFieldTouch(false);
+    //         }
+    //       }
+    //     })
+    //     .catch((error) => console.error(error));
+    // }
     if (type === "edit") {
       khaibaosocontainer.id = id;
       new Promise((resolve, reject) => {
@@ -235,6 +259,25 @@ function KhaiBaoSoContainerForm({ match, permission, history }) {
               ]}
             >
               <Input className="input-item" placeholder="Nhập dimensions" />
+            </FormItem>
+            <FormItem
+              label="List số VIN"
+              name={["khaibaosocontainer", "list_ChiTiets"]}
+              rules={[
+                {
+                  type: "array",
+                  required: true,
+                },
+              ]}
+            >
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListSoVin ? ListSoVin : []}
+                placeholder="Chọn số VIN"
+                optionsvalue={["id", "tenSoLo"]}
+                style={{ width: "100%" }}
+                mode={"multiple"}
+              />
             </FormItem>
             <FormItem
               label="Ghi chú"

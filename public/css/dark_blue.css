@@ -4543,15 +4543,17 @@ a.ant-btn-sm {
   border: 1px solid #e8e8e8;
 }
 .ant-card-head {
-  min-height: 48px;
+  min-height: 40px;
+  text-align: center;
   margin-bottom: -1px;
   padding: 0 24px;
-  color: #535353;
-  font-weight: 500;
+  color: #fff;
   font-size: 16px;
-  background: #fff;
-  border-bottom: 1px solid #e8e8e8;
+  background: #0469b9;
   border-radius: 6px 6px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .ant-card-head::before {
   display: table;
@@ -4578,7 +4580,8 @@ a.ant-btn-sm {
 .ant-card-head-title {
   display: inline-block;
   flex: 1;
-  padding: 16px 0;
+  font-weight: 500;
+  padding: 0px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -35491,12 +35494,6 @@ fieldset[disabled] a.gx-btn {
 /*Card Styles*/
 .ant-card {
   margin-bottom: 10px;
-}
-.ant-card-head {
-  background: none;
-}
-.ant-card-head-title {
-  font-weight: 400;
 }
 .ant-card-grid {
   text-align: center;

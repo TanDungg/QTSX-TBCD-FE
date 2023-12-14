@@ -1281,7 +1281,10 @@ function BOMXuongForm({ match, permission, history }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin định mức vật tư xưởng"}
+      >
         <Spin spinning={loading}>
           <Form
             {...DEFAULT_FORM_CUSTOM}
@@ -1606,15 +1609,7 @@ function BOMXuongForm({ match, permission, history }) {
           </Form>
         </Spin>
       </Card>
-      <Card
-        className="th-card-margin-bottom"
-        title="Thông tin vật tư"
-        headStyle={{
-          textAlign: "center",
-          backgroundColor: "#0469B9",
-          color: "#fff",
-        }}
-      >
+      <Card className="th-card-margin-bottom" title="Danh sách chi tiết">
         {/* {type === "new" && (
           <>
             <Row style={{ marginTop: 5 }}>

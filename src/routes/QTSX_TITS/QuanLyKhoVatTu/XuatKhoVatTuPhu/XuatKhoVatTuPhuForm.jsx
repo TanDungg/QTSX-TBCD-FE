@@ -825,7 +825,10 @@ const VatTuForm = ({ history, match, permission }) => {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin phiếu xuất kho vật tư phụ"}
+      >
         <Form
           {...DEFAULT_FORM_DENGHI_CVT}
           form={form}
@@ -1187,56 +1190,51 @@ const VatTuForm = ({ history, match, permission }) => {
             ) : null}
           </Row>
         </Form>
-        <Card
-          className="th-card-margin-bottom th-card-reset-margin"
-          title={"Thông tin vật tư"}
-          headStyle={{
-            textAlign: "center",
-            backgroundColor: "#0469B9",
-            color: "#fff",
-          }}
-        >
-          <Table
-            bordered
-            columns={columns}
-            scroll={{ x: 1300, y: "55vh" }}
-            components={components}
-            className="gx-table-responsive"
-            dataSource={reDataForTable(ListVatTu)}
-            size="small"
-            rowClassName={"editable-row"}
-            pagination={false}
-            // loading={loading}
-          />
-        </Card>
-        {type === "new" || type === "edit" || type === "taophieuxuat" ? (
-          <FormSubmit
-            goBack={goBack}
-            handleSave={onFinish}
-            saveAndClose={saveAndClose}
-            disabled={fieldTouch && ListVatTu.length !== 0}
-          />
-        ) : null}
-        {(type === "xacnhan" &&
-          info.tinhTrang === "Chưa duyệt" &&
-          info.nguoiPTBoPhanDuyet_Id === INFO.user_Id) ||
-        (type === "xacnhan" &&
-          info.tinhTrang === "Chờ kế toán duyệt" &&
-          info.nguoiKeToanDuyet_Id === INFO.user_Id) ? (
-          <Row justify={"end"} style={{ marginTop: 15 }}>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="primary" onClick={modalXK}>
-                Xác nhận
-              </Button>
-            </Col>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
-                Từ chối
-              </Button>
-            </Col>
-          </Row>
-        ) : null}
       </Card>
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Danh sách vật tư"}
+      >
+        <Table
+          bordered
+          columns={columns}
+          scroll={{ x: 1300, y: "55vh" }}
+          components={components}
+          className="gx-table-responsive"
+          dataSource={reDataForTable(ListVatTu)}
+          size="small"
+          rowClassName={"editable-row"}
+          pagination={false}
+          // loading={loading}
+        />
+      </Card>
+      {type === "new" || type === "edit" || type === "taophieuxuat" ? (
+        <FormSubmit
+          goBack={goBack}
+          handleSave={onFinish}
+          saveAndClose={saveAndClose}
+          disabled={fieldTouch && ListVatTu.length !== 0}
+        />
+      ) : null}
+      {(type === "xacnhan" &&
+        info.tinhTrang === "Chưa duyệt" &&
+        info.nguoiPTBoPhanDuyet_Id === INFO.user_Id) ||
+      (type === "xacnhan" &&
+        info.tinhTrang === "Chờ kế toán duyệt" &&
+        info.nguoiKeToanDuyet_Id === INFO.user_Id) ? (
+        <Row justify={"end"} style={{ marginTop: 15 }}>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="primary" onClick={modalXK}>
+              Xác nhận
+            </Button>
+          </Col>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
+              Từ chối
+            </Button>
+          </Col>
+        </Row>
+      ) : null}
       <ModalChonViTri
         openModal={ActiveModalChonViTri}
         openModalFS={setActiveModalChonViTri}

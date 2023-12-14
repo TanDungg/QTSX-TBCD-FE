@@ -886,7 +886,10 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin phiếu thanh lý vật tư"}
+      >
         <Form
           {...DEFAULT_FORM_DIEUCHUYEN_THANHLY}
           form={form}
@@ -1158,12 +1161,11 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
             </Col>
           </Row>
         </Form>
-        <Divider style={{ marginBottom: 15 }} />
-        <Row justify={"center"}>
-          <h2 style={{ color: "#0469B9" }}>
-            <strong>DANH SÁCH VẬT TƯ</strong>
-          </h2>
-        </Row>
+      </Card>
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Danh sách vật tư"}
+      >
         {type !== "detail" ? (
           <Row justify={"end"} style={{ padding: "0px 20px 10px 20px" }}>
             <Button
@@ -1189,15 +1191,15 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
           pagination={false}
           // loading={loading}
         />
-        {type !== "detail" ? (
-          <FormSubmit
-            goBack={goBack}
-            handleSave={onFinish}
-            saveAndClose={saveAndClose}
-            disabled={type === "new" ? fieldTouch && ListVatTu : fieldTouch}
-          />
-        ) : null}
       </Card>
+      {type !== "detail" ? (
+        <FormSubmit
+          goBack={goBack}
+          handleSave={onFinish}
+          saveAndClose={saveAndClose}
+          disabled={type === "new" ? fieldTouch && ListVatTu : fieldTouch}
+        />
+      ) : null}
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}

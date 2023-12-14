@@ -1029,7 +1029,10 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin nhập kho"}
+      >
         <Form
           {...DEFAULT_FORM_NHAPKHOVATTU}
           form={form}
@@ -1369,6 +1372,11 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
             )}
           </Row>
         </Form>
+      </Card>
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Danh sách vật tư"}
+      >
         <Table
           bordered
           columns={columns}
@@ -1381,33 +1389,33 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           pagination={false}
           // loading={loading}
         />
-        {type === "xacnhan" && info.tinhTrang === "Chưa xác nhận" && (
-          <Row justify={"end"} style={{ marginTop: 15 }}>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="primary" onClick={modalXK}>
-                Xác nhận
-              </Button>
-            </Col>
-            <Col style={{ marginRight: 15 }}>
-              <Button
-                type="danger"
-                onClick={() => setActiveModalTuChoi(true)}
-                disabled={info.tinhTrang !== "Chưa xác nhận"}
-              >
-                Từ chối
-              </Button>
-            </Col>
-          </Row>
-        )}
-        {type === "new" || type === "edit" ? (
-          <FormSubmit
-            goBack={goBack}
-            handleSave={saveAndClose}
-            saveAndClose={saveAndClose}
-            disabled={fieldTouch}
-          />
-        ) : null}
       </Card>
+      {type === "xacnhan" && info.tinhTrang === "Chưa xác nhận" && (
+        <Row justify={"end"} style={{ marginTop: 15 }}>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="primary" onClick={modalXK}>
+              Xác nhận
+            </Button>
+          </Col>
+          <Col style={{ marginRight: 15 }}>
+            <Button
+              type="danger"
+              onClick={() => setActiveModalTuChoi(true)}
+              disabled={info.tinhTrang !== "Chưa xác nhận"}
+            >
+              Từ chối
+            </Button>
+          </Col>
+        </Row>
+      )}
+      {type === "new" || type === "edit" ? (
+        <FormSubmit
+          goBack={goBack}
+          handleSave={saveAndClose}
+          saveAndClose={saveAndClose}
+          disabled={fieldTouch}
+        />
+      ) : null}
       <ModalTuChoi
         openModal={ActiveModalTuChoi}
         openModalFS={setActiveModalTuChoi}

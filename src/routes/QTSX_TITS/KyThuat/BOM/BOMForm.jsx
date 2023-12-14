@@ -2870,15 +2870,7 @@ function BOMForm({ match, permission, history }) {
           </Form>
         </Spin>
       </Card>
-      <Card
-        className="th-card-margin-bottom"
-        title="Thông tin vật tư BOM"
-        headStyle={{
-          textAlign: "center",
-          backgroundColor: "#0469B9",
-          color: "#fff",
-        }}
-      >
+      <Card className="th-card-margin-bottom" title="Thông tin vật tư BOM"> 
         {type === "new" && (
           <>
             <Row>

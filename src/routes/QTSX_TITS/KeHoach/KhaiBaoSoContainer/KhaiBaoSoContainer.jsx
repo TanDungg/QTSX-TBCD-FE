@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Row, Popover } from "antd";
+import {
+  Card,
+  Button,
+  Divider,
+  Col,
+  Row,
+  Popover,
+  Modal as AntModal,
+  Image,
+  Tag,
+} from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -24,6 +34,7 @@ import {
   setLocalStorage,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -34,6 +45,9 @@ function KhaiBaoSoContainer({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
   const [selectedSoContainer, setSelectedSoContainer] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
+  const [DisabledModal, setDisabledModal] = useState(false);
+  const [DataChiTiet, setDataChiTiet] = useState([]);
+  const [ChiTiet, setChiTiet] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -207,6 +221,14 @@ function KhaiBaoSoContainer({ match, history, permission }) {
     window.open(`${match.url}/in-ma-Qrcode-SoContainer`, "_blank");
   };
 
+  const XemChiTiet = (record) => {
+    setChiTiet(record);
+    setDataChiTiet(
+      reDataForTable(record.list_ChiTiets && JSON.parse(record.list_ChiTiets))
+    );
+    setDisabledModal(true);
+  };
+
   let renderHead = [
     {
       title: "STT",
@@ -282,6 +304,21 @@ function KhaiBaoSoContainer({ match, history, permission }) {
       filterSearch: true,
     },
     {
+      title: "List số VIN",
+      key: "list_ChiTiets",
+      align: "center",
+      render: (record) => (
+        <Button
+          type="primary"
+          onClick={() => {
+            XemChiTiet(record);
+          }}
+        >
+          Xem chi tiết
+        </Button>
+      ),
+    },
+    {
       title: "Ghi chú",
       dataIndex: "moTa",
       key: "moTa",
@@ -329,6 +366,84 @@ function KhaiBaoSoContainer({ match, history, permission }) {
     },
   };
 
+  let colChiTiet = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 45,
+    },
+    {
+      title: "Mã chi tiết",
+      dataIndex: "maChiTiet",
+      key: "maChiTiet",
+      align: "center",
+    },
+    {
+      title: "Tên chi tiết",
+      dataIndex: "tenChiTiet",
+      key: "tenChiTiet",
+      align: "center",
+    },
+    {
+      title: "Thông số",
+      dataIndex: "thongSoKyThuat",
+      key: "thongSoKyThuat",
+      align: "center",
+    },
+    {
+      title: "Sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
+      align: "center",
+    },
+    {
+      title: "Công đoạn",
+      dataIndex: "tenCongDoan",
+      key: "tenCongDoan",
+      align: "center",
+    },
+    {
+      title: "Hình ảnh",
+      dataIndex: "hinhAnh",
+      key: "hinhAnh",
+      align: "center",
+      render: (value) =>
+        value && (
+          <span>
+            <Image
+              src={BASE_URL_API + value}
+              alt="Hình ảnh"
+              style={{ maxWidth: 50, maxHeight: 50 }}
+            />
+          </span>
+        ),
+    },
+  ];
+
+  const componentschitiet = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+  const columnschitiet = map(colChiTiet, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
+
   const rowSelection = {
     selectedRowKeys: selectedKeys,
     selectedRows: selectedSoContainer,
@@ -339,6 +454,15 @@ function KhaiBaoSoContainer({ match, history, permission }) {
       setSelectedKeys(newSelectedKey);
     },
   };
+
+  const title = (
+    <span>
+      Danh sách số VIN của{" "}
+      <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
+        {ChiTiet && ChiTiet.tenChiTiet}
+      </Tag>
+    </span>
+  );
 
   return (
     <div className="gx-main-content">
@@ -421,6 +545,27 @@ function KhaiBaoSoContainer({ match, history, permission }) {
           }}
         />
       </Card>
+      <AntModal
+        title={title}
+        className="th-card-reset-margin"
+        open={DisabledModal}
+        width={width > 1200 ? `80%` : "100%"}
+        closable={true}
+        onCancel={() => setDisabledModal(false)}
+        footer={null}
+      >
+        <Table
+          bordered
+          columns={columnschitiet}
+          components={componentschitiet}
+          scroll={{ x: 1200, y: "55vh" }}
+          className="gx-table-responsive"
+          dataSource={DataChiTiet}
+          size="small"
+          loading={loading}
+          pagination={false}
+        />
+      </AntModal>
     </div>
   );
 }
