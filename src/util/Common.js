@@ -29,17 +29,65 @@ export const removeDuplicates = (arr) => {
   });
   return uniqueObjects;
 };
+// export function formatNumberWithCommaGeneral(number) {
+//   if (number.toString().length > 3) {
+//     const reversedNumberString = number.toString().split("").reverse().join("");
+//     const formattedNumber = reversedNumberString
+//       .replace(/(\d{3})/g, "$1,")
+//       .split("")
+//       .reverse()
+//       .join("");
+//     return formattedNumber;
+//   } else {
+//     return number;
+//   }
+// }
+// export function formatNumberWithCommaGeneral(number) {
+//   if (typeof number !== "number") {
+//     return number;
+//   }
+
+//   const numberParts = number.toString().split(".");
+//   const integerPart = numberParts[0];
+//   const decimalPart = numberParts[1];
+
+//   if (integerPart.length > 3) {
+//     const reversedIntegerString = integerPart.split("").reverse().join("");
+//     const formattedInteger = reversedIntegerString
+//       .replace(/(\d{3})/g, "$1,")
+//       .split("")
+//       .reverse()
+//       .join("");
+
+//     if (decimalPart) {
+//       return `${formattedInteger}.${decimalPart}`;
+//     } else {
+//       return formattedInteger;
+//     }
+//   } else {
+//     return number.toString();
+//   }
+// }
 export function formatNumberWithCommaGeneral(number) {
-  if (number.toString().length > 3) {
-    const reversedNumberString = number.toString().split("").reverse().join("");
-    const formattedNumber = reversedNumberString
-      .replace(/(\d{3})/g, "$1.")
-      .split("")
-      .reverse()
-      .join("");
-    return formattedNumber;
-  } else {
+  if (typeof number !== "number") {
     return number;
+  }
+
+  const numberParts = number.toString().split(".");
+  const integerPart = numberParts[0];
+  const decimalPart = numberParts[1];
+
+  // Format the integer part with commas
+  const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+
+  // If there is a decimal part, include it without trailing zeros
+  if (decimalPart) {
+    const formattedDecimal = decimalPart.replace(/0+$/, "");
+    return formattedDecimal.length > 0
+      ? `${formattedInteger}.${formattedDecimal}`
+      : formattedInteger;
+  } else {
+    return formattedInteger;
   }
 }
 

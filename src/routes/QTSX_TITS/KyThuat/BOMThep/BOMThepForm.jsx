@@ -293,7 +293,7 @@ function BOMThepForm({ match, permission, history }) {
     let messageLoi = "";
     if (DataLoi && DataLoi.length > 0) {
       DataLoi.forEach((dt) => {
-        if (dt.maVatTuChiTiet === val.maVatTuChiTiet) {
+        if (dt.maVatTu === val.maVatTu) {
           check = true;
           messageLoi = dt.ghiChuImport;
         }
@@ -301,12 +301,12 @@ function BOMThepForm({ match, permission, history }) {
     }
     return check ? (
       <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
-        {val.maVatTuChiTiet}
+        {val.maVatTu}
       </Popover>
     ) : val.STT === "*" ? (
-      <span style={{ fontWeight: "bold" }}>{val.maVatTuChiTiet}</span>
+      <span style={{ fontWeight: "bold" }}>{val.maVatTu}</span>
     ) : (
-      <span>{val.maVatTuChiTiet}</span>
+      <span>{val.maVatTu}</span>
     );
   };
   let colValues = () => {
@@ -321,15 +321,15 @@ function BOMThepForm({ match, permission, history }) {
       {
         title: "Mã vật tư",
         // dataIndex: "maChiTiet",
-        key: "maVatTuChiTiet",
+        key: "maVatTu",
         align: "center",
 
         render: (val) => renderLoi(val),
       },
       {
         title: "Tên vật tư",
-        dataIndex: "tenVatTuChiTiet",
-        key: "tenVatTuChiTiet",
+        dataIndex: "tenVatTu",
+        key: "tenVatTu",
         align: "center",
       },
       {
@@ -628,13 +628,13 @@ function BOMThepForm({ match, permission, history }) {
               d.VL.toString().trim() !== "")
           ) {
             NewData.push({
-              tenVatTuChiTiet:
+              tenVatTu:
                 (d[TCT] && d[TCT] !== 0) || d[TCT] === 0
                   ? d[TCT].toString().trim() !== ""
                     ? d[TCT].toString().trim()
                     : undefined
                   : undefined,
-              maVatTuChiTiet:
+              maVatTu:
                 (d[MCT] && d[MCT] !== 0) || d[MCT] === 0
                   ? d[MCT].toString().trim() !== ""
                     ? d[MCT].toString().trim()
@@ -710,7 +710,7 @@ function BOMThepForm({ match, permission, history }) {
               d["Dày"].toString().trim() !== "")
           ) {
             NewData.forEach((dt) => {
-              if (dt.maVatTuChiTiet === d.__EMPTY_1) {
+              if (dt.maVatTu === d.__EMPTY_1) {
                 dt.dai =
                   (d["Dài"] && d["Dài"] !== 0) || d["Dài"] === 0
                     ? d["Dài"].toString().trim() !== ""
@@ -825,8 +825,6 @@ function BOMThepForm({ match, permission, history }) {
         list_ChiTiets: ListChiTiet.map((ct) => {
           return {
             ...ct,
-            tenVatTu: ct.tenVatTuChiTiet,
-            maVatTu: ct.maVatTuChiTiet,
             quyCach: {
               dai: ct.dai ? ct.dai : undefined,
               rong: ct.rong ? ct.rong : undefined,
@@ -1022,20 +1020,16 @@ function BOMThepForm({ match, permission, history }) {
   };
   const RowStyle = (current, index) => {
     if (HangTrung.length > 0) {
-      if (
-        HangTrung.some(
-          (maVatTuChiTiet) => current.maVatTuChiTiety === maVatTuChiTiet
-        )
-      ) {
+      if (HangTrung.some((maVatTu) => current.maVatTu === maVatTu)) {
         return "red-row";
       }
     }
-    if (current.tenVatTuChiTiet === undefined) {
+    if (current.tenVatTu === undefined) {
       setFieldTouch(false);
       setMessageError("Tên chi tiết không được rỗng");
       return "red-row";
     }
-    if (current.maVatTuChiTiet === undefined) {
+    if (current.maVatTu === undefined) {
       setFieldTouch(false);
       setMessageError("Mã chi tiết không được rỗng");
       return "red-row";
@@ -1043,8 +1037,7 @@ function BOMThepForm({ match, permission, history }) {
     if (DataLoi && DataLoi.length > 0) {
       if (
         DataLoi.some(
-          (dt) =>
-            current.maVatTuChiTiet.toString() === dt.maVatTuChiTiet.toString()
+          (dt) => current.maVatTu.toString() === dt.maVatTu.toString()
         )
       ) {
         setFieldTouch(false);

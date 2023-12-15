@@ -237,7 +237,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã ngăn" &&
+          .trim() === "Mã ngăn/Mã kệ" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
@@ -266,7 +266,7 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
         });
         const TVT = "Mã vật tư/sản phẩm";
         const MVT = "Tên vật tư/sản phẩm";
-        const MMS = "Mã ngăn";
+        const MMS = "Mã ngăn/Mã kệ";
         const SL = "Số lượng";
         const NN = "Ngày nhập";
         const TGSD = "Thời gian sử dụng";

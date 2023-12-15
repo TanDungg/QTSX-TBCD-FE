@@ -465,11 +465,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         message = ct.message;
       }
     });
-    const disable =
-      (item.ngan_Id && (type === "new" || type === "edit")) ||
-      (!item.ke_Id && (type === "new" || type === "edit"))
-        ? false
-        : true;
+    const disable = type === "new" || type === "edit" ? false : true;
     return (
       <>
         <Input

@@ -448,10 +448,10 @@ const SoDuDauKyVatTuForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Tên ngăn",
-      dataIndex: "tenNgan",
+      title: "Vị trí",
       key: "tenNgan",
       align: "center",
+      render: (val) => <span>{val.tenNgan ? val.tenNgan : val.tenKe}</span>,
     },
     {
       title: "Ngày nhập",

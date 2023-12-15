@@ -404,8 +404,8 @@ const SoDuDauKyThanhPhamForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Tên ngăn",
-      dataIndex: "tenNgan",
+      title: "Vị trí",
+      render: (val) => <span>{val.tenNgan ? val.tenNgan : val.tenKe}</span>,
       key: "tenNgan",
       align: "center",
     },

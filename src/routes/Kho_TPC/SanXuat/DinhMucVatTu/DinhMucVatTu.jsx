@@ -210,25 +210,25 @@ function DinhMucVatTu({ permission, history, match }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const detailItem =
-      permission &&
-      permission.cof &&
-      item.nguoiKy_Id === INFO.user_Id &&
-      item.isXacNhan === 0 ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item, permission },
-          }}
-          title="Xác nhận"
-        >
-          <CheckCircleOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <CheckCircleOutlined />
-        </span>
-      );
+    // const detailItem =
+    //   permission &&
+    //   permission.cof &&
+    //   item.nguoiKy_Id === INFO.user_Id &&
+    //   item.isXacNhan === 0 ? (
+    //     <Link
+    //       to={{
+    //         pathname: `${match.url}/${item.id}/xac-nhan`,
+    //         state: { itemData: item, permission },
+    //       }}
+    //       title="Xác nhận"
+    //     >
+    //       <CheckCircleOutlined />
+    //     </Link>
+    //   ) : (
+    //     <span disabled title="Xác nhận">
+    //       <CheckCircleOutlined />
+    //     </span>
+    //   );
     const editItem =
       permission && permission.edit && item.isXacNhan === 0 ? (
         <Link
@@ -251,15 +251,15 @@ function DinhMucVatTu({ permission, history, match }) {
         : { disabled: true };
     return (
       <div>
-        <React.Fragment>
-          {detailItem}
-          <Divider type="vertical" />
+        <>
+          {/* {detailItem}
+          <Divider type="vertical" /> */}
           {editItem}
           <Divider type="vertical" />
           <a {...deleteItemVal} title="Xóa">
             <DeleteOutlined />
           </a>
-        </React.Fragment>
+        </>
       </div>
     );
   };
@@ -391,12 +391,12 @@ function DinhMucVatTu({ permission, history, match }) {
       key: "ghiChu",
       align: "center",
     },
-    {
-      title: "Trạng thái",
-      dataIndex: "xacNhanDinhMuc",
-      key: "xacNhanDinhMuc",
-      align: "center",
-    },
+    // {
+    //   title: "Trạng thái",
+    //   dataIndex: "xacNhanDinhMuc",
+    //   key: "xacNhanDinhMuc",
+    //   align: "center",
+    // },
     {
       title: "Chức năng",
       key: "action",
