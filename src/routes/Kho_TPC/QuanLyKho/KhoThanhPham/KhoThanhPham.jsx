@@ -433,13 +433,16 @@ function KhoVatTu({ history, permission }) {
           rowClassName={(record) => {
             return record.isParent ? "editable-row" : "editable-row";
           }}
-          pagination={{
-            onChange: handleTableChange,
-            pageSize: 20,
-            total: totalRow,
-            showSizeChanger: false,
-            showQuickJumper: true,
-          }}
+          pagination={
+            false
+            //   {
+            //   onChange: handleTableChange,
+            //   pageSize: 20,
+            //   total: totalRow,
+            //   showSizeChanger: false,
+            //   showQuickJumper: true,
+            // }
+          }
           loading={loading}
         />
       </Card>

@@ -229,7 +229,8 @@ function LayoutKhoThanhPham({ history, permission }) {
                             // ke.children.length === 0
                             // ?
                             soTangMax * 40,
-                          // : ke.children.length * 40,
+                          // :
+                          // ke.children.length * 40,
                           marginBottom: 50,
                         }}
                       >

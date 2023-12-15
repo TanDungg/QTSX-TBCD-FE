@@ -375,10 +375,12 @@ function DieuChuyenVatTu({ match, history, permission }) {
         return (
           <Tag
             color={
-              val === "Đã duyệt"
+              val === "Xưởng đã xác nhận"
                 ? "green"
                 : val === "Chưa duyệt"
                 ? "blue"
+                : val === "Kho duyệt"
+                ? "orange  "
                 : "red"
             }
           >

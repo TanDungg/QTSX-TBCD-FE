@@ -10,7 +10,10 @@ const QuyTrinhSanXuat = asyncComponent(() =>
 const QuyTrinhSanXuatForm = asyncComponent(() =>
   import("./QuyTrinhSanXuat/QuyTrinhSanXuatForm")
 );
-
+//Tiến độ sản xuất
+const TienDoSanXuat = asyncComponent(() =>
+  import("./TienDoSanXuat/TienDoSanXuat")
+);
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -40,6 +43,12 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/quy-trinh-san-xuat/:id/xac-nhan`}
         exact
         component={Auth(QuyTrinhSanXuatForm, menus, pathname, permission)}
+      />
+      {/* Tiến độ sản xuất */}
+      <Route
+        path={`${match.url}/tien-do-san-xuat`}
+        exact
+        component={Auth(TienDoSanXuat, menus, pathname, permission)}
       />
     </Switch>
   );

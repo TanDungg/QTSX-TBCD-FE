@@ -89,10 +89,11 @@ function CauTrucKhoThanhPhamForm({ match, permission, history }) {
         setFieldsValue({
           CauTrucKho: {
             ...newData,
-            sucChua:
-              newData.sucChua.toString() === "0"
+            sucChua: newData.sucChua
+              ? newData.sucChua.toString() === "0"
                 ? undefined
-                : newData.sucChua.toString(),
+                : newData.sucChua.toString()
+              : undefined,
             viTri: newData.viTri.toString(),
           },
         });
