@@ -31,12 +31,15 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import { setHistory } from "src/appRedux/actions";
+import { HISTORY, HISTORY_SUCCESS } from "src/constants/ActionTypes";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
 function VatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
+  const { option, path } = useSelector(({ History }) => History);
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
@@ -47,9 +50,26 @@ function VatTu({ match, history, permission }) {
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState("");
+
   useEffect(() => {
     if (permission && permission.view) {
-      getKho();
+      if (path === match.url) {
+        setFromDate(option.FromDate);
+        setToDate(option.ToDate);
+        setKho(option.Kho);
+        setPage(option.page);
+        setKeyword(option.keyword);
+        getKho(true);
+        loadData(
+          option.keyword,
+          option.Kho,
+          option.FromDate,
+          option.ToDate,
+          option.page
+        );
+      } else {
+        getKho(false);
+      }
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -74,7 +94,7 @@ function VatTu({ match, history, permission }) {
     dispatch(fetchStart(`lkn_PhieuNhapKhoVatTu?${param}`, "GET", null, "LIST"));
   };
 
-  const getKho = () => {
+  const getKho = (check) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -90,9 +110,11 @@ function VatTu({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
+          if (!check) {
+            setKho(res.data[0].id);
+            loadData(keyword, res.data[0].id, FromDate, ToDate, page);
+          }
           setListKho(res.data);
-          setKho(res.data[0].id);
-          loadData(keyword, res.data[0].id, FromDate, ToDate, page);
         } else {
           setListKho([]);
         }
@@ -135,6 +157,20 @@ function VatTu({ match, history, permission }) {
             pathname: `${match.url}/${item.id}/xac-nhan`,
             state: { itemData: item },
           }}
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  Kho,
+                  FromDate,
+                  ToDate,
+                  page,
+                  keyword,
+                },
+              })
+            );
+          }}
           title="Duyệt phiếu"
         >
           <CheckCircleOutlined />
@@ -155,6 +191,20 @@ function VatTu({ match, history, permission }) {
             state: { itemData: item },
           }}
           title="Sửa phiếu"
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  Kho,
+                  FromDate,
+                  ToDate,
+                  page,
+                  keyword,
+                },
+              })
+            );
+          }}
         >
           <EditOutlined />
         </Link>
@@ -237,6 +287,19 @@ function VatTu({ match, history, permission }) {
     history.push({
       pathname: `${match.url}/them-moi`,
     });
+
+    dispatch(
+      setHistory({
+        path: match.path,
+        option: {
+          Kho,
+          FromDate,
+          ToDate,
+          page,
+          keyword,
+        },
+      })
+    );
   };
 
   const handlePrint = () => {
@@ -356,6 +419,20 @@ function VatTu({ match, history, permission }) {
           to={{
             pathname: `${match.url}/${val.id}/chi-tiet`,
             state: { itemData: val, permission },
+          }}
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  Kho,
+                  FromDate,
+                  ToDate,
+                  page,
+                  keyword,
+                },
+              })
+            );
           }}
         >
           {val.maPhieuNhapKhoVatTu}

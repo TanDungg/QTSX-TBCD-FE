@@ -314,7 +314,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setListSanPham(JSON.parse(res.data.chiTietThanhPham));
-          getUserLap(INFO, res.data.userNhan_Id);
+          getUserLap(INFO, res.data.userLap_Id);
           setInfo(res.data);
           getXuong();
           getKho(res.data.phongBan_Id);

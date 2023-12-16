@@ -256,6 +256,19 @@ function KhoVatTu({ match, history, permission }) {
           <span>{val.tenNgan ? val.tenNgan : val.tenKe && val.tenKe}</span>
         );
       },
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenKho,
+            value: d.tenKho,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenNgan
+          ? record.tenNgan.includes(value)
+          : record.tenKe && record.tenKe.includes(value),
+      filterSearch: true,
     },
     {
       title: "Hạn sử dụng",

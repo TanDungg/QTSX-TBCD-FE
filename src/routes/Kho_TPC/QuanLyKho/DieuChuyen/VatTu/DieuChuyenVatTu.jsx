@@ -27,13 +27,24 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import {
+  DUYET_DIEUCHUYENVATTU_KHO_TPC,
+  XACNHAN_DIEUCHUYENVATTU_KHO_TPC,
+} from "src/constants/Config";
+import { setHistory } from "src/appRedux/actions";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 function DieuChuyenVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
+  const { option, path } = useSelector(({ History }) => History);
+
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    accessRole: JSON.parse(getTokenInfo().accessRole),
+  };
   const [ListKho, setListKho] = useState([]);
   const [ListKhoDen, setListKhoDen] = useState([]);
 
@@ -47,8 +58,23 @@ function DieuChuyenVatTu({ match, history, permission }) {
 
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(keyword, Kho, FromDate, ToDate, page, KhoDen);
       getKho();
+      if (path === match.url) {
+        setFromDate(option.FromDate);
+        setToDate(option.ToDate);
+        setKho(option.Kho);
+        setKhoDen(option.KhoDen);
+        setPage(option.page);
+        setKeyword(option.keyword);
+        getListData(
+          option.keyword,
+          option.Kho,
+          option.FromDate,
+          option.ToDate,
+          option.page,
+          option.KhoDen
+        );
+      }
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -129,14 +155,44 @@ function DieuChuyenVatTu({ match, history, permission }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
+    let check = false;
+    if (
+      !item.isDuyet &&
+      INFO.accessRole.includes(DUYET_DIEUCHUYENVATTU_KHO_TPC)
+    ) {
+      check = true;
+    } else if (
+      item.isDuyet &&
+      !item.isXacNhan &&
+      item.lkn_PhieuDeNghiCapVatTu_Id &&
+      INFO.accessRole.includes(XACNHAN_DIEUCHUYENVATTU_KHO_TPC)
+    ) {
+      check = true;
+    }
+
     const confirmItem =
-      permission && permission.cof && !item.isXacNhan ? (
+      permission && permission.cof && check ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
             state: { itemData: item },
           }}
           title="Xác nhận"
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  Kho,
+                  FromDate,
+                  ToDate,
+                  page,
+                  keyword,
+                  KhoDen,
+                },
+              })
+            );
+          }}
         >
           <CheckCircleOutlined />
         </Link>
@@ -146,7 +202,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
         </span>
       );
     const editItem =
-      permission && permission.edit && !item.isXacNhan ? (
+      permission && permission.edit && check ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -162,7 +218,10 @@ function DieuChuyenVatTu({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission && permission.del && !item.isXacNhan
+      permission &&
+      permission.del &&
+      !item.isDuyet &&
+      INFO.accessRole.includes(DUYET_DIEUCHUYENVATTU_KHO_TPC)
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -260,6 +319,21 @@ function DieuChuyenVatTu({ match, history, permission }) {
           to={{
             pathname: `${match.url}/${val.id}/chi-tiet`,
             state: { itemData: val, permission },
+          }}
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  Kho,
+                  FromDate,
+                  ToDate,
+                  page,
+                  keyword,
+                  KhoDen,
+                },
+              })
+            );
           }}
         >
           {val.maPhieuDieuChuyenVatTu}

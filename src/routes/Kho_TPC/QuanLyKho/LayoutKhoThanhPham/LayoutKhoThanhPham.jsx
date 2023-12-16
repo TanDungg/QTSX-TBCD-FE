@@ -61,7 +61,8 @@ function LayoutKhoThanhPham({ history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_ViTriLuuKho/vi-tri-luu-kho-thanh-pham-tree?kho_Id=${val}`,
+          // `lkn_ViTriLuuKho/vi-tri-luu-kho-thanh-pham-tree?kho_Id=${val}`,
+          `lkn_mobile/vi-tri-luu-kho-tree?kho_Id=${val}&IsThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -85,6 +86,28 @@ function LayoutKhoThanhPham({ history, permission }) {
         setListChiTietKho(res.data);
       } else {
         setListChiTietKho([]);
+      }
+    });
+  };
+  const getChiTietViTri = (val) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          // `lkn_ViTriLuuKho/vi-tri-luu-kho-tree?kho_Id=${val}`,
+          `lkn_mobile/chi-tiet-vi-tri-luu-kho-vat-tu?ke_ngan_Id=${val}&IsThanhPham=true`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListChiTietVatTu(res.data);
+      } else {
+        setListChiTietVatTu([]);
       }
     });
   };
@@ -116,14 +139,20 @@ function LayoutKhoThanhPham({ history, permission }) {
     },
     {
       title: "Mã sản phẩm",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
       align: "center",
     },
     {
       title: "Tên sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
+      align: "center",
+    },
+    {
+      title: "Màu sắc",
+      dataIndex: "tenMauSac",
+      key: "tenMauSac",
       align: "center",
     },
     {
@@ -169,17 +198,17 @@ function LayoutKhoThanhPham({ history, permission }) {
     };
   });
   const handleOnSelectKho = (val) => {
-    setListChiTietVatTu([]);
-    setFocusNgan("");
-    setFocusKe("");
-    setKho(val);
-    getChiTietKho(val);
-  };
-  const handleViewThongTin = (tt) => {
-    if (tt) {
-      setListChiTietVatTu(JSON.parse(tt));
-    } else {
+    if (Kho !== val) {
       setListChiTietVatTu([]);
+      setFocusNgan("");
+      setFocusKe("");
+      setKho(val);
+      getChiTietKho(val);
+    }
+  };
+  const handleViewThongTin = (id) => {
+    if (id) {
+      getChiTietViTri(id);
     }
   };
   return (
@@ -246,8 +275,7 @@ function LayoutKhoThanhPham({ history, permission }) {
                             backgroundColor:
                               focusKe === ke.id
                                 ? "#5cdbd3"
-                                : ke.children.length === 0 &&
-                                  ke.chiTietThanhPham
+                                : ke.children.length === 0 && ke.chiTietVatTu
                                 ? "#ff4d4f"
                                 : "#ccc",
                           }}
@@ -255,7 +283,7 @@ function LayoutKhoThanhPham({ history, permission }) {
                             if (ke.children.length === 0) {
                               setFocusKe(ke.id);
                               setFocusNgan("");
-                              handleViewThongTin(ke.chiTietThanhPham);
+                              handleViewThongTin(ke.id);
                               // setActiveModal(true)
                             }
                           }}
@@ -318,16 +346,14 @@ function LayoutKhoThanhPham({ history, permission }) {
                                                 backgroundColor:
                                                   focusNgan === ngan.id
                                                     ? "#5cdbd3"
-                                                    : ngan.chiTietThanhPham
+                                                    : ngan.chiTietVatTu
                                                     ? "#ff4d4f"
                                                     : "#ccc",
                                                 border: "1px solid #333",
                                                 cursor: "pointer",
                                               }}
                                               onClick={() => {
-                                                handleViewThongTin(
-                                                  ngan.chiTietThanhPham
-                                                );
+                                                handleViewThongTin(ngan.id);
                                                 setFocusNgan(ngan.id);
                                                 // setActiveModal(true)
                                                 setFocusKe("");
