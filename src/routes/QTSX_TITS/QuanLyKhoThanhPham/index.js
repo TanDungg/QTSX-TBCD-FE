@@ -9,7 +9,7 @@ const KhoThanhPham = asyncComponent(() =>
 const LayoutKhoThanhPham = asyncComponent(() =>
   import("./LayoutKhoThanhPham/LayoutKhoThanhPham")
 );
-/* Điều chuyển vật tư */
+/* Điều chuyển thành phẩm */
 const DieuChuyenSanPham = asyncComponent(() =>
   import("./DieuChuyen/DieuChuyen")
 );
@@ -20,6 +20,23 @@ const ThanhLySanPham = asyncComponent(() => import("./ThanhLy/ThanhLySanPham"));
 const ThanhLySanPhamForm = asyncComponent(() =>
   import("./ThanhLy/ThanhLySanPhamForm")
 );
+
+/* Nhập kho thành phẩm */
+const NhapKhoThanhPham = asyncComponent(() =>
+  import("./NhapKhoThanhPham/NhapKhoThanhPham")
+);
+const NhapKhoThanhPhamForm = asyncComponent(() =>
+  import("./NhapKhoThanhPham/NhapKhoThanhPhamForm")
+);
+
+/* Xuất kho thành phẩm */
+const XuatKhoThanhPham = asyncComponent(() =>
+  import("./XuatKhoThanhPham/XuatKhoThanhPham")
+);
+const XuatKhoThanhPhamForm = asyncComponent(() =>
+  import("./XuatKhoThanhPham/XuatKhoThanhPhamForm")
+);
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -34,7 +51,7 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(LayoutKhoThanhPham, menus, pathname, permission)}
       />
-      {/* Điều chuyển vật tư */}
+      {/* Điều chuyển thành phẩm */}
       <Route
         path={`${match.url}/dieu-chuyen`}
         exact
@@ -84,6 +101,59 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/thanh-ly/:id/xac-nhan`}
         exact
         component={Auth(ThanhLySanPhamForm, menus, pathname, permission)}
+      />
+      {/* Nhập kho thành phẩm */}
+      <Route
+        path={`${match.url}/nhap-kho`}
+        exact
+        component={Auth(NhapKhoThanhPham, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nhap-kho/them-moi`}
+        exact
+        component={Auth(NhapKhoThanhPhamForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nhap-kho/:id/chinh-sua`}
+        exact
+        component={Auth(NhapKhoThanhPhamForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nhap-kho/:id/chi-tiet`}
+        exact
+        component={Auth(NhapKhoThanhPhamForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nhap-kho/:id/xac-nhan`}
+        exact
+        component={Auth(NhapKhoThanhPhamForm, menus, pathname, permission)}
+      />
+
+      {/* Xuất kho thành phẩm */}
+      <Route
+        path={`${match.url}/xuat-kho`}
+        exact
+        component={Auth(XuatKhoThanhPham, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/xuat-kho/them-moi`}
+        exact
+        component={Auth(XuatKhoThanhPhamForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/xuat-kho/:id/chinh-sua`}
+        exact
+        component={Auth(XuatKhoThanhPhamForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/xuat-kho/:id/chi-tiet`}
+        exact
+        component={Auth(XuatKhoThanhPhamForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/xuat-kho/:id/xac-nhan`}
+        exact
+        component={Auth(XuatKhoThanhPhamForm, menus, pathname, permission)}
       />
     </Switch>
   );

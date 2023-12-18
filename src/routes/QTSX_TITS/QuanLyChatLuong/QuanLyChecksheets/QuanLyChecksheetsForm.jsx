@@ -59,7 +59,6 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
   const [id, setId] = useState(undefined);
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListCongDoan, setListCongDoan] = useState([]);
-
   const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
   const [ListHangMucKiemTra, setListHangMucKiemTra] = useState([]);
   const [DataModal, setDataModal] = useState({
@@ -322,11 +321,12 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
   };
 
   const props = {
-    accept: ".png, .jpg, .jpeg",
+    accept: ".png, .jpg, .jpeg, .pdf",
     beforeUpload: (file) => {
       const isPNG = file.type === "image/png" || file.type === "image/jpeg";
-      if (!isPNG) {
-        Helpers.alertError(`${file.name} không phải hình ảnh`);
+      const isPDF = file.type === "application/pdf";
+      if (!isPNG && !isPDF) {
+        Helpers.alertError(`${file.name} không phải hình ảnh hoặc file pdf`);
       } else {
         setFile(file);
         setDisableUpload(true);
@@ -427,6 +427,13 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
               setFieldTouch(false);
               setDisableUpload(false);
               setListHangMucKiemTra([]);
+              setDataModal({
+                tits_qtsx_LoaiSanPham_Id: "",
+                tits_qtsx_SanPham_Id: "",
+                tits_qtsx_CongDoan_Id: "",
+                tenSanPham: "",
+                tenCongDoan: "",
+              });
             }
           } else {
           }

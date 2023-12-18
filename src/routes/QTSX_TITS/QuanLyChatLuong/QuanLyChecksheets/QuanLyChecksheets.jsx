@@ -42,9 +42,10 @@ function QuanLyChecksheets({ match, history, permission }) {
   const [CongDoan, setCongDoan] = useState("");
   useEffect(() => {
     if (permission && permission.view) {
+      getLoaiSanPham();
       getSanPham();
       getListCongDoan();
-      getListData(SanPham, LoaiSanPham, CongDoan, keyword, page);
+      getListData(LoaiSanPham, SanPham, CongDoan, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -58,27 +59,55 @@ function QuanLyChecksheets({ match, history, permission }) {
    *
    */
   const getListData = (
-    tits_qtsx_SanPham_Id,
     tits_qtsx_LoaiSanPham_Id,
+    tits_qtsx_SanPham_Id,
     tits_qtsx_CongDoan_Id,
     keyword,
     page
   ) => {
     const param = convertObjectToUrlParams({
-      tits_qtsx_SanPham_Id,
-      keyword,
       tits_qtsx_LoaiSanPham_Id,
+      tits_qtsx_SanPham_Id,
       tits_qtsx_CongDoan_Id,
+      keyword,
       page,
     });
     dispatch(fetchStart(`tits_qtsx_CheckSheet?${param}`, "GET", null, "LIST"));
   };
 
-  const getSanPham = () => {
+  const getLoaiSanPham = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          "tits_qtsx_SanPham?page=-1",
+          "tits_qtsx_LoaiSanPham?page=-1",
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiSanPham(res.data);
+        } else {
+          setListLoaiSanPham([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getSanPham = (tits_qtsx_LoaiSanPham_Id) => {
+    const params = convertObjectToUrlParams({
+      tits_qtsx_LoaiSanPham_Id,
+      page: -1,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_SanPham?${params}`,
           "GET",
           null,
           "LIST",
@@ -132,7 +161,7 @@ function QuanLyChecksheets({ match, history, permission }) {
    *
    */
   const onSearchCheckSheets = () => {
-    getListData(SanPham, LoaiSanPham, CongDoan, keyword, page);
+    getListData(LoaiSanPham, SanPham, CongDoan, keyword, page);
   };
 
   /**
@@ -143,7 +172,7 @@ function QuanLyChecksheets({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(SanPham, LoaiSanPham, CongDoan, val.target.value, page);
+      getListData(LoaiSanPham, SanPham, CongDoan, val.target.value, page);
     }
   };
   /**
@@ -225,7 +254,7 @@ function QuanLyChecksheets({ match, history, permission }) {
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(SanPham, LoaiSanPham, CongDoan, keyword, page);
+          getListData(LoaiSanPham, SanPham, CongDoan, keyword, page);
         }
       })
       .catch((error) => console.error(error));
@@ -239,7 +268,7 @@ function QuanLyChecksheets({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(SanPham, LoaiSanPham, CongDoan, keyword, pagination);
+    getListData(LoaiSanPham, SanPham, CongDoan, keyword, pagination);
   };
 
   /**
@@ -390,11 +419,23 @@ function QuanLyChecksheets({ match, history, permission }) {
       render: (value) =>
         value && (
           <span>
-            <Image
-              src={BASE_URL_API + value}
-              alt="Hình ảnh"
-              style={{ maxWidth: 50, maxHeight: 50 }}
-            />
+            {value.endsWith(".png") ||
+            value.endsWith(".jpg") ||
+            value.endsWith(".jpeg") ? (
+              <Image
+                src={BASE_URL_API + value}
+                alt="Hình ảnh"
+                style={{ maxWidth: 50, maxHeight: 50 }}
+              />
+            ) : (
+              <a
+                target="_blank"
+                href={BASE_URL_API + value}
+                rel="noopener noreferrer"
+              >
+                {value.split("/")[5]}
+              </a>
+            )}
           </span>
         ),
     },
@@ -438,40 +479,46 @@ function QuanLyChecksheets({ match, history, permission }) {
     },
   };
 
+  const handleOnSelectLoaiSanPham = (value) => {
+    if (LoaiSanPham !== value) {
+      setLoaiSanPham(value);
+      setSanPham(null);
+      setPage(1);
+      getSanPham(value);
+      getListData(value, null, CongDoan, keyword, 1);
+    }
+  };
+
+  const handleClearLoaiSanPham = () => {
+    setLoaiSanPham(null);
+    setSanPham(null);
+    setPage(1);
+    getSanPham();
+    getListData(null, null, CongDoan, keyword, 1);
+  };
+
   const handleOnSelectSanPham = (value) => {
     if (SanPham !== value) {
       setSanPham(value);
       setPage(1);
-      getListData(value, LoaiSanPham, CongDoan, keyword, 1);
+      getListData(LoaiSanPham, value, CongDoan, keyword, 1);
     }
   };
-  const handleOnSelectLoaiSanPham = (value) => {
+
+  const handleClearSanPham = () => {
+    setSanPham(null);
+    setPage(1);
+    getListData(LoaiSanPham, null, CongDoan, keyword, 1);
+  };
+
+  const handleOnSelectCongDoan = (value) => {
     if (CongDoan !== value) {
       setCongDoan(value);
       setPage(1);
-      getListData(SanPham, LoaiSanPham, value, keyword, 1);
+      getListData(LoaiSanPham, SanPham, value, keyword, 1);
     }
   };
-  const handleOnSelectCongDoan = (value) => {
-    if (LoaiSanPham !== value) {
-      setLoaiSanPham(value);
-      setPage(1);
-      getListData(SanPham, value, CongDoan, keyword, 1);
-    }
-  };
-  const handleClearSanPham = (value) => {
-    setSanPham(null);
-    setPage(1);
-    getListData("", LoaiSanPham, CongDoan, keyword, 1);
-  };
-  const handleChangeNgay = (dateString) => {
-    if (LoaiSanPham !== dateString[0] && CongDoan !== dateString[1]) {
-      setLoaiSanPham(dateString[0]);
-      setCongDoan(dateString[1]);
-      setPage(1);
-      getListData(SanPham, dateString[0], dateString[1], keyword, 1);
-    }
-  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -495,11 +542,13 @@ function QuanLyChecksheets({ match, history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListLoaiSanPham}
               placeholder="Chọn loại sản phẩm"
-              optionsvalue={["id", "name"]}
+              optionsvalue={["id", "tenLoaiSanPham"]}
               style={{ width: "100%" }}
               showSearch
               onSelect={handleOnSelectLoaiSanPham}
               optionFilterProp="name"
+              allowClear
+              onClear={handleClearLoaiSanPham}
               value={LoaiSanPham}
             />
           </Col>
