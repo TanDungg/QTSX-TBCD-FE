@@ -9,7 +9,7 @@ import {
   ReloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { Select } from "src/components/Common";
+import { Select, Toolbar } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
@@ -34,7 +34,7 @@ const optionsTime = {
   hour12: false, // 24 giờ
 };
 function TienDoSanXuat({ match, history, permission }) {
-  //   const { width, loading, data } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   //   const INFO = {
   //     ...getLocalStorage("menu"),
@@ -296,18 +296,18 @@ function TienDoSanXuat({ match, history, permission }) {
                   <ReloadOutlined />
                 </a>
               </h5>
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListXuong ? ListXuong : []}
-                placeholder="Chọn xưởng"
-                optionsvalue={["id", "tenXuong"]}
-                style={{ width: "100%" }}
-                showSearch
-                onSelect={handleOnSelectXuong}
-                optionFilterProp="name"
-                allowClear
-                onClear={handleClearXuong}
-                value={Xuong}
+              <Toolbar
+                count={1}
+                search={{
+                  title: "Tìm kiếm",
+                  loading,
+                  // value: keyword,
+                  // onChange: onChangeKeyword,
+                  // onPressEnter: onSearchQuyTrinhSanXuat,
+                  // onSearch: onSearchQuyTrinhSanXuat,
+                  placeholder: "Nhập từ khóa",
+                  allowClear: true,
+                }}
               />
             </Card>
           </Col>
