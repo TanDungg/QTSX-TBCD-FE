@@ -55,7 +55,9 @@ function PhanQuyenKho({ permission, history }) {
         setUserSelect(
           res.data.map((d) => {
             return {
-              name: `${d.maNhanVien} - ${d.fullName} - ${d.email}`,
+              name: `${d.maNhanVien} - ${d.fullName}${
+                d.email ? " - " + d.email : ""
+              }`,
               ...d,
             };
           })
@@ -110,8 +112,16 @@ function PhanQuyenKho({ permission, history }) {
       );
     }).then((res) => {
       if (res && res.data.length > 0) {
-        setExpandedKeys(res.data);
-        setDonViRole(res.data);
+        setExpandedKeys(
+          res.data.map((q) => {
+            return q.Kho_Id;
+          })
+        );
+        setDonViRole(
+          res.data.map((q) => {
+            return q.Kho_Id;
+          })
+        );
       } else {
         setDonViRole(null);
       }

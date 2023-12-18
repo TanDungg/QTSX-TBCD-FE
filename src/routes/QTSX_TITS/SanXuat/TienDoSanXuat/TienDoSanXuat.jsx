@@ -9,6 +9,7 @@ import {
   Tag,
   Input,
   Empty,
+  List,
 } from "antd";
 import {
   PlusOutlined,
@@ -61,6 +62,7 @@ function TienDoSanXuat({ match, history, permission }) {
   const [Tram, setTram] = useState(null);
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [ListSoKhungNoiBo, setListSoKhungNoiBo] = useState([]);
+  const [DisableVaoTram, setDisableVaoTram] = useState(true);
 
   useEffect(() => {
     const intervalId = setInterval(() => {
@@ -189,9 +191,41 @@ function TienDoSanXuat({ match, history, permission }) {
   };
   const handleClearXuong = (value) => {
     setXuong(null);
+    setChuyen(null);
+    setTram(null);
     // getListData(keyword, null, 1);
   };
-
+  const handleClearChuyen = (value) => {
+    setChuyen(null);
+    setTram(null);
+    // getListData(keyword, null, 1);
+  };
+  const handleClearTram = (value) => {
+    setTram(null);
+    // getListData(keyword, null, 1);
+  };
+  const data = [
+    "QOEC0001",
+    "QOEC0002",
+    "QOEC0003",
+    "QOEC0004",
+    "QOEC0005",
+    "QOEC0006",
+    "QOEC0007",
+    "QOEC0008",
+    "QOEC0009",
+    "QOEC0010",
+    "QOEC0011",
+    "QOEC0012",
+    "QOEC0013",
+    "QOEC0014",
+    "QOEC0015",
+    "QOEC0016",
+    "QOEC0017",
+    "QOEC0018",
+    "QOEC0019",
+    "QOEC0020",
+  ];
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -244,8 +278,9 @@ function TienDoSanXuat({ match, history, permission }) {
               onSelect={handleOnSelectChuyen}
               optionFilterProp="name"
               allowClear
-              onClear={handleClearXuong}
+              onClear={handleClearChuyen}
               value={Chuyen}
+              disabled={!Xuong}
             />
           </Col>
           <Col
@@ -268,8 +303,9 @@ function TienDoSanXuat({ match, history, permission }) {
               onSelect={handleOnSelectTram}
               optionFilterProp="name"
               allowClear
-              onClear={handleClearXuong}
+              onClear={handleClearTram}
               value={Tram}
+              disabled={!Chuyen}
             />
           </Col>
           <Col
@@ -307,7 +343,7 @@ function TienDoSanXuat({ match, history, permission }) {
             >
               <h5 style={{ fontWeight: "bold", color: "#0469b9" }}>
                 Xe chuẩn bị vào trạm:&nbsp;&nbsp;&nbsp;
-                <a>
+                <a disabled={!Tram}>
                   <ReloadOutlined />
                 </a>
               </h5>
@@ -322,7 +358,19 @@ function TienDoSanXuat({ match, history, permission }) {
                   // onSearch: onSearchQuyTrinhSanXuat,
                   placeholder: "Nhập từ khóa",
                   allowClear: true,
+                  disabled: !Tram,
                 }}
+              />
+              <List
+                size="small"
+                style={{ marginTop: 5, height: 200, overflow: "auto" }}
+                bordered
+                dataSource={data}
+                renderItem={(item) => (
+                  <List.Item>
+                    <a>{item}</a>
+                  </List.Item>
+                )}
               />
             </Card>
           </Col>
@@ -357,6 +405,7 @@ function TienDoSanXuat({ match, history, permission }) {
                 icon={<SelectOutlined />}
                 type="primary"
                 style={{ width: "80%" }}
+                disabled={DisableVaoTram}
               >
                 Vào trạm
               </Button>
@@ -366,27 +415,15 @@ function TienDoSanXuat({ match, history, permission }) {
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
-          <Col
-            xxl={16}
-            xl={16}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <Input placeholder="Ghi chú"></Input>
+          <Col xxl={16} xl={16} lg={12} md={12} sm={24} xs={24}>
+            <Input disabled={DisableVaoTram} placeholder="Ghi chú"></Input>
           </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <Button icon={<SendOutlined />} type="primary">
+          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Button
+              disabled={DisableVaoTram}
+              icon={<SendOutlined />}
+              type="primary"
+            >
               Gửi
             </Button>
           </Col>
