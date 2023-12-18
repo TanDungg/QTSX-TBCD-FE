@@ -40,7 +40,7 @@ function InMaQr() {
             >
               <div
                 style={{
-                  width: "70%",
+                  width: "40%",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",

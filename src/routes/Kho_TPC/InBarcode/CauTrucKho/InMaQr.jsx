@@ -40,18 +40,18 @@ function InMaQr() {
             >
               <div
                 style={{
-                  width: "35%",
+                  width: "40%",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
-                  marginLeft: 8,
+                  marginLeft: 5,
                 }}
               >
                 <QRCode value={d && d.id} style={{ width: 65, height: 65 }} />
               </div>
               <div
                 style={{
-                  width: "65%",
+                  width: "60%",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -61,7 +61,7 @@ function InMaQr() {
               >
                 <span
                   style={{
-                    fontSize: 10,
+                    fontSize: 8,
                     marginBottom: 2,
                   }}
                 >
@@ -69,7 +69,7 @@ function InMaQr() {
                 </span>
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 10,
                     fontWeight: "bold",
                     textTransform: "uppercase",
                   }}
