@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Row, Checkbox, Tag, Switch } from "antd";
+import {
+  Card,
+  Button,
+  Divider,
+  Col,
+  Row,
+  Checkbox,
+  Tag,
+  Input,
+  Empty,
+} from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -7,6 +17,8 @@ import {
   CheckCircleOutlined,
   RedoOutlined,
   ReloadOutlined,
+  SelectOutlined,
+  SendOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Select, Toolbar } from "src/components/Common";
@@ -289,7 +301,10 @@ function TienDoSanXuat({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <Card className="th-card-margin-bottom th-card-reset-margin">
+            <Card
+              className="th-card-margin-bottom th-card-reset-margin"
+              style={{ minHeight: 174.188 }}
+            >
               <h5 style={{ fontWeight: "bold", color: "#0469b9" }}>
                 Xe chuẩn bị vào trạm:&nbsp;&nbsp;&nbsp;
                 <a>
@@ -321,20 +336,7 @@ function TienDoSanXuat({ match, history, permission }) {
             style={{ marginBottom: 8 }}
           >
             <Card className="th-card-margin-bottom th-card-reset-margin">
-              <h5>Chuyền:</h5>
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListChuyen ? ListChuyen : []}
-                placeholder="Chọn chuyền"
-                optionsvalue={["id", "tenChuyen"]}
-                style={{ width: "100%" }}
-                showSearch
-                onSelect={handleOnSelectChuyen}
-                optionFilterProp="name"
-                allowClear
-                onClear={handleClearXuong}
-                value={Chuyen}
-              />
+              <Empty />
             </Card>
           </Col>
           <Col
@@ -345,23 +347,48 @@ function TienDoSanXuat({ match, history, permission }) {
             sm={24}
             xs={24}
             style={{ marginBottom: 8 }}
+            align="center"
           >
-            <Card className="th-card-margin-bottom th-card-reset-margin">
-              <h5>Trạm:</h5>
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListTram ? ListTram : []}
-                placeholder="Chọn trạm"
-                optionsvalue={["id", "tenTram"]}
-                style={{ width: "100%" }}
-                showSearch
-                onSelect={handleOnSelectTram}
-                optionFilterProp="name"
-                allowClear
-                onClear={handleClearXuong}
-                value={Tram}
-              />
+            <Card
+              className="th-card-margin-bottom th-card-reset-margin"
+              style={{ minHeight: 174.188 }}
+            >
+              <Button
+                icon={<SelectOutlined />}
+                type="primary"
+                style={{ width: "80%" }}
+              >
+                Vào trạm
+              </Button>
             </Card>
+          </Col>
+        </Row>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
+        <Row>
+          <Col
+            xxl={16}
+            xl={16}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <Input placeholder="Ghi chú"></Input>
+          </Col>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <Button icon={<SendOutlined />} type="primary">
+              Gửi
+            </Button>
           </Col>
         </Row>
       </Card>

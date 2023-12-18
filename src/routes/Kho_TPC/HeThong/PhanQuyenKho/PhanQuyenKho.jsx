@@ -99,7 +99,7 @@ function PhanQuyenKho({ permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `RoleByDonVi/${id}`,
+          `CauTrucKho/get-list-phan-quyen-kho?user_Id=${id}`,
           "GET",
           null,
           "DETAIL",
@@ -109,37 +109,9 @@ function PhanQuyenKho({ permission, history }) {
         )
       );
     }).then((res) => {
-      if (res && res.data.length > 0 && res.data[0].lstrole.length > 0) {
-        const newData = [];
-        const expanded = [];
-        res.data[0].lstrole.forEach((d) => {
-          const exp = d.ghepNoiIds.split("_");
-          if (exp.length === 2) {
-            if (!expanded.includes(exp[0])) {
-              expanded.push(exp[0]);
-            }
-          } else if (exp.length === 3) {
-            if (!expanded.includes(exp[0])) {
-              expanded.push(exp[0]);
-            }
-            if (!expanded.includes(exp[0] + "_" + exp[1])) {
-              expanded.push(exp[0] + "_" + exp[1]);
-            }
-          } else if (exp.length === 4) {
-            if (!expanded.includes(exp[0])) {
-              expanded.push(exp[0]);
-            }
-            if (!expanded.includes(exp[0] + "_" + exp[1])) {
-              expanded.push(exp[0] + "_" + exp[1]);
-            }
-            if (!expanded.includes(exp[0] + "_" + exp[1] + "_" + exp[2])) {
-              expanded.push(exp[0] + "_" + exp[1] + "_" + exp[2]);
-            }
-          }
-          newData.push(d.ghepNoiIds);
-        });
-        setExpandedKeys(expanded);
-        setDonViRole(newData);
+      if (res && res.data.length > 0) {
+        setExpandedKeys(res.data);
+        setDonViRole(res.data);
       } else {
         setDonViRole(null);
       }
@@ -159,47 +131,30 @@ function PhanQuyenKho({ permission, history }) {
   };
 
   const handleSave = () => {
-    console.log(donViRole);
-    // const newData = {
-    //   user_Id: user,
-    //   lstrole: donViRole.map((d) => {
-    //     const result = d.split("_");
-    //     if (result.length === 1) {
-    //       return {
-    //         tapDoan_Id: result[0],
-    //       };
-    //     } else if (result.length === 2) {
-    //       return {
-    //         tapDoan_Id: result[0],
-    //         donVi_Id: result[1],
-    //       };
-    //     } else if (result.length === 3) {
-    //       return {
-    //         tapDoan_Id: result[0],
-    //         donVi_Id: result[1],
-    //         phongban_Id: result[2],
-    //       };
-    //     } else if (result.length === 4) {
-    //       return {
-    //         tapDoan_Id: result[0],
-    //         donVi_Id: result[1],
-    //         phongban_Id: result[2],
-    //         boPhan_Id: result[3],
-    //       };
-    //     } else {
-    //       return undefined;
-    //     }
-    //   }),
-    // };
-    // new Promise((resolve, reject) => {
-    //   dispatch(
-    //     fetchStart(`RoleByDonVi`, "POST", newData, "EDIT", "", resolve, reject)
-    //   );
-    // })
-    //   .then((res) => {
-    //     getListData(user);
-    //   })
-    //   .catch((err) => console.log(err));
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `CauTrucKho/post-phan-quyen-kho-user`,
+          "POST",
+          {
+            user_Id: user,
+            list_Khos: donViRole.map((k) => {
+              return {
+                kho_Id: k,
+              };
+            }),
+          },
+          "ADD",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        getListData(user);
+      })
+      .catch((err) => console.log(err));
   };
 
   const addButtonRender = () => {
