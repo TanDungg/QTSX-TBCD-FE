@@ -693,7 +693,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
       <ContainerHeader title={formTitle} back={goBack} />
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin điều chuyển"}
+        title={"Thông tin phiếu điều chuyển vật tư"}
       >
         <Form
           {...DEFAULT_FORM_DIEUCHUYEN_THANHLY}

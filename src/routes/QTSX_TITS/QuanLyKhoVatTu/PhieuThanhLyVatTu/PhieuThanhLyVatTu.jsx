@@ -466,8 +466,8 @@ function ThanhLyVatTu({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Thanh lý vật tư"
-        description="Thanh lý vật tư"
+        title="Phiếu thanh lý vật tư"
+        description="Danh sách phiếu thanh lý vật tư"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">

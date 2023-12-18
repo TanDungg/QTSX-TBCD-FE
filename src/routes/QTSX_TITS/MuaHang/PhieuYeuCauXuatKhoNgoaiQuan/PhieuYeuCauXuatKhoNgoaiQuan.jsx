@@ -23,7 +23,7 @@ import {
   getLocalStorage,
   getTokenInfo,
   removeDuplicates,
-  exportPDF,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -235,7 +235,7 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
               )
             );
           }).then((res) => {
-            exportPDF("PhieuDeNghiMuaHang", res.data.datapdf);
+            exportExcel("PhieuXuatKhoNgoaiQuan", res.data.dataexcel);
             setSelectPhieuXuat([]);
             setSelectedKeys([]);
           });

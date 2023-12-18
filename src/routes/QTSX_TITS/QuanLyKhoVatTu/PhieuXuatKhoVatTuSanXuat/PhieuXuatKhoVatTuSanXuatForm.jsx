@@ -1452,7 +1452,7 @@ const VatTuForm = ({ history, match, permission }) => {
             </Card>
             <Card
               className="th-card-margin-bottom th-card-reset-margin"
-              title={"Thông tin vật tư"}
+              title={"Danh sách vật tư"}
               headStyle={{
                 textAlign: "center",
                 backgroundColor: "#0469B9",
@@ -1940,7 +1940,7 @@ const VatTuForm = ({ history, match, permission }) => {
             </Card>
             <Card
               className="th-card-margin-bottom th-card-reset-margin"
-              title={"Thông tin vật tư"}
+              title={"Danh sách vật tư"}
               headStyle={{
                 textAlign: "center",
                 backgroundColor: "#0469B9",

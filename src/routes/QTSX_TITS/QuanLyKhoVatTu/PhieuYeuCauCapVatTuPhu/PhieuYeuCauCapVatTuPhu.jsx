@@ -5,7 +5,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
-  ExportOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -26,6 +26,7 @@ import {
   getTokenInfo,
   exportPDF,
   removeDuplicates,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -166,7 +167,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
       deleteItemAction,
       item,
       item.maPhieu,
-      "phiếu đề nghị cấp vật tư phụ"
+      "phiếu yêu cầu cấp vật tư phụ"
     );
   };
 
@@ -205,21 +206,11 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     });
   };
 
-  const handleTaoPhieuXuat = () => {
-    history.push({
-      pathname: `/quan-ly-kho-tpc/xuat-kho/vat-tu/them-moi`,
-      state: { phieuDNCVT: SelectedDNCVT },
-    });
-  };
-
-  const handlePrint = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
+  const handleXuatExcel = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuYeuCauCapVatTu/${SelectedDNCVT[0].id}?${params}`,
+          `tits_qtsx_PhieuYeuCauCapVatTu/${SelectedDNCVT[0].id}`,
           "GET",
           null,
           "DETAIL",
@@ -231,18 +222,15 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
+          const data = res.data;
           const newData = {
-            ...res.data,
-            nguoiNhanHang: res.data.userLapPhieu,
-            boPhan: res.data.tenPhongBan,
-            lst_ChiTietPhieuDeNghiCapVatTu:
-              res.data.lst_ChiTietPhieuDeNghiCapVatTu !== null &&
-              JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu),
+            ...data,
+            list_ChiTiets: data.list_ChiTiets && JSON.parse(data.list_ChiTiets),
           };
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `tits_qtsx_PhieuYeuCauCapVatTu/export-pdf`,
+                `tits_qtsx_PhieuYeuCauCapVatTu/export-file-phieu-de-nghi-cap-vat-tu-phu`,
                 "POST",
                 newData,
                 "",
@@ -252,9 +240,7 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
               )
             );
           }).then((res) => {
-            exportPDF("PhieuDeNghiCapVatTu", res.data.datapdf);
-            setSelectedDNCVT([]);
-            setSelectedKeys([]);
+            exportExcel("PhieuYeuCauCapVatTuPhu", res.data.dataexcel);
           });
         }
       })
@@ -274,19 +260,13 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           Tạo phiếu
         </Button>
         <Button
-          icon={<ExportOutlined />}
+          icon={<DownloadOutlined />}
           className="th-margin-bottom-0"
           type="primary"
-          onClick={handleTaoPhieuXuat}
-          disabled={
-            (permission && !permission.print) ||
-            SelectedKeys.length === 0 ||
-            (SelectedDNCVT.length > 0 &&
-              (SelectedDNCVT[0].tinhTrang === "Chưa duyệt" ||
-                SelectedDNCVT[0].tinhTrang.startsWith("Đã từ chối")))
-          }
+          onClick={handleXuatExcel}
+          disabled={SelectedDNCVT.length === 0}
         >
-          Xuất kho
+          Xuất excel
         </Button>
       </>
     );
@@ -496,8 +476,8 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phiếu đề nghị cấp vật tư phụ"
-        description="Danh sách phiếu đề nghị cấp vật tư phụ"
+        title="Phiếu yêu cầu cấp vật tư phụ"
+        description="Danh sách phiếu yêu cầu cấp vật tư phụ"
         buttons={addButtonRender()}
       />
 
