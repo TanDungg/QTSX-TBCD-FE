@@ -37,6 +37,12 @@ const XuatKhoThanhPhamForm = asyncComponent(() =>
   import("./XuatKhoThanhPham/XuatKhoThanhPhamForm")
 );
 
+/* Phiếu kiểm kê thành phẩm */
+const PhieuKiemKe = asyncComponent(() => import("./PhieuKiemKe/PhieuKiemKe"));
+const PhieuKiemKeForm = asyncComponent(() =>
+  import("./PhieuKiemKe/PhieuKiemKeForm")
+);
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -154,6 +160,32 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/xuat-kho/:id/xac-nhan`}
         exact
         component={Auth(XuatKhoThanhPhamForm, menus, pathname, permission)}
+      />
+      {/* Phiếu kiểm kê thành phẩm */}
+      <Route
+        path={`${match.url}/phieu-kiem-ke`}
+        exact
+        component={Auth(PhieuKiemKe, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-kiem-ke/them-moi`}
+        exact
+        component={Auth(PhieuKiemKeForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-kiem-ke/:id/chinh-sua`}
+        exact
+        component={Auth(PhieuKiemKeForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-kiem-ke/:id/chi-tiet`}
+        exact
+        component={Auth(PhieuKiemKeForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-kiem-ke/:id/xac-nhan`}
+        exact
+        component={Auth(PhieuKiemKeForm, menus, pathname, permission)}
       />
     </Switch>
   );

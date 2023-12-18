@@ -114,7 +114,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=false`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=false`,
           "GET",
           null,
           "DETAIL",
@@ -656,7 +656,7 @@ function XuatKhoVatTu({ match, history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListKho ? ListKho : []}
               placeholder="Chọn Kho"
-              optionsvalue={["id", "tenCTKho"]}
+              optionsvalue={["id", "tenCauTrucKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}

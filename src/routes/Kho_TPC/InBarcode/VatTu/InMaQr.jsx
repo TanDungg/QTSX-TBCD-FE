@@ -40,7 +40,7 @@ function InMaQr() {
             >
               <div
                 style={{
-                  width: "30%",
+                  width: "35%",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -51,7 +51,7 @@ function InMaQr() {
                   value={
                     d && d.vatTu_Id + (d.hanSuDung ? "_" + d.hanSuDung : "")
                   }
-                  style={{ width: 55, height: 55, marginBottom: 2 }}
+                  style={{ width: 65, height: 65, marginBottom: 2 }}
                 />
                 <span style={{ fontSize: 9, fontWeight: "bold" }}>
                   {d && d.hanSuDung}
@@ -59,17 +59,17 @@ function InMaQr() {
               </div>
               <div
                 style={{
-                  width: "70%",
+                  width: "65%",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   textAlign: "center",
-                  margin: "0px 5px",
+                  margin: "0px 8px",
                 }}
               >
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 8,
                     whiteSpace: "break-spaces",
                     wordBreak: "break-all",
                     marginBottom: 2,
@@ -79,7 +79,7 @@ function InMaQr() {
                 </span>
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: 8,
                     fontWeight: "bold",
                     textTransform: "uppercase",
                   }}

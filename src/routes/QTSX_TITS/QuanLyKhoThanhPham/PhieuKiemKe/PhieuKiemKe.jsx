@@ -5,17 +5,16 @@ import {
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
-  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { isEmpty, map } from "lodash";
+import { map, isEmpty } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
   EditableTableRow,
-  Select,
   Toolbar,
+  Select,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -24,9 +23,7 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
-  exportPDF,
   removeDuplicates,
-  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -34,82 +31,33 @@ import moment from "moment";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
-function XuatKhoVatTu({ match, history, permission }) {
+function PhieuKiemKe({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
-  const [DataXuatExcel, setDataXuatExcel] = useState([]);
   const [ListKho, setListKho] = useState([]);
-  const [Kho, setKho] = useState(null);
-  const [keyword, setKeyword] = useState(null);
+  const [Kho, setKho] = useState([]);
+  const [keyword, setKeyword] = useState("");
   const [TuNgay, setTuNgay] = useState(getDateNow(-7));
   const [DenNgay, setDenNgay] = useState(getDateNow());
-  const [SelectedDevice, setSelectedDevice] = useState([]);
-  const [SelectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
-      getKho();
+      getListKho();
       getListData(keyword, Kho, TuNgay, DenNgay, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
-
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Lấy dữ liệu về
-   *
-   */
-  const getListData = (keyword, tits_qtsx_Xuong_Id, tuNgay, denNgay, page) => {
-    const param = convertObjectToUrlParams({
-      keyword,
-      tits_qtsx_Xuong_Id,
-      tuNgay,
-      denNgay,
-      page,
-    });
-    dispatch(
-      fetchStart(`tits_qtsx_PhieuXuatKhoVatTuPhu?${param}`, "GET", null, "LIST")
-    );
-    const paramXuat = convertObjectToUrlParams({
-      keyword,
-      tits_qtsx_Xuong_Id,
-      tuNgay,
-      denNgay,
-      page: -1,
-    });
+  const getListKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuPhu?${paramXuat}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDataXuatExcel(res.data);
-        } else {
-          setDataXuatExcel([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getKho = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=false`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -130,24 +78,58 @@ function XuatKhoVatTu({ match, history, permission }) {
   };
 
   /**
+   * Lấy dữ liệu về
+   *
+   */
+  const getListData = (
+    keyword,
+    tits_qtsx_CauTrucKho_Id,
+    tuNgay,
+    denNgay,
+    page
+  ) => {
+    const param = convertObjectToUrlParams({
+      keyword,
+      tits_qtsx_CauTrucKho_Id,
+      tuNgay,
+      denNgay,
+      page,
+    });
+    dispatch(fetchStart(`tits_qtsx_PhieuKiemKe?${param}`, "GET", null, "LIST"));
+  };
+
+  /**
+   * Tìm kiếm sản phẩm
+   *
+   */
+  const onSearchPhieuKiemKe = () => {
+    getListData(keyword, Kho, TuNgay, DenNgay, page);
+  };
+
+  /**
+   * Thay đổi keyword
+   *
+   * @param {*} val
+   */
+  const onChangeKeyword = (val) => {
+    setKeyword(val.target.value);
+    if (isEmpty(val.target.value)) {
+      getListData(val.target.value, Kho, TuNgay, DenNgay, page);
+    }
+  };
+
+  /**
    * ActionContent: Hành động trên bảng
    * @param {*} item
    * @returns View
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const detailItem =
-      (permission &&
-        permission.cof &&
-        item.nguoiPTBoPhanDuyet_Id === INFO.user_Id &&
-        item.tinhTrang === "Chưa duyệt") ||
-      (permission &&
-        permission.cof &&
-        item.nguoiKeToanDuyet_Id === INFO.user_Id &&
-        item.tinhTrang === "Chờ kế toán duyệt") ? (
+    const duyet =
+      permission && permission.cof && item.tinhTrang === "Chưa xử lý" ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
+            pathname: `${match.url}/${item.id}/duyet`,
             state: { itemData: item, permission },
           }}
           title="Xác nhận"
@@ -159,11 +141,12 @@ function XuatKhoVatTu({ match, history, permission }) {
           <CheckCircleOutlined />
         </span>
       );
+
     const editItem =
       permission &&
       permission.edit &&
       item.nguoiTao_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa duyệt" ? (
+      item.tinhTrang === "Chưa xử lý" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -178,16 +161,17 @@ function XuatKhoVatTu({ match, history, permission }) {
           <EditOutlined />
         </span>
       );
+
     const deleteVal =
       permission &&
       permission.del &&
       item.nguoiTao_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa duyệt"
+      item.tinhTrang === "Chưa xử lý"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {detailItem}
+        {duyet}
         <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
@@ -205,12 +189,7 @@ function XuatKhoVatTu({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maPhieu,
-      "phiếu xuất kho vật tư phụ"
-    );
+    ModalDeleteConfirm(deleteItemAction, item, item.maPhieu, "phiếu kiểm kê");
   };
 
   /**
@@ -219,11 +198,12 @@ function XuatKhoVatTu({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_PhieuXuatKhoVatTuPhu/${item.id}`;
+    let url = `tits_qtsx_PhieuKiemKe/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
+        // Reload lại danh sách
         if (res.status !== 409) {
           getListData(keyword, Kho, TuNgay, DenNgay, page);
         }
@@ -231,22 +211,42 @@ function XuatKhoVatTu({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const onSearchXuatKhoVatTuPhu = () => {
-    getListData(keyword, Kho, TuNgay, DenNgay, page);
-  };
-
-  const onChangeKeyword = (val) => {
-    setKeyword(val.target.value);
-    if (isEmpty(val.target.value)) {
-      getListData(val.target.value, Kho, TuNgay, DenNgay, page);
-    }
-  };
-
+  /**
+   * handleTableChange
+   *
+   * Fetch dữ liệu dựa theo thay đổi trang
+   * @param {number} pagination
+   */
   const handleTableChange = (pagination) => {
     setPage(pagination);
     getListData(keyword, Kho, TuNgay, DenNgay, pagination);
   };
 
+  /**
+   * Chuyển tới trang thêm mới chức năng
+   *
+   * @memberof ChucNang
+   */
+  const handleRedirect = () => {
+    history.push({
+      pathname: `${match.url}/them-moi`,
+    });
+  };
+  const addButtonRender = () => {
+    return (
+      <>
+        <Button
+          icon={<PlusOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleRedirect}
+          disabled={permission && !permission.add}
+        >
+          Tạo phiếu
+        </Button>
+      </>
+    );
+  };
   const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
@@ -276,7 +276,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu xuất",
+      title: "Mã phiếu kiểm kê",
       key: "maPhieu",
       align: "center",
       render: (val) => renderDetail(val),
@@ -292,39 +292,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Xưởng yêu cầu",
-      dataIndex: "tenXuong",
-      key: "tenXuong",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenXuong,
-            value: d.tenXuong,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenXuong.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Phiếu yêu cầu",
-      dataIndex: "maPhieuYeuCauCapVatTu",
-      key: "maPhieuYeuCauCapVatTu",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.maPhieuYeuCauCapVatTu,
-            value: d.maPhieuYeuCauCapVatTu,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.maPhieuYeuCauCapVatTu.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Kho xuất",
+      title: "Kho kiểm kê",
       dataIndex: "tenCauTrucKho",
       key: "tenCauTrucKho",
       align: "center",
@@ -340,7 +308,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Người lập",
+      title: "Người tạo phiếu",
       dataIndex: "tenNguoiTao",
       key: "tenNguoiTao",
       align: "center",
@@ -356,7 +324,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Ngày xuất kho",
+      title: "Ngày kiểm kê",
       dataIndex: "ngay",
       key: "ngay",
       align: "center",
@@ -391,13 +359,11 @@ function XuatKhoVatTu({ match, history, permission }) {
           {value && (
             <Tag
               color={
-                value === "Chưa duyệt"
+                value === "Chưa xử lý"
                   ? "orange"
-                  : value === "Đã duyệt"
+                  : value === "Phiếu đã được duyệt"
                   ? "blue"
-                  : value && value.startsWith("Bị hủy")
-                  ? "red"
-                  : "cyan"
+                  : "red"
               }
               style={{
                 fontSize: 13,
@@ -413,7 +379,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 120,
+      width: 110,
       render: (value) => actionContent(value),
     },
   ];
@@ -440,164 +406,10 @@ function XuatKhoVatTu({ match, history, permission }) {
     };
   });
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
-  };
-
-  const handlePrint = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuPhu/${SelectedDevice[0].id}?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const listVatTu =
-            res.data.chiTiet_PhieuXuatKhoVatTus &&
-            JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus).map((list) => {
-              const SoLuong = list.chiTiet_LuuVatTus.reduce(
-                (tong, sl) => tong + sl.soLuongThucXuat,
-                0
-              );
-              return {
-                ...list,
-                soLuongThucXuat: SoLuong,
-              };
-            });
-          const newData = {
-            ...res.data,
-            boPhan: res.data.tenPhongBan,
-            lstpxkvtct: listVatTu,
-          };
-
-          new Promise((resolve, reject) => {
-            dispatch(
-              fetchStart(
-                `tits_qtsx_PhieuXuatKhoVatTuPhu/export-pdf`,
-                "POST",
-                newData,
-                "",
-                "",
-                resolve,
-                reject
-              )
-            );
-          }).then((res) => {
-            exportPDF("PhieuXuatKhoVatTu", res.data.datapdf);
-            setSelectedDevice([]);
-            setSelectedKeys([]);
-          });
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const handleXuatExcel = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
-    const fetchAllData = DataXuatExcel.map((data) => {
-      return new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_PhieuXuatKhoVatTuPhu/${data.id}?${params}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      });
-    });
-
-    Promise.all(fetchAllData)
-      .then((responses) => {
-        const DataXuat = responses.map((res) => {
-          if (res && res.data) {
-            return {
-              ...res.data,
-              chiTiet_PhieuXuatKhoVatTus: res.data.chiTiet_PhieuXuatKhoVatTus
-                ? JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus)
-                : null,
-            };
-          } else {
-            return null;
-          }
-        });
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `tits_qtsx_PhieuXuatKhoVatTuPhu/export-file-excel-xuat-kho`,
-              "POST",
-              DataXuat,
-              "",
-              "",
-              resolve,
-              reject
-            )
-          );
-        }).then((res) => {
-          exportExcel("PhieuXuatKhoVatTu", res.data.dataexcel);
-        });
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleRedirect}
-          disabled={permission && !permission.add}
-        >
-          Tạo phiếu
-        </Button>
-        <Button
-          icon={<DownloadOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleXuatExcel}
-          disabled={data.length === 0}
-        >
-          Xuất excel
-        </Button>
-      </>
-    );
-  };
-
-  const handleOnSelectKho = (value) => {
+  const handleSelectKho = (value) => {
     setKho(value);
     setPage(1);
     getListData(keyword, value, TuNgay, DenNgay, 1);
-  };
-
-  const handleClearKho = () => {
-    setKho(null);
-    setPage(1);
-    getListData(keyword, null, TuNgay, DenNgay, 1);
   };
 
   const handleChangeNgay = (dateString) => {
@@ -607,31 +419,11 @@ function XuatKhoVatTu({ match, history, permission }) {
     getListData(keyword, Kho, dateString[0], dateString[1], 1);
   };
 
-  const rowSelection = {
-    selectedRowKeys: SelectedKeys,
-    selectedRows: SelectedDevice,
-
-    onChange: (selectedRowKeys, selectedRows) => {
-      const row =
-        SelectedDevice.length > 0
-          ? selectedRows.filter((d) => d.key !== SelectedDevice[0].key)
-          : [...selectedRows];
-
-      const key =
-        SelectedKeys.length > 0
-          ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
-          : [...selectedRowKeys];
-
-      setSelectedDevice(row);
-      setSelectedKeys(key);
-    },
-  };
-
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phiếu xuất kho vật tư phụ"
-        description="Danh sách phiếu xuất kho vật tư phụ"
+        title="Phiếu kiểm kê"
+        description="Danh sách phiếu kiểm kê"
         buttons={addButtonRender()}
       />
 
@@ -650,16 +442,14 @@ function XuatKhoVatTu({ match, history, permission }) {
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListKho ? ListKho : []}
-              placeholder="Chọn Kho"
+              placeholder="Chọn kho"
               optionsvalue={["id", "tenCauTrucKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectKho}
+              onSelect={handleSelectKho}
               value={Kho}
               onChange={(value) => setKho(value)}
-              allowClear
-              onClear={handleClearKho}
             />
           </Col>
           <Col
@@ -682,7 +472,16 @@ function XuatKhoVatTu({ match, history, permission }) {
               allowClear={false}
             />
           </Col>
-          <Col xxl={6} xl={8} lg={12} md={12} sm={24} xs={24}>
+
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
             <h5>Tìm kiếm:</h5>
             <Toolbar
               count={1}
@@ -690,8 +489,8 @@ function XuatKhoVatTu({ match, history, permission }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchXuatKhoVatTuPhu,
-                onSearch: onSearchXuatKhoVatTuPhu,
+                onPressEnter: onSearchPhieuKiemKe,
+                onSearch: onSearchPhieuKiemKe,
                 allowClear: true,
                 placeholder: "Tìm kiếm",
               }}
@@ -699,7 +498,7 @@ function XuatKhoVatTu({ match, history, permission }) {
           </Col>
         </Row>
       </Card>
-      <Card className="th-card-margin-bottom th-card-reset-margin">
+      <Card className="th-card-margin-bottom">
         <Table
           bordered
           scroll={{ x: 1200, y: "55vh" }}
@@ -718,13 +517,6 @@ function XuatKhoVatTu({ match, history, permission }) {
             showSizeChanger: false,
             showQuickJumper: true,
           }}
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            hideSelectAll: true,
-            preserveSelectedRowKeys: false,
-            selectedRowKeys: SelectedKeys,
-          }}
           loading={loading}
         />
       </Card>
@@ -732,4 +524,4 @@ function XuatKhoVatTu({ match, history, permission }) {
   );
 }
 
-export default XuatKhoVatTu;
+export default PhieuKiemKe;
