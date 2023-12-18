@@ -580,7 +580,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
   };
 
   const DataThemVatTu = (data) => {
-    setListVatTu(data);
+    setListVatTu([...ListVatTu, ...data]);
   };
 
   const props = {

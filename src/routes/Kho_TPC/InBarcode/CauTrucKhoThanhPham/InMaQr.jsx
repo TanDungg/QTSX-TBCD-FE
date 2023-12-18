@@ -40,24 +40,18 @@ function InMaQr() {
             >
               <div
                 style={{
-                  width: "30%",
+                  width: "70%",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
                   marginLeft: 5,
                 }}
               >
-                {/* <span style={{ fontSize: 11, fontWeight: "bold" }}>
-                  Vị trí kho:
-                </span> */}
-                <QRCode value={d && d.id} style={{ width: 55, height: 55 }} />
-                {/* <span style={{ fontSize: 11, fontWeight: "bold" }}>
-                  {d && d.stt}
-                </span> */}
+                <QRCode value={d && d.id} style={{ width: 65, height: 65 }} />
               </div>
               <div
                 style={{
-                  width: "70%",
+                  width: "60%",
                   display: "flex",
                   flexDirection: "column",
                   alignItems: "center",
@@ -65,18 +59,9 @@ function InMaQr() {
                   margin: "0px 5px",
                 }}
               >
-                {/* <span
-                  style={{
-                    fontSize: 12,
-                    whiteSpace: "break-spaces",
-                    wordBreak: "break-all",
-                  }}
-                >
-                  {d && d.maCauTrucKho}
-                </span> */}
                 <span
                   style={{
-                    fontSize: 11,
+                    fontSize: 8,
                     marginBottom: 2,
                   }}
                 >
@@ -84,7 +69,7 @@ function InMaQr() {
                 </span>
                 <span
                   style={{
-                    fontSize: 12,
+                    fontSize: 10,
                     fontWeight: "bold",
                     textTransform: "uppercase",
                   }}

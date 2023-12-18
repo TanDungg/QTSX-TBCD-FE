@@ -276,7 +276,9 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
       ...listvattu[0],
       tenDonHang: donhang[0].tenDonHang,
       maPhieu: donhang[0].maPhieu,
-      thanhTien: parseFloat(data.soLuong * data.donGia),
+      thanhTien: data.donGia
+        ? parseFloat(data.soLuong * data.donGia)
+        : parseFloat(data.soLuong),
       ngay: data.ngay.format("DD/MM/YYYY"),
     };
     setDataListVatTu([...DataListVatTu, DataList]);
