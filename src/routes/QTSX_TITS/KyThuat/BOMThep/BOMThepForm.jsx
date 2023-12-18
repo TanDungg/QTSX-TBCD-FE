@@ -1049,7 +1049,10 @@ function BOMThepForm({ match, permission, history }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
+      <Card
+        className="th-card-margin-bottom"
+        title="Thông tin định mức vật tư thép"
+      >
         <Spin spinning={loading}>
           <Form
             {...DEFAULT_FORM_CUSTOM}
@@ -1318,15 +1321,7 @@ function BOMThepForm({ match, permission, history }) {
           </Form>
         </Spin>
       </Card>
-      <Card
-        className="th-card-margin-bottom"
-        title="Thông tin vật tư"
-        headStyle={{
-          textAlign: "center",
-          backgroundColor: "#0469B9",
-          color: "#fff",
-        }}
-      >
+      <Card className="th-card-margin-bottom" title="Thông tin vật tư">
         {type === "new" && (
           <>
             <Row style={{ marginTop: 5 }}>

@@ -702,7 +702,10 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin phiếu kiểm kê"}
+      >
         <Form
           {...DEFAULT_FORM_TWO_COL}
           form={form}
@@ -1003,65 +1006,64 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
             </Col>
           </Row>
         </Form>
-        <Divider style={{ marginBottom: 15 }} />
-        <Card
-          className="th-card-margin-bottom th-card-reset-margin"
-          title={"Danh sách vật tư"}
-          headStyle={{
-            textAlign: "center",
-            backgroundColor: "#0469B9",
-            color: "#fff",
-          }}
-        >
-          {(type === "new" || type === "edit") && (
-            <Row justify={"end"} style={{ padding: "0px 20px 10px 20px" }}>
-              <Button
-                icon={<PlusCircleOutlined />}
-                className="th-margin-bottom-0"
-                type="primary"
-                onClick={handleChonVatTu}
-                disabled={Kho === null ? true : false}
-              >
-                Chọn vật tư
-              </Button>
-            </Row>
-          )}
-          <Table
-            bordered
-            columns={columns}
-            scroll={{ x: 900, y: "55vh" }}
-            components={components}
-            className="gx-table-responsive"
-            dataSource={reDataForTable(ListVatTu)}
-            size="small"
-            rowClassName={"editable-row"}
-            pagination={false}
-            // loading={loading}
-          />
-        </Card>
-        {type === "new" || type === "edit" ? (
-          <FormSubmit
-            goBack={goBack}
-            handleSave={saveAndClose}
-            saveAndClose={saveAndClose}
-            disabled={fieldTouch}
-          />
-        ) : null}
-        {type === "duyet" && info.tinhTrang === "Chưa xử lý" ? (
-          <Row justify={"end"} style={{ marginTop: 15 }}>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="primary" onClick={modalXK}>
-                Xác nhận
-              </Button>
-            </Col>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
-                Từ chối
-              </Button>
-            </Col>
-          </Row>
-        ) : null}
       </Card>
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Danh sách vật tư"}
+        headStyle={{
+          textAlign: "center",
+          backgroundColor: "#0469B9",
+          color: "#fff",
+        }}
+      >
+        {(type === "new" || type === "edit") && (
+          <Row justify={"end"} style={{ padding: "0px 20px 10px 20px" }}>
+            <Button
+              icon={<PlusCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={handleChonVatTu}
+              disabled={Kho === null ? true : false}
+            >
+              Chọn vật tư
+            </Button>
+          </Row>
+        )}
+        <Table
+          bordered
+          columns={columns}
+          scroll={{ x: 900, y: "55vh" }}
+          components={components}
+          className="gx-table-responsive"
+          dataSource={reDataForTable(ListVatTu)}
+          size="small"
+          rowClassName={"editable-row"}
+          pagination={false}
+          // loading={loading}
+        />
+      </Card>
+      {type === "new" || type === "edit" ? (
+        <FormSubmit
+          goBack={goBack}
+          handleSave={saveAndClose}
+          saveAndClose={saveAndClose}
+          disabled={fieldTouch}
+        />
+      ) : null}
+      {type === "duyet" && info.tinhTrang === "Chưa xử lý" ? (
+        <Row justify={"end"} style={{ marginTop: 15 }}>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="primary" onClick={modalXK}>
+              Xác nhận
+            </Button>
+          </Col>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
+              Từ chối
+            </Button>
+          </Col>
+        </Row>
+      ) : null}
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}

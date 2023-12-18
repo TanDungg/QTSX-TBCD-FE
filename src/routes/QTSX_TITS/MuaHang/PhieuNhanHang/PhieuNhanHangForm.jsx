@@ -642,11 +642,6 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
         title={"Thông tin nhận hàng"}
-        headStyle={{
-          textAlign: "center",
-          backgroundColor: "#0469B9",
-          color: "#fff",
-        }}
       >
         <Form
           {...DEFAULT_FORM_TWO_COL}
@@ -933,11 +928,6 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
         title={"Danh sách vật tư"}
-        headStyle={{
-          textAlign: "center",
-          backgroundColor: "#0469B9",
-          color: "#fff",
-        }}
       >
         <Table
           bordered

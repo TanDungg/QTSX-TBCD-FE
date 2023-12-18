@@ -676,7 +676,10 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin phiếu đề nghị cấp vật tư phụ"}
+      >
         <Form
           {...DEFAULT_FORM_DENGHI_CVT}
           form={form}
@@ -904,68 +907,63 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
               </Col>
             ) : null}
           </Row>
-          <Card
-            className="th-card-margin-bottom th-card-reset-margin"
-            title={"Thông tin vật tư"}
-            headStyle={{
-              textAlign: "center",
-              backgroundColor: "#0469B9",
-              color: "#fff",
-            }}
-          >
-            {(type === "new" || type === "edit") && (
-              <div align={"end"}>
-                <Button
-                  icon={<PlusCircleOutlined />}
-                  onClick={() => setActiveModalChonVatTu(true)}
-                  type="primary"
-                >
-                  Thêm vật tư
-                </Button>
-              </div>
-            )}
-            <Table
-              bordered
-              columns={columns}
-              scroll={{ x: 900, y: "55vh" }}
-              components={components}
-              className="gx-table-responsive"
-              dataSource={reDataForTable(ListVatTu)}
-              size="small"
-              rowClassName={"editable-row"}
-              pagination={false}
-              // loading={loading}
-            />
-          </Card>
-          {type === "new" || type === "edit" ? (
-            <FormSubmit
-              goBack={goBack}
-              handleSave={onFinish}
-              saveAndClose={saveAndClose}
-              disabled={fieldTouch || !ListVatTu}
-            />
-          ) : null}
         </Form>
-        {(type === "xacnhan" &&
-          info.tinhTrang === "Chưa duyệt" &&
-          info.nguoiKeToanDuyet_Id === INFO.user_Id) ||
-        (type === "xacnhan" &&
-          info.tinhTrang === "Chờ người duyệt xác nhận" &&
-          info.nguoiKeToanDuyet_Id === INFO.user_Id) ? (
-          <Row justify={"end"} style={{ marginTop: 15 }}>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="primary" onClick={modalXK}>
-                Xác nhận
-              </Button>
-            </Col>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
-                Từ chối
-              </Button>
-            </Col>
-          </Row>
-        ) : null}
       </Card>
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Danh sách vật tư"}
+      >
+        {(type === "new" || type === "edit") && (
+          <div align={"end"}>
+            <Button
+              icon={<PlusCircleOutlined />}
+              onClick={() => setActiveModalChonVatTu(true)}
+              type="primary"
+            >
+              Thêm vật tư
+            </Button>
+          </div>
+        )}
+        <Table
+          bordered
+          columns={columns}
+          scroll={{ x: 900, y: "55vh" }}
+          components={components}
+          className="gx-table-responsive"
+          dataSource={reDataForTable(ListVatTu)}
+          size="small"
+          rowClassName={"editable-row"}
+          pagination={false}
+          // loading={loading}
+        />
+      </Card>
+      {type === "new" || type === "edit" ? (
+        <FormSubmit
+          goBack={goBack}
+          handleSave={onFinish}
+          saveAndClose={saveAndClose}
+          disabled={fieldTouch || !ListVatTu}
+        />
+      ) : null}
+      {(type === "xacnhan" &&
+        info.tinhTrang === "Chưa duyệt" &&
+        info.nguoiKeToanDuyet_Id === INFO.user_Id) ||
+      (type === "xacnhan" &&
+        info.tinhTrang === "Chờ người duyệt xác nhận" &&
+        info.nguoiKeToanDuyet_Id === INFO.user_Id) ? (
+        <Row justify={"end"} style={{ marginTop: 15 }}>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="primary" onClick={modalXK}>
+              Xác nhận
+            </Button>
+          </Col>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
+              Từ chối
+            </Button>
+          </Col>
+        </Row>
+      ) : null}
       <AddVatTuModal
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}

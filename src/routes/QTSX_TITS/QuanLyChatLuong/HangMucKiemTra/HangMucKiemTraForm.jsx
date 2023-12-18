@@ -557,11 +557,6 @@ function HangMucSuDungForm({ match, permission, history }) {
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
         title={"Thông tin chung"}
-        headStyle={{
-          textAlign: "center",
-          backgroundColor: "#0469B9",
-          color: "#fff",
-        }}
       >
         <Spin spinning={loading}>
           <Form

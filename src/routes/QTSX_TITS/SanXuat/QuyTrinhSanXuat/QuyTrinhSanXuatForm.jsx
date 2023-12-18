@@ -12,7 +12,7 @@ import {
   Switch,
   Tag,
 } from "antd";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { includes, isEmpty, map } from "lodash";
 import {
   Input,
@@ -936,7 +936,10 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin quy trình"}
+      >
         <Form
           {...DEFAULT_FORM_QTSX}
           form={form}
@@ -1337,11 +1340,6 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           <Card
             className="th-card-margin-bottom th-card-reset-margin"
             title={"Công đoạn sản xuất"}
-            headStyle={{
-              textAlign: "center",
-              backgroundColor: "#0469B9",
-              color: "#fff",
-            }}
           >
             {(type === "new" || type === "edit") && (
               <div align={"end"}>

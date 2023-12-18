@@ -793,11 +793,6 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
         title={"Thông tin phiếu đề nghị mua hàng"}
-        headStyle={{
-          textAlign: "center",
-          backgroundColor: "#0469B9",
-          color: "#fff",
-        }}
       >
         <Form
           {...DEFAULT_FORM_TWO_COL}
@@ -1262,11 +1257,6 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
         title={"Thông tin vật tư"}
-        headStyle={{
-          textAlign: "center",
-          backgroundColor: "#0469B9",
-          color: "#fff",
-        }}
       >
         {(type === "new" || type === "edit") && (
           <div align={"end"}>

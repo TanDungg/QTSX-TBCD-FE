@@ -102,7 +102,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
             }${data.maNgan ? ` - ${data.maNgan}` : ""}`;
             return {
               ...data,
-              viTri: vitri ? vitri : null,
+              viTri: vitri ? vitri : data.tenKho,
               soLuong: data.soLuongTonKho,
             };
           });

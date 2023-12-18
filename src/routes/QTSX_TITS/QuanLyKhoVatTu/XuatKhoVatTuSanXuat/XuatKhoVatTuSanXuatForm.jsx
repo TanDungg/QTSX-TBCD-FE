@@ -961,466 +961,38 @@ const VatTuForm = ({ history, match, permission }) => {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
-        <Row style={{ marginBottom: 15 }} justify={"center"}>
-          <Radio.Group
-            onChange={onChange}
-            value={value}
-            style={{ width: "100%", display: "flex" }}
-          >
-            <Col span={12} align="center">
-              <Radio value={0} disabled={value === 1 && type !== "new"}>
-                Phiếu xuất kho vật tư sản xuất theo OEM
-              </Radio>
-            </Col>
-            <Col span={12} align="center">
-              <Radio value={1} disabled={value === 0 && type !== "new"}>
-                Phiếu xuất kho vật tư sản xuất theo BOM
-              </Radio>
-            </Col>
-          </Radio.Group>
-        </Row>
-        <Divider style={{ marginBottom: 10 }} />
+
+      <Card className="th-card-margin-bottom th-card-reset-margin">
+        <Radio.Group
+          onChange={onChange}
+          value={value}
+          style={{ width: "100%", display: "flex", marginBottom: 15 }}
+        >
+          <Col span={12} align="center">
+            <Radio value={0} disabled={value === 1 && type !== "new"}>
+              Phiếu xuất kho vật tư sản xuất theo OEM
+            </Radio>
+          </Col>
+          <Col span={12} align="center">
+            <Radio value={1} disabled={value === 0 && type !== "new"}>
+              Phiếu xuất kho vật tư sản xuất theo BOM
+            </Radio>
+          </Col>
+        </Radio.Group>
         {value === 0 ? (
           <>
-            <Form
-              {...DEFAULT_FORM_DENGHI_CVT}
-              form={form}
-              name="nguoi-dung-control"
-              onFinish={onFinish}
-              onFieldsChange={() => setFieldTouch(true)}
+            <Card
+              className="th-card-margin-bottom th-card-reset-margin"
+              title={"Thông tin phiếu xuất kho vật tư sản xuất theo OEM"}
             >
-              <Row>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Người lập"
-                    name={["phieuxuatkhovattusanxuattheoOEM", "nguoiTao_Id"]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUser ? ListUser : []}
-                      optionsvalue={["Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      disabled={true}
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Ban/Phòng"
-                    name={["phieuxuatkhovattusanxuattheoOEM", "tenPhongBan"]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Input className="input-item" disabled={true} />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Kho xuất"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoOEM",
-                      "tits_qtsx_CauTrucKho_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      placeholder="Kho xuất"
-                      className="heading-select slt-search th-select-heading"
-                      data={ListKhoVatTu ? ListKhoVatTu : []}
-                      optionsvalue={["id", "tenCauTrucKho"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp={"name"}
-                      onSelect={handleSelectKho}
-                      disabled={DisabledKhoXuat}
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Người giao"
-                    name={["phieuxuatkhovattusanxuattheoOEM", "nguoiGiao_Id"]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUserKy}
-                      placeholder="Chọn người giao"
-                      optionsvalue={["user_Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Ngày KHSX"
-                    name={["phieuxuatkhovattusanxuattheoOEM", "ngayKHSX"]}
-                    rules={[
-                      {
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <DatePicker
-                      format={"DD/MM/YYYY"}
-                      allowClear={false}
-                      onChange={(date, dateString) => {
-                        getListSanPham(Xuong, dateString);
-                        setNgayKHSX(dateString, "DD/MM/YYYY");
-                        setFieldsValue({
-                          phieuxuatkhovattusanxuattheoOEM: {
-                            tits_qtsx_SanPham_Id: null,
-                            ngayKHSX: moment(dateString, "DD/MM/YYYY"),
-                          },
-                        });
-                      }}
-                      disabled={type === "new" ? false : true}
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Xưởng nhận"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoOEM",
-                      "tits_qtsx_Xuong_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      placeholder="Xưởng nhận"
-                      className="heading-select slt-search th-select-heading"
-                      data={ListXuong ? ListXuong : []}
-                      optionsvalue={["id", "tenXuong"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp={"name"}
-                      onSelect={handleSelectXuong}
-                      disabled={
-                        type === "new" || type === "taophieuxuat" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Người nhận"
-                    name={["phieuxuatkhovattusanxuattheoOEM", "nguoiNhan_Id"]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUserKy}
-                      placeholder="Chọn người nhận"
-                      optionsvalue={["user_Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Sản phẩm"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoOEM",
-                      "tits_qtsx_SanPham_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListSanPham ? ListSanPham : []}
-                      placeholder="Chọn sản phẩm"
-                      optionsvalue={["tits_qtsx_SanPham_Id", "tenSanPham"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      onSelect={handleSelectListSanPham}
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Đơn đặt hàng"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoOEM",
-                      "tits_qtsx_SanPham_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListSanPham ? ListSanPham : []}
-                      placeholder="Chọn đơn đặt hàng"
-                      optionsvalue={["tits_qtsx_SanPham_Id", "maPhieu"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={true}
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Số lô"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoOEM",
-                      "tits_qtsx_SoLo_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListSoLo ? ListSoLo : []}
-                      placeholder="Chọn số lô"
-                      optionsvalue={["tits_qtsx_SoLo_Id", "tenSoLo"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      onSelect={handleSelectListSoLo}
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Lô xe"
-                    name={["phieuxuatkhovattusanxuattheoOEM", "soLuongLo"]}
-                    rules={[
-                      {
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Input
-                      className="input-item"
-                      placeholder="Số lượng lô xe"
-                      disabled={true}
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="PT Bộ phận"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoOEM",
-                      "nguoiPTBoPhanDuyet_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUserKy}
-                      placeholder="Chọn phụ trách bộ phận"
-                      optionsvalue={["user_Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="NV thống kê"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoOEM",
-                      "nguoiThongKeDuyet_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUserKy}
-                      placeholder="Chọn nhân viên thống kê duyệt"
-                      optionsvalue={["user_Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-
-                {info.tinhTrang && info.tinhTrang.startsWith("Bị hủy") ? (
+              <Form
+                {...DEFAULT_FORM_DENGHI_CVT}
+                form={form}
+                name="nguoi-dung-control"
+                onFinish={onFinish}
+                onFieldsChange={() => setFieldTouch(true)}
+              >
+                <Row>
                   <Col
                     xxl={12}
                     xl={12}
@@ -1430,21 +1002,454 @@ const VatTuForm = ({ history, match, permission }) => {
                     xs={24}
                     style={{ marginBottom: 8 }}
                   >
-                    <FormItem label="Lý do hủy">
-                      <Input
-                        className="input-item"
+                    <FormItem
+                      label="Người lập"
+                      name={["phieuxuatkhovattusanxuattheoOEM", "nguoiTao_Id"]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUser ? ListUser : []}
+                        optionsvalue={["Id", "fullName"]}
+                        style={{ width: "100%" }}
                         disabled={true}
-                        value={
-                          info.lyDoPTBoPhanTuChoi
-                            ? info.lyDoPTBoPhanTuChoi
-                            : info.lyDoKeToanTuChoi
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Ban/Phòng"
+                      name={["phieuxuatkhovattusanxuattheoOEM", "tenPhongBan"]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Input className="input-item" disabled={true} />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Kho xuất"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoOEM",
+                        "tits_qtsx_CauTrucKho_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Kho xuất"
+                        className="heading-select slt-search th-select-heading"
+                        data={ListKhoVatTu ? ListKhoVatTu : []}
+                        optionsvalue={["id", "tenCauTrucKho"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp={"name"}
+                        onSelect={handleSelectKho}
+                        disabled={DisabledKhoXuat}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Người giao"
+                      name={["phieuxuatkhovattusanxuattheoOEM", "nguoiGiao_Id"]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUserKy}
+                        placeholder="Chọn người giao"
+                        optionsvalue={["user_Id", "fullName"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
                         }
                       />
                     </FormItem>
                   </Col>
-                ) : null}
-              </Row>
-            </Form>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Ngày KHSX"
+                      name={["phieuxuatkhovattusanxuattheoOEM", "ngayKHSX"]}
+                      rules={[
+                        {
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <DatePicker
+                        format={"DD/MM/YYYY"}
+                        allowClear={false}
+                        onChange={(date, dateString) => {
+                          getListSanPham(Xuong, dateString);
+                          setNgayKHSX(dateString, "DD/MM/YYYY");
+                          setFieldsValue({
+                            phieuxuatkhovattusanxuattheoOEM: {
+                              tits_qtsx_SanPham_Id: null,
+                              ngayKHSX: moment(dateString, "DD/MM/YYYY"),
+                            },
+                          });
+                        }}
+                        disabled={type === "new" ? false : true}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Xưởng nhận"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoOEM",
+                        "tits_qtsx_Xuong_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Xưởng nhận"
+                        className="heading-select slt-search th-select-heading"
+                        data={ListXuong ? ListXuong : []}
+                        optionsvalue={["id", "tenXuong"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp={"name"}
+                        onSelect={handleSelectXuong}
+                        disabled={
+                          type === "new" || type === "taophieuxuat"
+                            ? false
+                            : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Người nhận"
+                      name={["phieuxuatkhovattusanxuattheoOEM", "nguoiNhan_Id"]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUserKy}
+                        placeholder="Chọn người nhận"
+                        optionsvalue={["user_Id", "fullName"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Sản phẩm"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoOEM",
+                        "tits_qtsx_SanPham_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListSanPham ? ListSanPham : []}
+                        placeholder="Chọn sản phẩm"
+                        optionsvalue={["tits_qtsx_SanPham_Id", "tenSanPham"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        onSelect={handleSelectListSanPham}
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Đơn đặt hàng"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoOEM",
+                        "tits_qtsx_SanPham_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListSanPham ? ListSanPham : []}
+                        placeholder="Chọn đơn đặt hàng"
+                        optionsvalue={["tits_qtsx_SanPham_Id", "maPhieu"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        disabled={true}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Số lô"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoOEM",
+                        "tits_qtsx_SoLo_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListSoLo ? ListSoLo : []}
+                        placeholder="Chọn số lô"
+                        optionsvalue={["tits_qtsx_SoLo_Id", "tenSoLo"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        onSelect={handleSelectListSoLo}
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Lô xe"
+                      name={["phieuxuatkhovattusanxuattheoOEM", "soLuongLo"]}
+                      rules={[
+                        {
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Số lượng lô xe"
+                        disabled={true}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="PT Bộ phận"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoOEM",
+                        "nguoiPTBoPhanDuyet_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUserKy}
+                        placeholder="Chọn phụ trách bộ phận"
+                        optionsvalue={["user_Id", "fullName"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="NV thống kê"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoOEM",
+                        "nguoiThongKeDuyet_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUserKy}
+                        placeholder="Chọn nhân viên thống kê duyệt"
+                        optionsvalue={["user_Id", "fullName"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+
+                  {info.tinhTrang && info.tinhTrang.startsWith("Bị hủy") ? (
+                    <Col
+                      xxl={12}
+                      xl={12}
+                      lg={24}
+                      md={24}
+                      sm={24}
+                      xs={24}
+                      style={{ marginBottom: 8 }}
+                    >
+                      <FormItem label="Lý do hủy">
+                        <Input
+                          className="input-item"
+                          disabled={true}
+                          value={
+                            info.lyDoPTBoPhanTuChoi
+                              ? info.lyDoPTBoPhanTuChoi
+                              : info.lyDoKeToanTuChoi
+                          }
+                        />
+                      </FormItem>
+                    </Col>
+                  ) : null}
+                </Row>
+              </Form>
+            </Card>
             <Card
               className="th-card-margin-bottom th-card-reset-margin"
               title={"Thông tin vật tư"}
@@ -1470,438 +1475,18 @@ const VatTuForm = ({ history, match, permission }) => {
           </>
         ) : (
           <>
-            <Form
-              {...DEFAULT_FORM_DENGHI_CVT}
-              form={form}
-              name="nguoi-dung-control"
-              onFinish={onFinish}
-              onFieldsChange={() => setFieldTouch(true)}
+            <Card
+              className="th-card-margin-bottom th-card-reset-margin"
+              title={"Thông tin phiếu xuất kho vật tư sản xuất theo BOM"}
             >
-              <Row>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Người lập"
-                    name={["phieuxuatkhovattusanxuattheoBOM", "nguoiTao_Id"]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUser ? ListUser : []}
-                      optionsvalue={["Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      disabled={true}
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Ban/Phòng"
-                    name={["phieuxuatkhovattusanxuattheoBOM", "tenPhongBan"]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Input className="input-item" disabled={true} />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Kho xuất"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoBOM",
-                      "tits_qtsx_CauTrucKho_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      placeholder="Kho xuất"
-                      className="heading-select slt-search th-select-heading"
-                      data={ListKhoVatTu ? ListKhoVatTu : []}
-                      optionsvalue={["id", "tenCauTrucKho"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp={"name"}
-                      onSelect={handleSelectKho}
-                      disabled={DisabledKhoXuat}
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Người giao"
-                    name={["phieuxuatkhovattusanxuattheoBOM", "nguoiGiao_Id"]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUserKy}
-                      placeholder="Chọn người giao"
-                      optionsvalue={["user_Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Xưởng nhận"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoBOM",
-                      "tits_qtsx_Xuong_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      placeholder="Xưởng nhận"
-                      className="heading-select slt-search th-select-heading"
-                      data={ListXuong ? ListXuong : []}
-                      optionsvalue={["id", "tenXuong"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp={"name"}
-                      onSelect={handleSelectXuong}
-                      disabled={
-                        type === "new" || type === "taophieuxuat" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Người nhận"
-                    name={["phieuxuatkhovattusanxuattheoBOM", "nguoiNhan_Id"]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUserKy}
-                      placeholder="Chọn người nhận"
-                      optionsvalue={["user_Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Nội dung xuất"
-                    name={["phieuxuatkhovattusanxuattheoBOM", "noiDung"]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Input
-                      className="input-item"
-                      placeholder="Nhập nội dung xuất"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="PT Bộ phận"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoBOM",
-                      "nguoiPTBoPhanDuyet_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUserKy}
-                      placeholder="Chọn phụ trách bộ phận"
-                      optionsvalue={["user_Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="NV thống kê"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoBOM",
-                      "nguoiThongKeDuyet_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUserKy}
-                      placeholder="Chọn nhân viên thống kê duyệt"
-                      optionsvalue={["user_Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Sản phẩm"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoBOM",
-                      "tits_qtsx_SanPham_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUserKy}
-                      placeholder="Chọn sản phẩm"
-                      optionsvalue={["user_Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Đơn đặt hàng"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoBOM",
-                      "tits_qtsx_DonHang_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUserKy}
-                      placeholder="Chọn đơn đặt hàng"
-                      optionsvalue={["user_Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Số lô"
-                    name={[
-                      "phieuxuatkhovattusanxuattheoBOM",
-                      "tits_qtsx_SoLo_Id",
-                    ]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Select
-                      className="heading-select slt-search th-select-heading"
-                      data={ListUserKy}
-                      placeholder="Chọn số lô"
-                      optionsvalue={["user_Id", "fullName"]}
-                      style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Lô xe"
-                    name={["phieuxuatkhovattusanxuattheoBOM", "soLuongLo"]}
-                    rules={[
-                      {
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Input
-                      className="input-item"
-                      placeholder="Số lượng lô xe"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                {info.tinhTrang && info.tinhTrang.startsWith("Bị hủy") ? (
+              <Form
+                {...DEFAULT_FORM_DENGHI_CVT}
+                form={form}
+                name="nguoi-dung-control"
+                onFinish={onFinish}
+                onFieldsChange={() => setFieldTouch(true)}
+              >
+                <Row>
                   <Col
                     xxl={12}
                     xl={12}
@@ -1911,21 +1496,448 @@ const VatTuForm = ({ history, match, permission }) => {
                     xs={24}
                     style={{ marginBottom: 8 }}
                   >
-                    <FormItem label="Lý do hủy">
-                      <Input
-                        className="input-item"
+                    <FormItem
+                      label="Người lập"
+                      name={["phieuxuatkhovattusanxuattheoBOM", "nguoiTao_Id"]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUser ? ListUser : []}
+                        optionsvalue={["Id", "fullName"]}
+                        style={{ width: "100%" }}
                         disabled={true}
-                        value={
-                          info.lyDoPTBoPhanTuChoi
-                            ? info.lyDoPTBoPhanTuChoi
-                            : info.lyDoKeToanTuChoi
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Ban/Phòng"
+                      name={["phieuxuatkhovattusanxuattheoBOM", "tenPhongBan"]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Input className="input-item" disabled={true} />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Kho xuất"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoBOM",
+                        "tits_qtsx_CauTrucKho_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Kho xuất"
+                        className="heading-select slt-search th-select-heading"
+                        data={ListKhoVatTu ? ListKhoVatTu : []}
+                        optionsvalue={["id", "tenCauTrucKho"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp={"name"}
+                        onSelect={handleSelectKho}
+                        disabled={DisabledKhoXuat}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Người giao"
+                      name={["phieuxuatkhovattusanxuattheoBOM", "nguoiGiao_Id"]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUserKy}
+                        placeholder="Chọn người giao"
+                        optionsvalue={["user_Id", "fullName"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
                         }
                       />
                     </FormItem>
                   </Col>
-                ) : null}
-              </Row>
-            </Form>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Xưởng nhận"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoBOM",
+                        "tits_qtsx_Xuong_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Xưởng nhận"
+                        className="heading-select slt-search th-select-heading"
+                        data={ListXuong ? ListXuong : []}
+                        optionsvalue={["id", "tenXuong"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp={"name"}
+                        onSelect={handleSelectXuong}
+                        disabled={
+                          type === "new" || type === "taophieuxuat"
+                            ? false
+                            : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Người nhận"
+                      name={["phieuxuatkhovattusanxuattheoBOM", "nguoiNhan_Id"]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUserKy}
+                        placeholder="Chọn người nhận"
+                        optionsvalue={["user_Id", "fullName"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Nội dung xuất"
+                      name={["phieuxuatkhovattusanxuattheoBOM", "noiDung"]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Nhập nội dung xuất"
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="PT Bộ phận"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoBOM",
+                        "nguoiPTBoPhanDuyet_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUserKy}
+                        placeholder="Chọn phụ trách bộ phận"
+                        optionsvalue={["user_Id", "fullName"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="NV thống kê"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoBOM",
+                        "nguoiThongKeDuyet_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUserKy}
+                        placeholder="Chọn nhân viên thống kê duyệt"
+                        optionsvalue={["user_Id", "fullName"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Sản phẩm"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoBOM",
+                        "tits_qtsx_SanPham_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUserKy}
+                        placeholder="Chọn sản phẩm"
+                        optionsvalue={["user_Id", "fullName"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Đơn đặt hàng"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoBOM",
+                        "tits_qtsx_DonHang_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUserKy}
+                        placeholder="Chọn đơn đặt hàng"
+                        optionsvalue={["user_Id", "fullName"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Số lô"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoBOM",
+                        "tits_qtsx_SoLo_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUserKy}
+                        placeholder="Chọn số lô"
+                        optionsvalue={["user_Id", "fullName"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Lô xe"
+                      name={["phieuxuatkhovattusanxuattheoBOM", "soLuongLo"]}
+                      rules={[
+                        {
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Số lượng lô xe"
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                      />
+                    </FormItem>
+                  </Col>
+                  {info.tinhTrang && info.tinhTrang.startsWith("Bị hủy") ? (
+                    <Col
+                      xxl={12}
+                      xl={12}
+                      lg={24}
+                      md={24}
+                      sm={24}
+                      xs={24}
+                      style={{ marginBottom: 8 }}
+                    >
+                      <FormItem label="Lý do hủy">
+                        <Input
+                          className="input-item"
+                          disabled={true}
+                          value={
+                            info.lyDoPTBoPhanTuChoi
+                              ? info.lyDoPTBoPhanTuChoi
+                              : info.lyDoKeToanTuChoi
+                          }
+                        />
+                      </FormItem>
+                    </Col>
+                  ) : null}
+                </Row>
+              </Form>
+            </Card>
             <Card
               className="th-card-margin-bottom th-card-reset-margin"
               title={"Thông tin vật tư"}
@@ -1950,35 +1962,35 @@ const VatTuForm = ({ history, match, permission }) => {
             </Card>
           </>
         )}
-
-        {type === "new" || type === "edit" || type === "taophieuxuat" ? (
-          <FormSubmit
-            goBack={goBack}
-            handleSave={onFinish}
-            saveAndClose={saveAndClose}
-            disabled={fieldTouch && ListVatTuTheoOEM.length !== 0}
-          />
-        ) : null}
-        {(type === "xacnhan" &&
-          info.tinhTrang === "Chưa duyệt" &&
-          info.nguoiPTBoPhanDuyet_Id === INFO.user_Id) ||
-        (type === "xacnhan" &&
-          info.tinhTrang === "Chờ kế toán duyệt" &&
-          info.nguoiThongKeDuyet_Id === INFO.user_Id) ? (
-          <Row justify={"end"} style={{ marginTop: 15 }}>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="primary" onClick={modalXK}>
-                Xác nhận
-              </Button>
-            </Col>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
-                Từ chối
-              </Button>
-            </Col>
-          </Row>
-        ) : null}
       </Card>
+
+      {type === "new" || type === "edit" || type === "taophieuxuat" ? (
+        <FormSubmit
+          goBack={goBack}
+          handleSave={onFinish}
+          saveAndClose={saveAndClose}
+          disabled={fieldTouch && ListVatTuTheoOEM.length !== 0}
+        />
+      ) : null}
+      {(type === "xacnhan" &&
+        info.tinhTrang === "Chưa duyệt" &&
+        info.nguoiPTBoPhanDuyet_Id === INFO.user_Id) ||
+      (type === "xacnhan" &&
+        info.tinhTrang === "Chờ kế toán duyệt" &&
+        info.nguoiThongKeDuyet_Id === INFO.user_Id) ? (
+        <Row justify={"end"} style={{ marginTop: 15 }}>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="primary" onClick={modalXK}>
+              Xác nhận
+            </Button>
+          </Col>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
+              Từ chối
+            </Button>
+          </Col>
+        </Row>
+      ) : null}
       <ModalChonViTri
         openModal={ActiveModalChonViTri}
         openModalFS={setActiveModalChonViTri}

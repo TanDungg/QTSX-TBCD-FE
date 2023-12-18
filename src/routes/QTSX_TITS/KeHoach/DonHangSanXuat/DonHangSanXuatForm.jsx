@@ -910,11 +910,6 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
         title={"Thông tin đơn hàng"}
-        headStyle={{
-          textAlign: "center",
-          backgroundColor: "#0469B9",
-          color: "#fff",
-        }}
       >
         <Form
           {...DEFAULT_FORM_TWO_COL}
@@ -1184,14 +1179,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
           </Row>
         </Form>
       </Card>
-      <Card
-        title="Thông tin sản phẩm"
-        headStyle={{
-          textAlign: "center",
-          backgroundColor: "#0469B9",
-          color: "#fff",
-        }}
-      >
+      <Card title="Thông tin sản phẩm">
         {type === "new" || type === "edit" ? (
           <Row>
             <Col span={24} align="end" style={{ marginTop: 8 }}>

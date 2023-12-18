@@ -1,5 +1,15 @@
 import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Col,
+  DatePicker,
+  Button,
+  Tag,
+  Divider,
+} from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -227,7 +237,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
                 tits_qtsx_ChiTietKhoBegin_Id:
                   data.tits_qtsx_ChiTietKhoBegin_Id &&
                   data.tits_qtsx_ChiTietKhoBegin_Id.toLowerCase(),
-                viTri: vitri,
+                viTri: vitri ? vitri : data.tenKho,
               };
             });
           setListVatTu(newData);
@@ -681,7 +691,10 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin điều chuyển"}
+      >
         <Form
           {...DEFAULT_FORM_DIEUCHUYEN_THANHLY}
           form={form}
@@ -940,66 +953,61 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
             )}
           </Row>
         </Form>
-        <Card
-          className="th-card-margin-bottom th-card-reset-margin"
-          title={"Danh sách vật tư"}
-          headStyle={{
-            textAlign: "center",
-            backgroundColor: "#0469B9",
-            color: "#fff",
-          }}
-        >
-          {type === "new" || type === "edit" ? (
-            <Row justify={"end"} style={{ padding: "0px 20px 10px 20px" }}>
-              <Button
-                icon={<PlusCircleOutlined />}
-                className="th-margin-bottom-0"
-                type="primary"
-                onClick={handleChonVatTu}
-                disabled={KhoVatTuDi === null ? true : false}
-              >
-                Chọn vật tư
-              </Button>
-            </Row>
-          ) : null}
-          <Table
-            bordered
-            columns={columns}
-            scroll={{ x: 1300, y: "55vh" }}
-            components={components}
-            className="gx-table-responsive"
-            dataSource={reDataForTable(ListVatTu)}
-            size="small"
-            rowClassName={"editable-row"}
-            pagination={false}
-            // loading={loading}
-          />
-        </Card>
-        {type === "xacnhan" &&
-        info.tinhTrang === "Chưa duyệt" &&
-        info.nguoiPTBoPhan_Id === INFO.user_Id ? (
-          <Row justify={"end"} style={{ marginTop: 15 }}>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="primary" onClick={modalXK}>
-                Xác nhận
-              </Button>
-            </Col>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
-                Từ chối
-              </Button>
-            </Col>
+      </Card>
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Danh sách vật tư"}
+      >
+        {type === "new" || type === "edit" ? (
+          <Row justify={"end"} style={{ padding: "0px 20px 10px 20px" }}>
+            <Button
+              icon={<PlusCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={handleChonVatTu}
+              disabled={KhoVatTuDi === null ? true : false}
+            >
+              Chọn vật tư
+            </Button>
           </Row>
         ) : null}
-        {type === "new" || type === "edit" ? (
-          <FormSubmit
-            goBack={goBack}
-            handleSave={onFinish}
-            saveAndClose={saveAndClose}
-            disabled={fieldTouch && ListVatTu.length !== 0}
-          />
-        ) : null}
+        <Table
+          bordered
+          columns={columns}
+          scroll={{ x: 1300, y: "55vh" }}
+          components={components}
+          className="gx-table-responsive"
+          dataSource={reDataForTable(ListVatTu)}
+          size="small"
+          rowClassName={"editable-row"}
+          pagination={false}
+          // loading={loading}
+        />
       </Card>
+      {type === "xacnhan" &&
+      info.tinhTrang === "Chưa duyệt" &&
+      info.nguoiPTBoPhan_Id === INFO.user_Id ? (
+        <Row justify={"center"}>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="primary" onClick={modalXK}>
+              Xác nhận
+            </Button>
+          </Col>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
+              Từ chối
+            </Button>
+          </Col>
+        </Row>
+      ) : null}
+      {type === "new" || type === "edit" ? (
+        <FormSubmit
+          goBack={goBack}
+          handleSave={onFinish}
+          saveAndClose={saveAndClose}
+          disabled={fieldTouch && ListVatTu.length !== 0}
+        />
+      ) : null}
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
