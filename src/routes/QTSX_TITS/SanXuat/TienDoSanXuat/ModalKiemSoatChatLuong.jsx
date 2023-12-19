@@ -204,16 +204,34 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal }) {
           <span style={{ fontWeight: "bold" }}>VNSMRM00112222</span>
         </Col>
       </Row>
-      <Table
-        bordered
-        scroll={{ x: 800, y: "70vh" }}
-        columns={columns}
-        components={components}
-        className="gx-table-responsive"
-        dataSource={[]}
-        size="small"
-        pagination={false}
-      />
+      <Row>
+        <Col span={12}>
+          <Table
+            bordered
+            scroll={{ x: 800, y: "70vh" }}
+            columns={columns}
+            components={components}
+            className="gx-table-responsive"
+            dataSource={[]}
+            size="small"
+            pagination={false}
+          />
+        </Col>
+        <Col span={12}></Col>
+
+        <Col span={12}>
+          <Table
+            bordered
+            scroll={{ x: 800, y: "70vh" }}
+            columns={columns}
+            components={components}
+            className="gx-table-responsive"
+            dataSource={[]}
+            size="small"
+            pagination={false}
+          />
+        </Col>
+      </Row>
     </AntModal>
   );
 }

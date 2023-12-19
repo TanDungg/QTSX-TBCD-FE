@@ -422,8 +422,8 @@ function PhieuKiemKe({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Phiếu kiểm kê"
-        description="Danh sách phiếu kiểm kê"
+        title="Phiếu kiểm kê thành phẩm"
+        description="Danh sách phiếu kiểm kê thành phẩm"
         buttons={addButtonRender()}
       />
 

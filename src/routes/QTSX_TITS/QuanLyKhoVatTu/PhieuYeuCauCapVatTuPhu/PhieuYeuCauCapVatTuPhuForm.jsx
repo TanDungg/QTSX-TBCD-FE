@@ -606,7 +606,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận phiếu đề nghị cấp vật tư phụ",
+    title: "Xác nhận phiếu yêu cầu cấp vật tư phụ",
     onOk: handleXacNhan,
   };
 
@@ -645,12 +645,12 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
 
   const formTitle =
     type === "new" ? (
-      "Tạo phiếu đề nghị cấp vật tư phụ"
+      "Tạo phiếu yêu cầu cấp vật tư phụ"
     ) : type === "edit" ? (
-      "Chỉnh sửa phiếu đề nghị cấp vật tư phụ"
+      "Chỉnh sửa phiếu yêu cầu cấp vật tư phụ"
     ) : (
       <span>
-        Chi tiết phiếu đề nghị cấp vật tư phụ -{" "}
+        Chi tiết phiếu yêu cầu cấp vật tư phụ -{" "}
         <Tag color={"blue"} style={{ fontSize: "14px" }}>
           {info.maPhieu}
         </Tag>
@@ -678,7 +678,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       <ContainerHeader title={formTitle} back={goBack} />
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin phiếu đề nghị cấp vật tư phụ"}
+        title={"Thông tin phiếu yêu cầu cấp vật tư phụ"}
       >
         <Form
           {...DEFAULT_FORM_DENGHI_CVT}

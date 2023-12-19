@@ -3,189 +3,227 @@ import { Route, Switch } from "react-router-dom";
 import asyncComponent from "util/asyncComponent";
 import Auth from "helpers/Auth";
 
+/* Kho thành phẩm */
 const KhoThanhPham = asyncComponent(() =>
   import("./KhoThanhPham/KhoThanhPham")
 );
+
+/* Layout kho thành phẩm */
 const LayoutKhoThanhPham = asyncComponent(() =>
   import("./LayoutKhoThanhPham/LayoutKhoThanhPham")
 );
+
 /* Điều chuyển thành phẩm */
-const DieuChuyenSanPham = asyncComponent(() =>
-  import("./DieuChuyen/DieuChuyen")
+const PhieuDieuChuyenThanhPham = asyncComponent(() =>
+  import("./PhieuDieuChuyenThanhPham/PhieuDieuChuyenThanhPham")
 );
-const DieuChuyenSanPhamForm = asyncComponent(() =>
-  import("./DieuChuyen/DieuChuyenForm")
+const PhieuDieuChuyenThanhPhamForm = asyncComponent(() =>
+  import("./PhieuDieuChuyenThanhPham/PhieuDieuChuyenThanhPhamForm")
 );
-const ThanhLySanPham = asyncComponent(() => import("./ThanhLy/ThanhLySanPham"));
-const ThanhLySanPhamForm = asyncComponent(() =>
-  import("./ThanhLy/ThanhLySanPhamForm")
+
+/* Thanh lý thành phẩm */
+const PhieuThanhLyThanhPham = asyncComponent(() =>
+  import("./PhieuThanhLyThanhPham/PhieuThanhLyThanhPham")
+);
+const PhieuThanhLyThanhPhamForm = asyncComponent(() =>
+  import("./PhieuThanhLyThanhPham/PhieuThanhLyThanhPhamForm")
 );
 
 /* Nhập kho thành phẩm */
-const NhapKhoThanhPham = asyncComponent(() =>
-  import("./NhapKhoThanhPham/NhapKhoThanhPham")
+const PhieuNhapKhoThanhPham = asyncComponent(() =>
+  import("./PhieuNhapKhoThanhPham/PhieuNhapKhoThanhPham")
 );
-const NhapKhoThanhPhamForm = asyncComponent(() =>
-  import("./NhapKhoThanhPham/NhapKhoThanhPhamForm")
+const PhieuNhapKhoThanhPhamForm = asyncComponent(() =>
+  import("./PhieuNhapKhoThanhPham/PhieuNhapKhoThanhPhamForm")
 );
 
 /* Xuất kho thành phẩm */
-const XuatKhoThanhPham = asyncComponent(() =>
-  import("./XuatKhoThanhPham/XuatKhoThanhPham")
+const PhieuXuatKhoThanhPham = asyncComponent(() =>
+  import("./PhieuXuatKhoThanhPham/PhieuXuatKhoThanhPham")
 );
-const XuatKhoThanhPhamForm = asyncComponent(() =>
-  import("./XuatKhoThanhPham/XuatKhoThanhPhamForm")
+const PhieuXuatKhoThanhPhamForm = asyncComponent(() =>
+  import("./PhieuXuatKhoThanhPham/PhieuXuatKhoThanhPhamForm")
 );
 
 /* Phiếu kiểm kê thành phẩm */
-const PhieuKiemKe = asyncComponent(() => import("./PhieuKiemKe/PhieuKiemKe"));
-const PhieuKiemKeForm = asyncComponent(() =>
-  import("./PhieuKiemKe/PhieuKiemKeForm")
+const PhieuKiemKeThanhPham = asyncComponent(() =>
+  import("./PhieuKiemKeThanhPham/PhieuKiemKeThanhPham")
+);
+const PhieuKiemKeThanhPhamForm = asyncComponent(() =>
+  import("./PhieuKiemKeThanhPham/PhieuKiemKeThanhPhamForm")
 );
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
     <Switch>
+      {/* Kho thành phẩm */}
       <Route
         path={`${match.url}/kho-thanh-pham`}
         exact
         component={Auth(KhoThanhPham, menus, pathname, permission)}
       />
+
+      {/* Layout kho thành phẩm */}
       <Route
         path={`${match.url}/layout-kho-thanh-pham`}
         exact
         component={Auth(LayoutKhoThanhPham, menus, pathname, permission)}
       />
+
       {/* Điều chuyển thành phẩm */}
       <Route
-        path={`${match.url}/dieu-chuyen`}
+        path={`${match.url}/phieu-dieu-chuyen-thanh-pham`}
         exact
-        component={Auth(DieuChuyenSanPham, menus, pathname, permission)}
+        component={Auth(PhieuDieuChuyenThanhPham, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/dieu-chuyen/them-moi`}
+        path={`${match.url}/phieu-dieu-chuyen-thanh-pham/them-moi`}
         exact
-        component={Auth(DieuChuyenSanPhamForm, menus, pathname, permission)}
+        component={Auth(
+          PhieuDieuChuyenThanhPhamForm,
+          menus,
+          pathname,
+          permission
+        )}
       />
       <Route
-        path={`${match.url}/dieu-chuyen/:id/chinh-sua`}
+        path={`${match.url}/phieu-dieu-chuyen-thanh-pham/:id/chinh-sua`}
         exact
-        component={Auth(DieuChuyenSanPhamForm, menus, pathname, permission)}
+        component={Auth(
+          PhieuDieuChuyenThanhPhamForm,
+          menus,
+          pathname,
+          permission
+        )}
       />
       <Route
-        path={`${match.url}/dieu-chuyen/:id/chi-tiet`}
+        path={`${match.url}/phieu-dieu-chuyen-thanh-pham/:id/chi-tiet`}
         exact
-        component={Auth(DieuChuyenSanPhamForm, menus, pathname, permission)}
+        component={Auth(
+          PhieuDieuChuyenThanhPhamForm,
+          menus,
+          pathname,
+          permission
+        )}
       />
       <Route
-        path={`${match.url}/dieu-chuyen/:id/xac-nhan`}
+        path={`${match.url}/phieu-dieu-chuyen-thanh-pham/:id/xac-nhan`}
         exact
-        component={Auth(DieuChuyenSanPhamForm, menus, pathname, permission)}
+        component={Auth(
+          PhieuDieuChuyenThanhPhamForm,
+          menus,
+          pathname,
+          permission
+        )}
+      />
+
+      {/* Thanh lý thành phẩm */}
+      <Route
+        path={`${match.url}/phieu-thanh-ly-thanh-pham`}
+        exact
+        component={Auth(PhieuThanhLyThanhPham, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/thanh-ly`}
+        path={`${match.url}/phieu-thanh-ly-thanh-pham/them-moi`}
         exact
-        component={Auth(ThanhLySanPham, menus, pathname, permission)}
+        component={Auth(PhieuThanhLyThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/thanh-ly/them-moi`}
+        path={`${match.url}/phieu-thanh-ly-thanh-pham/:id/chinh-sua`}
         exact
-        component={Auth(ThanhLySanPhamForm, menus, pathname, permission)}
+        component={Auth(PhieuThanhLyThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/thanh-ly/:id/chinh-sua`}
+        path={`${match.url}/phieu-thanh-ly-thanh-pham/:id/chi-tiet`}
         exact
-        component={Auth(ThanhLySanPhamForm, menus, pathname, permission)}
+        component={Auth(PhieuThanhLyThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/thanh-ly/:id/chi-tiet`}
+        path={`${match.url}/phieu-thanh-ly-thanh-pham/:id/xac-nhan`}
         exact
-        component={Auth(ThanhLySanPhamForm, menus, pathname, permission)}
+        component={Auth(PhieuThanhLyThanhPhamForm, menus, pathname, permission)}
       />
-      <Route
-        path={`${match.url}/thanh-ly/:id/xac-nhan`}
-        exact
-        component={Auth(ThanhLySanPhamForm, menus, pathname, permission)}
-      />
+
       {/* Nhập kho thành phẩm */}
       <Route
-        path={`${match.url}/nhap-kho`}
+        path={`${match.url}/phieu-nhap-kho-thanh-pham`}
         exact
-        component={Auth(NhapKhoThanhPham, menus, pathname, permission)}
+        component={Auth(PhieuNhapKhoThanhPham, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/nhap-kho/them-moi`}
+        path={`${match.url}/phieu-nhap-kho-thanh-pham/them-moi`}
         exact
-        component={Auth(NhapKhoThanhPhamForm, menus, pathname, permission)}
+        component={Auth(PhieuNhapKhoThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/nhap-kho/:id/chinh-sua`}
+        path={`${match.url}/phieu-nhap-kho-thanh-pham/:id/chinh-sua`}
         exact
-        component={Auth(NhapKhoThanhPhamForm, menus, pathname, permission)}
+        component={Auth(PhieuNhapKhoThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/nhap-kho/:id/chi-tiet`}
+        path={`${match.url}/phieu-nhap-kho-thanh-pham/:id/chi-tiet`}
         exact
-        component={Auth(NhapKhoThanhPhamForm, menus, pathname, permission)}
+        component={Auth(PhieuNhapKhoThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/nhap-kho/:id/xac-nhan`}
+        path={`${match.url}/phieu-nhap-kho-thanh-pham/:id/xac-nhan`}
         exact
-        component={Auth(NhapKhoThanhPhamForm, menus, pathname, permission)}
+        component={Auth(PhieuNhapKhoThanhPhamForm, menus, pathname, permission)}
       />
 
       {/* Xuất kho thành phẩm */}
       <Route
-        path={`${match.url}/xuat-kho`}
+        path={`${match.url}/phieu-xuat-kho-thanh-pham`}
         exact
-        component={Auth(XuatKhoThanhPham, menus, pathname, permission)}
+        component={Auth(PhieuXuatKhoThanhPham, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/xuat-kho/them-moi`}
+        path={`${match.url}/phieu-xuat-kho-thanh-pham/them-moi`}
         exact
-        component={Auth(XuatKhoThanhPhamForm, menus, pathname, permission)}
+        component={Auth(PhieuXuatKhoThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/xuat-kho/:id/chinh-sua`}
+        path={`${match.url}/phieu-xuat-kho-thanh-pham/:id/chinh-sua`}
         exact
-        component={Auth(XuatKhoThanhPhamForm, menus, pathname, permission)}
+        component={Auth(PhieuXuatKhoThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/xuat-kho/:id/chi-tiet`}
+        path={`${match.url}/phieu-xuat-kho-thanh-pham/:id/chi-tiet`}
         exact
-        component={Auth(XuatKhoThanhPhamForm, menus, pathname, permission)}
+        component={Auth(PhieuXuatKhoThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/xuat-kho/:id/xac-nhan`}
+        path={`${match.url}/phieu-xuat-kho-thanh-pham/:id/xac-nhan`}
         exact
-        component={Auth(XuatKhoThanhPhamForm, menus, pathname, permission)}
+        component={Auth(PhieuXuatKhoThanhPhamForm, menus, pathname, permission)}
       />
+
       {/* Phiếu kiểm kê thành phẩm */}
       <Route
-        path={`${match.url}/phieu-kiem-ke`}
+        path={`${match.url}/phieu-kiem-ke-thanh-pham`}
         exact
-        component={Auth(PhieuKiemKe, menus, pathname, permission)}
+        component={Auth(PhieuKiemKeThanhPham, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/phieu-kiem-ke/them-moi`}
+        path={`${match.url}/phieu-kiem-ke-thanh-pham/them-moi`}
         exact
-        component={Auth(PhieuKiemKeForm, menus, pathname, permission)}
+        component={Auth(PhieuKiemKeThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/phieu-kiem-ke/:id/chinh-sua`}
+        path={`${match.url}/phieu-kiem-ke-thanh-pham/:id/chinh-sua`}
         exact
-        component={Auth(PhieuKiemKeForm, menus, pathname, permission)}
+        component={Auth(PhieuKiemKeThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/phieu-kiem-ke/:id/chi-tiet`}
+        path={`${match.url}/phieu-kiem-ke-thanh-pham/:id/chi-tiet`}
         exact
-        component={Auth(PhieuKiemKeForm, menus, pathname, permission)}
+        component={Auth(PhieuKiemKeThanhPhamForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/phieu-kiem-ke/:id/xac-nhan`}
+        path={`${match.url}/phieu-kiem-ke-thanh-pham/:id/xac-nhan`}
         exact
-        component={Auth(PhieuKiemKeForm, menus, pathname, permission)}
+        component={Auth(PhieuKiemKeThanhPhamForm, menus, pathname, permission)}
       />
     </Switch>
   );

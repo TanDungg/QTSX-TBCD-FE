@@ -4,8 +4,8 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  DownloadOutlined,
   CheckCircleOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -24,7 +24,6 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
-  exportPDF,
   removeDuplicates,
   exportExcel,
 } from "src/util/Common";
@@ -34,24 +33,29 @@ import moment from "moment";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
-function NhapKhoThanhPham({ match, history, permission }) {
+function DieuChuyen({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [page, setPage] = useState(1);
-  const [keyword, setKeyword] = useState("");
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
+  const [ListKhoDi, setListKhoDi] = useState([]);
+  const [KhoDi, setKhoDi] = useState(null);
+  const [ListKhoDen, setListKhoDen] = useState([]);
+  const [KhoDen, setKhoDen] = useState(null);
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
+  const [keyword, setKeyword] = useState("");
+  const [page, setPage] = useState(1);
   const [selectedDevice, setSelectedDevice] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [DataXuatExcel, setDataXuatExcel] = useState([]);
-  const [ListKhoThanhPham, setListKhoThanhPham] = useState([]);
-  const [KhoTP, setKhoTP] = useState(null);
 
   useEffect(() => {
     if (permission && permission.view) {
-      getKhoThanhPham();
-      getListData(keyword, KhoTP, FromDate, ToDate, page);
+      getListData(keyword, KhoDi, KhoDen, FromDate, ToDate, page);
+      getListKho();
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -66,38 +70,31 @@ function NhapKhoThanhPham({ match, history, permission }) {
    */
   const getListData = (
     keyword,
-    tits_qtsx_CauTrucKho_Id,
-    ngayBatDau,
-    ngayKetThuc,
+    tits_qtsx_CauTrucKhoBegin_Id,
+    tits_qtsx_CauTrucKhoEnd_Id,
+    tuNgay,
+    denNgay,
     page
   ) => {
     const param = convertObjectToUrlParams({
       keyword,
-      tits_qtsx_CauTrucKho_Id,
-      ngayBatDau,
-      ngayKetThuc,
+      tits_qtsx_CauTrucKhoBegin_Id,
+      tits_qtsx_CauTrucKhoEnd_Id,
+      tuNgay,
+      denNgay,
+      isVatTu: true,
       page,
     });
     dispatch(
-      fetchStart(
-        `tits_qtsx_PhieuNhapKhoThanhPham?${param}`,
-        "GET",
-        null,
-        "LIST"
-      )
+      fetchStart(`tits_qtsx_PhieuDieuChuyen?${param}`, "GET", null, "LIST")
     );
+  };
 
-    const paramXuat = convertObjectToUrlParams({
-      keyword,
-      tits_qtsx_CauTrucKho_Id,
-      ngayBatDau,
-      ngayKetThuc,
-      page: -1,
-    });
+  const getListKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuNhapKhoThanhPham?${paramXuat}`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-vat-tu-tree`,
           "GET",
           null,
           "DETAIL",
@@ -109,57 +106,50 @@ function NhapKhoThanhPham({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setDataXuatExcel(res.data);
+          setListKhoDi(res.data);
+          setListKhoDen(res.data);
         } else {
-          setDataXuatExcel([]);
+          setListKhoDi([]);
+          setListKhoDen([]);
         }
       })
       .catch((error) => console.error(error));
   };
-
-  const getKhoThanhPham = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=true`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListKhoThanhPham(res.data);
-        } else {
-          setListKhoThanhPham([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
+  /**
+   * Tìm kiếm sản phẩm
+   *
+   */
   const onSearchDeNghiMuaHang = () => {
-    getListData(keyword, KhoTP, FromDate, ToDate, page);
+    getListData(keyword, KhoDi, KhoDen, FromDate, ToDate, page);
   };
 
+  /**
+   * Thay đổi keyword
+   *
+   * @param {*} val
+   */
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, KhoTP, FromDate, ToDate, page);
+      getListData(val.target.value, KhoDi, KhoDen, FromDate, ToDate, page);
     }
   };
-
+  /**
+   * ActionContent: Hành động trên bảng
+   * @param {*} item
+   * @returns View
+   * @memberof ChucNang
+   */
   const actionContent = (item) => {
     const xacnhan =
-      INFO.user_Id === item.nguoiDuyet_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
+      permission &&
+      permission.cof &&
+      item.nguoiPTBoPhan_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
-            state: { itemData: item },
+            state: { itemData: item, permission },
           }}
           title="Xác nhận"
         >
@@ -174,8 +164,10 @@ function NhapKhoThanhPham({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
+      item.nguoiTao_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt" &&
+      moment(getDateNow(-1), "DD/MM/YYYY") <=
+        moment(item.ngay, "DD/MM/YYYY") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -193,8 +185,9 @@ function NhapKhoThanhPham({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận"
+      item.nguoiTao_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt" &&
+      moment(getDateNow(-1), "DD/MM/YYYY") <= moment(item.ngay, "DD/MM/YYYY")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -217,7 +210,12 @@ function NhapKhoThanhPham({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maPhieu, "phiếu nhập kho");
+    ModalDeleteConfirm(
+      deleteItemAction,
+      item,
+      item.maPhieu,
+      "phiếu điều chuyển"
+    );
   };
 
   /**
@@ -226,14 +224,14 @@ function NhapKhoThanhPham({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_PhieuNhapKhoThanhPham/${item.id}`;
+    let url = `tits_qtsx_PhieuDieuChuyen/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(keyword, KhoTP, FromDate, ToDate, page);
+          getListData(keyword, KhoDi, KhoDen, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -247,7 +245,7 @@ function NhapKhoThanhPham({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(keyword, KhoTP, FromDate, ToDate, pagination);
+    getListData(keyword, KhoDi, KhoDen, FromDate, ToDate, pagination);
   };
 
   /**
@@ -261,14 +259,11 @@ function NhapKhoThanhPham({ match, history, permission }) {
     });
   };
 
-  const handlePrint = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
+  const handleXuatExcel = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuNhapKhoThanhPham/${selectedDevice[0].id}?${params}`,
+          `tits_qtsx_PhieuDieuChuyen/${selectedDevice[0].id}`,
           "GET",
           null,
           "DETAIL",
@@ -280,15 +275,15 @@ function NhapKhoThanhPham({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
+          const data = res.data;
           const newData = {
-            ...res.data,
-            lstpnkvtct:
-              res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu),
+            ...data,
+            list_ChiTiets: data.list_ChiTiets && JSON.parse(data.list_ChiTiets),
           };
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `tits_qtsx_PhieuNhapKhoThanhPham/export-pdf-nhap-kho`,
+                `tits_qtsx_PhieuDieuChuyen/export-file-phieu-dieu-chuyen`,
                 "POST",
                 newData,
                 "",
@@ -298,62 +293,9 @@ function NhapKhoThanhPham({ match, history, permission }) {
               )
             );
           }).then((res) => {
-            exportPDF("PhieuNhapKhoThanhPham", res.data.datapdf);
-            setSelectedDevice([]);
-            setSelectedKeys([]);
+            exportExcel("PhieuDieuChuyenVatTu", res.data.dataexcel);
           });
         }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const handleXuatExcel = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
-    const fetchAllData = DataXuatExcel.map((data) => {
-      return new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_PhieuNhapKhoThanhPham/${data.id}?${params}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      });
-    });
-
-    Promise.all(fetchAllData)
-      .then((responses) => {
-        const DataXuat = responses.map((res) => {
-          if (res && res.data) {
-            return {
-              ...res.data,
-              chiTietVatTu: res.data.chiTietVatTu
-                ? JSON.parse(res.data.chiTietVatTu)
-                : null,
-            };
-          }
-        });
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `tits_qtsx_PhieuNhapKhoThanhPham/export-file-excel-nhap-kho`,
-              "POST",
-              DataXuat,
-              "",
-              "",
-              resolve,
-              reject
-            )
-          );
-        }).then((res) => {
-          exportExcel("PhieuNhapKhoThanhPham", res.data.dataexcel);
-        });
       })
       .catch((error) => console.error(error));
   };
@@ -375,7 +317,9 @@ function NhapKhoThanhPham({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handleXuatExcel}
-          disabled={data.length === 0}
+          disabled={
+            (permission && !permission.add) || selectedDevice.length === 0
+          }
         >
           Xuất excel
         </Button>
@@ -402,6 +346,7 @@ function NhapKhoThanhPham({ match, history, permission }) {
       );
     return <div>{detail}</div>;
   };
+
   let renderHead = [
     {
       title: "STT",
@@ -411,7 +356,7 @@ function NhapKhoThanhPham({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu nhập",
+      title: "Mã phiếu",
       key: "maPhieu",
       align: "center",
       render: (val) => renderDetail(val),
@@ -427,71 +372,71 @@ function NhapKhoThanhPham({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Kho nhập",
-      dataIndex: "tenCauTrucKho",
-      key: "tenCauTrucKho",
+      title: "Kho điều chuyển",
+      dataIndex: "tenCauTrucKhoBegin",
+      key: "tenCauTrucKhoBegin",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenCauTrucKho,
-            value: d.tenCauTrucKho,
+            text: d.tenCauTrucKhoBegin,
+            value: d.tenCauTrucKhoBegin,
           };
         })
       ),
-      onFilter: (value, record) => record.tenCauTrucKho.includes(value),
+      onFilter: (value, record) => record.tenCauTrucKhoBegin.includes(value),
       filterSearch: true,
     },
     {
-      title: "Ngày nhập kho",
-      dataIndex: "ngayNhapKho",
-      key: "ngayNhapKho",
+      title: "Kho nhận",
+      dataIndex: "tenCauTrucKhoEnd",
+      key: "tenCauTrucKhoEnd",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayNhapKho,
-            value: d.ngayNhapKho,
+            text: d.tenCauTrucKhoEnd,
+            value: d.tenCauTrucKhoEnd,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayNhapKho.includes(value),
+      onFilter: (value, record) => record.tenCauTrucKhoEnd.includes(value),
       filterSearch: true,
     },
     {
-      title: "Người giao",
-      dataIndex: "tenNguoiTaoPhieu",
-      key: "tenNguoiTaoPhieu",
+      title: "Ngày yêu cầu",
+      dataIndex: "ngay",
+      key: "ngay",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenNguoiTaoPhieu,
-            value: d.tenNguoiTaoPhieu,
+            text: d.ngay,
+            value: d.ngay,
           };
         })
       ),
-      onFilter: (value, record) => record.tenNguoiTaoPhieu.includes(value),
+      onFilter: (value, record) => record.ngay.includes(value),
       filterSearch: true,
     },
     {
-      title: "Người lập phiếu",
-      dataIndex: "tenNguoiTaoPhieu",
-      key: "tenNguoiTaoPhieu",
+      title: "Người lập",
+      dataIndex: "tenNguoiTao",
+      key: "tenNguoiTao",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenNguoiTaoPhieu,
-            value: d.tenNguoiTaoPhieu,
+            text: d.tenNguoiTao,
+            value: d.tenNguoiTao,
           };
         })
       ),
-      onFilter: (value, record) => record.tenNguoiTaoPhieu.includes(value),
+      onFilter: (value, record) => record.tenNguoiTao.includes(value),
       filterSearch: true,
     },
     {
-      title: "Trạng thái",
+      title: "Tình trạng",
       dataIndex: "tinhTrang",
       key: "tinhTrang",
       align: "center",
@@ -510,9 +455,9 @@ function NhapKhoThanhPham({ match, history, permission }) {
           {value && (
             <Tag
               color={
-                value === "Chưa xác nhận"
+                value === "Chưa duyệt"
                   ? "orange"
-                  : value === "Đã xác nhận"
+                  : value === "Đã duyệt"
                   ? "blue"
                   : "red"
               }
@@ -557,6 +502,45 @@ function NhapKhoThanhPham({ match, history, permission }) {
     };
   });
 
+  const handleOnSelectKhoDi = (val) => {
+    setKhoDi(val);
+    setPage(1);
+    getListData(keyword, val, KhoDen, FromDate, ToDate, 1);
+    const newData = ListKhoDi.filter((d) => d.id !== val);
+    setListKhoDen(newData);
+  };
+
+  const handleClearKhoDi = () => {
+    setKhoDi(null);
+    setPage(1);
+    getListData(keyword, null, KhoDen, FromDate, ToDate, 1);
+    if (!KhoDen) {
+      getListKho();
+    }
+  };
+
+  const handleOnSelectKhoDen = (val) => {
+    setKhoDen(val);
+    setPage(1);
+    getListData(keyword, KhoDi, val, FromDate, ToDate, 1);
+  };
+
+  const handleClearKhoDen = () => {
+    setKhoDen(null);
+    setPage(1);
+    getListData(keyword, KhoDi, null, FromDate, ToDate, 1);
+    if (!KhoDi) {
+      getListKho();
+    }
+  };
+
+  const handleChangeNgay = (dateString) => {
+    setFromDate(dateString[0]);
+    setToDate(dateString[1]);
+    setPage(1);
+    getListData(keyword, KhoDi, KhoDen, dateString[0], dateString[1], 1);
+  };
+
   const rowSelection = {
     selectedRowKeys: selectedKeys,
     selectedRows: selectedDevice,
@@ -571,33 +555,15 @@ function NhapKhoThanhPham({ match, history, permission }) {
         selectedKeys.length > 0
           ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
           : [...selectedRowKeys];
-
       setSelectedDevice(row);
       setSelectedKeys(key);
     },
   };
-
-  const handleOnSelectKhoTP = (val) => {
-    setKhoTP(val);
-    setPage(1);
-    getListData(keyword, val, FromDate, ToDate, 1);
-  };
-  const handleClearKhoTP = (val) => {
-    setKhoTP("");
-    setPage(1);
-    getListData(keyword, "", FromDate, ToDate, 1);
-  };
-  const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
-    setPage(1);
-    getListData(keyword, KhoTP, dateString[0], dateString[1], 1);
-  };
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Nhập kho thành phẩm"
-        description="Nhập kho thành phẩm"
+        title="Phiếu điều chuyển thành phẩm"
+        description="Danh sách phiếu điều chuyển thành phẩm"
         buttons={addButtonRender()}
       />
 
@@ -612,20 +578,43 @@ function NhapKhoThanhPham({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Kho:</h5>
+            <h5>Kho điều chuyển:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListKhoThanhPham ? ListKhoThanhPham : []}
-              placeholder="Chọn kho"
+              data={ListKhoDi ? ListKhoDi : []}
+              placeholder="Chọn kho điều chuyển"
               optionsvalue={["id", "tenCauTrucKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectKhoTP}
-              value={KhoTP}
-              onChange={(value) => setKhoTP(value)}
+              onSelect={handleOnSelectKhoDi}
+              value={KhoDi}
               allowClear
-              onClear={handleClearKhoTP}
+              onClear={handleClearKhoDi}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Kho nhận:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListKhoDen ? ListKhoDen : []}
+              placeholder="Chọn kho nhận"
+              optionsvalue={["id", "tenCauTrucKho"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp={"name"}
+              onSelect={handleOnSelectKhoDen}
+              value={KhoDen}
+              allowClear
+              onClear={handleClearKhoDen}
             />
           </Col>
           <Col
@@ -675,15 +664,8 @@ function NhapKhoThanhPham({ match, history, permission }) {
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            hideSelectAll: true,
-            preserveSelectedRowKeys: false,
-            selectedRowKeys: selectedKeys,
-          }}
           bordered
-          scroll={{ x: 1200, y: "55vh" }}
+          scroll={{ x: 700, y: "65vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -698,10 +680,17 @@ function NhapKhoThanhPham({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: selectedKeys,
+          }}
         />
       </Card>
     </div>
   );
 }
 
-export default NhapKhoThanhPham;
+export default DieuChuyen;

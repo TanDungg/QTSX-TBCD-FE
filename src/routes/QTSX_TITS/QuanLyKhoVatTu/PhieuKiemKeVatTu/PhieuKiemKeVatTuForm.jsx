@@ -13,6 +13,7 @@ import {
   Button,
   Tag,
   Modal as AntModal,
+  Divider,
 } from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helper from "src/helpers";
@@ -57,11 +58,11 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
   const { validateFields, resetFields, setFieldsValue } = form;
   const [type, setType] = useState("new");
   const [fieldTouch, setFieldTouch] = useState(false);
-  const [ListThanhPham, setListThanhPham] = useState([]);
+  const [ListVatTu, setListVatTu] = useState([]);
   const [ListUser, setListUser] = useState([]);
-  const [ListKhoThanhPham, setListKhoThanhPham] = useState([]);
+  const [ListKho, setListKho] = useState([]);
   const [ListNguoiKiemKe, setListNguoiKiemKe] = useState([]);
-  const [KhoThanhPham, setKhoThanhPham] = useState(null);
+  const [Kho, setKho] = useState(null);
   const [editingRecord, setEditingRecord] = useState([]);
   const [ActiveModalHoiDongKiemKe, setActiveModalHoiDongKiemKe] =
     useState(false);
@@ -78,7 +79,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           setType("new");
           getUserLap();
-          getListKhoThanhPham();
+          getListKho();
           getListNguoiKiemKe(INFO);
           setFieldsValue({
             phieukiemke: {
@@ -153,11 +154,11 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
     });
   };
 
-  const getListKhoThanhPham = () => {
+  const getListKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=true`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=false`,
           "GET",
           null,
           "DETAIL",
@@ -169,9 +170,9 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListKhoThanhPham(res.data);
+          setListKho(res.data);
         } else {
-          setListKhoThanhPham([]);
+          setListKho([]);
         }
       })
       .catch((error) => console.error(error));
@@ -224,10 +225,10 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
         if (res && res.data) {
           const data = res.data;
           getUserLap(data.nguoiTao_Id);
-          getListKhoThanhPham();
+          getListKho();
           getListNguoiKiemKe();
           setInfo(data);
-          setKhoThanhPham(data.tits_qtsx_CauTrucKho_Id);
+          setKho(data.tits_qtsx_CauTrucKho_Id);
           setFieldsValue({
             phieukiemke: {
               ...data,
@@ -242,7 +243,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
           const chiTiet =
             data.tits_qtsx_PhieuKiemKeChiTiets &&
             JSON.parse(data.tits_qtsx_PhieuKiemKeChiTiets);
-          setListThanhPham(chiTiet);
+          setListVatTu(chiTiet);
         }
       })
       .catch((error) => console.error(error));
@@ -273,7 +274,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "thành phẩm";
+    const title = "vật tư";
     ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
   };
 
@@ -283,12 +284,12 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = ListThanhPham.filter(
+    const newData = ListVatTu.filter(
       (d) =>
         d.tits_qtsx_VatTu_Id.toLowerCase() !==
         item.tits_qtsx_VatTu_Id.toLowerCase()
     );
-    setListThanhPham(newData);
+    setListVatTu(newData);
   };
 
   /**
@@ -328,7 +329,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
-    const newData = [...ListThanhPham];
+    const newData = [...ListVatTu];
     newData.forEach((ct, index) => {
       if (
         ct.tits_qtsx_VatTu_Id.toLowerCase() ===
@@ -338,7 +339,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
         ct.chenhLech = Number(slKiemKe) - Number(ct.soLuongTrongKho);
       }
     });
-    setListThanhPham(newData);
+    setListVatTu(newData);
   };
 
   const renderSoLuongKiemKe = (item) => {
@@ -379,13 +380,13 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Mã thành phẩm",
+      title: "Mã vật tư",
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
     },
     {
-      title: "Tên thành phẩm",
+      title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
       align: "center",
@@ -485,8 +486,8 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
   const saveAndClose = (val) => {
     validateFields()
       .then((values) => {
-        if (ListThanhPham.length === 0) {
-          Helper.alertError("Danh sách thành phẩm không được rỗng");
+        if (ListVatTu.length === 0) {
+          Helper.alertError("Danh sách vật tư không được rỗng");
         } else {
           saveData(values.phieukiemke, val);
         }
@@ -503,7 +504,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
         ngay: phieukiemke.ngay.format("DD/MM/YYYY"),
         list_HoiDongKiemKe:
           ListHoiDongKiemKe.length !== 0 ? ListHoiDongKiemKe : [],
-        tits_qtsx_PhieuKiemKeChiTiets: ListThanhPham.map((dt) => {
+        tits_qtsx_PhieuKiemKeChiTiets: ListVatTu.map((dt) => {
           return {
             ...dt,
             soLuongTrongKho:
@@ -532,7 +533,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
             } else {
               resetFields();
               setFieldTouch(false);
-              setListThanhPham([]);
+              setListVatTu([]);
               setListHoiDongKiemKe([]);
               getUserLap();
               setFieldsValue({
@@ -554,7 +555,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
         ngay: phieukiemke.ngay.format("DD/MM/YYYY"),
         list_HoiDongKiemKe:
           ListHoiDongKiemKe.length !== 0 ? ListHoiDongKiemKe : [],
-        tits_qtsx_PhieuKiemKeChiTiets: ListThanhPham.map((dt) => {
+        tits_qtsx_PhieuKiemKeChiTiets: ListVatTu.map((dt) => {
           return {
             ...dt,
             soLuongTrongKho:
@@ -617,7 +618,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận phiếu kiểm kê",
+    title: "Xác nhận phiếu kiểm kê vật tư",
     onOk: handleDuyet,
   };
 
@@ -650,7 +651,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
   };
 
   const hanldeSelectKhoKiemKe = (value) => {
-    setKhoThanhPham(value);
+    setKho(value);
   };
 
   const handleChonVatTu = () => {
@@ -658,8 +659,8 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
   };
 
   const handleThemVatTu = (data) => {
-    const newListThanhPham = [...ListThanhPham, ...data];
-    setListThanhPham(newListThanhPham);
+    const newListVatTu = [...ListVatTu, ...data];
+    setListVatTu(newListVatTu);
     if (type === "edit") {
       setFieldTouch(true);
     }
@@ -672,12 +673,12 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
 
   const formTitle =
     type === "new" ? (
-      "Tạo phiếu kiểm kê "
+      "Tạo phiếu kiểm kê vật tư"
     ) : type === "edit" ? (
-      "Chỉnh sửa phiếu kiểm kê"
+      "Chỉnh sửa phiếu kiểm kê vật tư"
     ) : (
       <span>
-        Chi tiết phiếu kiểm kê -{" "}
+        Chi tiết phiếu kiểm kê vật tư -{" "}
         <Tag color="blue" style={{ fontSize: "15px" }}>
           {info.maPhieu}
         </Tag>
@@ -703,7 +704,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
       <ContainerHeader title={formTitle} back={goBack} />
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin phiếu kiểm kê"}
+        title={"Thông tin phiếu kiểm kê vật tư"}
       >
         <Form
           {...DEFAULT_FORM_TWO_COL}
@@ -784,14 +785,14 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListKhoThanhPham}
+                  data={ListKho}
                   placeholder="Chọn kho kiểm kê"
                   optionsvalue={["id", "tenCauTrucKho"]}
                   style={{ width: "100%" }}
                   showSearch
                   onSelect={hanldeSelectKhoKiemKe}
                   optionFilterProp="name"
-                  disabled={ListThanhPham.length === 0 ? false : true}
+                  disabled={ListVatTu.length === 0 ? false : true}
                 />
               </FormItem>
             </Col>
@@ -1008,7 +1009,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
       </Card>
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
-        title={"Danh sách thành phẩm"}
+        title={"Danh sách vật tư"}
         headStyle={{
           textAlign: "center",
           backgroundColor: "#0469B9",
@@ -1022,9 +1023,9 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
               className="th-margin-bottom-0"
               type="primary"
               onClick={handleChonVatTu}
-              disabled={KhoThanhPham === null ? true : false}
+              disabled={Kho === null ? true : false}
             >
-              Chọn thành phẩm
+              Chọn vật tư
             </Button>
           </Row>
         )}
@@ -1034,7 +1035,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
           scroll={{ x: 900, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
-          dataSource={reDataForTable(ListThanhPham)}
+          dataSource={reDataForTable(ListVatTu)}
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
@@ -1067,8 +1068,8 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
         itemData={{
-          tits_qtsx_CauTrucKho_Id: KhoThanhPham,
-          DataListThanhPham: ListThanhPham && ListThanhPham,
+          tits_qtsx_CauTrucKho_Id: Kho,
+          DataListVatTu: ListVatTu && ListVatTu,
         }}
         DataThemVatTu={handleThemVatTu}
       />
