@@ -223,7 +223,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                 res.data.soLuongKH * data.dinhMuc + data.dinhMucXaNhua
               ).toFixed(4),
               soLuongKH: res.data.soLuongKH,
-              id: res.data.sanPham_Id + data.vatTu_Id,
+              id: res.data.lkn_DinhMucVatTu_Id + data.vatTu_Id,
               tenSanPham: res.data.tenSanPham,
             };
           });
@@ -374,7 +374,12 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
             getListSanPham(res.data.phongBan_Id, res.data.ngaySanXuat);
             const chiTiet =
               res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
-              JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu);
+              JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu).map((ct) => {
+                return {
+                  ...ct,
+                  id: ct.lkn_ChiTietPhieuDeNghiCapVatTu_Id,
+                };
+              });
             setListVatTu(chiTiet);
           } else {
             setValue(2);
@@ -390,7 +395,12 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
             });
             const chiTiet =
               res.data.lst_ChiTietPhieuDeNghiCapVatTu &&
-              JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu);
+              JSON.parse(res.data.lst_ChiTietPhieuDeNghiCapVatTu).map((ct) => {
+                return {
+                  ...ct,
+                  id: ct.lkn_ChiTietPhieuDeNghiCapVatTu_Id,
+                };
+              });
             setListVatTuKhac(chiTiet);
           }
         }
@@ -471,8 +481,10 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...listVatTu];
+    console.log(item);
     newData.forEach((ct, index) => {
       if (ct.id === item.id) {
+        console.log("object");
         ct.soLuong = soLuong;
       }
     });
@@ -535,6 +547,106 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     setListVatTu(newData);
   };
 
+  const handleInputChangeKhac = (val, item) => {
+    const soLuong = val.target.value;
+    if (isEmpty(soLuong) || Number(soLuong) <= 0) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+    } else {
+      const newData = editingRecord.filter((d) => d.id !== item.id);
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
+    }
+    const newData = [...ListVatTuKhac];
+    newData.forEach((ct, index) => {
+      if (ct.id === item.id) {
+        ct.soLuong = soLuong;
+      }
+    });
+    setListVatTuKhac(newData);
+  };
+
+  const rendersoLuongKhac = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.id === item.id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+            borderColor: isEditing ? "red" : "",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.soLuong}
+          disabled={type === "new" || type === "edit" ? false : true}
+          onChange={(val) => handleInputChangeKhac(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
+  const renderHanMucSuDungKhac = (record) => {
+    return (
+      <Input
+        style={{
+          textAlign: "center",
+          width: "100%",
+        }}
+        className={`input-item`}
+        disabled={type === "new" || type === "edit" ? false : true}
+        value={record.hanMucSuDung}
+        onChange={(val) => handleHanMucSuDungKhac(val, record)}
+      />
+    );
+  };
+
+  const handleHanMucSuDungKhac = (value, record) => {
+    const hanmuc = value.target.value;
+    setFieldTouch(true);
+    const newData = [...ListVatTuKhac];
+    newData.forEach((ct, index) => {
+      if (ct.id === record.id) {
+        ct.hanMucSuDung = hanmuc;
+      }
+    });
+    setListVatTuKhac(newData);
+  };
+  const renderGhiChuKhac = (record) => {
+    return (
+      <Input
+        style={{
+          textAlign: "center",
+          width: "100%",
+        }}
+        className={`input-item`}
+        disabled={type === "new" || type === "edit" ? false : true}
+        value={record.ghiChu}
+        onChange={(val) => handleGhiChuKhac(val, record)}
+      />
+    );
+  };
+
+  const handleGhiChuKhac = (value, record) => {
+    const hanmuc = value.target.value;
+    setFieldTouch(true);
+    const newData = [...ListVatTuKhac];
+    newData.forEach((ct, index) => {
+      if (ct.id === record.id) {
+        ct.ghiChu = hanmuc;
+      }
+    });
+    setListVatTuKhac(newData);
+  };
   let colValues = [
     {
       title: "STT",
@@ -643,27 +755,21 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
 
     {
       title: "Số lượng",
-      dataIndex: "soLuong",
       key: "soLuong",
       align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+      render: (record) => rendersoLuongKhac(record),
     },
     {
       title: "Hạng mục sử dụng",
-      dataIndex: "hangMucSuDung",
       key: "hangMucSuDung",
       align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+      render: (record) => renderHanMucSuDungKhac(record),
     },
     {
       title: "Ghi chú",
-      dataIndex: "ghiChu",
       key: "ghiChu",
       align: "center",
-      editable:
-        type === "new" || type === "edit" || type === "xacnhan" ? true : false,
+      render: (record) => renderGhiChuKhac(record),
     },
     {
       title: "Chức năng",

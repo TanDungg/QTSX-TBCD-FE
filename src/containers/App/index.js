@@ -20,6 +20,8 @@ import InMaQrThongTinVatTu from "src/routes/Kho_TPC/InBarcode/VatTu/InMaQr";
 import InMaQrCauTrucKho from "src/routes/Kho_TPC/InBarcode/CauTrucKho/InMaQr";
 import InMaQrSanPham from "src/routes/Kho_TPC/InBarcode/SanPham/InMaQr";
 import InMaQrCodeSoContainer from "src/routes/QTSX_TITS/KeHoach/KhaiBaoSoContainer/InMaQrSoContainer";
+import InMaQrCodeSoKhungNoiBo from "src/routes/QTSX_TITS/SanXuat/TienDoSanXuat/InMaQr";
+
 import { setInitUrl } from "src/appRedux/actions/Auth";
 import {
   onLayoutTypeChange,
@@ -112,7 +114,8 @@ const App = () => {
       location &&
       location.pathname &&
       (location.pathname.includes("in-barcode-kho-tpc") ||
-        location.pathname.includes("quan-ly-kho-tpc"))
+        location.pathname.includes("quan-ly-kho-tpc") ||
+        location.pathname.includes("in-ma-Qrcode"))
     ) {
       setSessionStorage("tokenInfo", true);
     } else {
@@ -305,6 +308,11 @@ const App = () => {
             exact
             path="/ke-hoach-qtsx-tits/khai-bao-so-container/in-ma-Qrcode-SoContainer"
             component={InMaQrCodeSoContainer}
+          />
+          <Route
+            exact
+            path="/san-xuat-qtsx-tits/tien-do-san-xuat/in-ma-Qrcode"
+            component={InMaQrCodeSoKhungNoiBo}
           />
           <RestrictedRoute
             path={`${match.url}`}

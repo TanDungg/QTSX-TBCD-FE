@@ -37,6 +37,7 @@ import {
   removeDuplicates,
   getLocalStorage,
   getTokenInfo,
+  setLocalStorage,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
@@ -186,7 +187,33 @@ function TienDoSanXuat({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
-
+  const getSoKhunNoiBo = (tits_qtsx_Tram_Id, keyword) => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_Tram_Id,
+      keyword,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_TienDoSanXuat/chuan-bi-vao-tram?${param}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListSoKhungNoiBo(res.data);
+        } else {
+          setListSoKhungNoiBo([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   const handleOnSelectXuong = (value) => {
     setXuong(value);
     getChuyen(value);
@@ -199,7 +226,7 @@ function TienDoSanXuat({ match, history, permission }) {
   };
   const handleOnSelectTram = (value) => {
     setTram(value);
-    // getTram(value);
+    getSoKhunNoiBo(value);
     // getListData(keyword, value, 1);
   };
   const handleClearXuong = (value) => {
@@ -457,6 +484,15 @@ function TienDoSanXuat({ match, history, permission }) {
                 icon={<QrcodeOutlined />}
                 type="primary"
                 style={{ width: "80%" }}
+                onClick={() => {
+                  setLocalStorage("inMa", [
+                    {
+                      soKhungNoiBo: "QOEC0001",
+                      tenSanPham: "SMRM-XK-Xuong 40GN",
+                    },
+                  ]);
+                  window.open(`${match.url}/in-ma-Qrcode`, "_blank");
+                }}
                 // disabled={DisableVaoTram}
               >
                 In Barcode
