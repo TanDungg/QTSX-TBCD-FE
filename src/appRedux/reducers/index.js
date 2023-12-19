@@ -7,6 +7,7 @@ import Menu from "./Menu";
 import Notification from "./Notification";
 import ThongBao from "./ThongBao";
 import DonVi from "./DonVi";
+import History from "./History";
 
 const createRootReducer = (history) =>
   combineReducers({
@@ -18,6 +19,7 @@ const createRootReducer = (history) =>
     notification: Notification,
     thongbao: ThongBao,
     donvi: DonVi,
+    History: History,
   });
 
 export default createRootReducer;

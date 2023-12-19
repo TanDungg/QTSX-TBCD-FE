@@ -1,0 +1,372 @@
+import React, { useEffect, useState } from "react";
+import { Card, Button, Divider, Col, Row, Checkbox, Tag, Switch } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  CheckCircleOutlined,
+  RedoOutlined,
+  ReloadOutlined,
+} from "@ant-design/icons";
+import { useDispatch, useSelector } from "react-redux";
+import { Select } from "src/components/Common";
+import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
+import {
+  convertObjectToUrlParams,
+  removeDuplicates,
+  getLocalStorage,
+  getTokenInfo,
+} from "src/util/Common";
+import ContainerHeader from "src/components/ContainerHeader";
+import { BASE_URL_API } from "src/constants/Config";
+
+const optionsDate = {
+  weekday: "long", // Thứ
+  year: "numeric", // Năm
+  month: "numeric", // Tháng
+  day: "numeric", // Ngày
+};
+
+const optionsTime = {
+  hour: "numeric", // Giờ
+  minute: "numeric", // Phút
+  second: "numeric", // Giây
+  hour12: false, // 24 giờ
+};
+function TienDoSanXuat({ match, history, permission }) {
+  //   const { width, loading, data } = useSelector(({ common }) => common).toJS();
+  const dispatch = useDispatch();
+  //   const INFO = {
+  //     ...getLocalStorage("menu"),
+  //     user_Id: getTokenInfo().id,
+  //     token: getTokenInfo().token,
+  //   };
+  const [ListXuong, setListXuong] = useState([]);
+  const [ListChuyen, setListChuyen] = useState([]);
+  const [ListTram, setListTram] = useState([]);
+  const [Xuong, setXuong] = useState(null);
+  const [Chuyen, setChuyen] = useState(null);
+  const [Tram, setTram] = useState(null);
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  const [ListSoKhungNoiBo, setListSoKhungNoiBo] = useState([]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setCurrentDateTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+  const formattedDateTime = new Intl.DateTimeFormat(
+    "vi-VN",
+    optionsDate
+  ).format(currentDateTime);
+  const formattedTime = new Intl.DateTimeFormat("vi-VN", optionsTime).format(
+    currentDateTime
+  );
+  useEffect(() => {
+    if (permission && permission.view) {
+      getXuong();
+    } else if ((permission && !permission.view) || permission === undefined) {
+      history.push("/home");
+    }
+
+    return () => dispatch(fetchReset());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  /**
+   * Lấy dữ liệu về
+   *
+   */
+  const getListData = (keyword, tits_qtsx_Xuong_Id, page) => {
+    const param = convertObjectToUrlParams({
+      keyword,
+      tits_qtsx_Xuong_Id,
+      page,
+    });
+    dispatch(
+      fetchStart(`tits_qtsx_QuyTrinhSanXuat?${param}`, "GET", null, "LIST")
+    );
+  };
+
+  const getXuong = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          "tits_qtsx_Xuong?page=-1",
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListXuong(res.data);
+        } else {
+          setListXuong([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const getChuyen = (xuong_Id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_Chuyen?page=-1&&xuong_Id=${xuong_Id}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListChuyen(res.data);
+        } else {
+          setListChuyen([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const getTram = (chuyen_Id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_Tram?page=-1&&chuyen_Id=${chuyen_Id}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListTram(res.data);
+        } else {
+          setListTram([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const handleOnSelectXuong = (value) => {
+    setXuong(value);
+    getChuyen(value);
+    // getListData(keyword, value, 1);
+  };
+  const handleOnSelectChuyen = (value) => {
+    setChuyen(value);
+    getTram(value);
+    // getListData(keyword, value, 1);
+  };
+  const handleOnSelectTram = (value) => {
+    setTram(value);
+    // getTram(value);
+    // getListData(keyword, value, 1);
+  };
+  const handleClearXuong = (value) => {
+    setXuong(null);
+    // getListData(keyword, null, 1);
+  };
+
+  return (
+    <div className="gx-main-content">
+      <ContainerHeader
+        title="Nhập tiến độ sản xuất"
+        description="Nhập tiến độ sản xuất"
+      />
+      <Card className="th-card-margin-bottom">
+        <Row>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Xưởng:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListXuong ? ListXuong : []}
+              placeholder="Chọn xưởng"
+              optionsvalue={["id", "tenXuong"]}
+              style={{ width: "100%" }}
+              showSearch
+              onSelect={handleOnSelectXuong}
+              optionFilterProp="name"
+              allowClear
+              onClear={handleClearXuong}
+              value={Xuong}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Chuyền:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListChuyen ? ListChuyen : []}
+              placeholder="Chọn chuyền"
+              optionsvalue={["id", "tenChuyen"]}
+              style={{ width: "100%" }}
+              showSearch
+              onSelect={handleOnSelectChuyen}
+              optionFilterProp="name"
+              allowClear
+              onClear={handleClearXuong}
+              value={Chuyen}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Trạm:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListTram ? ListTram : []}
+              placeholder="Chọn trạm"
+              optionsvalue={["id", "tenTram"]}
+              style={{ width: "100%" }}
+              showSearch
+              onSelect={handleOnSelectTram}
+              optionFilterProp="name"
+              allowClear
+              onClear={handleClearXuong}
+              value={Tram}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+            align="center"
+          >
+            <br />
+            <br />
+            <a style={{ cursor: "none" }}>
+              {formattedDateTime},{"  "} {formattedTime}
+            </a>
+          </Col>
+        </Row>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
+        <Row>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <Card className="th-card-margin-bottom th-card-reset-margin">
+              <h5 style={{ fontWeight: "bold", color: "#0469b9" }}>
+                Xe chuẩn bị vào trạm:&nbsp;&nbsp;&nbsp;
+                <a>
+                  <ReloadOutlined />
+                </a>
+              </h5>
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListXuong ? ListXuong : []}
+                placeholder="Chọn xưởng"
+                optionsvalue={["id", "tenXuong"]}
+                style={{ width: "100%" }}
+                showSearch
+                onSelect={handleOnSelectXuong}
+                optionFilterProp="name"
+                allowClear
+                onClear={handleClearXuong}
+                value={Xuong}
+              />
+            </Card>
+          </Col>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <Card className="th-card-margin-bottom th-card-reset-margin">
+              <h5>Chuyền:</h5>
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListChuyen ? ListChuyen : []}
+                placeholder="Chọn chuyền"
+                optionsvalue={["id", "tenChuyen"]}
+                style={{ width: "100%" }}
+                showSearch
+                onSelect={handleOnSelectChuyen}
+                optionFilterProp="name"
+                allowClear
+                onClear={handleClearXuong}
+                value={Chuyen}
+              />
+            </Card>
+          </Col>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <Card className="th-card-margin-bottom th-card-reset-margin">
+              <h5>Trạm:</h5>
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListTram ? ListTram : []}
+                placeholder="Chọn trạm"
+                optionsvalue={["id", "tenTram"]}
+                style={{ width: "100%" }}
+                showSearch
+                onSelect={handleOnSelectTram}
+                optionFilterProp="name"
+                allowClear
+                onClear={handleClearXuong}
+                value={Tram}
+              />
+            </Card>
+          </Col>
+        </Row>
+      </Card>
+    </div>
+  );
+}
+
+export default TienDoSanXuat;

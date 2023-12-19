@@ -30,14 +30,18 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import { setHistory } from "src/appRedux/actions";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
 function XuatKhoVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
+  const { option, path } = useSelector(({ History }) => History);
+
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+
   const [page, setPage] = useState(1);
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState(null);
@@ -47,7 +51,16 @@ function XuatKhoVatTu({ match, history, permission }) {
   const [SelectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     if (permission && permission.view) {
-      getKho();
+      if (path === match.url) {
+        setTuNgay(option.TuNgay);
+        setDenNgay(option.DenNgay);
+        setKho(option.Kho);
+        setPage(option.page);
+        getKho(true);
+        getListData(option.Kho, option.TuNgay, option.DenNgay, option.page);
+      } else {
+        getKho(false);
+      }
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -70,7 +83,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     dispatch(fetchStart(`lkn_PhieuXuatKhoVatTu?${param}`, "GET", null, "LIST"));
   };
 
-  const getKho = () => {
+  const getKho = (check) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -87,8 +100,10 @@ function XuatKhoVatTu({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListKho(res.data);
-          setKho(res.data[0].id);
-          getListData(res.data[0].id, TuNgay, DenNgay, page);
+          if (!check) {
+            setKho(res.data[0].id);
+            getListData(res.data[0].id, TuNgay, DenNgay, page);
+          }
         } else {
           setListKho([]);
         }
@@ -111,6 +126,19 @@ function XuatKhoVatTu({ match, history, permission }) {
             state: { itemData: item, permission },
           }}
           title="Xác nhận"
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  Kho,
+                  TuNgay,
+                  DenNgay,
+                  page,
+                },
+              })
+            );
+          }}
         >
           <CheckCircleOutlined />
         </Link>
@@ -127,6 +155,19 @@ function XuatKhoVatTu({ match, history, permission }) {
             state: { itemData: item },
           }}
           title="Sửa"
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  Kho,
+                  TuNgay,
+                  DenNgay,
+                  page,
+                },
+              })
+            );
+          }}
         >
           <EditOutlined />
         </Link>
@@ -207,6 +248,19 @@ function XuatKhoVatTu({ match, history, permission }) {
           to={{
             pathname: `${match.url}/${val.id}/chi-tiet`,
             state: { itemData: val, permission },
+          }}
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  Kho,
+                  TuNgay,
+                  DenNgay,
+                  page,
+                },
+              })
+            );
           }}
         >
           {val.maPhieuXuatKhoVatTu}
@@ -395,6 +449,17 @@ function XuatKhoVatTu({ match, history, permission }) {
     history.push({
       pathname: `${match.url}/them-moi`,
     });
+    dispatch(
+      setHistory({
+        path: match.path,
+        option: {
+          Kho,
+          TuNgay,
+          DenNgay,
+          page,
+        },
+      })
+    );
   };
 
   const handlePrint = () => {

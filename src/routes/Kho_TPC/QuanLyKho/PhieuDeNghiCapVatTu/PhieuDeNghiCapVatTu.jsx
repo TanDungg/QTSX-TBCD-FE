@@ -31,12 +31,15 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
 import ModalView from "./ModalView";
+import { setHistory } from "src/appRedux/actions";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
 function PhieuDeNghiCapVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
+  const { option, path } = useSelector(({ History }) => History);
+
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
@@ -52,7 +55,18 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       getPhongBan();
-      getListData(PhongBan, TuNgay, DenNgay, page);
+      if (path === match.url) {
+        setTuNgay(option.TuNgay);
+        setDenNgay(option.DenNgay);
+        setPhongBan(option.PhongBan);
+        setPage(option.page);
+        getListData(
+          option.PhongBan,
+          option.TuNgay,
+          option.DenNgay,
+          option.page
+        );
+      }
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -123,6 +137,19 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
             state: { itemData: item, permission },
           }}
           title="Xác nhận"
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  PhongBan,
+                  TuNgay,
+                  DenNgay,
+                  page,
+                },
+              })
+            );
+          }}
         >
           <CheckCircleOutlined />
         </Link>
@@ -143,6 +170,19 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
             state: { itemData: item },
           }}
           title="Sửa"
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  PhongBan,
+                  TuNgay,
+                  DenNgay,
+                  page,
+                },
+              })
+            );
+          }}
         >
           <EditOutlined />
         </Link>
@@ -217,6 +257,18 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     history.push({
       pathname: `${match.url}/them-moi`,
     });
+
+    dispatch(
+      setHistory({
+        path: match.path,
+        option: {
+          PhongBan,
+          TuNgay,
+          DenNgay,
+          page,
+        },
+      })
+    );
   };
 
   const handleTaoPhieuXuat = () => {
@@ -327,6 +379,19 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
           to={{
             pathname: `${match.url}/${val.id}/chi-tiet`,
             state: { itemData: val, permission },
+          }}
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  PhongBan,
+                  TuNgay,
+                  DenNgay,
+                  page,
+                },
+              })
+            );
           }}
         >
           {val.maPhieuDeNghiCapVatTu}

@@ -18,6 +18,7 @@ import {
   getLocalStorage,
 } from "src/util/Common";
 import moment from "moment";
+import { BASE_URL_APP } from "src/constants/Config";
 const { RangePicker } = DatePicker;
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -292,7 +293,32 @@ function NhapKho({ permission, history, match }) {
   // const { totalRow, pageSize } = Data;
 
   let dataList = reDataForTable(Data);
-
+  const renderDetail = (val) => {
+    const detail = (
+      <a
+        onClick={() => {
+          let url = "";
+          if (Loai !== "sanpham") {
+            url =
+              BASE_URL_APP +
+              "/quan-ly-kho-tpc/nhap-kho/vat-tu/" +
+              val.lkn_PhieuNhapKho_Id +
+              "/chinh-sua";
+          } else {
+            url =
+              BASE_URL_APP +
+              "/quan-ly-kho-tpc/nhap-kho/thanh-pham/" +
+              val.lkn_PhieuNhapKho_Id +
+              "/chinh-sua";
+          }
+          window.open(url, "_blank");
+        }}
+      >
+        {val.maPhieu}
+      </a>
+    );
+    return <div>{detail}</div>;
+  };
   let colValues = () => {
     const col = [
       {
@@ -305,10 +331,11 @@ function NhapKho({ permission, history, match }) {
       },
       {
         title: "Mã phiếu",
-        dataIndex: "maPhieu",
+        // dataIndex: "maPhieu",
         key: "maPhieu",
         align: "center",
         fixed: width > 1050 ? "left" : "none",
+        render: (record) => renderDetail(record),
         filters: removeDuplicates(
           map(dataList, (d) => {
             return {

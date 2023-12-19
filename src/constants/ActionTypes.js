@@ -64,3 +64,5 @@ export const GET_APP_NAME_SUCCESS = "GET_APP_NAME_SUCCESS";
 export const DON_VI = "DON_VI";
 export const DON_VI_FAIL = "DON_VI_FAIL";
 export const DON_VI_SUCCESS = "DON_VI_SUCCESS";
+
+export const HISTORY_SUCCESS = "HISTORY_SUCCESS";

@@ -62,7 +62,8 @@ function LayoutKhoVatTu({ history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_ViTriLuuKho/vi-tri-luu-kho-tree?kho_Id=${val}`,
+          // `lkn_ViTriLuuKho/vi-tri-luu-kho-tree?kho_Id=${val}`,
+          `lkn_mobile/vi-tri-luu-kho-tree?kho_Id=${val}&IsThanhPham=false`,
           "GET",
           null,
           "DETAIL",
@@ -76,7 +77,7 @@ function LayoutKhoVatTu({ history, permission }) {
         let soTangMax = 1;
         res.data.forEach((ke, index) => {
           if (ke.children) {
-            res.data[index].children = ke.children.reverse();
+            ke.children = ke.children.reverse();
             soTangMax =
               ke.children.length > soTangMax ? ke.children.length : soTangMax;
           }
@@ -86,6 +87,28 @@ function LayoutKhoVatTu({ history, permission }) {
         setListChiTietKho(res.data);
       } else {
         setListChiTietKho([]);
+      }
+    });
+  };
+  const getChiTietViTri = (val) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          // `lkn_ViTriLuuKho/vi-tri-luu-kho-tree?kho_Id=${val}`,
+          `lkn_mobile/chi-tiet-vi-tri-luu-kho-vat-tu?ke_ngan_Id=${val}&IsThanhPham=false`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListChiTietVatTu(res.data);
+      } else {
+        setListChiTietVatTu([]);
       }
     });
   };
@@ -170,17 +193,17 @@ function LayoutKhoVatTu({ history, permission }) {
     };
   });
   const handleOnSelectKho = (val) => {
-    setListChiTietVatTu([]);
-    setFocusNgan("");
-    setFocusKe("");
-    setKho(val);
-    getChiTietKho(val);
-  };
-  const handleViewThongTin = (tt) => {
-    if (tt) {
-      setListChiTietVatTu(JSON.parse(tt));
-    } else {
+    if (Kho !== val) {
       setListChiTietVatTu([]);
+      setFocusNgan("");
+      setFocusKe("");
+      setKho(val);
+      getChiTietKho(val);
+    }
+  };
+  const handleViewThongTin = (id) => {
+    if (id) {
+      getChiTietViTri(id);
     }
   };
   return (
@@ -254,7 +277,7 @@ function LayoutKhoVatTu({ history, permission }) {
                             if (ke.children.length === 0) {
                               setFocusKe(ke.id);
                               setFocusNgan("");
-                              handleViewThongTin(ke.chiTietVatTu);
+                              handleViewThongTin(ke.id);
                               // setActiveModal(true);
                             }
                           }}
@@ -325,9 +348,7 @@ function LayoutKhoVatTu({ history, permission }) {
                                               }}
                                               onClick={() => {
                                                 // setActiveModal(true);
-                                                handleViewThongTin(
-                                                  ngan.chiTietVatTu
-                                                );
+                                                handleViewThongTin(ngan.id);
                                                 setFocusNgan(ngan.id);
                                                 setFocusKe("");
                                               }}

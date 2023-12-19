@@ -14,7 +14,7 @@ require("dotenv").config();
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function Home({ permission, history }) {
-  const { width } = useSelector(({ common }) => common).toJS();
+  const { width, loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [data, setData] = useState([]);
   const [dataTDSXB, setDataTDSXB] = useState([]);
@@ -839,6 +839,7 @@ function Home({ permission, history }) {
                   bordered
                   dataSource={dataTDSXB}
                   columns={columsTDSXB}
+                  loading={loading}
                   components={components}
                   pagination={false}
                 />
@@ -856,6 +857,7 @@ function Home({ permission, history }) {
                   dataSource={dataTDSXCT}
                   columns={columsTDSXCT}
                   components={components}
+                  loading={loading}
                   pagination={false}
                 />
               ),
@@ -871,6 +873,7 @@ function Home({ permission, history }) {
                   bordered
                   dataSource={dataTDGHB}
                   columns={columsTDHGB}
+                  loading={loading}
                   components={components}
                   pagination={false}
                 />

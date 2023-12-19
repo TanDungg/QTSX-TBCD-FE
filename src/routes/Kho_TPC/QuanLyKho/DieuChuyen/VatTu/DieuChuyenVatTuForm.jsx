@@ -658,7 +658,7 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
     onOk: () => {
       info.tinhTrang === "Chưa duyệt"
         ? DuyetPhieu(false)
-        : info.tinhTrang === "Đã được duyệt" && XacNhanPhieu();
+        : info.tinhTrang === "Kho duyệt" && XacNhanPhieu();
     },
   };
   const modalDuyet = () => {
