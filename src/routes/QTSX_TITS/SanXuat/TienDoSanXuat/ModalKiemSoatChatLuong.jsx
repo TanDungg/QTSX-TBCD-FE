@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { Table, EditableTableRow } from "src/components/Common";
+import ImageCanvas from "src/components/Common/ImageCanvas";
 import { DEFAULT_FORM_CONGDOAN } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
@@ -12,7 +13,6 @@ import {
   getLocalStorage,
   getTokenInfo,
 } from "src/util/Common";
-
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -121,25 +121,25 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal }) {
       width: 50,
     },
     {
-      title: "Mã vật tư",
+      title: "Nội dung",
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
     },
     {
-      title: "Tên vật tư",
+      title: "Tiêu chuẩn đánh giá",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
       align: "center",
     },
     {
-      title: "Số Serial",
+      title: "Giá trị tiêu chuẩn",
       dataIndex: "soSerial",
       key: "soSerial",
       align: "center",
     },
     {
-      title: "Ghi chú",
+      title: "Đánh giá",
       dataIndex: "ghiChu",
       key: "ghiChu",
       align: "center",
@@ -206,30 +206,38 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal }) {
       </Row>
       <Row>
         <Col span={12}>
-          <Table
-            bordered
-            scroll={{ x: 800, y: "70vh" }}
-            columns={columns}
-            components={components}
-            className="gx-table-responsive"
-            dataSource={[]}
-            size="small"
-            pagination={false}
-          />
+          <Row>
+            <Col span={24}>
+              <h5 style={{ fontWeight: "blod" }}>Kiểm tra đường keo</h5>
+              <Table
+                bordered
+                scroll={{ x: 800, y: "70vh" }}
+                columns={columns}
+                components={components}
+                className="gx-table-responsive"
+                dataSource={[]}
+                size="small"
+                pagination={false}
+              />
+            </Col>
+            <Col span={24} style={{ marginTop: 8 }}>
+              <h5 style={{ fontWeight: "blod" }}>Kiểm tra đường keo</h5>
+              <Table
+                bordered
+                scroll={{ x: 800, y: "70vh" }}
+                columns={columns}
+                components={components}
+                className="gx-table-responsive"
+                dataSource={[]}
+                size="small"
+                pagination={false}
+              />
+            </Col>
+          </Row>
         </Col>
-        <Col span={12}></Col>
-
-        <Col span={12}>
-          <Table
-            bordered
-            scroll={{ x: 800, y: "70vh" }}
-            columns={columns}
-            components={components}
-            className="gx-table-responsive"
-            dataSource={[]}
-            size="small"
-            pagination={false}
-          />
+        <Col span={12} align="center" style={{ position: "relative" }}>
+          <ImageCanvas imageUrl={require("assets/images/smrm/smrm.png")} />
+          <ImageCanvas imageUrl={require("assets/images/smrm/smrm.png")} />
         </Col>
       </Row>
     </AntModal>
