@@ -221,7 +221,7 @@ function VatTu({ match, permission, history }) {
       render: (value) => (
         <div id="myqrcode">
           <QRCode
-            value={value}
+            value={value.id}
             bordered={false}
             style={{ width: 50, height: 50 }}
           />

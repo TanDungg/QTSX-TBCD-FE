@@ -5,11 +5,13 @@ import {
   Divider,
   Col,
   Row,
-  Checkbox,
+  Upload,
   Tag,
   Input,
   Empty,
   List,
+  Badge,
+  Avatar,
 } from "antd";
 import {
   PlusOutlined,
@@ -20,6 +22,12 @@ import {
   ReloadOutlined,
   SelectOutlined,
   SendOutlined,
+  QrcodeOutlined,
+  SyncOutlined,
+  FileTextOutlined,
+  SaveFilled,
+  CheckSquareOutlined,
+  ToolOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Select, Toolbar } from "src/components/Common";
@@ -32,7 +40,9 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
-
+import ModalKiemSoatVatTuLapRap from "./ModalKiemSoatVatTuLapRap";
+import ModalKiemSoatChatLuong from "./ModalKiemSoatChatLuong";
+const { Dragger } = Upload;
 const optionsDate = {
   weekday: "long", // Thứ
   year: "numeric", // Năm
@@ -63,7 +73,10 @@ function TienDoSanXuat({ match, history, permission }) {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [ListSoKhungNoiBo, setListSoKhungNoiBo] = useState([]);
   const [DisableVaoTram, setDisableVaoTram] = useState(true);
-
+  const [ActiveModalKiemSoatVatTu, setActiveModalKiemSoatVatTu] =
+    useState(false);
+  const [ActiveModalKiemSoatChatLuong, setActiveModalKiemSoatChatLuong] =
+    useState(false);
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentDateTime(new Date());
@@ -339,7 +352,7 @@ function TienDoSanXuat({ match, history, permission }) {
           >
             <Card
               className="th-card-margin-bottom th-card-reset-margin"
-              style={{ minHeight: 174.188 }}
+              style={{ minHeight: 390 }}
             >
               <h5 style={{ fontWeight: "bold", color: "#0469b9" }}>
                 Xe chuẩn bị vào trạm:&nbsp;&nbsp;&nbsp;
@@ -363,7 +376,7 @@ function TienDoSanXuat({ match, history, permission }) {
               />
               <List
                 size="small"
-                style={{ marginTop: 5, height: 200, overflow: "auto" }}
+                style={{ marginTop: 5, height: 280, overflow: "auto" }}
                 bordered
                 dataSource={data}
                 renderItem={(item) => (
@@ -383,8 +396,31 @@ function TienDoSanXuat({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <Card className="th-card-margin-bottom th-card-reset-margin">
-              <Empty />
+            <Card
+              className="th-card-margin-bottom th-card-reset-margin"
+              style={{ minHeight: 390 }}
+            >
+              {/* <Empty /> */}
+              <Row>
+                <Col span={24} style={{ display: "flex", marginBottom: 8 }}>
+                  <h5>Sản phẩm:</h5>
+                  <h5 style={{ fontWeight: "bold", marginLeft: 20 }}>
+                    {"SMRM-XK-Xuong 40GN"}
+                  </h5>
+                </Col>
+                <Col span={24} style={{ display: "flex", marginBottom: 8 }}>
+                  <h5>Số khung nội bộ:</h5>
+                  <h5 style={{ fontWeight: "bold", marginLeft: 20 }}>
+                    {"QOEC0001"}
+                  </h5>
+                </Col>
+                <Col span={24} style={{ display: "flex", marginBottom: 8 }}>
+                  <h5>Màu sơn:</h5>
+                  <h5 style={{ fontWeight: "bold", marginLeft: 20 }}>
+                    {"25E"}
+                  </h5>
+                </Col>
+              </Row>
             </Card>
           </Col>
           <Col
@@ -399,15 +435,73 @@ function TienDoSanXuat({ match, history, permission }) {
           >
             <Card
               className="th-card-margin-bottom th-card-reset-margin"
-              style={{ minHeight: 174.188 }}
+              style={{ minHeight: 390 }}
             >
-              <Button
+              {/* <Button
                 icon={<SelectOutlined />}
                 type="primary"
                 style={{ width: "80%" }}
                 disabled={DisableVaoTram}
               >
                 Vào trạm
+              </Button> */}
+              <Button
+                icon={<SyncOutlined />}
+                type="primary"
+                style={{ width: "80%" }}
+                // disabled={DisableVaoTram}
+              >
+                Chuyển sửa chữa lại
+              </Button>
+              <Button
+                icon={<QrcodeOutlined />}
+                type="primary"
+                style={{ width: "80%" }}
+                // disabled={DisableVaoTram}
+              >
+                In Barcode
+              </Button>
+              <Button
+                icon={<CheckSquareOutlined />}
+                type="primary"
+                style={{ width: "80%" }}
+                // disabled={DisableVaoTram}
+                onClick={() => setActiveModalKiemSoatVatTu(true)}
+              >
+                Kiểm soát vật tư lắp ráp
+              </Button>
+              <Button
+                icon={<FileTextOutlined />}
+                type="primary"
+                style={{ width: "80%" }}
+                // disabled={DisableVaoTram}
+                onClick={() => setActiveModalKiemSoatChatLuong(true)}
+              >
+                Xem hồ sơ chất lượng
+              </Button>
+              <Button
+                icon={<ToolOutlined />}
+                type="primary"
+                style={{ width: "80%" }}
+                // disabled={DisableVaoTram}
+              >
+                Sửa chữa lại
+              </Button>
+              <Button
+                icon={<CheckSquareOutlined />}
+                type="primary"
+                style={{ width: "80%" }}
+                // disabled={DisableVaoTram}
+              >
+                Kiểm soát chất lượng
+              </Button>
+              <Button
+                icon={<SaveFilled />}
+                type="primary"
+                style={{ width: "50%", margin: 0 }}
+                // disabled={DisableVaoTram}
+              >
+                Hoàn tất
               </Button>
             </Card>
           </Col>
@@ -429,6 +523,14 @@ function TienDoSanXuat({ match, history, permission }) {
           </Col>
         </Row>
       </Card>
+      <ModalKiemSoatVatTuLapRap
+        openModal={ActiveModalKiemSoatVatTu}
+        openModalFS={setActiveModalKiemSoatVatTu}
+      />
+      <ModalKiemSoatChatLuong
+        openModal={ActiveModalKiemSoatChatLuong}
+        openModalFS={setActiveModalKiemSoatChatLuong}
+      />
     </div>
   );
 }

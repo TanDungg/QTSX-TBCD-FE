@@ -94,7 +94,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_CauTrucKho/cau-truc-kho-vat-tu-tree`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=false`,
           "GET",
           null,
           "DETAIL",
@@ -504,16 +504,18 @@ function DieuChuyenVatTu({ match, history, permission }) {
 
   const handleOnSelectKhoDi = (val) => {
     setKhoDi(val);
+    setKhoDen(null);
     setPage(1);
-    getListData(keyword, val, KhoDen, FromDate, ToDate, 1);
+    getListData(keyword, val, null, FromDate, ToDate, 1);
     const newData = ListKhoDi.filter((d) => d.id !== val);
     setListKhoDen(newData);
   };
 
   const handleClearKhoDi = () => {
     setKhoDi(null);
+    setKhoDen(null);
     setPage(1);
-    getListData(keyword, null, KhoDen, FromDate, ToDate, 1);
+    getListData(keyword, null, null, FromDate, ToDate, 1);
     if (!KhoDen) {
       getListKho();
     }

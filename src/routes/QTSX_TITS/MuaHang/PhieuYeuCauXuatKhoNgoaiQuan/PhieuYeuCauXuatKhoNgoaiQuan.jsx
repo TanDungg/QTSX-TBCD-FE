@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  PrinterOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -9,7 +14,6 @@ import {
   Table,
   EditableTableRow,
   Toolbar,
-  Select,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -19,10 +23,10 @@ import {
   getLocalStorage,
   getTokenInfo,
   removeDuplicates,
+  exportPDF,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
-import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -35,10 +39,12 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
+  const [SelectPhieuXuat, setSelectPhieuXuat] = useState([]);
+  const [selectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
-      loadData(keyword, FromDate, ToDate, page);
+      getListData(keyword, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -51,7 +57,7 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, NgayBatDau, NgayKetThuc, page) => {
+  const getListData = (keyword, NgayBatDau, NgayKetThuc, page) => {
     const param = convertObjectToUrlParams({
       keyword,
       NgayBatDau,
@@ -73,7 +79,7 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
    *
    */
   const onSearchPhieuNhanHang = () => {
-    loadData(keyword, FromDate, ToDate, page);
+    getListData(keyword, FromDate, ToDate, page);
   };
 
   /**
@@ -84,7 +90,7 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, FromDate, ToDate, page);
+      getListData(val.target.value, FromDate, ToDate, page);
     }
   };
 
@@ -163,7 +169,7 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, FromDate, ToDate, page);
+          getListData(keyword, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -177,7 +183,7 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, FromDate, ToDate, pagination);
+    getListData(keyword, FromDate, ToDate, pagination);
   };
 
   /**
@@ -190,6 +196,54 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
+
+  const handlePrint = () => {
+    const params = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuYeuCauXuatKhoNgoaiQuan/${SelectPhieuXuat[0].id}?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newData = {
+            ...res.data,
+            chiTiet_PhieuYeuCaus:
+              res.data.chiTiet_PhieuYeuCaus &&
+              JSON.parse(res.data.chiTiet_PhieuYeuCaus),
+          };
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `tits_qtsx_PhieuYeuCauXuatKhoNgoaiQuan/export-file-phieu-yeu-cau`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportPDF("PhieuDeNghiMuaHang", res.data.datapdf);
+            setSelectPhieuXuat([]);
+            setSelectedKeys([]);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -201,6 +255,15 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
+        </Button>
+        <Button
+          icon={<PrinterOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handlePrint}
+          disabled={permission && !permission.add}
+        >
+          In phiếu
         </Button>
       </>
     );
@@ -349,7 +412,27 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    loadData(keyword, dateString[0], dateString[1], 1);
+    getListData(keyword, dateString[0], dateString[1], 1);
+  };
+
+  const rowSelection = {
+    selectedRowKeys: selectedKeys,
+    selectedRows: SelectPhieuXuat,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        SelectPhieuXuat.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectPhieuXuat[0].key)
+          : [...selectedRows];
+
+      const key =
+        selectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
+          : [...selectedRowKeys];
+
+      setSelectPhieuXuat(row);
+      setSelectedKeys(key);
+    },
   };
 
   return (
@@ -427,6 +510,13 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: selectedKeys,
+          }}
         />
       </Card>
     </div>
