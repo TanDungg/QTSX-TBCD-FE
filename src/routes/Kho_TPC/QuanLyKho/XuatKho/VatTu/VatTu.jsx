@@ -98,7 +98,7 @@ function XuatKhoVatTu({ match, history, permission }) {
       );
     })
       .then((res) => {
-        if (res && res.data) {
+        if (res && res.data.length > 0) {
           setListKho(res.data);
           if (!check) {
             setKho(res.data[0].id);

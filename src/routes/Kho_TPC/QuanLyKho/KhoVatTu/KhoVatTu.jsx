@@ -84,7 +84,7 @@ function KhoVatTu({ match, history, permission }) {
       );
     })
       .then((res) => {
-        if (res && res.data) {
+        if (res && res.data.length > 0) {
           setKho(res.data[0].id);
           loadData(keyword, res.data[0].id, page);
           setListKho(res.data);

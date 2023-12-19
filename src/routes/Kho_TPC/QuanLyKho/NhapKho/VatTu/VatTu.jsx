@@ -109,7 +109,7 @@ function VatTu({ match, history, permission }) {
       );
     })
       .then((res) => {
-        if (res && res.data) {
+        if (res && res.data.length > 0) {
           if (!check) {
             setKho(res.data[0].id);
             loadData(keyword, res.data[0].id, FromDate, ToDate, page);
