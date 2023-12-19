@@ -5,6 +5,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -24,6 +25,7 @@ import {
   getLocalStorage,
   getTokenInfo,
   removeDuplicates,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -41,6 +43,8 @@ function PhieuKiemKe({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
   const [TuNgay, setTuNgay] = useState(getDateNow(-7));
   const [DenNgay, setDenNgay] = useState(getDateNow());
+  const [SelectedPhieu, setSelectedPhieu] = useState([]);
+  const [SelectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -232,6 +236,52 @@ function PhieuKiemKe({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
+
+  const handleXuatExcel = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuKiemKeVatTu/${SelectedPhieu[0].id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const data = res.data;
+          const newData = {
+            ...data,
+            list_HoiDongKiemKe:
+              data.list_HoiDongKiemKe && JSON.parse(data.list_HoiDongKiemKe),
+            tits_qtsx_PhieuKiemKeChiTiets:
+              data.tits_qtsx_PhieuKiemKeChiTiets &&
+              JSON.parse(data.tits_qtsx_PhieuKiemKeChiTiets),
+          };
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `tits_qtsx_PhieuKiemKeVatTu/export-file-phieu-de-nghi-cap-vat-tu-phu`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportExcel("PhieuKiemTraVatTu", res.data.dataexcel);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -243,6 +293,15 @@ function PhieuKiemKe({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
+        </Button>
+        <Button
+          icon={<DownloadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleXuatExcel}
+          disabled={SelectedPhieu.length === 0}
+        >
+          Xuất excel
         </Button>
       </>
     );
@@ -419,6 +478,26 @@ function PhieuKiemKe({ match, history, permission }) {
     getListData(keyword, Kho, dateString[0], dateString[1], 1);
   };
 
+  const rowSelection = {
+    selectedRowKeys: SelectedKeys,
+    selectedRows: SelectedPhieu,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        SelectedPhieu.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectedPhieu[0].key)
+          : [...selectedRows];
+
+      const key =
+        SelectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
+          : [...selectedRowKeys];
+
+      setSelectedPhieu(row);
+      setSelectedKeys(key);
+    },
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -518,6 +597,14 @@ function PhieuKiemKe({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: SelectedKeys,
+          }}
+          s
         />
       </Card>
     </div>

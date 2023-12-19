@@ -34,6 +34,7 @@ const QuanLyKhoThanhPham_QTSX_TITS = asyncComponent(() =>
 const QuanLyChatLuong_QTSX_TITS = asyncComponent(() =>
   import("./QTSX_TITS/QuanLyChatLuong")
 );
+const BaoCao_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/BaoCao"));
 const App = ({ match, menus, location }) => {
   const { pathname } = location;
   return (
@@ -125,6 +126,10 @@ const App = ({ match, menus, location }) => {
         <Route
           path={`${match.url}quan-ly-chat-luong-qtsx-tits`}
           component={Auth(QuanLyChatLuong_QTSX_TITS, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}bao-cao-qtsx-tits`}
+          component={Auth(BaoCao_QTSX_TITS, menus, pathname)}
         />
         <Route path="*" component={Auth(Home_ERP, menus, pathname)} />
       </Switch>

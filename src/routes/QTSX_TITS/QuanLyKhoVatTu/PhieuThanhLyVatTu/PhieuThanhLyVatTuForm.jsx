@@ -1159,6 +1159,29 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
+            {info.tinhTrang === "Đã từ chối" && (
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Lý do từ chối"
+                  name={["phieuthanhly", "lyDoTuChoi"]}
+                  rules={[
+                    {
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Input className="input-item" disabled={true} />
+                </FormItem>
+              </Col>
+            )}
           </Row>
         </Form>
       </Card>

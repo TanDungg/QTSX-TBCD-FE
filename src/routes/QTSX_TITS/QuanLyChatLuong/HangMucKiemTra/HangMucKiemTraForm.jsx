@@ -30,7 +30,7 @@ import Helpers from "src/helpers";
 
 const FormItem = Form.Item;
 
-function HangMucSuDungForm({ match, permission, history }) {
+function HangMucKiemTraForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { setFieldsValue, validateFields, resetFields } = form;
@@ -917,4 +917,4 @@ function HangMucSuDungForm({ match, permission, history }) {
   );
 }
 
-export default HangMucSuDungForm;
+export default HangMucKiemTraForm;
