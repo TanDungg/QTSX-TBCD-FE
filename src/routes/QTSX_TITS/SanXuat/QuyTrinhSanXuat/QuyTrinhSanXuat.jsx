@@ -25,8 +25,6 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { BASE_URL_API } from "src/constants/Config";
-
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function QuyTrinhSanXuat({ match, history, permission }) {
@@ -318,7 +316,7 @@ function QuyTrinhSanXuat({ match, history, permission }) {
 
   const renderDefault = (record) => {
     return (
-      <Switch
+      <Checkbox
         checked={record.isDefault}
         onChange={() => handleChangeDefault(record)}
         disabled={record.tinhTrang !== "Đã duyệt"}

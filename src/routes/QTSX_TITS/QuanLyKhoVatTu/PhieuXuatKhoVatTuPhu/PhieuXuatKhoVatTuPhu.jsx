@@ -30,6 +30,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import Helpers from "src/helpers";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -45,7 +46,7 @@ function XuatKhoVatTu({ match, history, permission }) {
   const [keyword, setKeyword] = useState(null);
   const [TuNgay, setTuNgay] = useState(getDateNow(-7));
   const [DenNgay, setDenNgay] = useState(getDateNow());
-  const [SelectedDevice, setSelectedDevice] = useState([]);
+  const [SelectedPhieu, setSelectedPhieu] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
@@ -68,6 +69,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     const param = convertObjectToUrlParams({
       keyword,
       tits_qtsx_Xuong_Id,
+      donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
       page,
@@ -78,6 +80,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     const paramXuat = convertObjectToUrlParams({
       keyword,
       tits_qtsx_Xuong_Id,
+      donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
       page: -1,
@@ -451,14 +454,11 @@ function XuatKhoVatTu({ match, history, permission }) {
     });
   };
 
-  const handlePrint = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
+  const handleXuatExcel = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuPhu/${SelectedDevice[0].id}?${params}`,
+          `tits_qtsx_PhieuXuatKhoVatTuPhu/${SelectedPhieu[0].id}`,
           "GET",
           null,
           "DETAIL",
@@ -470,28 +470,15 @@ function XuatKhoVatTu({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const listVatTu =
-            res.data.chiTiet_PhieuXuatKhoVatTus &&
-            JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus).map((list) => {
-              const SoLuong = list.chiTiet_LuuVatTus.reduce(
-                (tong, sl) => tong + sl.soLuongThucXuat,
-                0
-              );
-              return {
-                ...list,
-                soLuongThucXuat: SoLuong,
-              };
-            });
+          const data = res.data;
           const newData = {
-            ...res.data,
-            boPhan: res.data.tenPhongBan,
-            lstpxkvtct: listVatTu,
+            ...data,
+            list_ChiTiets: data.list_ChiTiets && JSON.parse(data.list_ChiTiets),
           };
-
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `tits_qtsx_PhieuXuatKhoVatTuPhu/export-pdf`,
+                `tits_qtsx_PhieuXuatKhoVatTuPhu/export-file-phieu-de-nghi-cap-vat-tu-phu`,
                 "POST",
                 newData,
                 "",
@@ -501,64 +488,9 @@ function XuatKhoVatTu({ match, history, permission }) {
               )
             );
           }).then((res) => {
-            exportPDF("PhieuXuatKhoVatTu", res.data.datapdf);
-            setSelectedDevice([]);
-            setSelectedKeys([]);
+            exportExcel("PhieuXuatKhoVatTuPhu", res.data.dataexcel);
           });
         }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const handleXuatExcel = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
-    const fetchAllData = DataXuatExcel.map((data) => {
-      return new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_PhieuXuatKhoVatTuPhu/${data.id}?${params}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      });
-    });
-
-    Promise.all(fetchAllData)
-      .then((responses) => {
-        const DataXuat = responses.map((res) => {
-          if (res && res.data) {
-            return {
-              ...res.data,
-              chiTiet_PhieuXuatKhoVatTus: res.data.chiTiet_PhieuXuatKhoVatTus
-                ? JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus)
-                : null,
-            };
-          } else {
-            return null;
-          }
-        });
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `tits_qtsx_PhieuXuatKhoVatTuPhu/export-file-excel-xuat-kho`,
-              "POST",
-              DataXuat,
-              "",
-              "",
-              resolve,
-              reject
-            )
-          );
-        }).then((res) => {
-          exportExcel("PhieuXuatKhoVatTu", res.data.dataexcel);
-        });
       })
       .catch((error) => console.error(error));
   };
@@ -580,7 +512,7 @@ function XuatKhoVatTu({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handleXuatExcel}
-          disabled={data.length === 0}
+          disabled={dataList.length === 0}
         >
           Xuất excel
         </Button>
@@ -609,21 +541,24 @@ function XuatKhoVatTu({ match, history, permission }) {
 
   const rowSelection = {
     selectedRowKeys: SelectedKeys,
-    selectedRows: SelectedDevice,
+    selectedRows: SelectedPhieu,
 
     onChange: (selectedRowKeys, selectedRows) => {
       const row =
-        SelectedDevice.length > 0
-          ? selectedRows.filter((d) => d.key !== SelectedDevice[0].key)
+        SelectedPhieu.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectedPhieu[0].key)
           : [...selectedRows];
 
       const key =
         SelectedKeys.length > 0
           ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
           : [...selectedRowKeys];
-
-      setSelectedDevice(row);
-      setSelectedKeys(key);
+      if (row.length && row[0].tinhTrang.startsWith("Bị hủy")) {
+        Helpers.alertError("Không được chọn phiếu đã hủy");
+      } else {
+        setSelectedPhieu(row);
+        setSelectedKeys(key);
+      }
     },
   };
 

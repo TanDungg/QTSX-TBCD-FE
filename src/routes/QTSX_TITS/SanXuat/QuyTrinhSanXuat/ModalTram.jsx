@@ -264,6 +264,17 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
 
   const onFinish = (values) => {
     const data = values.themtram;
+    const listvattu = data.list_VatTus.map((dt) => {
+      const vattu = ListVatTu.filter((d) => d.tits_qtsx_VatTu_Id === dt);
+      if (vattu.length) {
+        return {
+          tits_qtsx_VatTu_Id: vattu[0].tits_qtsx_VatTu_Id,
+          maVatTu: vattu[0].maVatTu,
+          tenVatTu: vattu[0].tenVatTu,
+        };
+      }
+      return dt;
+    });
     const tram = ListTram.filter((d) => d.id === data.tits_qtsx_Tram_Id);
     const thietbi = ListThietBi.filter(
       (d) => d.id === data.tits_qtsx_ThietBi_Id
@@ -278,8 +289,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
       tenTram: tram[0].tenTram,
       maThietBi: thietbi[0].maThietBi,
       tenThietBi: thietbi[0].tenThietBi,
-      maVatTu: vattu[0].maVatTu,
-      tenVatTu: vattu[0].tenVatTu,
+      list_VatTus: listvattu && listvattu,
       thuTu: 1,
       list_TramChiTiets: ListThongTinKiemSoat,
     };
@@ -341,7 +351,6 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
               rules={[
                 {
                   type: "string",
-                  required: true,
                 },
               ]}
             >
@@ -357,15 +366,16 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
             </FormItem>
             <FormItem
               label="Vật tư"
-              name={["themtram", "tits_qtsx_VatTu_Id"]}
+              name={["themtram", "list_VatTus"]}
               rules={[
                 {
-                  type: "string",
+                  type: "array",
                   required: true,
                 },
               ]}
             >
               <Select
+                mode="multiple"
                 className="heading-select slt-search th-select-heading"
                 data={ListVatTu}
                 placeholder="Chọn vật tư"

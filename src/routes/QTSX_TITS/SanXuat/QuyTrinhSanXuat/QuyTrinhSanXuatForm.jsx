@@ -273,7 +273,19 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
             },
           });
           const congdoan =
-            data.list_CongDoans && JSON.parse(data.list_CongDoans);
+            data.list_CongDoans &&
+            JSON.parse(data.list_CongDoans).map((congdoan) => {
+              return {
+                ...congdoan,
+                list_Trams: congdoan.list_Trams.map((tram) => {
+                  return {
+                    ...tram,
+                    list_VatTus:
+                      tram.list_VatTus && JSON.parse(tram.list_VatTus),
+                  };
+                }),
+              };
+            });
           setSanPham(data.tits_qtsx_SanPham_Id);
           getListBOM(data.tits_qtsx_SanPham_Id);
           getListOEM(data.tits_qtsx_SanPham_Id);
@@ -646,10 +658,29 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       align: "center",
     },
     {
-      title: "Vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      title: "List vật tư",
+      dataIndex: "list_VatTus",
+      key: "list_VatTus",
       align: "center",
+      render: (_, { list_VatTus }) => (
+        <>
+          {list_VatTus.map((data) => {
+            return (
+              <Tag
+                color={"blue"}
+                style={{
+                  fontSize: 13,
+                  marginBottom: 3,
+                  whiteSpace: "break-spaces",
+                  // wordBreak: "break-all",
+                }}
+              >
+                {data.tenVatTu}
+              </Tag>
+            );
+          })}
+        </>
+      ),
     },
     {
       title: "Thông tin kiểm soát",
