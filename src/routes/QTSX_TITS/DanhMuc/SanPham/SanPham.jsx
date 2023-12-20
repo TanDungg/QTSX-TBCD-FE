@@ -299,22 +299,6 @@ function SanPham({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Thông số kỹ thuật",
-      dataIndex: "thongSoKyThuat",
-      key: "thongSoKyThuat",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.thongSoKyThuat,
-            value: d.thongSoKyThuat,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.thongSoKyThuat.includes(value),
-      filterSearch: true,
-    },
-    {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
@@ -329,6 +313,25 @@ function SanPham({ match, history, permission }) {
       ),
       onFilter: (value, record) => record.tenDonViTinh.includes(value),
       filterSearch: true,
+    },
+    {
+      title: "Thông số kỹ thuật",
+      dataIndex: "thongSoKyThuat",
+      key: "thongSoKyThuat",
+      align: "center",
+      render: (value) => (
+        <a
+          target="_blank"
+          href={BASE_URL_API + value}
+          rel="noopener noreferrer"
+          style={{
+            whiteSpace: "break-spaces",
+            wordBreak: "break-all",
+          }}
+        >
+          {value && value.split("/")[5]}{" "}
+        </a>
+      ),
     },
     {
       title: "Hình ảnh",
@@ -475,7 +478,7 @@ function SanPham({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 700, y: "70vh" }}
+          scroll={{ x: 1200, y: "50vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"

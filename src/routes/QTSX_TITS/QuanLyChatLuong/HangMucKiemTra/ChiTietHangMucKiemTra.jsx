@@ -1,18 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Card,
-  Button,
-  Divider,
-  Row,
-  Col,
-  Switch,
-  Checkbox,
-  Input,
-  Empty,
-  Tag,
-  Modal as AntModal,
-  Image,
-} from "antd";
+import { Card, Button, Divider, Row, Col, Checkbox, Input, Tag } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -21,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { isEmpty, map } from "lodash";
+import { map } from "lodash";
 import {
   ModalDeleteConfirm,
   Table,
@@ -31,12 +18,11 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { reDataForTable, setLocalStorage } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import ModalThemChiTiet from "./ModalThemChiTiet";
-import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function ChiTietHangMucKiemTra({ match, history, permission }) {
-  const { loading, width } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [ListChiTiet, setListChiTiet] = useState([]);
   const [id, setId] = useState(undefined);
@@ -44,9 +30,6 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
   const [ChiTiet, setChiTiet] = useState({});
   const [info, setInfo] = useState({});
   const [editingRecord, setEditingRecord] = useState([]);
-  const [DisabledModal, setDisabledModal] = useState(false);
-  const [ListHinhAnh, setListHinhAnh] = useState([]);
-  const [HangMuc, setHangMuc] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -291,27 +274,19 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
     );
   };
 
-  const XemChiTiet = (record) => {
-    setHangMuc(record);
-    setListHinhAnh(record.list_HinhAnhs && JSON.parse(record.list_HinhAnhs));
-    setDisabledModal(true);
-  };
-
-  const renderSoLuongHinhAnh = (record) => {
-    return (
-      <div>
-        <a onClick={() => XemChiTiet(record)}>
-          {record && record.soLuongHinhAnh}
-        </a>
-      </div>
-    );
-  };
-
   const renderCheckbox = (record) => {
     return <Checkbox checked={record.isNhapKetQua} disabled={true} />;
   };
 
   let renderHead = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+      fixed: "left",
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -369,20 +344,6 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       key: "tramGiaCong",
       align: "center",
       width: 150,
-    },
-    {
-      title: "Hình ảnh sản phẩm",
-      key: "soLuongHinhAnh",
-      align: "center",
-      width: 100,
-      render: (record) => renderSoLuongHinhAnh(record),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
     },
   ];
 
@@ -509,6 +470,14 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
 
   let columsChiTietChildren = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContentChildren(value),
+      fixed: "left",
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -571,20 +540,6 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       align: "center",
       width: 150,
     },
-    {
-      title: "Hình ảnh sản phẩm",
-      key: "soLuongHinhAnh",
-      align: "center",
-      width: 80,
-      render: (record) => renderSoLuongHinhAnh(record),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContentChildren(value),
-    },
   ];
   const columsChildren = map(columsChiTietChildren, (col) => {
     if (!col.editable) {
@@ -640,15 +595,6 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       />
     );
   };
-
-  const title = (
-    <span>
-      Hình ảnh của chi tiết{" "}
-      <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
-        {HangMuc && HangMuc.maSo}
-      </Tag>
-    </span>
-  );
 
   return (
     <div className="gx-main-content">
@@ -820,33 +766,6 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
             >
               <span
                 style={{
-                  width: "220px",
-                  fontWeight: "bold",
-                }}
-              >
-                Sử dụng hình ảnh chi tiết:
-              </span>
-              {info && (
-                <span
-                  style={{
-                    width: "calc(100% - 160px)",
-                  }}
-                >
-                  <Switch checked={info.isSuDungHinhAnh} disabled />
-                </span>
-              )}
-            </Col>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: 15,
-              }}
-            >
-              <span
-                style={{
                   width: "160px",
                   fontWeight: "bold",
                 }}
@@ -887,54 +806,6 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
         refesh={handleRefesh}
         itemData={ChiTiet}
       />
-      <AntModal
-        title={title}
-        className="th-card-reset-margin"
-        open={DisabledModal}
-        width={width > 786 ? `50%` : "80%"}
-        closable={true}
-        onCancel={() => setDisabledModal(false)}
-        footer={null}
-      >
-        {ListHinhAnh > 0 ? (
-          <div
-            style={{
-              overflowY: "auto",
-              maxHeight: "500px",
-            }}
-          >
-            {ListHinhAnh &&
-              ListHinhAnh.map((hinhanh) => {
-                return (
-                  <div
-                    style={{
-                      position: "relative",
-                      display: "inline-block",
-                      borderRadius: 15,
-                      marginRight: 15,
-                      marginBottom: 15,
-                    }}
-                  >
-                    <Image
-                      width={200}
-                      height={200}
-                      style={{
-                        borderRadius: 15,
-                        border: "1px solid #c8c8c8",
-                        padding: 8,
-                      }}
-                      src={BASE_URL_API + hinhanh.hinhAnh}
-                    />
-                  </div>
-                );
-              })}
-          </div>
-        ) : (
-          <div>
-            <Empty style={{ height: "500px" }} />
-          </div>
-        )}
-      </AntModal>
     </div>
   );
 }

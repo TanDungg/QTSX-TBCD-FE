@@ -20,7 +20,7 @@ import map from "lodash/map";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
-import { Modal, ModalDeleteConfirm } from "src/components/Common";
+import { Modal } from "src/components/Common";
 import {
   convertObjectToUrlParams,
   exportExcel,
@@ -45,7 +45,7 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
   const [checkDanger, setCheckDanger] = useState(false);
   const [HangTrung, setHangTrung] = useState([]);
   const [DataLoi, setDataLoi] = useState();
-  const [message, setMessageError] = useState([]);
+  const [message, setMessageError] = useState(null);
   const [FileAnh, setFileAnh] = useState(null);
   const [OpenImage, setOpenImage] = useState(false);
 
@@ -53,7 +53,82 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
     setOpenImage(true);
   };
 
-  const handleUploadFile = (file, index) => {
+  const handleUploadFileThongSo = (file, index) => {
+    const allowedTypes = [
+      "application/pdf",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+
+    const isAllowedType = allowedTypes.includes(file.type);
+
+    if (!isAllowedType) {
+      Helper.alertError(
+        `File ${file.name} không phải là file Excel, PDF, hoặc Word`
+      );
+    } else {
+      const newData = dataView.map((data) => {
+        if (data.maSanPham === index.maSanPham) {
+          return {
+            ...data,
+            thongSoKyThuat: file,
+          };
+        }
+        return data;
+      });
+      setDataView(newData);
+      setCheckDanger(false);
+      setMessageError(null);
+      return false;
+    }
+  };
+
+  const renderThongSo = (record) => {
+    return record.thongSoKyThuat ? (
+      <span>
+        <span
+          style={{ color: "#0469B9", cursor: "pointer" }}
+          onClick={() => handleViewFile(record.thongSoKyThuat)}
+        >
+          {record.thongSoKyThuat.name.length > 20
+            ? record.thongSoKyThuat.name.substring(0, 20) + "..."
+            : record.thongSoKyThuat.name}
+        </span>
+        <DeleteOutlined
+          style={{ cursor: "pointer", color: "red" }}
+          onClick={() => {
+            const newDataView = dataView.map((data) => {
+              if (data.maSanPham === record.maSanPham) {
+                return {
+                  ...data,
+                  thongSoKyThuat: null,
+                };
+              }
+              return data;
+            });
+            setDataView(newDataView);
+          }}
+        />
+      </span>
+    ) : (
+      <Upload
+        beforeUpload={(file) => handleUploadFileThongSo(file, record)}
+        showUploadList={false}
+        maxCount={1}
+      >
+        <Button
+          style={{
+            marginBottom: 0,
+          }}
+          icon={<UploadOutlined />}
+        >
+          Tải file hình ảnh
+        </Button>
+      </Upload>
+    );
+  };
+
+  const handleUploadFileHinhAnh = (file, index) => {
     const isPNG = file.type === "image/png" || file.type === "image/jpeg";
     if (!isPNG) {
       Helper.alertError(`${file.name} không phải hình ảnh`);
@@ -63,6 +138,7 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
           return {
             ...data,
             hinhAnh: file,
+            ghiChuImport: null,
           };
         }
         return data;
@@ -74,7 +150,6 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
       return false;
     }
   };
-
   const renderHinhAnh = (record) => {
     return record.hinhAnh ? (
       <span>
@@ -104,7 +179,7 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
       </span>
     ) : (
       <Upload
-        beforeUpload={(file) => handleUploadFile(file, record)}
+        beforeUpload={(file) => handleUploadFileHinhAnh(file, record)}
         showUploadList={false}
         maxCount={1}
       >
@@ -147,16 +222,16 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
       align: "center",
     },
     {
-      title: "Thông số kỹ thuật",
-      dataIndex: "thongSoKyThuat",
-      key: "thongSoKyThuat",
-      align: "center",
-    },
-    {
       title: "Mã đơn vị tính",
       dataIndex: "maDonViTinh",
       key: "maDonViTinh",
       align: "center",
+    },
+    {
+      title: "Thông số kỹ thuật",
+      key: "thongSoKyThuat",
+      align: "center",
+      render: (record) => renderThongSo(record),
     },
     {
       title: "Hình ảnh",
@@ -279,17 +354,6 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Thông số kỹ thuật" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
-          })[0]
-          .toString()
           .trim() === "Mã đơn vị tính";
 
       if (checkMau) {
@@ -300,7 +364,6 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
         const MSP = "Mã sản phẩm";
         const TSP = "Tên sản phẩm";
         const MLSP = "Mã loại sản phẩm";
-        const TSKT = "Thông số kỹ thuật";
         const MDVT = "Mã đơn vị tính";
 
         const Data = [];
@@ -313,8 +376,6 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
             data[index][TSP].toString().trim() === "" &&
             data[index][MLSP] &&
             data[index][MLSP].toString().trim() === "" &&
-            data[index][TSKT] &&
-            data[index][TSKT].toString().trim() === "" &&
             data[index][MDVT] &&
             data[index][MDVT].toString().trim() === ""
           ) {
@@ -335,17 +396,13 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
                   ? data[index][MLSP].toString().trim()
                   : null
                 : null,
-              thongSoKyThuat: data[index][TSKT]
-                ? data[index][TSKT].toString().trim() !== ""
-                  ? data[index][TSKT].toString().trim()
-                  : null
-                : null,
-              hinhAnh: null,
               maDonViTinh: data[index][MDVT]
                 ? data[index][MDVT].toString().trim() !== ""
                   ? data[index][MDVT].toString().trim()
                   : null
                 : null,
+              thongSoKyThuat: null,
+              hinhAnh: null,
               ghiChuImport: null,
             });
           }
@@ -415,10 +472,16 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
   };
 
   const handleSubmit = () => {
-    const newData = dataView.map((dataview) => {
-      if (dataview.hinhAnh) {
+    const newData = dataView.map((dt) => {
+      if (!dt.hinhAnh) {
+        return Promise.resolve({
+          ...dt,
+          ghiChuImport: "Vui lòng tải hình ảnh lên",
+        });
+      } else if (!dt.thongSoKyThuat) {
         const formData = new FormData();
-        formData.append("file", dataview.hinhAnh);
+        formData.append("file", dt.hinhAnh);
+
         return fetch(`${BASE_URL_API}/api/Upload`, {
           method: "POST",
           body: formData,
@@ -427,61 +490,89 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
           },
         })
           .then((res) => res.json())
-          .then((data) => {
-            return {
-              ...dataview,
-              hinhAnh: data.path,
-            };
+          .then((data) => ({
+            ...dt,
+            hinhAnh: data.path,
+          }))
+          .catch(() => {
+            console.log("upload failed.");
+            return dt;
           });
       } else {
-        return dataview;
+        const formData = new FormData();
+        formData.append("lstFiles", dt.thongSoKyThuat);
+        formData.append("lstFiles", dt.hinhAnh);
+
+        return fetch(`${BASE_URL_API}/api/Upload/Multi`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: "Bearer ".concat(INFO.token),
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => ({
+            ...dt,
+            thongSoKyThuat: data[0].path,
+            hinhAnh: data[1].path,
+          }))
+          .catch(() => {
+            console.log("upload failed.");
+            return dt;
+          });
       }
     });
 
-    Promise.all(newData).then((Data) => {
-      const newListSanPham = {
-        donVi_Id: INFO.donVi_Id,
-        list_SanPhams: Data,
-      };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_SanPham/import-excel`,
-            "POST",
-            newListSanPham,
-            "IMPORT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res.status === 409) {
-          setDataLoi(res.data);
-          const newData = dataView.map((data) => {
-            const dt = res.data.find(
-              (item) => item.maSanPham === data.maSanPham
-            );
+    Promise.all(newData)
+      .then((data) => {
+        const newListSanPham = {
+          donVi_Id: INFO.donVi_Id,
+          list_SanPhams: data,
+        };
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `tits_qtsx_SanPham/import-excel`,
+              "POST",
+              newListSanPham,
+              "IMPORT",
+              "",
+              resolve,
+              reject
+            )
+          );
+        }).then((res) => {
+          if (res.status === 409) {
+            setDataLoi(res.data);
+            const newData = dataView.map((data) => {
+              const dt = res.data.find(
+                (item) => item.maSanPham === data.maSanPham
+              );
 
-            if (dt) {
-              return {
-                ...data,
-                ghiChuImport: dt.ghiChuImport,
-              };
-            } else {
-              return data;
-            }
-          });
-          setDataView(newData);
-          setMessageError("Import không thành công");
-        } else {
-          setFileName(null);
-          setDataView([]);
-          openModalFS(false);
-          refesh();
-        }
+              if (dt) {
+                return {
+                  ...data,
+                  ghiChuImport: dt.ghiChuImport,
+                };
+              } else {
+                return data;
+              }
+            });
+            setDataView(newData);
+            setMessageError("Import không thành công");
+          } else {
+            setFileName(null);
+            setDataView([]);
+            openModalFS(false);
+            setCheckDanger(false);
+            setMessageError(null);
+            refesh();
+          }
+        });
+      })
+      .catch((error) => {
+        console.error("Lỗi khi xử lý", error);
       });
-    });
   };
 
   const prop = {

@@ -12,15 +12,6 @@ import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 
 const FormItem = Form.Item;
 
-const initialState = {
-  maSanPham: "",
-  tenSanPham: "",
-  tits_qtsx_LoaiSanPham_Id: "",
-  thongSoKyThuat: "",
-  hinhAnh: "",
-  donViTinh_Id: "",
-};
-
 function SanPhamForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
@@ -37,16 +28,11 @@ function SanPhamForm({ match, permission, history }) {
   const [FileHinhAnh, setFileHinhAnh] = useState(null);
   const [FileAnh, setFileAnh] = useState(null);
   const [DisableUpload, setDisableUpload] = useState(false);
+  const [FileThongSo, setFileThongSo] = useState(null);
+  const [DisableUploadThongSo, setDisableUploadThongSo] = useState(false);
   const [OpenImage, setOpenImage] = useState(false);
   const [info, setInfo] = useState(null);
   const [fieldTouch, setFieldTouch] = useState(false);
-  const {
-    maSanPham,
-    tenSanPham,
-    tits_qtsx_LoaiSanPham_Id,
-    thongSoKyThuat,
-    donViTinh_Id,
-  } = initialState;
   const { setFieldsValue, validateFields, resetFields } = form;
 
   useEffect(() => {
@@ -152,6 +138,10 @@ function SanPhamForm({ match, permission, history }) {
               ...res.data,
             },
           });
+          if (res.data.thongSoKyThuat) {
+            setFileThongSo(res.data.thongSoKyThuat);
+            setDisableUploadThongSo(true);
+          }
           if (res.data.hinhAnh) {
             setFileHinhAnh(res.data.hinhAnh);
             setDisableUpload(true);
@@ -185,113 +175,211 @@ function SanPhamForm({ match, permission, history }) {
   };
 
   const uploadFile = (sanpham, saveQuit) => {
-    if (type === "new" && sanpham.hinhAnh) {
-      const formData = new FormData();
-      formData.append("file", sanpham.hinhAnh.file);
-      fetch(`${BASE_URL_API}/api/Upload`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: "Bearer ".concat(INFO.token),
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          sanpham.hinhAnh = data.path;
-          saveData(sanpham, saveQuit);
-        })
-        .catch(() => {
-          console.log("upload failed.");
-        });
-    } else if (type === "edit" && sanpham.hinhAnh) {
-      const formData = new FormData();
-      formData.append("file", sanpham.hinhAnh.file);
-      fetch(
-        info.hinhAnh
-          ? `${BASE_URL_API}/api/Upload?stringPath=${info.hinhAnh}`
-          : `${BASE_URL_API}/api/Upload`,
-        {
+    if (type === "new") {
+      if (!sanpham.hinhAnh) {
+        Helpers.alertError("Vui lòng tải hình ảnh lên");
+      } else if (!sanpham.thongSoKyThuat) {
+        const formData = new FormData();
+        sanpham.hinhAnh && formData.append("file", sanpham.hinhAnh.file);
+        fetch(`${BASE_URL_API}/api/Upload`, {
           method: "POST",
           body: formData,
           headers: {
             Authorization: "Bearer ".concat(INFO.token),
           },
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          sanpham.hinhAnh = data.path;
-          saveData(sanpham, saveQuit);
         })
-        .catch(() => {
-          console.log("upload failed.");
-        });
-    } else {
-      saveData(sanpham, saveQuit);
+          .then((res) => res.json())
+          .then((data) => {
+            sanpham.hinhAnh = data.path;
+            saveData(sanpham, saveQuit);
+          })
+          .catch(() => {
+            console.log("upload failed.");
+          });
+      } else {
+        const formData = new FormData();
+        formData.append("lstFiles", sanpham.thongSoKyThuat.file);
+        formData.append("lstFiles", sanpham.hinhAnh.file);
+        fetch(`${BASE_URL_API}/api/Upload/Multi`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: "Bearer ".concat(INFO.token),
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            sanpham.thongSoKyThuat = data[0].path;
+            sanpham.hinhAnh = data[1].path;
+            saveData(sanpham, saveQuit);
+          })
+          .catch(() => {
+            console.log("upload failed.");
+          });
+      }
+    }
+    if (type === "edit") {
+      if (!sanpham.hinhAnh) {
+        Helpers.alertError("Vui lòng tải hình ảnh lên");
+      } else if (!sanpham.thongSoKyThuat) {
+        if (sanpham.hinhAnh.file) {
+          const formData = new FormData();
+          formData.append("file", sanpham.hinhAnh.file);
+          fetch(
+            info.hinhAnh
+              ? `${BASE_URL_API}/api/Upload?stringPath=${info.hinhAnh}`
+              : `${BASE_URL_API}/api/Upload`,
+            {
+              method: "POST",
+              body: formData,
+              headers: {
+                Authorization: "Bearer ".concat(INFO.token),
+              },
+            }
+          )
+            .then((res) => res.json())
+            .then((data) => {
+              sanpham.hinhAnh = data.path;
+              saveData(sanpham, saveQuit);
+            })
+            .catch(() => {
+              console.log("upload failed.");
+            });
+        } else {
+          saveData(sanpham, saveQuit);
+        }
+      } else {
+        if (sanpham.hinhAnh.file && sanpham.thongSoKyThuat.file) {
+          const formData = new FormData();
+          formData.append("lstFiles", sanpham.thongSoKyThuat.file);
+          formData.append("lstFiles", sanpham.hinhAnh.file);
+          fetch(`${BASE_URL_API}/api/Upload/Multi`, {
+            method: "POST",
+            body: formData,
+            headers: {
+              Authorization: "Bearer ".concat(INFO.token),
+            },
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              sanpham.thongSoKyThuat = data[0].path;
+              sanpham.hinhAnh = data[1].path;
+              saveData(sanpham, saveQuit);
+            })
+            .catch(() => {
+              console.log("upload failed.");
+            });
+        } else if (sanpham.hinhAnh.file) {
+          const formData = new FormData();
+          formData.append("file", sanpham.hinhAnh.file);
+          fetch(
+            info.hinhAnh
+              ? `${BASE_URL_API}/api/Upload?stringPath=${info.hinhAnh}`
+              : `${BASE_URL_API}/api/Upload`,
+            {
+              method: "POST",
+              body: formData,
+              headers: {
+                Authorization: "Bearer ".concat(INFO.token),
+              },
+            }
+          )
+            .then((res) => res.json())
+            .then((data) => {
+              sanpham.hinhAnh = data.path;
+              saveData(sanpham, saveQuit);
+            })
+            .catch(() => {
+              console.log("upload failed.");
+            });
+        } else if (sanpham.thongSoKyThuat.file) {
+          const formData = new FormData();
+          formData.append("file", sanpham.thongSoKyThuat.file);
+          fetch(
+            info.thongSoKyThuat
+              ? `${BASE_URL_API}/api/Upload?stringPath=${info.thongSoKyThuat}`
+              : `${BASE_URL_API}/api/Upload`,
+            {
+              method: "POST",
+              body: formData,
+              headers: {
+                Authorization: "Bearer ".concat(INFO.token),
+              },
+            }
+          )
+            .then((res) => res.json())
+            .then((data) => {
+              sanpham.thongSoKyThuat = data.path;
+              saveData(sanpham, saveQuit);
+            })
+            .catch(() => {
+              console.log("upload failed.");
+            });
+        } else {
+          saveData(sanpham, saveQuit);
+        }
+      }
     }
   };
 
   const saveData = (sanpham, saveQuit = false) => {
-    if (sanpham.hinhAnh) {
-      if (type === "new") {
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `tits_qtsx_SanPham`,
-              "POST",
-              sanpham,
-              "ADD",
-              "",
-              resolve,
-              reject
-            )
-          );
-        })
-          .then((res) => {
-            if (res && res.status !== 409) {
-              if (saveQuit) {
-                goBack();
-              } else {
-                resetFields();
-                setFileHinhAnh(null);
-                setFileAnh(null);
-                setFieldTouch(false);
-                setDisableUpload(false);
-              }
+    if (type === "new") {
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `tits_qtsx_SanPham`,
+            "POST",
+            sanpham,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (res && res.status !== 409) {
+            if (saveQuit) {
+              goBack();
+            } else {
+              resetFields();
+              setFieldTouch(false);
+              setFileHinhAnh(null);
+              setFileAnh(null);
+              setDisableUpload(false);
+              setFileThongSo(null);
+              setDisableUploadThongSo(false);
             }
-          })
-          .catch((error) => console.error(error));
-      }
-      if (type === "edit") {
-        sanpham.id = id;
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `tits_qtsx_SanPham/${id}`,
-              "PUT",
-              sanpham,
-              "EDIT",
-              "",
-              resolve,
-              reject
-            )
-          );
+          }
         })
-          .then((res) => {
-            if (res && res.status !== 409) {
-              if (saveQuit) {
-                goBack();
-              } else {
-                setFieldTouch(false);
-                getInfo(id);
-              }
+        .catch((error) => console.error(error));
+    }
+    if (type === "edit") {
+      sanpham.id = id;
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `tits_qtsx_SanPham/${id}`,
+            "PUT",
+            sanpham,
+            "EDIT",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (res && res.status !== 409) {
+            if (saveQuit) {
+              goBack();
+            } else {
+              setFieldTouch(false);
+              getInfo(id);
             }
-          })
-          .catch((error) => console.log(error));
-      }
-    } else {
-      Helpers.alertError(`File không được để trống`);
-      setFieldTouch(false);
+          }
+        })
+        .catch((error) => console.log(error));
     }
   };
 
@@ -306,6 +394,31 @@ function SanPhamForm({ match, permission, history }) {
         ""
       )}`
     );
+  };
+
+  const propsthongso = {
+    accept:
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel, application/pdf, application/msword, application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    beforeUpload: (file) => {
+      const allowedTypes = [
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "application/vnd.ms-excel",
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      ];
+
+      if (!allowedTypes.includes(file.type)) {
+        Helpers.alertError(`File ${file.name} không phải định dạng hỗ trợ`);
+      } else {
+        setFileThongSo(file);
+        setDisableUploadThongSo(true);
+      }
+
+      return false;
+    },
+    showUploadList: false,
+    maxCount: 1,
   };
 
   const props = {
@@ -357,7 +470,6 @@ function SanPhamForm({ match, permission, history }) {
                   max: 250,
                 },
               ]}
-              initialValue={maSanPham}
             >
               <Input className="input-item" placeholder="Nhập mã sản phẩm" />
             </FormItem>
@@ -373,7 +485,6 @@ function SanPhamForm({ match, permission, history }) {
                   max: 250,
                 },
               ]}
-              initialValue={tenSanPham}
             >
               <Input className="input-item" placeholder="Nhập tên sản phẩm" />
             </FormItem>
@@ -386,7 +497,6 @@ function SanPhamForm({ match, permission, history }) {
                   required: true,
                 },
               ]}
-              initialValue={tits_qtsx_LoaiSanPham_Id}
             >
               <Select
                 className="heading-select slt-search th-select-heading"
@@ -407,7 +517,6 @@ function SanPhamForm({ match, permission, history }) {
                   required: true,
                 },
               ]}
-              initialValue={donViTinh_Id}
             >
               <Select
                 className="heading-select slt-search th-select-heading"
@@ -424,15 +533,81 @@ function SanPhamForm({ match, permission, history }) {
               name={["sanpham", "thongSoKyThuat"]}
               rules={[
                 {
-                  type: "string",
+                  type: "file",
+                  required: true,
                 },
               ]}
-              initialValue={thongSoKyThuat}
             >
-              <Input
-                className="input-item"
-                placeholder="Nhập thông số kỹ thuật"
-              />
+              {!DisableUploadThongSo ? (
+                <Upload {...propsthongso}>
+                  <Button
+                    style={{
+                      marginBottom: 0,
+                    }}
+                    icon={<UploadOutlined />}
+                    disabled={type === "detail" ? true : false}
+                  >
+                    File thông số kỹ thuật
+                  </Button>
+                </Upload>
+              ) : FileThongSo && FileThongSo.name ? (
+                <span>
+                  <span
+                    style={{
+                      color: "#0469B9",
+                      cursor: "pointer",
+                      whiteSpace: "break-spaces",
+                    }}
+                    onClick={() => handleViewFile(FileThongSo)}
+                  >
+                    {FileThongSo.name}{" "}
+                  </span>
+                  <DeleteOutlined
+                    style={{ cursor: "pointer", color: "red" }}
+                    disabled={type === "new" || type === "edit" ? false : true}
+                    onClick={() => {
+                      setFileThongSo(null);
+                      setDisableUploadThongSo(false);
+                      setFieldsValue({
+                        sanpham: {
+                          thongSoKyThuat: null,
+                        },
+                      });
+                    }}
+                  />
+                </span>
+              ) : (
+                <span>
+                  <a
+                    target="_blank"
+                    href={BASE_URL_API + FileThongSo}
+                    rel="noopener noreferrer"
+                    style={{
+                      whiteSpace: "break-spaces",
+                      wordBreak: "break-all",
+                    }}
+                  >
+                    {FileThongSo && FileThongSo.split("/")[5]}{" "}
+                  </a>
+                  {(type === "new" || type === "edit") && (
+                    <DeleteOutlined
+                      style={{ cursor: "pointer", color: "red" }}
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                      onClick={() => {
+                        setFileThongSo(null);
+                        setDisableUploadThongSo(false);
+                        setFieldsValue({
+                          sanpham: {
+                            thongSoKyThuat: null,
+                          },
+                        });
+                      }}
+                    />
+                  )}
+                </span>
+              )}
             </FormItem>
             <FormItem
               label="Hình ảnh"
@@ -500,17 +675,11 @@ function SanPhamForm({ match, permission, history }) {
                 </span>
               ) : (
                 <span>
-                  <a
-                    target="_blank"
-                    href={BASE_URL_API + FileHinhAnh}
-                    rel="noopener noreferrer"
-                    style={{
-                      whiteSpace: "break-spaces",
-                      wordBreak: "break-all",
-                    }}
-                  >
-                    {FileHinhAnh && FileHinhAnh.split("/")[5]}{" "}
-                  </a>
+                  <Image
+                    src={BASE_URL_API + FileHinhAnh}
+                    alt="Hình ảnh"
+                    style={{ maxWidth: 60, maxHeight: 60 }}
+                  />{" "}
                   {(type === "new" || type === "edit") && (
                     <DeleteOutlined
                       style={{ cursor: "pointer", color: "red" }}

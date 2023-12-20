@@ -434,6 +434,14 @@ function HangMucKiemTra({ match, history, permission }) {
 
   let renderHead = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+      fixed: "left",
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -553,13 +561,6 @@ function HangMucKiemTra({ match, history, permission }) {
       dataIndex: "moTa",
       key: "moTa",
       align: "center",
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
     },
   ];
 
