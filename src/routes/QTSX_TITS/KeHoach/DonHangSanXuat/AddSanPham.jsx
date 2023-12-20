@@ -248,7 +248,7 @@ function AddSanPham({
               },
             ]}
           >
-            <Input placeholder="Số lượng"></Input>
+            <Input placeholder="Số lượng" type="number"></Input>
           </FormItem>
           <FormItem
             label="Đơn giá"
@@ -257,9 +257,13 @@ function AddSanPham({
               {
                 required: true,
               },
+              {
+                pattern: /^[1-9]\d*$/,
+                message: "Đơn giá không hợp lệ!",
+              },
             ]}
           >
-            <Input placeholder="Đơn giá"></Input>
+            <Input placeholder="Đơn giá" type="number"></Input>
           </FormItem>
           <FormItem
             label="Vận chuyển"
@@ -268,9 +272,13 @@ function AddSanPham({
               {
                 required: true,
               },
+              {
+                pattern: /^[1-9]\d*$/,
+                message: "Chi phí vận chuyểng không hợp lệ!",
+              },
             ]}
           >
-            <Input placeholder="Vận chuyển"></Input>
+            <Input placeholder="Chi phí vận chuyển" type="number"></Input>
           </FormItem>
           <FormItem label="Ngày bàn giao" name={["chitiet", "ngay"]}>
             <DatePicker

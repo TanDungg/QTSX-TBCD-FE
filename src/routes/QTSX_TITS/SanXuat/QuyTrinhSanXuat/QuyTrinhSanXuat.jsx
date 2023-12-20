@@ -137,7 +137,7 @@ function QuyTrinhSanXuat({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
-      item.nguoiTao_Id === INFO.user_Id &&
+      // item.nguoiTao_Id === INFO.user_Id &&
       item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
@@ -157,7 +157,7 @@ function QuyTrinhSanXuat({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
-      item.nguoiTao_Id === INFO.user_Id &&
+      // item.nguoiTao_Id === INFO.user_Id &&
       item.tinhTrang === "Chưa duyệt"
         ? { onClick: () => deleteItemFunc(item, "quy trình sản xuất") }
         : { disabled: true };

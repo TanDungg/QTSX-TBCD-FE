@@ -442,9 +442,15 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter((d) => d.id !== item.id);
-    setListVatTu(newData);
-    setFieldTouch(true);
+    if (value === 1) {
+      const newData = listVatTu.filter((d) => d.id !== item.id);
+      setListVatTu(newData);
+      setFieldTouch(true);
+    } else {
+      const newData = ListVatTuKhac.filter((d) => d.id !== item.id);
+      setListVatTuKhac(newData);
+      setFieldTouch(true);
+    }
   };
 
   /**
@@ -733,7 +739,12 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       width: 45,
       align: "center",
     },
-
+    {
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
+      align: "center",
+    },
     {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
