@@ -430,7 +430,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           value={item.thuTu}
           disabled={type === "new" || type === "edit" ? false : true}
           onChange={(val) => handleInputChange(val, item)}
-          onBlur={(val) => onChangeValue(val, item)}
+          onBlur={(val) => type === "edit" && onChangeValue(val, item)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
       </>
@@ -504,8 +504,8 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       if (congDoan.list_Trams) {
         const newListTram = congDoan.list_Trams.filter(
           (tram) =>
-            tram.tits_qtsx_Tram_Id !== item.tits_qtsx_Tram_Id &&
-            tram.tits_qtsx_Tram_Id !== item.tits_qtsx_Tram_Id
+            tram.tits_qtsx_Tram_Id.toLowerCase() !==
+            item.tits_qtsx_Tram_Id.toLowerCase()
         );
         return {
           ...congDoan,
@@ -534,7 +534,6 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       </div>
     );
   };
-
   const handleInputChangeTram = (val, item) => {
     const ThuTu = val.target.value;
     if (isEmpty(ThuTu) || Number(ThuTu) <= 0) {
@@ -558,8 +557,8 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       ) {
         ct.list_Trams.forEach((tram, index) => {
           if (
-            tram.tits_qtsx_QuyTrinhSanXuatTram_Id ===
-            item.tits_qtsx_QuyTrinhSanXuatTram_Id
+            tram.tits_qtsx_Tram_Id.toLowerCase() ===
+            item.tits_qtsx_Tram_Id.toLowerCase()
           ) {
             tram.thuTu = ThuTu;
           }
@@ -596,10 +595,11 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
   const renderThuTuTram = (item) => {
     let isEditing = false;
     let message = "";
+
     editingRecord.forEach((ct) => {
       if (
-        ct.tits_qtsx_QuyTrinhSanXuatTram_Id ===
-        item.tits_qtsx_QuyTrinhSanXuatTram_Id
+        ct.tits_qtsx_QuyTrinhSanXuatCongDoan_Id ===
+        item.tits_qtsx_QuyTrinhSanXuatCongDoan_Id
       ) {
         isEditing = true;
         message = ct.message;
@@ -616,8 +616,8 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           type="number"
           value={item.thuTu}
           disabled={type === "new" || type === "edit" ? false : true}
-          onBlur={(val) => onChangeValueTram(val, item)}
           onChange={(val) => handleInputChangeTram(val, item)}
+          onBlur={(val) => type === "edit" && onChangeValueTram(val, item)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
       </>
