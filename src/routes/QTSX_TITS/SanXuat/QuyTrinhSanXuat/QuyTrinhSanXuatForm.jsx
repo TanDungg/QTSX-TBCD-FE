@@ -217,7 +217,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
 
   const getUserKy = (info) => {
     const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
+      donviId: info,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -262,6 +262,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       .then((res) => {
         if (res && res.data) {
           const data = res.data;
+          console.log(data);
           getListSanPham();
           getUserKy(INFO.donVi_Id);
           setInfo(data);
@@ -666,21 +667,22 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       align: "center",
       render: (_, { list_VatTus }) => (
         <>
-          {list_VatTus.map((data) => {
-            return (
-              <Tag
-                color={"blue"}
-                style={{
-                  fontSize: 13,
-                  marginBottom: 3,
-                  whiteSpace: "break-spaces",
-                  // wordBreak: "break-all",
-                }}
-              >
-                {data.tenVatTu}
-              </Tag>
-            );
-          })}
+          {list_VatTus &&
+            list_VatTus.map((data) => {
+              return (
+                <Tag
+                  color={"blue"}
+                  style={{
+                    fontSize: 13,
+                    marginBottom: 3,
+                    whiteSpace: "break-spaces",
+                    // wordBreak: "break-all",
+                  }}
+                >
+                  {data.tenVatTu}
+                </Tag>
+              );
+            })}
         </>
       ),
     },

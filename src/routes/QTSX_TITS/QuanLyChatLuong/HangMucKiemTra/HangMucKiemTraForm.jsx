@@ -720,15 +720,22 @@ function HangMucKiemTraForm({ match, permission, history }) {
                 </FormItem>
               </Col>
               {!IsSuDungHinhAnh && (
-                <Col lg={12} xs={24} style={{ marginBottom: 8 }}>
-                  <h5 style={{ fontWeight: "bold" }}>
-                    Hình ảnh trong công đoạn:
-                  </h5>
+                <Col
+                  lg={12}
+                  xs={24}
+                  style={{
+                    marginBottom: 8,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
                   <Card
                     className="th-card-margin-bottom th-card-reset-margin"
+                    title="Hình ảnh trong công đoạn"
                     style={{
                       width: "730px",
-                      height: "400px",
+                      height: "450px",
                       display: "start",
                       justifyContent: "space-around",
                       overflowY: "relative",
@@ -741,7 +748,7 @@ function HangMucKiemTraForm({ match, permission, history }) {
                       <div
                         style={{
                           overflowY: "auto",
-                          maxHeight: "350px",
+                          maxHeight: "380px",
                         }}
                       >
                         {ListHinhAnh.map((khuvuc, index) => {
@@ -825,20 +832,29 @@ function HangMucKiemTraForm({ match, permission, history }) {
                       </div>
                     ) : (
                       <div>
-                        <Empty style={{ height: "730px" }} />
+                        <Empty style={{ height: "450px" }} />
                       </div>
                     )}
                   </Card>
                 </Col>
               )}
               {!IsSuDungHinhAnh && (
-                <Col lg={12} xs={24} style={{ marginBottom: 8 }}>
-                  <h5 style={{ fontWeight: "bold" }}>Hình ảnh đã chọn:</h5>
+                <Col
+                  lg={12}
+                  xs={24}
+                  style={{
+                    marginBottom: 8,
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
                   <Card
                     className="th-card-margin-bottom th-card-reset-margin"
+                    title="Hình ảnh đã chọn"
                     style={{
                       width: "730px",
-                      height: "400px",
+                      height: "450px",
                       display: "start",
                       justifyContent: "space-around",
                       overflowY: "relative",
@@ -851,7 +867,7 @@ function HangMucKiemTraForm({ match, permission, history }) {
                       <div
                         style={{
                           overflowY: "auto",
-                          maxHeight: "350px",
+                          maxHeight: "380px",
                         }}
                       >
                         {ListHinhAnhDaChon.map((hinhanh) => {
@@ -899,7 +915,9 @@ function HangMucKiemTraForm({ match, permission, history }) {
                         })}
                       </div>
                     ) : (
-                      <Empty />
+                      <div>
+                        <Empty style={{ height: "450px" }} />
+                      </div>
                     )}
                   </Card>
                 </Col>

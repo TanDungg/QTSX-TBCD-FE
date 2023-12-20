@@ -257,17 +257,20 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
 
   const onFinish = (values) => {
     const data = values.themtram;
-    const listvattu = data.list_VatTus.map((dt) => {
-      const vattu = ListVatTu.filter((d) => d.tits_qtsx_VatTu_Id === dt);
-      if (vattu.length) {
-        return {
-          tits_qtsx_VatTu_Id: vattu[0].tits_qtsx_VatTu_Id,
-          maVatTu: vattu[0].maVatTu,
-          tenVatTu: vattu[0].tenVatTu,
-        };
-      }
-      return dt;
-    });
+    const listvattu =
+      data.list_VatTus &&
+      data.list_VatTus.map((dt) => {
+        const vattu = ListVatTu.filter((d) => d.tits_qtsx_VatTu_Id === dt);
+        if (vattu.length) {
+          return {
+            tits_qtsx_VatTu_Id: vattu && vattu[0].tits_qtsx_VatTu_Id,
+            maVatTu: vattu && vattu[0].maVatTu,
+            tenVatTu: vattu && vattu[0].tenVatTu,
+          };
+        }
+        return dt;
+      });
+
     const tram = ListTram.filter((d) => d.id === data.tits_qtsx_Tram_Id);
     const thietbi =
       data.tits_qtsx_ThietBi_Id &&
