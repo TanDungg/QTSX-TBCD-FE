@@ -165,13 +165,6 @@ function ModalThongTinKiemSoat({
       render: (value) => actionContent(value),
     },
     {
-      title: "Thứ tự",
-      dataIndex: "thuTu",
-      key: "thuTu",
-      align: "center",
-      width: 120,
-    },
-    {
       title: "Thông tin kiểm soát",
       dataIndex: "tenThongTinKiemSoat",
       key: "tenThongTinKiemSoat",

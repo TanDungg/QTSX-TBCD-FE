@@ -207,13 +207,6 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
       render: (value) => actionContent(value),
     },
     {
-      title: "Thứ tự",
-      dataIndex: "thuTu",
-      key: "thuTu",
-      align: "center",
-      width: 120,
-    },
-    {
       title: "Thông tin kiểm soát",
       dataIndex: "tenThongTinKiemSoat",
       key: "tenThongTinKiemSoat",
@@ -276,21 +269,18 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
       return dt;
     });
     const tram = ListTram.filter((d) => d.id === data.tits_qtsx_Tram_Id);
-    const thietbi = ListThietBi.filter(
-      (d) => d.id === data.tits_qtsx_ThietBi_Id
-    );
-    const vattu = ListVatTu.filter(
-      (d) => d.tits_qtsx_VatTu_Id === data.tits_qtsx_VatTu_Id
-    );
+    const thietbi =
+      data.tits_qtsx_ThietBi_Id &&
+      ListThietBi.filter((d) => d.id === data.tits_qtsx_ThietBi_Id);
+
     const newData = {
       ...data,
       tits_qtsx_CongDoan_Id: itemData.tram.tits_qtsx_CongDoan_Id,
       maTram: tram[0].maTram,
       tenTram: tram[0].tenTram,
-      maThietBi: thietbi[0].maThietBi,
-      tenThietBi: thietbi[0].tenThietBi,
+      maThietBi: thietbi && thietbi[0].maThietBi,
+      tenThietBi: thietbi && thietbi[0].tenThietBi,
       list_VatTus: listvattu && listvattu,
-      thuTu: 1,
       list_TramChiTiets: ListThongTinKiemSoat,
     };
     DataThemTram(newData);
@@ -362,6 +352,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp="name"
+                allowClear
               />
             </FormItem>
             <FormItem
@@ -370,7 +361,6 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
               rules={[
                 {
                   type: "array",
-                  required: true,
                 },
               ]}
             >
