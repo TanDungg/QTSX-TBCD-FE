@@ -135,7 +135,10 @@ function QuyTrinhSanXuat({ match, history, permission }) {
       );
 
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa duyệt" ? (
+      permission &&
+      permission.edit &&
+      item.nguoiTao_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.tits_qtsx_QuyTrinhSanXuat_Id}/chinh-sua`,
@@ -152,7 +155,10 @@ function QuyTrinhSanXuat({ match, history, permission }) {
       );
 
     const deleteVal =
-      permission && permission.del && item.tinhTrang === "Chưa duyệt"
+      permission &&
+      permission.del &&
+      item.nguoiTao_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt"
         ? { onClick: () => deleteItemFunc(item, "quy trình sản xuất") }
         : { disabled: true };
 
@@ -336,14 +342,14 @@ function QuyTrinhSanXuat({ match, history, permission }) {
       title: "Sử dụng",
       key: "isSuDung",
       align: "center",
-      width: 100,
+      width: 80,
       render: (record) => renderSuDung(record),
     },
     {
       title: "Mặc định",
       key: "isDefault",
       align: "center",
-      width: 100,
+      width: 80,
       render: (record) => renderDefault(record),
     },
     {
