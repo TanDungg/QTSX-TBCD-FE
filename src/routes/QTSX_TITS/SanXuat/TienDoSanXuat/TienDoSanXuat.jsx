@@ -543,6 +543,16 @@ function TienDoSanXuat({ match, history, permission }) {
                     {InfoSanPham.tenMauSac ? InfoSanPham.tenMauSac : ""}
                   </h5>
                 </Col>
+                {InfoSanPham.thoiGianVaoTram && (
+                  <Col span={24} style={{ display: "flex", marginBottom: 8 }}>
+                    <h5>Thời gian vào trạm:</h5>
+                    <h5 style={{ fontWeight: "bold", marginLeft: 20 }}>
+                      {InfoSanPham.thoiGianVaoTram
+                        ? InfoSanPham.thoiGianVaoTram
+                        : ""}
+                    </h5>
+                  </Col>
+                )}
               </Row>
             </Card>
           </Col>

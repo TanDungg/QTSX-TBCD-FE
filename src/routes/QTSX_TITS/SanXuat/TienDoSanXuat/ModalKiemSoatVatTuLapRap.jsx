@@ -27,12 +27,12 @@ function ModalKiemSoatVatTuLapRap({ openModalFS, openModal }) {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { resetFields } = form;
-  const [ListCongDoan, setListCongDoan] = useState([]);
+  const [ListVatTuKiemSoat, setListVatTuKiemSoat] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
 
   useEffect(() => {
     if (openModal) {
-      //   getListCongDoan();
+      getListVatTuKiemSoat();
     }
     return () => {
       dispatch(fetchReset());
@@ -40,30 +40,31 @@ function ModalKiemSoatVatTuLapRap({ openModalFS, openModal }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
-  //   const getListCongDoan = () => {
-  //     const param = convertObjectToUrlParams({
-  //       donVi_Id: INFO.donVi_Id,
-  //     });
-  //     new Promise((resolve, reject) => {
-  //       dispatch(
-  //         fetchStart(
-  //           `tits_qtsx_CongDoan?${param}&page=-1`,
-  //           "GET",
-  //           null,
-  //           "DETAIL",
-  //           "",
-  //           resolve,
-  //           reject
-  //         )
-  //       );
-  //     }).then((res) => {
-  //       if (res && res.data) {
-  //         setListCongDoan(res.data);
-  //       } else {
-  //         setListCongDoan([]);
-  //       }
-  //     });
-  //   };
+  const getListVatTuKiemSoat = () => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_QuyTrinhSanXuat_Id: INFO.donVi_Id,
+      tits_qtsx_Tram_Id: "",
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_QuyTrinhSanXuat/list-vat-tu-kiem-soat-theo-tram?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListVatTuKiemSoat(res.data);
+      } else {
+        setListVatTuKiemSoat([]);
+      }
+    });
+  };
 
   //   const getListXuong = (congDoan_Id) => {
   //     const param = convertObjectToUrlParams({
@@ -92,7 +93,7 @@ function ModalKiemSoatVatTuLapRap({ openModalFS, openModal }) {
 
   //   const onFinish = (values) => {
   //     const data = values.themcongdoan;
-  //     const congdoan = ListCongDoan.filter(
+  //     const congdoan = ListVatTuKiemSoat.filter(
   //       (d) => d.id === data.tits_qtsx_CongDoan_Id
   //     );
   //     const xuong = ListXuong.filter((d) => d.id === data.tits_qtsx_Xuong_Id);
