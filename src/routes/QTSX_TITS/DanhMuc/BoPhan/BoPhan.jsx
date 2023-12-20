@@ -50,7 +50,6 @@ function BoPhan({ match, permission, history }) {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  console.log(INFO);
   /**
    * Get menu list
    *

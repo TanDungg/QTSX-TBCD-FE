@@ -12,13 +12,9 @@ import {
   List,
   Badge,
   Avatar,
+  Popconfirm,
 } from "antd";
 import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  CheckCircleOutlined,
-  RedoOutlined,
   ReloadOutlined,
   SelectOutlined,
   SendOutlined,
@@ -30,7 +26,7 @@ import {
   ToolOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { Select, Toolbar } from "src/components/Common";
+import { Modal, Select, Toolbar } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
@@ -43,7 +39,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
 import ModalKiemSoatVatTuLapRap from "./ModalKiemSoatVatTuLapRap";
 import ModalKiemSoatChatLuong from "./ModalKiemSoatChatLuong";
-const { Dragger } = Upload;
+import { isEmpty } from "lodash";
 const optionsDate = {
   weekday: "long", // Thứ
   year: "numeric", // Năm
@@ -71,6 +67,8 @@ function TienDoSanXuat({ match, history, permission }) {
   const [Xuong, setXuong] = useState(null);
   const [Chuyen, setChuyen] = useState(null);
   const [Tram, setTram] = useState(null);
+  const [keyword, setKeyword] = useState("");
+  const [InfoSanPham, setInfoSanPham] = useState({});
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [ListSoKhungNoiBo, setListSoKhungNoiBo] = useState([]);
   const [DisableVaoTram, setDisableVaoTram] = useState(true);
@@ -78,6 +76,7 @@ function TienDoSanXuat({ match, history, permission }) {
     useState(false);
   const [ActiveModalKiemSoatChatLuong, setActiveModalKiemSoatChatLuong] =
     useState(false);
+
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentDateTime(new Date());
@@ -85,6 +84,7 @@ function TienDoSanXuat({ match, history, permission }) {
 
     return () => clearInterval(intervalId);
   }, []);
+
   const formattedDateTime = new Intl.DateTimeFormat(
     "vi-VN",
     optionsDate
@@ -105,7 +105,6 @@ function TienDoSanXuat({ match, history, permission }) {
 
   /**
    * Lấy dữ liệu về
-   *
    */
   const getListData = (keyword, tits_qtsx_Xuong_Id, page) => {
     const param = convertObjectToUrlParams({
@@ -117,7 +116,9 @@ function TienDoSanXuat({ match, history, permission }) {
       fetchStart(`tits_qtsx_QuyTrinhSanXuat?${param}`, "GET", null, "LIST")
     );
   };
-
+  /**
+   * Get list xưởng
+   */
   const getXuong = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -141,6 +142,11 @@ function TienDoSanXuat({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
+  /**
+   * Xưởng Id
+   * Get list chuyền
+   * @param {*} chuyen_Id
+   */
   const getChuyen = (xuong_Id) => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -164,6 +170,11 @@ function TienDoSanXuat({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
+  /**
+   * Chuyền Id
+   * Get list trạm
+   * @param {*} chuyen_Id
+   */
   const getTram = (chuyen_Id) => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -187,6 +198,12 @@ function TienDoSanXuat({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
+  /**
+   * Trạm Id
+   * Get list số khung nội bộ
+   * @param {*} tram_Id
+   * @param {*} keyword
+   */
   const getSoKhunNoiBo = (tits_qtsx_Tram_Id, keyword) => {
     const param = convertObjectToUrlParams({
       tits_qtsx_Tram_Id,
@@ -214,6 +231,94 @@ function TienDoSanXuat({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
+  /**
+   * Tìm kiếm người dùng
+   */
+  const onSearchSoKhung = () => {
+    getSoKhunNoiBo(Tram, keyword);
+  };
+  /**
+   * Thay đổi keyword
+   * @param {*} val
+   */
+  const onChangeKeyword = (val) => {
+    setKeyword(val.target.value);
+    if (isEmpty(val.target.value)) {
+      getSoKhunNoiBo(Tram, val.target.value);
+    }
+  };
+  const ClickVaoTram = () => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_TienDoSanXuat_Id: InfoSanPham.tits_qtsx_TienDoSanXuat_Id,
+      tits_qtsx_CongDoan_Id: InfoSanPham.tits_qtsx_CongDoan_Id,
+      tits_qtsx_SanPham_Id: InfoSanPham.tits_qtsx_SanPham_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_TienDoSanXuat/vao-tram?${param}`,
+          "PUT",
+          null,
+          "VAOTRAM",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status === 200) {
+        } else {
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const ClickRaTram = () => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_TienDoSanXuat_Id: InfoSanPham.tits_qtsx_TienDoSanXuat_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_TienDoSanXuat/ra-tram?${param}`,
+          "PUT",
+          null,
+          "VAOTRAM",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status === 200) {
+        } else {
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const propVaoTram = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận vào trạm",
+    onOk: () => {
+      ClickVaoTram();
+    },
+  };
+  const propRaTram = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận hoàn tất ra trạm",
+    onOk: () => {
+      ClickRaTram();
+    },
+  };
+  const modalXacNhan = (check) => {
+    Modal(check ? propVaoTram : propRaTram);
+  };
+
   const handleOnSelectXuong = (value) => {
     setXuong(value);
     getChuyen(value);
@@ -233,39 +338,21 @@ function TienDoSanXuat({ match, history, permission }) {
     setXuong(null);
     setChuyen(null);
     setTram(null);
-    // getListData(keyword, null, 1);
+    setInfoSanPham({});
+    setListSoKhungNoiBo([]);
   };
   const handleClearChuyen = (value) => {
     setChuyen(null);
     setTram(null);
-    // getListData(keyword, null, 1);
+    setInfoSanPham({});
+    setListSoKhungNoiBo([]);
   };
   const handleClearTram = (value) => {
     setTram(null);
-    // getListData(keyword, null, 1);
+    setInfoSanPham({});
+    setListSoKhungNoiBo([]);
   };
-  const data = [
-    "QOEC0001",
-    "QOEC0002",
-    "QOEC0003",
-    "QOEC0004",
-    "QOEC0005",
-    "QOEC0006",
-    "QOEC0007",
-    "QOEC0008",
-    "QOEC0009",
-    "QOEC0010",
-    "QOEC0011",
-    "QOEC0012",
-    "QOEC0013",
-    "QOEC0014",
-    "QOEC0015",
-    "QOEC0016",
-    "QOEC0017",
-    "QOEC0018",
-    "QOEC0019",
-    "QOEC0020",
-  ];
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -392,11 +479,11 @@ function TienDoSanXuat({ match, history, permission }) {
                 search={{
                   title: "Tìm kiếm",
                   loading,
-                  // value: keyword,
-                  // onChange: onChangeKeyword,
-                  // onPressEnter: onSearchQuyTrinhSanXuat,
-                  // onSearch: onSearchQuyTrinhSanXuat,
-                  placeholder: "Nhập từ khóa",
+                  value: keyword,
+                  onChange: onChangeKeyword,
+                  onPressEnter: onSearchSoKhung,
+                  onSearch: onSearchSoKhung,
+                  placeholder: "Nhập số khung nội bộ",
                   allowClear: true,
                   disabled: !Tram,
                 }}
@@ -405,10 +492,19 @@ function TienDoSanXuat({ match, history, permission }) {
                 size="small"
                 style={{ marginTop: 5, height: 280, overflow: "auto" }}
                 bordered
-                dataSource={data}
+                dataSource={ListSoKhungNoiBo}
                 renderItem={(item) => (
-                  <List.Item>
-                    <a>{item}</a>
+                  <List.Item
+                    style={{
+                      background:
+                        InfoSanPham.maNoiBo === item.maNoiBo
+                          ? "#e6f4ff"
+                          : "#FFF",
+                      cursor: "pointer",
+                    }}
+                    onClick={() => setInfoSanPham(item)}
+                  >
+                    <a>{item.maNoiBo}</a>
                   </List.Item>
                 )}
               />
@@ -432,19 +528,19 @@ function TienDoSanXuat({ match, history, permission }) {
                 <Col span={24} style={{ display: "flex", marginBottom: 8 }}>
                   <h5>Sản phẩm:</h5>
                   <h5 style={{ fontWeight: "bold", marginLeft: 20 }}>
-                    {"SMRM-XK-Xuong 40GN"}
+                    {InfoSanPham.tenSanPham ? InfoSanPham.tenSanPham : ""}
                   </h5>
                 </Col>
                 <Col span={24} style={{ display: "flex", marginBottom: 8 }}>
                   <h5>Số khung nội bộ:</h5>
                   <h5 style={{ fontWeight: "bold", marginLeft: 20 }}>
-                    {"QOEC0001"}
+                    {InfoSanPham.maNoiBo ? InfoSanPham.maNoiBo : ""}
                   </h5>
                 </Col>
                 <Col span={24} style={{ display: "flex", marginBottom: 8 }}>
                   <h5>Màu sơn:</h5>
                   <h5 style={{ fontWeight: "bold", marginLeft: 20 }}>
-                    {"25E"}
+                    {InfoSanPham.tenMauSac ? InfoSanPham.tenMauSac : ""}
                   </h5>
                 </Col>
               </Row>
@@ -464,81 +560,89 @@ function TienDoSanXuat({ match, history, permission }) {
               className="th-card-margin-bottom th-card-reset-margin"
               style={{ minHeight: 390 }}
             >
-              {/* <Button
-                icon={<SelectOutlined />}
-                type="primary"
-                style={{ width: "80%" }}
-                disabled={DisableVaoTram}
-              >
-                Vào trạm
-              </Button> */}
-              <Button
-                icon={<SyncOutlined />}
-                type="primary"
-                style={{ width: "80%" }}
-                // disabled={DisableVaoTram}
-              >
-                Chuyển sửa chữa lại
-              </Button>
-              <Button
-                icon={<QrcodeOutlined />}
-                type="primary"
-                style={{ width: "80%" }}
-                onClick={() => {
-                  setLocalStorage("inMa", [
-                    {
-                      soKhungNoiBo: "QOEC0001",
-                      tenSanPham: "SMRM-XK-Xuong 40GN",
-                    },
-                  ]);
-                  window.open(`${match.url}/in-ma-Qrcode`, "_blank");
-                }}
-                // disabled={DisableVaoTram}
-              >
-                In Barcode
-              </Button>
-              <Button
-                icon={<CheckSquareOutlined />}
-                type="primary"
-                style={{ width: "80%" }}
-                // disabled={DisableVaoTram}
-                onClick={() => setActiveModalKiemSoatVatTu(true)}
-              >
-                Kiểm soát vật tư lắp ráp
-              </Button>
-              <Button
-                icon={<FileTextOutlined />}
-                type="primary"
-                style={{ width: "80%" }}
-                // disabled={DisableVaoTram}
-                onClick={() => setActiveModalKiemSoatChatLuong(true)}
-              >
-                Xem hồ sơ chất lượng
-              </Button>
-              <Button
-                icon={<ToolOutlined />}
-                type="primary"
-                style={{ width: "80%" }}
-                // disabled={DisableVaoTram}
-              >
-                Sửa chữa lại
-              </Button>
-              <Button
-                icon={<CheckSquareOutlined />}
-                type="primary"
-                style={{ width: "80%" }}
-                // disabled={DisableVaoTram}
-              >
-                Kiểm soát chất lượng
-              </Button>
-              <Button
-                icon={<SaveFilled />}
-                type="primary"
-                style={{ width: "50%", margin: 0 }}
-                // disabled={DisableVaoTram}
-              >
-                Hoàn tất
-              </Button>
+              {InfoSanPham.thoiGianVaoTram === "" ||
+              !InfoSanPham.thoiGianVaoTram ? (
+                <Button
+                  icon={<SelectOutlined />}
+                  type="primary"
+                  style={{ width: "80%" }}
+                  disabled={!InfoSanPham.maNoiBo}
+                  onClick={() => modalXacNhan(true)}
+                >
+                  Vào trạm
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    icon={<SyncOutlined />}
+                    type="primary"
+                    style={{ width: "80%" }}
+                    // disabled={DisableVaoTram}
+                  >
+                    Chuyển sửa chữa lại
+                  </Button>
+                  <Button
+                    icon={<QrcodeOutlined />}
+                    type="primary"
+                    style={{ width: "80%" }}
+                    onClick={() => {
+                      setLocalStorage("inMa", [
+                        {
+                          soKhungNoiBo: "QOEC0001",
+                          tenSanPham: "SMRM-XK-Xuong 40GN",
+                        },
+                      ]);
+                      window.open(`${match.url}/in-ma-Qrcode`, "_blank");
+                    }}
+                    // disabled={DisableVaoTram}
+                  >
+                    In Barcode
+                  </Button>
+                  <Button
+                    icon={<CheckSquareOutlined />}
+                    type="primary"
+                    style={{ width: "80%" }}
+                    // disabled={DisableVaoTram}
+                    onClick={() => setActiveModalKiemSoatVatTu(true)}
+                  >
+                    Kiểm soát vật tư lắp ráp
+                  </Button>
+                  <Button
+                    icon={<FileTextOutlined />}
+                    type="primary"
+                    style={{ width: "80%" }}
+                    // disabled={DisableVaoTram}
+                    onClick={() => setActiveModalKiemSoatChatLuong(true)}
+                  >
+                    Xem hồ sơ chất lượng
+                  </Button>
+                  <Button
+                    icon={<ToolOutlined />}
+                    type="primary"
+                    style={{ width: "80%" }}
+                    // disabled={DisableVaoTram}
+                  >
+                    Sửa chữa lại
+                  </Button>
+                  <Button
+                    icon={<CheckSquareOutlined />}
+                    type="primary"
+                    style={{ width: "80%" }}
+                    // disabled={DisableVaoTram}
+                  >
+                    Kiểm soát chất lượng
+                  </Button>
+                  <Button
+                    icon={<SaveFilled />}
+                    type="primary"
+                    style={{ width: "50%", margin: 0 }}
+                    // disabled={DisableVaoTram}
+                    onClick={() => modalXacNhan(false)}
+                  >
+                    Hoàn tất
+                  </Button>
+                </>
+              )}
             </Card>
           </Col>
         </Row>

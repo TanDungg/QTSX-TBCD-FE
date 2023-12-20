@@ -43286,3 +43286,6 @@ textarea.gx-chat-textarea {
     page-break-before: always;
   }
 }
+.popconfirm-width{
+  width: 100%;
+}

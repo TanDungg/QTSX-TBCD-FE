@@ -465,6 +465,7 @@ const SoLoForm = ({ history, match, permission }) => {
       Helpers.alertWarning("Mã sản phẩm nội bộ trùng lặp.");
     } else {
       setActiveModalEdit(false);
+      setFieldTouch(true);
       if (type === "new") {
         setListSanPham(reDataForTable([...ListSanPham, data]));
       } else {
