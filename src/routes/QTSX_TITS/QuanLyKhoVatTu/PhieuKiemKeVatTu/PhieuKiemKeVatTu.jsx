@@ -29,6 +29,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import Helpers from "src/helpers";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -241,7 +242,7 @@ function PhieuKiemKe({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuKiemKeVatTu/${SelectedPhieu[0].id}`,
+          `tits_qtsx_PhieuKiemKe/${SelectedPhieu[0].id}`,
           "GET",
           null,
           "DETAIL",
@@ -265,7 +266,7 @@ function PhieuKiemKe({ match, history, permission }) {
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `tits_qtsx_PhieuKiemKeVatTu/export-file-phieu-de-nghi-cap-vat-tu-phu`,
+                `tits_qtsx_PhieuKiemKe/export-file-phieu-yeu-cau`,
                 "POST",
                 newData,
                 "",
@@ -275,7 +276,7 @@ function PhieuKiemKe({ match, history, permission }) {
               )
             );
           }).then((res) => {
-            exportExcel("PhieuKiemTraVatTu", res.data.dataexcel);
+            exportExcel("PhieuKiemKeVatTu", res.data.dataexcel);
           });
         }
       })
@@ -493,8 +494,12 @@ function PhieuKiemKe({ match, history, permission }) {
           ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
           : [...selectedRowKeys];
 
-      setSelectedPhieu(row);
-      setSelectedKeys(key);
+      if (row.length && row[0].tinhTrang === "Phiếu đã bị từ chối") {
+        Helpers.alertError("Không được chọn phiếu đã từ chối");
+      } else {
+        setSelectedPhieu(row);
+        setSelectedKeys(key);
+      }
     },
   };
 

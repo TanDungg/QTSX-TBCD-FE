@@ -1,11 +1,20 @@
-import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { Card, Row, Col, DatePicker, Button, Popover } from "antd";
 
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Select } from "src/components/Common";
-import { getNamNow, getNumberDayOfMonth, getThangNow } from "src/util/Common";
+import {
+  exportExcel,
+  getNamNow,
+  getNumberDayOfMonth,
+  getThangNow,
+} from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { reDataForTable, getLocalStorage } from "src/util/Common";
 
@@ -28,6 +37,7 @@ function KeHoachChiTiet({ match, history, permission }) {
   const [ListXuong, setListXuong] = useState([]);
   const [Xuong, setXuong] = useState("");
   const [data, setData] = useState([]);
+  const [DataXuatExcel, setDataXuatExcel] = useState([]);
   const [VersionSelect, setVersionSelect] = useState([]);
   const [Thang, setThang] = useState(getThangNow());
   const [Nam, setNam] = useState(getNamNow());
@@ -36,6 +46,7 @@ function KeHoachChiTiet({ match, history, permission }) {
   const [dataEdit, setDataEdit] = useState({});
   const [NguoiXem, setNguoiXem] = useState("");
   const [ListNguoiXem, setListNguoiXem] = useState([]);
+
   useEffect(() => {
     if (permission && permission.view) {
       getXuong();
@@ -80,6 +91,7 @@ function KeHoachChiTiet({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
+          setDataXuatExcel(res.data.keHoach);
           setListNguoiXem(
             res.data.nguoiXem.map((nx) => {
               return {
@@ -118,6 +130,7 @@ function KeHoachChiTiet({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
+
   const getXuong = () => {
     const params = convertObjectToUrlParams({
       page: -1,
@@ -146,6 +159,7 @@ function KeHoachChiTiet({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
+
   const getVersion = (tits_qtsx_Xuong_Id, t, n) => {
     const params = convertObjectToUrlParams({
       tits_qtsx_Xuong_Id,
@@ -341,10 +355,12 @@ function KeHoachChiTiet({ match, history, permission }) {
       }),
     };
   });
+
   const handleOnSelectVersion = (value) => {
     getListData(Xuong, Thang, Nam, value);
     setVersion(value);
   };
+
   const handleOnChangeDate = (dateString) => {
     const Thang = dateString.slice(0, 2);
     const Nam = dateString.slice(-4);
@@ -352,7 +368,9 @@ function KeHoachChiTiet({ match, history, permission }) {
     setNam(Nam);
     getVersion(Xuong, Thang, Nam);
   };
+
   const { totalRow } = data;
+
   const handleOnSelectXuong = (value) => {
     getVersion(value, Thang, Nam);
     setXuong(value);
@@ -363,6 +381,34 @@ function KeHoachChiTiet({ match, history, permission }) {
     history.push(`${match.url}/import`);
   };
 
+  const handleXuatExcel = () => {
+    const newData = {
+      thang: Thang,
+      nam: Nam,
+      tits_qtsx_KeHoachSanXuatChiTiets: DataXuatExcel.map((dt) => {
+        return {
+          ...dt,
+          chiTietKeHoach: dt.chiTietKeHoach && JSON.parse(dt.chiTietKeHoach),
+        };
+      }),
+    };
+    console.log(newData);
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_KeHoach/export-file-ke-hoach-chi-tiet`,
+          "POST",
+          newData,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      exportExcel(`KeHoachChiTiet-${Thang}/${Nam}`, res.data.dataexcel);
+    });
+  };
   const addButtonRender = () => {
     return (
       <>
@@ -374,6 +420,15 @@ function KeHoachChiTiet({ match, history, permission }) {
           disabled={permission && permission.add}
         >
           Import
+        </Button>
+        <Button
+          icon={<DownloadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleXuatExcel}
+          disabled={dataList.length === 0}
+        >
+          Xuất excel
         </Button>
       </>
     );

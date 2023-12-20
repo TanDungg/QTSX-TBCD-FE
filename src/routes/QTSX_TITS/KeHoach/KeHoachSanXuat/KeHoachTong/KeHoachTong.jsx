@@ -1,21 +1,27 @@
-import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
-import { Card, Row, Col, DatePicker, Button, Popover } from "antd";
-
+import {
+  DeleteOutlined,
+  DownloadOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import { Card, Row, Col, DatePicker, Button } from "antd";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Select } from "src/components/Common";
-import { getNamNow, getNumberDayOfMonth, getThangNow } from "src/util/Common";
+import {
+  exportExcel,
+  getNamNow,
+  getNumberDayOfMonth,
+  getThangNow,
+} from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { reDataForTable, getLocalStorage } from "src/util/Common";
-
 import {
   ModalDeleteConfirm,
   Table,
   EditableTableRow,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import EditKeHoach from "./EditKeHoach";
 import { convertObjectToUrlParams } from "src/util/Common";
 import moment from "moment";
 
@@ -24,12 +30,11 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function KeHoachTong({ match, history, permission }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
-  const INFO = getLocalStorage("menu");
   const [data, setData] = useState([]);
+  const [DataXuatExcel, setDataXuatExcel] = useState([]);
   const [VersionSelect, setVersionSelect] = useState([]);
   const [Thang, setThang] = useState(getThangNow());
   const [Nam, setNam] = useState(getNamNow());
-  const [ActiveEditKeHoach, setActiveEditKeHoach] = useState(false);
   const [Version, setVersion] = useState("");
   const [NguoiXem, setNguoiXem] = useState("");
   const [ListNguoiXem, setListNguoiXem] = useState([]);
@@ -71,6 +76,7 @@ function KeHoachTong({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
+          setDataXuatExcel(res.data.keHoach);
           setListNguoiXem(
             res.data.nguoiXem.map((nx) => {
               return {
@@ -111,6 +117,7 @@ function KeHoachTong({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
+
   const getVersion = (t, n) => {
     const params = convertObjectToUrlParams({
       isSanXuat: true,
@@ -277,6 +284,7 @@ function KeHoachTong({ match, history, permission }) {
       render: (item) => actionContent(item),
     },
   ];
+
   const components = {
     body: {
       row: EditableRow,
@@ -299,19 +307,53 @@ function KeHoachTong({ match, history, permission }) {
       }),
     };
   });
+
   const handleOnSelectVersion = (value) => {
     getListData(Thang, Nam, value);
     setVersion(value);
   };
+
   const handleOnChangeDate = (dateString) => {
     setThang(dateString.slice(0, 2));
     setNam(dateString.slice(3));
     getVersion(dateString.slice(0, 2), dateString.slice(3));
   };
+
   const { totalRow } = data;
+
   const handleImport = () => {
     history.push(`${match.url}/import`);
   };
+
+  const handleXuatExcel = () => {
+    const newData = {
+      thang: Thang,
+      nam: Nam,
+      tits_qtsx_KeHoachTongChiTiets: DataXuatExcel.map((dt) => {
+        return {
+          ...dt,
+          chiTietKeHoach: dt.chiTietKeHoach && JSON.parse(dt.chiTietKeHoach),
+        };
+      }),
+    };
+    console.log(newData);
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_KeHoach/export-file-ke-hoach-tong`,
+          "POST",
+          newData,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      exportExcel(`KeHoachTong-${Thang}/${Nam}`, res.data.dataexcel);
+    });
+  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -323,6 +365,15 @@ function KeHoachTong({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Import
+        </Button>
+        <Button
+          icon={<DownloadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleXuatExcel}
+          disabled={dataList.length === 0}
+        >
+          Xuất excel
         </Button>
       </>
     );

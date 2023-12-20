@@ -645,6 +645,7 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
         ngay: data.ngay.format("DD/MM/YYYY"),
         list_ChiTiets: ListVatTu,
       };
+      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -1150,7 +1151,6 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
                 rules={[
                   {
                     type: "string",
-                    required: true,
                   },
                 ]}
               >
