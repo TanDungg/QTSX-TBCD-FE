@@ -556,7 +556,7 @@ function HangMucKiemTraForm({ match, permission, history }) {
       </Card>
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin chung"}
+        title={"Thông tin hạng mục kiểm tra"}
       >
         <Spin spinning={loading}>
           <Form
@@ -629,62 +629,7 @@ function HangMucKiemTraForm({ match, permission, history }) {
                   />
                 </FormItem>
               </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Ghi chú"
-                  name={["hangmuckiemtra", "moTa"]}
-                  rules={[
-                    {
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Input
-                    className="input-item"
-                    placeholder="Nhập ghi chú"
-                    disabled={type === "detail" ? true : false}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Sử dụng hình ảnh chi tiết"
-                  name={["hangmuckiemtra", "isSuDungHinhAnh"]}
-                  valuePropName="checked"
-                >
-                  <Switch
-                    onChange={(value) => {
-                      setListHinhAnh([]);
-                      setListHinhAnhDaChon([]);
-                      if (value === false) {
-                        getCongDoan(
-                          SanPham,
-                          CongDoan,
-                          HinhAnhDaChon && HinhAnhDaChon
-                        );
-                      }
-                      setIsSuDungHinhAnh(!IsSuDungHinhAnh);
-                    }}
-                    disabled={type === "detail" || !CongDoan ? true : false}
-                  />
-                </FormItem>
-              </Col>
+
               <Col
                 xxl={12}
                 xl={12}
@@ -719,209 +664,230 @@ function HangMucKiemTraForm({ match, permission, history }) {
                   <Switch disabled={type === "detail" ? true : false} />
                 </FormItem>
               </Col>
-              {!IsSuDungHinhAnh && (
-                <Col
-                  lg={12}
-                  xs={24}
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Ghi chú"
+                  name={["hangmuckiemtra", "moTa"]}
+                  rules={[
+                    {
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Input
+                    className="input-item"
+                    placeholder="Nhập ghi chú"
+                    disabled={type === "detail" ? true : false}
+                  />
+                </FormItem>
+              </Col>
+            </Row>
+            <Row>
+              <Col
+                lg={12}
+                xs={24}
+                style={{
+                  marginBottom: 8,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                <Card
+                  className="th-card-margin-bottom th-card-reset-margin"
+                  title="Hình ảnh trong công đoạn"
                   style={{
-                    marginBottom: 8,
-                    display: "flex",
-                    flexDirection: "column",
+                    width: "730px",
+                    height: "450px",
+                    display: "start",
+                    justifyContent: "space-around",
+                    overflowY: "relative",
                     alignItems: "center",
+                    borderColor: "#c8c8c8",
+                    borderRadius: 15,
                   }}
                 >
-                  <Card
-                    className="th-card-margin-bottom th-card-reset-margin"
-                    title="Hình ảnh trong công đoạn"
-                    style={{
-                      width: "730px",
-                      height: "450px",
-                      display: "start",
-                      justifyContent: "space-around",
-                      overflowY: "relative",
-                      alignItems: "center",
-                      borderColor: "#c8c8c8",
-                      borderRadius: 15,
-                    }}
-                  >
-                    {ListHinhAnh.length > 0 ? (
-                      <div
-                        style={{
-                          overflowY: "auto",
-                          maxHeight: "380px",
-                        }}
-                      >
-                        {ListHinhAnh.map((khuvuc, index) => {
-                          return (
+                  {ListHinhAnh.length > 0 ? (
+                    <div
+                      style={{
+                        overflowY: "auto",
+                        maxHeight: "380px",
+                      }}
+                    >
+                      {ListHinhAnh.map((khuvuc, index) => {
+                        return (
+                          <div
+                            key={index}
+                            style={{
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexDirection: "column",
+                              marginBottom: 10,
+                              maxWidth: "700px",
+                              overflowWrap: "break-word",
+                            }}
+                          >
+                            <span style={{ fontWeight: "bold", fontSize: 15 }}>
+                              {khuvuc.tenKhuVuc}
+                            </span>
+                            <br />
+                            <span style={{}}>Mô tả: {khuvuc.moTa}</span>
                             <div
-                              key={index}
                               style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                flexWrap: "wrap",
+                                marginTop: "10px",
+                              }}
+                            >
+                              {khuvuc.list_HinhAnhs &&
+                                khuvuc.list_HinhAnhs.map((hinhanh) => {
+                                  return (
+                                    <div
+                                      style={{
+                                        position: "relative",
+                                        display: "inline-block",
+                                        borderRadius: 15,
+                                        marginRight: 10,
+                                        marginBottom: 10,
+                                      }}
+                                    >
+                                      <Image
+                                        width={110}
+                                        height={110}
+                                        style={{
+                                          borderRadius: 15,
+                                          border: "1px solid #c8c8c8",
+                                          padding: 8,
+                                        }}
+                                        src={BASE_URL_API + hinhanh.hinhAnh}
+                                      />
+                                      <PlusCircleOutlined
+                                        style={{
+                                          fontSize: 25,
+                                          position: "absolute",
+                                          top: -7,
+                                          right: -5,
+                                          cursor: "pointer",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          color: "#0469B9",
+                                          backgroundColor: "#fff",
+                                          borderRadius: 15,
+                                          transition:
+                                            "background-color 0.3s ease",
+                                        }}
+                                        onClick={() =>
+                                          handleThemHinhAnh(hinhanh, khuvuc)
+                                        }
+                                      />
+                                    </div>
+                                  );
+                                })}
+                            </div>
+                            {index !== ListHinhAnh.length - 1 && <Divider />}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div>
+                      <Empty style={{ height: "450px" }} />
+                    </div>
+                  )}
+                </Card>
+              </Col>
+              <Col
+                lg={12}
+                xs={24}
+                style={{
+                  marginBottom: 8,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                <Card
+                  className="th-card-margin-bottom th-card-reset-margin"
+                  title="Hình ảnh đã chọn"
+                  style={{
+                    width: "730px",
+                    height: "450px",
+                    display: "start",
+                    justifyContent: "space-around",
+                    overflowY: "relative",
+                    alignItems: "center",
+                    borderColor: "#c8c8c8",
+                    borderRadius: 15,
+                  }}
+                >
+                  {ListHinhAnhDaChon.length > 0 ? (
+                    <div
+                      style={{
+                        overflowY: "auto",
+                        maxHeight: "380px",
+                      }}
+                    >
+                      {ListHinhAnhDaChon.map((hinhanh) => {
+                        return (
+                          <div
+                            style={{
+                              position: "relative",
+                              display: "inline-block",
+                              borderRadius: 15,
+                              marginRight: 10,
+                              marginTop: 10,
+                            }}
+                          >
+                            <Image
+                              width={110}
+                              height={110}
+                              style={{
+                                borderRadius: 15,
+                                border: "1px solid #c8c8c8",
+                                padding: 8,
+                              }}
+                              src={BASE_URL_API + hinhanh.hinhAnh}
+                            />
+
+                            <MinusCircleOutlined
+                              style={{
+                                fontSize: 25,
+                                position: "absolute",
+                                top: -7,
+                                right: -5,
+                                cursor: "pointer",
+                                display: "flex",
                                 alignItems: "center",
                                 justifyContent: "center",
-                                flexDirection: "column",
-                                marginBottom: 10,
-                                maxWidth: "700px",
-                                overflowWrap: "break-word",
-                              }}
-                            >
-                              <span
-                                style={{ fontWeight: "bold", fontSize: 15 }}
-                              >
-                                {khuvuc.tenKhuVuc}
-                              </span>
-                              <br />
-                              <span style={{}}>Mô tả: {khuvuc.moTa}</span>
-                              <div
-                                style={{
-                                  display: "flex",
-                                  flexDirection: "row",
-                                  flexWrap: "wrap",
-                                  marginTop: "10px",
-                                }}
-                              >
-                                {khuvuc.list_HinhAnhs &&
-                                  khuvuc.list_HinhAnhs.map((hinhanh) => {
-                                    return (
-                                      <div
-                                        style={{
-                                          position: "relative",
-                                          display: "inline-block",
-                                          borderRadius: 15,
-                                          marginRight: 10,
-                                          marginBottom: 10,
-                                        }}
-                                      >
-                                        <Image
-                                          width={110}
-                                          height={110}
-                                          style={{
-                                            borderRadius: 15,
-                                            border: "1px solid #c8c8c8",
-                                            padding: 8,
-                                          }}
-                                          src={BASE_URL_API + hinhanh.hinhAnh}
-                                        />
-                                        <PlusCircleOutlined
-                                          style={{
-                                            fontSize: 25,
-                                            position: "absolute",
-                                            top: -7,
-                                            right: -5,
-                                            cursor: "pointer",
-                                            display: "flex",
-                                            alignItems: "center",
-                                            justifyContent: "center",
-                                            color: "#0469B9",
-                                            backgroundColor: "#fff",
-                                            borderRadius: 15,
-                                            transition:
-                                              "background-color 0.3s ease",
-                                          }}
-                                          onClick={() =>
-                                            handleThemHinhAnh(hinhanh, khuvuc)
-                                          }
-                                        />
-                                      </div>
-                                    );
-                                  })}
-                              </div>
-                              {index !== ListHinhAnh.length - 1 && <Divider />}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div>
-                        <Empty style={{ height: "450px" }} />
-                      </div>
-                    )}
-                  </Card>
-                </Col>
-              )}
-              {!IsSuDungHinhAnh && (
-                <Col
-                  lg={12}
-                  xs={24}
-                  style={{
-                    marginBottom: 8,
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                >
-                  <Card
-                    className="th-card-margin-bottom th-card-reset-margin"
-                    title="Hình ảnh đã chọn"
-                    style={{
-                      width: "730px",
-                      height: "450px",
-                      display: "start",
-                      justifyContent: "space-around",
-                      overflowY: "relative",
-                      alignItems: "center",
-                      borderColor: "#c8c8c8",
-                      borderRadius: 15,
-                    }}
-                  >
-                    {ListHinhAnhDaChon.length > 0 ? (
-                      <div
-                        style={{
-                          overflowY: "auto",
-                          maxHeight: "380px",
-                        }}
-                      >
-                        {ListHinhAnhDaChon.map((hinhanh) => {
-                          return (
-                            <div
-                              style={{
-                                position: "relative",
-                                display: "inline-block",
+                                color: "red",
+                                backgroundColor: "#fff",
+                                borderColor: "#c8c8c8",
                                 borderRadius: 15,
-                                marginRight: 10,
-                                marginTop: 10,
+                                transition: "background-color 0.3s ease",
                               }}
-                            >
-                              <Image
-                                width={110}
-                                height={110}
-                                style={{
-                                  borderRadius: 15,
-                                  border: "1px solid #c8c8c8",
-                                  padding: 8,
-                                }}
-                                src={BASE_URL_API + hinhanh.hinhAnh}
-                              />
-
-                              <MinusCircleOutlined
-                                style={{
-                                  fontSize: 25,
-                                  position: "absolute",
-                                  top: -7,
-                                  right: -5,
-                                  cursor: "pointer",
-                                  display: "flex",
-                                  alignItems: "center",
-                                  justifyContent: "center",
-                                  color: "red",
-                                  backgroundColor: "#fff",
-                                  borderColor: "#c8c8c8",
-                                  borderRadius: 15,
-                                  transition: "background-color 0.3s ease",
-                                }}
-                                onClick={() => handleXoaHinhAnh(hinhanh)}
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    ) : (
-                      <div>
-                        <Empty style={{ height: "450px" }} />
-                      </div>
-                    )}
-                  </Card>
-                </Col>
-              )}
+                              onClick={() => handleXoaHinhAnh(hinhanh)}
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <div>
+                      <Empty style={{ height: "450px" }} />
+                    </div>
+                  )}
+                </Card>
+              </Col>
             </Row>
             <FormSubmit
               goBack={goBack}
