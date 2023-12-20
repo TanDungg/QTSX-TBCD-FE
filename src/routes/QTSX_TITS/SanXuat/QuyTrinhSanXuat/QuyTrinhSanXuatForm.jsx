@@ -277,13 +277,15 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
             JSON.parse(data.list_CongDoans).map((congdoan) => {
               return {
                 ...congdoan,
-                list_Trams: congdoan.list_Trams.map((tram) => {
-                  return {
-                    ...tram,
-                    list_VatTus:
-                      tram.list_VatTus && JSON.parse(tram.list_VatTus),
-                  };
-                }),
+                list_Trams:
+                  congdoan.list_Trams &&
+                  congdoan.list_Trams.map((tram) => {
+                    return {
+                      ...tram,
+                      list_VatTus:
+                        tram.list_VatTus && JSON.parse(tram.list_VatTus),
+                    };
+                  }),
               };
             });
           setSanPham(data.tits_qtsx_SanPham_Id);

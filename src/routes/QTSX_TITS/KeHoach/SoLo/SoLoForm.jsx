@@ -455,31 +455,32 @@ const SoLoForm = ({ history, match, permission }) => {
     }
   };
   const editSanPham = (data, type) => {
-    let check = false;
-    ListSanPham.forEach((sp) => {
-      if (sp.maNoiBo === data.maNoiBo) {
-        check = true;
-      }
-    });
-    if (check) {
-      Helpers.alertWarning("Mã sản phẩm nội bộ trùng lặp.");
-    } else {
-      setActiveModalEdit(false);
-      setFieldTouch(true);
-      if (type === "new") {
-        setListSanPham(reDataForTable([...ListSanPham, data]));
+    if (type === "new") {
+      let check = false;
+      ListSanPham.forEach((sp) => {
+        if (sp.maNoiBo === data.maNoiBo) {
+          check = true;
+        }
+      });
+      if (check) {
+        Helpers.alertWarning("Mã sản phẩm nội bộ trùng lặp.");
       } else {
+        setActiveModalEdit(false);
         setFieldTouch(true);
-        setListSanPham([
-          ...ListSanPham.map((sp) => {
-            if (sp.key === data.key) {
-              return data;
-            } else {
-              return sp;
-            }
-          }),
-        ]);
+        setListSanPham(reDataForTable([...ListSanPham, data]));
       }
+    } else {
+      setFieldTouch(true);
+      setActiveModalEdit(false);
+      setListSanPham([
+        ...ListSanPham.map((sp) => {
+          if (sp.key === data.key) {
+            return data;
+          } else {
+            return sp;
+          }
+        }),
+      ]);
     }
   };
   const addSanPham = (data) => {
