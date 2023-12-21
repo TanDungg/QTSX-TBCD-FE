@@ -6,6 +6,7 @@ import {
   DeleteOutlined,
   PrinterOutlined,
   CheckCircleOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -26,6 +27,7 @@ import {
   removeDuplicates,
   getThangNow,
   getNamNow,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -177,26 +179,48 @@ function DonHangSanXuat({ match, history, permission }) {
     });
   };
 
-  const handlePrint = () => {
-    // const params = convertObjectToUrlParams({
-    //   donVi_Id: INFO.donVi_Id,
-    // });
-    // new Promise((resolve, reject) => {
-    //   dispatch(
-    //     fetchStart(
-    //       `tits_qtsx_Donhang`,
-    //       "GET",
-    //       null,
-    //       "DETAIL",
-    //       "",
-    //       resolve,
-    //       reject
-    //     )
-    //   );
-    // })
-    //   .then((res) => {})
-    //   .catch((error) => console.error(error));
+  const handleXuatExcel = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_Donhang/${SelectedMuaHang[0].id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const data = res.data;
+          const newData = {
+            ...data,
+            chiTiet_DonHangs:
+              data.chiTiet_DonHangs && JSON.parse(data.chiTiet_DonHangs),
+          };
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `tits_qtsx_Donhang/export-file-don-hang`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportExcel("DonHangSanXuat", res.data.dataexcel);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
   };
+
   const hanldeXacNhan = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -220,6 +244,7 @@ function DonHangSanXuat({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
+
   const propXacNhan = {
     type: "confirm",
     okText: "Xác nhận",
@@ -227,20 +252,22 @@ function DonHangSanXuat({ match, history, permission }) {
     title: "Xác nhận đơn hàng",
     onOk: hanldeXacNhan,
   };
+
   const modalXK = () => {
     Modal(propXacNhan);
   };
+
   const addButtonRender = () => {
     return (
       <>
         <Button
-          icon={<PrinterOutlined />}
+          icon={<DownloadOutlined />}
           className="th-margin-bottom-0"
           type="primary"
-          onClick={handlePrint}
+          onClick={handleXuatExcel}
           disabled={SelectedMuaHang.length === 0}
         >
-          In phiếu
+          Xuất phiếu
         </Button>
         <Button
           icon={<CheckCircleOutlined />}
@@ -457,6 +484,13 @@ function DonHangSanXuat({ match, history, permission }) {
         selectedKeys.length > 0
           ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
           : [...selectedRowKeys];
+
+      // if (row.length && row[0].tinhTrang.startsWith("Bị hủy")) {
+      //   Helpers.alertError("Không được chọn phiếu đã hủy");
+      // } else {
+      //   setSelectedDNCVT(row);
+      //   setSelectedKeys(key);
+      // }
 
       setSelectedMuaHang(row);
       setSelectedKeys(key);

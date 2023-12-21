@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, Checkbox, Input, Tag } from "antd";
+import { Card, Button, Divider, Row, Col, Checkbox, Input } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -59,7 +59,6 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setInfo(res.data);
-          const newData = "";
           setListChiTiet(
             res.data.list_HangMucKiemTraChiTiets &&
               res.data.list_HangMucKiemTraChiTiets
@@ -70,14 +69,8 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
   };
 
   const actionContent = (item) => {
-    const handleEdit = () => {
-      setLocalStorage("themchitiet", info);
-      history.push({
-        pathname: `${match.url}/${item.id}/chinh-sua`,
-      });
-    };
-    const add =
-      permission && permission.add ? (
+    const editItem =
+      permission && permission.edit ? (
         <Link
           onClick={() => {
             setChiTiet({
@@ -85,24 +78,12 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
               tits_qtsx_SanPham_Id: info && info.tits_qtsx_SanPham_Id,
               tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
               isNoiDung: info && info.isNoiDung,
-              isSuDungHinhAnh: info && info.isSuDungHinhAnh,
-              loai: "new",
+              loai: "edit",
             });
             setActiveModalThemChiTiet(true);
           }}
-          title="Thêm mới"
+          title="Sửa"
         >
-          <PlusCircleOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Thêm mới">
-          <PlusCircleOutlined />
-        </span>
-      );
-
-    const editItem =
-      permission && permission.edit ? (
-        <Link onClick={handleEdit} title="Sửa">
           <EditOutlined />
         </Link>
       ) : (
@@ -117,8 +98,6 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
         : { disabled: true };
     return (
       <div>
-        {add}
-        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -166,11 +145,15 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
    *
    * @memberof ChucNang
    */
-  const handleRedirect = () => {
-    setLocalStorage("themchitiet", info);
-    history.push({
-      pathname: `${match.url}/them-moi`,
+  const handleThemChiTiet = () => {
+    setChiTiet({
+      ...info,
+      tits_qtsx_SanPham_Id: info && info.tits_qtsx_SanPham_Id,
+      tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
+      isNoiDung: info && info.isNoiDung,
+      loai: "new",
     });
+    setActiveModalThemChiTiet(true);
   };
   const addButtonRender = () => {
     return (
@@ -179,7 +162,7 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
           type="primary"
-          onClick={handleRedirect}
+          onClick={handleThemChiTiet}
           disabled={permission && !permission.add}
         >
           Thêm mới
@@ -201,26 +184,17 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       setEditingRecord(newData);
     }
 
-    const updateThuTu = (data, itemId) => {
-      data.forEach((item) => {
-        if (item.id === itemId) {
-          item.thuTu = ThuTu;
-        } else if (item.list_HangMucKiemTraChiTiets) {
-          updateThuTu(item.list_HangMucKiemTraChiTiets, itemId);
-        }
-      });
-    };
+    const newListChiTiet = ListChiTiet.map((list) => {
+      if (list.id === item.id) {
+        return {
+          ...list,
+          thuTu: ThuTu,
+        };
+      }
+      return list;
+    });
 
-    const newDataCopy = [...ListChiTiet];
-    if (key) {
-      newDataCopy.forEach((ct) => {
-        updateThuTu(ct.list_HangMucKiemTraChiTiets, item.id);
-      });
-    } else {
-      updateThuTu(newDataCopy, item.id);
-    }
-
-    setListChiTiet(newDataCopy);
+    setListChiTiet(newListChiTiet);
   };
 
   const onChangeValueThuTu = (val, item) => {
@@ -274,16 +248,12 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
     );
   };
 
-  const renderCheckbox = (record) => {
-    return <Checkbox checked={record.isNhapKetQua} disabled={true} />;
-  };
-
   let renderHead = [
     {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 110,
+      width: 80,
       render: (value) => actionContent(value),
       fixed: "left",
     },
@@ -299,51 +269,49 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       dataIndex: "maSo",
       key: "maSo",
       align: "center",
+      width: 100,
     },
     {
       title: "Nội dung kiểm tra",
       dataIndex: "noiDungKiemTra",
       key: "noiDungKiemTra",
       align: "center",
+      width: 150,
     },
     {
       title: "Tiêu chuẩn đánh giá",
       dataIndex: "tieuChuanDanhGia",
       key: "tieuChuanDanhGia",
       align: "center",
-    },
-    {
-      title: "Nhập kết quả",
-      key: "isNhapKetQua",
-      align: "center",
-      width: 80,
-      render: (record) => renderCheckbox(record),
+      width: 150,
     },
     {
       title: info && info.isNoiDung ? "Giá trị tiêu chuẩn" : "Giá trị Min",
       dataIndex: info && info.isNoiDung ? "giaTriTieuChuan" : "giaTriMin",
       key: info && info.isNoiDung ? "giaTriTieuChuan" : "giaTriMin",
       align: "center",
+      width: 100,
     },
     {
       title: info && info.isNoiDung ? "Phương pháp tiêu chuẩn" : "Giá trị Max",
       dataIndex: info && info.isNoiDung ? "phuongPhapTieuChuan" : "giaTriMax",
       key: info && info.isNoiDung ? "phuongPhapTieuChuan" : "giaTriMax",
       align: "center",
+      width: 150,
     },
     {
       title: "Thứ tự",
       key: "thuTu",
       align: "center",
       width: 100,
-      render: (value) => renderThuTuChiTiet(value),
+      render: (value) => renderThuTuChiTiet(value, "children"),
     },
     {
       title: "Trạm gia công",
       dataIndex: "tramGiaCong",
       key: "tramGiaCong",
       align: "center",
-      width: 150,
+      width: 180,
     },
   ];
 
@@ -369,231 +337,12 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
     };
   });
 
-  const actionContentChildren = (item) => {
-    const add =
-      permission && permission.add ? (
-        <Link
-          onClick={() => {
-            setChiTiet({
-              ...item,
-              tits_qtsx_SanPham_Id: info && info.tits_qtsx_SanPham_Id,
-              tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
-              isNoiDung: info && info.isNoiDung,
-              isSuDungHinhAnh: info && info.isSuDungHinhAnh,
-              loai: "new",
-            });
-            setActiveModalThemChiTiet(true);
-          }}
-          title="Thêm mới"
-        >
-          <PlusCircleOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Thêm mới">
-          <PlusCircleOutlined />
-        </span>
-      );
-
-    const editItem =
-      permission && permission.edit ? (
-        <Link
-          onClick={() => {
-            setChiTiet({
-              ...item,
-              tits_qtsx_SanPham_Id: info && info.tits_qtsx_SanPham_Id,
-              tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
-              isNoiDung: info && info.isNoiDung,
-              isSuDungHinhAnh: info && info.isSuDungHinhAnh,
-              loai: "edit",
-            });
-            setActiveModalThemChiTiet(true);
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
-
-    const deleteVal =
-      permission && permission.del
-        ? { onClick: () => deleteItemFuncChildren(item) }
-        : { disabled: true };
-    return (
-      <div>
-        {add}
-        <Divider type="vertical" />
-        {editItem}
-        <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa">
-          <DeleteOutlined />
-        </a>
-      </div>
-    );
-  };
-
-  /**
-   * deleteItemFunc: Xoá item theo item
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFuncChildren = (item) => {
-    ModalDeleteConfirm(
-      deleteItemActionChildren,
-      item,
-      item.maSo,
-      "chi tiết hạng mục kiểm tra mã số"
-    );
-  };
-
-  /**
-   * Xóa item
-   *
-   * @param {*} item
-   */
-  const deleteItemActionChildren = (item) => {
-    let url = `tits_qtsx_HangMucKiemTra/chi-tiet/${item.id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        if (res.status !== 409) {
-          getInfo(id);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  let columsChiTietChildren = [
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContentChildren(value),
-      fixed: "left",
-    },
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      align: "center",
-      width: 50,
-    },
-    {
-      title: "Mã số",
-      dataIndex: "maSo",
-      key: "maSo",
-      align: "center",
-      width: 100,
-    },
-    {
-      title: "Nội dung kiểm tra",
-      dataIndex: "noiDungKiemTra",
-      key: "noiDungKiemTra",
-      align: "center",
-      width: 150,
-    },
-    {
-      title: "Tiêu chuẩn đánh giá",
-      dataIndex: "tieuChuanDanhGia",
-      key: "tieuChuanDanhGia",
-      align: "center",
-      width: 150,
-    },
-    {
-      title: "Nhập kết quả",
-      key: "isNhapKetQua",
-      align: "center",
-      width: 80,
-      render: (record) => renderCheckbox(record),
-    },
-    {
-      title: info && info.isNoiDung ? "Giá trị tiêu chuẩn" : "Giá trị Min",
-      dataIndex: info && info.isNoiDung ? "giaTriTieuChuan" : "giaTriMin",
-      key: info && info.isNoiDung ? "giaTriTieuChuan" : "giaTriMin",
-      align: "center",
-      width: 150,
-    },
-    {
-      title: info && info.isNoiDung ? "Phương pháp tiêu chuẩn" : "Giá trị Max",
-      dataIndex: info && info.isNoiDung ? "phuongPhapTieuChuan" : "giaTriMax",
-      key: info && info.isNoiDung ? "phuongPhapTieuChuan" : "giaTriMax",
-      align: "center",
-      width: 150,
-    },
-    {
-      title: "Thứ tự",
-      key: "thuTu",
-      align: "center",
-      width: 100,
-      render: (value) => renderThuTuChiTiet(value, "children"),
-    },
-    {
-      title: "Trạm gia công",
-      dataIndex: "tramGiaCong",
-      key: "tramGiaCong",
-      align: "center",
-      width: 150,
-    },
-  ];
-  const columsChildren = map(columsChiTietChildren, (col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-      }),
-    };
-  });
-
   const handleRefesh = () => {
     getInfo(id);
   };
 
   const goBack = () => {
     history.push(`${match.url.replace(`/${id}/chi-tiet`, "")}`);
-  };
-
-  const renderExpandable = (record, level) => {
-    const childData = record.list_HangMucKiemTraChiTiets;
-
-    if (!childData || childData.length === 0) {
-      return null;
-    }
-
-    return (
-      <Table
-        style={{
-          marginBottom: 10,
-          marginLeft: 20,
-          width: "95%",
-        }}
-        bordered
-        columns={columsChildren}
-        scroll={{ x: 1250 }}
-        components={components}
-        className="gx-table-responsive th-F1D065-head"
-        dataSource={reDataForTable(childData)}
-        size="small"
-        rowClassName="editable-row"
-        pagination={false}
-        expandable={{
-          expandedRowRender: (subRecord) =>
-            renderExpandable(subRecord, level + 1),
-        }}
-      />
-    );
   };
 
   return (
@@ -605,200 +354,195 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
         buttons={addButtonRender()}
       />
 
-      <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Card
-          className="th-card-margin-bottom th-card-reset-margin"
-          title={"Thông tin chi tiết hạng mục kiểm tra"}
-          headStyle={{
-            textAlign: "center",
-            backgroundColor: "#0469B9",
-            color: "#fff",
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin hạng mục kiểm tra"}
+      >
+        <Row
+          style={{
+            padding: "0px 50px",
           }}
         >
-          <Row
+          <Col
+            lg={12}
+            xs={24}
             style={{
-              padding: "0px 50px",
+              display: "flex",
+              alignItems: "center",
+              marginBottom: 15,
             }}
           >
-            <Col
-              lg={12}
-              xs={24}
+            <span
               style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: 15,
+                width: "145px",
+                fontWeight: "bold",
               }}
             >
+              Sản phẩm:
+            </span>
+            {info && (
               <span
                 style={{
-                  width: "160px",
-                  fontWeight: "bold",
+                  width: "calc(100% - 145px)",
                 }}
               >
-                Sản phẩm:
+                {info.tenSanPham}
               </span>
-              {info && (
-                <span
-                  style={{
-                    width: "calc(100% - 160px)",
-                  }}
-                >
-                  {info.tenSanPham}
-                </span>
-              )}
-            </Col>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: 15,
-              }}
-            >
-              <span
-                style={{
-                  width: "160px",
-                  fontWeight: "bold",
-                }}
-              >
-                Công đoạn:
-              </span>
-              {info && (
-                <span
-                  style={{
-                    width: "calc(100% - 160px)",
-                  }}
-                >
-                  {info.tenCongDoan}
-                </span>
-              )}
-            </Col>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: 15,
-              }}
-            >
-              <span
-                style={{
-                  width: "160px",
-                  fontWeight: "bold",
-                }}
-              >
-                Hạng mục kiểm tra:
-              </span>
-              {info && (
-                <span
-                  style={{
-                    width: "calc(100% - 160px)",
-                  }}
-                >
-                  {info.tenHangMucKiemTra}
-                </span>
-              )}
-            </Col>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: 15,
-              }}
-            >
-              <span
-                style={{
-                  width: "160px",
-                  fontWeight: "bold",
-                }}
-              >
-                Tình trạng:
-              </span>
-              {info && (
-                <span
-                  style={{
-                    width: "calc(100% - 160px)",
-                  }}
-                >
-                  {info.isSuDung === true ? "Đang sử dụng" : "Không sử dụng"}
-                </span>
-              )}
-            </Col>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: 15,
-              }}
-            >
-              <span
-                style={{
-                  width: "160px",
-                  fontWeight: "bold",
-                }}
-              >
-                Kiểu đánh giá:
-              </span>
-              {info && (
-                <span
-                  style={{
-                    width: "calc(100% - 160px)",
-                  }}
-                >
-                  {info.kieuDanhGia}
-                </span>
-              )}
-            </Col>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                marginBottom: 15,
-              }}
-            >
-              <span
-                style={{
-                  width: "160px",
-                  fontWeight: "bold",
-                }}
-              >
-                Ghi chú:
-              </span>
-              {info && (
-                <span
-                  style={{
-                    width: "calc(100% - 160px)",
-                  }}
-                >
-                  {info.moTa}
-                </span>
-              )}
-            </Col>
-          </Row>
-          <Table
-            bordered
-            scroll={{ x: 1200, y: "55vh" }}
-            columns={columns}
-            components={components}
-            className="gx-table-responsive"
-            dataSource={reDataForTable(ListChiTiet)}
-            size="small"
-            rowClassName="editable-row"
-            pagination={false}
-            loading={loading}
-            expandable={{
-              expandedRowRender: (record) => renderExpandable(record, 1),
+            )}
+          </Col>
+          <Col
+            lg={12}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: 15,
             }}
-          />
-        </Card>
+          >
+            <span
+              style={{
+                width: "145px",
+                fontWeight: "bold",
+              }}
+            >
+              Công đoạn:
+            </span>
+            {info && (
+              <span
+                style={{
+                  width: "calc(100% - 145px)",
+                }}
+              >
+                {info.tenCongDoan}
+              </span>
+            )}
+          </Col>
+          <Col
+            lg={12}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: 15,
+            }}
+          >
+            <span
+              style={{
+                width: "145px",
+                fontWeight: "bold",
+              }}
+            >
+              Hạng mục kiểm tra:
+            </span>
+            {info && (
+              <span
+                style={{
+                  width: "calc(100% - 145px)",
+                }}
+              >
+                {info.tenHangMucKiemTra}
+              </span>
+            )}
+          </Col>
+          <Col
+            lg={12}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: 15,
+            }}
+          >
+            <span
+              style={{
+                width: "145px",
+                fontWeight: "bold",
+              }}
+            >
+              Tình trạng:
+            </span>
+            {info && (
+              <span
+                style={{
+                  width: "calc(100% - 145px)",
+                }}
+              >
+                {info.isSuDung === true ? "Đang sử dụng" : "Không sử dụng"}
+              </span>
+            )}
+          </Col>
+          <Col
+            lg={12}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: 15,
+            }}
+          >
+            <span
+              style={{
+                width: "145px",
+                fontWeight: "bold",
+              }}
+            >
+              Kiểu đánh giá:
+            </span>
+            {info && (
+              <span
+                style={{
+                  width: "calc(100% - 145px)",
+                }}
+              >
+                {info.kieuDanhGia}
+              </span>
+            )}
+          </Col>
+          <Col
+            lg={12}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: 15,
+            }}
+          >
+            <span
+              style={{
+                width: "145px",
+                fontWeight: "bold",
+              }}
+            >
+              Ghi chú:
+            </span>
+            {info && (
+              <span
+                style={{
+                  width: "calc(100% - 145px)",
+                }}
+              >
+                {info.moTa}
+              </span>
+            )}
+          </Col>
+        </Row>
+      </Card>
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Danh sách chi tiết hạng mục kiểm tra"}
+      >
+        <Table
+          bordered
+          scroll={{ x: 1200, y: "55vh" }}
+          columns={columns}
+          components={components}
+          className="gx-table-responsive"
+          dataSource={reDataForTable(ListChiTiet)}
+          size="small"
+          rowClassName="editable-row"
+          pagination={false}
+          loading={loading}
+        />
       </Card>
       <ModalThemChiTiet
         openModal={ActiveModalThemChiTiet}

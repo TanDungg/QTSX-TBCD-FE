@@ -336,7 +336,6 @@ function KeHoachTong({ match, history, permission }) {
         };
       }),
     };
-    console.log(newData);
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(

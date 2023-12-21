@@ -52,9 +52,6 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
       getListThietBi();
       getListVatTu();
     }
-    return () => {
-      dispatch(fetchReset());
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
@@ -76,7 +73,13 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListTram(res.data);
+        const newData = res.data.map((data) => {
+          return {
+            ...data,
+            tram: `${data.maTram} - ${data.tenTram}`,
+          };
+        });
+        setListTram(newData);
       } else {
         setListTram([]);
       }
@@ -279,6 +282,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
     const newData = {
       ...data,
       tits_qtsx_CongDoan_Id: itemData.tram.tits_qtsx_CongDoan_Id,
+      tits_qtsx_Xuong_Id: itemData.tram.tits_qtsx_Xuong_Id,
       maTram: tram[0].maTram,
       tenTram: tram[0].tenTram,
       maThietBi: thietbi && thietbi[0].maThietBi,
@@ -332,7 +336,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
                 className="heading-select slt-search th-select-heading"
                 data={ListTram}
                 placeholder="Chọn trạm"
-                optionsvalue={["id", "tenTram"]}
+                optionsvalue={["id", "tram"]}
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp="name"

@@ -77,8 +77,6 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
         return data;
       });
       setDataView(newData);
-      setCheckDanger(false);
-      setMessageError(null);
       return false;
     }
   };
@@ -144,6 +142,9 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
         return data;
       });
       setDataView(newData);
+      setCheckDanger(false);
+      setDataLoi();
+      setMessageError(null);
       const reader = new FileReader();
       reader.onload = (e) => setFileAnh(e.target.result);
       reader.readAsDataURL(file);
@@ -472,12 +473,15 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
   };
 
   const handleSubmit = () => {
+    let hasError = false;
+
     const newData = dataView.map((dt) => {
-      if (!dt.hinhAnh) {
-        return Promise.resolve({
+      if (!dt.hinhAnh && !dt.thongSoKyThuat) {
+        hasError = true;
+        return {
           ...dt,
           ghiChuImport: "Vui lòng tải hình ảnh lên",
-        });
+        };
       } else if (!dt.thongSoKyThuat) {
         const formData = new FormData();
         formData.append("file", dt.hinhAnh);
@@ -494,8 +498,9 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
             ...dt,
             hinhAnh: data.path,
           }))
-          .catch(() => {
-            console.log("upload failed.");
+          .catch((error) => {
+            console.log("Tải lên thất bại.", error);
+            hasError = true;
             return dt;
           });
       } else {
@@ -516,12 +521,21 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
             thongSoKyThuat: data[0].path,
             hinhAnh: data[1].path,
           }))
-          .catch(() => {
-            console.log("upload failed.");
+          .catch((error) => {
+            console.log("Tải lên thất bại.", error);
+            hasError = true;
             return dt;
           });
       }
     });
+
+    if (hasError) {
+      setDataView(newData);
+      setDataLoi(newData);
+      setCheckDanger(true);
+      setMessageError("Import sản phẩm không thành công");
+      return;
+    }
 
     Promise.all(newData)
       .then((data) => {
@@ -529,6 +543,7 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
           donVi_Id: INFO.donVi_Id,
           list_SanPhams: data,
         };
+
         new Promise((resolve, reject) => {
           dispatch(
             fetchStart(
@@ -620,6 +635,9 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
       if (check) {
         setCheckDanger(true);
         return "red-row";
+      } else {
+        setCheckDanger(false);
+        return "";
       }
     }
   };

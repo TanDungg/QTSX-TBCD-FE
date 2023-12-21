@@ -4,7 +4,7 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  PrinterOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -257,13 +257,13 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
           Tạo phiếu
         </Button>
         <Button
-          icon={<PrinterOutlined />}
+          icon={<DownloadOutlined />}
           className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
-          disabled={permission && !permission.add}
+          disabled={SelectPhieuXuat.length === 0}
         >
-          In phiếu
+          Xuất phiếu
         </Button>
       </>
     );

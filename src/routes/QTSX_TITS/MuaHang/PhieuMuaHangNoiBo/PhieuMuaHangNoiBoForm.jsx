@@ -643,7 +643,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       <ContainerHeader title={formTitle} back={goBack} />
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin đặt hàng"}
+        title={"Thông tin phiếu mua hàng nội bộ"}
       >
         <Form
           {...DEFAULT_FORM_TWO_COL}
@@ -1050,7 +1050,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       </Card>
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin vật tư"}
+        title={"Danh sách vật tư"}
       >
         {type !== "detail" && (
           <div align={"end"}>

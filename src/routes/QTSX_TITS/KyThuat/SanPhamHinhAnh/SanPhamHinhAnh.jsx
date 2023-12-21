@@ -14,7 +14,7 @@ import { BASE_URL_API } from "src/constants/Config";
 import ModalThemHinhAnh from "./ModalThemHinhAnh";
 import ModalSaoChep from "./ModalSaoChep";
 
-function SanPhamHinhAnh({ match, history, permission }) {
+function SanPhamHinhAnh({ history, permission }) {
   const { data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [ListSanPham, setListSanPham] = useState([]);
@@ -32,7 +32,7 @@ function SanPhamHinhAnh({ match, history, permission }) {
 
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ActiveModalSaoChep, ActiveModalThemHinhAnh]);
+  }, []);
 
   /**
    * Lấy dữ liệu về
@@ -63,9 +63,9 @@ function SanPhamHinhAnh({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListSanPham(res.data);
-          getListData(res.data[0].id);
           setSanPham(res.data[0].id);
+          getListData(res.data[0].id);
+          setListSanPham(res.data);
         } else {
           setListSanPham([]);
         }
@@ -265,7 +265,7 @@ function SanPhamHinhAnh({ match, history, permission }) {
                                       style={{
                                         borderRadius: 15,
                                         border: "1px solid #c8c8c8",
-                                        padding: 10,
+                                        padding: 5,
                                       }}
                                       src={BASE_URL_API + hinhanh.hinhAnh}
                                     />

@@ -97,7 +97,7 @@ function ModalThemHinhAnh({ openModalFS, openModal, itemData, refesh }) {
     <AntModal
       title="Thêm mới hình ảnh sản phẩm"
       open={openModal}
-      width={`80%`}
+      width={`60%`}
       closable={true}
       onCancel={handleCancel}
       footer={null}

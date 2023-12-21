@@ -256,52 +256,6 @@ function NhapKhoVatTu({ match, history, permission }) {
     });
   };
 
-  const handlePrint = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuNhapKhoVatTu/${selectedDevice[0].id}?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const newData = {
-            ...res.data,
-            lstpnkvtct:
-              res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu),
-          };
-          new Promise((resolve, reject) => {
-            dispatch(
-              fetchStart(
-                `tits_qtsx_PhieuNhapKhoVatTu/export-pdf-nhap-kho`,
-                "POST",
-                newData,
-                "",
-                "",
-                resolve,
-                reject
-              )
-            );
-          }).then((res) => {
-            exportPDF("PhieuNhapKhoVatTu", res.data.datapdf);
-            setSelectedDevice([]);
-            setSelectedKeys([]);
-          });
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
   const handleXuatExcel = () => {
     const params = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id,
