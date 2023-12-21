@@ -48,7 +48,7 @@ function InMaQr() {
                 }}
               >
                 <QRCode
-                  value={d && d.soKhungNoiBo}
+                  value={d && d.maNoiBo}
                   style={{ width: 65, height: 65, marginBottom: 2 }}
                 />
                 {/* <span style={{ fontSize: 9, fontWeight: "bold" }}>
@@ -73,17 +73,17 @@ function InMaQr() {
                     marginBottom: 2,
                   }}
                 >
-                  {d && d.tenSanPham}
+                  {d && d.maNoiBo}
                 </span>
-                {/* <span
+                <span
                   style={{
                     fontSize: 8,
                     fontWeight: "bold",
                     textTransform: "uppercase",
                   }}
                 >
-                  {d && d.tenVatTu}
-                </span> */}
+                  {d && d.tenSoLo}
+                </span>
               </div>
             </Col>
           );

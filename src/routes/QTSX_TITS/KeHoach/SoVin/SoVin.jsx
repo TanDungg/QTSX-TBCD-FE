@@ -1,9 +1,4 @@
-import {
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Divider, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
@@ -25,7 +20,7 @@ import ChiTietSoLo from "./ChiTietSoLo";
 const { EditableRow, EditableCell } = EditableTableRow;
 function SoVin({ match, permission, history }) {
   const dispatch = useDispatch();
-  const { width, data, loading } = useSelector(({ common }) => common).toJS();
+  const { data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const [DonHang, setDonHang] = useState("");

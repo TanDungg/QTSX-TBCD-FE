@@ -44,6 +44,7 @@ import {
 import moment from "moment";
 import Helpers from "src/helpers";
 import ModalHangMuc from "./ModalHangMuc";
+import ImageCanvas from "src/components/Common/ImageCanvas";
 const FormItem = Form.Item;
 const { Panel } = Collapse;
 function QuanLyChecksheetsForm({ match, permission, history }) {
@@ -61,6 +62,8 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
   const [ListCongDoan, setListCongDoan] = useState([]);
   const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
   const [ListHangMucKiemTra, setListHangMucKiemTra] = useState([]);
+  const [ListHinhAnh, setListHinhAnh] = useState([]);
+
   const [DataModal, setDataModal] = useState({
     tits_qtsx_LoaiSanPham_Id: "",
     tits_qtsx_SanPham_Id: "",
@@ -427,6 +430,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
               setFieldTouch(false);
               setDisableUpload(false);
               setListHangMucKiemTra([]);
+              setListHinhAnh([]);
               setDataModal({
                 tits_qtsx_LoaiSanPham_Id: "",
                 tits_qtsx_SanPham_Id: "",
@@ -925,39 +929,69 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
           </h4>
         </Col>
       </Row>
-      <Collapse
-        accordion
-        expandIcon={({ isActive }) => (
-          <CaretRightOutlined rotate={isActive ? 90 : 0} />
-        )}
-      >
-        {ListHangMucKiemTra.map((hm) => {
-          return (
-            <Panel
-              header={hm.tenHangMucKiemTra}
-              key={hm.tits_qtsx_HangMucKiemTra_Id}
-            >
-              {hm.list_HangMucKiemTraChiTiets.length > 0 && (
-                <Collapse
-                  accordion
-                  expandIcon={({ isActive }) => (
-                    <CaretRightOutlined rotate={isActive ? 90 : 0} />
-                  )}
-                >
-                  {hm.list_HangMucKiemTraChiTiets.map((cthm) => {
-                    return (
-                      <Panel
-                        header={cthm.tieuChuanDanhGia}
-                        key={cthm.id}
-                      ></Panel>
-                    );
-                  })}
-                </Collapse>
+      <Row>
+        {ListHangMucKiemTra.length > 0 && (
+          <Col span={12}>
+            <Collapse
+              accordion
+              expandIcon={({ isActive }) => (
+                <CaretRightOutlined rotate={isActive ? 90 : 0} />
               )}
-            </Panel>
-          );
-        })}
-      </Collapse>
+              onChange={(val) => {
+                ListHangMucKiemTra.forEach((hm) => {
+                  if (hm.tits_qtsx_HangMucKiemTra_Id === val) {
+                    setListHinhAnh(hm.list_HinhAnhs);
+                  }
+                });
+              }}
+            >
+              {ListHangMucKiemTra.map((hm) => {
+                return (
+                  <Panel
+                    header={hm.tenHangMucKiemTra}
+                    key={hm.tits_qtsx_HangMucKiemTra_Id}
+                  >
+                    {hm.list_HangMucKiemTraChiTiets.length > 0 && (
+                      <Collapse
+                        accordion
+                        expandIcon={({ isActive }) => (
+                          <CaretRightOutlined rotate={isActive ? 90 : 0} />
+                        )}
+                      >
+                        {hm.list_HangMucKiemTraChiTiets.map((cthm) => {
+                          return (
+                            <Panel
+                              header={cthm.tieuChuanDanhGia}
+                              key={cthm.id}
+                            ></Panel>
+                          );
+                        })}
+                      </Collapse>
+                    )}
+                  </Panel>
+                );
+              })}
+            </Collapse>
+          </Col>
+        )}
+        {ListHinhAnh.length > 0 && (
+          <Col span={12} align="center">
+            <Card>
+              {ListHinhAnh.map((ha) => {
+                return (
+                  <div style={{ border: "1px solid #333", marginBottom: 10 }}>
+                    <Image
+                      width={"100%"}
+                      height={300}
+                      src={BASE_URL_API + ha.hinhAnh}
+                    />
+                  </div>
+                );
+              })}
+            </Card>
+          </Col>
+        )}
+      </Row>
 
       {type === "new" || type === "edit" ? (
         <FormSubmit
