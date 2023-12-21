@@ -609,7 +609,6 @@ function PhieuKiemKe({ match, history, permission }) {
             preserveSelectedRowKeys: false,
             selectedRowKeys: SelectedKeys,
           }}
-          s
         />
       </Card>
     </div>

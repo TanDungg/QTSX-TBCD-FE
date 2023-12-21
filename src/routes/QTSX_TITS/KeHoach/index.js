@@ -180,6 +180,7 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(KhaiBaoSoContainerForm, menus, pathname, permission)}
       />
+
       {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
     </Switch>
   );
