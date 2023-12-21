@@ -1,9 +1,7 @@
 import { SaveOutlined } from "@ant-design/icons";
 import React, { useState, useEffect } from "react";
 import { Card, Row, Col, Button } from "antd";
-
 import { useDispatch } from "react-redux";
-
 import { Select, Tree } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -12,7 +10,6 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-
 function PhanQuyenTram({ permission, history }) {
   const dispatch = useDispatch();
   const [UserSelect, setUserSelect] = useState();
@@ -77,7 +74,8 @@ function PhanQuyenTram({ permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/get-list-kho-vat-tu-thanh-pham`,
+          `tits_qtsx_Mobile/get-list-tram-tree`,
+          // "tits_qtsx_Tram?page=-1",
           "GET",
           null,
           "DETAIL",
@@ -88,20 +86,46 @@ function PhanQuyenTram({ permission, history }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        setTreeData(
-          res.data.map((k) => {
-            return {
-              ...k,
-              name: k.tenCTKho + " - " + k.tenPhongBan,
-            };
-          })
-        );
+        // setTreeData(
+        //   res.data
+        //     .map((t) => {
+        //       return {
+        //         ...t,
+        //         name: t.tenXuong + " - " + t.tenChuyen + " - " + t.tenTram,
+        //       };
+        //     })
+        //     .sort(function (a, b) {
+        //       var tenXuongA = a.tenXuong.toUpperCase();
+        //       var tenXuongB = b.tenXuong.toUpperCase();
+
+        //       if (tenXuongA < tenXuongB) {
+        //         return -1;
+        //       }
+        //       if (tenXuongA > tenXuongB) {
+        //         return 1;
+        //       }
+        //       return 0;
+        //     })
+        //     .sort(function (a, b) {
+        //       var tenXuongA = a.tenChuyen.toUpperCase();
+        //       var tenXuongB = b.tenChuyen.toUpperCase();
+
+        //       if (tenXuongA < tenXuongB) {
+        //         return -1;
+        //       }
+        //       if (tenXuongA > tenXuongB) {
+        //         return 1;
+        //       }
+        //       return 0;
+        //     })
+        // );
+        setTreeData(res.data);
       }
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/get-list-phan-quyen-kho?user_Id=${id}`,
+          `tits_qtsx_Mobile/get-list-phan-quyen-tram-nguoi-dung-web?nguoiDung_Id=${id}`,
           "GET",
           null,
           "DETAIL",
@@ -112,16 +136,14 @@ function PhanQuyenTram({ permission, history }) {
       );
     }).then((res) => {
       if (res && res.data.length > 0) {
-        setExpandedKeys(
-          res.data.map((q) => {
-            return q.Kho_Id;
-          })
-        );
-        setDonViRole(
-          res.data.map((q) => {
-            return q.Kho_Id;
-          })
-        );
+        const expandedkey = [];
+        const tram = [];
+        res.data.forEach((q) => {
+          expandedkey.push(q.tits_qtsx_Xuong_Id, q.tits_qtsx_Chuyen_Id);
+          tram.push(q.tits_qtsx_Tram_Id);
+        });
+        setExpandedKeys(expandedkey);
+        setDonViRole(tram);
       } else {
         setDonViRole(null);
       }
@@ -144,13 +166,13 @@ function PhanQuyenTram({ permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/post-phan-quyen-kho-user`,
+          `tits_qtsx_Mobile/post-phan-quyen-tram-nguoi-dung`,
           "POST",
           {
-            user_Id: user,
-            list_Khos: donViRole.map((k) => {
+            nguoiDung_Id: user,
+            list_Trams: donViRole.map((k) => {
               return {
-                kho_Id: k,
+                tits_qtsx_Tram_Id: k,
               };
             }),
           },
@@ -232,12 +254,11 @@ function PhanQuyenTram({ permission, history }) {
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Tree
             checkable
+            height={"60vh"}
             treeData={treeData}
-            // autoExpandParent={true}
             options={["id", "name", "children"]}
             onCheck={onCheck}
             onExpand={onExpand}
-            height={"60vh"}
             expandedKeys={expandedKeys}
             checkedKeys={donViRole}
             selectable={false}

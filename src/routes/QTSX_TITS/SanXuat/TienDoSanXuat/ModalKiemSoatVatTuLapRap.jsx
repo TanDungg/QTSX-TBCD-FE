@@ -1,19 +1,18 @@
-import { Modal as AntModal, Form, Row, Button, Card, Col, Switch } from "antd";
+import { SaveOutlined } from "@ant-design/icons";
+import { Modal as AntModal, Form, Row, Input, Col, Button } from "antd";
 import { map } from "lodash";
-import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { Table, EditableTableRow } from "src/components/Common";
-import { DEFAULT_FORM_CONGDOAN } from "src/constants/Config";
+import { Table, EditableTableRow, Modal } from "src/components/Common";
+import Helpers from "src/helpers";
 import {
   convertObjectToUrlParams,
-  getDateNow,
   getLocalStorage,
   getTokenInfo,
+  reDataForTable,
 } from "src/util/Common";
 
-const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function ModalKiemSoatVatTuLapRap({ openModalFS, openModal, info }) {
@@ -47,7 +46,7 @@ function ModalKiemSoatVatTuLapRap({ openModalFS, openModal, info }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_QuyTrinhSanXuat/list-vat-tu-kiem-soat-theo-tram?${param}`,
+          `tits_qtsx_TienDoSanXuat/theo-doi-vat-tu-lap-rap?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -58,60 +57,86 @@ function ModalKiemSoatVatTuLapRap({ openModalFS, openModal, info }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListVatTuKiemSoat(res.data);
+        setListVatTuKiemSoat(
+          res.data.list_VatTus &&
+            reDataForTable(JSON.parse(res.data.list_VatTus))
+        );
+        info.tenTram = res.data.tenTram;
       } else {
         setListVatTuKiemSoat([]);
       }
     });
   };
 
-  //   const getListXuong = (congDoan_Id) => {
-  //     const param = convertObjectToUrlParams({
-  //       congDoan_Id,
-  //     });
-  //     new Promise((resolve, reject) => {
-  //       dispatch(
-  //         fetchStart(
-  //           `tits_qtsx_Xuong?${param}&page=-1`,
-  //           "GET",
-  //           null,
-  //           "DETAIL",
-  //           "",
-  //           resolve,
-  //           reject
-  //         )
-  //       );
-  //     }).then((res) => {
-  //       if (res && res.data) {
-  //         setListXuong(res.data);
-  //       } else {
-  //         setListXuong([]);
-  //       }
-  //     });
-  //   };
+  const onSave = () => {
+    let check = false;
+    ListVatTuKiemSoat.forEach((vt) => {
+      if (!vt.soSerial) {
+        check = true;
+      }
+    });
+    if (!check) {
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `tits_qtsx_TienDoSanXuat/theo-doi-vat-tu-lap-rap/${info.tits_qtsx_TienDoSanXuat_Id}`,
+            "PUT",
+            {
+              tits_qtsx_TienDoSanXuat_Id: info.tits_qtsx_TienDoSanXuat_Id,
+              list_VatTus: ListVatTuKiemSoat,
+            },
+            "DETAIL",
+            "",
+            resolve,
+            reject
+          )
+        );
+      }).then((res) => {
+        if (res && res.status === 200) {
+          Helpers.alertSuccessMessage("Đã lưu thành công!!");
+          resetFields();
+          openModalFS(false);
+        }
+      });
+    } else {
+      Helpers.alertWarning("Chưa nhập đủ số Serial cho vật tư");
+    }
+  };
+  const modalXacNhan = (ham, title) => {
+    Modal({
+      type: "confirm",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
+      title: `Xác nhận ${title}`,
+      onOk: ham,
+    });
+  };
+  const changeGhiChu = (val, item, key) => {
+    const ghiChu = val.target.value;
+    const newData = [...ListVatTuKiemSoat];
+    newData.forEach((sp, index) => {
+      if (sp.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
+        sp[key] = ghiChu;
+      }
+    });
+    setListVatTuKiemSoat(newData);
+  };
 
-  //   const onFinish = (values) => {
-  //     const data = values.themcongdoan;
-  //     const congdoan = ListVatTuKiemSoat.filter(
-  //       (d) => d.id === data.tits_qtsx_CongDoan_Id
-  //     );
-  //     const xuong = ListXuong.filter((d) => d.id === data.tits_qtsx_Xuong_Id);
-  //     const newData = {
-  //       ...data,
-  //       tenCongDoan: congdoan[0].tenCongDoan,
-  //       maCongDoan: congdoan[0].maCongDoan,
-  //       tenXuong: xuong[0].tenXuong,
-  //       maXuong: xuong[0].maXuong,
-  //       list_Trams: [],
-  //     };
-  //     DataThemCongDoan(newData);
-  //     resetFields();
-  //     openModalFS(false);
-  //   };
-
-  //   const handleOnSelectCongDoan = (value) => {
-  //     getListXuong(value);
-  //   };
+  const renderGhiChu = (item, key) => {
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          value={item[key]}
+          onChange={(val) => changeGhiChu(val, item, key)}
+        />
+      </>
+    );
+  };
   let renderHead = [
     {
       title: "STT",
@@ -134,15 +159,15 @@ function ModalKiemSoatVatTuLapRap({ openModalFS, openModal, info }) {
     },
     {
       title: "Số Serial",
-      dataIndex: "soSerial",
+      render: (record) => renderGhiChu(record, "soSerial"),
       key: "soSerial",
       align: "center",
     },
     {
       title: "Ghi chú",
-      dataIndex: "ghiChu",
-      key: "ghiChu",
+      key: "moTa",
       align: "center",
+      render: (record) => renderGhiChu(record, "moTa"),
     },
   ];
 
@@ -176,7 +201,7 @@ function ModalKiemSoatVatTuLapRap({ openModalFS, openModal, info }) {
     <AntModal
       title="Theo dõi vật tư lắp ráp"
       open={openModal}
-      width={`70%`}
+      width={`80%`}
       closable={true}
       onCancel={handleCancel}
       footer={null}
@@ -184,24 +209,20 @@ function ModalKiemSoatVatTuLapRap({ openModalFS, openModal, info }) {
       <Row justify={"center"} style={{ marginBottom: 10 }}>
         <Col span={1}></Col>
         <Col span={13} style={{ marginBottom: 10 }}>
-          Trạm:{" "}
-          <span style={{ fontWeight: "bold" }}>
-            Xưởng Lắp ráp - Chuyền Final - Final 4
-          </span>
+          Trạm: <span style={{ fontWeight: "bold" }}>{info.tenTram}</span>
         </Col>
         <Col span={10} style={{ marginBottom: 10 }}>
           Thời gian vào trạm:{" "}
-          <span style={{ fontWeight: "bold" }}>
-            Thứ Hai, 18/12/2023, 18:10:16
-          </span>
+          <span style={{ fontWeight: "bold" }}>{info.thoiGianVaoTram}</span>
         </Col>
         <Col span={1}></Col>
         <Col span={13}>
-          Sản phẩm: <span style={{ fontWeight: "bold" }}>SMRM_40GN</span>
+          Sản phẩm:{" "}
+          <span style={{ fontWeight: "bold" }}> {info.tenSanPham}</span>
         </Col>
         <Col span={10}>
           Số khung nội bộ:{" "}
-          <span style={{ fontWeight: "bold" }}>VNSMRM00112222</span>
+          <span style={{ fontWeight: "bold" }}> {info.maNoiBo}</span>
         </Col>
       </Row>
       <Table
@@ -210,10 +231,22 @@ function ModalKiemSoatVatTuLapRap({ openModalFS, openModal, info }) {
         columns={columns}
         components={components}
         className="gx-table-responsive"
-        dataSource={[]}
+        dataSource={ListVatTuKiemSoat}
         size="small"
         pagination={false}
       />
+      <Row style={{ marginTop: 10 }}>
+        <Col span={24} align="center">
+          <Button
+            style={{ margin: 0 }}
+            icon={<SaveOutlined />}
+            onClick={() => modalXacNhan(onSave, "Lưu theo dõi vật tư lắp ráp")}
+            type="primary"
+          >
+            Lưu
+          </Button>
+        </Col>
+      </Row>
     </AntModal>
   );
 }

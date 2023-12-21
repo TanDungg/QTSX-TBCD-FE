@@ -690,10 +690,12 @@ function TienDoSanXuat({ match, history, permission }) {
         openModal={ActiveModalKiemSoatVatTu}
         openModalFS={setActiveModalKiemSoatVatTu}
         info={InfoSanPham}
+        tits_qtsx_Tram_Id={Tram}
       />
       <ModalKiemSoatChatLuong
         openModal={ActiveModalKiemSoatChatLuong}
         openModalFS={setActiveModalKiemSoatChatLuong}
+        info={InfoSanPham}
       />
     </div>
   );

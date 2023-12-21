@@ -16,7 +16,7 @@ import {
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ModalKiemSoatChatLuong({ openModalFS, openModal }) {
+function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
   const INFO = {
@@ -27,12 +27,12 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal }) {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { resetFields } = form;
-  const [ListCongDoan, setListCongDoan] = useState([]);
+  const [ListHangMucKiemTra, setListHangMucKiemTra] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
 
   useEffect(() => {
     if (openModal) {
-      //   getListCongDoan();
+      getHoSoChatLuong(info);
     }
     return () => {
       dispatch(fetchReset());
@@ -40,30 +40,30 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
-  //   const getListCongDoan = () => {
-  //     const param = convertObjectToUrlParams({
-  //       donVi_Id: INFO.donVi_Id,
-  //     });
-  //     new Promise((resolve, reject) => {
-  //       dispatch(
-  //         fetchStart(
-  //           `tits_qtsx_CongDoan?${param}&page=-1`,
-  //           "GET",
-  //           null,
-  //           "DETAIL",
-  //           "",
-  //           resolve,
-  //           reject
-  //         )
-  //       );
-  //     }).then((res) => {
-  //       if (res && res.data) {
-  //         setListCongDoan(res.data);
-  //       } else {
-  //         setListCongDoan([]);
-  //       }
-  //     });
-  //   };
+  const getHoSoChatLuong = (info) => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_SoLoChiTiet_Id: info.tits_qtsx_SoLoChiTiet_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_TienDoSanXuat/ho-so-kiem-soat-chat-luong?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListHangMucKiemTra(res.data.list_Trams);
+      } else {
+        setListHangMucKiemTra([]);
+      }
+    });
+  };
 
   //   const getListXuong = (congDoan_Id) => {
   //     const param = convertObjectToUrlParams({
@@ -92,7 +92,7 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal }) {
 
   //   const onFinish = (values) => {
   //     const data = values.themcongdoan;
-  //     const congdoan = ListCongDoan.filter(
+  //     const congdoan = ListHangMucKiemTra.filter(
   //       (d) => d.id === data.tits_qtsx_CongDoan_Id
   //     );
   //     const xuong = ListXuong.filter((d) => d.id === data.tits_qtsx_Xuong_Id);
@@ -207,32 +207,25 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal }) {
       <Row>
         <Col span={12}>
           <Row>
-            <Col span={24}>
-              <h5 style={{ fontWeight: "blod" }}>Kiểm tra đường keo</h5>
-              <Table
-                bordered
-                scroll={{ x: 800, y: "70vh" }}
-                columns={columns}
-                components={components}
-                className="gx-table-responsive"
-                dataSource={[]}
-                size="small"
-                pagination={false}
-              />
-            </Col>
-            <Col span={24} style={{ marginTop: 8 }}>
-              <h5 style={{ fontWeight: "blod" }}>Kiểm tra đường keo</h5>
-              <Table
-                bordered
-                scroll={{ x: 800, y: "70vh" }}
-                columns={columns}
-                components={components}
-                className="gx-table-responsive"
-                dataSource={[]}
-                size="small"
-                pagination={false}
-              />
-            </Col>
+            {ListHangMucKiemTra.length > 0 &&
+              ListHangMucKiemTra.map((hmkt) => {
+                return (
+                  <Col span={24}>
+                    <h3>Trạm: {hmkt.tenTram}</h3>
+                    <h5 style={{ fontWeight: "blod" }}>Kiểm tra đường keo</h5>
+                    <Table
+                      bordered
+                      scroll={{ x: 800, y: "70vh" }}
+                      columns={columns}
+                      components={components}
+                      className="gx-table-responsive"
+                      dataSource={[]}
+                      size="small"
+                      pagination={false}
+                    />
+                  </Col>
+                );
+              })}
           </Row>
         </Col>
         <Col span={12} align="center" style={{ position: "relative" }}>
