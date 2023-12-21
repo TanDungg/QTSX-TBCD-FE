@@ -16,7 +16,7 @@ import {
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ModalKiemSoatVatTuLapRap({ openModalFS, openModal }) {
+function ModalKiemSoatVatTuLapRap({ openModalFS, openModal, info }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
   const INFO = {
@@ -32,7 +32,7 @@ function ModalKiemSoatVatTuLapRap({ openModalFS, openModal }) {
 
   useEffect(() => {
     if (openModal) {
-      getListVatTuKiemSoat();
+      getListVatTuKiemSoat(info);
     }
     return () => {
       dispatch(fetchReset());
@@ -40,10 +40,9 @@ function ModalKiemSoatVatTuLapRap({ openModalFS, openModal }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
-  const getListVatTuKiemSoat = () => {
+  const getListVatTuKiemSoat = (info) => {
     const param = convertObjectToUrlParams({
-      tits_qtsx_QuyTrinhSanXuat_Id: INFO.donVi_Id,
-      tits_qtsx_Tram_Id: "",
+      tits_qtsx_TienDoSanXuat_Id: info.tits_qtsx_TienDoSanXuat_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(

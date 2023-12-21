@@ -72,7 +72,7 @@ function ModalEditSanPham({
         newData.maQuyTrinhSanXuat = qt.maQuyTrinhSanXuat;
       }
     });
-    editSanPham(newData, type);
+    editSanPham(newData, info ? type : "new");
     resetFields();
   };
 
