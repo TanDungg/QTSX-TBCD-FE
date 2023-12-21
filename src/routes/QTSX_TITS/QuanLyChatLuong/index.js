@@ -18,9 +18,6 @@ const HangMucKiemTraForm = asyncComponent(() =>
 const ChiTietHangMucKiemTra = asyncComponent(() =>
   import("./HangMucKiemTra/ChiTietHangMucKiemTra")
 );
-const ThemChiTietHMKTForm = asyncComponent(() =>
-  import("./HangMucKiemTra/ThemChiTietHMKTForm")
-);
 
 const QuanLyChecksheets = asyncComponent(() =>
   import("./QuanLyChecksheets/QuanLyChecksheets")
@@ -81,16 +78,6 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/hang-muc-kiem-tra/:id/chi-tiet`}
         exact
         component={Auth(ChiTietHangMucKiemTra, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/hang-muc-kiem-tra/:id/chi-tiet/them-moi`}
-        exact
-        component={Auth(ThemChiTietHMKTForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/hang-muc-kiem-tra/:id/chi-tiet/:idchitiet/chinh-sua`}
-        exact
-        component={Auth(ThemChiTietHMKTForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/ql-checksheets`}

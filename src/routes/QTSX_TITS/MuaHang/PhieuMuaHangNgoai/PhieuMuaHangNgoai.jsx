@@ -4,8 +4,8 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  PrinterOutlined,
   CheckCircleOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -24,7 +24,7 @@ import {
   getLocalStorage,
   getTokenInfo,
   removeDuplicates,
-  exportPDF,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -208,7 +208,7 @@ function DeNghiMuaHang({ match, history, permission }) {
     });
   };
 
-  const handlePrint = () => {
+  const handleXuatExcel = () => {
     const params = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id,
     });
@@ -229,12 +229,14 @@ function DeNghiMuaHang({ match, history, permission }) {
         if (res && res.data) {
           const newData = {
             ...res.data,
-            lstpdncvtct: JSON.parse(res.data.chiTietVatTu),
+            tits_qtsx_PhieuMuaHangNgoaiChiTiets: JSON.parse(
+              res.data.tits_qtsx_PhieuMuaHangNgoaiChiTiets
+            ),
           };
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `tits_qtsx_PhieuMuaHangNgoai/export-pdf`,
+                `tits_qtsx_PhieuMuaHangNgoai/export-file-mua-hang-ngoai`,
                 "POST",
                 newData,
                 "",
@@ -244,9 +246,7 @@ function DeNghiMuaHang({ match, history, permission }) {
               )
             );
           }).then((res) => {
-            exportPDF("PhieuDeNghiMuaHang", res.data.datapdf);
-            setSelectedMuaHangNgoai([]);
-            setSelectedKeys([]);
+            exportExcel("PhieuDeNghiMuaHang", res.data.dataexcel);
           });
         }
       })
@@ -266,13 +266,13 @@ function DeNghiMuaHang({ match, history, permission }) {
           Tạo phiếu
         </Button>
         <Button
-          icon={<PrinterOutlined />}
+          icon={<DownloadOutlined />}
           className="th-margin-bottom-0"
           type="primary"
-          onClick={handlePrint}
+          onClick={handleXuatExcel}
           disabled={SelectedMuaHangNgoai.length === 0}
         >
-          In phiếu
+          Xuất phiếu
         </Button>
       </>
     );

@@ -766,7 +766,7 @@ function HangMucKiemTraForm({ match, permission, history }) {
                                         style={{
                                           borderRadius: 15,
                                           border: "1px solid #c8c8c8",
-                                          padding: 8,
+                                          padding: 5,
                                         }}
                                         src={BASE_URL_API + hinhanh.hinhAnh}
                                       />
@@ -854,7 +854,7 @@ function HangMucKiemTraForm({ match, permission, history }) {
                               style={{
                                 borderRadius: 15,
                                 border: "1px solid #c8c8c8",
-                                padding: 8,
+                                padding: 5,
                               }}
                               src={BASE_URL_API + hinhanh.hinhAnh}
                             />

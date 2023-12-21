@@ -30,6 +30,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import Helpers from "src/helpers";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -467,7 +468,12 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
         SelectedKeys.length > 0
           ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
           : [...selectedRowKeys];
-
+      // if (row.length && row[0].tinhTrang.startsWith("Bị hủy")) {
+      //   Helpers.alertError("Không được chọn phiếu đã hủy");
+      // } else {
+      //   setSelectedDNCVT(row);
+      //   setSelectedKeys(key);
+      // }
       setSelectedDNCVT(row);
       setSelectedKeys(key);
     },

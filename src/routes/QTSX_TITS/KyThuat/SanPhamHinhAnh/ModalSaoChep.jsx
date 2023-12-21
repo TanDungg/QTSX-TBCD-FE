@@ -24,11 +24,7 @@ function ModalSaoChep({ openModalFS, openModal, itemData, refesh }) {
     if (openModal) {
       getListSanPham();
     }
-    return () => {
-      dispatch(fetchReset());
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openModal]);
+  }, []);
 
   const getListSanPham = () => {
     new Promise((resolve, reject) => {
@@ -82,6 +78,7 @@ function ModalSaoChep({ openModalFS, openModal, itemData, refesh }) {
         if (res && res.status !== 409) {
           openModalFS(false);
           resetFields();
+          refesh();
         }
       })
       .catch((error) => console.error(error));
@@ -100,6 +97,7 @@ function ModalSaoChep({ openModalFS, openModal, itemData, refesh }) {
   const handleCancel = () => {
     openModalFS(false);
     resetFields();
+    refesh();
   };
 
   return (

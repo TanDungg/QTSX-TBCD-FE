@@ -1,26 +1,9 @@
-import { MinusCircleOutlined, PlusCircleOutlined } from "@ant-design/icons";
-import {
-  Modal as AntModal,
-  Card,
-  Input,
-  Row,
-  Col,
-  Form,
-  Switch,
-  Image,
-  Empty,
-  Divider,
-  Tag,
-} from "antd";
+import { Modal as AntModal, Card, Input, Row, Col, Form, Tag } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { FormSubmit, Select } from "src/components/Common";
-import {
-  BASE_URL_API,
-  DEFAULT_FORM_XUATKHONGOAIQUAN,
-} from "src/constants/Config";
-import Helpers from "src/helpers";
+import { DEFAULT_FORM_XUATKHONGOAIQUAN } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getLocalStorage,
@@ -44,33 +27,21 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
   const [ListDonVi, setListDonVi] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
   const [ListTram, setListTram] = useState([]);
-  const [ListHinhAnh, setListHinhAnh] = useState([]);
-  const [ListHinhAnhDaChon, setListHinhAnhDaChon] = useState([]);
 
   useEffect(() => {
     if (openModal) {
       if (itemData.loai === "new") {
         getListDonVi();
         getListXuong();
-        getCongDoan(
-          itemData.tits_qtsx_SanPham_Id,
-          itemData.tits_qtsx_CongDoan_Id
-        );
         setFieldsValue({
           themchitiet: {
             donVi_Id: INFO.donVi_Id.toLowerCase(),
-            maSoCha: itemData.maSo,
-            isNhapKetQua: true,
           },
         });
       } else if (itemData.loai === "edit") {
         getListDonVi();
         getListXuong();
         getListTram(itemData.tits_qtsx_Xuong_Id);
-        getCongDoan(
-          itemData.tits_qtsx_SanPham_Id,
-          itemData.tits_qtsx_CongDoan_Id
-        );
         setFieldsValue({
           themchitiet: {
             ...itemData,
@@ -78,9 +49,6 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
         });
       }
     }
-    return () => {
-      dispatch(fetchReset());
-    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
@@ -147,70 +115,6 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
       .catch((error) => console.error(error));
   };
 
-  const getCongDoan = (value, key, hinhanhdachon) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_SanPhamHinhAnh?tits_qtsx_SanPham_Id=${value}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const newListHinhAnh = res.data.filter(
-            (congdoan) =>
-              congdoan.tits_qtsx_CongDoan_Id.toLowerCase() === key.toLowerCase()
-          );
-          const hinhanh =
-            newListHinhAnh[0].list_KhuVucs &&
-            JSON.parse(newListHinhAnh[0].list_KhuVucs);
-
-          if (hinhanhdachon) {
-            const newHinhAnh = hinhanh.map((data) => {
-              const filteredHinhAnhs = data.list_HinhAnhs.filter((image) => {
-                return !hinhanhdachon.some(
-                  (selectedImage) =>
-                    selectedImage.tits_qtsx_SanPhamHinhAnh_Id.toLowerCase() ===
-                    image.tits_qtsx_SanPhamHinhAnh_Id.toLowerCase()
-                );
-              });
-              return {
-                ...data,
-                list_HinhAnhs: filteredHinhAnhs,
-              };
-            });
-            setListHinhAnh(newHinhAnh);
-
-            const newHinhAnhDaChon = hinhanhdachon.map((selectedImage) => {
-              const area = hinhanh.find((area) =>
-                area.list_HinhAnhs.some(
-                  (image) =>
-                    image.tits_qtsx_SanPhamHinhAnh_Id.toLowerCase() ===
-                    selectedImage.tits_qtsx_SanPhamHinhAnh_Id.toLowerCase()
-                )
-              );
-              return {
-                ...selectedImage,
-                tenKhuVuc: area.tenKhuVuc,
-              };
-            });
-            setListHinhAnhDaChon(newHinhAnhDaChon);
-          } else {
-            setListHinhAnh(hinhanh);
-          }
-        } else {
-          setListHinhAnh([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
   const onFinish = (values) => {
     saveData(values.themchitiet);
   };
@@ -230,148 +134,75 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
   };
 
   const saveData = (themchitiet, saveQuit = false) => {
-    if (
-      ListHinhAnhDaChon.length === 0 &&
-      itemData &&
-      itemData.isSuDungHinhAnh
-    ) {
-      setFieldTouch(false);
-      Helpers.alertError("Vui lòng chọn hình ảnh");
-    } else {
-      if (itemData.loai === "new") {
-        const newData = {
-          ...themchitiet,
-          tits_qtsx_HangMucKiemTra_Id: itemData.tits_qtsx_HangMucKiemTra_Id,
-          tits_qtsx_HangMucKiemTraChiTiet_Id: itemData.id,
-          isNhapKetQua:
-            themchitiet.isNhapKetQua === undefined
-              ? false
-              : themchitiet.isNhapKetQua,
-          list_HinhAnhs: ListHinhAnhDaChon,
-        };
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `tits_qtsx_HangMucKiemTra/chi-tiet`,
-              "POST",
-              newData,
-              "ADD",
-              "",
-              resolve,
-              reject
-            )
-          );
-        })
-          .then((res) => {
-            if (res && res.status !== 409) {
-              if (saveQuit) {
-                handleCancel();
-              } else {
-                resetFields();
-                setFieldTouch(false);
-                setListHinhAnh([]);
-                setListHinhAnhDaChon([]);
-                getListDonVi();
-                getListXuong();
-                getCongDoan(
-                  itemData.tits_qtsx_SanPham_Id,
-                  itemData.tits_qtsx_CongDoan_Id
-                );
-                setFieldsValue({
-                  themchitiet: {
-                    donVi_Id: INFO.donVi_Id.toLowerCase(),
-                    maSoCha: itemData.maSo,
-                    isNhapKetQua: true,
-                  },
-                });
-              }
-            }
-          })
-          .catch((error) => console.error(error));
-      }
-      if (itemData.loai === "edit") {
-        const newData = {
-          ...themchitiet,
-          id: itemData.id,
-          tits_qtsx_HangMucKiemTra_Id: itemData.tits_qtsx_HangMucKiemTra_Id,
-          isNhapKetQua:
-            themchitiet.isNhapKetQua === undefined
-              ? false
-              : themchitiet.isNhapKetQua,
-          list_HinhAnhs: ListHinhAnhDaChon,
-        };
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `tits_qtsx_HangMucKiemTra/hang-muc-kiem-tra-chi-tiet/${itemData.id}`,
-              "PUT",
-              newData,
-              "EDIT",
-              "",
-              resolve,
-              reject
-            )
-          );
-        })
-          .then((res) => {
-            if (res && res.status !== 409) {
-              handleCancel();
-            }
-          })
-          .catch((error) => console.log(error));
-      }
-    }
-  };
-
-  const handleThemHinhAnh = (item, khuvuc) => {
-    const newData = {
-      ...item,
-      tenKhuVuc: khuvuc.tenKhuVuc,
-    };
-    setListHinhAnhDaChon([...ListHinhAnhDaChon, newData]);
-
-    const newkhuvuc = ListHinhAnh.map((data) => {
-      if (data.tenKhuVuc === khuvuc.tenKhuVuc) {
-        const newhinhanh = data.list_HinhAnhs.filter(
-          (hinhanh) =>
-            hinhanh.tits_qtsx_SanPhamHinhAnh_Id.toLowerCase() !==
-            item.tits_qtsx_SanPhamHinhAnh_Id.toLowerCase()
+    if (itemData.loai === "new") {
+      const newData = {
+        ...themchitiet,
+        tits_qtsx_HangMucKiemTra_Id: itemData.tits_qtsx_HangMucKiemTra_Id,
+        tits_qtsx_HangMucKiemTraChiTiet_Id: itemData.id,
+      };
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `tits_qtsx_HangMucKiemTra/chi-tiet`,
+            "POST",
+            newData,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
         );
-        return {
-          ...data,
-          list_HinhAnhs: newhinhanh,
-        };
-      } else {
-        return data;
-      }
-    });
-    setListHinhAnh(newkhuvuc);
-    setFieldTouch(true);
-  };
-
-  const handleXoaHinhAnh = (item) => {
-    const newData = ListHinhAnhDaChon.filter(
-      (data) =>
-        data.tits_qtsx_SanPhamHinhAnh_Id !== item.tits_qtsx_SanPhamHinhAnh_Id
-    );
-    setListHinhAnhDaChon(newData);
-
-    const newkhuvuc = ListHinhAnh.map((data) => {
-      if (data.tenKhuVuc === item.tenKhuVuc) {
-        const newhinhanh = {
-          hinhAnh: item.hinhAnh,
-          tits_qtsx_SanPhamHinhAnh_Id: item.tits_qtsx_SanPhamHinhAnh_Id,
-        };
-        return {
-          ...data,
-          list_HinhAnhs: [...data.list_HinhAnhs, newhinhanh],
-        };
-      } else {
-        return data;
-      }
-    });
-    setListHinhAnh(newkhuvuc);
-    setFieldTouch(true);
+      })
+        .then((res) => {
+          if (res && res.status !== 409) {
+            if (saveQuit) {
+              handleCancel();
+            } else {
+              resetFields();
+              setFieldTouch(false);
+              getListDonVi();
+              getListXuong();
+              setFieldsValue({
+                themchitiet: {
+                  donVi_Id: INFO.donVi_Id.toLowerCase(),
+                },
+              });
+            }
+          }
+        })
+        .catch((error) => console.error(error));
+    }
+    if (itemData.loai === "edit") {
+      const newData = {
+        ...themchitiet,
+        id: itemData.id,
+      };
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `tits_qtsx_HangMucKiemTra/hang-muc-kiem-tra-chi-tiet/${itemData.id}`,
+            "PUT",
+            newData,
+            "EDIT",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (res && res.status !== 409) {
+            if (saveQuit) {
+              handleCancel();
+            } else {
+              setFieldTouch(false);
+              getListDonVi();
+              getListXuong();
+            }
+          }
+        })
+        .catch((error) => console.log(error));
+    }
   };
 
   const handleSelectXuong = (value) => {
@@ -388,7 +219,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
       <span>
         Thêm mới chi tiết hạng mục kiểm tra{" "}
         <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
-          {itemData && itemData.maSo}
+          {itemData && itemData.tenHangMucKiemTra}
         </Tag>
       </span>
     ) : (
@@ -439,15 +270,15 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Hạng mục kiểm tra cha"
-                  name={["themchitiet", "maSoCha"]}
+                  label="Mã số"
+                  name={["themchitiet", "maSo"]}
                   rules={[
                     {
                       type: "string",
                     },
                   ]}
                 >
-                  <Input className="input-item" disabled />
+                  <Input className="input-item" placeholder="Nhập mã số" />
                 </FormItem>
               </Col>
               <Col
@@ -460,15 +291,88 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Mã số"
-                  name={["themchitiet", "maSo"]}
+                  label="Nhà máy"
+                  name={["themchitiet", "donVi_Id"]}
                   rules={[
                     {
+                      required: true,
                       type: "string",
                     },
                   ]}
                 >
-                  <Input className="input-item" placeholder="Nhập mã số" />
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListDonVi ? ListDonVi : []}
+                    optionsvalue={["id", "tenDonVi"]}
+                    style={{ width: "100%" }}
+                    placeholder="Chọn đơn vị nhà máy"
+                    showSearch
+                    optionFilterProp={"name"}
+                    disabled={true}
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Xưởng"
+                  name={["themchitiet", "tits_qtsx_Xuong_Id"]}
+                  rules={[
+                    {
+                      required: true,
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListXuong ? ListXuong : []}
+                    placeholder="Chọn xưởng"
+                    optionsvalue={["id", "tenXuong"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    optionFilterProp="name"
+                    onSelect={handleSelectXuong}
+                    disabled={itemData.loai === "new" ? false : true}
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Trạm"
+                  name={["themchitiet", "tits_qtsx_Tram_Id"]}
+                  rules={[
+                    {
+                      required: true,
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListTram ? ListTram : []}
+                    placeholder="Chọn trạm"
+                    optionsvalue={["id", "tenTram"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    optionFilterProp="name"
+                    disabled={itemData.loai === "new" ? false : true}
+                  />
                 </FormItem>
               </Col>
               <Col
@@ -634,117 +538,6 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
                   </FormItem>
                 </Col>
               )}
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Nhà máy"
-                  name={["themchitiet", "donVi_Id"]}
-                  rules={[
-                    {
-                      required: true,
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListDonVi ? ListDonVi : []}
-                    optionsvalue={["id", "tenDonVi"]}
-                    style={{ width: "100%" }}
-                    placeholder="Chọn đơn vị nhà máy"
-                    showSearch
-                    optionFilterProp={"name"}
-                    disabled={true}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Xưởng"
-                  name={["themchitiet", "tits_qtsx_Xuong_Id"]}
-                  rules={[
-                    {
-                      required: true,
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListXuong ? ListXuong : []}
-                    placeholder="Chọn xưởng"
-                    optionsvalue={["id", "tenXuong"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp="name"
-                    onSelect={handleSelectXuong}
-                    disabled={itemData.loai === "new" ? false : true}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Trạm"
-                  name={["themchitiet", "tits_qtsx_Tram_Id"]}
-                  rules={[
-                    {
-                      required: true,
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListTram ? ListTram : []}
-                    placeholder="Chọn trạm"
-                    optionsvalue={["id", "tenTram"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp="name"
-                    disabled={itemData.loai === "new" ? false : true}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Nhập kết quả"
-                  name={["themchitiet", "isNhapKetQua"]}
-                  valuePropName="checked"
-                >
-                  <Switch />
-                </FormItem>
-              </Col>
             </Row>
             <FormSubmit
               goBack={handleCancel}

@@ -262,7 +262,6 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       .then((res) => {
         if (res && res.data) {
           const data = res.data;
-          console.log(data);
           getListSanPham();
           getUserKy(INFO.donVi_Id);
           setInfo(data);
@@ -333,7 +332,9 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
 
   const deleteItemAction = (item) => {
     const newData = ListCongDoan.filter(
-      (d) => d.tits_qtsx_CongDoan_Id !== item.tits_qtsx_CongDoan_Id
+      (d) =>
+        d.tits_qtsx_CongDoan_Id !== item.tits_qtsx_CongDoan_Id ||
+        d.tits_qtsx_Xuong_Id !== item.tits_qtsx_Xuong_Id
     );
     setListCongDoan(newData);
   };
@@ -379,9 +380,12 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...ListCongDoan];
-    newData.forEach((ct, index) => {
-      if (ct.tits_qtsx_CongDoan_Id === item.tits_qtsx_CongDoan_Id) {
-        ct.thuTu = ThuTu;
+    newData.forEach((cd, index) => {
+      if (
+        cd.tits_qtsx_CongDoan_Id === item.tits_qtsx_CongDoan_Id &&
+        cd.tits_qtsx_Xuong_Id === item.tits_qtsx_Xuong_Id
+      ) {
+        cd.thuTu = ThuTu;
       }
     });
     setListCongDoan(newData);
@@ -416,7 +420,10 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (ct.tits_qtsx_CongDoan_Id === item.tits_qtsx_CongDoan_Id) {
+      if (
+        ct.tits_qtsx_CongDoan_Id === item.tits_qtsx_CongDoan_Id &&
+        ct.tits_qtsx_Xuong_Id === item.tits_qtsx_Xuong_Id
+      ) {
         isEditing = true;
         message = ct.message;
       }
@@ -891,8 +898,12 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
   };
 
   const DataThemTram = (data) => {
+    console.log(data);
     const newData = ListCongDoan.map((list) => {
-      if (list.tits_qtsx_CongDoan_Id === data.tits_qtsx_CongDoan_Id) {
+      if (
+        list.tits_qtsx_CongDoan_Id === data.tits_qtsx_CongDoan_Id &&
+        list.tits_qtsx_Xuong_Id === data.tits_qtsx_Xuong_Id
+      ) {
         const tramExists = list.list_Trams.some(
           (d) => d.tits_qtsx_Tram_Id === data.tits_qtsx_Tram_Id
         );
@@ -973,7 +984,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       <ContainerHeader title={formTitle} back={goBack} />
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin quy trình"}
+        title={"Thông tin quy trình kiểm soát sản xuất"}
       >
         <Form
           {...DEFAULT_FORM_QTSX}
@@ -982,6 +993,17 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
+          {/* <Divider
+            orientation="left"
+            backgroundColor="none"
+            style={{
+              background: "none",
+              fontWeight: "bold",
+              marginBottom: "15px",
+            }}
+          >
+            Sản phẩm
+          </Divider> */}
           <Row>
             <Col
               xxl={12}
@@ -1119,7 +1141,17 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
               </FormItem>
             </Col>
           </Row>
-          <Divider style={{ marginBottom: 15 }} />
+          <Divider
+            orientation="left"
+            backgroundColor="none"
+            style={{
+              background: "none",
+              fontWeight: "bold",
+              marginBottom: "20px",
+            }}
+          >
+            Thông tin quy trình kiểm soát sản xuất
+          </Divider>
           <Row>
             <Col
               xxl={12}
@@ -1372,82 +1404,85 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
               </FormItem>
             </Col>
           </Row>
-          <Card
-            className="th-card-margin-bottom th-card-reset-margin"
-            title={"Công đoạn sản xuất"}
-          >
-            {(type === "new" || type === "edit") && (
-              <div align={"end"}>
-                <Button
-                  icon={<PlusCircleOutlined />}
-                  onClick={() => setActiveModalCongDoan(true)}
-                  type="primary"
-                  disabled={SanPham === null ? true : false}
-                >
-                  Thêm công đoạn
-                </Button>
-              </div>
-            )}
-            <Table
-              bordered
-              columns={columns}
-              scroll={{ x: 1000, y: "55vh" }}
-              components={components}
-              className="gx-table-responsive"
-              dataSource={reDataForTable(ListCongDoan)}
-              size="small"
-              rowClassName={"editable-row"}
-              pagination={false}
-              expandable={{
-                expandedRowRender: (record) => (
-                  <Table
-                    key={record.tits_qtsx_QuyTrinhSanXuat_Id}
-                    style={{
-                      marginBottom: "10px",
-                      marginLeft: "50px",
-                      width: "94%",
-                    }}
-                    bordered
-                    columns={colValuesTram}
-                    scroll={{ x: 500 }}
-                    components={components}
-                    className="gx-table-responsive th-F1D065-head"
-                    dataSource={reDataForTable(
-                      record.list_Trams && record.list_Trams
-                    )}
-                    size="small"
-                    rowClassName={"editable-row"}
-                    pagination={false}
-                  />
-                ),
-              }}
-            />
-          </Card>
-          {type === "new" || type === "edit" ? (
-            <FormSubmit
-              goBack={goBack}
-              saveAndClose={saveAndClose}
-              disabled={fieldTouch}
-            />
-          ) : null}
         </Form>
-        {type === "xacnhan" &&
-        info.tinhTrang === "Chưa duyệt" &&
-        info.nguoiDuyet_Id === INFO.user_Id ? (
-          <Row justify={"end"} style={{ marginTop: 15 }}>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="primary" onClick={modalXK}>
-                Xác nhận
-              </Button>
-            </Col>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
-                Từ chối
-              </Button>
-            </Col>
-          </Row>
-        ) : null}
       </Card>
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Danh sách công đoạn"}
+      >
+        {(type === "new" || type === "edit") && (
+          <div align={"end"}>
+            <Button
+              icon={<PlusCircleOutlined />}
+              onClick={() => setActiveModalCongDoan(true)}
+              type="primary"
+              disabled={SanPham === null ? true : false}
+            >
+              Thêm công đoạn
+            </Button>
+          </div>
+        )}
+        <Table
+          bordered
+          columns={columns}
+          scroll={{ x: 1000, y: "55vh" }}
+          components={components}
+          className="gx-table-responsive"
+          dataSource={reDataForTable(
+            ListCongDoan.slice().sort((a, b) => a.thuTu - b.thuTu)
+          )}
+          size="small"
+          rowClassName={"editable-row"}
+          pagination={false}
+          expandable={{
+            expandedRowRender: (record) => (
+              <Table
+                key={record.tits_qtsx_QuyTrinhSanXuat_Id}
+                style={{
+                  marginBottom: "10px",
+                  marginLeft: "50px",
+                  width: "94%",
+                }}
+                bordered
+                columns={colValuesTram}
+                scroll={{ x: 500 }}
+                components={components}
+                className="gx-table-responsive th-F1D065-head"
+                dataSource={reDataForTable(
+                  record.list_Trams &&
+                    record.list_Trams.slice().sort((a, b) => a.thuTu - b.thuTu)
+                )}
+                size="small"
+                rowClassName={"editable-row"}
+                pagination={false}
+              />
+            ),
+          }}
+        />
+      </Card>
+      {type === "new" || type === "edit" ? (
+        <FormSubmit
+          goBack={goBack}
+          saveAndClose={saveAndClose}
+          disabled={fieldTouch}
+        />
+      ) : null}
+      {type === "xacnhan" &&
+      info.tinhTrang === "Chưa duyệt" &&
+      info.nguoiDuyet_Id === INFO.user_Id ? (
+        <Row justify={"end"} style={{ marginTop: 15 }}>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="primary" onClick={modalXK}>
+              Xác nhận
+            </Button>
+          </Col>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
+              Từ chối
+            </Button>
+          </Col>
+        </Row>
+      ) : null}
       <ModalCongDoan
         openModal={ActiveModalCongDoan}
         openModalFS={setActiveModalCongDoan}
