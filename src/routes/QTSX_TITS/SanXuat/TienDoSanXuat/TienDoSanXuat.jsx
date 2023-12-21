@@ -40,6 +40,7 @@ import { BASE_URL_API } from "src/constants/Config";
 import ModalKiemSoatVatTuLapRap from "./ModalKiemSoatVatTuLapRap";
 import ModalKiemSoatChatLuong from "./ModalKiemSoatChatLuong";
 import { isEmpty } from "lodash";
+import ModalHoSoChatLuong from "./ModalHoSoChatLuong";
 const optionsDate = {
   weekday: "long", // Thứ
   year: "numeric", // Năm
@@ -74,9 +75,9 @@ function TienDoSanXuat({ match, history, permission }) {
   const [DisableVaoTram, setDisableVaoTram] = useState(true);
   const [ActiveModalKiemSoatVatTu, setActiveModalKiemSoatVatTu] =
     useState(false);
-  const [ActiveModalKiemSoatChatLuong, setActiveModalKiemSoatChatLuong] =
+  const [ActiveModalHoSoChatLuong, setActiveModalHoSoChatLuong] =
     useState(false);
-
+  const [ActiveKiemSoatChatLuong, setActiveKiemSoatChatLuong] = useState(false);
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentDateTime(new Date());
@@ -635,7 +636,7 @@ function TienDoSanXuat({ match, history, permission }) {
                     type="primary"
                     style={{ width: "80%" }}
                     // disabled={DisableVaoTram}
-                    onClick={() => setActiveModalKiemSoatChatLuong(true)}
+                    onClick={() => setActiveModalHoSoChatLuong(true)}
                   >
                     Xem hồ sơ chất lượng
                   </Button>
@@ -651,7 +652,7 @@ function TienDoSanXuat({ match, history, permission }) {
                     icon={<CheckSquareOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
-                    // disabled={DisableVaoTram}
+                    onClick={() => setActiveKiemSoatChatLuong(true)}
                   >
                     Kiểm soát chất lượng
                   </Button>
@@ -692,9 +693,14 @@ function TienDoSanXuat({ match, history, permission }) {
         info={InfoSanPham}
         tits_qtsx_Tram_Id={Tram}
       />
+      <ModalHoSoChatLuong
+        openModal={ActiveModalHoSoChatLuong}
+        openModalFS={setActiveModalHoSoChatLuong}
+        info={InfoSanPham}
+      />{" "}
       <ModalKiemSoatChatLuong
-        openModal={ActiveModalKiemSoatChatLuong}
-        openModalFS={setActiveModalKiemSoatChatLuong}
+        openModal={ActiveKiemSoatChatLuong}
+        openModalFS={setActiveKiemSoatChatLuong}
         info={InfoSanPham}
       />
     </div>

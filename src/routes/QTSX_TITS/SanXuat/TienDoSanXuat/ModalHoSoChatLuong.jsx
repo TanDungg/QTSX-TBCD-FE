@@ -1,12 +1,4 @@
-import {
-  Modal as AntModal,
-  Form,
-  Row,
-  Input,
-  Button,
-  Col,
-  Checkbox,
-} from "antd";
+import { Modal as AntModal, Form, Row, Button, Card, Col, Switch } from "antd";
 import { map } from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -14,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { Table, EditableTableRow } from "src/components/Common";
 import ImageCanvas from "src/components/Common/ImageCanvas";
-import { BASE_URL_API, DEFAULT_FORM_CONGDOAN } from "src/constants/Config";
+import { DEFAULT_FORM_CONGDOAN } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -25,7 +17,7 @@ import {
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
+function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
   const INFO = {
@@ -37,7 +29,7 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
   const [form] = Form.useForm();
   const { resetFields } = form;
   const [ListHangMucKiemTra, setListHangMucKiemTra] = useState([]);
-  const [ListHinhAnh, setListHinhAnh] = useState([]);
+  const [ListXuong, setListXuong] = useState([]);
 
   useEffect(() => {
     if (openModal) {
@@ -51,12 +43,12 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
 
   const getHoSoChatLuong = (info) => {
     const param = convertObjectToUrlParams({
-      tits_qtsx_TienDoSanXuat_Id: info.tits_qtsx_TienDoSanXuat_Id,
+      tits_qtsx_SoLoChiTiet_Id: info.tits_qtsx_SoLoChiTiet_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_TienDoSanXuat/kiem-soat-chat-luong-tai-tram?${param}`,
+          `tits_qtsx_TienDoSanXuat/ho-so-kiem-soat-chat-luong?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -67,12 +59,7 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListHangMucKiemTra(res.data.list_TDSXKiemSoatChatLuongs);
-        const newData = [];
-        res.data.list_TDSXKiemSoatChatLuongs.forEach((ct) => {
-          newData.push(...ct.list_HinhAnhs);
-        });
-        setListHinhAnh(newData);
+        setListHangMucKiemTra(res.data.list_Trams);
       } else {
         setListHangMucKiemTra([]);
       }
@@ -159,37 +146,6 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
       align: "center",
     },
   ];
-  const handleInputChange = (val, item) => {
-    const ketQua = val.target.value;
-    const newData = [...ListHangMucKiemTra];
-    newData.forEach((ct, index) => {
-      if (
-        ct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
-        item.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
-      ) {
-        ct.ketQua = ketQua;
-        ct.isDat = item.giaTriMin < ketQua < item.giaTriMax;
-      }
-    });
-    setListHangMucKiemTra(newData);
-  };
-
-  const rendersoLuong = (item) => {
-    return (
-      <>
-        <Input
-          style={{
-            textAlign: "center",
-            width: "100%",
-          }}
-          className={`input-item`}
-          type="number"
-          value={item.ketQua}
-          onChange={(val) => handleInputChange(val, item)}
-        />
-      </>
-    );
-  };
   let renderThongSo = [
     {
       title: "STT",
@@ -218,17 +174,15 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
     },
     {
       title: "Kết quả",
-      // dataIndex: "ketQua",
+      dataIndex: "ketQua",
       key: "ketQua",
       align: "center",
-      render: (val) => rendersoLuong(val),
     },
     {
       title: "Đánh giá",
       dataIndex: "isDat",
       key: "isDat",
       align: "center",
-      render: (val) => <Checkbox disabled={true} checked={val ? val : false} />,
     },
   ];
   const columns = map(renderThongSo, (col) => {
@@ -295,42 +249,50 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
               ListHangMucKiemTra.map((hmkt) => {
                 return (
                   <>
-                    <Col span={24} style={{ marginBottom: 10 }}>
-                      <span style={{ marginBottom: 10, display: "block" }}>
-                        Hạng mục kiểm tra:{" "}
-                        <span style={{ fontWeight: "bold" }}>
-                          {hmkt.tenHangMucKiemTra}
-                        </span>
-                      </span>
-                      <Table
-                        bordered
-                        scroll={{ x: 800, y: "70vh" }}
-                        columns={columns}
-                        components={components}
-                        className="gx-table-responsive"
-                        dataSource={reDataForTable(
-                          hmkt.list_TDSXKiemSoatChatLuongChiTiets
-                        )}
-                        size="small"
-                        pagination={false}
-                      />
+                    <Col span={24}>
+                      <h3 style={{ color: "#0469b9", fontWeight: "bold" }}>
+                        Trạm: {hmkt.tenTram}
+                      </h3>
                     </Col>
+                    {hmkt.list_TDSXKiemSoatChatLuongs.length > 0 &&
+                      hmkt.list_TDSXKiemSoatChatLuongs.map((ct) => {
+                        return (
+                          <Col span={24} style={{ marginBottom: 10 }}>
+                            <span
+                              style={{ marginBottom: 10, display: "block" }}
+                            >
+                              Hạng mục kiểm tra:{" "}
+                              <span style={{ fontWeight: "bold" }}>
+                                {ct.tenHangMucKiemTra}
+                              </span>
+                            </span>
+                            <Table
+                              bordered
+                              scroll={{ x: 800, y: "70vh" }}
+                              columns={columns}
+                              components={components}
+                              className="gx-table-responsive"
+                              dataSource={reDataForTable(
+                                ct.list_TDSXKiemSoatChatLuongChiTiets
+                              )}
+                              size="small"
+                              pagination={false}
+                            />
+                          </Col>
+                        );
+                      })}
                   </>
                 );
               })}
           </Row>
         </Col>
         <Col span={12} align="center" style={{ position: "relative" }}>
-          {ListHinhAnh.length > 0 &&
-            ListHinhAnh.map((ha) => {
-              return <ImageCanvas imageUrl={BASE_URL_API + ha.hinhAnh} />;
-            })}
-
-          {/* <ImageCanvas imageUrl={require("assets/images/smrm/smrm.png")} /> */}
+          <ImageCanvas imageUrl={require("assets/images/smrm/smrm.png")} />
+          <ImageCanvas imageUrl={require("assets/images/smrm/smrm.png")} />
         </Col>
       </Row>
     </AntModal>
   );
 }
 
-export default ModalKiemSoatChatLuong;
+export default ModalHoSoChatLuong;
