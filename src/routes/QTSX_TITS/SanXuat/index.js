@@ -24,6 +24,9 @@ const CauHinhKanBan = asyncComponent(() =>
 //In KanBan
 const InKanBan = asyncComponent(() => import("./InKanBan/InKanBan"));
 
+//Máy sản xuất
+const MaySanXuat = asyncComponent(() => import("./MaySanXuat/MaySanXuat"));
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -74,6 +77,13 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/in-kanban`}
         exact
         component={Auth(InKanBan, menus, pathname, permission)}
+      />
+
+      {/* Máy sản xuất */}
+      <Route
+        path={`${match.url}/may-san-xuat`}
+        exact
+        component={Auth(MaySanXuat, menus, pathname, permission)}
       />
     </Switch>
   );

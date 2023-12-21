@@ -18,28 +18,28 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function InKanBan({ match, history, permission }) {
+function MaySanXuat({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [Data, setData] = useState([]);
-  const [ListSanPham, setListSanPham] = useState([]);
-  const [SanPham, setSanPham] = useState(null);
-  const [ListChiTiet, setListChiTiet] = useState([]);
-  const [ChiTiet, setChiTiet] = useState(null);
   const [ListCongDoan, setListCongDoan] = useState([]);
   const [CongDoan, setCongDoan] = useState(null);
+  const [ListXuong, setListXuong] = useState([]);
+  const [Xuong, setXuong] = useState(null);
+  const [ListMaySanXuat, setListMaySanXuat] = useState([]);
+  const [MaySanXuat, setMaySanXuat] = useState(null);
   const [Ngay, setNgay] = useState(getDateNow());
   const [SelectedKanBan, setSelectedKanBan] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
-      getListSanPham();
-      getListChiTiet();
       getListCongDoan();
-      getListData(SanPham, ChiTiet, CongDoan, Ngay, page);
+      getListXuong();
+      getListMaySanXuat();
+      getListData(CongDoan, Xuong, MaySanXuat, Ngay, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -49,16 +49,16 @@ function InKanBan({ match, history, permission }) {
   }, []);
 
   const getListData = (
-    tits_qtsx_SanPham_Id,
-    tits_qtsx_ChiTiet_Id,
     tits_qtsx_CongDoan_Id,
+    tits_qtsx_Xuong_Id,
+    tits_qtsx_MaySanXuat_Id,
     ngay,
     page
   ) => {
     const param = convertObjectToUrlParams({
-      tits_qtsx_SanPham_Id,
-      tits_qtsx_ChiTiet_Id,
       tits_qtsx_CongDoan_Id,
+      tits_qtsx_Xuong_Id,
+      tits_qtsx_MaySanXuat_Id,
       ngay,
       page,
     });
@@ -80,60 +80,6 @@ function InKanBan({ match, history, permission }) {
           setData(res.data);
         } else {
           setData([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListSanPham = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_SanPham?page=-1`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListSanPham(res.data);
-        } else {
-          setListSanPham([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListChiTiet = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_ChiTiet?page=-1`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const newData = res.data.map((data) => {
-            return {
-              ...data,
-              chiTiet: `${data.tenChiTiet} (${data.tenSanPham})`,
-            };
-          });
-          setListChiTiet(newData);
-        } else {
-          setListChiTiet([]);
         }
       })
       .catch((error) => console.error(error));
@@ -167,9 +113,63 @@ function InKanBan({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
+  const getListXuong = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_Xuong?page=-1`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListXuong(res.data);
+        } else {
+          setListXuong([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListMaySanXuat = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_ChiTiet?page=-1`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newData = res.data.map((data) => {
+            return {
+              ...data,
+              chiTiet: `${data.tenChiTiet} (${data.tenSanPham})`,
+            };
+          });
+          setListMaySanXuat(newData);
+        } else {
+          setListMaySanXuat([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(SanPham, ChiTiet, CongDoan, Ngay, pagination);
+    getListData(CongDoan, Xuong, MaySanXuat, Ngay, pagination);
   };
 
   const { totalRow, pageSize } = Data;
@@ -334,39 +334,39 @@ function InKanBan({ match, history, permission }) {
     );
   };
 
-  const handleOnSelectSanPham = (value) => {
-    setSanPham(value);
-    getListData(value, ChiTiet, CongDoan, Ngay, 1);
-  };
-
-  const handleClearSanPham = () => {
-    setSanPham(null);
-    getListData(null, ChiTiet, CongDoan, Ngay, 1);
-  };
-
-  const handleOnSelectChiTiet = (value) => {
-    setChiTiet(value);
-    getListData(SanPham, value, CongDoan, Ngay, 1);
-  };
-
-  const handleClearChiTiet = () => {
-    setChiTiet(null);
-    getListData(SanPham, null, CongDoan, Ngay, 1);
-  };
-
   const handleOnSelectCongDoan = (value) => {
     setCongDoan(value);
-    getListData(SanPham, ChiTiet, value, Ngay, 1);
+    getListData(value, Xuong, MaySanXuat, Ngay, 1);
   };
 
   const handleClearCongDoan = () => {
     setCongDoan(null);
-    getListData(SanPham, ChiTiet, null, Ngay, 1);
+    getListData(null, Xuong, MaySanXuat, Ngay, 1);
+  };
+
+  const handleOnSelectXuong = (value) => {
+    setXuong(value);
+    getListData(CongDoan, value, MaySanXuat, Ngay, 1);
+  };
+
+  const handleClearXuong = () => {
+    setXuong(null);
+    getListData(CongDoan, null, MaySanXuat, Ngay, 1);
+  };
+
+  const handleOnSelectMaySanXuat = (value) => {
+    setMaySanXuat(value);
+    getListData(CongDoan, Xuong, value, Ngay, 1);
+  };
+
+  const handleClearMaySanXuat = () => {
+    setMaySanXuat(null);
+    getListData(CongDoan, Xuong, null, Ngay, 1);
   };
 
   const handleChangeNgay = (dateString) => {
     setNgay(dateString);
-    getListData(SanPham, CongDoan, dateString, 1);
+    getListData(CongDoan, Xuong, MaySanXuat, dateString, 1);
   };
 
   const rowSelection = {
@@ -392,64 +392,12 @@ function InKanBan({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="In KanBan"
-        description="In KanBan"
+        title="Máy sản xuất"
+        description="Máy sản xuất"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={20}
-            xs={24}
-            style={{
-              marginBottom: 8,
-            }}
-          >
-            <h5>Sản phẩm:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListSanPham ? ListSanPham : []}
-              placeholder="Chọn sản phẩm"
-              optionsvalue={["id", "tenSanPham"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleOnSelectSanPham}
-              allowClear
-              onClear={handleClearSanPham}
-              value={SanPham}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={20}
-            xs={24}
-            style={{
-              marginBottom: 8,
-            }}
-          >
-            <h5>Chi tiết:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListChiTiet ? ListChiTiet : []}
-              placeholder="Chọn chi tiết"
-              optionsvalue={["id", "chiTiet"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleOnSelectChiTiet}
-              allowClear
-              onClear={handleClearChiTiet}
-              value={ChiTiet}
-            />
-          </Col>
           <Col
             xxl={6}
             xl={8}
@@ -474,6 +422,58 @@ function InKanBan({ match, history, permission }) {
               allowClear
               onClear={handleClearCongDoan}
               value={CongDoan}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={20}
+            xs={24}
+            style={{
+              marginBottom: 8,
+            }}
+          >
+            <h5>Xưởng:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListXuong ? ListXuong : []}
+              placeholder="Chọn xưởng"
+              optionsvalue={["id", "tenXuong"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+              onSelect={handleOnSelectXuong}
+              allowClear
+              onClear={handleClearXuong}
+              value={Xuong}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={20}
+            xs={24}
+            style={{
+              marginBottom: 8,
+            }}
+          >
+            <h5>Máy sản xuất:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListMaySanXuat ? ListMaySanXuat : []}
+              placeholder="Chọn máy sản xuất"
+              optionsvalue={["id", "MaySanXuat"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+              onSelect={handleOnSelectMaySanXuat}
+              allowClear
+              onClear={handleClearMaySanXuat}
+              value={MaySanXuat}
             />
           </Col>
           <Col
@@ -528,4 +528,4 @@ function InKanBan({ match, history, permission }) {
   );
 }
 
-export default InKanBan;
+export default MaySanXuat;
