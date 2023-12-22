@@ -415,7 +415,6 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
                   rules={[
                     {
                       type: "string",
-                      required: true,
                     },
                   ]}
                 >
