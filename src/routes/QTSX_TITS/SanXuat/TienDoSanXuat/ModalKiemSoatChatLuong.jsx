@@ -13,15 +13,17 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { Table, EditableTableRow } from "src/components/Common";
-import ImageCanvas from "src/components/Common/ImageCanvas";
+import ImageDrawing from "src/routes/QTSX_TITS/SanXuat/TienDoSanXuat/ImageDrawing";
 import { BASE_URL_API, DEFAULT_FORM_CONGDOAN } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
+  newTreeToFlatlist,
   reDataForTable,
 } from "src/util/Common";
+import KiemSoatChatLuongTaiTramCanva from "./KiemSoatChatLuongTaiTramCanva";
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -75,6 +77,7 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
         setListHinhAnh(newData);
       } else {
         setListHangMucKiemTra([]);
+        setListHinhAnh([]);
       }
     });
   };
@@ -163,13 +166,16 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
     const ketQua = val.target.value;
     const newData = [...ListHangMucKiemTra];
     newData.forEach((ct, index) => {
-      if (
-        ct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
-        item.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
-      ) {
-        ct.ketQua = ketQua;
-        ct.isDat = item.giaTriMin < ketQua < item.giaTriMax;
-      }
+      ct.list_TDSXKiemSoatChatLuongChiTiets.forEach((clct) => {
+        if (
+          clct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
+          item.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
+        ) {
+          clct.ketQua = ketQua;
+          clct.isDat =
+            item.giaTriMin <= ketQua && ketQua <= item.giaTriMax ? true : false;
+        }
+      });
     });
     setListHangMucKiemTra(newData);
   };
@@ -256,10 +262,38 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
   const handleCancel = () => {
     openModalFS(false);
   };
+  const AddLoi = (data) => {
+    const newData = [...ListHangMucKiemTra];
+    newData.forEach((hm) => {
+      hm.list_TDSXKiemSoatChatLuongChiTiets.forEach((ct) => {
+        if (
+          ct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
+          data.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
+        ) {
+          ct.list_TDSXKiemSoatChatLuongChiTietLois = [
+            ...ct.list_TDSXKiemSoatChatLuongChiTietLois,
+            data,
+          ];
+        }
+      });
+      hm.list_HinhAnhs.forEach((ha) => {
+        if (
+          ha.tits_qtsx_SanPhamHinhAnh_Id === data.tits_qtsx_SanPhamHinhAnh_Id
+        ) {
+          if (ha.listViTri) {
+            ha.listViTri = [...ha.listViTri, data.viTri];
+          } else {
+            ha.listViTri = [data.viTri];
+          }
+        }
+      });
+    });
+    setListHangMucKiemTra(newData);
+  };
 
   return (
     <AntModal
-      title="Hồ sơ kiểm tra chất lượng"
+      title="Kiểm soát chất lượng"
       open={openModal}
       width={`95%`}
       closable={true}
@@ -269,66 +303,70 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
       <Row justify={"center"} style={{ marginBottom: 10 }}>
         <Col span={1}></Col>
         <Col span={13} style={{ marginBottom: 10 }}>
-          Trạm:{" "}
-          <span style={{ fontWeight: "bold" }}>
-            Xưởng Lắp ráp - Chuyền Final - Final 4
-          </span>
+          Trạm: <span style={{ fontWeight: "bold" }}>&nbsp;{info.tenTram}</span>
         </Col>
         <Col span={10} style={{ marginBottom: 10 }}>
           Thời gian vào trạm:{" "}
-          <span style={{ fontWeight: "bold" }}>{info.thoiGianVaoTram}</span>
+          <span style={{ fontWeight: "bold" }}>
+            &nbsp;{info.thoiGianVaoTram}
+          </span>
         </Col>
         <Col span={1}></Col>
         <Col span={13}>
           Sản phẩm:{" "}
-          <span style={{ fontWeight: "bold" }}>{info.tenSanPham}</span>
+          <span style={{ fontWeight: "bold" }}>&nbsp;{info.tenSanPham}</span>
         </Col>
         <Col span={10}>
           Số khung nội bộ:{" "}
-          <span style={{ fontWeight: "bold" }}>{info.maNoiBo}</span>
+          <span style={{ fontWeight: "bold" }}>&nbsp;{info.maNoiBo}</span>
         </Col>
       </Row>
-      <Row>
-        <Col span={12}>
-          <Row>
-            {ListHangMucKiemTra.length > 0 &&
-              ListHangMucKiemTra.map((hmkt) => {
-                return (
-                  <>
-                    <Col span={24} style={{ marginBottom: 10 }}>
-                      <span style={{ marginBottom: 10, display: "block" }}>
-                        Hạng mục kiểm tra:{" "}
-                        <span style={{ fontWeight: "bold" }}>
-                          {hmkt.tenHangMucKiemTra}
-                        </span>
+      {ListHangMucKiemTra.length > 0 &&
+        ListHangMucKiemTra.map((hmkt) => {
+          return (
+            <Row>
+              <Col span={12}>
+                <Row>
+                  <Col span={24} style={{ marginBottom: 10 }}>
+                    <span style={{ marginBottom: 10, display: "block" }}>
+                      Hạng mục kiểm tra:{" "}
+                      <span style={{ fontWeight: "bold" }}>
+                        {hmkt.tenHangMucKiemTra}
                       </span>
-                      <Table
-                        bordered
-                        scroll={{ x: 800, y: "70vh" }}
-                        columns={columns}
-                        components={components}
-                        className="gx-table-responsive"
-                        dataSource={reDataForTable(
-                          hmkt.list_TDSXKiemSoatChatLuongChiTiets
-                        )}
-                        size="small"
-                        pagination={false}
+                    </span>
+                    <Table
+                      bordered
+                      scroll={{ x: 800, y: "70vh" }}
+                      columns={columns}
+                      components={components}
+                      className="gx-table-responsive"
+                      dataSource={reDataForTable(
+                        hmkt.list_TDSXKiemSoatChatLuongChiTiets
+                      )}
+                      size="small"
+                      pagination={false}
+                    />
+                  </Col>
+                </Row>
+              </Col>
+              <Col span={12} align="center" style={{ position: "relative" }}>
+                {hmkt.list_HinhAnhs.length > 0 &&
+                  hmkt.list_HinhAnhs.map((ha) => {
+                    return (
+                      <ImageDrawing
+                        imageUrl={BASE_URL_API + ha.hinhAnh}
+                        hinhAnhId={ha.tits_qtsx_SanPhamHinhAnh_Id}
+                        dataNoiDung={hmkt}
+                        setListHangMucKiemTra={setListHangMucKiemTra}
+                        AddLoi={AddLoi}
+                        listViTri={ha.listViTri}
                       />
-                    </Col>
-                  </>
-                );
-              })}
-          </Row>
-        </Col>
-        <Col span={12} align="center" style={{ position: "relative" }}>
-          {ListHinhAnh.length > 0 &&
-            ListHinhAnh.map((ha) => {
-              return <ImageCanvas imageUrl={BASE_URL_API + ha.hinhAnh} />;
-            })}
-
-          {/* <ImageCanvas imageUrl={require("assets/images/smrm/smrm.png")} /> */}
-        </Col>
-      </Row>
+                    );
+                  })}
+              </Col>
+            </Row>
+          );
+        })}
     </AntModal>
   );
 }

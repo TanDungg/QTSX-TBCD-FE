@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { Table, EditableTableRow } from "src/components/Common";
-import ImageCanvas from "src/components/Common/ImageCanvas";
+import ImageCanvas from "src/routes/QTSX_TITS/SanXuat/TienDoSanXuat/ImageDrawing";
 import { DEFAULT_FORM_CONGDOAN } from "src/constants/Config";
 import {
   convertObjectToUrlParams,

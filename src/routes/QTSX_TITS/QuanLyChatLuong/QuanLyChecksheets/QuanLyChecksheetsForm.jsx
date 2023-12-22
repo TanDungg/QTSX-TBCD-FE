@@ -44,7 +44,7 @@ import {
 import moment from "moment";
 import Helpers from "src/helpers";
 import ModalHangMuc from "./ModalHangMuc";
-import ImageCanvas from "src/components/Common/ImageCanvas";
+import ImageCanvas from "src/routes/QTSX_TITS/SanXuat/TienDoSanXuat/ImageDrawing";
 const FormItem = Form.Item;
 const { Panel } = Collapse;
 function QuanLyChecksheetsForm({ match, permission, history }) {

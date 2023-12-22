@@ -252,6 +252,11 @@ function TienDoSanXuat({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
+          ListTram.forEach((t) => {
+            if (t.id === Tram) {
+              res.data.tenTram = t.tenTram;
+            }
+          });
           setInfoSanPham(res.data);
         } else {
           setInfoSanPham({});

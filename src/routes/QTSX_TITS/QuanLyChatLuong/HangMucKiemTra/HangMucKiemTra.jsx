@@ -235,7 +235,9 @@ function HangMucKiemTra({ match, history, permission }) {
       );
 
     const editItem =
-      permission && permission.edit && item.nguoiTao_Id === INFO.user_Id ? (
+      permission && permission.edit ? (
+        // &&
+        // item.nguoiTao_Id === INFO.user_Id
         <Link
           to={{
             pathname: `${match.url}/${item.tits_qtsx_HangMucKiemTra_Id}/chinh-sua`,
