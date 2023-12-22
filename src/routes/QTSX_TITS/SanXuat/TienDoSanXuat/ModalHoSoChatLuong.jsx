@@ -1,4 +1,14 @@
-import { Modal as AntModal, Form, Row, Button, Card, Col, Switch } from "antd";
+import {
+  Modal as AntModal,
+  Form,
+  Row,
+  Button,
+  Card,
+  Col,
+  Switch,
+  Checkbox,
+  Tag,
+} from "antd";
 import { map } from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -6,7 +16,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { Table, EditableTableRow } from "src/components/Common";
 import ImageCanvas from "src/routes/QTSX_TITS/SanXuat/TienDoSanXuat/ImageDrawing";
-import { DEFAULT_FORM_CONGDOAN } from "src/constants/Config";
+import { BASE_URL_API, DEFAULT_FORM_CONGDOAN } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -14,6 +24,7 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
+import ImageDrawing from "src/routes/QTSX_TITS/SanXuat/TienDoSanXuat/ImageDrawing";
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -183,6 +194,9 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
       dataIndex: "isDat",
       key: "isDat",
       align: "center",
+      render: (val) => (
+        <Tag color={val ? "green" : "red"}>{val ? "Đạt" : "Không đạt"} </Tag>
+      ),
     },
   ];
   const columns = map(renderThongSo, (col) => {
@@ -242,55 +256,62 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
           <span style={{ fontWeight: "bold" }}>{info.maNoiBo}</span>
         </Col>
       </Row>
-      <Row>
-        <Col span={12}>
-          <Row>
-            {ListHangMucKiemTra.length > 0 &&
-              ListHangMucKiemTra.map((hmkt) => {
-                return (
-                  <>
-                    <Col span={24}>
-                      <h3 style={{ color: "#0469b9", fontWeight: "bold" }}>
-                        Trạm: {hmkt.tenTram}
-                      </h3>
-                    </Col>
-                    {hmkt.list_TDSXKiemSoatChatLuongs.length > 0 &&
-                      hmkt.list_TDSXKiemSoatChatLuongs.map((ct) => {
-                        return (
-                          <Col span={24} style={{ marginBottom: 10 }}>
-                            <span
-                              style={{ marginBottom: 10, display: "block" }}
-                            >
-                              Hạng mục kiểm tra:{" "}
-                              <span style={{ fontWeight: "bold" }}>
-                                {ct.tenHangMucKiemTra}
-                              </span>
+      {ListHangMucKiemTra.length > 0 &&
+        ListHangMucKiemTra.map((hmkt) => {
+          return (
+            <Row>
+              <Col span={12}>
+                <Row>
+                  <Col span={24}>
+                    <h3 style={{ color: "#0469b9", fontWeight: "bold" }}>
+                      Trạm: {hmkt.tenTram}
+                    </h3>
+                  </Col>
+                  {hmkt.list_TDSXKiemSoatChatLuongs.length > 0 &&
+                    hmkt.list_TDSXKiemSoatChatLuongs.map((ct) => {
+                      return (
+                        <Col span={24} style={{ marginBottom: 10 }}>
+                          <span style={{ marginBottom: 10, display: "block" }}>
+                            Hạng mục kiểm tra:{" "}
+                            <span style={{ fontWeight: "bold" }}>
+                              {ct.tenHangMucKiemTra}
                             </span>
-                            <Table
-                              bordered
-                              scroll={{ x: 800, y: "70vh" }}
-                              columns={columns}
-                              components={components}
-                              className="gx-table-responsive"
-                              dataSource={reDataForTable(
-                                ct.list_TDSXKiemSoatChatLuongChiTiets
-                              )}
-                              size="small"
-                              pagination={false}
-                            />
-                          </Col>
-                        );
-                      })}
-                  </>
-                );
-              })}
-          </Row>
-        </Col>
-        <Col span={12} align="center" style={{ position: "relative" }}>
-          <ImageCanvas imageUrl={require("assets/images/smrm/smrm.png")} />
-          <ImageCanvas imageUrl={require("assets/images/smrm/smrm.png")} />
-        </Col>
-      </Row>
+                          </span>
+                          <Table
+                            bordered
+                            scroll={{ x: 800, y: "70vh" }}
+                            columns={columns}
+                            components={components}
+                            className="gx-table-responsive"
+                            dataSource={reDataForTable(
+                              ct.list_TDSXKiemSoatChatLuongChiTiets
+                            )}
+                            size="small"
+                            pagination={false}
+                          />
+                        </Col>
+                      );
+                    })}
+                </Row>
+              </Col>
+              {/* <Col span={12} align="center" style={{ position: "relative" }}>
+                {hmkt.list_HinhAnhs.length > 0 &&
+                  hmkt.list_HinhAnhs.map((ha) => {
+                    return (
+                      <ImageDrawing
+                        imageUrl={BASE_URL_API + ha.hinhAnh}
+                        hinhAnhId={ha.tits_qtsx_SanPhamHinhAnh_Id}
+                        dataNoiDung={hmkt}
+                        setListHangMucKiemTra={setListHangMucKiemTra}
+                        // AddLoi={AddLoi}
+                        // listViTri={ha.listViTri}
+                      />
+                    );
+                  })}
+              </Col> */}
+            </Row>
+          );
+        })}
     </AntModal>
   );
 }

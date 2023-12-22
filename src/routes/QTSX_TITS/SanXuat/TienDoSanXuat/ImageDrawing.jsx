@@ -31,6 +31,12 @@ const ImageDrawing = ({
           context.arc(toaDo.x, toaDo.y, 20, 0, 2 * Math.PI);
           context.fillStyle = "red";
           context.fill();
+          // Thêm chữ vào hình tròn
+          context.font = "14px Arial";
+          context.fillStyle = "white";
+          context.textAlign = "center";
+          context.textBaseline = "middle";
+          context.fillText(toaDo.maLoi, toaDo.x, toaDo.y);
         });
       }
       // Vẽ các hình tròn đã lưu

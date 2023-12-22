@@ -25,6 +25,7 @@ function ModalChamLoi({ openModalFS, openModal, ViTri, ThemLoi, ListNoiDung }) {
 
   useEffect(() => {
     if (openModal) {
+      resetFields();
       getLoi();
       setFieldsValue({
         chiTietLoi: { nguoiThucHien: getTokenInfo().fullName },
@@ -63,10 +64,19 @@ function ModalChamLoi({ openModalFS, openModal, ViTri, ThemLoi, ListNoiDung }) {
    * @param {*} values
    */
   const onFinish = (values) => {
+    ListLoi.forEach((l) => {
+      if (l.id === values.chiTietLoi.tits_qtsx_Loi_Id) {
+        values.chiTietLoi.maLoi = l.maLoi;
+      }
+    });
     ThemLoi({
       tits_qtsx_Loi_Id: values.chiTietLoi.tits_qtsx_Loi_Id,
       moTa: values.chiTietLoi.moTa,
-      viTri: JSON.stringify({ x: ViTri.x, y: ViTri.y }),
+      viTri: JSON.stringify({
+        x: ViTri.x,
+        y: ViTri.y,
+        maLoi: values.chiTietLoi.maLoi,
+      }),
       isBoQua: values.chiTietLoi.isBoQua,
       tits_qtsx_SanPhamHinhAnh_Id: ViTri.tits_qtsx_SanPhamHinhAnh_Id,
       tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id:

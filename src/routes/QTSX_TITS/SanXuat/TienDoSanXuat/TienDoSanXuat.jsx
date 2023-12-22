@@ -1,19 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Card,
-  Button,
-  Divider,
-  Col,
-  Row,
-  Upload,
-  Tag,
-  Input,
-  Empty,
-  List,
-  Badge,
-  Avatar,
-  Popconfirm,
-} from "antd";
+import { Card, Button, Col, Row, Input, List } from "antd";
 import {
   ReloadOutlined,
   SelectOutlined,
@@ -28,19 +14,14 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Modal, Select, Toolbar } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import {
-  convertObjectToUrlParams,
-  removeDuplicates,
-  getLocalStorage,
-  getTokenInfo,
-  setLocalStorage,
-} from "src/util/Common";
+import { convertObjectToUrlParams, setLocalStorage } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
 import ModalKiemSoatVatTuLapRap from "./ModalKiemSoatVatTuLapRap";
 import ModalKiemSoatChatLuong from "./ModalKiemSoatChatLuong";
 import { isEmpty } from "lodash";
 import ModalHoSoChatLuong from "./ModalHoSoChatLuong";
+import Helpers from "src/helpers";
 const optionsDate = {
   weekday: "long", // Thứ
   year: "numeric", // Năm
@@ -57,11 +38,6 @@ const optionsTime = {
 function TienDoSanXuat({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  //   const INFO = {
-  //     ...getLocalStorage("menu"),
-  //     user_Id: getTokenInfo().id,
-  //     token: getTokenInfo().token,
-  //   };
   const [ListXuong, setListXuong] = useState([]);
   const [ListChuyen, setListChuyen] = useState([]);
   const [ListTram, setListTram] = useState([]);
@@ -301,6 +277,7 @@ function TienDoSanXuat({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.status === 200) {
+          Helpers.alertSuccessMessage("Vào trạm thành công!!");
           getInfoSanPham(InfoSanPham.tits_qtsx_SoLoChiTiet_Id, Tram);
         } else {
         }
@@ -326,7 +303,9 @@ function TienDoSanXuat({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.status === 200) {
-        } else {
+          Helpers.alertSuccessMessage("Hoàn thành ra trạm thành công!!");
+          getSoKhunNoiBo(Tram);
+          setInfoSanPham({});
         }
       })
       .catch((error) => console.error(error));
@@ -343,11 +322,18 @@ function TienDoSanXuat({ match, history, permission }) {
 
   const handleOnSelectXuong = (value) => {
     setXuong(value);
+    setChuyen(null);
+    setTram(null);
+    setInfoSanPham({});
+    setListSoKhungNoiBo([]);
     getChuyen(value);
     // getListData(keyword, value, 1);
   };
   const handleOnSelectChuyen = (value) => {
     setChuyen(value);
+    setTram(null);
+    setInfoSanPham({});
+    setListSoKhungNoiBo([]);
     getTram(value);
     // getListData(keyword, value, 1);
   };
@@ -356,20 +342,20 @@ function TienDoSanXuat({ match, history, permission }) {
     getSoKhunNoiBo(value);
     // getListData(keyword, value, 1);
   };
-  const handleClearXuong = (value) => {
+  const handleClearXuong = () => {
     setXuong(null);
     setChuyen(null);
     setTram(null);
     setInfoSanPham({});
     setListSoKhungNoiBo([]);
   };
-  const handleClearChuyen = (value) => {
+  const handleClearChuyen = () => {
     setChuyen(null);
     setTram(null);
     setInfoSanPham({});
     setListSoKhungNoiBo([]);
   };
-  const handleClearTram = (value) => {
+  const handleClearTram = () => {
     setTram(null);
     setInfoSanPham({});
     setListSoKhungNoiBo([]);
@@ -666,7 +652,7 @@ function TienDoSanXuat({ match, history, permission }) {
                     type="primary"
                     style={{ width: "50%", margin: 0 }}
                     // disabled={DisableVaoTram}
-                    onClick={() => modalXacNhan(false)}
+                    onClick={() => modalXacNhan(ClickRaTram, "ra trạm")}
                   >
                     Hoàn tất
                   </Button>

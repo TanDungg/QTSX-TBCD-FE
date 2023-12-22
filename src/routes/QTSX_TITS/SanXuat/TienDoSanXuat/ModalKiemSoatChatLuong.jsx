@@ -6,13 +6,14 @@ import {
   Button,
   Col,
   Checkbox,
+  Tag,
 } from "antd";
 import { map } from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { Table, EditableTableRow } from "src/components/Common";
+import { Table, EditableTableRow, Modal } from "src/components/Common";
 import ImageDrawing from "src/routes/QTSX_TITS/SanXuat/TienDoSanXuat/ImageDrawing";
 import { BASE_URL_API, DEFAULT_FORM_CONGDOAN } from "src/constants/Config";
 import {
@@ -24,6 +25,8 @@ import {
   reDataForTable,
 } from "src/util/Common";
 import KiemSoatChatLuongTaiTramCanva from "./KiemSoatChatLuongTaiTramCanva";
+import { SaveOutlined } from "@ant-design/icons";
+import Helpers from "src/helpers";
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -234,7 +237,19 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
       dataIndex: "isDat",
       key: "isDat",
       align: "center",
-      render: (val) => <Checkbox disabled={true} checked={val ? val : false} />,
+      render: (val) => (
+        <Tag color={val ? "green" : "red"}>{val ? "Đạt" : "Không đạt"} </Tag>
+      ),
+    },
+    {
+      title: "Lỗi",
+      dataIndex: "list_TDSXKiemSoatChatLuongChiTietLois",
+      key: "list_TDSXKiemSoatChatLuongChiTietLois",
+      align: "center",
+      render: (val) =>
+        val.map((l) => {
+          return <Tag color="green">{l.tenLoi}</Tag>;
+        }),
     },
   ];
   const columns = map(renderThongSo, (col) => {
@@ -290,7 +305,51 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
     });
     setListHangMucKiemTra(newData);
   };
-
+  const onSave = () => {
+    let check = false;
+    ListHangMucKiemTra.forEach((hm) => {
+      hm.list_TDSXKiemSoatChatLuongChiTiets.forEach((lct) => {
+        if (lct.isDat === undefined) {
+          check = true;
+        }
+      });
+    });
+    if (!check) {
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `tits_qtsx_TienDoSanXuat/kiem-soat-chat-luong`,
+            "PUT",
+            {
+              tits_qtsx_TienDoSanXuat_Id: info.tits_qtsx_TienDoSanXuat_Id,
+              list_TDSXKiemSoatChatLuongs: ListHangMucKiemTra,
+            },
+            "DETAIL",
+            "",
+            resolve,
+            reject
+          )
+        );
+      }).then((res) => {
+        if (res && res.status === 200) {
+          Helpers.alertSuccessMessage("Đã lưu thành công!!");
+          resetFields();
+          openModalFS(false);
+        }
+      });
+    } else {
+      Helpers.alertWarning("Chưa nhập đủ kết quả nội dung kiểm tra");
+    }
+  };
+  const modalXacNhan = (ham, title) => {
+    Modal({
+      type: "confirm",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
+      title: `Xác nhận ${title}`,
+      onOk: ham,
+    });
+  };
   return (
     <AntModal
       title="Kiểm soát chất lượng"
@@ -367,6 +426,18 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
             </Row>
           );
         })}
+      <Row style={{ marginTop: 10 }}>
+        <Col span={24} align="center">
+          <Button
+            style={{ margin: 0 }}
+            icon={<SaveOutlined />}
+            onClick={() => modalXacNhan(onSave, "Lưu kiểm soát chất lượng")}
+            type="primary"
+          >
+            Lưu
+          </Button>
+        </Col>
+      </Row>
     </AntModal>
   );
 }
