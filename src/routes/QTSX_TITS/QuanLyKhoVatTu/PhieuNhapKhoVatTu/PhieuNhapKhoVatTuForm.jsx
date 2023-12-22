@@ -1,4 +1,8 @@
-import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -35,6 +39,7 @@ import {
   renderPDF,
 } from "src/util/Common";
 import ModalTuChoi from "./ModalTuChoi";
+import ModalChonViTri from "./ModalChonViTri";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -50,12 +55,13 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const [listVatTu, setListVatTu] = useState([]);
+  const [ListVatTu, setListVatTu] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [ListPhieuKiemTra, setListPhieuKiemTra] = useState([]);
   const [ListPhieuNhanHang, setListPhieuNhanHang] = useState([]);
-  const [editingRecord, setEditingRecord] = useState([]);
+  const [ActiveModalChonViTri, setActiveModalChonViTri] = useState(false);
+  const [ViTri, setViTri] = useState(false);
   const [ListUserKy, setListUserKy] = useState([]);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
@@ -326,35 +332,19 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       )}`
     );
   };
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
+
   const deleteItemFunc = (item) => {
     const title = "vật tư";
     ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
   };
 
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
   const deleteItemAction = (item) => {
-    const newData = listVatTu.filter(
+    const newData = ListVatTu.filter(
       (d) => d.tits_qtsx_PhieuNhanHang_Id !== item.tits_qtsx_PhieuNhanHang_Id
     );
     setListVatTu(newData);
   };
 
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
   const actionContent = (item) => {
     const deleteItemVal =
       permission && permission.del && type === "edit"
@@ -371,66 +361,35 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     );
   };
 
-  const handleInputChange = (val, item) => {
-    const soLuongNhap = val.target.value;
-    if (isEmpty(soLuongNhap) || Number(soLuongNhap) <= 0) {
-      setFieldTouch(false);
-      setEditingRecord([...editingRecord, item]);
-      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
-    } else if (Number(soLuongNhap) > item.soLuongChuaNhap && type === "new") {
-      setFieldTouch(false);
-      setEditingRecord([...editingRecord, item]);
-      item.message = `Số lượng không được lớn hơn ${item.soLuongChuaNhap}`;
-    } else if (
-      Number(soLuongNhap) > Number(item.soLuongChuaNhap + item.soLuongDaNhap) &&
-      type === "edit"
-    ) {
-      setFieldTouch(false);
-      setEditingRecord([...editingRecord, item]);
-      item.message = `Số lượng không được lớn hơn ${Number(
-        item.soLuongChuaNhap + item.soLuongDaNhap
-      )}`;
-    } else {
-      const newData = editingRecord.filter(
-        (d) => d.tits_qtsx_PhieuNhanHang_Id !== item.tits_qtsx_PhieuNhanHang_Id
-      );
-      setEditingRecord(newData);
-      newData.length === 0 && setFieldTouch(true);
-    }
-    const newData = [...listVatTu];
-    newData.forEach((ct, index) => {
-      if (ct.tits_qtsx_PhieuNhanHang_Id === item.tits_qtsx_PhieuNhanHang_Id) {
-        ct.soLuong = soLuongNhap;
-      }
+  const HandleChonViTri = (record, check) => {
+    setActiveModalChonViTri(true);
+    setViTri({
+      ...record,
     });
-    setListVatTu(newData);
   };
 
-  const rendersoLuong = (record, value) => {
-    let isEditing = false;
-    let message = "";
-    editingRecord.forEach((ct) => {
-      if (ct.tits_qtsx_PhieuNhanHang_Id === record.tits_qtsx_PhieuNhanHang_Id) {
-        isEditing = true;
-        message = ct.message;
+  const handleViTriLuuKho = (data) => {
+    const newData = ListVatTu.map((vattu) => {
+      if (
+        vattu.tits_qtsx_VatTu_Id.toLowerCase() ===
+        data.tits_qtsx_VatTu_Id.toLowerCase()
+      ) {
+        const tong =
+          data.list_ViTriLuuKhos &&
+          data.list_ViTriLuuKhos.reduce(
+            (tong, vitri) => tong + Number(vitri.soLuong || 0),
+            0
+          );
+        return {
+          ...vattu,
+          soLuong: tong,
+          list_ViTriLuuKhos: data.list_ViTriLuuKhos,
+        };
       }
+      return vattu;
     });
-    return (
-      <>
-        <Input
-          style={{
-            textAlign: "center",
-            width: "100%",
-          }}
-          className={`input-item`}
-          type="number"
-          value={record.soLuong}
-          disabled={type === "edit" ? false : true}
-          onChange={(val) => handleInputChange(val, record, value)}
-        />
-        {isEditing && <div style={{ color: "red" }}>{message}</div>}
-      </>
-    );
+    setListVatTu(newData);
+    setFieldTouch(true);
   };
 
   const renderViTri = (record) => {
@@ -451,23 +410,37 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 whiteSpace: "normal",
               }}
             >
-              {vitri}
+              {vitri} (SL: {vt.soLuong})
             </Tag>
           );
         })}
+        {type === "edit" && (
+          <EditOutlined
+            style={{
+              color: "#0469B9",
+            }}
+            onClick={() => {
+              HandleChonViTri(record, true);
+            }}
+          />
+        )}
       </div>
     );
   };
 
   const changeGhiChu = (val, item) => {
     const ghiChu = val.target.value;
-    const newData = [...listVatTu];
-    newData.forEach((sp, index) => {
-      if (sp.tits_qtsx_PhieuNhanHang_Id === item.tits_qtsx_PhieuNhanHang_Id) {
-        sp.ghiChu = ghiChu;
+    const newData = [...ListVatTu];
+    newData.forEach((vt, index) => {
+      if (
+        vt.tits_qtsx_VatTu_Id.toLowerCase() ===
+        item.tits_qtsx_VatTu_Id.toLowerCase()
+      ) {
+        vt.moTa = ghiChu;
       }
     });
     setListVatTu(newData);
+    setFieldTouch(true);
   };
 
   const renderGhiChu = (item) => {
@@ -479,7 +452,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
             width: "100%",
           }}
           className={`input-item`}
-          value={item.ghiChu}
+          value={item.moTa}
           onChange={(val) => changeGhiChu(val, item)}
           disabled={type === "edit" ? false : true}
         />
@@ -487,6 +460,13 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     );
   };
   let colValues = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -520,9 +500,9 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Số lượng nhập",
+      dataIndex: "soLuong",
       key: "soLuong",
       align: "center",
-      render: (record) => rendersoLuong(record),
     },
     {
       title: "Vị trí nhập",
@@ -532,38 +512,19 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Ghi chú",
-      key: "ghiChu",
+      key: "moTa",
       align: "center",
       render: (record) => renderGhiChu(record),
     },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-    },
   ];
+
   const components = {
     body: {
       row: EditableRow,
       cell: EditableCell,
     },
   };
-  const handleSave = (row) => {
-    const newData = [...listVatTu];
-    const index = newData.findIndex(
-      (item) =>
-        row.tits_qtsx_PhieuNhanHang_Id === item.tits_qtsx_PhieuNhanHang_Id
-    );
-    const item = newData[index];
-    newData.splice(index, 1, {
-      ...item,
-      ...row,
-    });
-    setFieldTouch(true);
-    setListVatTu(newData);
-  };
+
   const columns = map(colValues, (col) => {
     if (!col.editable) {
       return col;
@@ -576,7 +537,6 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         dataIndex: col.dataIndex,
         title: col.title,
         info: col.info,
-        handleSave: handleSave,
       }),
     };
   });
@@ -592,7 +552,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
   const saveAndClose = (val) => {
     validateFields()
       .then((values) => {
-        if (listVatTu.length === 0) {
+        if (ListVatTu.length === 0) {
           Helpers.alertError("Danh sách vật tư rỗng");
         } else {
           uploadFile(values.phieunhapkhovattu, val);
@@ -657,7 +617,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 fileChungTu: filechungtu.length > 0 ? filechungtu[0] : null,
               };
             }),
-            tits_qtsx_PhieuNhapKhoVatTuChiTiets: listVatTu,
+            tits_qtsx_PhieuNhapKhoVatTuChiTiets: ListVatTu,
           };
           saveData(newData, saveQuit);
         })
@@ -721,7 +681,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 fileChungTu: filechungtu.length > 0 ? filechungtu[0] : null,
               };
             }),
-            tits_qtsx_PhieuNhapKhoVatTuChiTiets: listVatTu,
+            tits_qtsx_PhieuNhapKhoVatTuChiTiets: ListVatTu,
           };
           saveData(newData, saveQuit);
         })
@@ -737,7 +697,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           "DD/MM/YYYY HH:mm:ss"
         ),
         list_ChungTu: ChungTu,
-        tits_qtsx_PhieuNhapKhoVatTuChiTiets: listVatTu,
+        tits_qtsx_PhieuNhapKhoVatTuChiTiets: ListVatTu,
       };
       saveData(newData, saveQuit);
     }
@@ -788,7 +748,6 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      console.log(phieunhapkhovattu);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -817,12 +776,11 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
   const hanldeXacNhan = () => {
     const newData = {
       id: id,
-      isDuyet: true,
     };
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuNhapKhoVatTu/xac-nhan/${id}`,
+          `tits_qtsx_PhieuNhapKhoVatTu/duyet/${id}`,
           "PUT",
           newData,
           "XACNHAN",
@@ -1415,7 +1373,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           scroll={{ x: 900, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
-          dataSource={reDataForTable(listVatTu && listVatTu)}
+          dataSource={reDataForTable(ListVatTu && ListVatTu)}
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
@@ -1448,6 +1406,15 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           disabled={fieldTouch}
         />
       ) : null}
+      <ModalChonViTri
+        openModal={ActiveModalChonViTri}
+        openModalFS={setActiveModalChonViTri}
+        itemData={{
+          tits_qtsx_CauTrucKho_Id: info.tits_qtsx_CauTrucKho_Id,
+          ListViTri: ViTri,
+        }}
+        ViTriLuuKho={handleViTriLuuKho}
+      />
       <ModalTuChoi
         openModal={ActiveModalTuChoi}
         openModalFS={setActiveModalTuChoi}
