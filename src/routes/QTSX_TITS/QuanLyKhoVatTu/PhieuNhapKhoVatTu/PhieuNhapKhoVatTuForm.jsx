@@ -1213,31 +1213,6 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Biên bản bàn giao"
-                name={["phieunhapkhovattu", "bienBanBanGiao"]}
-                rules={[
-                  {
-                    required: true,
-                    type: "string",
-                  },
-                ]}
-              >
-                <Input
-                  placeholder="Biên bản bàn giao"
-                  disabled={type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
                 label="Kho nhập"
                 name={["phieunhapkhovattu", "tits_qtsx_CauTrucKho_Id"]}
                 rules={[
@@ -1289,6 +1264,31 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                       },
                     });
                   }}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Biên bản bàn giao"
+                name={["phieunhapkhovattu", "bienBanBanGiao"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Biên bản bàn giao"
+                  disabled={type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>

@@ -234,7 +234,7 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
           onClick={handleXuatExcel}
           disabled={SelectedDonHang.length === 0}
         >
-          In phiếu
+          Xuất phiếu
         </Button>
       </>
     );

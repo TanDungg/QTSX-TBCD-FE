@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Card, Row, Col, DatePicker, Button } from "antd";
-import { PrinterOutlined } from "@ant-design/icons";
+import { Card, Row, Col, DatePicker, Button, Tabs } from "antd";
+import { PauseCircleOutlined, PlayCircleOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { map } from "lodash";
 import { Table, EditableTableRow, Select } from "src/components/Common";
@@ -322,13 +322,22 @@ function MaySanXuat({ match, history, permission }) {
     return (
       <>
         <Button
-          icon={<PrinterOutlined />}
+          icon={<PlayCircleOutlined />}
           className="th-margin-bottom-0"
           type="primary"
           // onClick={handleRedirect}
           disabled={permission && !permission.add}
         >
-          In KanBan
+          Bắt đầu
+        </Button>
+        <Button
+          icon={<PauseCircleOutlined />}
+          className="th-margin-bottom-0"
+          type="danger"
+          // onClick={handleRedirect}
+          disabled={permission && !permission.add}
+        >
+          Kết thúc
         </Button>
       </>
     );
@@ -397,131 +406,153 @@ function MaySanXuat({ match, history, permission }) {
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={20}
-            xs={24}
-            style={{
-              marginBottom: 8,
-            }}
-          >
-            <h5>Công đoạn:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListCongDoan ? ListCongDoan : []}
-              placeholder="Chọn công đoạn"
-              optionsvalue={["id", "tenCongDoan"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleOnSelectCongDoan}
-              allowClear
-              onClear={handleClearCongDoan}
-              value={CongDoan}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={20}
-            xs={24}
-            style={{
-              marginBottom: 8,
-            }}
-          >
-            <h5>Xưởng:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListXuong ? ListXuong : []}
-              placeholder="Chọn xưởng"
-              optionsvalue={["id", "tenXuong"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleOnSelectXuong}
-              allowClear
-              onClear={handleClearXuong}
-              value={Xuong}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={20}
-            xs={24}
-            style={{
-              marginBottom: 8,
-            }}
-          >
-            <h5>Máy sản xuất:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListMaySanXuat ? ListMaySanXuat : []}
-              placeholder="Chọn máy sản xuất"
-              optionsvalue={["id", "MaySanXuat"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleOnSelectMaySanXuat}
-              allowClear
-              onClear={handleClearMaySanXuat}
-              value={MaySanXuat}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Ngày:</h5>
-            <DatePicker
-              format={"DD/MM/YYYY"}
-              onChange={(date, dateString) => handleChangeNgay(dateString)}
-              defaultValue={moment(Ngay, "DD/MM/YYYY")}
-              allowClear={false}
-            />
-          </Col>
-        </Row>
-      </Card>
-      <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Table
-          bordered
-          scroll={{ x: 1500, y: "55vh" }}
-          columns={columns}
-          components={components}
-          className="gx-table-responsive"
-          dataSource={reDataForTable(Data.datalist)}
-          size="small"
-          rowClassName={(record) => {
-            return record.isParent ? "editable-row" : "editable-row";
-          }}
-          pagination={{
-            onChange: handleTableChange,
-            pageSize: pageSize,
-            total: totalRow,
-            showSizeChanger: false,
-            showQuickJumper: true,
-          }}
-          loading={loading}
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            hideSelectAll: true,
-            preserveSelectedRowKeys: false,
-            selectedRowKeys: SelectedKeys,
-          }}
+        <Tabs
+          defaultActiveKey="1"
+          type="card"
+          size={"middle"}
+          items={new Array(3).fill(null).map((_, i) => {
+            const id = String(i + 1);
+            return {
+              label: `Sản xuất`,
+              key: id,
+              children: (
+                <>
+                  <Card className="th-card-margin-bottom th-card-reset-margin">
+                    <Row>
+                      <Col
+                        xxl={6}
+                        xl={8}
+                        lg={12}
+                        md={12}
+                        sm={20}
+                        xs={24}
+                        style={{
+                          marginBottom: 8,
+                        }}
+                      >
+                        <h5>Công đoạn:</h5>
+                        <Select
+                          className="heading-select slt-search th-select-heading"
+                          data={ListCongDoan ? ListCongDoan : []}
+                          placeholder="Chọn công đoạn"
+                          optionsvalue={["id", "tenCongDoan"]}
+                          style={{ width: "100%" }}
+                          showSearch
+                          optionFilterProp="name"
+                          onSelect={handleOnSelectCongDoan}
+                          allowClear
+                          onClear={handleClearCongDoan}
+                          value={CongDoan}
+                        />
+                      </Col>
+                      <Col
+                        xxl={6}
+                        xl={8}
+                        lg={12}
+                        md={12}
+                        sm={20}
+                        xs={24}
+                        style={{
+                          marginBottom: 8,
+                        }}
+                      >
+                        <h5>Xưởng:</h5>
+                        <Select
+                          className="heading-select slt-search th-select-heading"
+                          data={ListXuong ? ListXuong : []}
+                          placeholder="Chọn xưởng"
+                          optionsvalue={["id", "tenXuong"]}
+                          style={{ width: "100%" }}
+                          showSearch
+                          optionFilterProp="name"
+                          onSelect={handleOnSelectXuong}
+                          allowClear
+                          onClear={handleClearXuong}
+                          value={Xuong}
+                        />
+                      </Col>
+                      <Col
+                        xxl={6}
+                        xl={8}
+                        lg={12}
+                        md={12}
+                        sm={20}
+                        xs={24}
+                        style={{
+                          marginBottom: 8,
+                        }}
+                      >
+                        <h5>Máy sản xuất:</h5>
+                        <Select
+                          className="heading-select slt-search th-select-heading"
+                          data={ListMaySanXuat ? ListMaySanXuat : []}
+                          placeholder="Chọn máy sản xuất"
+                          optionsvalue={["id", "MaySanXuat"]}
+                          style={{ width: "100%" }}
+                          showSearch
+                          optionFilterProp="name"
+                          onSelect={handleOnSelectMaySanXuat}
+                          allowClear
+                          onClear={handleClearMaySanXuat}
+                          value={MaySanXuat}
+                        />
+                      </Col>
+                      <Col
+                        xxl={6}
+                        xl={8}
+                        lg={12}
+                        md={12}
+                        sm={24}
+                        xs={24}
+                        style={{ marginBottom: 8 }}
+                      >
+                        <h5>Ngày:</h5>
+                        <DatePicker
+                          format={"DD/MM/YYYY"}
+                          onChange={(date, dateString) =>
+                            handleChangeNgay(dateString)
+                          }
+                          defaultValue={moment(Ngay, "DD/MM/YYYY")}
+                          allowClear={false}
+                        />
+                      </Col>
+                    </Row>
+                  </Card>
+                  <Card className="th-card-margin-bottom th-card-reset-margin">
+                    <Table
+                      bordered
+                      scroll={{ x: 1500, y: "55vh" }}
+                      columns={columns}
+                      components={components}
+                      className="gx-table-responsive"
+                      dataSource={reDataForTable(Data.datalist)}
+                      size="small"
+                      rowClassName={(record) => {
+                        return record.isParent
+                          ? "editable-row"
+                          : "editable-row";
+                      }}
+                      pagination={{
+                        onChange: handleTableChange,
+                        pageSize: pageSize,
+                        total: totalRow,
+                        showSizeChanger: false,
+                        showQuickJumper: true,
+                      }}
+                      loading={loading}
+                      rowSelection={{
+                        type: "checkbox",
+                        ...rowSelection,
+                        hideSelectAll: true,
+                        preserveSelectedRowKeys: false,
+                        selectedRowKeys: SelectedKeys,
+                      }}
+                    />
+                  </Card>
+                </>
+              ),
+            };
+          })}
         />
       </Card>
     </div>
