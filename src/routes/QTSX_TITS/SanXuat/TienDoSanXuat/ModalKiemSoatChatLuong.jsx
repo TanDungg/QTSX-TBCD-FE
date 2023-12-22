@@ -24,7 +24,6 @@ import {
   newTreeToFlatlist,
   reDataForTable,
 } from "src/util/Common";
-import KiemSoatChatLuongTaiTramCanva from "./KiemSoatChatLuongTaiTramCanva";
 import { SaveOutlined } from "@ant-design/icons";
 import Helpers from "src/helpers";
 const FormItem = Form.Item;
