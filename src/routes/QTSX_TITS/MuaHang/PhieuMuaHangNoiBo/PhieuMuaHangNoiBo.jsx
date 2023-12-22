@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
+import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  PrinterOutlined,
-  CheckCircleOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -26,6 +25,7 @@ import {
   getTokenInfo,
   exportPDF,
   removeDuplicates,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -172,14 +172,11 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
     });
   };
 
-  const handlePrint = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
+  const handleXuatExcel = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuMuaHangNoiBo/${SelectedDonHang[0].id}?${params}`,
+          `tits_qtsx_PhieuMuaHangNoiBo/${SelectedDonHang[0].id}`,
           "GET",
           null,
           "DETAIL",
@@ -191,14 +188,17 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
+          const data = res.data;
           const newData = {
-            ...res.data,
-            lstpdncvtct: JSON.parse(res.data.chiTietVatTu),
+            ...data,
+            tits_qtsx_PhieuMuaHangNoiBoChiTiets:
+              data.tits_qtsx_PhieuMuaHangNoiBoChiTiets &&
+              JSON.parse(data.tits_qtsx_PhieuMuaHangNoiBoChiTiets),
           };
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `tits_qtsx_PhieuMuaHangNoiBo/export-pdf`,
+                `tits_qtsx_PhieuMuaHangNoiBo/export-file-phieu-mua-hang-noi-bo`,
                 "POST",
                 newData,
                 "",
@@ -208,9 +208,7 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
               )
             );
           }).then((res) => {
-            exportPDF("PhieuMuaHangNoiBo", res.data.datapdf);
-            setSelectedDonHang([]);
-            setSelectedKeys([]);
+            exportExcel("PhieuMuaHangNoiBo", res.data.dataexcel);
           });
         }
       })
@@ -229,15 +227,15 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
         >
           Tạo phiếu
         </Button>
-        {/* <Button
-          icon={<PrinterOutlined />}
+        <Button
+          icon={<DownloadOutlined />}
           className="th-margin-bottom-0"
           type="primary"
-          onClick={handlePrint}
+          onClick={handleXuatExcel}
           disabled={SelectedDonHang.length === 0}
         >
           In phiếu
-        </Button> */}
+        </Button>
       </>
     );
   };

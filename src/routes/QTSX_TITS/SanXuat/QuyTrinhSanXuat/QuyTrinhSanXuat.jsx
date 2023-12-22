@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Row, Checkbox, Tag, Switch } from "antd";
+import { Card, Button, Divider, Col, Row, Checkbox, Tag } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -25,6 +26,7 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import ModalSaoChepQuyTrinh from "./ModalSaoChepQuyTrinh";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function QuyTrinhSanXuat({ match, history, permission }) {
@@ -39,6 +41,8 @@ function QuyTrinhSanXuat({ match, history, permission }) {
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
   const [keyword, setKeyword] = useState("");
+  const [QuyTrinh, setQuyTrinh] = useState(null);
+  const [ActiveModalSaoChep, setActiveModalSaoChep] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -50,7 +54,7 @@ function QuyTrinhSanXuat({ match, history, permission }) {
 
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [ActiveModalSaoChep]);
 
   /**
    * Lấy dữ liệu về
@@ -91,32 +95,37 @@ function QuyTrinhSanXuat({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  /**
-   * Tìm kiếm người dùng
-   *
-   */
   const onSearchQuyTrinhSanXuat = () => {
     getListData(keyword, SanPham, page);
   };
 
-  /**
-   * Thay đổi keyword
-   *
-   * @param {*} val
-   */
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
       getListData(val.target.value, SanPham, page);
     }
   };
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
+
+  const handleSaoChep = (item) => {
+    setQuyTrinh(item);
+    setActiveModalSaoChep(true);
+  };
+
   const actionContent = (item) => {
+    const copy =
+      item.tinhTrang === "Đã duyệt" ? (
+        <Link
+          onClick={() => handleSaoChep(item)}
+          title="Sao chép quy trình sản xuất"
+        >
+          <CopyOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Xác nhận">
+          <CopyOutlined />
+        </span>
+      );
+
     const xacnhan =
       item.nguoiDuyet_Id === INFO.user_Id && item.tinhTrang === "Chưa duyệt" ? (
         <Link
@@ -164,6 +173,8 @@ function QuyTrinhSanXuat({ match, history, permission }) {
 
     return (
       <div>
+        {/* {copy}
+        <Divider type="vertical" /> */}
         {xacnhan}
         <Divider type="vertical" />
         {editItem}
@@ -331,6 +342,13 @@ function QuyTrinhSanXuat({ match, history, permission }) {
   };
 
   let renderHead = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 130,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -500,13 +518,6 @@ function QuyTrinhSanXuat({ match, history, permission }) {
         </div>
       ),
     },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 100,
-      render: (value) => actionContent(value),
-    },
   ];
 
   const columns = map(renderHead, (col) => {
@@ -538,10 +549,14 @@ function QuyTrinhSanXuat({ match, history, permission }) {
     getListData(keyword, value, 1);
   };
 
-  const handleClearSanPham = (value) => {
+  const handleClearSanPham = () => {
     setSanPham(null);
     setPage(1);
     getListData(keyword, null, 1);
+  };
+
+  const handleRefesh = () => {
+    getListData(keyword, SanPham, page);
   };
 
   return (
@@ -606,7 +621,7 @@ function QuyTrinhSanXuat({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 1500, y: "70vh" }}
+          scroll={{ x: 1400, y: "70vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -625,6 +640,12 @@ function QuyTrinhSanXuat({ match, history, permission }) {
           loading={loading}
         />
       </Card>
+      <ModalSaoChepQuyTrinh
+        openModal={ActiveModalSaoChep}
+        openModalFS={setActiveModalSaoChep}
+        itemData={QuyTrinh}
+        refesh={handleRefesh}
+      />
     </div>
   );
 }
