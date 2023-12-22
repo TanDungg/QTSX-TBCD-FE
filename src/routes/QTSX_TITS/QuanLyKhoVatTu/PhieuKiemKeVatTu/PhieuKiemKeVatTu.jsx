@@ -266,7 +266,7 @@ function PhieuKiemKe({ match, history, permission }) {
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `tits_qtsx_PhieuKiemKe/export-file-phieu-yeu-cau`,
+                `tits_qtsx_PhieuKiemKe/export-file-phieu-kiem-ke-vat-tu`,
                 "POST",
                 newData,
                 "",
@@ -609,7 +609,6 @@ function PhieuKiemKe({ match, history, permission }) {
             preserveSelectedRowKeys: false,
             selectedRowKeys: SelectedKeys,
           }}
-          s
         />
       </Card>
     </div>

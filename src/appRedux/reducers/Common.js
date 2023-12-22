@@ -226,6 +226,17 @@ export default (state = INIT_STATE, action) => {
             .set("loadingSave", false)
             .set("reset", false);
         }
+        if (apiType === "COPY") {
+          if (customMessage) Helper.alertSuccessMessage(customMessage);
+          else Helper.alertSuccessMessage(messages.SAO_CHEP_THANH_CONG);
+          return state
+            .set("error", "")
+            .set("message", messages.SAO_CHEP_THANH_CONG)
+            .set("customMessage", customMessage)
+            .set("loading", false)
+            .set("loadingSave", false)
+            .set("reset", false);
+        }
         if (apiType === "GUIPHIEU") {
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.GUI_PHIEU_THANH_CONG);

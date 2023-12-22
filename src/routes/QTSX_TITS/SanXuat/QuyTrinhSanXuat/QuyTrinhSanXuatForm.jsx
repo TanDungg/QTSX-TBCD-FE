@@ -1429,7 +1429,8 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           components={components}
           className="gx-table-responsive"
           dataSource={reDataForTable(
-            ListCongDoan.slice().sort((a, b) => a.thuTu - b.thuTu)
+            ListCongDoan &&
+              ListCongDoan.slice().sort((a, b) => a.thuTu - b.thuTu)
           )}
           size="small"
           rowClassName={"editable-row"}

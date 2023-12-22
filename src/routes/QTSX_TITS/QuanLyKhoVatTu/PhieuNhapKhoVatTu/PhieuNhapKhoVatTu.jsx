@@ -149,7 +149,6 @@ function NhapKhoVatTu({ match, history, permission }) {
 
   const actionContent = (item) => {
     const xacnhan =
-      INFO.user_Id === item.nguoiDuyet_Id &&
       item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
@@ -167,10 +166,7 @@ function NhapKhoVatTu({ match, history, permission }) {
       );
 
     const editItem =
-      permission &&
-      permission.edit &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
+      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -186,10 +182,7 @@ function NhapKhoVatTu({ match, history, permission }) {
         </span>
       );
     const deleteVal =
-      permission &&
-      permission.del &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận"
+      permission && permission.del && item.tinhTrang === "Chưa xác nhận"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -257,52 +250,44 @@ function NhapKhoVatTu({ match, history, permission }) {
   };
 
   const handleXuatExcel = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
-    const fetchAllData = DataXuatExcel.map((data) => {
-      return new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_PhieuNhapKhoVatTu/${data.id}?${params}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      });
-    });
-
-    Promise.all(fetchAllData)
-      .then((responses) => {
-        const DataXuat = responses.map((res) => {
-          if (res && res.data) {
-            return {
-              ...res.data,
-              chiTietVatTu: res.data.chiTietVatTu
-                ? JSON.parse(res.data.chiTietVatTu)
-                : null,
-            };
-          }
-        });
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `tits_qtsx_PhieuNhapKhoVatTu/export-file-excel-nhap-kho`,
-              "POST",
-              DataXuat,
-              "",
-              "",
-              resolve,
-              reject
-            )
-          );
-        }).then((res) => {
-          exportExcel("PhieuNhapKhoVatTu", res.data.dataexcel);
-        });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuNhapKhoVatTu/${selectedDevice[0].id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const data = res.data;
+          const newData = {
+            ...data,
+            tits_qtsx_PhieuNhapKhoVatTuChiTiets:
+              data.tits_qtsx_PhieuNhapKhoVatTuChiTiets &&
+              JSON.parse(data.tits_qtsx_PhieuNhapKhoVatTuChiTiets),
+          };
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `tits_qtsx_PhieuNhapKhoVatTu/export-file-phieu-nhap-kho-vat-tu`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportExcel("PhieuNhapKhoVatTu", res.data.dataexcel);
+          });
+        }
       })
       .catch((error) => console.error(error));
   };
@@ -310,7 +295,7 @@ function NhapKhoVatTu({ match, history, permission }) {
   const addButtonRender = () => {
     return (
       <>
-        <Button
+        {/* <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
           type="primary"
@@ -318,13 +303,13 @@ function NhapKhoVatTu({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
-        </Button>
+        </Button> */}
         <Button
           icon={<DownloadOutlined />}
           className="th-margin-bottom-0"
           type="primary"
           onClick={handleXuatExcel}
-          disabled={data.length === 0}
+          disabled={selectedDevice.length === 0}
         >
           Xuất excel
         </Button>
@@ -352,6 +337,13 @@ function NhapKhoVatTu({ match, history, permission }) {
     return <div>{detail}</div>;
   };
   let renderHead = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -490,13 +482,6 @@ function NhapKhoVatTu({ match, history, permission }) {
           )}
         </div>
       ),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
     },
   ];
 

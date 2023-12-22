@@ -173,7 +173,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  const getKho = () => {
+  const getKho = (cautruckho) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -188,6 +188,11 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
+        const newChungTu = res.data.filter((d) => d.id === cautruckho);
+        setChungTu(
+          newChungTu[0].chiTietChungTus &&
+            JSON.parse(newChungTu[0].chiTietChungTus)
+        );
         setListKho(res.data);
       } else {
         setListKho([]);
@@ -277,21 +282,23 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           getUserKy(INFO);
           getListPhieuKiemTra();
           getPhieuNhanHang();
-          getKho();
-          const listchungtu = JSON.parse(res.data.list_ChungTu);
+          getKho(res.data.tits_qtsx_CauTrucKho_Id);
+          const listchungtu =
+            res.data.list_ChungTu && JSON.parse(res.data.list_ChungTu);
 
           const newListChungTu = {};
-          listchungtu.forEach((chungtu) => {
-            const key = `fileChungTu${chungtu.maChungTu}`;
-            newListChungTu[key] = chungtu.fileChungTu;
-          });
+          listchungtu &&
+            listchungtu.forEach((chungtu) => {
+              const key = `fileChungTu${chungtu.maChungTu}`;
+              newListChungTu[key] = chungtu.fileChungTu;
+            });
 
           setChungTu(listchungtu && listchungtu);
           setFieldsValue({
             phieunhapkhovattu: {
               ...res.data,
               ...newListChungTu,
-              list_ChungTu: listchungtu,
+              list_ChungTu: listchungtu && listchungtu,
               ngayNhapKho: res.data.ngayNhapKho
                 ? moment(res.data.ngayNhapKho, "DD/MM/YYYY HH:mm:ss")
                 : null,
@@ -350,7 +357,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
    */
   const actionContent = (item) => {
     const deleteItemVal =
-      permission && permission.del && (type === "new" || type === "edit")
+      permission && permission.del && type === "edit"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -418,11 +425,37 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           className={`input-item`}
           type="number"
           value={record.soLuong}
-          disabled={type === "new" || type === "edit" ? false : true}
+          disabled={type === "edit" ? false : true}
           onChange={(val) => handleInputChange(val, record, value)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
       </>
+    );
+  };
+
+  const renderViTri = (record) => {
+    return (
+      <div>
+        {record.list_ViTriLuuKhos.map((vt) => {
+          const vitri = `${vt.tenKe && vt.tenKe}${
+            vt.tenTang && ` - ${vt.tenTang}`
+          }${vt.tenNgan && ` - ${vt.tenNgan}`}`;
+          return (
+            <Tag
+              color="blue"
+              style={{
+                fontSize: 13,
+                marginRight: 5,
+                marginBottom: 3,
+                wordWrap: "break-word",
+                whiteSpace: "normal",
+              }}
+            >
+              {vitri}
+            </Tag>
+          );
+        })}
+      </div>
     );
   };
 
@@ -448,7 +481,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           className={`input-item`}
           value={item.ghiChu}
           onChange={(val) => changeGhiChu(val, item)}
-          disabled={type === "new" || type === "edit" ? false : true}
+          disabled={type === "edit" ? false : true}
         />
       </>
     );
@@ -490,6 +523,12 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       key: "soLuong",
       align: "center",
       render: (record) => rendersoLuong(record),
+    },
+    {
+      title: "Vị trí nhập",
+      key: "list_ViTriLuuKhos",
+      align: "center",
+      render: (record) => renderViTri(record),
     },
     {
       title: "Ghi chú",
@@ -915,14 +954,15 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     };
 
     useEffect(() => {
-      ChungTu.forEach((item, i) => {
-        if (item.fileChungTu) {
-          handleFileChange(i, item.fileChungTu);
-        }
-      });
+      ChungTu &&
+        ChungTu.forEach((item, i) => {
+          if (item.fileChungTu) {
+            handleFileChange(i, item.fileChungTu);
+          }
+        });
     }, [ChungTu]);
 
-    for (let i = 0; i < ChungTu.length; i++) {
+    for (let i = 0; i < (ChungTu && ChungTu.length); i++) {
       const props = {
         accept: ".pdf",
         beforeUpload: (file) => {
@@ -985,7 +1025,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 </span>
                 <DeleteOutlined
                   style={{ cursor: "pointer", color: "red" }}
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "edit" ? false : true}
                   onClick={() => handleFileChange(i, null)}
                 />
               </span>
@@ -1002,10 +1042,10 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 >
                   {FileChungTu[i].split("/")[5]}{" "}
                 </a>
-                {(type === "new" || type === "edit") && (
+                {type === "edit" && (
                   <DeleteOutlined
                     style={{ cursor: "pointer", color: "red" }}
-                    disabled={type === "new" || type === "edit" ? false : true}
+                    disabled={type === "edit" ? false : true}
                     onClick={() => {
                       handleFileChange(i, null);
                     }}
@@ -1018,12 +1058,6 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       );
     }
     return chungtu;
-  };
-
-  const hanldeSelectChungTu = (value) => {
-    setChungTu([]);
-    const newChungTu = ListKho.filter((d) => d.id === value);
-    setChungTu(newChungTu[0].chiTietChungTus && newChungTu[0].chiTietChungTus);
   };
 
   return (
@@ -1122,8 +1156,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
-                    disabled={type === "new" ? false : true}
-                    onSelect={hanldeSelectChiTietVatTu}
+                    disabled={true}
                   />
                 </FormItem>
               ) : (
@@ -1180,31 +1213,6 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Biên bản bàn giao"
-                name={["phieunhapkhovattu", "bienBanBanGiao"]}
-                rules={[
-                  {
-                    required: true,
-                    type: "string",
-                  },
-                ]}
-              >
-                <Input
-                  placeholder="Biên bản bàn giao"
-                  disabled={type === "new" || type === "edit" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
                 label="Kho nhập"
                 name={["phieunhapkhovattu", "tits_qtsx_CauTrucKho_Id"]}
                 rules={[
@@ -1222,8 +1230,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  onSelect={hanldeSelectChungTu}
-                  disabled={type === "new" ? false : true}
+                  disabled={true}
                 />
               </FormItem>
             </Col>
@@ -1248,7 +1255,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 <DatePicker
                   format={"DD/MM/YYYY HH:mm:ss"}
                   showTime
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "edit" ? false : true}
                   allowClear={false}
                   onChange={(date, dateString) => {
                     setFieldsValue({
@@ -1257,6 +1264,31 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                       },
                     });
                   }}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Biên bản bàn giao"
+                name={["phieunhapkhovattu", "bienBanBanGiao"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Biên bản bàn giao"
+                  disabled={type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -1280,7 +1312,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               >
                 <Input
                   placeholder="Nội dung nhập"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -1311,7 +1343,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -1342,7 +1374,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
@@ -1408,7 +1440,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           </Col>
         </Row>
       )}
-      {type === "new" || type === "edit" ? (
+      {type === "edit" ? (
         <FormSubmit
           goBack={goBack}
           handleSave={saveAndClose}

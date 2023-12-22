@@ -60,6 +60,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
   const { validateFields, resetFields, setFieldsValue } = form;
   const [ListVatTu, setListVatTu] = useState([]);
   const [ListDonVi, setListDonVi] = useState([]);
+  const [ListPhongBan, setListPhongBan] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [disableUpload, setDisableUpload] = useState(false);
   const [File, setFile] = useState(null);
@@ -77,10 +78,12 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           setType("new");
           getListDonVi();
+          getListPhongBan();
           getUserKy(INFO);
           setFieldsValue({
             phieumuahangngoai: {
               donViYeuCau_Id: INFO.donVi_Id.toLowerCase(),
+              donViNhanYeuCau_Id: "2a2a811f-ba5e-4fef-9389-9f74bd6a0d93",
             },
           });
         } else if (permission && !permission.add) {
@@ -93,6 +96,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           setId(id);
           getInfo(id);
           getListDonVi();
+          getListPhongBan();
           getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -104,6 +108,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           setId(id);
           getInfo(id, true);
           getListDonVi();
+          getListPhongBan();
           getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -115,6 +120,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           setId(id);
           getInfo(id);
           getListDonVi();
+          getListPhongBan();
           getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -136,6 +142,28 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         setListDonVi(res.data);
       } else {
         setListDonVi([]);
+      }
+    });
+  };
+
+  const getListPhongBan = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `PhongBan?donviid=d12ca19c-2e1a-41b7-86f3-3eb3c7d81a90&page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListPhongBan(res.data);
+      } else {
+        setListPhongBan([]);
       }
     });
   };
@@ -526,6 +554,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
     if (type === "new") {
       const newData = {
         ...phieumuahangngoai,
+        donViYeuCau_Id: INFO.donVi_Id,
         tits_qtsx_PhieuMuaHangNgoaiChiTiets: ListVatTu.map((dt) => {
           return {
             ...dt,
@@ -535,6 +564,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           };
         }),
       };
+      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -559,6 +589,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
               setFieldsValue({
                 phieumuahangngoai: {
                   donViYeuCau_Id: INFO.donVi_Id.toLowerCase(),
+                  donViNhanYeuCau_Id: "2a2a811f-ba5e-4fef-9389-9f74bd6a0d93",
                 },
               });
               setDisableUpload(false);
@@ -792,7 +823,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       <ContainerHeader title={formTitle} back={goBack} />
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin phiếu đề nghị mua hàng"}
+        title={"Thông tin phiếu mua hàng ngoài"}
       >
         <Form
           {...DEFAULT_FORM_TWO_COL}
@@ -823,7 +854,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListDonVi}
-                  placeholder="Chọn đơn vị yêu cầu"
+                  placeholder="Đơn vị yêu cầu"
                   optionsvalue={["id", "tenDonVi"]}
                   style={{ width: "100%" }}
                   showSearch
@@ -852,13 +883,13 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListDonVi}
+                  data={ListPhongBan}
                   placeholder="Đơn vị nhận yêu cầu"
-                  optionsvalue={["id", "tenDonVi"]}
+                  optionsvalue={["id", "tenPhongBan"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={true}
                 />
               </FormItem>
             </Col>
@@ -1256,7 +1287,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       </Card>
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin vật tư"}
+        title={"Danh sách vật tư"}
       >
         {(type === "new" || type === "edit") && (
           <div align={"end"}>
