@@ -33,7 +33,7 @@ import moment from "moment";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
-function DieuChuyen({ match, history, permission }) {
+function PhieuDieuChuyenThanhPham({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = {
@@ -82,7 +82,7 @@ function DieuChuyen({ match, history, permission }) {
       tits_qtsx_CauTrucKhoEnd_Id,
       tuNgay,
       denNgay,
-      isVatTu: true,
+      isVatTu: false,
       page,
     });
     dispatch(
@@ -94,7 +94,7 @@ function DieuChuyen({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_CauTrucKho/cau-truc-kho-vat-tu-tree`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -293,7 +293,7 @@ function DieuChuyen({ match, history, permission }) {
               )
             );
           }).then((res) => {
-            exportExcel("PhieuDieuChuyenVatTu", res.data.dataexcel);
+            exportExcel("PhieuDieuChuyenThanhPham", res.data.dataexcel);
           });
         }
       })
@@ -504,16 +504,18 @@ function DieuChuyen({ match, history, permission }) {
 
   const handleOnSelectKhoDi = (val) => {
     setKhoDi(val);
+    setKhoDen(null);
     setPage(1);
-    getListData(keyword, val, KhoDen, FromDate, ToDate, 1);
+    getListData(keyword, val, null, FromDate, ToDate, 1);
     const newData = ListKhoDi.filter((d) => d.id !== val);
     setListKhoDen(newData);
   };
 
   const handleClearKhoDi = () => {
     setKhoDi(null);
+    setKhoDen(null);
     setPage(1);
-    getListData(keyword, null, KhoDen, FromDate, ToDate, 1);
+    getListData(keyword, null, null, FromDate, ToDate, 1);
     if (!KhoDen) {
       getListKho();
     }
@@ -568,7 +570,7 @@ function DieuChuyen({ match, history, permission }) {
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row>
+        <Row style={{ marginBottom: 8 }}>
           <Col
             xxl={6}
             xl={8}
@@ -665,7 +667,7 @@ function DieuChuyen({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 700, y: "65vh" }}
+          scroll={{ x: 1200, y: "65vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -693,4 +695,4 @@ function DieuChuyen({ match, history, permission }) {
   );
 }
 
-export default DieuChuyen;
+export default PhieuDieuChuyenThanhPham;

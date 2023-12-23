@@ -274,6 +274,13 @@ function XuatKhoVatTu({ match, history, permission }) {
   };
   let renderHead = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -313,22 +320,6 @@ function XuatKhoVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Phiếu yêu cầu",
-      dataIndex: "maPhieuYeuCauCapVatTu",
-      key: "maPhieuYeuCauCapVatTu",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.maPhieuYeuCauCapVatTu,
-            value: d.maPhieuYeuCauCapVatTu,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.maPhieuYeuCauCapVatTu.includes(value),
-      filterSearch: true,
-    },
-    {
       title: "Kho xuất",
       dataIndex: "tenCauTrucKho",
       key: "tenCauTrucKho",
@@ -345,6 +336,41 @@ function XuatKhoVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
+      title: "Yêu cầu cấp theo",
+      key: "isBOM",
+      align: "center",
+      render: (record) => (
+        <div>
+          {record && (
+            <Tag
+              color={"blue"}
+              style={{
+                fontSize: 14,
+              }}
+            >
+              {record.isBOM === true ? "BOM" : "OEM"}
+            </Tag>
+          )}
+        </div>
+      ),
+    },
+    {
+      title: "Ngày xuất kho",
+      dataIndex: "ngayXuatKho",
+      key: "ngayXuatKho",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayXuatKho,
+            value: d.ngayXuatKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayXuatKho.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Người lập",
       dataIndex: "tenNguoiTao",
       key: "tenNguoiTao",
@@ -358,22 +384,6 @@ function XuatKhoVatTu({ match, history, permission }) {
         })
       ),
       onFilter: (value, record) => record.tenNguoiTao.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Ngày xuất kho",
-      dataIndex: "ngay",
-      key: "ngay",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.ngay,
-            value: d.ngay,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.ngay.includes(value),
       filterSearch: true,
     },
     {
@@ -405,7 +415,7 @@ function XuatKhoVatTu({ match, history, permission }) {
                   : "cyan"
               }
               style={{
-                fontSize: 13,
+                fontSize: 14,
               }}
             >
               {value}
@@ -413,13 +423,6 @@ function XuatKhoVatTu({ match, history, permission }) {
           )}
         </div>
       ),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 120,
-      render: (value) => actionContent(value),
     },
   ];
 

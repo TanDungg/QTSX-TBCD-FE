@@ -97,7 +97,7 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_Loi?page=-1`,
+          `tits_qtsx_LoiVatTu?page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -143,7 +143,6 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
               ngay: moment(data.ngay, "DD/MM/YYYY HH:mm:ss"),
             },
           });
-          console.log(JSON.parse(data.tits_qtsx_PhieuKiemTraVatTuChiTiets));
           setListVatTuKiemTra(
             data.tits_qtsx_PhieuKiemTraVatTuChiTiets &&
               JSON.parse(data.tits_qtsx_PhieuKiemTraVatTuChiTiets).map((dt) => {
@@ -152,8 +151,9 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
                   isNgoaiQuan: dt.isNgoaiQuan === true ? "true" : "false",
                   isThongSoKyThuat:
                     dt.isThongSoKyThuat === true ? "true" : "false",
-                  tits_qtsx_Loi_Id:
-                    dt.tits_qtsx_Loi_Id && dt.tits_qtsx_Loi_Id.toLowerCase(),
+                  tits_qtsx_LoiVatTu_Id:
+                    dt.tits_qtsx_LoiVatTu_Id &&
+                    dt.tits_qtsx_LoiVatTu_Id.toLowerCase(),
                 };
               })
           );
@@ -289,10 +289,10 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
               ...item,
               isThongSoKyThuat: value,
             };
-          } else if (key === "tits_qtsx_Loi_Id") {
+          } else if (key === "tits_qtsx_LoiVatTu_Id") {
             return {
               ...item,
-              tits_qtsx_Loi_Id: value,
+              tits_qtsx_LoiVatTu_Id: value,
             };
           }
         }
@@ -306,7 +306,7 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
       <Select
         className="heading-select slt-search th-select-heading"
         data={
-          key === "tits_qtsx_Loi_Id"
+          key === "tits_qtsx_LoiVatTu_Id"
             ? ListLoi
               ? ListLoi
               : []
@@ -315,9 +315,13 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
                 { isKey: "false", value: "Không đạt" },
               ]
         }
-        placeholder={key === "tits_qtsx_Loi_Id" ? "Chọn loại lỗi" : "Chọn loại"}
+        placeholder={
+          key === "tits_qtsx_LoiVatTu_Id" ? "Chọn loại lỗi" : "Chọn loại"
+        }
         optionsvalue={
-          key === "tits_qtsx_Loi_Id" ? ["id", "tenLoi"] : ["isKey", "value"]
+          key === "tits_qtsx_LoiVatTu_Id"
+            ? ["id", "tenLoiVatTu"]
+            : ["isKey", "value"]
         }
         style={{ width: "100%" }}
         onSelect={(value) => handleThongTinDatTinh(value, record, key)}
@@ -435,10 +439,11 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Nội dung lỗi",
-      key: "tits_qtsx_Loi_Id",
+      key: "tits_qtsx_LoiVatTu_Id",
       align: "center",
       width: 150,
-      render: (record) => renderThongTinDatTinh(record, "tits_qtsx_Loi_Id"),
+      render: (record) =>
+        renderThongTinDatTinh(record, "tits_qtsx_LoiVatTu_Id"),
     },
     {
       title: "Ghi chú",

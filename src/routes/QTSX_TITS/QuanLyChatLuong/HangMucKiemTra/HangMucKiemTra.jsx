@@ -236,8 +236,6 @@ function HangMucKiemTra({ match, history, permission }) {
 
     const editItem =
       permission && permission.edit ? (
-        // &&
-        // item.nguoiTao_Id === INFO.user_Id
         <Link
           to={{
             pathname: `${match.url}/${item.tits_qtsx_HangMucKiemTra_Id}/chinh-sua`,
@@ -254,7 +252,7 @@ function HangMucKiemTra({ match, history, permission }) {
       );
 
     const deleteVal =
-      permission && permission.del && item.nguoiTao_Id === INFO.user_Id
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (

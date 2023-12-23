@@ -67,6 +67,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
   const [info, setInfo] = useState({});
   const [ChungTu, setChungTu] = useState([]);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
+  const [DisabledXacNhan, setDisabledXacNhan] = useState(false);
 
   useEffect(() => {
     const load = () => {
@@ -196,7 +197,8 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       if (res && res.data) {
         const newChungTu = res.data.filter((d) => d.id === cautruckho);
         setChungTu(
-          newChungTu[0].chiTietChungTus &&
+          newChungTu &&
+            newChungTu[0].chiTietChungTus &&
             JSON.parse(newChungTu[0].chiTietChungTus)
         );
         setListKho(res.data);
@@ -291,6 +293,9 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           getKho(res.data.tits_qtsx_CauTrucKho_Id);
           const listchungtu =
             res.data.list_ChungTu && JSON.parse(res.data.list_ChungTu);
+          if (listchungtu === null) {
+            setDisabledXacNhan(true);
+          }
 
           const newListChungTu = {};
           listchungtu &&
@@ -861,44 +866,6 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       </span>
     );
 
-  const hanldeSelectChiTietVatTu = (value) => {
-    const newData = ListPhieuKiemTra.filter(
-      (data) => data.tits_qtsx_PhieuKiemTraVatTu_Id === value
-    );
-    console.log(newData);
-    setFieldsValue({
-      phieunhapkhovattu: {
-        tits_qtsx_PhieuNhanHang_Id:
-          newData[0].tits_qtsx_PhieuNhanHang_Id.toLowerCase(),
-      },
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuNhapKhoVatTu/phieu-kiem-tra-vat-tu-chi-tiet-chua-nhap?tits_qtsx_PhieuKiemTraVatTu_Id=${value}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const newData = res.data.map((data) => {
-            return {
-              ...data,
-              soLuong: data.soLuongChuaNhap,
-            };
-          });
-          setListVatTu(newData);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
   const renderFileChungTu = () => {
     const chungtu = [];
     const [FileChungTu, setFileChungTu] = useState([]);
@@ -1383,7 +1350,13 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       {type === "xacnhan" && info.tinhTrang === "Chưa xác nhận" && (
         <Row justify={"end"} style={{ marginTop: 15 }}>
           <Col style={{ marginRight: 15 }}>
-            <Button type="primary" onClick={modalXK}>
+            <Button
+              type="primary"
+              onClick={modalXK}
+              disabled={
+                info.tinhTrang !== "Chưa xác nhận" || DisabledXacNhan === true
+              }
+            >
               Xác nhận
             </Button>
           </Col>
@@ -1391,7 +1364,9 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
             <Button
               type="danger"
               onClick={() => setActiveModalTuChoi(true)}
-              disabled={info.tinhTrang !== "Chưa xác nhận"}
+              disabled={
+                info.tinhTrang !== "Chưa xác nhận" || DisabledXacNhan === true
+              }
             >
               Từ chối
             </Button>
