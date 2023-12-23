@@ -22,25 +22,6 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
         itemData.tits_qtsx_CauTrucKho_Id,
         VatTu.tits_qtsx_VatTu_Id
       );
-      if (VatTu.isCheck === true) {
-        setSelectedViTri(
-          VatTu.list_ChiTietLuuKhos && VatTu.list_ChiTietLuuKhos
-        );
-        const lstKey = VatTu.list_ChiTietLuuKhos
-          ? VatTu.list_ChiTietLuuKhos
-              .map((data) => {
-                const vt = ListViTriKho.find(
-                  (vitri) =>
-                    data.tits_qtsx_ChiTietKhoVatTu_Id.toLowerCase() ===
-                    vitri.tits_qtsx_ChiTietKhoVatTu_Id.toLowerCase()
-                );
-                return vt ? vt.key : null;
-              })
-              .filter((key) => key !== null)
-          : [];
-        console.log(lstKey);
-        setSelectedKeys(lstKey && lstKey);
-      }
     }
     return () => {
       dispatch(fetchReset());
@@ -67,6 +48,26 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       );
     }).then((res) => {
       if (res && res.data) {
+        console.log(res.data);
+        if (itemData.ListVatTuTheoOEM.isCheck === true) {
+          setSelectedViTri(
+            itemData.ListVatTuTheoOEM.list_ChiTietLuuKhos &&
+              itemData.ListVatTuTheoOEM.list_ChiTietLuuKhos
+          );
+          const lstKey = itemData.ListVatTuTheoOEM.list_ChiTietLuuKhos
+            ? itemData.ListVatTuTheoOEM.list_ChiTietLuuKhos
+                .map((data) => {
+                  const vt = ListViTriKho.find(
+                    (vitri) =>
+                      data.tits_qtsx_ChiTietKhoVatTu_Id.toLowerCase() ===
+                      vitri.tits_qtsx_ChiTietKhoVatTu_Id.toLowerCase()
+                  );
+                  return vt ? vt.key : null;
+                })
+                .filter((key) => key !== null)
+            : [];
+          setSelectedKeys(lstKey && lstKey);
+        }
         const newData = res.data.map((data) => {
           if (itemData.ListVatTuTheoOEM.isCheck === true) {
             const vitri = itemData.ListVatTuTheoOEM.list_ChiTietLuuKhos.find(
