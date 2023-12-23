@@ -16,13 +16,18 @@ import { DEFAULT_FORM_THEMVATTU } from "src/constants/Config";
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
+function ModalChonThanhPham({
+  openModalFS,
+  openModal,
+  itemData,
+  DataThemThanhPham,
+}) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { resetFields, setFieldsValue } = form;
-  const [ListKhoVatTuDi, setListKhoVatTuDi] = useState([]);
+  const [ListKhoVatPhamDi, setListKhoVatPhamDi] = useState([]);
   const [ListVatPham, setListVatPham] = useState([]);
   const [ListViTriKho, setListViTriKho] = useState([]);
   const [DataListVatPham, setDataListVatPham] = useState([]);
@@ -32,7 +37,7 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
     if (openModal) {
       getListKho();
       setFieldsValue({
-        themvattu: {
+        themthanhpham: {
           tits_qtsx_CauTrucKhoBegin_Id: itemData.tits_qtsx_CauTrucKhoBegin_Id,
         },
       });
@@ -48,7 +53,7 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_CauTrucKho/cau-truc-kho-vat-tu-tree`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=true`,
           "GET",
           null,
           "DETAIL",
@@ -60,9 +65,9 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListKhoVatTuDi(res.data);
+          setListKhoVatPhamDi(res.data);
         } else {
-          setListKhoVatTuDi([]);
+          setListKhoVatPhamDi([]);
         }
       })
       .catch((error) => console.error(error));
@@ -76,7 +81,7 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_ViTriLuuKhoVatTu/vat-pham-by-kho?${params}`,
+          `tits_qtsx_ViTriLuuKhoVatPham/vat-pham-by-kho?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -102,7 +107,7 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
             }${data.maNgan ? ` - ${data.maNgan}` : ""}`;
             return {
               ...data,
-              viTri: vitri ? vitri : null,
+              viTri: vitri ? vitri : data.tenKho,
               soLuong: data.soLuongTonKho,
             };
           });
@@ -220,13 +225,13 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
       width: 50,
     },
     {
-      title: "Mã vật tư",
+      title: "Mã thành phẩm",
       dataIndex: "maVatPham",
       key: "maVatPham",
       align: "center",
     },
     {
-      title: "Tên vật tư",
+      title: "Tên thành phẩm",
       dataIndex: "tenVatPham",
       key: "tenVatPham",
       align: "center",
@@ -285,7 +290,7 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
   };
 
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.tenVatPham, "vật tư");
+    ModalDeleteConfirm(deleteItemAction, item, item.tenVatPham, "thành phẩm");
   };
 
   const deleteItemAction = (item) => {
@@ -305,13 +310,13 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
       width: 50,
     },
     {
-      title: "Mã vật tư",
+      title: "Mã thành phẩm",
       dataIndex: "maVatPham",
       key: "maVatPham",
       align: "center",
     },
     {
-      title: "Tên vật tư",
+      title: "Tên thành phẩm",
       dataIndex: "tenVatPham",
       key: "tenVatPham",
       align: "center",
@@ -376,7 +381,7 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
     const newData = ListViTriKho.filter((data) => data.soLuong !== 0);
     setDataListVatPham([...DataListVatPham, ...newData]);
     setFieldsValue({
-      themvattu: {
+      themthanhpham: {
         tits_qtsx_CauTrucKhoBegin_Id: itemData.tits_qtsx_CauTrucKhoBegin_Id,
         tits_qtsx_VatPham_Id: null,
       },
@@ -384,15 +389,14 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
     setListViTriKho([]);
     const newListVatPham = ListVatPham.filter(
       (data) =>
-        data.tits_qtsx_VatPham_Id !== value.themvattu.tits_qtsx_VatPham_Id
+        data.tits_qtsx_VatPham_Id !== value.themthanhpham.tits_qtsx_VatPham_Id
     );
     setFieldTouch(false);
     setListVatPham(newListVatPham);
   };
 
   const XacNhan = () => {
-    console.log(DataListVatPham);
-    DataThemVatTu(DataListVatPham);
+    DataThemThanhPham(DataListVatPham);
     openModalFS(false);
     resetFields();
     setDataListVatPham([]);
@@ -412,7 +416,7 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
 
   return (
     <AntModal
-      title={`Chọn vật tư điều chuyển`}
+      title={`Chọn thành phẩm điều chuyển`}
       open={openModal}
       width={width > 1000 ? `80%` : "100%"}
       closable={true}
@@ -440,7 +444,7 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
               >
                 <FormItem
                   label="Kho điều chuyển"
-                  name={["themvattu", "tits_qtsx_CauTrucKhoBegin_Id"]}
+                  name={["themthanhpham", "tits_qtsx_CauTrucKhoBegin_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -450,7 +454,7 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
                 >
                   <Select
                     className="heading-select slt-search th-select-heading"
-                    data={ListKhoVatTuDi ? ListKhoVatTuDi : []}
+                    data={ListKhoVatPhamDi ? ListKhoVatPhamDi : []}
                     optionsvalue={["id", "tenCauTrucKho"]}
                     style={{ width: "100%" }}
                     placeholder="Kho điều chuyển"
@@ -470,8 +474,8 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Vật tư"
-                  name={["themvattu", "tits_qtsx_VatPham_Id"]}
+                  label="Thành phẩm"
+                  name={["themthanhpham", "tits_qtsx_VatPham_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -482,7 +486,7 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
                   <Select
                     className="heading-select slt-search th-select-heading"
                     data={ListVatPham}
-                    placeholder="Chọn tên vật tư"
+                    placeholder="Chọn tên thành phẩm"
                     optionsvalue={["tits_qtsx_VatPham_Id", "vatPham"]}
                     style={{ width: "100%" }}
                     showSearch
@@ -510,7 +514,7 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
               }}
             >
               <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
-                Thêm vật tư
+                Thêm thành phẩm
               </Button>
             </Row>
           </Form>
@@ -543,4 +547,4 @@ function ModalChonSanPham({ openModalFS, openModal, itemData, DataThemVatTu }) {
   );
 }
 
-export default ModalChonSanPham;
+export default ModalChonThanhPham;

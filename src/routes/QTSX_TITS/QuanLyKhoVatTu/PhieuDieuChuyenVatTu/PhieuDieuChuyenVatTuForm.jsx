@@ -38,7 +38,7 @@ import ModalTuChoi from "./ModalTuChoi";
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 
-const DieuChuyenVatTuForm = ({ history, match, permission }) => {
+const PhieuDieuChuyenVatTuForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [form] = Form.useForm();
@@ -1026,4 +1026,4 @@ const DieuChuyenVatTuForm = ({ history, match, permission }) => {
   );
 };
 
-export default DieuChuyenVatTuForm;
+export default PhieuDieuChuyenVatTuForm;

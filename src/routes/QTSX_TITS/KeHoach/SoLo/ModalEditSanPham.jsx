@@ -23,6 +23,7 @@ function ModalEditSanPham({
   const [ListQuyTrinh, setListQuyTrinh] = useState([]);
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
+
   useEffect(() => {
     if (openModal) {
       getQuyTrinh(info.tits_qtsx_SanPham_Id);
@@ -33,6 +34,7 @@ function ModalEditSanPham({
       });
     }
   }, [openModal]);
+
   const getQuyTrinh = (tits_qtsx_SanPham_Id) => {
     const params = convertObjectToUrlParams({
       tits_qtsx_SanPham_Id,
@@ -74,6 +76,7 @@ function ModalEditSanPham({
     });
     editSanPham(newData, info ? type : "new");
     resetFields();
+    openModalFS(false);
   };
 
   const handleCancel = () => {
@@ -87,6 +90,7 @@ function ModalEditSanPham({
   const onFinish = (values) => {
     saveData(values.chitiet);
   };
+
   const title = "Thông tin mã sản phẩm nội bộ";
 
   return (

@@ -311,7 +311,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
       item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
     } else if (soLuongThanhLy > item.soLuong) {
       setFieldTouch(false);
-      item.message = `Số lượng không được lớn hơn ${item.soLuongTon}`;
+      item.message = `Số lượng không được lớn hơn ${item.soLuong}`;
       setEditingRecord([...editingRecord, item]);
     } else {
       const newData = editingRecord.filter(
@@ -326,7 +326,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
       if (
         ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
       ) {
-        ct.soLuong = soLuongThanhLy;
+        ct.soLuongThanhLy = soLuongThanhLy;
       }
     });
     setListVatTu(newData);
@@ -351,7 +351,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
           }}
           className={`input-item`}
           type="number"
-          value={item.soLuong}
+          value={item.soLuongThanhLy}
           disabled={type === "new" || type === "edit" ? false : true}
           onChange={(val) => handleInputChange(val, item)}
         />
@@ -423,18 +423,27 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
     maxCount: 1,
   };
   const renderHinhAnhVatTu = (record) => {
+    console.log(record);
     return record.hinhAnh ? (
       <span>
-        <a
-          // target="_blank"
-          // href={BASE_URL_API + record.hinhAnhVatTu}
-          // rel="noopener noreferrer"
-          onClick={() => {
-            setOpenImage({ [record.key]: true });
-          }}
-        >
-          {record.hinhAnh}
-        </a>
+        {type === "detail" ? (
+          <Image
+            src={BASE_URL_API + record.hinhAnhGoc}
+            alt="Hình ảnh"
+            style={{ maxWidth: 50, maxHeight: 50 }}
+          />
+        ) : (
+          <a
+            target="_blank"
+            href={BASE_URL_API + record.hinhAnhGoc}
+            rel="noopener noreferrer"
+            onClick={() => {
+              setOpenImage({ [record.key]: true });
+            }}
+          >
+            {record.hinhAnhGoc && record.hinhAnhGoc.split("/")[5]}{" "}
+          </a>
+        )}
         {(type === "new" || type === "edit") && (
           <DeleteOutlined
             style={{ cursor: "pointer", color: "red" }}
@@ -455,7 +464,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
             }}
           />
         )}
-        <Image
+        {/* <Image
           width={100}
           src={record.fileImage}
           alt="preview"
@@ -470,7 +479,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
               setOpenImage({ [record.key]: value });
             },
           }}
-        />
+        /> */}
       </span>
     ) : (
       <Upload
@@ -495,7 +504,13 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
           return false;
         }}
       >
-        <Button>Tải file</Button>
+        <Button
+          style={{
+            marginBottom: 0,
+          }}
+        >
+          Tải file
+        </Button>
       </Upload>
     );
   };
@@ -553,7 +568,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
     },
     {
       title: "Hình ảnh",
-      key: "hinhAnh",
+      key: "hinhAnhGoc",
       align: "center",
       render: (record) => renderHinhAnhVatTu(record),
     },
@@ -713,7 +728,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                     tits_qtsx_ChiTietKhoBegin_Id:
                       vt.tits_qtsx_ChiTietKhoBegin_Id,
                     tits_qtsx_VatPham_Id: vt.tits_qtsx_VatPham_Id,
-                    soLuong: vt.soLuong,
+                    soLuongThanhLy: vt.soLuongThanhLy,
                     deXuat: vt.deXuat,
                     hinhAnh: path[index].path,
                     nguyenNhan: vt.nguyenNhan,
@@ -724,7 +739,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                 newListVatTu.push({
                   tits_qtsx_ChiTietKhoBegin_Id: vt.tits_qtsx_ChiTietKhoBegin_Id,
                   tits_qtsx_VatPham_Id: vt.tits_qtsx_VatPham_Id,
-                  soLuong: vt.soLuong,
+                  soLuongThanhLy: vt.soLuongThanhLy,
                   deXuat: vt.deXuat,
                   nguyenNhan: vt.nguyenNhan,
                   hinhAnh: null,
@@ -791,7 +806,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                     tits_qtsx_ChiTietKhoBegin_Id:
                       vt.tits_qtsx_ChiTietKhoBegin_Id,
                     tits_qtsx_VatPham_Id: vt.tits_qtsx_VatPham_Id,
-                    soLuong: vt.soLuong,
+                    soLuongThanhLy: vt.soLuongThanhLy,
                     deXuat: vt.deXuat,
                     hinhAnh: path[index].path,
                     nguyenNhan: vt.nguyenNhan,
@@ -802,7 +817,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                 newListVatTu.push({
                   tits_qtsx_ChiTietKhoBegin_Id: vt.tits_qtsx_ChiTietKhoBegin_Id,
                   tits_qtsx_VatPham_Id: vt.tits_qtsx_VatPham_Id,
-                  soLuong: vt.soLuong,
+                  soLuongThanhLy: vt.soLuongThanhLy,
                   deXuat: vt.deXuat,
                   nguyenNhan: vt.nguyenNhan,
                   hinhAnh: vt.hinhAnhGoc ? vt.hinhAnhGoc : null,
@@ -853,16 +868,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết phiếu thanh lý vật tư -{" "}
-        <Tag
-          color={
-            info.tinhTrang === "Đã xác nhận"
-              ? "blue"
-              : info.tinhTrang === "Đã từ chối"
-              ? "red"
-              : "green"
-          }
-          style={{ fontSize: "14px" }}
-        >
+        <Tag color={"blue"} style={{ fontSize: "14px" }}>
           {info.maPhieu}
         </Tag>
         <Tag
@@ -871,7 +877,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
               ? "blue"
               : info.tinhTrang === "Đã từ chối"
               ? "red"
-              : "green"
+              : "orange"
           }
           style={{ fontSize: "14px" }}
         >

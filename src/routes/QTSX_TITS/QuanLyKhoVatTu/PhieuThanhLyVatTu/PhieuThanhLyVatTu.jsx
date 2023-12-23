@@ -6,6 +6,7 @@ import {
   CheckCircleOutlined,
   DeleteOutlined,
   CloseCircleOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -26,10 +27,12 @@ import {
   getLocalStorage,
   getTokenInfo,
   removeDuplicates,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
 import ModalTuChoi from "./ModalTuChoi";
+import Helpers from "src/helpers";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
@@ -44,6 +47,8 @@ function ThanhLyVatTu({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const [IdTuChoi, setIdTuChoi] = useState("");
+  const [SelectedPhieu, setSelectedPhieu] = useState([]);
+  const [SelectedKeys, setSelectedKeys] = useState([]);
 
   const [ActiveModal, setActiveModal] = useState(false);
 
@@ -217,6 +222,49 @@ function ThanhLyVatTu({ match, history, permission }) {
     });
   };
 
+  const handleXuatExcel = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuThanhLy/${SelectedPhieu[0].id}?isVatTu=true`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const data = res.data;
+          const newData = {
+            ...data,
+            tits_qtsx_PhieuThanhLyChiTiets:
+              data.tits_qtsx_PhieuThanhLyChiTiets &&
+              JSON.parse(data.tits_qtsx_PhieuThanhLyChiTiets),
+          };
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `tits_qtsx_PhieuThanhLy/export-file-phieu-thanh-ly-vat-tu`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportExcel("PhieuThanhLyVatTu", res.data.dataexcel);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -228,6 +276,17 @@ function ThanhLyVatTu({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
+        </Button>
+        <Button
+          icon={<DownloadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleXuatExcel}
+          disabled={
+            (permission && !permission.add) || SelectedPhieu.length === 0
+          }
+        >
+          Xuất excel
         </Button>
       </>
     );
@@ -454,15 +513,41 @@ function ThanhLyVatTu({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
+
   const prop = {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
     title: "Xác nhận phiếu thanh lý vật tư",
   };
+
   const modalXK = (id) => {
     Modal({ ...prop, onOk: () => hanldeXacNhan(id) });
   };
+
+  const rowSelection = {
+    selectedRowKeys: SelectedKeys,
+    selectedRows: SelectedPhieu,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        SelectedPhieu.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectedPhieu[0].key)
+          : [...selectedRows];
+
+      const key =
+        SelectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
+          : [...selectedRowKeys];
+      if (row.length && row[0].tinhTrang.startsWith("Đã từ chối")) {
+        Helpers.alertError("Không được chọn phiếu đã từ chối");
+      } else {
+        setSelectedPhieu(row);
+        setSelectedKeys(key);
+      }
+    },
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -562,6 +647,13 @@ function ThanhLyVatTu({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: SelectedKeys,
+          }}
         />
       </Card>
       <ModalTuChoi

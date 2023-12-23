@@ -690,7 +690,7 @@ function TienDoSanXuat({ match, history, permission }) {
         openModal={ActiveModalHoSoChatLuong}
         openModalFS={setActiveModalHoSoChatLuong}
         info={InfoSanPham}
-      />{" "}
+      />
       <ModalKiemSoatChatLuong
         openModal={ActiveKiemSoatChatLuong}
         openModalFS={setActiveKiemSoatChatLuong}

@@ -33,7 +33,7 @@ import moment from "moment";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
-function DieuChuyenVatTu({ match, history, permission }) {
+function PhieuDieuChuyenVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = {
@@ -695,4 +695,4 @@ function DieuChuyenVatTu({ match, history, permission }) {
   );
 }
 
-export default DieuChuyenVatTu;
+export default PhieuDieuChuyenVatTu;
