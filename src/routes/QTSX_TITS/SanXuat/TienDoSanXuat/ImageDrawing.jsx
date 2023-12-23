@@ -7,17 +7,16 @@ const ImageDrawing = ({
   AddLoi,
   dataNoiDung,
   listViTri,
+  xoaToaDo,
+  sanPhamhinhAnhId,
 }) => {
   const canvasRef = useRef(null);
-  const [circles, setCircles] = useState([]);
   const [ViTri, setViTri] = useState();
-
   const [ActiveModal, setActiveModal] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
-
     // Load hình ảnh
     const image = new Image();
     image.src = imageUrl; // Thay thế đường dẫn hình ảnh thực tế
@@ -29,7 +28,7 @@ const ImageDrawing = ({
           const toaDo = JSON.parse(circle);
           context.beginPath();
           context.arc(toaDo.x, toaDo.y, 20, 0, 2 * Math.PI);
-          context.fillStyle = "red";
+          context.fillStyle = circle.isHoanThanhSCL ? "blue" : "red";
           context.fill();
           // Thêm chữ vào hình tròn
           context.font = "14px Arial";
@@ -39,17 +38,56 @@ const ImageDrawing = ({
           context.fillText(toaDo.maLoi, toaDo.x, toaDo.y);
         });
       }
+
       // Vẽ các hình tròn đã lưu
     };
-  }, [listViTri]);
+  }, [imageUrl, listViTri]);
 
   const handleCanvasClick = (e) => {
-    const canvas = canvasRef.current;
-    const pos = getMousePos(canvas, e);
-    // Lưu thông tin về hình tròn
-    setViTri({ x: pos.x, y: pos.y, tits_qtsx_SanPhamHinhAnh_Id: hinhAnhId });
-    setActiveModal(true);
-    // setCircles([...circles, newCircle]);
+    if (AddLoi !== undefined) {
+      const canvas = canvasRef.current;
+      const pos = getMousePos(canvas, e);
+      // Lưu thông tin về hình tròn
+      if (listViTri) {
+        let check = false;
+        listViTri.forEach((vt) => {
+          const toaDo = JSON.parse(vt);
+          const checkToaDo =
+            Math.sqrt(
+              (Number(pos.x) - Number(toaDo.x)) ** 2 +
+                (Number(pos.y) - Number(toaDo.y)) ** 2
+            ) <= 20;
+          if (checkToaDo) {
+            check = true;
+            xoaToaDo({
+              viTri: vt,
+              tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id:
+                toaDo.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id,
+              tits_qtsx_HangMucKiemTra_HinhAnh_Id: hinhAnhId,
+            });
+          }
+        });
+        if (!check) {
+          setViTri({
+            x: pos.x,
+            y: pos.y,
+            tits_qtsx_HangMucKiemTra_HinhAnh_Id: hinhAnhId,
+            tits_qtsx_SanPhamHinhAnh_Id: sanPhamhinhAnhId,
+          });
+          // setCircles({ x: pos.x, y: pos.y });
+          setActiveModal(true);
+        }
+      } else {
+        setViTri({
+          x: pos.x,
+          y: pos.y,
+          tits_qtsx_HangMucKiemTra_HinhAnh_Id: hinhAnhId,
+          tits_qtsx_SanPhamHinhAnh_Id: sanPhamhinhAnhId,
+        });
+        // setCircles({ x: pos.x, y: pos.y });
+        setActiveModal(true);
+      }
+    }
   };
 
   const getMousePos = (canvas, e) => {
@@ -59,6 +97,9 @@ const ImageDrawing = ({
       y: e.clientY - rect.top,
     };
   };
+  // const handleMouseUp = () => {
+  //   setIsDrawing(false);
+  // };
   const ThemLoi = (data) => {
     AddLoi(data);
   };
@@ -69,6 +110,7 @@ const ImageDrawing = ({
         width={600} // Thay thế kích thước bằng kích thước thực tế của hình ảnh
         height={300} // Thay thế kích thước bằng kích thước thực tế của hình ảnh
         onClick={handleCanvasClick}
+        // onMouseUp={handleMouseUp}
       />
       <ModalChamLoi
         openModal={ActiveModal}

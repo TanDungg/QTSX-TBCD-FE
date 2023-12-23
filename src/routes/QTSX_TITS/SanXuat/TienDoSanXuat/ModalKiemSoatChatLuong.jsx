@@ -5,45 +5,27 @@ import {
   Input,
   Button,
   Col,
-  Checkbox,
   Tag,
+  Divider,
 } from "antd";
 import { map } from "lodash";
-import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { Table, EditableTableRow, Modal } from "src/components/Common";
 import ImageDrawing from "src/routes/QTSX_TITS/SanXuat/TienDoSanXuat/ImageDrawing";
-import { BASE_URL_API, DEFAULT_FORM_CONGDOAN } from "src/constants/Config";
-import {
-  convertObjectToUrlParams,
-  getDateNow,
-  getLocalStorage,
-  getTokenInfo,
-  newTreeToFlatlist,
-  reDataForTable,
-} from "src/util/Common";
-import KiemSoatChatLuongTaiTramCanva from "./KiemSoatChatLuongTaiTramCanva";
+import { BASE_URL_API } from "src/constants/Config";
+import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import { SaveOutlined } from "@ant-design/icons";
 import Helpers from "src/helpers";
-const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
   const dispatch = useDispatch();
-  const { width } = useSelector(({ common }) => common).toJS();
-  const INFO = {
-    ...getLocalStorage("menu"),
-    user_Id: getTokenInfo().id,
-    token: getTokenInfo().token,
-  };
-  const [fieldTouch, setFieldTouch] = useState(false);
+  // const { width } = useSelector(({ common }) => common).toJS();
   const [form] = Form.useForm();
   const { resetFields } = form;
   const [ListHangMucKiemTra, setListHangMucKiemTra] = useState([]);
-  const [ListHinhAnh, setListHinhAnh] = useState([]);
-
   useEffect(() => {
     if (openModal) {
       getHoSoChatLuong(info);
@@ -72,66 +54,28 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListHangMucKiemTra(res.data.list_TDSXKiemSoatChatLuongs);
-        const newData = [];
-        res.data.list_TDSXKiemSoatChatLuongs.forEach((ct) => {
-          newData.push(...ct.list_HinhAnhs);
+        res.data.list_TDSXKiemSoatChatLuongs.forEach((ks) => {
+          if (ks.isNoiDung) {
+            ks.list_TDSXKiemSoatChatLuongChiTiets.forEach((ct) => {
+              if (ct.list_TDSXKiemSoatChatLuongChiTietLois.length === 0) {
+                ct.isDat = true;
+              }
+              // else{
+              //   ct.list_TDSXKiemSoatChatLuongChiTietLois.forEach(ctl =>{
+              //     ks.list_HinhAnhs.forEach(ha =>{
+              //       if(ctl)
+              //     })
+              //   })
+              // }
+            });
+          }
         });
-        setListHinhAnh(newData);
+        setListHangMucKiemTra(res.data.list_TDSXKiemSoatChatLuongs);
       } else {
         setListHangMucKiemTra([]);
-        setListHinhAnh([]);
       }
     });
   };
-
-  //   const getListXuong = (congDoan_Id) => {
-  //     const param = convertObjectToUrlParams({
-  //       congDoan_Id,
-  //     });
-  //     new Promise((resolve, reject) => {
-  //       dispatch(
-  //         fetchStart(
-  //           `tits_qtsx_Xuong?${param}&page=-1`,
-  //           "GET",
-  //           null,
-  //           "DETAIL",
-  //           "",
-  //           resolve,
-  //           reject
-  //         )
-  //       );
-  //     }).then((res) => {
-  //       if (res && res.data) {
-  //         setListXuong(res.data);
-  //       } else {
-  //         setListXuong([]);
-  //       }
-  //     });
-  //   };
-
-  //   const onFinish = (values) => {
-  //     const data = values.themcongdoan;
-  //     const congdoan = ListHangMucKiemTra.filter(
-  //       (d) => d.id === data.tits_qtsx_CongDoan_Id
-  //     );
-  //     const xuong = ListXuong.filter((d) => d.id === data.tits_qtsx_Xuong_Id);
-  //     const newData = {
-  //       ...data,
-  //       tenCongDoan: congdoan[0].tenCongDoan,
-  //       maCongDoan: congdoan[0].maCongDoan,
-  //       tenXuong: xuong[0].tenXuong,
-  //       maXuong: xuong[0].maXuong,
-  //       list_Trams: [],
-  //     };
-  //     DataThemCongDoan(newData);
-  //     resetFields();
-  //     openModalFS(false);
-  //   };
-
-  //   const handleOnSelectCongDoan = (value) => {
-  //     getListXuong(value);
-  //   };
   let renderNoiDung = [
     {
       title: "STT",
@@ -142,27 +86,40 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
     },
     {
       title: "Nội dung",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      dataIndex: "noiDungKiemTra",
+      key: "noiDungKiemTra",
       align: "center",
     },
     {
       title: "Tiêu chuẩn đánh giá",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      dataIndex: "tieuChuanDanhGia",
+      key: "tieuChuanDanhGia",
       align: "center",
     },
     {
       title: "Giá trị tiêu chuẩn",
-      dataIndex: "soSerial",
-      key: "soSerial",
+      dataIndex: "giaTriTieuChuan",
+      key: "giaTriTieuChuan",
       align: "center",
     },
     {
       title: "Đánh giá",
-      dataIndex: "ghiChu",
-      key: "ghiChu",
+      dataIndex: "isDat",
+      key: "isDat",
       align: "center",
+      render: (val) => (
+        <Tag color={val ? "green" : "red"}>{val ? "Đạt" : "Không đạt"} </Tag>
+      ),
+    },
+    {
+      title: "Lỗi",
+      dataIndex: "list_TDSXKiemSoatChatLuongChiTietLois",
+      key: "list_TDSXKiemSoatChatLuongChiTietLois",
+      align: "center",
+      render: (val) =>
+        val.map((l) => {
+          return <Tag color="green">{JSON.parse(l.viTri).maLoi}</Tag>;
+        }),
     },
   ];
   const handleInputChange = (val, item) => {
@@ -175,8 +132,12 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
           item.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
         ) {
           clct.ketQua = ketQua;
-          clct.isDat =
-            item.giaTriMin <= ketQua && ketQua <= item.giaTriMax ? true : false;
+          if (clct.list_TDSXKiemSoatChatLuongChiTietLois.length === 0) {
+            clct.isDat =
+              item.giaTriMin <= ketQua && ketQua <= item.giaTriMax
+                ? true
+                : false;
+          }
         }
       });
     });
@@ -248,11 +209,12 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
       align: "center",
       render: (val) =>
         val.map((l) => {
-          return <Tag color="green">{l.tenLoi}</Tag>;
+          return <Tag color="green">{l.maLoi}</Tag>;
         }),
     },
   ];
-  const columns = map(renderThongSo, (col) => {
+
+  const columnThongSos = map(renderThongSo, (col) => {
     if (!col.editable) {
       return col;
     }
@@ -267,7 +229,21 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
       }),
     };
   });
-
+  const columnNoiDungs = map(renderNoiDung, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
   const components = {
     body: {
       row: EditableRow,
@@ -285,6 +261,7 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
           ct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
           data.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
         ) {
+          ct.isDat = false;
           ct.list_TDSXKiemSoatChatLuongChiTietLois = [
             ...ct.list_TDSXKiemSoatChatLuongChiTietLois,
             data,
@@ -293,7 +270,8 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
       });
       hm.list_HinhAnhs.forEach((ha) => {
         if (
-          ha.tits_qtsx_SanPhamHinhAnh_Id === data.tits_qtsx_SanPhamHinhAnh_Id
+          ha.tits_qtsx_HangMucKiemTra_HinhAnh_Id ===
+          data.tits_qtsx_HangMucKiemTra_HinhAnh_Id
         ) {
           if (ha.listViTri) {
             ha.listViTri = [...ha.listViTri, data.viTri];
@@ -304,6 +282,39 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
       });
     });
     setListHangMucKiemTra(newData);
+  };
+  const xoaToaDo = (data) => {
+    const newData = [...ListHangMucKiemTra];
+    newData.forEach((hm) => {
+      hm.list_TDSXKiemSoatChatLuongChiTiets.forEach((ct) => {
+        if (
+          ct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
+          data.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
+        ) {
+          ct.list_TDSXKiemSoatChatLuongChiTietLois =
+            ct.list_TDSXKiemSoatChatLuongChiTietLois.filter(
+              (ctl) => ctl.viTri !== data.viTri
+            );
+          if (ct.list_TDSXKiemSoatChatLuongChiTietLois.length === 0) {
+            ct.isDat =
+              ct.giaTriMin <= ct.ketQua && ct.giaTriMax >= ct.ketQua
+                ? true
+                : false;
+          }
+        }
+      });
+      hm.list_HinhAnhs.forEach((ha) => {
+        if (
+          ha.tits_qtsx_HangMucKiemTra_HinhAnh_Id ===
+          data.tits_qtsx_HangMucKiemTra_HinhAnh_Id
+        ) {
+          if (ha.listViTri) {
+            ha.listViTri = ha.listViTri.filter((vt) => vt !== data.viTri);
+          }
+        }
+      });
+    });
+    setListHangMucKiemTra([...newData]);
   };
   const onSave = () => {
     let check = false;
@@ -380,50 +391,66 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
           <span style={{ fontWeight: "bold" }}>&nbsp;{info.maNoiBo}</span>
         </Col>
       </Row>
+      <Divider />
       {ListHangMucKiemTra.length > 0 &&
-        ListHangMucKiemTra.map((hmkt) => {
+        ListHangMucKiemTra.map((hmkt, index) => {
           return (
-            <Row>
-              <Col span={12}>
-                <Row>
-                  <Col span={24} style={{ marginBottom: 10 }}>
-                    <span style={{ marginBottom: 10, display: "block" }}>
-                      Hạng mục kiểm tra:{" "}
-                      <span style={{ fontWeight: "bold" }}>
-                        {hmkt.tenHangMucKiemTra}
+            <>
+              <Row key={index}>
+                <Col span={12}>
+                  <Row>
+                    <Col span={24} style={{ marginBottom: 10 }}>
+                      <span style={{ marginBottom: 10, display: "block" }}>
+                        Hạng mục kiểm tra:{" "}
+                        <span style={{ fontWeight: "bold" }}>
+                          {hmkt.tenHangMucKiemTra}
+                        </span>
                       </span>
-                    </span>
-                    <Table
-                      bordered
-                      scroll={{ x: 800, y: "70vh" }}
-                      columns={columns}
-                      components={components}
-                      className="gx-table-responsive"
-                      dataSource={reDataForTable(
-                        hmkt.list_TDSXKiemSoatChatLuongChiTiets
-                      )}
-                      size="small"
-                      pagination={false}
-                    />
-                  </Col>
-                </Row>
-              </Col>
-              <Col span={12} align="center" style={{ position: "relative" }}>
-                {hmkt.list_HinhAnhs.length > 0 &&
-                  hmkt.list_HinhAnhs.map((ha) => {
-                    return (
-                      <ImageDrawing
-                        imageUrl={BASE_URL_API + ha.hinhAnh}
-                        hinhAnhId={ha.tits_qtsx_SanPhamHinhAnh_Id}
-                        dataNoiDung={hmkt}
-                        setListHangMucKiemTra={setListHangMucKiemTra}
-                        AddLoi={AddLoi}
-                        listViTri={ha.listViTri}
+                      <Table
+                        bordered
+                        scroll={{ x: 800, y: "70vh" }}
+                        columns={
+                          hmkt.isNoiDung ? columnNoiDungs : columnThongSos
+                        }
+                        components={components}
+                        className="gx-table-responsive"
+                        dataSource={reDataForTable(
+                          hmkt.list_TDSXKiemSoatChatLuongChiTiets
+                        )}
+                        size="small"
+                        pagination={false}
                       />
-                    );
-                  })}
-              </Col>
-            </Row>
+                    </Col>
+                  </Row>
+                </Col>
+                <Col
+                  span={12}
+                  align="center"
+                  style={{
+                    position: "relative",
+                    height: 301,
+                    overflow: "auto",
+                  }}
+                >
+                  {hmkt.list_HinhAnhs.length > 0 &&
+                    hmkt.list_HinhAnhs.map((ha) => {
+                      return (
+                        <ImageDrawing
+                          imageUrl={BASE_URL_API + ha.hinhAnh}
+                          hinhAnhId={ha.tits_qtsx_HangMucKiemTra_HinhAnh_Id}
+                          sanPhamhinhAnhId={ha.tits_qtsx_SanPhamHinhAnh_Id}
+                          dataNoiDung={hmkt}
+                          setListHangMucKiemTra={setListHangMucKiemTra}
+                          AddLoi={AddLoi}
+                          listViTri={ha.listViTri}
+                          xoaToaDo={xoaToaDo}
+                        />
+                      );
+                    })}
+                </Col>
+              </Row>
+              <Divider />
+            </>
           );
         })}
       <Row style={{ marginTop: 10 }}>

@@ -44,7 +44,7 @@ function ModalChiTietPhieu({ openModalFS, openModal, data, loai, info }) {
                   !info.isNhap &&
                   "/quan-ly-kho-tpc/xuat-kho/vat-tu/") +
               val.phieu_Id +
-              "/chi-tiet";
+              "/chinh-sua";
           } else {
             url =
               BASE_URL_APP +
@@ -56,7 +56,7 @@ function ModalChiTietPhieu({ openModalFS, openModal, data, loai, info }) {
                 ? "/quan-ly-kho-tpc/nhap-kho/vat-tu/"
                 : !loai && !val.isNhap && "/quan-ly-kho-tpc/xuat-kho/vat-tu/") +
               val.phieu_Id +
-              "/chi-tiet";
+              "/chinh-sua";
           }
           window.open(url, "_blank");
         }}

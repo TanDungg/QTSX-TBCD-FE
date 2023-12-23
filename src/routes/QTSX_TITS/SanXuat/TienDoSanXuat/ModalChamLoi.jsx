@@ -76,11 +76,16 @@ function ModalChamLoi({ openModalFS, openModal, ViTri, ThemLoi, ListNoiDung }) {
         x: ViTri.x,
         y: ViTri.y,
         maLoi: values.chiTietLoi.maLoi,
+        tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id:
+          values.chiTietLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id,
       }),
-      isBoQua: values.chiTietLoi.isBoQua,
-      tits_qtsx_SanPhamHinhAnh_Id: ViTri.tits_qtsx_SanPhamHinhAnh_Id,
+      maLoi: values.chiTietLoi.maLoi,
+      isBoQua: values.chiTietLoi.isBoQua ? values.chiTietLoi.isBoQua : false,
+      tits_qtsx_HangMucKiemTra_HinhAnh_Id:
+        ViTri.tits_qtsx_HangMucKiemTra_HinhAnh_Id,
       tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id:
         values.chiTietLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id,
+      tits_qtsx_SanPhamHinhAnh_Id: ViTri.tits_qtsx_SanPhamHinhAnh_Id,
     });
     openModalFS(false);
   };
@@ -89,7 +94,7 @@ function ModalChamLoi({ openModalFS, openModal, ViTri, ThemLoi, ListNoiDung }) {
     <AntModal
       title={"Thông tin chi tiết lỗi"}
       open={openModal}
-      width={`70%`}
+      width={`50%`}
       closable={true}
       onCancel={handleCancel}
       footer={null}

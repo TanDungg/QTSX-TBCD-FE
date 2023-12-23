@@ -1102,6 +1102,38 @@ const VatTuForm = ({ history, match, permission }) => {
       setListVatTu([...listVatTu, data]);
     }
   };
+  const CapNhatDuLieuPhieuNhapKho = () => {
+    const newData = form.getFieldValue("phieunhapkho");
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `lkn_PhieuNhapKhoVatTu/thong-tin/${id}`,
+          "PUT",
+          {
+            id: newData.id,
+            ngayNhan: newData.ngayNhan._i,
+            soHoaDon: newData.soHoaDon,
+            ngayHoaDon: newData.ngayHoaDon && newData.ngayHoaDon._i,
+            userNhan_Id: newData.userNhan_Id,
+            nhaCungCap_Id: newData.nhaCungCap_Id,
+            noiDungNhanVatTu: newData.noiDungNhanVatTu,
+            userThongKe_Id: newData.userThongKe_Id,
+          },
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          getInfo(id);
+          setFieldTouch(false);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -1215,7 +1247,11 @@ const VatTuForm = ({ history, match, permission }) => {
               >
                 <Input
                   placeholder="Số hóa đơn"
-                  disabled={type === "new" || type === "duyet" ? false : true}
+                  disabled={
+                    type === "new" || type === "duyet" || type === "edit"
+                      ? false
+                      : true
+                  }
                 />
               </FormItem>
             </Col>
@@ -1226,7 +1262,11 @@ const VatTuForm = ({ history, match, permission }) => {
                 rules={[]}
               >
                 <DatePicker
-                  disabled={type === "new" || type === "duyet" ? false : true}
+                  disabled={
+                    type === "new" || type === "duyet" || type === "edit"
+                      ? false
+                      : true
+                  }
                   format={"DD/MM/YYYY"}
                   onChange={(date, dateString) => {
                     if (dateString === "") {
@@ -1265,7 +1305,11 @@ const VatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "new" || type === "duyet" ? false : true}
+                  disabled={
+                    type === "new" || type === "duyet" || type === "edit"
+                      ? false
+                      : true
+                  }
                 />
               </FormItem>
             </Col>
@@ -1281,7 +1325,11 @@ const VatTuForm = ({ history, match, permission }) => {
               >
                 <Input
                   placeholder="Nội dụng nhập vật tư"
-                  disabled={type === "new" || type === "duyet" ? false : true}
+                  disabled={
+                    type === "new" || type === "duyet" || type === "edit"
+                      ? false
+                      : true
+                  }
                 />
               </FormItem>
             </Col>
@@ -1361,6 +1409,24 @@ const VatTuForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              align="center"
+            >
+              <Button
+                onClick={CapNhatDuLieuPhieuNhapKho}
+                disabled={!fieldTouch}
+                type="primary"
+              >
+                Cập nhật
+              </Button>
+            </Col>
+
             {/* <Col   xxl={12}
               xl={12}
               lg={24}

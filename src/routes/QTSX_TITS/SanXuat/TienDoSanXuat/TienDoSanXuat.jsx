@@ -613,15 +613,16 @@ function TienDoSanXuat({ match, history, permission }) {
                   >
                     In Barcode
                   </Button>
-                  <Button
-                    icon={<CheckSquareOutlined />}
-                    type="primary"
-                    style={{ width: "80%" }}
-                    // disabled={DisableVaoTram}
-                    onClick={() => setActiveModalKiemSoatVatTu(true)}
-                  >
-                    Kiểm soát vật tư lắp ráp
-                  </Button>
+                  {InfoSanPham && InfoSanPham.isCheckVatTu ? (
+                    <Button
+                      icon={<CheckSquareOutlined />}
+                      type="primary"
+                      style={{ width: "80%" }}
+                      onClick={() => setActiveModalKiemSoatVatTu(true)}
+                    >
+                      Kiểm soát vật tư lắp ráp
+                    </Button>
+                  ) : null}
                   <Button
                     icon={<FileTextOutlined />}
                     type="primary"
@@ -643,6 +644,7 @@ function TienDoSanXuat({ match, history, permission }) {
                     icon={<CheckSquareOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
+                    disabled={InfoSanPham.isKiemSoatChatLuong}
                     onClick={() => setActiveKiemSoatChatLuong(true)}
                   >
                     Kiểm soát chất lượng

@@ -2870,7 +2870,7 @@ function BOMForm({ match, permission, history }) {
           </Form>
         </Spin>
       </Card>
-      <Card className="th-card-margin-bottom" title="Thông tin vật tư BOM"> 
+      <Card className="th-card-margin-bottom" title="Thông tin vật tư BOM">
         {type === "new" && (
           <>
             <Row>
