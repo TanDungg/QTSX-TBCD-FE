@@ -15,7 +15,11 @@ import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { Table, EditableTableRow, Modal } from "src/components/Common";
 import ImageDrawing from "src/routes/QTSX_TITS/SanXuat/TienDoSanXuat/ImageDrawing";
 import { BASE_URL_API } from "src/constants/Config";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  getTokenInfo,
+  reDataForTable,
+} from "src/util/Common";
 
 import { SaveOutlined } from "@ant-design/icons";
 import Helpers from "src/helpers";
@@ -73,6 +77,9 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
             if (ct.list_TDSXKiemSoatChatLuongChiTietLois.length > 0) {
               ct.list_TDSXKiemSoatChatLuongChiTietLois.forEach((Ctl) => {
                 Ctl.tenHangMucKiemTra = ks.tenHangMucKiemTra;
+                if (Ctl.nguoiSuaChuaLai_Id) {
+                  Ctl.isHoanThanhSCL = true;
+                }
                 setThoiGianVaoTram(Ctl.thoiGianVao);
                 ks.list_HinhAnhs.forEach((ha) => {
                   if (
@@ -110,7 +117,6 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
           });
         });
         setListLoi(newListLoi);
-        console.log(newListLoi);
         setListHangMucKiemTra(newData);
       } else {
         setListHangMucKiemTra([]);
@@ -216,7 +222,11 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
       align: "center",
       render: (val) =>
         val.map((l) => {
-          return <Tag color="green">{JSON.parse(l.viTri).maLoi}</Tag>;
+          return (
+            <Tag color={l.isHoanThanhSCL ? "#0E42FA" : "#FF0101"}>
+              {JSON.parse(l.viTri).maLoi}
+            </Tag>
+          );
         }),
     },
   ];
@@ -307,7 +317,11 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
       align: "center",
       render: (val) =>
         val.map((l) => {
-          return <Tag color="green">{l.maLoi}</Tag>;
+          return (
+            <Tag color={l.isHoanThanhSCL ? "#0E42FA" : "#FF0101"}>
+              {l.maLoi}
+            </Tag>
+          );
         }),
     },
   ];
@@ -403,6 +417,7 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
           ct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
           data.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
         ) {
+          ct.isDat = true;
           ct.list_TDSXKiemSoatChatLuongChiTietLois.forEach((ctl) => {
             if (
               ctl.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id ===
@@ -418,37 +433,46 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
           ha.tits_qtsx_HangMucKiemTra_HinhAnh_Id ===
           data.tits_qtsx_HangMucKiemTra_HinhAnh_Id
         ) {
-          ha.listViTri.forEach((lvt) => {
+          ha.listViTri.forEach((lvt, index) => {
             if (lvt === JSON.stringify(data.viTri)) {
               data.viTri.isHoanThanhSCL = true;
-              lvt = JSON.stringify(data.viTri);
+              ha.listViTri[index] = JSON.stringify(data.viTri);
             }
           });
         }
       });
     });
-    console.log(newData);
-    setListHangMucKiemTra([...newData]);
+    setListHangMucKiemTra(newData);
+    setListLoi([
+      ...ListLoi.map((ll) => {
+        if (
+          ll.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id ===
+          data.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id
+        ) {
+          return {
+            ...ll,
+            moTaSCL: data.moTaSCL,
+            tenNguoiSuaChuaLai: data.tenNguoiSuaChuaLai,
+            nguoiSuaChuaLai_Id: data.nguoiSuaChuaLai_Id,
+          };
+        }
+      }),
+    ]);
   };
   const onSave = () => {
     let check = false;
-    ListHangMucKiemTra.forEach((hm) => {
-      hm.list_TDSXKiemSoatChatLuongChiTiets.forEach((lct) => {
-        if (lct.isDat === undefined) {
-          check = true;
-        }
-      });
+    ListLoi.forEach((ll) => {
+      if (!ll.isHoanThanhSCL) {
+        check = true;
+      }
     });
     if (!check) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_TienDoSanXuat/kiem-soat-chat-luong`,
+            `tits_qtsx_TienDoSanXuat/put-sua-chua-lai?tits_qtsx_TienDoSanXuat_Id=${info.tits_qtsx_TienDoSanXuat_Id}`,
             "PUT",
-            {
-              tits_qtsx_TienDoSanXuat_Id: info.tits_qtsx_TienDoSanXuat_Id,
-              list_TDSXKiemSoatChatLuongs: ListHangMucKiemTra,
-            },
+            ListLoi,
             "DETAIL",
             "",
             resolve,
@@ -463,7 +487,7 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
         }
       });
     } else {
-      Helpers.alertWarning("Chưa nhập đủ kết quả nội dung kiểm tra");
+      Helpers.alertWarning("Chưa sửa chữa hết các lỗi tại trạm");
     }
   };
   const modalXacNhan = (ham, title) => {
@@ -581,7 +605,7 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
           <Button
             style={{ margin: 0 }}
             icon={<SaveOutlined />}
-            onClick={() => modalXacNhan(onSave, "Lưu kiểm soát chất lượng")}
+            onClick={() => modalXacNhan(onSave, "Lưu sửa chữa lại")}
             type="primary"
           >
             Lưu

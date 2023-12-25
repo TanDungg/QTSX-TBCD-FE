@@ -27,7 +27,10 @@ function ModalDaSuaChuaLai({ openModalFS, openModal, ViTri, SuaChuaLai }) {
     if (openModal) {
       resetFields();
       setFieldsValue({
-        chiTietLoi: { nguoiThucHien: getTokenInfo().fullName, ...ViTri.viTri },
+        chiTietLoi: {
+          tenNguoiSuaChuaLai: getTokenInfo().fullName,
+          ...ViTri.viTri,
+        },
       });
     }
   }, [openModal]);
@@ -44,6 +47,7 @@ function ModalDaSuaChuaLai({ openModalFS, openModal, ViTri, SuaChuaLai }) {
     SuaChuaLai({
       ...ViTri,
       ...values.chiTietLoi,
+      nguoiSuaChuaLai_Id: getTokenInfo().id,
     });
     openModalFS(false);
   };
@@ -67,7 +71,7 @@ function ModalDaSuaChuaLai({ openModalFS, openModal, ViTri, SuaChuaLai }) {
         >
           <FormItem
             label="Người thực hiện"
-            name={["chiTietLoi", "nguoiThucHien"]}
+            name={["chiTietLoi", "tenNguoiSuaChuaLai"]}
           >
             <Input disabled={true}></Input>
           </FormItem>

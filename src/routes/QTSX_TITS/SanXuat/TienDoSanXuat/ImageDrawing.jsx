@@ -31,7 +31,7 @@ const ImageDrawing = ({
           const toaDo = JSON.parse(circle);
           context.beginPath();
           context.arc(toaDo.x, toaDo.y, 20, 0, 2 * Math.PI);
-          context.fillStyle = toaDo.isHoanThanhSCL ? "blue" : "red";
+          context.fillStyle = toaDo.isHoanThanhSCL ? "#0E42FA" : "#FF0101";
           context.fill();
           // Thêm chữ vào hình tròn
           context.font = "14px Arial";
@@ -44,7 +44,7 @@ const ImageDrawing = ({
 
       // Vẽ các hình tròn đã lưu
     };
-  }, [imageUrl, listViTri]);
+  }, [imageUrl, listViTri, SuaChuaLai]);
 
   const handleCanvasClick = (e) => {
     if (AddLoi !== undefined) {
@@ -77,7 +77,7 @@ const ImageDrawing = ({
                   toaDo.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id,
                 tits_qtsx_HangMucKiemTra_HinhAnh_Id: hinhAnhId,
                 tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id:
-                  vt.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id,
+                  toaDo.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id,
               });
             }
           }
