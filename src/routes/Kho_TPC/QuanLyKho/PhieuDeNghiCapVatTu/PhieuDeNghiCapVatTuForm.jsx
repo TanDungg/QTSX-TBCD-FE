@@ -487,7 +487,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...listVatTu];
-    console.log(item);
     newData.forEach((ct, index) => {
       if (ct.id === item.id) {
         ct.soLuong = soLuong;
@@ -1059,7 +1058,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   };
 
   const addVatTu = (data) => {
-    console.log(data);
     let check = false;
     ListVatTuKhac.forEach((listvattukhac) => {
       if (listvattukhac.vatTu_Id.toLowerCase() === data.vatTu_Id) {
