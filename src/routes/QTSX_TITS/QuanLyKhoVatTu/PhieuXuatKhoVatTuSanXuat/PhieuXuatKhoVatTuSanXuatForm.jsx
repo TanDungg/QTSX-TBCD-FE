@@ -500,7 +500,7 @@ const VatTuForm = ({ history, match, permission }) => {
 
   const actionContent = (item) => {
     const deleteItemVal =
-      permission && permission.del && type === "new"
+      permission && permission.del && (type === "new" || type === "edit")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -671,6 +671,13 @@ const VatTuForm = ({ history, match, permission }) => {
 
   let colValuesTheoOEM = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -720,6 +727,9 @@ const VatTuForm = ({ history, match, permission }) => {
       render: (record) => renderLstViTri(record),
       width: 250,
     },
+  ];
+
+  let colValuesTheoBOM = [
     {
       title: "Chức năng",
       key: "action",
@@ -727,9 +737,6 @@ const VatTuForm = ({ history, match, permission }) => {
       width: 80,
       render: (value) => actionContent(value),
     },
-  ];
-
-  let colValuesTheoBOM = [
     {
       title: "STT",
       dataIndex: "key",
@@ -839,13 +846,6 @@ const VatTuForm = ({ history, match, permission }) => {
       dataIndex: "moTa",
       key: "moTa",
       align: "center",
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
     },
   ];
 

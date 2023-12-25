@@ -57,10 +57,11 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
 
   useEffect(() => {
     const load = () => {
+      getUserKy();
+      getListKho();
       if (includes(match.url, "them-moi")) {
-        getUserKy(INFO);
-        getUserLap(INFO, null);
-        getListKho();
+        getUserKy();
+        getUserLap();
         if (permission && permission.add) {
           setType("new");
           setFieldsValue({
@@ -77,7 +78,6 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getInfo(id);
-          getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -87,7 +87,6 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getInfo(id);
-          getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -97,7 +96,6 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getInfo(id);
-          getUserKy(INFO);
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -132,15 +130,15 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const getUserLap = (info, nguoiTao_Id) => {
+  const getUserLap = (nguoiTao_Id) => {
     const params = convertObjectToUrlParams({
-      id: nguoiTao_Id ? nguoiTao_Id : info.user_Id,
-      donVi_Id: info.donVi_Id,
+      id: nguoiTao_Id ? nguoiTao_Id : INFO.user_Id,
+      donVi_Id: INFO.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : info.user_Id}?${params}`,
+          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : INFO.user_Id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -162,9 +160,9 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
     });
   };
 
-  const getUserKy = (info) => {
+  const getUserKy = () => {
     const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
+      donviId: INFO.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -195,7 +193,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuPhu/${id}`,
+          `tits_qtsx_PhieuXuatKhoThanhPham/${id}?donVi_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -208,8 +206,8 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setInfo(res.data);
-          getListKho();
-          getUserLap(INFO, res.data.nguoiTao_Id);
+          getUserLap(res.data.nguoiTao_Id);
+          setKhoVatTu(res.data.tits_qtsx_CauTrucKho_Id);
           setFieldsValue({
             phieuxuatkhothanhpham: {
               ...res.data,
@@ -217,22 +215,24 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
             },
           });
           const chiTiet =
-            res.data.list_ChiTiets && JSON.parse(res.data.list_ChiTiets);
+            res.data.list_ThanhPhams && JSON.parse(res.data.list_ThanhPhams);
           const newData =
             chiTiet &&
             chiTiet.map((data) => {
-              const lstViTri = data.list_ChiTietLuuKhos.map((vt) => {
-                const vitri = `${vt.maKe ? `${vt.maKe}` : ""}${
-                  vt.maTang ? ` - ${vt.maTang}` : ""
-                }${vt.maNgan ? ` - ${vt.maNgan}` : ""}`;
-                return {
-                  ...vt,
-                  viTri: vitri ? vitri : null,
-                };
-              });
+              const lstViTri =
+                data.list_ChiTietLuuKhos &&
+                data.list_ChiTietLuuKhos.map((vt) => {
+                  const vitri = `${vt.maKe ? `${vt.maKe}` : ""}${
+                    vt.maTang ? ` - ${vt.maTang}` : ""
+                  }${vt.maNgan ? ` - ${vt.maNgan}` : ""}`;
+                  return {
+                    ...vt,
+                    viTri: vitri ? vitri : null,
+                  };
+                });
               return {
                 ...data,
-                list_ChiTietLuuKhos: lstViTri,
+                list_ChiTietLuuKhos: lstViTri && lstViTri,
               };
             });
           setListThanhPham(newData && newData);
@@ -263,19 +263,22 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
   };
 
   const deleteItemFunc = (item) => {
-    const title = "vật tư";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
+    const title = "thành phẩm";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenThanhPham, title);
   };
 
   const deleteItemAction = (item) => {
-    const newData = ListThanhPham.filter((d) => d.maVatTu !== item.maVatTu);
+    const newData = ListThanhPham.filter(
+      (d) => d.tits_qtsx_ThanhPham_Id !== item.tits_qtsx_ThanhPham_Id
+    );
+
     setListThanhPham(newData);
     setFieldTouch(true);
   };
 
   const actionContent = (item) => {
     const deleteItemVal =
-      permission && permission.del && type === "new"
+      permission && permission.del && (type === "new" || type === "edit")
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -292,9 +295,27 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
   const renderLstViTri = (record) => {
     return (
       <div>
-        {record.list_ChiTietLuuKhos.map((vt, index) => {
-          if (!vt.viTri) {
-            if (index === 0) {
+        {record.list_ChiTietLuuKhos &&
+          record.list_ChiTietLuuKhos.map((vt, index) => {
+            if (!vt.viTri) {
+              if (index === 0) {
+                return (
+                  <Tag
+                    key={index}
+                    color={"blue"}
+                    style={{
+                      marginRight: 5,
+                      marginBottom: 3,
+                      fontSize: 14,
+                    }}
+                  >
+                    {`${vt.tenKho} (SL: ${vt.soLuong})`}
+                  </Tag>
+                );
+              } else {
+                return null;
+              }
+            } else {
               return (
                 <Tag
                   key={index}
@@ -303,32 +324,15 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
                     marginRight: 5,
                     marginBottom: 3,
                     fontSize: 14,
+                    wordWrap: "break-word",
+                    whiteSpace: "normal",
                   }}
                 >
-                  {`${vt.tenKho} (SL: ${vt.soLuong})`}
+                  {`${vt.viTri} (SL: ${vt.soLuong})`}
                 </Tag>
               );
-            } else {
-              return null;
             }
-          } else {
-            return (
-              <Tag
-                key={index}
-                color={"blue"}
-                style={{
-                  marginRight: 5,
-                  marginBottom: 3,
-                  fontSize: 14,
-                  wordWrap: "break-word",
-                  whiteSpace: "normal",
-                }}
-              >
-                {`${vt.viTri} (SL: ${vt.soLuong})`}
-              </Tag>
-            );
-          }
-        })}
+          })}
       </div>
     );
   };
@@ -380,8 +384,8 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
     },
     {
       title: "Đơn hàng",
-      dataIndex: "maPhieu",
-      key: "maPhieu",
+      dataIndex: "maDonHang",
+      key: "maDonHang",
       align: "center",
     },
     {
@@ -423,7 +427,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
     validateFields()
       .then((values) => {
         if (ListThanhPham.length === 0) {
-          Helpers.alertError("Danh sách thành phẩm rỗng");
+          Helpers.alertError("Danh sách thành phẩm không được rỗng");
         } else {
           saveData(values.phieuxuatkhothanhpham, value);
         }
@@ -459,8 +463,8 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
               goBack();
             } else {
               resetFields();
-              getUserKy(INFO);
-              getUserLap(INFO, null);
+              getUserKy();
+              getUserLap();
               getListKho();
               setFieldsValue({
                 phieuxuatkhothanhpham: {
@@ -480,14 +484,13 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
       const newData = {
         ...data,
         id: id,
-        tits_qtsx_PhieuYeuCauCapVatTu_Id: info.tits_qtsx_PhieuYeuCauCapVatTu_Id,
         ngay: data.ngay.format("DD/MM/YYYY"),
-        list_ChiTiets: ListThanhPham,
+        list_ThanhPhams: ListThanhPham,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_PhieuXuatKhoVatTuPhu/${id}`,
+            `tits_qtsx_PhieuXuatKhoThanhPham/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -516,7 +519,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuPhu/duyet/${id}`,
+          `tits_qtsx_PhieuXuatKhoThanhPham/duyet/${id}`,
           "PUT",
           newData,
           "XACNHAN",
@@ -554,7 +557,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuPhu/duyet/${id}`,
+          `tits_qtsx_PhieuXuatKhoThanhPham/duyet/${id}`,
           "PUT",
           newData,
           "TUCHOI",
@@ -572,6 +575,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
 
   const DataThemThanhPham = (data) => {
     setListThanhPham([...ListThanhPham, ...data]);
+    setFieldTouch(true);
   };
 
   const formTitle =
@@ -582,7 +586,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
     ) : (
       <span>
         Chi tiết phiếu xuất kho thành phẩm-{" "}
-        <Tag color={"blue"} style={{ fontSize: "14px" }}>
+        <Tag color={"blue"} style={{ fontSize: "15px" }}>
           {info.maPhieu}
         </Tag>
         <Tag
@@ -591,27 +595,18 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
               ? "orange"
               : info.tinhTrang === "Đã duyệt"
               ? "blue"
-              : info.tinhTrang && info.tinhTrang.startsWith("Bị hủy")
+              : info.tinhTrang === "Bị từ chối"
               ? "red"
               : "cyan"
           }
           style={{
-            fontSize: "14px",
+            fontSize: "15px",
           }}
         >
           {info.tinhTrang}
         </Tag>
       </span>
     );
-
-  const handleSelectXuong = (val) => {
-    setFieldsValue({
-      phieuxuatkhothanhpham: {
-        tits_qtsx_PhieuYeuCauCapVatTu_Id: null,
-      },
-    });
-    setListThanhPham([]);
-  };
 
   const handleSelectKho = (val) => {
     setKhoVatTu(val);
@@ -774,8 +769,8 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Người nhận"
-                name={["phieuxuatkhothanhpham", "nguoiNhan_Id"]}
+                label="Cố vấn DV"
+                name={["phieuxuatkhothanhpham", "nguoiCoVanDV_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -786,7 +781,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
-                  placeholder="Chọn người nhận"
+                  placeholder="Chọn cố vấn DV"
                   optionsvalue={["user_Id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
@@ -806,7 +801,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="PT Bộ phận"
-                name={["phieuxuatkhothanhpham", "nguoiPTBoPhanDuyet_Id"]}
+                name={["phieuxuatkhothanhpham", "nguoiPTBoPhan_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -836,8 +831,8 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="BP kế toán"
-                name={["phieuxuatkhothanhpham", "nguoiKeToanDuyet_Id"]}
+                label="Duyệt kế toán"
+                name={["phieuxuatkhothanhpham", "nguoiDuyetKeToan_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -848,7 +843,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
-                  placeholder="Chọn bộ phận kế toán"
+                  placeholder="Chọn duyệt kế toán"
                   optionsvalue={["user_Id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
@@ -946,12 +941,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
           disabled={fieldTouch && ListThanhPham.length !== 0}
         />
       ) : null}
-      {(type === "xacnhan" &&
-        info.tinhTrang === "Chưa duyệt" &&
-        info.nguoiPTBoPhanDuyet_Id === INFO.user_Id) ||
-      (type === "xacnhan" &&
-        info.tinhTrang === "Chờ kế toán duyệt" &&
-        info.nguoiKeToanDuyet_Id === INFO.user_Id) ? (
+      {type === "xacnhan" && info.tinhTrang === "Chưa duyệt" ? (
         <div style={{ display: "flex", justifyContent: "center" }}>
           <Button icon={<RollbackOutlined />} type="default" onClick={goBack}>
             Quay lại

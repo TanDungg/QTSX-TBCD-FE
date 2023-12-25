@@ -123,12 +123,14 @@ function ModalThemThanhPham({
       if (res && res.data) {
         if (!tits_qtsx_ThanhPham_Id) {
           const newListThanhPham = res.data.map((data) => {
+            const thanhpham = `${data.tenSanPham}${
+              data.mauSac ? data.mauSac : ""
+            }`;
             return {
               ...data,
-              thanhPham: `${data.tenSanPham} (${data.tenMauSac})`,
+              thanhPham: thanhpham,
             };
           });
-
           const newData = newListThanhPham.filter((data) => {
             if (itemData.ListThanhPham.length > 0) {
               return !itemData.ListThanhPham.some(
@@ -490,15 +492,17 @@ function ModalThemThanhPham({
         0
       );
 
-    const donhang = ListDonHang.filter(
-      (d) => d.id.toLowerCase() === data.tits_qtsx_DonHang_Id.toLowerCase()
-    );
+    const donhang =
+      data.tits_qtsx_DonHang_Id &&
+      ListDonHang.filter(
+        (d) => d.id.toLowerCase() === data.tits_qtsx_DonHang_Id.toLowerCase()
+      );
 
     const newData = {
       ...data,
       ...thanhpham[0],
       soLuong: tong,
-      maPhieu: donhang[0].maPhieu,
+      maDonHang: donhang && donhang[0].maPhieu,
       list_ChiTietLuuKhos: SelectedViTri,
     };
 
@@ -527,13 +531,13 @@ function ModalThemThanhPham({
   };
 
   const handleSelectViTri = (value) => {
-    const vitri = ListViTriKho.filter(
+    const thanhpham = ListThanhPham.filter(
       (vt) => vt.tits_qtsx_ThanhPham_Id === value
     );
     getListViTriThanhPham(
       itemData.tits_qtsx_CauTrucKho_Id,
       value,
-      vitri[0].tits_qtsx_MauSac_Id
+      thanhpham.length ? thanhpham[0].tits_qtsx_MauSac_Id : null
     );
     setSelectedViTri([]);
     setSelectedKeys([]);
