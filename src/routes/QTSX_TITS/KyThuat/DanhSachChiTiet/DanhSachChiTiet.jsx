@@ -32,10 +32,11 @@ import { BASE_URL_API } from "src/constants/Config";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function DanhSachChiTiet({ match, history, permission }) {
-  const { loading, data, width } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
+  const [data, setData] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [DisabledModal, setDisabledModal] = useState(false);
   const [DataChiTiet, setDataChiTiet] = useState([]);
@@ -61,7 +62,36 @@ function DanhSachChiTiet({ match, history, permission }) {
       keyword,
       page,
     });
-    dispatch(fetchStart(`tits_qtsx_ChiTiet?${param}`, "GET", null, "LIST"));
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_ChiTiet?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newData = res.data.datalist.map((data) => {
+            const quycach =
+              data.thongSoKyThuat && JSON.parse(data.thongSoKyThuat);
+            return {
+              ...data,
+              ...quycach,
+              thongSoKyThuat: quycach && quycach,
+            };
+          });
+          setData({ ...res.data, datalist: newData });
+        } else {
+          setData([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   /**
@@ -194,9 +224,17 @@ function DanhSachChiTiet({ match, history, permission }) {
 
   const XemChiTiet = (record) => {
     setChiTiet(record);
-    setDataChiTiet(
-      reDataForTable(record.ChiTietChild && JSON.parse(record.ChiTietChild))
-    );
+    const newData =
+      record.ChiTietChild &&
+      JSON.parse(record.ChiTietChild).map((data) => {
+        const quycach = data.thongSoKyThuat && JSON.parse(data.thongSoKyThuat);
+        return {
+          ...data,
+          ...quycach,
+          thongSoKyThuat: quycach && quycach,
+        };
+      });
+    setDataChiTiet(reDataForTable(newData));
     setDisabledModal(true);
   };
 
@@ -253,16 +291,50 @@ function DanhSachChiTiet({ match, history, permission }) {
       dataIndex: "thongSoKyThuat",
       key: "thongSoKyThuat",
       align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.thongSoKyThuat,
-            value: d.thongSoKyThuat,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.thongSoKyThuat.includes(value),
-      filterSearch: true,
+      children: [
+        {
+          title: "Dài",
+          dataIndex: "dai",
+          key: "dai",
+          align: "center",
+          width: 50,
+        },
+        {
+          title: "Rộng",
+          dataIndex: "rong",
+          key: "rong",
+          align: "center",
+          width: 50,
+        },
+        {
+          title: "Dày",
+          dataIndex: "day",
+          key: "day",
+          align: "center",
+          width: 50,
+        },
+        {
+          title: "Dn",
+          dataIndex: "dn",
+          key: "dn",
+          align: "center",
+          width: 50,
+        },
+        {
+          title: "Dt",
+          dataIndex: "dt",
+          key: "dt",
+          align: "center",
+          width: 50,
+        },
+        {
+          title: "Chung",
+          dataIndex: "chung",
+          key: "chung",
+          align: "center",
+          width: 55,
+        },
+      ],
     },
     {
       title: "Sản phẩm",
@@ -332,7 +404,7 @@ function DanhSachChiTiet({ match, history, permission }) {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 110,
+      width: 80,
       render: (value) => actionContent(value),
     },
   ];
@@ -384,6 +456,50 @@ function DanhSachChiTiet({ match, history, permission }) {
       dataIndex: "thongSoKyThuat",
       key: "thongSoKyThuat",
       align: "center",
+      children: [
+        {
+          title: "Dài",
+          dataIndex: "dai",
+          key: "dai",
+          align: "center",
+          width: 50,
+        },
+        {
+          title: "Rộng",
+          dataIndex: "rong",
+          key: "rong",
+          align: "center",
+          width: 50,
+        },
+        {
+          title: "Dày",
+          dataIndex: "day",
+          key: "day",
+          align: "center",
+          width: 50,
+        },
+        {
+          title: "Dn",
+          dataIndex: "dn",
+          key: "dn",
+          align: "center",
+          width: 50,
+        },
+        {
+          title: "Dt",
+          dataIndex: "dt",
+          key: "dt",
+          align: "center",
+          width: 50,
+        },
+        {
+          title: "Chung",
+          dataIndex: "chung",
+          key: "chung",
+          align: "center",
+          width: 55,
+        },
+      ],
     },
     {
       title: "Sản phẩm",
@@ -514,7 +630,7 @@ function DanhSachChiTiet({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 1200, y: "55vh" }}
+          scroll={{ x: 1200, y: "48vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -546,7 +662,7 @@ function DanhSachChiTiet({ match, history, permission }) {
           bordered
           columns={columnschitiet}
           components={componentschitiet}
-          scroll={{ x: 1200, y: "55vh" }}
+          scroll={{ x: 1200, y: "40vh" }}
           className="gx-table-responsive"
           dataSource={DataChiTiet}
           size="small"

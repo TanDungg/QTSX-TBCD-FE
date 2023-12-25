@@ -1,7 +1,10 @@
 import {
   CheckCircleOutlined,
+  CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
+  PlusCircleOutlined,
+  RollbackOutlined,
 } from "@ant-design/icons";
 import {
   Card,
@@ -41,6 +44,7 @@ import {
 import { useLocation } from "react-router-dom";
 import ModalChonViTri from "./ModalChonViTri";
 import ModalTuChoi from "./ModalTuChoi";
+import ModalThemThanhPham from "./ModalThemThanhPham";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -56,14 +60,15 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ListXuongSanXuat, setListXuongSanXuat] = useState([]);
-  const [ListPYCCVTP, setListPYCCVTP] = useState([]);
-  const [ListVatTu, setListVatTu] = useState([]);
+  const [ListThanhPham, setListThanhPham] = useState([]);
   const [VatTu, setVatTu] = useState([]);
   const [ListKhoVatTu, setListKhoVatTu] = useState([]);
   const [KhoVatTu, setKhoVatTu] = useState(null);
   const [DisabledKhoXuat, setDisabledKhoXuat] = useState(false);
   const [ActiveModalChonViTri, setActiveModalChonViTri] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
+  const [ActiveModalThemThanhPham, setActiveModalThemThanhPham] =
+    useState(false);
   const [id, setId] = useState(undefined);
   const [info, setInfo] = useState({});
 
@@ -77,7 +82,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           setType("new");
           setFieldsValue({
-            phieuxuatkhovattuphu: {
+            phieuxuatkhothanhpham: {
               ngay: moment(getDateNow(), "DD/MM/YYYY"),
             },
           });
@@ -143,64 +148,6 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
     });
   };
 
-  const getListPYCCVTP = (tits_qtsx_Xuong_Id) => {
-    const params = convertObjectToUrlParams({
-      tits_qtsx_Xuong_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuPhu/phieu-yeu-cau-chua-xuat?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data.length > 0) {
-        setListPYCCVTP(res.data);
-      } else {
-        setListPYCCVTP([]);
-      }
-    });
-  };
-
-  const getPhieuDeNghiCVT = (tits_qtsx_PhieuYeuCauCapVatTu_Id) => {
-    const params = convertObjectToUrlParams({
-      tits_qtsx_PhieuYeuCauCapVatTu_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuPhu/vat-tu-chua-xuat?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const newData = res.data.map((data) => {
-            return {
-              ...data,
-              viTri: null,
-              soLuongThucXuat: 0,
-              list_ChiTietLuuKhos: [],
-            };
-          });
-          setListVatTu(newData);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
   const getListKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -246,7 +193,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
       if (res && res.data) {
         setListUser([res.data]);
         setFieldsValue({
-          phieuxuatkhovattuphu: {
+          phieuxuatkhothanhpham: {
             nguoiTao_Id: res.data.Id,
             tenPhongBan: res.data.tenPhongBan,
           },
@@ -304,9 +251,8 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
           getXuong();
           getListKho();
           getUserLap(INFO, res.data.nguoiTao_Id);
-          getListPYCCVTP(res.data.tits_qtsx_Xuong_Id);
           setFieldsValue({
-            phieuxuatkhovattuphu: {
+            phieuxuatkhothanhpham: {
               ...res.data,
               ngay: moment(res.data.ngay, "DD/MM/YYYY"),
             },
@@ -330,7 +276,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
                 list_ChiTietLuuKhos: lstViTri,
               };
             });
-          setListVatTu(newData && newData);
+          setListThanhPham(newData && newData);
           setDisabledKhoXuat(true);
         }
       })
@@ -364,8 +310,8 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
   };
 
   const deleteItemAction = (item) => {
-    const newData = ListVatTu.filter((d) => d.maVatTu !== item.maVatTu);
-    setListVatTu(newData);
+    const newData = ListThanhPham.filter((d) => d.maVatTu !== item.maVatTu);
+    setListThanhPham(newData);
     setFieldTouch(true);
   };
 
@@ -394,8 +340,8 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
   };
 
   const DeleteViTri = (record) => {
-    setListVatTu((prevListVatTu) => {
-      return prevListVatTu.map((item) => {
+    setListThanhPham((prevListThanhPham) => {
+      return prevListThanhPham.map((item) => {
         if (record.vatTu_Id === item.vatTu_Id) {
           return {
             ...item,
@@ -408,27 +354,27 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
   };
 
   const ThemViTri = (data) => {
-    const newData = ListVatTu.map((listvattu) => {
+    const newData = ListThanhPham.map((ListThanhPham) => {
       if (
-        listvattu.tits_qtsx_VatTu_Id.toLowerCase() ===
+        ListThanhPham.tits_qtsx_VatTu_Id.toLowerCase() ===
         data.tits_qtsx_VatTu_Id.toLowerCase()
       ) {
-        if (data.soLuongThucXuat <= listvattu.soLuongYeuCau) {
+        if (data.soLuongThucXuat <= ListThanhPham.soLuongYeuCau) {
           setDisabledKhoXuat(true);
           return {
-            ...listvattu,
+            ...ListThanhPham,
             soLuongThucXuat: data.soLuongThucXuat,
             list_ChiTietLuuKhos: data.list_ChiTietLuuKhos,
           };
         } else {
           Helpers.alertError(
-            `Số lượng xuất không được lớn hơn ${listvattu.soLuongYeuCau}`
+            `Số lượng xuất không được lớn hơn ${ListThanhPham.soLuongYeuCau}`
           );
         }
       }
-      return listvattu;
+      return ListThanhPham;
     });
-    setListVatTu(newData);
+    setListThanhPham(newData);
     setFieldTouch(true);
   };
 
@@ -610,16 +556,16 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
   });
 
   const onFinish = (values) => {
-    saveData(values.phieuxuatkhovattuphu);
+    saveData(values.phieuxuatkhothanhpham);
   };
 
   const saveAndClose = (value) => {
     validateFields()
       .then((values) => {
-        if (ListVatTu.length === 0) {
+        if (ListThanhPham.length === 0) {
           Helpers.alertError("Danh sách vật tư rỗng");
         } else {
-          saveData(values.phieuxuatkhovattuphu, value);
+          saveData(values.phieuxuatkhothanhpham, value);
         }
       })
       .catch((error) => {
@@ -632,7 +578,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
       const newData = {
         ...data,
         ngay: data.ngay.format("DD/MM/YYYY"),
-        list_ChiTiets: ListVatTu,
+        list_ChiTiets: ListThanhPham,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -658,13 +604,13 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
               getXuong();
               getListKho();
               setFieldsValue({
-                phieuxuatkhovattuphu: {
+                phieuxuatkhothanhpham: {
                   ngay: moment(getDateNow(), "DD/MM/YYYY"),
                 },
               });
               setFieldTouch(false);
               setDisabledKhoXuat(false);
-              setListVatTu([]);
+              setListThanhPham([]);
             }
           } else {
             setFieldTouch(false);
@@ -678,7 +624,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
         id: id,
         tits_qtsx_PhieuYeuCauCapVatTu_Id: info.tits_qtsx_PhieuYeuCauCapVatTu_Id,
         ngay: data.ngay.format("DD/MM/YYYY"),
-        list_ChiTiets: ListVatTu,
+        list_ChiTiets: ListThanhPham,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -798,12 +744,11 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
 
   const handleSelectXuong = (val) => {
     setFieldsValue({
-      phieuxuatkhovattuphu: {
+      phieuxuatkhothanhpham: {
         tits_qtsx_PhieuYeuCauCapVatTu_Id: null,
       },
     });
-    setListVatTu([]);
-    getListPYCCVTP(val);
+    setListThanhPham([]);
   };
 
   const handleSelectKho = (val) => {
@@ -836,7 +781,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Người lập"
-                name={["phieuxuatkhovattuphu", "nguoiTao_Id"]}
+                name={["phieuxuatkhothanhpham", "nguoiTao_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -864,7 +809,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Ban/Phòng"
-                name={["phieuxuatkhovattuphu", "tenPhongBan"]}
+                name={["phieuxuatkhothanhpham", "tenPhongBan"]}
                 rules={[
                   {
                     type: "string",
@@ -885,64 +830,8 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Xưởng sản xuất"
-                name={["phieuxuatkhovattuphu", "tits_qtsx_Xuong_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                  },
-                ]}
-              >
-                <Select
-                  placeholder="Xưởng sản xuất"
-                  className="heading-select slt-search th-select-heading"
-                  data={ListXuongSanXuat ? ListXuongSanXuat : []}
-                  optionsvalue={["id", "tenXuong"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp={"name"}
-                  onSelect={handleSelectXuong}
-                  disabled={type === "new" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Ngày xuất"
-                name={["phieuxuatkhovattuphu", "ngay"]}
-                rules={[
-                  {
-                    required: true,
-                  },
-                ]}
-              >
-                <DatePicker
-                  format={"DD/MM/YYYY"}
-                  allowClear={false}
-                  disabled={type === "new" ? false : true}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
                 label="Kho xuất"
-                name={["phieuxuatkhovattuphu", "tits_qtsx_CauTrucKho_Id"]}
+                name={["phieuxuatkhothanhpham", "tits_qtsx_CauTrucKho_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -973,8 +862,58 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
+                label="Số R/O"
+                name={["phieuxuatkhothanhpham", "soRO"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  className="input-item"
+                  placeholder="Nhập số R/O"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Ngày xuất"
+                name={["phieuxuatkhothanhpham", "ngay"]}
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <DatePicker
+                  format={"DD/MM/YYYY"}
+                  allowClear={false}
+                  disabled={type === "new" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
                 label="Người nhận"
-                name={["phieuxuatkhovattuphu", "nguoiNhan_Id"]}
+                name={["phieuxuatkhothanhpham", "nguoiNhan_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -1005,7 +944,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="PT Bộ phận"
-                name={["phieuxuatkhovattuphu", "nguoiPTBoPhanDuyet_Id"]}
+                name={["phieuxuatkhothanhpham", "nguoiPTBoPhanDuyet_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -1036,7 +975,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="BP kế toán"
-                name={["phieuxuatkhovattuphu", "nguoiKeToanDuyet_Id"]}
+                name={["phieuxuatkhothanhpham", "nguoiKeToanDuyet_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -1067,7 +1006,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Nội dung xuất"
-                name={["phieuxuatkhovattuphu", "noiDung"]}
+                name={["phieuxuatkhothanhpham", "noiDung"]}
                 rules={[
                   {
                     type: "string",
@@ -1112,13 +1051,25 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
         className="th-card-margin-bottom th-card-reset-margin"
         title={"Danh sách thành phẩm"}
       >
+        {(type === "new" || type === "edit") && (
+          <div align={"end"}>
+            <Button
+              icon={<PlusCircleOutlined />}
+              onClick={() => setActiveModalThemThanhPham(true)}
+              type="primary"
+              disabled={!KhoVatTu}
+            >
+              Thêm thành phẩm
+            </Button>
+          </div>
+        )}
         <Table
           bordered
           columns={columns}
           scroll={{ x: 1300, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
-          dataSource={reDataForTable(ListVatTu)}
+          dataSource={reDataForTable(ListThanhPham)}
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
@@ -1130,7 +1081,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
           goBack={goBack}
           handleSave={onFinish}
           saveAndClose={saveAndClose}
-          disabled={fieldTouch && ListVatTu.length !== 0}
+          disabled={fieldTouch && ListThanhPham.length !== 0}
         />
       ) : null}
       {(type === "xacnhan" &&
@@ -1139,24 +1090,40 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
       (type === "xacnhan" &&
         info.tinhTrang === "Chờ kế toán duyệt" &&
         info.nguoiKeToanDuyet_Id === INFO.user_Id) ? (
-        <Row justify={"end"} style={{ marginTop: 15 }}>
-          <Col style={{ marginRight: 15 }}>
-            <Button type="primary" onClick={modalXK}>
-              Xác nhận
-            </Button>
-          </Col>
-          <Col style={{ marginRight: 15 }}>
-            <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
-              Từ chối
-            </Button>
-          </Col>
-        </Row>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <Button icon={<RollbackOutlined />} type="default" onClick={goBack}>
+            Quay lại
+          </Button>
+          <Button
+            icon={<CheckCircleOutlined />}
+            type="primary"
+            onClick={modalXK}
+          >
+            Xác nhận
+          </Button>
+          <Button
+            icon={<CloseCircleOutlined />}
+            type="danger"
+            onClick={() => setActiveModalTuChoi(true)}
+          >
+            Từ chối
+          </Button>
+        </div>
       ) : null}
       <ModalChonViTri
         openModal={ActiveModalChonViTri}
         openModalFS={setActiveModalChonViTri}
-        itemData={{ tits_qtsx_CauTrucKho_Id: KhoVatTu, ListVatTu: VatTu }}
+        itemData={{ tits_qtsx_CauTrucKho_Id: KhoVatTu, ListThanhPham: VatTu }}
         ThemViTri={ThemViTri}
+      />
+      <ModalThemThanhPham
+        openModal={ActiveModalThemThanhPham}
+        openModalFS={setActiveModalThemThanhPham}
+        itemData={{
+          tits_qtsx_CauTrucKho_Id: KhoVatTu,
+          ListThanhPham: ListThanhPham,
+        }}
+        // DataThemThanhPham={DataThemThanhPham}
       />
       <ModalTuChoi
         openModal={ActiveModalTuChoi}

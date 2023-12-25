@@ -17,7 +17,7 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
 
   useEffect(() => {
     if (openModal) {
-      const VatTu = itemData.ListVatTuTheoOEM;
+      const VatTu = itemData.ListViTriVatTu;
       getListViTriKho(
         itemData.tits_qtsx_CauTrucKho_Id,
         VatTu.tits_qtsx_VatTu_Id
@@ -48,16 +48,22 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        console.log(res.data);
-        if (itemData.ListVatTuTheoOEM.isCheck === true) {
+        console.log(itemData.ListViTriVatTu);
+        if (itemData.ListViTriVatTu.isCheck === true) {
           setSelectedViTri(
-            itemData.ListVatTuTheoOEM.list_ChiTietLuuKhos &&
-              itemData.ListVatTuTheoOEM.list_ChiTietLuuKhos
+            itemData.ListViTriVatTu.list_ChiTietLuuKhos &&
+              itemData.ListViTriVatTu.list_ChiTietLuuKhos.map((vitri) => {
+                return {
+                  ...vitri,
+                  tits_qtsx_ChiTietKhoVatTu_Id:
+                    vitri.tits_qtsx_ChiTietKhoVatTu_Id.toLowerCase(),
+                };
+              })
           );
-          const lstKey = itemData.ListVatTuTheoOEM.list_ChiTietLuuKhos
-            ? itemData.ListVatTuTheoOEM.list_ChiTietLuuKhos
+          const lstKey = itemData.ListViTriVatTu.list_ChiTietLuuKhos
+            ? itemData.ListViTriVatTu.list_ChiTietLuuKhos
                 .map((data) => {
-                  const vt = ListViTriKho.find(
+                  const vt = reDataForTable(res.data).find(
                     (vitri) =>
                       data.tits_qtsx_ChiTietKhoVatTu_Id.toLowerCase() ===
                       vitri.tits_qtsx_ChiTietKhoVatTu_Id.toLowerCase()
@@ -69,8 +75,8 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
           setSelectedKeys(lstKey && lstKey);
         }
         const newData = res.data.map((data) => {
-          if (itemData.ListVatTuTheoOEM.isCheck === true) {
-            const vitri = itemData.ListVatTuTheoOEM.list_ChiTietLuuKhos.find(
+          if (itemData.ListViTriVatTu.isCheck === true) {
+            const vitri = itemData.ListViTriVatTu.list_ChiTietLuuKhos.find(
               (vitri) =>
                 data.tits_qtsx_ChiTietKhoVatTu_Id.toLowerCase() ===
                 vitri.tits_qtsx_ChiTietKhoVatTu_Id.toLowerCase()
@@ -244,7 +250,7 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       );
 
     const newData = {
-      tits_qtsx_VatTu_Id: itemData.ListVatTuTheoOEM.tits_qtsx_VatTu_Id,
+      tits_qtsx_VatTu_Id: itemData.ListViTriVatTu.tits_qtsx_VatTu_Id,
       soLuongThucXuat: TongSoLuong,
       list_ChiTietLuuKhos: SelectedViTri,
     };
@@ -279,8 +285,9 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
 
   const Title = (
     <span>
-      Chọn vị trí xuất kho của vật tư - {itemData.ListVatTuTheoOEM.tenVatTu} (Số
-      lượng: {itemData.ListVatTuTheoOEM.soLuongYeuCau})
+      Chọn vị trí xuất kho của vật tư/chi tiết -{" "}
+      {itemData.ListViTriVatTu.tenVatTu} (Số lượng:{" "}
+      {itemData.ListViTriVatTu.soLuongYeuCau})
     </span>
   );
 

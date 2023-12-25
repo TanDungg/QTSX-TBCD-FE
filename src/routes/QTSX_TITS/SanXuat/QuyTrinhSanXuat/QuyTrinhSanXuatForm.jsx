@@ -33,7 +33,13 @@ import {
   reDataForTable,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  DeleteOutlined,
+  PlusCircleOutlined,
+  RollbackOutlined,
+} from "@ant-design/icons";
 import moment from "moment";
 import ModalCongDoan from "./ModalCongDoan";
 import Helpers from "src/helpers";
@@ -1471,18 +1477,25 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       {type === "xacnhan" &&
       info.tinhTrang === "Chưa duyệt" &&
       info.nguoiDuyet_Id === INFO.user_Id ? (
-        <Row justify={"end"} style={{ marginTop: 15 }}>
-          <Col style={{ marginRight: 15 }}>
-            <Button type="primary" onClick={modalXK}>
-              Xác nhận
-            </Button>
-          </Col>
-          <Col style={{ marginRight: 15 }}>
-            <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
-              Từ chối
-            </Button>
-          </Col>
-        </Row>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <Button icon={<RollbackOutlined />} type="default" onClick={goBack}>
+            Quay lại
+          </Button>
+          <Button
+            icon={<CheckCircleOutlined />}
+            type="primary"
+            onClick={modalXK}
+          >
+            Xác nhận
+          </Button>
+          <Button
+            icon={<CloseCircleOutlined />}
+            type="danger"
+            onClick={() => setActiveModalTuChoi(true)}
+          >
+            Từ chối
+          </Button>
+        </div>
       ) : null}
       <ModalCongDoan
         openModal={ActiveModalCongDoan}

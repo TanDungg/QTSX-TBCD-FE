@@ -1,4 +1,10 @@
-import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  DeleteOutlined,
+  PlusCircleOutlined,
+  RollbackOutlined,
+} from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -987,18 +993,25 @@ const PhieuDieuChuyenVatTuForm = ({ history, match, permission }) => {
       {type === "xacnhan" &&
       info.tinhTrang === "Chưa duyệt" &&
       info.nguoiPTBoPhan_Id === INFO.user_Id ? (
-        <Row justify={"center"}>
-          <Col style={{ marginRight: 15 }}>
-            <Button type="primary" onClick={modalXK}>
-              Xác nhận
-            </Button>
-          </Col>
-          <Col style={{ marginRight: 15 }}>
-            <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
-              Từ chối
-            </Button>
-          </Col>
-        </Row>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <Button icon={<RollbackOutlined />} type="default" onClick={goBack}>
+            Quay lại
+          </Button>
+          <Button
+            icon={<CheckCircleOutlined />}
+            type="primary"
+            onClick={modalXK}
+          >
+            Xác nhận
+          </Button>
+          <Button
+            icon={<CloseCircleOutlined />}
+            type="danger"
+            onClick={() => setActiveModalTuChoi(true)}
+          >
+            Từ chối
+          </Button>
+        </div>
       ) : null}
       {type === "new" || type === "edit" ? (
         <FormSubmit

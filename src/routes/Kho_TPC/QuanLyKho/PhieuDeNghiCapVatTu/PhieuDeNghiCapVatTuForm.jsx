@@ -482,7 +482,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       setEditingRecord([...editingRecord, item]);
       item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
     } else {
-      const newData = editingRecord.filter((d) => d.id !== item.id);
+      const newData = editingRecord.filter((d) => d.vatTu_Id !== item.vatTu_Id);
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
@@ -490,7 +490,6 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     console.log(item);
     newData.forEach((ct, index) => {
       if (ct.id === item.id) {
-        console.log("object");
         ct.soLuong = soLuong;
       }
     });
@@ -501,7 +500,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (ct.id === item.id) {
+      if (ct.vatTu_Id === item.vatTu_Id) {
         isEditing = true;
         message = ct.message;
       }
@@ -546,7 +545,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     setFieldTouch(true);
     const newData = [...listVatTu];
     newData.forEach((ct, index) => {
-      if (ct.id === record.id) {
+      if (ct.vatTu_Id === record.vatTu_Id) {
         ct.hanMucSuDung = hanmuc;
       }
     });
@@ -560,13 +559,13 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       setEditingRecord([...editingRecord, item]);
       item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
     } else {
-      const newData = editingRecord.filter((d) => d.id !== item.id);
+      const newData = editingRecord.filter((d) => d.vatTu_Id !== item.vatTu_Id);
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...ListVatTuKhac];
     newData.forEach((ct, index) => {
-      if (ct.id === item.id) {
+      if (ct.vatTu_Id === item.vatTu_Id) {
         ct.soLuong = soLuong;
       }
     });
@@ -577,7 +576,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (ct.id === item.id) {
+      if (ct.vatTu_Id === item.vatTu_Id) {
         isEditing = true;
         message = ct.message;
       }
@@ -621,7 +620,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     setFieldTouch(true);
     const newData = [...ListVatTuKhac];
     newData.forEach((ct, index) => {
-      if (ct.id === record.id) {
+      if (ct.vatTu_Id === record.vatTu_Id) {
         ct.hanMucSuDung = hanmuc;
       }
     });
@@ -647,7 +646,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     setFieldTouch(true);
     const newData = [...ListVatTuKhac];
     newData.forEach((ct, index) => {
-      if (ct.id === record.id) {
+      if (ct.vatTu_Id === record.vatTu_Id) {
         ct.ghiChu = hanmuc;
       }
     });
@@ -1060,6 +1059,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   };
 
   const addVatTu = (data) => {
+    console.log(data);
     let check = false;
     ListVatTuKhac.forEach((listvattukhac) => {
       if (listvattukhac.vatTu_Id.toLowerCase() === data.vatTu_Id) {
