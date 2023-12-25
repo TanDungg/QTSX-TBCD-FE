@@ -229,98 +229,90 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
       <>
         <Row justify={"center"} style={{ marginBottom: 10 }}>
           <Col span={1}></Col>
-          <Col span={13} style={{ marginBottom: 10 }}>
-            Trạm:{" "}
-            <span style={{ fontWeight: "bold" }}>
-              Xưởng Lắp ráp - Chuyền Final - Final 4
-            </span>
-          </Col>
-          <Col span={10} style={{ marginBottom: 10 }}>
-            Thời gian vào trạm:{" "}
-            <span style={{ fontWeight: "bold" }}>{info.thoiGianVaoTram}</span>
-          </Col>
-          <Col span={1}></Col>
           <Col span={13}>
             Sản phẩm:{" "}
-            <span style={{ fontWeight: "bold" }}>{info.tenSanPham}</span>
+            <h5 style={{ fontWeight: "bold", display: "inline" }}>
+              {info.tenSanPham}
+            </h5>
           </Col>
           <Col span={10}>
             Số khung nội bộ:{" "}
-            <span style={{ fontWeight: "bold" }}>{info.maNoiBo}</span>
+            <h5 style={{ fontWeight: "bold", display: "inline" }}>
+              {info.maNoiBo}
+            </h5>
           </Col>
         </Row>
         <Divider />
       </>
       {ListHangMucKiemTra.length > 0 &&
         ListHangMucKiemTra.map((hmkt) => {
-          {
-            /* <Row>
-                  <Col span={24}>
-                    <h3 style={{ color: "#0469b9", fontWeight: "bold" }}>
-                      Trạm: {hmkt.tenTram}
-                    </h3>
-                  </Col> */
-          }
-
           return (
             hmkt.list_TDSXKiemSoatChatLuongs &&
-            hmkt.list_TDSXKiemSoatChatLuongs.length > 0 &&
-            hmkt.list_TDSXKiemSoatChatLuongs.map((ct) => {
-              return (
-                <>
-                  <Row>
-                    <Col span={12}>
-                      <Col span={24} style={{ marginBottom: 10 }}>
-                        <span style={{ marginBottom: 10, display: "block" }}>
-                          Hạng mục kiểm tra:{" "}
-                          <span style={{ fontWeight: "bold" }}>
-                            {ct.tenHangMucKiemTra}
+            hmkt.list_TDSXKiemSoatChatLuongs.length > 0 && [
+              <Row>
+                <Col span={24}>
+                  <h3 style={{ color: "#0469b9", fontWeight: "bold" }}>
+                    Công đoạn: {hmkt.tenCongDoan} - Trạm: {hmkt.tenTram}
+                  </h3>
+                </Col>
+              </Row>,
+              ...hmkt.list_TDSXKiemSoatChatLuongs.map((ct) => {
+                return (
+                  <>
+                    <Row>
+                      <Col span={12}>
+                        <Col span={24} style={{ marginBottom: 10 }}>
+                          <span style={{ marginBottom: 10, display: "block" }}>
+                            Hạng mục kiểm tra:{" "}
+                            <span style={{ fontWeight: "bold" }}>
+                              {ct.tenHangMucKiemTra}
+                            </span>
                           </span>
-                        </span>
-                        <Table
-                          bordered
-                          scroll={{ x: 800, y: 301 }}
-                          columns={
-                            ct.isNoiDung ? columnNoiDungs : columnThongSos
-                          }
-                          components={components}
-                          className="gx-table-responsive"
-                          dataSource={reDataForTable(
-                            ct.list_TDSXKiemSoatChatLuongChiTiets
-                          )}
-                          size="small"
-                          pagination={false}
-                        />
+                          <Table
+                            bordered
+                            scroll={{ x: 800, y: 301 }}
+                            columns={
+                              ct.isNoiDung ? columnNoiDungs : columnThongSos
+                            }
+                            components={components}
+                            className="gx-table-responsive"
+                            dataSource={reDataForTable(
+                              ct.list_TDSXKiemSoatChatLuongChiTiets
+                            )}
+                            size="small"
+                            pagination={false}
+                          />
+                        </Col>
                       </Col>
-                    </Col>
-                    <Col
-                      span={12}
-                      align="center"
-                      style={{
-                        position: "relative",
-                        height: 301,
-                        overflow: "auto",
-                      }}
-                    >
-                      {ct.list_HinhAnhs &&
-                        ct.list_HinhAnhs.length > 0 &&
-                        ct.list_HinhAnhs.map((ha) => {
-                          return (
-                            <ImageDrawing
-                              imageUrl={BASE_URL_API + ha.hinhAnh}
-                              hinhAnhId={ha.tits_qtsx_SanPhamHinhAnh_Id}
-                              dataNoiDung={ct}
-                              setListHangMucKiemTra={setListHangMucKiemTra}
-                              listViTri={ha.listViTri}
-                            />
-                          );
-                        })}
-                    </Col>
-                  </Row>
-                  <Divider />
-                </>
-              );
-            })
+                      <Col
+                        span={12}
+                        align="center"
+                        style={{
+                          position: "relative",
+                          height: 301,
+                          overflow: "auto",
+                        }}
+                      >
+                        {ct.list_HinhAnhs &&
+                          ct.list_HinhAnhs.length > 0 &&
+                          ct.list_HinhAnhs.map((ha) => {
+                            return (
+                              <ImageDrawing
+                                imageUrl={BASE_URL_API + ha.hinhAnh}
+                                hinhAnhId={ha.tits_qtsx_SanPhamHinhAnh_Id}
+                                dataNoiDung={ct}
+                                setListHangMucKiemTra={setListHangMucKiemTra}
+                                listViTri={ha.listViTri}
+                              />
+                            );
+                          })}
+                      </Col>
+                    </Row>
+                    <Divider />
+                  </>
+                );
+              }),
+            ]
           );
 
           {
