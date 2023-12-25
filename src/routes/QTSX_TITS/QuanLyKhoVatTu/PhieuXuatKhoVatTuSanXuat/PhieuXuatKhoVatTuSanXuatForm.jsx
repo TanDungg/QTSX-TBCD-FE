@@ -2537,7 +2537,6 @@ const VatTuForm = ({ history, match, permission }) => {
           </>
         )}
       </Card>
-
       {type === "new" || type === "edit" ? (
         <FormSubmit
           goBack={goBack}

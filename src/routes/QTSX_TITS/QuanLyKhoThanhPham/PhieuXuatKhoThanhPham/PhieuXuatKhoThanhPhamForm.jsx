@@ -62,7 +62,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
   const [ListXuongSanXuat, setListXuongSanXuat] = useState([]);
   const [ListThanhPham, setListThanhPham] = useState([]);
   const [VatTu, setVatTu] = useState([]);
-  const [ListKhoVatTu, setListKhoVatTu] = useState([]);
+  const [ListKhoThanhPham, setListKhoThanhPham] = useState([]);
   const [KhoVatTu, setKhoVatTu] = useState(null);
   const [DisabledKhoXuat, setDisabledKhoXuat] = useState(false);
   const [ActiveModalChonViTri, setActiveModalChonViTri] = useState(false);
@@ -164,9 +164,9 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListKhoVatTu(res.data);
+          setListKhoThanhPham(res.data);
         } else {
-          setListKhoVatTu([]);
+          setListKhoThanhPham([]);
         }
       })
       .catch((error) => console.error(error));
@@ -842,7 +842,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
                 <Select
                   placeholder="Kho xuất"
                   className="heading-select slt-search th-select-heading"
-                  data={ListKhoVatTu ? ListKhoVatTu : []}
+                  data={ListKhoThanhPham ? ListKhoThanhPham : []}
                   optionsvalue={["id", "tenCauTrucKho"]}
                   style={{ width: "100%" }}
                   showSearch
