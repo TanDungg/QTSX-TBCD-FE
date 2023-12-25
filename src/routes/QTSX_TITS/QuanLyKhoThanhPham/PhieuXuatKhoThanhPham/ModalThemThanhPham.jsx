@@ -99,11 +99,13 @@ function ModalThemThanhPham({
 
   const getListViTriThanhPham = (
     tits_qtsx_CauTrucKho_Id,
-    tits_qtsx_ThanhPham_Id
+    tits_qtsx_ThanhPham_Id,
+    tits_qtsx_MauSac_Id
   ) => {
     const param = convertObjectToUrlParams({
       tits_qtsx_CauTrucKho_Id,
       tits_qtsx_ThanhPham_Id,
+      tits_qtsx_MauSac_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -123,13 +125,13 @@ function ModalThemThanhPham({
           const newListThanhPham = res.data.map((data) => {
             return {
               ...data,
-              thanhPham: `${data.maSanPham} - ${data.tenSanPham}`,
+              thanhPham: `${data.tenSanPham} (${data.tenMauSac})`,
             };
           });
 
           const newData = newListThanhPham.filter((data) => {
             if (itemData.ListThanhPham.length > 0) {
-              return !itemData.some(
+              return !itemData.ListThanhPham.some(
                 (item) =>
                   item.tits_qtsx_ThanhPham_Id.toLowerCase() ===
                   data.tits_qtsx_ThanhPham_Id.toLowerCase()
@@ -480,6 +482,7 @@ function ModalThemThanhPham({
     const thanhpham = ListThanhPham.filter(
       (d) => d.tits_qtsx_ThanhPham_Id === data.tits_qtsx_ThanhPham_Id
     );
+
     const tong =
       SelectedViTri &&
       SelectedViTri.reduce(
@@ -487,12 +490,17 @@ function ModalThemThanhPham({
         0
       );
 
+    const donhang = ListDonHang.filter(
+      (d) => d.id.toLowerCase() === data.tits_qtsx_DonHang_Id.toLowerCase()
+    );
+
     const newData = {
+      ...data,
       ...thanhpham[0],
       soLuong: tong,
+      maPhieu: donhang[0].maPhieu,
       list_ChiTietLuuKhos: SelectedViTri,
     };
-    console.log(newData);
 
     setDataListThanhPham([...DataListThanhPham, newData]);
 
@@ -514,11 +522,19 @@ function ModalThemThanhPham({
     DataThemThanhPham(DataListThanhPham);
     openModalFS(false);
     setListThanhPham([]);
+    setListDonHang([]);
     setDataListThanhPham([]);
   };
 
   const handleSelectViTri = (value) => {
-    getListViTriThanhPham(itemData.tits_qtsx_CauTrucKho_Id, value);
+    const vitri = ListViTriKho.filter(
+      (vt) => vt.tits_qtsx_ThanhPham_Id === value
+    );
+    getListViTriThanhPham(
+      itemData.tits_qtsx_CauTrucKho_Id,
+      value,
+      vitri[0].tits_qtsx_MauSac_Id
+    );
     setSelectedViTri([]);
     setSelectedKeys([]);
   };

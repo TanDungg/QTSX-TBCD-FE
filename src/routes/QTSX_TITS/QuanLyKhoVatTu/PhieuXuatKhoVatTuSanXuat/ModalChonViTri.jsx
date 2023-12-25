@@ -74,6 +74,7 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
             : [];
           setSelectedKeys(lstKey && lstKey);
         }
+
         const newData = res.data.map((data) => {
           if (itemData.ListViTriVatTu.isCheck === true) {
             const vitri = itemData.ListViTriVatTu.list_ChiTietLuuKhos.find(

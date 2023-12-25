@@ -2,22 +2,10 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   DeleteOutlined,
-  EditOutlined,
   PlusCircleOutlined,
   RollbackOutlined,
 } from "@ant-design/icons";
-import {
-  Card,
-  Form,
-  Input,
-  Row,
-  Col,
-  DatePicker,
-  Button,
-  Tag,
-  Divider,
-  Image,
-} from "antd";
+import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -33,7 +21,7 @@ import {
   ModalDeleteConfirm,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { BASE_URL_API, DEFAULT_FORM_DENGHI_CVT } from "src/constants/Config";
+import { DEFAULT_FORM_DENGHI_CVT } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -42,7 +30,6 @@ import {
   reDataForTable,
 } from "src/util/Common";
 import { useLocation } from "react-router-dom";
-import ModalChonViTri from "./ModalChonViTri";
 import ModalTuChoi from "./ModalTuChoi";
 import ModalThemThanhPham from "./ModalThemThanhPham";
 
@@ -59,13 +46,9 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
   const { validateFields, resetFields, setFieldsValue } = form;
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
-  const [ListXuongSanXuat, setListXuongSanXuat] = useState([]);
   const [ListThanhPham, setListThanhPham] = useState([]);
-  const [VatTu, setVatTu] = useState([]);
   const [ListKhoThanhPham, setListKhoThanhPham] = useState([]);
   const [KhoVatTu, setKhoVatTu] = useState(null);
-  const [DisabledKhoXuat, setDisabledKhoXuat] = useState(false);
-  const [ActiveModalChonViTri, setActiveModalChonViTri] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [ActiveModalThemThanhPham, setActiveModalThemThanhPham] =
     useState(false);
@@ -77,7 +60,6 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
       if (includes(match.url, "them-moi")) {
         getUserKy(INFO);
         getUserLap(INFO, null);
-        getXuong();
         getListKho();
         if (permission && permission.add) {
           setType("new");
@@ -125,28 +107,6 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const getXuong = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_Xuong?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        setListXuongSanXuat(res.data);
-      } else {
-        setListXuongSanXuat([]);
-      }
-    });
-  };
 
   const getListKho = () => {
     new Promise((resolve, reject) => {
@@ -248,7 +208,6 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setInfo(res.data);
-          getXuong();
           getListKho();
           getUserLap(INFO, res.data.nguoiTao_Id);
           setFieldsValue({
@@ -277,7 +236,6 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
               };
             });
           setListThanhPham(newData && newData);
-          setDisabledKhoXuat(true);
         }
       })
       .catch((error) => console.error(error));
@@ -331,133 +289,58 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
     );
   };
 
-  const HandleChonViTri = (record, check) => {
-    setActiveModalChonViTri(true);
-    setVatTu({
-      ...record,
-      isCheck: check,
-    });
-  };
-
-  const DeleteViTri = (record) => {
-    setListThanhPham((prevListThanhPham) => {
-      return prevListThanhPham.map((item) => {
-        if (record.vatTu_Id === item.vatTu_Id) {
-          return {
-            ...item,
-            chiTiet_LuuVatTus: [],
-          };
-        }
-        return item;
-      });
-    });
-  };
-
-  const ThemViTri = (data) => {
-    const newData = ListThanhPham.map((ListThanhPham) => {
-      if (
-        ListThanhPham.tits_qtsx_VatTu_Id.toLowerCase() ===
-        data.tits_qtsx_VatTu_Id.toLowerCase()
-      ) {
-        if (data.soLuongThucXuat <= ListThanhPham.soLuongYeuCau) {
-          setDisabledKhoXuat(true);
-          return {
-            ...ListThanhPham,
-            soLuongThucXuat: data.soLuongThucXuat,
-            list_ChiTietLuuKhos: data.list_ChiTietLuuKhos,
-          };
-        } else {
-          Helpers.alertError(
-            `Số lượng xuất không được lớn hơn ${ListThanhPham.soLuongYeuCau}`
-          );
-        }
-      }
-      return ListThanhPham;
-    });
-    setListThanhPham(newData);
-    setFieldTouch(true);
-  };
-
   const renderLstViTri = (record) => {
     return (
       <div>
-        {record.list_ChiTietLuuKhos.length > 0 ? (
-          <div>
-            <div>
-              {record.list_ChiTietLuuKhos.map((vt, index) => {
-                if (!vt.viTri) {
-                  if (index === 0) {
-                    return (
-                      <Tag
-                        key={index}
-                        style={{
-                          marginRight: 5,
-                          marginBottom: 3,
-                          color: "#0469B9",
-                        }}
-                      >
-                        {vt.tenKho}
-                      </Tag>
-                    );
-                  } else {
-                    return null;
-                  }
-                } else {
-                  return (
-                    <Tag
-                      key={index}
-                      style={{
-                        marginRight: 5,
-                        marginBottom: 3,
-                        color: "#0469B9",
-                        wordWrap: "break-word",
-                        whiteSpace: "normal",
-                      }}
-                    >
-                      {vt.viTri}
-                    </Tag>
-                  );
-                }
-              })}
-            </div>
-            {type === "detail" || type === "xacnhan" ? null : (
-              <>
-                <EditOutlined
+        {record.list_ChiTietLuuKhos.map((vt, index) => {
+          if (!vt.viTri) {
+            if (index === 0) {
+              return (
+                <Tag
+                  key={index}
+                  color={"blue"}
                   style={{
-                    color: "#0469B9",
+                    marginRight: 5,
+                    marginBottom: 3,
+                    fontSize: 14,
                   }}
-                  onClick={() => {
-                    HandleChonViTri(record, true);
-                  }}
-                />
-                <Divider type="vertical" />
-                <DeleteOutlined
-                  style={{
-                    color: "#0469B9",
-                  }}
-                  onClick={() => {
-                    DeleteViTri(record);
-                  }}
-                />
-              </>
-            )}
-          </div>
-        ) : (
-          <Button
-            icon={<CheckCircleOutlined />}
-            className="th-margin-bottom-0"
-            type="primary"
-            onClick={() => HandleChonViTri(record, false)}
-            disabled={!KhoVatTu}
-          >
-            Chọn vị trí
-          </Button>
-        )}
+                >
+                  {`${vt.tenKho} (SL: ${vt.soLuong})`}
+                </Tag>
+              );
+            } else {
+              return null;
+            }
+          } else {
+            return (
+              <Tag
+                key={index}
+                color={"blue"}
+                style={{
+                  marginRight: 5,
+                  marginBottom: 3,
+                  fontSize: 14,
+                  wordWrap: "break-word",
+                  whiteSpace: "normal",
+                }}
+              >
+                {`${vt.viTri} (SL: ${vt.soLuong})`}
+              </Tag>
+            );
+          }
+        })}
       </div>
     );
   };
 
   let colValues = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -466,15 +349,15 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      title: "Mã thành phẩm",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
       align: "center",
     },
     {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      title: "tên thành phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       align: "center",
     },
     {
@@ -484,51 +367,28 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "SL yêu cầu",
-      dataIndex: "soLuongYeuCau",
-      key: "soLuongYeuCau",
+      title: "Số lượng xuất",
+      dataIndex: "soLuong",
+      key: "soLuong",
       align: "center",
     },
     {
-      title: "SL thực xuất",
-      dataIndex: "soLuongThucXuat",
-      key: "soLuongThucXuat",
-      align: "center",
-    },
-    {
-      title: "Vị trí trong kho",
+      title: "Vị trí",
       key: "list_ChiTietLuuKhos",
       align: "center",
       render: (record) => renderLstViTri(record),
-      width: 250,
     },
     {
-      title: "Hạng mục sử dụng",
-      dataIndex: "hangMucSuDung",
-      key: "hangMucSuDung",
+      title: "Đơn hàng",
+      dataIndex: "maPhieu",
+      key: "maPhieu",
       align: "center",
     },
     {
-      title: "Hình ảnh",
-      dataIndex: "hinhAnh",
-      key: "hinhAnh",
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
       align: "center",
-      render: (value) => (
-        <span>
-          <Image
-            src={BASE_URL_API + value}
-            alt="Hình ảnh"
-            style={{ maxWidth: "100%", maxHeight: "100%" }}
-          />
-        </span>
-      ),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
     },
   ];
 
@@ -563,7 +423,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
     validateFields()
       .then((values) => {
         if (ListThanhPham.length === 0) {
-          Helpers.alertError("Danh sách vật tư rỗng");
+          Helpers.alertError("Danh sách thành phẩm rỗng");
         } else {
           saveData(values.phieuxuatkhothanhpham, value);
         }
@@ -578,12 +438,12 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
       const newData = {
         ...data,
         ngay: data.ngay.format("DD/MM/YYYY"),
-        list_ChiTiets: ListThanhPham,
+        list_ThanhPhams: ListThanhPham,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_PhieuXuatKhoVatTuPhu`,
+            `tits_qtsx_PhieuXuatKhoThanhPham`,
             "POST",
             newData,
             "ADD",
@@ -601,7 +461,6 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
               resetFields();
               getUserKy(INFO);
               getUserLap(INFO, null);
-              getXuong();
               getListKho();
               setFieldsValue({
                 phieuxuatkhothanhpham: {
@@ -609,7 +468,6 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
                 },
               });
               setFieldTouch(false);
-              setDisabledKhoXuat(false);
               setListThanhPham([]);
             }
           } else {
@@ -710,6 +568,10 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
         if (res.status !== 409) getInfo(id);
       })
       .catch((error) => console.error(error));
+  };
+
+  const DataThemThanhPham = (data) => {
+    setListThanhPham([...ListThanhPham, ...data]);
   };
 
   const formTitle =
@@ -848,7 +710,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp={"name"}
                   onSelect={handleSelectKho}
-                  disabled={DisabledKhoXuat}
+                  disabled={ListThanhPham.length}
                 />
               </FormItem>
             </Col>
@@ -1110,12 +972,6 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
           </Button>
         </div>
       ) : null}
-      <ModalChonViTri
-        openModal={ActiveModalChonViTri}
-        openModalFS={setActiveModalChonViTri}
-        itemData={{ tits_qtsx_CauTrucKho_Id: KhoVatTu, ListThanhPham: VatTu }}
-        ThemViTri={ThemViTri}
-      />
       <ModalThemThanhPham
         openModal={ActiveModalThemThanhPham}
         openModalFS={setActiveModalThemThanhPham}
@@ -1123,7 +979,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
           tits_qtsx_CauTrucKho_Id: KhoVatTu,
           ListThanhPham: ListThanhPham,
         }}
-        // DataThemThanhPham={DataThemThanhPham}
+        DataThemThanhPham={DataThemThanhPham}
       />
       <ModalTuChoi
         openModal={ActiveModalTuChoi}
