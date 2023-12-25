@@ -32,7 +32,7 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
   const { resetFields } = form;
   const [ListHangMucKiemTra, setListHangMucKiemTra] = useState([]);
   const [ListLoi, setListLoi] = useState([]);
-  // const [ListTongLoi, setListTongLoi] = useState([]);
+  const [ActiveXacNhanSCL, setActiveXacNhanSCL] = useState(false);
 
   const [ThoiGianVaoTram, setThoiGianVaoTram] = useState("");
   useEffect(() => {
@@ -79,6 +79,9 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
                 Ctl.tenHangMucKiemTra = ks.tenHangMucKiemTra;
                 if (Ctl.nguoiSuaChuaLai_Id) {
                   Ctl.isHoanThanhSCL = true;
+                  ct.ketQua = undefined;
+                  Ctl.nguoiXacNhanSuaChuaLai_Id = getTokenInfo().id;
+                  setActiveXacNhanSCL(true);
                 }
                 setThoiGianVaoTram(Ctl.thoiGianVao);
                 ks.list_HinhAnhs.forEach((ha) => {
@@ -112,8 +115,8 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
                 );
               });
               newListLoi.push(...ct.list_TDSXKiemSoatChatLuongChiTietLois);
-              newData.push(ks);
             }
+            newData.push(ks);
           });
         });
         setListLoi(newListLoi);
@@ -240,12 +243,41 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
           item.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
         ) {
           clct.ketQua = ketQua;
-          if (clct.list_TDSXKiemSoatChatLuongChiTietLois.length === 0) {
-            clct.isDat =
-              item.giaTriMin <= ketQua && ketQua <= item.giaTriMax
-                ? true
-                : false;
-          }
+          clct.isDat =
+            item.giaTriMin <= ketQua && ketQua <= item.giaTriMax ? true : false;
+          clct.list_TDSXKiemSoatChatLuongChiTietLois.forEach((Ctl) => {
+            if (!clct.isDat) {
+              Ctl.isHoanThanhSCL = false;
+            } else {
+              Ctl.isHoanThanhSCL = true;
+            }
+            ct.list_HinhAnhs.forEach((ha) => {
+              if (
+                Ctl.tits_qtsx_SanPhamHinhAnh_Id ===
+                ha.tits_qtsx_SanPhamHinhAnh_Id
+              ) {
+                if (ha.listViTri) {
+                  const viTriLoi = JSON.parse(Ctl.viTri);
+                  viTriLoi.isHoanThanhSCL = Ctl.isHoanThanhSCL;
+                  viTriLoi.maLoi = Ctl.maLoi;
+                  viTriLoi.tenNhomLoi = Ctl.tenNhomLoi;
+                  viTriLoi.moTa = Ctl.moTa;
+                  viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id =
+                    Ctl.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id;
+                  ha.listViTri.push(JSON.stringify(viTriLoi));
+                } else {
+                  const viTriLoi = JSON.parse(Ctl.viTri);
+                  viTriLoi.isHoanThanhSCL = Ctl.isHoanThanhSCL;
+                  viTriLoi.maLoi = Ctl.maLoi;
+                  viTriLoi.tenNhomLoi = Ctl.tenNhomLoi;
+                  viTriLoi.moTa = Ctl.moTa;
+                  viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id =
+                    Ctl.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id;
+                  ha.listViTri = [JSON.stringify(viTriLoi)];
+                }
+              }
+            });
+          });
         }
       });
     });
@@ -299,7 +331,7 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
       // dataIndex: "ketQua",
       key: "ketQua",
       align: "center",
-      render: (val) => rendersoLuong(val),
+      render: (val) => ActiveXacNhanSCL && rendersoLuong(val),
     },
     {
       title: "Đánh giá",
@@ -455,6 +487,8 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
             tenNguoiSuaChuaLai: data.tenNguoiSuaChuaLai,
             nguoiSuaChuaLai_Id: data.nguoiSuaChuaLai_Id,
           };
+        } else {
+          return ll;
         }
       }),
     ]);
@@ -488,6 +522,42 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
       });
     } else {
       Helpers.alertWarning("Chưa sửa chữa hết các lỗi tại trạm");
+    }
+  };
+  const XacNhanSCL = () => {
+    const newData = [];
+    let check = false;
+    ListHangMucKiemTra.forEach((lhmkt) =>
+      lhmkt.list_TDSXKiemSoatChatLuongChiTiets.forEach((kscl) => {
+        if (!kscl.isDat) {
+          check = true;
+        } else {
+          newData.push(kscl);
+        }
+      })
+    );
+    if (!check) {
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `tits_qtsx_TienDoSanXuat/put-xac-nhan-hoan-thanh-sua-chua-lai?tits_qtsx_TienDoSanXuat_Id=${info.tits_qtsx_TienDoSanXuat_Id}`,
+            "PUT",
+            newData,
+            "DETAIL",
+            "",
+            resolve,
+            reject
+          )
+        );
+      }).then((res) => {
+        if (res && res.status === 200) {
+          Helpers.alertSuccessMessage("Đã lưu thành công!!");
+          resetFields();
+          openModalFS(false);
+        }
+      });
+    } else {
+      Helpers.alertWarning("Kết quả chưa đạt chưa thể xác nhận");
     }
   };
   const modalXacNhan = (ham, title) => {
@@ -580,9 +650,10 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
                   }}
                 >
                   {hmkt.list_HinhAnhs.length > 0 &&
-                    hmkt.list_HinhAnhs.map((ha) => {
+                    hmkt.list_HinhAnhs.map((ha, index) => {
                       return (
                         <ImageDrawing
+                          key={index}
                           imageUrl={BASE_URL_API + ha.hinhAnh}
                           hinhAnhId={ha.tits_qtsx_HangMucKiemTra_HinhAnh_Id}
                           sanPhamhinhAnhId={ha.tits_qtsx_SanPhamHinhAnh_Id}
@@ -605,10 +676,17 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
           <Button
             style={{ margin: 0 }}
             icon={<SaveOutlined />}
-            onClick={() => modalXacNhan(onSave, "Lưu sửa chữa lại")}
+            onClick={() =>
+              modalXacNhan(
+                ActiveXacNhanSCL ? XacNhanSCL : onSave,
+                ActiveXacNhanSCL
+                  ? "Xác nhận đã sửa chữa lại"
+                  : "Lưu sửa chữa lại"
+              )
+            }
             type="primary"
           >
-            Lưu
+            {ActiveXacNhanSCL ? "Xác nhận" : "Lưu"}
           </Button>
         </Col>
       </Row>

@@ -638,6 +638,7 @@ function TienDoSanXuat({ match, history, permission }) {
                     icon={<ToolOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
+                    disabled={!InfoSanPham.isSCL}
                     onClick={() => setActiveSuaChuaLai(true)}
                   >
                     Sửa chữa lại
