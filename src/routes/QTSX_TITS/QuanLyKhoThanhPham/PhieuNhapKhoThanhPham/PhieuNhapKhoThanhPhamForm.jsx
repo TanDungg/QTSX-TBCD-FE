@@ -54,12 +54,12 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
   useEffect(() => {
     const load = () => {
       getUserKy();
+      getXuongSanXuat();
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
           setType("new");
           getUserLap();
           getListKhoThanhPham();
-          getXuongSanXuat();
           setFieldsValue({
             phieunhapkhothanhpham: {
               ngay: moment(
@@ -217,7 +217,7 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuNhapKhoThanhPham/${id}`,
+          `tits_qtsx_PhieuNhapKhoThanhPham/${id}?donVi_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -512,13 +512,18 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      console.log(phieunhapkhothanhpham);
+      const newData = {
+        ...phieunhapkhothanhpham,
+        id: id,
+        ngay: phieunhapkhothanhpham.ngay.format("DD/MM/YYYY HH:mm:ss"),
+        tits_qtsx_PhieuNhapKhoThanhPhamChiTiets: ListThanhPham,
+      };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
             `tits_qtsx_PhieuNhapKhoThanhPham/${id}`,
             "PUT",
-            phieunhapkhothanhpham,
+            newData,
             "EDIT",
             "",
             resolve,
@@ -541,12 +546,11 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
   const hanldeXacNhan = () => {
     const newData = {
       id: id,
-      isDuyet: true,
     };
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuNhapKhoThanhPham/xac-nhan/${id}`,
+          `tits_qtsx_PhieuNhapKhoThanhPham/duyet/${id}`,
           "PUT",
           newData,
           "XACNHAN",
@@ -619,9 +623,9 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
         </Tag>
         <Tag
           color={
-            info.tinhTrang === "Chưa xác nhận"
+            info.tinhTrang === "Chưa duyệt"
               ? "orange"
-              : info.tinhTrang === "Đã xác nhận"
+              : info.tinhTrang === "Đã duyệt"
               ? "blue"
               : "red"
           }
@@ -894,7 +898,7 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
           // loading={loading}
         />
       </Card>
-      {type === "xacnhan" && info.tinhTrang === "Chưa xác nhận" && (
+      {type === "xacnhan" && info.tinhTrang === "Chưa duyệt" && (
         <Row justify={"center"}>
           <Col style={{ marginRight: 15 }}>
             <Button type="default" onClick={goBack}>
