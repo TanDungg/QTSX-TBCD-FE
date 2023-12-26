@@ -259,8 +259,8 @@ function KhoVatTu({ match, history, permission }) {
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenKho,
-            value: d.tenKho,
+            text: d.tenNgan ? d.tenNgan : d.tenKe && d.tenKe,
+            value: d.tenNgan ? d.tenNgan : d.tenKe && d.tenKe,
           };
         })
       ),
