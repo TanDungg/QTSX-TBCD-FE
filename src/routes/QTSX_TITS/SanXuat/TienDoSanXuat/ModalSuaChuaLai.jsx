@@ -25,7 +25,7 @@ import { SaveOutlined } from "@ant-design/icons";
 import Helpers from "src/helpers";
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ModalSuaChuaLai({ openModalFS, openModal, info }) {
+function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
   const dispatch = useDispatch();
   // const { width } = useSelector(({ common }) => common).toJS();
   const [form] = Form.useForm();
@@ -518,6 +518,7 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
           Helpers.alertSuccessMessage("Đã lưu thành công!!");
           resetFields();
           openModalFS(false);
+          refesh();
         }
       });
     } else {
@@ -554,6 +555,7 @@ function ModalSuaChuaLai({ openModalFS, openModal, info }) {
           Helpers.alertSuccessMessage("Đã lưu thành công!!");
           resetFields();
           openModalFS(false);
+          refesh();
         }
       });
     } else {
