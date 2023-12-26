@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from "react";
 import ModalChamLoi from "./ModalChamLoi";
+import ModalDaSuaChuaLai from "./ModalDaSuaChuaLai";
 
 const ImageDrawing = ({
   imageUrl,
@@ -9,10 +10,12 @@ const ImageDrawing = ({
   listViTri,
   xoaToaDo,
   sanPhamhinhAnhId,
+  SuaChuaLai,
 }) => {
   const canvasRef = useRef(null);
   const [ViTri, setViTri] = useState();
   const [ActiveModal, setActiveModal] = useState(false);
+  const [ActiveModalSuaChuaLai, setActiveModalSuaChuaLai] = useState(false);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -28,7 +31,7 @@ const ImageDrawing = ({
           const toaDo = JSON.parse(circle);
           context.beginPath();
           context.arc(toaDo.x, toaDo.y, 20, 0, 2 * Math.PI);
-          context.fillStyle = circle.isHoanThanhSCL ? "blue" : "red";
+          context.fillStyle = toaDo.isHoanThanhSCL ? "#0E42FA" : "#FF0101";
           context.fill();
           // Thêm chữ vào hình tròn
           context.font = "14px Arial";
@@ -41,7 +44,7 @@ const ImageDrawing = ({
 
       // Vẽ các hình tròn đã lưu
     };
-  }, [imageUrl, listViTri]);
+  }, [imageUrl, listViTri, SuaChuaLai]);
 
   const handleCanvasClick = (e) => {
     if (AddLoi !== undefined) {
@@ -59,15 +62,27 @@ const ImageDrawing = ({
             ) <= 20;
           if (checkToaDo) {
             check = true;
-            xoaToaDo({
-              viTri: vt,
-              tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id:
-                toaDo.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id,
-              tits_qtsx_HangMucKiemTra_HinhAnh_Id: hinhAnhId,
-            });
+            if (xoaToaDo) {
+              xoaToaDo({
+                viTri: vt,
+                tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id:
+                  toaDo.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id,
+                tits_qtsx_HangMucKiemTra_HinhAnh_Id: hinhAnhId,
+              });
+            } else if (SuaChuaLai && !toaDo.isHoanThanhSCL) {
+              setActiveModalSuaChuaLai(true);
+              setViTri({
+                viTri: toaDo,
+                tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id:
+                  toaDo.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id,
+                tits_qtsx_HangMucKiemTra_HinhAnh_Id: hinhAnhId,
+                tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id:
+                  toaDo.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id,
+              });
+            }
           }
         });
-        if (!check) {
+        if (!check && xoaToaDo) {
           setViTri({
             x: pos.x,
             y: pos.y,
@@ -110,6 +125,7 @@ const ImageDrawing = ({
         width={600} // Thay thế kích thước bằng kích thước thực tế của hình ảnh
         height={300} // Thay thế kích thước bằng kích thước thực tế của hình ảnh
         onClick={handleCanvasClick}
+        style={{ cursor: "pointer" }}
         // onMouseUp={handleMouseUp}
       />
       <ModalChamLoi
@@ -118,6 +134,12 @@ const ImageDrawing = ({
         ViTri={ViTri}
         ThemLoi={ThemLoi}
         ListNoiDung={dataNoiDung.list_TDSXKiemSoatChatLuongChiTiets}
+      />
+      <ModalDaSuaChuaLai
+        openModal={ActiveModalSuaChuaLai}
+        openModalFS={setActiveModalSuaChuaLai}
+        ViTri={ViTri}
+        SuaChuaLai={(data) => SuaChuaLai(data)}
       />
     </>
   );

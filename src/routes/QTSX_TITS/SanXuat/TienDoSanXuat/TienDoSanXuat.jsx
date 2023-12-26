@@ -22,6 +22,7 @@ import ModalKiemSoatChatLuong from "./ModalKiemSoatChatLuong";
 import { isEmpty } from "lodash";
 import ModalHoSoChatLuong from "./ModalHoSoChatLuong";
 import Helpers from "src/helpers";
+import ModalSuaChuaLai from "./ModalSuaChuaLai";
 const optionsDate = {
   weekday: "long", // Thứ
   year: "numeric", // Năm
@@ -51,6 +52,7 @@ function TienDoSanXuat({ match, history, permission }) {
   const [DisableVaoTram, setDisableVaoTram] = useState(true);
   const [ActiveModalKiemSoatVatTu, setActiveModalKiemSoatVatTu] =
     useState(false);
+  const [ActiveSuaChuaLai, setActiveSuaChuaLai] = useState(false);
   const [ActiveModalHoSoChatLuong, setActiveModalHoSoChatLuong] =
     useState(false);
   const [ActiveKiemSoatChatLuong, setActiveKiemSoatChatLuong] = useState(false);
@@ -636,7 +638,8 @@ function TienDoSanXuat({ match, history, permission }) {
                     icon={<ToolOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
-                    // disabled={DisableVaoTram}
+                    disabled={!InfoSanPham.isSCL}
+                    onClick={() => setActiveSuaChuaLai(true)}
                   >
                     Sửa chữa lại
                   </Button>
@@ -694,6 +697,11 @@ function TienDoSanXuat({ match, history, permission }) {
       <ModalKiemSoatChatLuong
         openModal={ActiveKiemSoatChatLuong}
         openModalFS={setActiveKiemSoatChatLuong}
+        info={InfoSanPham}
+      />
+      <ModalSuaChuaLai
+        openModal={ActiveSuaChuaLai}
+        openModalFS={setActiveSuaChuaLai}
         info={InfoSanPham}
       />
     </div>
