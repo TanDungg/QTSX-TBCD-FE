@@ -68,6 +68,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     const param = convertObjectToUrlParams({
       keyword,
       tits_qtsx_Xuong_Id,
+      donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
       page,
@@ -82,6 +83,7 @@ function XuatKhoVatTu({ match, history, permission }) {
     );
     const paramXuat = convertObjectToUrlParams({
       keyword,
+      donVi_Id: INFO.donVi_Id,
       tits_qtsx_Xuong_Id,
       tuNgay,
       denNgay,

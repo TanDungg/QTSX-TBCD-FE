@@ -57,6 +57,7 @@ function AddVatTuModal({ openModalFS, openModal, addVatTu }) {
           if (vt.id === values.vatTu.vatTu_Id) {
             values.vatTu.tenNhomVatTu = vt.tenNhomVatTu;
             values.vatTu.tenDonViTinh = vt.tenDonViTinh;
+            values.vatTu.maVatTu = vt.maVatTu;
             values.vatTu.tenVatTu = vt.tenVatTu;
           }
         });

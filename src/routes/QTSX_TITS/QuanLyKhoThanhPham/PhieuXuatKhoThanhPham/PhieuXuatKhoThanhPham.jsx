@@ -30,6 +30,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import Helpers from "src/helpers";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -68,6 +69,7 @@ function XuatKhoThanhPham({ match, history, permission }) {
     const param = convertObjectToUrlParams({
       keyword,
       tits_qtsx_Xuong_Id,
+      donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
       page,
@@ -83,6 +85,7 @@ function XuatKhoThanhPham({ match, history, permission }) {
     const paramXuat = convertObjectToUrlParams({
       keyword,
       tits_qtsx_Xuong_Id,
+      donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
       page: -1,
@@ -142,14 +145,7 @@ function XuatKhoThanhPham({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const detailItem =
-      (permission &&
-        permission.cof &&
-        item.nguoiPTBoPhanDuyet_Id === INFO.user_Id &&
-        item.tinhTrang === "Chưa duyệt") ||
-      (permission &&
-        permission.cof &&
-        item.nguoiKeToanDuyet_Id === INFO.user_Id &&
-        item.tinhTrang === "Chờ kế toán duyệt") ? (
+      permission && permission.cof && item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan`,
@@ -274,6 +270,13 @@ function XuatKhoThanhPham({ match, history, permission }) {
   };
   let renderHead = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 120,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -294,38 +297,6 @@ function XuatKhoThanhPham({ match, history, permission }) {
         })
       ),
       onFilter: (value, record) => record.maPhieu.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Xưởng yêu cầu",
-      dataIndex: "tenXuong",
-      key: "tenXuong",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenXuong,
-            value: d.tenXuong,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenXuong.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Phiếu yêu cầu",
-      dataIndex: "maPhieuYeuCauCapVatTu",
-      key: "maPhieuYeuCauCapVatTu",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.maPhieuYeuCauCapVatTu,
-            value: d.maPhieuYeuCauCapVatTu,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.maPhieuYeuCauCapVatTu.includes(value),
       filterSearch: true,
     },
     {
@@ -400,7 +371,7 @@ function XuatKhoThanhPham({ match, history, permission }) {
                   ? "orange"
                   : value === "Đã duyệt"
                   ? "blue"
-                  : value && value.startsWith("Bị hủy")
+                  : value === "Bị từ chối"
                   ? "red"
                   : "cyan"
               }
@@ -413,13 +384,6 @@ function XuatKhoThanhPham({ match, history, permission }) {
           )}
         </div>
       ),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 120,
-      render: (value) => actionContent(value),
     },
   ];
 
@@ -457,55 +421,44 @@ function XuatKhoThanhPham({ match, history, permission }) {
   };
 
   const handleXuatExcel = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
-    const fetchAllData = DataXuatExcel.map((data) => {
-      return new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_PhieuXuatKhoThanhPhamPhu/${data.id}?${params}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      });
-    });
-
-    Promise.all(fetchAllData)
-      .then((responses) => {
-        const DataXuat = responses.map((res) => {
-          if (res && res.data) {
-            return {
-              ...res.data,
-              chiTiet_PhieuXuatKhoThanhPhams: res.data
-                .chiTiet_PhieuXuatKhoThanhPhams
-                ? JSON.parse(res.data.chiTiet_PhieuXuatKhoThanhPhams)
-                : null,
-            };
-          } else {
-            return null;
-          }
-        });
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `tits_qtsx_PhieuXuatKhoThanhPhamPhu/export-file-excel-xuat-kho`,
-              "POST",
-              DataXuat,
-              "",
-              "",
-              resolve,
-              reject
-            )
-          );
-        }).then((res) => {
-          exportExcel("PhieuXuatKhoThanhPham", res.data.dataexcel);
-        });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuXuatKhoThanhPham/${SelectedDevice[0].id}?donVi_Id=${INFO.donVi_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const data = res.data;
+          console.log(data);
+          const newData = {
+            ...data,
+            list_ThanhPhams:
+              data.list_ThanhPhams && JSON.parse(data.list_ThanhPhams),
+          };
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `tits_qtsx_PhieuXuatKhoThanhPham/export-excel`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportExcel("PhieuXuatKhoThanhPham", res.data.dataexcel);
+          });
+        }
       })
       .catch((error) => console.error(error));
   };
@@ -527,7 +480,7 @@ function XuatKhoThanhPham({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handleXuatExcel}
-          disabled={data.length === 0}
+          disabled={SelectedDevice.length === 0}
         >
           Xuất excel
         </Button>
@@ -568,9 +521,12 @@ function XuatKhoThanhPham({ match, history, permission }) {
         SelectedKeys.length > 0
           ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
           : [...selectedRowKeys];
-
-      setSelectedDevice(row);
-      setSelectedKeys(key);
+      if (row.length && row[0].tinhTrang === "Bị từ chối") {
+        Helpers.alertError("Không được chọn phiếu đã bị từ chối");
+      } else {
+        setSelectedDevice(row);
+        setSelectedKeys(key);
+      }
     },
   };
 

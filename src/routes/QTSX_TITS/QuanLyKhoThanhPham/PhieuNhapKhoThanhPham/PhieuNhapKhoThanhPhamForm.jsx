@@ -1225,7 +1225,12 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
         />
       </Card>
       {type === "xacnhan" && info.tinhTrang === "Chưa xác nhận" && (
-        <Row justify={"end"} style={{ marginTop: 15 }}>
+        <Row justify={"center"}>
+          <Col style={{ marginRight: 15 }}>
+            <Button type="default" onClick={goBack}>
+              Quay lại
+            </Button>
+          </Col>
           <Col style={{ marginRight: 15 }}>
             <Button type="primary" onClick={modalXK}>
               Xác nhận

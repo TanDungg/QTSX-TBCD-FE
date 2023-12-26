@@ -1,7 +1,10 @@
 import {
   DeleteOutlined,
   PlusCircleOutlined,
+  RollbackOutlined,
   SearchOutlined,
+  CloseCircleOutlined,
+  CheckCircleOutlined,
 } from "@ant-design/icons";
 import {
   Card,
@@ -1050,18 +1053,25 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
         />
       ) : null}
       {type === "duyet" && info.tinhTrang === "Chưa xử lý" ? (
-        <Row justify={"end"} style={{ marginTop: 15 }}>
-          <Col style={{ marginRight: 15 }}>
-            <Button type="primary" onClick={modalXK}>
-              Xác nhận
-            </Button>
-          </Col>
-          <Col style={{ marginRight: 15 }}>
-            <Button type="danger" onClick={() => setActiveModalTuChoi(true)}>
-              Từ chối
-            </Button>
-          </Col>
-        </Row>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <Button icon={<RollbackOutlined />} type="default" onClick={goBack}>
+            Quay lại
+          </Button>
+          <Button
+            icon={<CheckCircleOutlined />}
+            type="primary"
+            onClick={modalXK}
+          >
+            Xác nhận
+          </Button>
+          <Button
+            icon={<CloseCircleOutlined />}
+            type="danger"
+            onClick={() => setActiveModalTuChoi(true)}
+          >
+            Từ chối
+          </Button>
+        </div>
       ) : null}
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
