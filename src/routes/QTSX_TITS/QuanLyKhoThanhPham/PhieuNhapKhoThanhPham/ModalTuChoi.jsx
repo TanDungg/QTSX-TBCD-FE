@@ -1,6 +1,7 @@
 import { Modal as AntModal, Form, Input, Row, Button } from "antd";
 import React, { useState } from "react";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+
 const FormItem = Form.Item;
 
 function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {

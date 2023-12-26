@@ -24,7 +24,6 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
-  exportPDF,
   removeDuplicates,
   exportExcel,
 } from "src/util/Common";
@@ -37,14 +36,17 @@ const { RangePicker } = DatePicker;
 function NhapKhoThanhPham({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [selectedDevice, setSelectedDevice] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [DataXuatExcel, setDataXuatExcel] = useState([]);
   const [ListKhoThanhPham, setListKhoThanhPham] = useState([]);
   const [KhoTP, setKhoTP] = useState(null);
 
@@ -74,6 +76,7 @@ function NhapKhoThanhPham({ match, history, permission }) {
     const param = convertObjectToUrlParams({
       keyword,
       tits_qtsx_CauTrucKho_Id,
+      donVi_Id: INFO.donVi_Id,
       ngayBatDau,
       ngayKetThuc,
       page,
@@ -86,35 +89,6 @@ function NhapKhoThanhPham({ match, history, permission }) {
         "LIST"
       )
     );
-
-    const paramXuat = convertObjectToUrlParams({
-      keyword,
-      tits_qtsx_CauTrucKho_Id,
-      ngayBatDau,
-      ngayKetThuc,
-      page: -1,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuNhapKhoThanhPham?${paramXuat}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDataXuatExcel(res.data);
-        } else {
-          setDataXuatExcel([]);
-        }
-      })
-      .catch((error) => console.error(error));
   };
 
   const getKhoThanhPham = () => {
@@ -261,7 +235,7 @@ function NhapKhoThanhPham({ match, history, permission }) {
     });
   };
 
-  const handlePrint = () => {
+  const handleXuatExcel = () => {
     const params = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id,
     });
@@ -298,62 +272,11 @@ function NhapKhoThanhPham({ match, history, permission }) {
               )
             );
           }).then((res) => {
-            exportPDF("PhieuNhapKhoThanhPham", res.data.datapdf);
+            exportExcel("PhieuNhapKhoThanhPham", res.data.datapdf);
             setSelectedDevice([]);
             setSelectedKeys([]);
           });
         }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const handleXuatExcel = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
-    const fetchAllData = DataXuatExcel.map((data) => {
-      return new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_PhieuNhapKhoThanhPham/${data.id}?${params}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      });
-    });
-
-    Promise.all(fetchAllData)
-      .then((responses) => {
-        const DataXuat = responses.map((res) => {
-          if (res && res.data) {
-            return {
-              ...res.data,
-              chiTietVatTu: res.data.chiTietVatTu
-                ? JSON.parse(res.data.chiTietVatTu)
-                : null,
-            };
-          }
-        });
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `tits_qtsx_PhieuNhapKhoThanhPham/export-file-excel-nhap-kho`,
-              "POST",
-              DataXuat,
-              "",
-              "",
-              resolve,
-              reject
-            )
-          );
-        }).then((res) => {
-          exportExcel("PhieuNhapKhoThanhPham", res.data.dataexcel);
-        });
       })
       .catch((error) => console.error(error));
   };
