@@ -239,6 +239,9 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
                   soLuongChuaNhap: data.soLuongChuaNhap
                     ? data.soLuongChuaNhap
                     : 0,
+                  thanhPham: `${data.tenThanhPham}${
+                    data.tenMauSac ? ` (${data.tenMauSac})` : ""
+                  }`,
                 };
               }
             );

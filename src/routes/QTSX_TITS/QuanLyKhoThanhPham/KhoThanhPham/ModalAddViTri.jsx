@@ -21,7 +21,6 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
 
   useEffect(() => {
     if (openModal) {
-      console.log(vatTu);
       getKe(vatTu.cauTrucKho_Id);
       resetFields();
       if (vatTu.tits_qtsx_Ke_Id) {

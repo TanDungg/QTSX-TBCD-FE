@@ -8,7 +8,6 @@ import {
   DatePicker,
   Button,
   Tag,
-  Divider,
   Upload,
   Image,
 } from "antd";
@@ -39,12 +38,12 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
-import ModalChonSanPham from "./ModalChonSanPham";
+import ModalThemVatPham from "./ModalThemVatPham";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 
-const ThanhLySanPhamForm = ({ history, match, permission }) => {
+const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const INFO = {
     ...getLocalStorage("menu"),
@@ -57,11 +56,11 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [info, setInfo] = useState({});
-  const [ListVatTu, setListVatTu] = useState([]);
-  const [ListKhoVatTu, setListKhoVatTu] = useState([]);
-  const [KhoVatTu, setKhoVatTu] = useState(null);
+  const [ListVatPham, setListVatPham] = useState([]);
+  const [ListKhoThanhPham, setListKhoThanhPham] = useState([]);
+  const [KhoThanhPham, setKhoThanhPham] = useState(null);
   const [ListUser, setListUser] = useState([]);
-  const [ActiveModalChonSanPham, setActiveModalChonSanPham] = useState(null);
+  const [ActiveModalThemVatPham, setActiveModalThemVatPham] = useState(null);
   const [editingRecord, setEditingRecord] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [openImage, setOpenImage] = useState(false);
@@ -162,9 +161,9 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListKhoVatTu(res.data);
+          setListKhoThanhPham(res.data);
         } else {
-          setListKhoVatTu([]);
+          setListKhoThanhPham([]);
         }
       })
       .catch((error) => console.error(error));
@@ -223,7 +222,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
           getUserKy(INFO);
           getUserLap(INFO, res.data.userLap_Id, 1);
           getListKho();
-          setKhoVatTu(res.data.khoThanhLy_Id);
+          setKhoThanhPham(res.data.khoThanhLy_Id);
           setFieldsValue({
             phieuthanhly: {
               ...res.data,
@@ -241,9 +240,10 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
 
               return {
                 ...data,
-                tits_qtsx_ChiTietKhoVatTu_Id: data.tits_qtsx_ChiTietKhoVatTu_Id
-                  ? data.tits_qtsx_ChiTietKhoVatTu_Id.toLowerCase()
-                  : createGuid(),
+                tits_qtsx_ChiTietKhoVatPham_Id:
+                  data.tits_qtsx_ChiTietKhoVatPham_Id
+                    ? data.tits_qtsx_ChiTietKhoVatPham_Id.toLowerCase()
+                    : createGuid(),
                 vatTu: `${data.maVatTu} - ${data.tenVatTu}${
                   vitri ? ` (${vitri})` : ""
                 }`,
@@ -252,7 +252,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
                 hinhAnh: data.hinhAnh ? data.hinhAnh.split("/")[5] : null,
               };
             });
-          setListVatTu(newData);
+          setListVatPham(newData);
         }
       })
       .catch((error) => console.error(error));
@@ -279,11 +279,11 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
   };
 
   const deleteItemAction = (item) => {
-    const newData = ListVatTu.filter(
+    const newData = ListVatPham.filter(
       (d) =>
-        d.tits_qtsx_ChiTietKhoVatTu_Id !== item.tits_qtsx_ChiTietKhoVatTu_Id
+        d.tits_qtsx_ChiTietKhoVatPham_Id !== item.tits_qtsx_ChiTietKhoVatPham_Id
     );
-    setListVatTu(newData);
+    setListVatPham(newData);
     setFieldTouch(true);
   };
 
@@ -316,27 +316,30 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
     } else {
       const newData = editingRecord.filter(
         (d) =>
-          d.tits_qtsx_ChiTietKhoVatTu_Id !== item.tits_qtsx_ChiTietKhoVatTu_Id
+          d.tits_qtsx_ChiTietKhoVatPham_Id !==
+          item.tits_qtsx_ChiTietKhoVatPham_Id
       );
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
-    const newData = [...ListVatTu];
+    const newData = [...ListVatPham];
     newData.forEach((ct, index) => {
       if (
-        ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
+        ct.tits_qtsx_ChiTietKhoVatPham_Id ===
+        item.tits_qtsx_ChiTietKhoVatPham_Id
       ) {
         ct.soLuong = soLuongThanhLy;
       }
     });
-    setListVatTu(newData);
+    setListVatPham(newData);
   };
   const renderSoLuongThanhLy = (item) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
       if (
-        ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
+        ct.tits_qtsx_ChiTietKhoVatPham_Id ===
+        item.tits_qtsx_ChiTietKhoVatPham_Id
       ) {
         isEditing = true;
         message = ct.message;
@@ -361,15 +364,16 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
   };
   const handleInputChangeDeXuat = (val, item) => {
     const deXuat = val.target.value;
-    const newData = [...ListVatTu];
+    const newData = [...ListVatPham];
     newData.forEach((ct, index) => {
       if (
-        ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
+        ct.tits_qtsx_ChiTietKhoVatPham_Id ===
+        item.tits_qtsx_ChiTietKhoVatPham_Id
       ) {
         ct.deXuat = deXuat;
       }
     });
-    setListVatTu(newData);
+    setListVatPham(newData);
     setFieldTouch(true);
   };
   const renderDeuXuat = (item) => {
@@ -390,15 +394,16 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
   };
   const handleInputChangeNguyenNhan = (val, item) => {
     const nguyeNhan = val.target.value;
-    const newData = [...ListVatTu];
+    const newData = [...ListVatPham];
     newData.forEach((ct, index) => {
       if (
-        ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
+        ct.tits_qtsx_ChiTietKhoVatPham_Id ===
+        item.tits_qtsx_ChiTietKhoVatPham_Id
       ) {
         ct.nguyenNhan = nguyeNhan;
       }
     });
-    setListVatTu(newData);
+    setListVatPham(newData);
     setFieldTouch(true);
   };
   const renderNguyenNhan = (item) => {
@@ -439,11 +444,11 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
           <DeleteOutlined
             style={{ cursor: "pointer", color: "red" }}
             onClick={() => {
-              const newData = [...ListVatTu];
+              const newData = [...ListVatPham];
               newData.forEach((vt) => {
                 if (
-                  vt.tits_qtsx_ChiTietKhoVatTu_Id ===
-                  record.tits_qtsx_ChiTietKhoVatTu_Id
+                  vt.tits_qtsx_ChiTietKhoVatPham_Id ===
+                  record.tits_qtsx_ChiTietKhoVatPham_Id
                 ) {
                   vt.file = null;
                   vt.fileImage = null;
@@ -451,7 +456,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
                 }
               });
               setFieldTouch(true);
-              setListVatTu(newData);
+              setListVatPham(newData);
             }}
           />
         )}
@@ -476,11 +481,11 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
       <Upload
         {...props}
         beforeUpload={(file) => {
-          const newData = [...ListVatTu];
+          const newData = [...ListVatPham];
           newData.forEach((vt) => {
             if (
-              vt.tits_qtsx_ChiTietKhoVatTu_Id ===
-              record.tits_qtsx_ChiTietKhoVatTu_Id
+              vt.tits_qtsx_ChiTietKhoVatPham_Id ===
+              record.tits_qtsx_ChiTietKhoVatPham_Id
             ) {
               const reader = new FileReader();
               reader.onload = (e) => (vt.fileImage = e.target.result);
@@ -490,7 +495,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
               vt.hinhAnh = file.name;
             }
           });
-          setListVatTu(newData);
+          setListVatPham(newData);
 
           return false;
         }}
@@ -608,7 +613,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
   const saveAndClose = (value) => {
     validateFields()
       .then((values) => {
-        if (ListVatTu.length === 0) {
+        if (ListVatPham.length === 0) {
           Helpers.alertError("Danh sách sản phẩm rỗng");
         } else {
           saveData(values.phieuthanhly, value);
@@ -639,7 +644,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
           } else {
             resetFields();
             setFieldTouch(false);
-            setListVatTu([]);
+            setListVatPham([]);
             getData();
             setFieldsValue({
               phieuthanhly: {
@@ -686,11 +691,11 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
       const formData = new FormData();
       const key = [];
       let check = false;
-      ListVatTu.forEach((vt) => {
+      ListVatPham.forEach((vt) => {
         if (vt.file) {
           formData.append("lstFiles", vt.file);
           check = true;
-          key.push(vt.tits_qtsx_ChiTietKhoVatTu_Id);
+          key.push(vt.tits_qtsx_ChiTietKhoVatPham_Id);
         }
       });
       if (check) {
@@ -703,13 +708,13 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
         })
           .then((res) => res.json())
           .then((path) => {
-            const newListVatTu = [];
-            ListVatTu.forEach((vt) => {
+            const newListVatPham = [];
+            ListVatPham.forEach((vt) => {
               let checkPush = false;
               key.forEach((k, index) => {
-                if (k === vt.tits_qtsx_ChiTietKhoVatTu_Id) {
+                if (k === vt.tits_qtsx_ChiTietKhoVatPham_Id) {
                   checkPush = true;
-                  newListVatTu.push({
+                  newListVatPham.push({
                     tits_qtsx_ChiTietKhoBegin_Id:
                       vt.tits_qtsx_ChiTietKhoBegin_Id,
                     tits_qtsx_VatPham_Id: vt.tits_qtsx_VatPham_Id,
@@ -721,7 +726,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
                 }
               });
               if (!checkPush) {
-                newListVatTu.push({
+                newListVatPham.push({
                   tits_qtsx_ChiTietKhoBegin_Id: vt.tits_qtsx_ChiTietKhoBegin_Id,
                   tits_qtsx_VatPham_Id: vt.tits_qtsx_VatPham_Id,
                   soLuong: vt.soLuong,
@@ -734,7 +739,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
             const newData = {
               ...data,
               ngay: data.ngay.format("DD/MM/YYYY HH:mm"),
-              tits_qtsx_PhieuThanhLyChiTiets: newListVatTu,
+              tits_qtsx_PhieuThanhLyChiTiets: newListVatPham,
               isVatTu: false,
             };
             postData(newData, saveQuit);
@@ -743,7 +748,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
         const newData = {
           ...data,
           ngay: data.ngay.format("DD/MM/YYYY HH:mm"),
-          tits_qtsx_PhieuThanhLyChiTiets: ListVatTu,
+          tits_qtsx_PhieuThanhLyChiTiets: ListVatPham,
           isVatTu: false,
         };
         postData(newData, saveQuit);
@@ -754,11 +759,11 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
       const listPath = [];
 
       let check = false;
-      ListVatTu.forEach((vt) => {
+      ListVatPham.forEach((vt) => {
         if (vt.file) {
           formData.append("lstFiles", vt.file);
           check = true;
-          key.push(vt.tits_qtsx_ChiTietKhoVatTu_Id);
+          key.push(vt.tits_qtsx_ChiTietKhoVatPham_Id);
           if (vt.hinhAnh) {
             listPath.push({
               stringPath: vt.hinhAnhGoc,
@@ -781,13 +786,13 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
         })
           .then((res) => res.json())
           .then((path) => {
-            const newListVatTu = [];
-            ListVatTu.forEach((vt) => {
+            const newListVatPham = [];
+            ListVatPham.forEach((vt) => {
               let checkPush = false;
               key.forEach((k, index) => {
-                if (k === vt.tits_qtsx_ChiTietKhoVatTu_Id) {
+                if (k === vt.tits_qtsx_ChiTietKhoVatPham_Id) {
                   checkPush = true;
-                  newListVatTu.push({
+                  newListVatPham.push({
                     tits_qtsx_ChiTietKhoBegin_Id:
                       vt.tits_qtsx_ChiTietKhoBegin_Id,
                     tits_qtsx_VatPham_Id: vt.tits_qtsx_VatPham_Id,
@@ -799,7 +804,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
                 }
               });
               if (!checkPush) {
-                newListVatTu.push({
+                newListVatPham.push({
                   tits_qtsx_ChiTietKhoBegin_Id: vt.tits_qtsx_ChiTietKhoBegin_Id,
                   tits_qtsx_VatPham_Id: vt.tits_qtsx_VatPham_Id,
                   soLuong: vt.soLuong,
@@ -812,7 +817,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
             const newData = {
               ...data,
               ngay: data.ngay.format("DD/MM/YYYY HH:mm"),
-              tits_qtsx_PhieuThanhLyChiTiets: newListVatTu,
+              tits_qtsx_PhieuThanhLyChiTiets: newListVatPham,
               isVatTu: false,
             };
             putData(newData, saveQuit);
@@ -821,7 +826,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
         const newData = {
           ...data,
           ngay: data.ngay.format("DD/MM/YYYY HH:mm"),
-          tits_qtsx_PhieuThanhLyChiTiets: ListVatTu,
+          tits_qtsx_PhieuThanhLyChiTiets: ListVatPham,
           isVatTu: false,
         };
         putData(newData, saveQuit);
@@ -830,19 +835,19 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
   };
 
   const handleChonVatTu = () => {
-    setActiveModalChonSanPham(true);
+    setActiveModalThemVatPham(true);
   };
 
-  const handleThemVatTu = (data) => {
-    const newListVatTu = [...ListVatTu, ...data];
-    setListVatTu(newListVatTu);
+  const DataThemVatPham = (data) => {
+    const newListVatPham = [...ListVatPham, ...data];
+    setListVatPham(newListVatPham);
     if (type === "edit") {
       setFieldTouch(true);
     }
   };
 
   const handleSelectKhoThanhLy = (value) => {
-    setKhoVatTu(value);
+    setKhoThanhPham(value);
   };
 
   const formTitle =
@@ -969,7 +974,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListKhoVatTu ? ListKhoVatTu : []}
+                  data={ListKhoThanhPham ? ListKhoThanhPham : []}
                   optionsvalue={["id", "tenCauTrucKho"]}
                   style={{ width: "100%" }}
                   placeholder="Kho thanh lý"
@@ -977,8 +982,8 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
                   optionFilterProp={"name"}
                   onSelect={handleSelectKhoThanhLy}
                   disabled={
-                    ListVatTu &&
-                    ListVatTu.length === 0 &&
+                    ListVatPham &&
+                    ListVatPham.length === 0 &&
                     (type === "new" || type === "edit")
                       ? false
                       : true
@@ -1173,7 +1178,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
               className="th-margin-bottom-0"
               type="primary"
               onClick={handleChonVatTu}
-              disabled={KhoVatTu === null ? true : false}
+              disabled={KhoThanhPham === null ? true : false}
             >
               Chọn sản phẩm
             </Button>
@@ -1185,7 +1190,7 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
           scroll={{ x: 1300, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
-          dataSource={reDataForTable(ListVatTu)}
+          dataSource={reDataForTable(ListVatPham)}
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
@@ -1197,20 +1202,20 @@ const ThanhLySanPhamForm = ({ history, match, permission }) => {
           goBack={goBack}
           handleSave={onFinish}
           saveAndClose={saveAndClose}
-          disabled={type === "new" ? fieldTouch && ListVatTu : fieldTouch}
+          disabled={type === "new" ? fieldTouch && ListVatPham : fieldTouch}
         />
       ) : null}
-      <ModalChonSanPham
-        openModal={ActiveModalChonSanPham}
-        openModalFS={setActiveModalChonSanPham}
+      <ModalThemVatPham
+        openModal={ActiveModalThemVatPham}
+        openModalFS={setActiveModalThemVatPham}
         itemData={{
-          kho_Id: KhoVatTu,
-          ListViTriKho: ListVatTu && ListVatTu,
+          tits_qtsx_CauTrucKho_Id: KhoThanhPham,
+          ListVatPham: ListVatPham,
         }}
-        ThemVatTu={handleThemVatTu}
+        DataThemVatPham={DataThemVatPham}
       />
     </div>
   );
 };
 
-export default ThanhLySanPhamForm;
+export default ThanhLyThanhPhamForm;

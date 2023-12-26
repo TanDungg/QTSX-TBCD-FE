@@ -52,7 +52,9 @@ function ModalChonThanhPham({
       if (res && res.data) {
         if (itemData) {
           const newListThanhPham = res.data.map((data) => {
-            const thanhpham = `${data.tenSanPham} (${data.tenMauSac})`;
+            const thanhpham = `${data.tenVatPham}${
+              data.tenMauSac ? ` (${data.tenMauSac})` : ""
+            }`;
             return {
               ...data,
               soLuongChuaNhap: data.soLuong,
@@ -74,7 +76,9 @@ function ModalChonThanhPham({
             return {
               ...data,
               soLuongChuaNhap: data.soLuong,
-              thanhPham: `${data.tenSanPham} (${data.tenMauSac})`,
+              thanhPham: `${data.tenVatPham}${
+                data.tenMauSac ? ` (${data.tenMauSac})` : ""
+              }`,
             };
           });
           setListThanhPham(newData);

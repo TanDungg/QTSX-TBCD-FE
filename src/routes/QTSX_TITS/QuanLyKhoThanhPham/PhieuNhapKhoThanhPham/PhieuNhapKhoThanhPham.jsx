@@ -325,6 +325,7 @@ function NhapKhoThanhPham({ match, history, permission }) {
       );
     return <div>{detail}</div>;
   };
+
   let renderHead = [
     {
       title: "Chức năng",
