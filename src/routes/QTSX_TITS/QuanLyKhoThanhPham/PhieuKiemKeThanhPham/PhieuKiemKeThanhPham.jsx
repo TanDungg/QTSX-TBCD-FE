@@ -5,6 +5,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -91,11 +92,14 @@ function PhieuKiemKe({ match, history, permission }) {
     const param = convertObjectToUrlParams({
       keyword,
       tits_qtsx_CauTrucKho_Id,
+      donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
       page,
     });
-    dispatch(fetchStart(`tits_qtsx_PhieuKiemKe?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(`tits_qtsx_PhieuKiemKeThanhPham?${param}`, "GET", null, "LIST")
+    );
   };
 
   /**
@@ -126,7 +130,7 @@ function PhieuKiemKe({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const duyet =
-      permission && permission.cof && item.tinhTrang === "Chưa xử lý" ? (
+      permission && permission.cof && item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/duyet`,
@@ -145,8 +149,8 @@ function PhieuKiemKe({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
-      item.nguoiTao_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xử lý" ? (
+      item.nguoiLapPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -165,8 +169,8 @@ function PhieuKiemKe({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
-      item.nguoiTao_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xử lý"
+      item.nguoiLapPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -189,7 +193,12 @@ function PhieuKiemKe({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maPhieu, "phiếu kiểm kê");
+    ModalDeleteConfirm(
+      deleteItemAction,
+      item,
+      item.maPhieu,
+      "phiếu kiểm kê thành phẩm"
+    );
   };
 
   /**
@@ -198,7 +207,7 @@ function PhieuKiemKe({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_PhieuKiemKe/${item.id}`;
+    let url = `tits_qtsx_PhieuKiemKeThanhPham/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -244,6 +253,15 @@ function PhieuKiemKe({ match, history, permission }) {
         >
           Tạo phiếu
         </Button>
+        <Button
+          icon={<DownloadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleRedirect}
+          disabled={permission && !permission.cof}
+        >
+          In phiếu
+        </Button>
       </>
     );
   };
@@ -268,6 +286,13 @@ function PhieuKiemKe({ match, history, permission }) {
     return <div>{detail}</div>;
   };
   let renderHead = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -309,18 +334,18 @@ function PhieuKiemKe({ match, history, permission }) {
     },
     {
       title: "Người tạo phiếu",
-      dataIndex: "tenNguoiTao",
-      key: "tenNguoiTao",
+      dataIndex: "tenNguoiLapPhieu",
+      key: "tenNguoiLapPhieu",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenNguoiTao,
-            value: d.tenNguoiTao,
+            text: d.tenNguoiLapPhieu,
+            value: d.tenNguoiLapPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.tenNguoiTao.includes(value),
+      onFilter: (value, record) => record.tenNguoiLapPhieu.includes(value),
       filterSearch: true,
     },
     {
@@ -359,9 +384,9 @@ function PhieuKiemKe({ match, history, permission }) {
           {value && (
             <Tag
               color={
-                value === "Chưa xử lý"
+                value === "Chưa duyệt"
                   ? "orange"
-                  : value === "Phiếu đã được duyệt"
+                  : value === "Đã duyệt"
                   ? "blue"
                   : "red"
               }
@@ -374,13 +399,6 @@ function PhieuKiemKe({ match, history, permission }) {
           )}
         </div>
       ),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
     },
   ];
 

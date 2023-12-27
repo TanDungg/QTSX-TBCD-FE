@@ -37,7 +37,6 @@ import {
 } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
-  createGuid,
   getDateNow,
   getLocalStorage,
   getTimeNow,
@@ -242,7 +241,6 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
                 }`,
               };
             });
-          console.log(newData);
           setListVatPham(newData);
         }
       })
@@ -351,6 +349,12 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
+      title: "Mã thành phẩm",
+      dataIndex: "maVatPham",
+      key: "maVatPham",
+      align: "center",
+    },
+    {
       title: "Tên thành phẩm",
       dataIndex: "tenVatPham",
       key: "tenVatPham",
@@ -444,7 +448,7 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
     validateFields()
       .then((values) => {
         if (ListVatPham.length === 0) {
-          Helpers.alertError("Danh sách sản phẩm không được rỗng");
+          Helpers.alertError("Danh sách thành phẩm không được rỗng");
         } else {
           saveData(values.phieuthanhly, value);
         }

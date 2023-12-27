@@ -5,6 +5,7 @@ import {
   EditOutlined,
   CheckCircleOutlined,
   DeleteOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -15,7 +16,6 @@ import {
   EditableTableRow,
   Toolbar,
   Select,
-  Modal,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -25,9 +25,11 @@ import {
   getLocalStorage,
   getTokenInfo,
   removeDuplicates,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import Helpers from "src/helpers";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -42,9 +44,8 @@ function ThanhLySanPham({ match, history, permission }) {
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
-  const [IdTuChoi, setIdTuChoi] = useState("");
-
-  const [ActiveModal, setActiveModal] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState([]);
+  const [selectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -198,6 +199,50 @@ function ThanhLySanPham({ match, history, permission }) {
     });
   };
 
+  const handleXuatExcel = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuThanhLy/${selectedDevice[0].id}?isVatTu=false`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newData = {
+            ...res.data,
+            tits_qtsx_PhieuThanhLyChiTiets:
+              res.data.tits_qtsx_PhieuThanhLyChiTiets &&
+              JSON.parse(res.data.tits_qtsx_PhieuThanhLyChiTiets),
+          };
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `tits_qtsx_PhieuThanhLy/export-file-phieu-thanh-ly`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportExcel("PhieuThanhLyThanhPham", res.data.dataexcel);
+            setSelectedDevice([]);
+            setSelectedKeys([]);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -209,6 +254,15 @@ function ThanhLySanPham({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
+        </Button>
+        <Button
+          icon={<DownloadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleXuatExcel}
+          disabled={selectedDevice.length === 0}
+        >
+          Xuất excel
         </Button>
       </>
     );
@@ -388,6 +442,30 @@ function ThanhLySanPham({ match, history, permission }) {
     getListData(keyword, Kho, dateString[0], dateString[1], 1);
   };
 
+  const rowSelection = {
+    selectedRowKeys: selectedKeys,
+    selectedRows: selectedDevice,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        selectedDevice.length > 0
+          ? selectedRows.filter((d) => d.key !== selectedDevice[0].key)
+          : [...selectedRows];
+
+      const key =
+        selectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
+          : [...selectedRowKeys];
+
+      if (row.length && row[0].tinhTrang === "Bị từ chối") {
+        Helpers.alertError("Không được chọn phiếu đã bị từ chối");
+      } else {
+        setSelectedDevice(row);
+        setSelectedKeys(key);
+      }
+    },
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -487,6 +565,13 @@ function ThanhLySanPham({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: selectedKeys,
+          }}
         />
       </Card>
     </div>

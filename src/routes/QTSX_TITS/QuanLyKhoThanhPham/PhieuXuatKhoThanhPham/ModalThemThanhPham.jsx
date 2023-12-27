@@ -8,7 +8,6 @@ import {
   Col,
   Card,
   Tag,
-  Divider,
 } from "antd";
 import { isEmpty, map } from "lodash";
 import React, { useEffect, useState } from "react";
@@ -39,11 +38,6 @@ function ModalThemThanhPham({
 }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
-  const INFO = {
-    ...getLocalStorage("menu"),
-    user_Id: getTokenInfo().id,
-    token: getTokenInfo().token,
-  };
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { resetFields, setFieldsValue } = form;
@@ -136,7 +130,11 @@ function ModalThemThanhPham({
               return !itemData.ListThanhPham.some(
                 (item) =>
                   item.tits_qtsx_ThanhPham_Id.toLowerCase() ===
-                  data.tits_qtsx_ThanhPham_Id.toLowerCase()
+                    data.tits_qtsx_ThanhPham_Id.toLowerCase() &&
+                  (!item.tits_qtsx_MauSac_Id ||
+                    item.tits_qtsx_MauSac_Id.toLowerCase()) ===
+                    (!data.tits_qtsx_MauSac_Id ||
+                      data.tits_qtsx_MauSac_Id.toLowerCase())
               );
             } else {
               return true;

@@ -46,10 +46,10 @@ function NhapKhoThanhPham({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
-  const [selectedDevice, setSelectedDevice] = useState([]);
-  const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListKhoThanhPham, setListKhoThanhPham] = useState([]);
   const [KhoTP, setKhoTP] = useState(null);
+  const [selectedDevice, setSelectedDevice] = useState([]);
+  const [selectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -256,13 +256,14 @@ function NhapKhoThanhPham({ match, history, permission }) {
         if (res && res.data) {
           const newData = {
             ...res.data,
-            lstpnkvtct:
-              res.data.chiTietVatTu && JSON.parse(res.data.chiTietVatTu),
+            tits_qtsx_PhieuNhapKhoThanhPhamChiTiets:
+              res.data.tits_qtsx_PhieuNhapKhoThanhPhamChiTiets &&
+              JSON.parse(res.data.tits_qtsx_PhieuNhapKhoThanhPhamChiTiets),
           };
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `tits_qtsx_PhieuNhapKhoThanhPham/export-pdf-nhap-kho`,
+                `tits_qtsx_PhieuNhapKhoThanhPham/export-file-phieu-nhap-kho-thanh-pham`,
                 "POST",
                 newData,
                 "",
@@ -272,7 +273,7 @@ function NhapKhoThanhPham({ match, history, permission }) {
               )
             );
           }).then((res) => {
-            exportExcel("PhieuNhapKhoThanhPham", res.data.datapdf);
+            exportExcel("PhieuNhapKhoThanhPham", res.data.dataexcel);
             setSelectedDevice([]);
             setSelectedKeys([]);
           });
@@ -587,13 +588,6 @@ function NhapKhoThanhPham({ match, history, permission }) {
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
-          rowSelection={{
-            type: "checkbox",
-            ...rowSelection,
-            hideSelectAll: true,
-            preserveSelectedRowKeys: false,
-            selectedRowKeys: selectedKeys,
-          }}
           bordered
           scroll={{ x: 1200, y: "55vh" }}
           columns={columns}
@@ -610,6 +604,13 @@ function NhapKhoThanhPham({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: selectedKeys,
+          }}
         />
       </Card>
     </div>

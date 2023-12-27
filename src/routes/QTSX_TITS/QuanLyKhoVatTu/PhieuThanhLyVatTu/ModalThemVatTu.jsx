@@ -33,12 +33,7 @@ import {
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ModalThemVatPham({
-  openModalFS,
-  openModal,
-  DataThemVatPham,
-  itemData,
-}) {
+function ModalThemVatTu({ openModalFS, openModal, DataThemVatPham, itemData }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
   const INFO = {
@@ -97,18 +92,19 @@ function ModalThemVatPham({
       if (res && res.data) {
         if (!tits_qtsx_VatPham_Id) {
           const newListVatPham = res.data.map((data) => {
-            const thanhpham = `${data.tenVatPham}${
-              data.tenMauSac ? ` (${data.tenMauSac})` : ""
-            }`;
+            const vatpham = `${data.maVatPham} - ${data.tenVatPham}`;
             return {
               ...data,
-              thanhPham: thanhpham,
+              vatPham: vatpham,
+              tits_qtsx_VatPham_Id: data.tits_qtsx_VatPham_Id.toLowerCase(),
             };
           });
           const newData = newListVatPham.filter((data) => {
-            if (itemData.ListVatPham.length > 0) {
+            if (itemData.ListVatPham && itemData.ListVatPham.length !== 0) {
               return !itemData.ListVatPham.some(
-                (item) => item.thanhPham === data.thanhPham
+                (item) =>
+                  item.tits_qtsx_VatPham_Id.toLowerCase() ===
+                  data.tits_qtsx_VatPham_Id.toLowerCase()
               );
             } else {
               return true;
@@ -268,17 +264,23 @@ function ModalThemVatPham({
   ];
 
   const deleteItemFunc = (item) => {
-    const title = "thành phẩm";
+    const title = "vật tư";
     ModalDeleteConfirm(deleteItemAction, item, item.tenVatPham, title);
   };
 
   const deleteItemAction = (item) => {
     const newData = DataListVatPham.filter(
-      (d) => d.thanhPham !== item.thanhPham
+      (d) =>
+        d.tits_qtsx_VatPham_Id.toLowerCase() !==
+        item.tits_qtsx_VatPham_Id.toLowerCase()
     );
     setDataListVatPham(newData);
 
-    const vattu = DataListVatPham.filter((d) => d.thanhPham === item.thanhPham);
+    const vattu = DataListVatPham.filter(
+      (d) =>
+        d.tits_qtsx_VatPham_Id.toLowerCase() ===
+        item.tits_qtsx_VatPham_Id.toLowerCase()
+    );
     setListVatPham([...ListVatPham, vattu[0]]);
   };
 
@@ -357,21 +359,15 @@ function ModalThemVatPham({
       align: "center",
     },
     {
-      title: "Mã thành phẩm",
+      title: "Mã vật tư",
       dataIndex: "maVatPham",
       key: "maVatPham",
       align: "center",
     },
     {
-      title: "Tên thành phẩm",
+      title: "Tên vật tư",
       dataIndex: "tenVatPham",
       key: "tenVatPham",
-      align: "center",
-    },
-    {
-      title: "Màu sắc",
-      dataIndex: "tenMauSac",
-      key: "tenMauSac",
       align: "center",
     },
     {
@@ -460,8 +456,10 @@ function ModalThemVatPham({
     })
       .then((res) => res.json())
       .then((data) => {
-        const thanhpham = ListVatPham.filter(
-          (d) => d.thanhPham === VatPham.thanhPham
+        const vatpham = ListVatPham.filter(
+          (d) =>
+            d.tits_qtsx_VatPham_Id.toLowerCase() ===
+            VatPham.tits_qtsx_VatPham_Id.toLowerCase()
         );
 
         const tong =
@@ -473,17 +471,19 @@ function ModalThemVatPham({
 
         const newData = {
           ...themvatpham,
-          ...thanhpham[0],
+          ...vatpham[0],
           soLuongThanhLy: tong,
           hinhAnh: data.path,
           list_ViTriLuuKhos: SelectedViTri,
         };
         setDataListVatPham([...DataListVatPham, newData]);
 
-        const listthanhpham = ListVatPham.filter(
-          (d) => d.thanhPham !== VatPham.thanhPham
+        const listvatpham = ListVatPham.filter(
+          (d) =>
+            d.tits_qtsx_VatPham_Id.toLowerCase() !==
+            VatPham.tits_qtsx_VatPham_Id.toLowerCase()
         );
-        setListVatPham(listthanhpham);
+        setListVatPham(listvatpham);
         resetFields();
         setFieldTouch(false);
         setListViTriKho([]);
@@ -532,12 +532,14 @@ function ModalThemVatPham({
   };
 
   const handleSelectViTri = (value) => {
-    const thanhpham = ListVatPham.filter((vt) => vt.thanhPham === value);
-    setVatPham(thanhpham[0]);
+    const vatpham = ListVatPham.filter(
+      (vt) => vt.tits_qtsx_VatPham_Id.toLowerCase() === value
+    );
+    setVatPham(vatpham[0]);
     getListViTriVatPham(
       itemData.tits_qtsx_CauTrucKho_Id,
-      thanhpham.length ? thanhpham[0].tits_qtsx_VatPham_Id : null,
-      thanhpham.length ? thanhpham[0].tits_qtsx_MauSac_Id : null
+      value,
+      vatpham.length ? vatpham[0].tits_qtsx_MauSac_Id : null
     );
     setSelectedViTri([]);
     setSelectedKeys([]);
@@ -565,7 +567,7 @@ function ModalThemVatPham({
 
   return (
     <AntModal
-      title="Thêm danh sách thành phẩm"
+      title="Thêm danh sách vật tư"
       open={openModal}
       width={width > 1200 ? `85%` : `90%`}
       closable={true}
@@ -591,7 +593,7 @@ function ModalThemVatPham({
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Thành phẩm"
+                  label="vật tư"
                   name={["themvatpham", "tits_qtsx_VatPham_Id"]}
                   rules={[
                     {
@@ -603,8 +605,8 @@ function ModalThemVatPham({
                   <Select
                     className="heading-select slt-search th-select-heading"
                     data={ListVatPham}
-                    placeholder="Chọn tên thành phẩm"
-                    optionsvalue={["thanhPham", "thanhPham"]}
+                    placeholder="Chọn tên vật tư"
+                    optionsvalue={["tits_qtsx_VatPham_Id", "vatPham"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
@@ -756,7 +758,7 @@ function ModalThemVatPham({
             />
             <Row justify={"center"} style={{ marginTop: 15 }}>
               <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
-                Thêm thành phẩm
+                Thêm vật tư
               </Button>
             </Row>
           </Form>
@@ -788,4 +790,4 @@ function ModalThemVatPham({
   );
 }
 
-export default ModalThemVatPham;
+export default ModalThemVatTu;
