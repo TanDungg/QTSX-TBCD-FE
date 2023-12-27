@@ -838,7 +838,11 @@ function TienDoSanXuat({ match, history, permission }) {
 
           <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
             <Button
-              disabled={InfoSanPham.thoiGianVaoTram && Message ? false : true}
+              disabled={
+                InfoSanPham.thoiGianVaoTram && (Message || FileHinhAnh)
+                  ? false
+                  : true
+              }
               icon={<SendOutlined />}
               type="primary"
               onClick={UploadHinhAnh}
@@ -886,23 +890,20 @@ function TienDoSanXuat({ match, history, permission }) {
                             //   TOKENINFO.fullName === nd.nguoiPhanHoi ? "end" : "start",
                           }}
                         >
-                          <Tag
-                            // color={
-                            //   TOKENINFO.fullName === nd.nguoiPhanHoi ? "blue" : "orange"
-                            // }
-                            style={{ marginBottom: 0 }}
-                          >
-                            {"nd.nguoiPhanHo"}
+                          <Tag color={"blue"} style={{ marginBottom: 0 }}>
+                            {chat.tenNguoiTao}
                           </Tag>
-                          - {"nd.ngayGioPhanHo"}
+                          - {chat.tenTram} - {chat.ngayTao}
                         </div>
                         <Divider style={{ margin: "10px 0" }} />
-                        <p style={{ marginBottom: 0 }}>{""}</p>
-
-                        <Image
-                          width={100}
-                          src={`${BASE_URL_API}${"nd.fileHoTro"}`}
-                        />
+                        <p style={{ marginBottom: 0 }}>{chat.noiDung}</p>
+                        {chat.hinhAnh && (
+                          <Image
+                            width={200}
+                            height={100}
+                            src={`${BASE_URL_API}${chat.hinhAnh}`}
+                          />
+                        )}
                       </Col>
                     </Row>
                   );

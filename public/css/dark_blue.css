@@ -20838,6 +20838,7 @@ span.ant-radio + * {
 .ant-steps-item-content {
   display: inline-block;
   vertical-align: top;
+  /* width: 100%; */
 }
 .ant-steps-item-icon {
   width: 32px;
@@ -21128,7 +21129,7 @@ span.ant-radio + * {
 }
 .ant-steps-horizontal:not(.ant-steps-label-vertical)
   .ant-steps-item-description {
-  max-width: 140px;
+  max-width: 200px;
   white-space: normal;
 }
 .ant-steps-item-custom .ant-steps-item-icon {

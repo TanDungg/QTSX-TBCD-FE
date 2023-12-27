@@ -80,6 +80,8 @@ function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
                 if (Ctl.nguoiSuaChuaLai_Id) {
                   Ctl.isHoanThanhSCL = true;
                   ct.ketQua = undefined;
+                  ct.isDat = ct.isNoiDung ? true : ct.isDat;
+
                   Ctl.nguoiXacNhanSuaChuaLai_Id = getTokenInfo().id;
                   setActiveXacNhanSCL(true);
                 }

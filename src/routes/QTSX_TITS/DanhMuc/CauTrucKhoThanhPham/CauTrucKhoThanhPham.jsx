@@ -71,19 +71,6 @@ function CauTrucKhoVatTu({ match, history, permission }) {
       loadData(val.target.value, 1);
     }
   };
-  /**
-   * Thêm dấu để phân cấp tiêu đề dựa theo tree (flatlist)
-   *
-   * @param {*} value
-   * @param {*} record
-   * @returns
-   * @memberof ChucNang
-   */
-  const renderTenMenu = (value, record) => {
-    let string = repeat("- ", record.level);
-    string = `${string} ${value}`;
-    return <div>{string}</div>;
-  };
 
   /**
    * ActionContent: Hành động trên bảng
@@ -182,21 +169,7 @@ function CauTrucKhoVatTu({ match, history, permission }) {
   };
   let dataList = treeToFlatlist(data);
   dataList = reDataSelectedTable(dataList);
-  // let dataList = data;
-  const renderChungTu = (val) => {
-    const chungTu = val && val;
-    if (!isEmpty(chungTu)) {
-      return map(chungTu, (item, index) => {
-        let color = "green";
-        return (
-          <Tag key={index} color={color}>
-            {item.tenChungTu}
-          </Tag>
-        );
-      });
-    }
-    return null;
-  };
+
   let renderHead = [
     {
       title: "STT",
