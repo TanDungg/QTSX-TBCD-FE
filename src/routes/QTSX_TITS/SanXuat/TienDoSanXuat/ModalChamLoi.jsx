@@ -16,7 +16,14 @@ import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { Select } from "src/components/Common";
 const FormItem = Form.Item;
 
-function ModalChamLoi({ openModalFS, openModal, ViTri, ThemLoi, ListNoiDung }) {
+function ModalChamLoi({
+  openModalFS,
+  openModal,
+  ViTri,
+  ThemLoi,
+  ListNoiDung,
+  setCirclePosition,
+}) {
   const dispatch = useDispatch();
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
@@ -25,6 +32,7 @@ function ModalChamLoi({ openModalFS, openModal, ViTri, ThemLoi, ListNoiDung }) {
 
   useEffect(() => {
     if (openModal) {
+      setCirclePosition({});
       resetFields();
       getLoi();
       setFieldsValue({
@@ -73,8 +81,8 @@ function ModalChamLoi({ openModalFS, openModal, ViTri, ThemLoi, ListNoiDung }) {
       tits_qtsx_Loi_Id: values.chiTietLoi.tits_qtsx_Loi_Id,
       moTa: values.chiTietLoi.moTa,
       viTri: JSON.stringify({
-        x: ViTri.x,
-        y: ViTri.y,
+        x: (ViTri.x / 600) * 100,
+        y: (ViTri.y / 300) * 100,
         maLoi: values.chiTietLoi.maLoi,
         tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id:
           values.chiTietLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id,

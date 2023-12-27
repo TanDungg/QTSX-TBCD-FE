@@ -27,10 +27,10 @@ function SanPhamForm({ match, permission, history }) {
   const [ListDonViTinh, setListDonViTinh] = useState([]);
   const [FileHinhAnh, setFileHinhAnh] = useState(null);
   const [FileAnh, setFileAnh] = useState(null);
+  const [OpenImage, setOpenImage] = useState(false);
   const [DisableUpload, setDisableUpload] = useState(false);
   const [FileThongSo, setFileThongSo] = useState(null);
   const [DisableUploadThongSo, setDisableUploadThongSo] = useState(false);
-  const [OpenImage, setOpenImage] = useState(false);
   const [info, setInfo] = useState(null);
   const [fieldTouch, setFieldTouch] = useState(false);
   const { setFieldsValue, validateFields, resetFields } = form;

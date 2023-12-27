@@ -16,7 +16,7 @@ const ImageDrawing = ({
   const [ViTri, setViTri] = useState();
   const [ActiveModal, setActiveModal] = useState(false);
   const [ActiveModalSuaChuaLai, setActiveModalSuaChuaLai] = useState(false);
-
+  const [circlePosition, setCirclePosition] = useState({});
   useEffect(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext("2d");
@@ -29,8 +29,11 @@ const ImageDrawing = ({
       if (listViTri && listViTri.length > 0) {
         listViTri.forEach((circle) => {
           const toaDo = JSON.parse(circle);
+          const x = (toaDo.x * canvas.width) / 100;
+          const y = (toaDo.y * canvas.height) / 100;
+
           context.beginPath();
-          context.arc(toaDo.x, toaDo.y, 20, 0, 2 * Math.PI);
+          context.arc(x, y, 20, 0, 2 * Math.PI);
           context.fillStyle = toaDo.isHoanThanhSCL ? "#0E42FA" : "#FF0101";
           context.fill();
           // Thêm chữ vào hình tròn
@@ -38,13 +41,32 @@ const ImageDrawing = ({
           context.fillStyle = "white";
           context.textAlign = "center";
           context.textBaseline = "middle";
-          context.fillText(toaDo.maLoi, toaDo.x, toaDo.y);
+          context.fillText(toaDo.maLoi, x, y);
         });
       }
 
       // Vẽ các hình tròn đã lưu
     };
   }, [imageUrl, listViTri, SuaChuaLai]);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+    // Load hình ảnh
+    const image = new Image();
+    image.src = imageUrl; // Thay thế đường dẫn hình ảnh thực tế
+
+    image.onload = () => {
+      if (circlePosition.x) {
+        setActiveModal(true);
+      }
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      context.beginPath();
+      context.arc(circlePosition.x, circlePosition.y, 20, 0, 2 * Math.PI);
+      context.fillStyle = "#FF0101";
+      context.fill();
+      // Vẽ các hình tròn đã lưu
+    };
+  }, [circlePosition]);
 
   const handleCanvasClick = (e) => {
     if (AddLoi !== undefined) {
@@ -55,10 +77,13 @@ const ImageDrawing = ({
         let check = false;
         listViTri.forEach((vt) => {
           const toaDo = JSON.parse(vt);
+          const x = (toaDo.x * canvas.width) / 100;
+          const y = (toaDo.y * canvas.height) / 100;
+
           const checkToaDo =
             Math.sqrt(
-              (Number(pos.x) - Number(toaDo.x)) ** 2 +
-                (Number(pos.y) - Number(toaDo.y)) ** 2
+              (Number(pos.x) - Number(x)) ** 2 +
+                (Number(pos.y) - Number(y)) ** 2
             ) <= 20;
           if (checkToaDo) {
             check = true;
@@ -99,8 +124,7 @@ const ImageDrawing = ({
           tits_qtsx_HangMucKiemTra_HinhAnh_Id: hinhAnhId,
           tits_qtsx_SanPhamHinhAnh_Id: sanPhamhinhAnhId,
         });
-        // setCircles({ x: pos.x, y: pos.y });
-        setActiveModal(true);
+        setCirclePosition({ x: pos.x, y: pos.y });
       }
     }
   };
@@ -134,6 +158,7 @@ const ImageDrawing = ({
         ViTri={ViTri}
         ThemLoi={ThemLoi}
         ListNoiDung={dataNoiDung.list_TDSXKiemSoatChatLuongChiTiets}
+        setCirclePosition={setCirclePosition}
       />
       <ModalDaSuaChuaLai
         openModal={ActiveModalSuaChuaLai}

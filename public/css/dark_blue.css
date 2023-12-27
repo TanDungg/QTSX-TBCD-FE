@@ -20818,7 +20818,7 @@ span.ant-radio + * {
   position: relative;
   display: inline-block;
   flex: 1;
-  overflow: hidden;
+  overflow: unset;
   vertical-align: top;
 }
 .ant-steps-item-container {
@@ -20838,6 +20838,8 @@ span.ant-radio + * {
 .ant-steps-item-content {
   display: inline-block;
   vertical-align: top;
+  overflow: hidden;
+
   /* width: 100%; */
 }
 .ant-steps-item-icon {
@@ -21130,6 +21132,7 @@ span.ant-radio + * {
 .ant-steps-horizontal:not(.ant-steps-label-vertical)
   .ant-steps-item-description {
   max-width: 200px;
+  min-width: 200px;
   white-space: normal;
 }
 .ant-steps-item-custom .ant-steps-item-icon {
@@ -43288,4 +43291,22 @@ textarea.gx-chat-textarea {
 }
 .popconfirm-width{
   width: 100%;
+}
+
+.gx-table-responsive .heigth-table .th-dark_blue-head .ant-spin-nested-loading .ant-spin-container .ant-table .ant-table-small .ant-table-bordered .ant-table-container .ant-table-content table {
+  height: 222.13px;
+}
+
+.font-size-percent-20{
+  font-size: 20px;
+}
+
+.font-size-percent-20 .ant-progress-outer{
+  margin-right: calc(-2em - 30px);
+  padding-right: calc(2em + 30px);
+}
+
+.font-size-percent-20 .ant-progress-text{
+  font-weight: bold;
+  color: #0469b9;
 }

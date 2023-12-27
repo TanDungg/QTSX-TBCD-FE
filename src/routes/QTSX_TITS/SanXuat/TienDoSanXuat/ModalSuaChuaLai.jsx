@@ -75,13 +75,16 @@ function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
             );
           ks.list_TDSXKiemSoatChatLuongChiTiets.forEach((ct) => {
             if (ct.list_TDSXKiemSoatChatLuongChiTietLois.length > 0) {
+              ct.list_TDSXKiemSoatChatLuongChiTietLois =
+                ct.list_TDSXKiemSoatChatLuongChiTietLois.filter(
+                  (ctl) => ctl.isHoanThanhSCL === false
+                );
               ct.list_TDSXKiemSoatChatLuongChiTietLois.forEach((Ctl) => {
                 Ctl.tenHangMucKiemTra = ks.tenHangMucKiemTra;
                 if (Ctl.nguoiSuaChuaLai_Id) {
                   Ctl.isHoanThanhSCL = true;
                   ct.ketQua = undefined;
                   ct.isDat = ct.isNoiDung ? true : ct.isDat;
-
                   Ctl.nguoiXacNhanSuaChuaLai_Id = getTokenInfo().id;
                   setActiveXacNhanSCL(true);
                 }
@@ -118,7 +121,12 @@ function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
               });
               newListLoi.push(...ct.list_TDSXKiemSoatChatLuongChiTietLois);
             }
-            newData.push(ks);
+            if (
+              ct.list_TDSXKiemSoatChatLuongChiTietLois.length > 0 &&
+              !newData.some((item) => item === ks)
+            ) {
+              newData.push(ks);
+            }
           });
         });
         setListLoi(newListLoi);

@@ -4,7 +4,6 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  PrinterOutlined,
   CheckCircleOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";

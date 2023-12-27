@@ -232,6 +232,47 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
       }),
     };
   });
+  let renderHeadKTP = [
+    {
+      title: "Kho",
+      dataIndex: "tenCauTrucKho",
+      key: "tenCauTrucKho",
+      align: "center",
+    },
+    // {
+    //   title:"Vị trí lưu",
+    //   dataIndex: "viTriLuu",
+    //   key: "viTriLuu",
+    //   align: "center",
+    // },
+    {
+      title: "Thời gian vào",
+      dataIndex: "thoiGianVao",
+      key: "thoiGianVao",
+      align: "center",
+    },
+    {
+      title: "Thời gian ra",
+      dataIndex: "thoiGianRa",
+      key: "thoiGianRa",
+      align: "center",
+    },
+  ];
+  const columnsKTP = map(renderHeadKTP, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -375,13 +416,17 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
           <Progress
             percent={
               InfoSanPham.thuTuCongDoan &&
-              ((InfoSanPham.thuTuCongDoan - 1) /
-                InfoSanPham.list_CongDoans.length) *
+              (
+                ((InfoSanPham.thuTuCongDoan - 1) /
+                  InfoSanPham.list_CongDoans.length) *
                 100
+              ).toFixed(2)
             }
             status="active"
+            className="font-size-percent-20"
           />
           <Steps
+            style={{ overflow: "auto" }}
             size="small"
             current={InfoSanPham.thuTuCongDoan && InfoSanPham.thuTuCongDoan - 1}
             items={
@@ -394,12 +439,13 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
                         <Table
                           bordered
                           // scroll={{ x: 100 }}
+                          style={{ heigth: 222.13 }}
                           columns={columns}
                           components={components}
-                          className="gx-table-responsive"
+                          className="gx-table-responsive heigth-table"
                           dataSource={[
                             {
-                              hangMuc: "Thời gian vào",
+                              hangMuc: "Thời gian vào trạm",
                               noiDung: cd.thoiGianVaoCongDoan,
                             },
                             {
@@ -415,7 +461,7 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
                             //   noiDung: cd.thoiGianVaoCongDoan
                             // },
                             {
-                              hangMuc: "Thời gian ra",
+                              hangMuc: "Thời gian ra trạm",
                               noiDung: cd.thoiGianRaCongDoan,
                             },
                           ]}
@@ -429,24 +475,46 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
             }
           />
           <Row style={{ marginTop: 10 }}>
-            <Col span={12}>
-              <Card
-                className="th-card-margin-bottom"
-                title="SỬA CHỮA LẠI"
-                bodyStyle={{ padding: "24px 0 0 0" }}
-              >
-                <Table
-                  bordered
-                  // scroll={{ x: 100 }}
-                  columns={columnsSCL}
-                  components={components}
-                  className="gx-table-responsive"
-                  dataSource={reDataForTable(InfoSanPham.list_SuaChuaLais)}
-                  size="small"
-                  pagination={false}
-                />
-              </Card>
-            </Col>
+            {InfoSanPham.list_SuaChuaLais.length > 0 && (
+              <Col xl={12} lg={24}>
+                <Card
+                  className="th-card-margin-bottom"
+                  title="SỬA CHỮA LẠI"
+                  bodyStyle={{ padding: "24px 0 0 0" }}
+                >
+                  <Table
+                    bordered
+                    // scroll={{ x: 100 }}
+                    columns={columnsSCL}
+                    components={components}
+                    className="gx-table-responsive"
+                    dataSource={reDataForTable(InfoSanPham.list_SuaChuaLais)}
+                    size="small"
+                    pagination={false}
+                  />
+                </Card>
+              </Col>
+            )}
+            {InfoSanPham.luuKhoThanhPham && (
+              <Col xl={12} lg={24}>
+                <Card
+                  className="th-card-margin-bottom"
+                  title="KHO THÀNH PHẨM"
+                  bodyStyle={{ padding: "24px 0 0 0" }}
+                >
+                  <Table
+                    bordered
+                    // scroll={{ x: 100 }}
+                    columns={columnsKTP}
+                    components={components}
+                    className="gx-table-responsive"
+                    dataSource={reDataForTable([InfoSanPham.luuKhoThanhPham])}
+                    size="small"
+                    pagination={false}
+                  />
+                </Card>
+              </Col>
+            )}
           </Row>
         </Card>
       )}

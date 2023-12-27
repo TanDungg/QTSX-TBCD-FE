@@ -771,7 +771,9 @@ function TienDoSanXuat({ match, history, permission }) {
                     disabled={!InfoSanPham.isSCL}
                     onClick={() => setActiveSuaChuaLai(true)}
                   >
-                    Sửa chữa lại
+                    {InfoSanPham.isDaSCL
+                      ? "Xác nhận sửa chữa lại"
+                      : "Sửa chữa lại"}
                   </Button>
                   <Button
                     icon={<CheckSquareOutlined />}
