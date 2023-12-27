@@ -5,7 +5,6 @@ import {
   EditOutlined,
   CheckCircleOutlined,
   DeleteOutlined,
-  CloseCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -29,7 +28,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
-import ModalTuChoi from "./ModalTuChoi";
+
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
@@ -116,33 +115,17 @@ function ThanhLySanPham({ match, history, permission }) {
   };
 
   const actionContent = (item) => {
-    const tuChoiItem =
-      permission &&
-      permission.cof &&
-      item.nguoiDuyet_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
-        <a
-          title="Từ chối"
-          onClick={() => {
-            setIdTuChoi(item.id);
-            setActiveModal(true);
-          }}
-        >
-          <CloseCircleOutlined />
-        </a>
-      ) : (
-        <span disabled title="Từ chối">
-          <CloseCircleOutlined />
-        </span>
-      );
     const xacNhanItem =
-      permission &&
-      permission.cof &&
-      item.nguoiDuyet_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
-        <a title="Xác nhận" onClick={() => modalXK(item.id)}>
+      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/xac-nhan`,
+            state: { itemData: item, permission },
+          }}
+          title="Xác nhận"
+        >
           <CheckCircleOutlined />
-        </a>
+        </Link>
       ) : (
         <span disabled title="Xác nhận">
           <CheckCircleOutlined />
@@ -177,8 +160,6 @@ function ThanhLySanPham({ match, history, permission }) {
     return (
       <div>
         {xacNhanItem}
-        <Divider type="vertical" />
-        {tuChoiItem}
         <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
@@ -341,11 +322,11 @@ function ThanhLySanPham({ match, history, permission }) {
         return (
           <Tag
             color={
-              val === "Đã xác nhận"
+              val === "Chưa xác nhận"
+                ? "orange"
+                : val === "Đã xác nhận"
                 ? "blue"
-                : val === "Đã từ chối"
-                ? "red"
-                : "green"
+                : "red"
             }
           >
             {val}
@@ -406,63 +387,7 @@ function ThanhLySanPham({ match, history, permission }) {
     setPage(1);
     getListData(keyword, Kho, dateString[0], dateString[1], 1);
   };
-  const saveTuChoi = (lyDoNguoiTruongBoPhanTuChoi) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuThanhLy/xac-nhan/${IdTuChoi}`,
-          "PUT",
-          {
-            id: IdTuChoi,
-            isNguoiTruongBoPhanDuyet: false,
-            lyDoNguoiTruongBoPhanTuChoi,
-          },
-          "TUCHOI",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.status !== 409) {
-          setPage(1);
-          getListData(keyword, Kho, FromDate, ToDate, 1);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  const hanldeXacNhan = (id) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuThanhLy/xac-nhan/${id}`,
-          "PUT",
-          { id: id, isNguoiTruongBoPhanDuyet: true },
-          "XACNHAN",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.status !== 409) {
-          setPage(1);
-          getListData(keyword, Kho, FromDate, ToDate, 1);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  const prop = {
-    type: "confirm",
-    okText: "Xác nhận",
-    cancelText: "Hủy",
-    title: "Xác nhận phiếu thanh lý thành phẩm",
-  };
-  const modalXK = (id) => {
-    Modal({ ...prop, onOk: () => hanldeXacNhan(id) });
-  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -564,11 +489,6 @@ function ThanhLySanPham({ match, history, permission }) {
           loading={loading}
         />
       </Card>
-      <ModalTuChoi
-        openModal={ActiveModal}
-        openModalFS={setActiveModal}
-        saveTuChoi={saveTuChoi}
-      />
     </div>
   );
 }

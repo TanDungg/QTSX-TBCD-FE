@@ -18,7 +18,7 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
   };
 
   const saveData = (tc) => {
-    saveTuChoi(tc.lyDoNguoiTruongBoPhanTuChoi);
+    saveTuChoi(tc.lyDoTuChoi);
     openModalFS(false);
     resetFields();
   };
@@ -28,7 +28,7 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
 
   return (
     <AntModal
-      title="Từ chối phiếu thanh lý vật tư"
+      title="Từ chối phiếu thanh lý thành phẩm"
       open={openModal}
       width={`50%`}
       closable={true}
@@ -45,7 +45,7 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
         >
           <FormItem
             label="Lý do"
-            name={["tuChoi", "lyDoNguoiTruongBoPhanTuChoi"]}
+            name={["tuChoi", "lyDoTuChoi"]}
             rules={[
               {
                 type: "string",

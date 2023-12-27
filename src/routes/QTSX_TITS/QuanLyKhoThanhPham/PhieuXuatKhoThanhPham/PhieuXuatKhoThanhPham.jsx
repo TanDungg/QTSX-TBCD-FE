@@ -24,7 +24,6 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
-  exportPDF,
   removeDuplicates,
   exportExcel,
 } from "src/util/Common";
@@ -40,7 +39,6 @@ function XuatKhoThanhPham({ match, history, permission }) {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
-  const [DataXuatExcel, setDataXuatExcel] = useState([]);
   const [ListXuongSanXuat, setListXuongSanXuat] = useState([]);
   const [KhoThanhPham, setKhoThanhPham] = useState(null);
   const [keyword, setKeyword] = useState(null);
@@ -82,35 +80,6 @@ function XuatKhoThanhPham({ match, history, permission }) {
         "LIST"
       )
     );
-    const paramXuat = convertObjectToUrlParams({
-      keyword,
-      tits_qtsx_Xuong_Id,
-      donVi_Id: INFO.donVi_Id,
-      tuNgay,
-      denNgay,
-      page: -1,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuXuatKhoThanhPham?${paramXuat}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDataXuatExcel(res.data);
-        } else {
-          setDataXuatExcel([]);
-        }
-      })
-      .catch((error) => console.error(error));
   };
 
   const getXuongSanXuat = () => {

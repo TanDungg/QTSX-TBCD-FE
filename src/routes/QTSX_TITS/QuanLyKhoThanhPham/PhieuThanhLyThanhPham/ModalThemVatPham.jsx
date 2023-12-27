@@ -1,4 +1,4 @@
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 import {
   Modal as AntModal,
   Form,
@@ -8,7 +8,8 @@ import {
   Col,
   Card,
   Tag,
-  Divider,
+  Upload,
+  Image,
 } from "antd";
 import { isEmpty, map } from "lodash";
 import React, { useEffect, useState } from "react";
@@ -20,7 +21,8 @@ import {
   Select,
   Table,
 } from "src/components/Common";
-import { DEFAULT_FORM_THEMVATTU } from "src/constants/Config";
+import { BASE_URL_API, DEFAULT_FORM_THEMVATTU } from "src/constants/Config";
+import Helpers from "src/helpers";
 import {
   convertObjectToUrlParams,
   getLocalStorage,
@@ -54,6 +56,10 @@ function ModalThemVatPham({
   const [editingRecord, setEditingRecord] = useState([]);
   const [SelectedViTri, setSelectedViTri] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
+  const [FileHinhAnh, setFileHinhAnh] = useState(null);
+  const [FileAnh, setFileAnh] = useState(null);
+  const [DisableUpload, setDisableUpload] = useState(false);
+  const [OpenImage, setOpenImage] = useState(false);
 
   useEffect(() => {
     if (openModal) {
@@ -117,7 +123,7 @@ function ModalThemVatPham({
             return {
               ...data,
               viTri: vitri ? vitri : null,
-              soLuong: data.soLuongTonKho,
+              soLuongThanhLy: data.soLuongTonKho,
             };
           });
           setListViTriKho(newData);
@@ -127,21 +133,22 @@ function ModalThemVatPham({
   };
 
   const handleInputChange = (val, item) => {
-    const soLuongXuat = val.target.value;
-    if (isEmpty(soLuongXuat) || Number(soLuongXuat) <= 0) {
+    const SoLuongThanhLy = val.target.value;
+    if (isEmpty(SoLuongThanhLy) || Number(SoLuongThanhLy) <= 0) {
       setFieldTouch(false);
       setEditingRecord([...editingRecord, item]);
       item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
-    } else if (soLuongXuat > item.soLuongTonKho) {
+    } else if (SoLuongThanhLy > item.soLuongTonKho) {
       setFieldTouch(false);
-      item.message = `Số lượng xuất không được lớn hơn ${item.soLuongTonKho}`;
+      item.message = `Số lượng thanh lý không được lớn hơn ${item.soLuongTonKho}`;
       setEditingRecord([...editingRecord, item]);
     } else {
       const newData =
         editingRecord &&
         editingRecord.filter(
           (d) =>
-            d.tits_qtsx_ChiTietKhoVatTu_Id !== item.tits_qtsx_ChiTietKhoVatTu_Id
+            d.tits_qtsx_ChiTietKhoVatPham_Id.toLowerCase() !==
+            item.tits_qtsx_ChiTietKhoVatPham_Id.toLowerCase()
         );
       if (newData.length !== 0) {
         setFieldTouch(false);
@@ -156,9 +163,10 @@ function ModalThemVatPham({
 
     newData.forEach((ct, index) => {
       if (
-        ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
+        ct.tits_qtsx_ChiTietKhoVatPham_Id.toLowerCase() ===
+        item.tits_qtsx_ChiTietKhoVatPham_Id.toLowerCase()
       ) {
-        ct.soLuong = soLuongXuat;
+        ct.soLuongThanhLy = SoLuongThanhLy;
       }
     });
     setListViTriKho(newData);
@@ -166,21 +174,23 @@ function ModalThemVatPham({
     const newSelect = [...SelectedViTri];
     newSelect.forEach((ct, index) => {
       if (
-        ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
+        ct.tits_qtsx_ChiTietKhoVatPham_Id.toLowerCase() ===
+        item.tits_qtsx_ChiTietKhoVatPham_Id.toLowerCase()
       ) {
-        ct.soLuong = soLuongXuat;
+        ct.soLuongThanhLy = SoLuongThanhLy;
       }
     });
     setSelectedViTri(newSelect);
   };
 
-  const renderSoLuongXuat = (item) => {
+  const renderSoLuongThanhLy = (item) => {
     let isEditing = false;
     let message = "";
     editingRecord &&
       editingRecord.forEach((ct) => {
         if (
-          ct.tits_qtsx_ChiTietKhoVatTu_Id === item.tits_qtsx_ChiTietKhoVatTu_Id
+          ct.tits_qtsx_ChiTietKhoVatPham_Id.toLowerCase() ===
+          item.tits_qtsx_ChiTietKhoVatPham_Id.toLowerCase()
         ) {
           isEditing = true;
           message = ct.message;
@@ -197,7 +207,7 @@ function ModalThemVatPham({
           }}
           className={`input-item`}
           type="number"
-          value={item.soLuong}
+          value={item.soLuongThanhLy}
           onChange={(val) => handleInputChange(val, item)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
@@ -244,10 +254,10 @@ function ModalThemVatPham({
       align: "center",
     },
     {
-      title: "Số lượng xuất",
-      key: "soLuong",
+      title: "SL thanh lý",
+      key: "soLuongThanhLy",
       align: "center",
-      render: (record) => renderSoLuongXuat(record),
+      render: (record) => renderSoLuongThanhLy(record),
     },
     {
       title: "Đơn vị tính",
@@ -289,9 +299,27 @@ function ModalThemVatPham({
   const renderLstViTri = (record) => {
     return (
       <div>
-        {record.list_ChiTietLuuKhos.map((vt, index) => {
-          if (!vt.viTri) {
-            if (index === 0) {
+        {record.list_ViTriLuuKhos &&
+          record.list_ViTriLuuKhos.map((vt, index) => {
+            if (!vt.viTri) {
+              if (index === 0) {
+                return (
+                  <Tag
+                    key={index}
+                    color={"blue"}
+                    style={{
+                      marginRight: 5,
+                      marginBottom: 3,
+                      fontSize: 14,
+                    }}
+                  >
+                    {`${vt.tenKho} (SL: ${vt.soLuongThanhLy})`}
+                  </Tag>
+                );
+              } else {
+                return null;
+              }
+            } else {
               return (
                 <Tag
                   key={index}
@@ -300,32 +328,15 @@ function ModalThemVatPham({
                     marginRight: 5,
                     marginBottom: 3,
                     fontSize: 14,
+                    wordWrap: "break-word",
+                    whiteSpace: "normal",
                   }}
                 >
-                  {`${vt.tenKho} (SL: ${vt.soLuong})`}
+                  {`${vt.viTri} (SL: ${vt.soLuongThanhLy})`}
                 </Tag>
               );
-            } else {
-              return null;
             }
-          } else {
-            return (
-              <Tag
-                key={index}
-                color={"blue"}
-                style={{
-                  marginRight: 5,
-                  marginBottom: 3,
-                  fontSize: 14,
-                  wordWrap: "break-word",
-                  whiteSpace: "normal",
-                }}
-              >
-                {`${vt.viTri} (SL: ${vt.soLuong})`}
-              </Tag>
-            );
-          }
-        })}
+          })}
       </div>
     );
   };
@@ -356,6 +367,16 @@ function ModalThemVatPham({
       key: "hinhAnh",
       align: "center",
       width: 100,
+      render: (value) =>
+        value && (
+          <span>
+            <Image
+              src={BASE_URL_API + value}
+              alt="Hình ảnh"
+              style={{ maxWidth: 70, maxHeight: 70 }}
+            />
+          </span>
+        ),
     },
     {
       title: "Đơn vị tính",
@@ -366,14 +387,14 @@ function ModalThemVatPham({
     },
     {
       title: "SL thanh lý",
-      dataIndex: "soLuong",
-      key: "soLuong",
+      dataIndex: "soLuongThanhLy",
+      key: "soLuongThanhLy",
       align: "center",
       width: 100,
     },
     {
       title: "Vị trí",
-      key: "list_ChiTietLuuKhos",
+      key: "list_ViTriLuuKhos",
       align: "center",
       render: (record) => renderLstViTri(record),
     },
@@ -421,35 +442,61 @@ function ModalThemVatPham({
     };
   });
 
+  const handleUpload = (themvatpham) => {
+    const formData = new FormData();
+    themvatpham.hinhAnh && formData.append("file", themvatpham.hinhAnh.file);
+    fetch(`${BASE_URL_API}/api/Upload`, {
+      method: "POST",
+      body: formData,
+      headers: {
+        Authorization: "Bearer ".concat(INFO.token),
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        const thanhpham = ListVatPham.filter(
+          (d) => d.thanhPham === VatPham.thanhPham
+        );
+
+        const tong =
+          SelectedViTri &&
+          SelectedViTri.reduce(
+            (tong, vitri) => tong + Number(vitri.soLuongThanhLy || 0),
+            0
+          );
+
+        const newData = {
+          ...themvatpham,
+          ...thanhpham[0],
+          soLuongThanhLy: tong,
+          hinhAnh: data.path,
+          list_ViTriLuuKhos: SelectedViTri,
+        };
+        setDataListVatPham([...DataListVatPham, newData]);
+
+        const listthanhpham = ListVatPham.filter(
+          (d) => d.thanhPham !== VatPham.thanhPham
+        );
+        setListVatPham(listthanhpham);
+        resetFields();
+        setFieldTouch(false);
+        setListViTriKho([]);
+        setDisableUpload(false);
+        setFileHinhAnh(null);
+        setFileAnh(null);
+      })
+      .catch(() => {
+        console.log("upload failed.");
+      });
+  };
+
   const onFinish = (values) => {
     const data = values.themvatpham;
-    const thanhpham = ListVatPham.filter(
-      (d) => d.thanhPham === VatPham.thanhPham
-    );
-
-    const tong =
-      SelectedViTri &&
-      SelectedViTri.reduce(
-        (tong, vitri) => tong + Number(vitri.soLuong || 0),
-        0
-      );
-
-    const newData = {
-      ...data,
-      ...thanhpham[0],
-      soLuong: tong,
-      list_ChiTietLuuKhos: SelectedViTri,
-    };
-
-    setDataListVatPham([...DataListVatPham, newData]);
-
-    const listthanhpham = ListVatPham.filter(
-      (d) => d.thanhPham !== VatPham.thanhPham
-    );
-    setListVatPham(listthanhpham);
-    resetFields();
-    setFieldTouch(false);
-    setListViTriKho([]);
+    if (!data.hinhAnh) {
+      Helpers.alertError("Vui lòng tải hình ảnh lên");
+    } else {
+      handleUpload(data);
+    }
   };
 
   const XacNhan = () => {
@@ -457,6 +504,25 @@ function ModalThemVatPham({
     openModalFS(false);
     setListVatPham([]);
     setDataListVatPham([]);
+  };
+
+  const props = {
+    accept: "image/png, image/jpeg",
+    beforeUpload: (file) => {
+      const isPNG = file.type === "image/png" || file.type === "image/jpeg";
+      if (!isPNG) {
+        Helpers.alertError(`${file.name} không phải hình ảnh`);
+      } else {
+        setFileHinhAnh(file);
+        setDisableUpload(true);
+        const reader = new FileReader();
+        reader.onload = (e) => setFileAnh(e.target.result);
+        reader.readAsDataURL(file);
+        return false;
+      }
+    },
+    showUploadList: false,
+    maxCount: 1,
   };
 
   const handleSelectViTri = (value) => {
@@ -555,11 +621,65 @@ function ModalThemVatPham({
                   rules={[
                     {
                       required: true,
-                      type: "string",
+                      type: "file",
                     },
                   ]}
                 >
-                  <Input className="input-item" placeholder="Nhập ghi chú" />
+                  {!DisableUpload ? (
+                    <Upload {...props}>
+                      <Button
+                        style={{
+                          marginBottom: 0,
+                        }}
+                        icon={<UploadOutlined />}
+                      >
+                        Tải file hình ảnh
+                      </Button>
+                    </Upload>
+                  ) : (
+                    <span>
+                      <span
+                        style={{
+                          color: "#0469B9",
+                          cursor: "pointer",
+                          whiteSpace: "break-spaces",
+                        }}
+                        onClick={() => setOpenImage(true)}
+                      >
+                        {FileHinhAnh.name && FileHinhAnh.name}{" "}
+                      </span>
+                      <DeleteOutlined
+                        style={{ cursor: "pointer", color: "red" }}
+                        onClick={() => {
+                          setFileHinhAnh(null);
+                          setDisableUpload(false);
+                          setFieldsValue({
+                            themvatpham: {
+                              hinhAnh: null,
+                            },
+                          });
+                        }}
+                      />
+                      {OpenImage && (
+                        <Image
+                          width={0}
+                          src={FileAnh}
+                          alt="preview"
+                          style={{
+                            display: "none",
+                          }}
+                          preview={{
+                            visible: OpenImage,
+                            scaleStep: 0.5,
+                            src: FileAnh,
+                            onVisibleChange: (value) => {
+                              setOpenImage(value);
+                            },
+                          }}
+                        />
+                      )}
+                    </span>
+                  )}
                 </FormItem>
               </Col>
               <Col
