@@ -38,19 +38,23 @@ function CauHinhKanBan({ match, history, permission }) {
   const [DonHang, setDonHang] = useState(null);
   const [ListTram, setListTram] = useState([]);
   const [Tram, setTram] = useState(null);
-  const [ListChiTiet, setListChiTiet] = useState([]);
-  const [ChiTiet, setChiTiet] = useState(null);
   const [Ngay, setNgay] = useState(getDateNow());
-
+  const listchuyen = [
+    {
+      id: "63aece3b-f542-4c09-bc51-49a39f831906",
+      maChuyen: "HLKR",
+      tenChuyen: "Chuyền Hàn linh kiện rời",
+      tenXuong: "Gia công linh kiện",
+    },
+  ];
   useEffect(() => {
     if (permission && permission.view) {
-      getSanPham();
-      getCongDoan();
-      getListData(SanPham, Ngay, page);
+      setListChuyen(listchuyen);
+      setChuyen(listchuyen[0].id);
+      getListSanPham(listchuyen[0].id, Ngay, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
-
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -60,7 +64,6 @@ function CauHinhKanBan({ match, history, permission }) {
     tits_qtsx_SanPham_Id,
     tits_qtsx_DonHang_Id,
     tits_qtsx_Tram_Id,
-    tits_qtsx_ChiTiet_Id,
     ngay,
     page
   ) => {
@@ -69,7 +72,6 @@ function CauHinhKanBan({ match, history, permission }) {
       tits_qtsx_SanPham_Id,
       tits_qtsx_DonHang_Id,
       tits_qtsx_Tram_Id,
-      tits_qtsx_ChiTiet_Id,
       ngay,
       page,
     });
@@ -88,17 +90,7 @@ function CauHinhKanBan({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          if (
-            !tits_qtsx_Chuyen_Id &&
-            !tits_qtsx_SanPham_Id &&
-            !tits_qtsx_DonHang_Id &&
-            !tits_qtsx_Tram_Id &&
-            tits_qtsx_ChiTiet_Id
-          ) {
-            setData(res.data);
-          } else if (!tits_qtsx_SanPham_Id) {
-            setDonHang(res.data);
-          }
+          setData(res.data);
         } else {
           setData([]);
         }
@@ -106,11 +98,16 @@ function CauHinhKanBan({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const getSanPham = () => {
+  const getListSanPham = (tits_qtsx_Chuyen_Id, ngay, page) => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_Chuyen_Id,
+      ngay,
+      page,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_SanPham?page=-1`,
+          `tits_qtsx_KanBan?${param}`,
           "GET",
           null,
           "LIST",
@@ -123,22 +120,37 @@ function CauHinhKanBan({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListSanPham(res.data);
+          setSanPham(res.data[0].tits_qtsx_SanPham_Id);
+          getListDonHang(
+            tits_qtsx_Chuyen_Id,
+            res.data[0].tits_qtsx_SanPham_Id,
+            ngay,
+            page
+          );
         } else {
           setListSanPham([]);
+          setSanPham([]);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  const getCongDoan = () => {
-    let param = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-      page: -1,
+  const getListDonHang = (
+    tits_qtsx_Chuyen_Id,
+    tits_qtsx_SanPham_Id,
+    ngay,
+    page
+  ) => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_Chuyen_Id,
+      tits_qtsx_SanPham_Id,
+      ngay,
+      page,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_CongDoan?${param}`,
+          `tits_qtsx_KanBan?${param}`,
           "GET",
           null,
           "LIST",
@@ -150,9 +162,65 @@ function CauHinhKanBan({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          // setListCongDoan(res.data);
+          setListDonHang(res.data);
+          setDonHang(res.data[0].tits_qtsx_DonHang_Id);
+          getListTram(
+            tits_qtsx_Chuyen_Id,
+            tits_qtsx_SanPham_Id,
+            res.data[0].tits_qtsx_DonHang_Id,
+            ngay,
+            page
+          );
         } else {
-          // setListCongDoan([]);
+          setListDonHang([]);
+          setDonHang([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListTram = (
+    tits_qtsx_Chuyen_Id,
+    tits_qtsx_SanPham_Id,
+    tits_qtsx_DonHang_Id,
+    ngay,
+    page
+  ) => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_Chuyen_Id,
+      tits_qtsx_SanPham_Id,
+      tits_qtsx_DonHang_Id,
+      ngay,
+      page,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_KanBan?${param}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListTram(res.data);
+          setTram(res.data[0].tits_qtsx_Tram_Id);
+          getListData(
+            tits_qtsx_Chuyen_Id,
+            tits_qtsx_SanPham_Id,
+            tits_qtsx_DonHang_Id,
+            res.data[0].tits_qtsx_Tram_Id,
+            ngay,
+            page
+          );
+        } else {
+          setListTram([]);
+          setTram(null);
         }
       })
       .catch((error) => console.error(error));
@@ -176,41 +244,12 @@ function CauHinhKanBan({ match, history, permission }) {
         </span>
       );
 
-    const deleteVal =
-      permission && permission.del && item.nguoiTao_Id === INFO.user_Id
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        {editItem}
-        <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa">
-          <DeleteOutlined />
-        </a>
-      </div>
-    );
-  };
-
-  const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.tenHangMucKiemTra, "cấu h");
-  };
-
-  const deleteItemAction = (item) => {
-    let url = `tits_qtsx_HangMucKiemTra/${item.tits_qtsx_HangMucKiemTra_Id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        if (res.status !== 409) {
-          getListData(SanPham, Ngay, page);
-        }
-      })
-      .catch((error) => console.error(error));
+    return <div>{editItem}</div>;
   };
 
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(SanPham, Ngay, pagination);
+    getListData(Chuyen, SanPham, DonHang, Tram, Ngay, pagination);
   };
 
   const { totalRow, pageSize } = Data;
@@ -282,16 +321,6 @@ function CauHinhKanBan({ match, history, permission }) {
       key: "tenHangMucKiemTra",
       align: "center",
       width: 100,
-      filters: removeDuplicates(
-        map(Data.datalist, (d) => {
-          return {
-            text: d.tenHangMucKiemTra,
-            value: d.tenHangMucKiemTra,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenHangMucKiemTra.includes(value),
-      filterSearch: true,
     },
     {
       title: "Chuyền hàn Sup",
@@ -364,27 +393,44 @@ function CauHinhKanBan({ match, history, permission }) {
     };
   });
 
+  const handleOnSelectChuyen = (value) => {
+    setChuyen(value);
+    setSanPham(null);
+    setListSanPham([]);
+    getListSanPham(value, Ngay, 1);
+    setDonHang(null);
+    setListDonHang([]);
+    setTram(null);
+    setListTram([]);
+    getListData(value, null, null, null, Ngay, 1);
+  };
+
   const handleOnSelectSanPham = (value) => {
     setSanPham(value);
-    getListData(value, Ngay, 1);
+    setDonHang(null);
+    setListDonHang([]);
+    getListDonHang(Chuyen, value, Ngay, 1);
+    setTram(null);
+    setListTram([]);
+    getListData(Chuyen, value, null, null, Ngay, 1);
   };
 
-  const handleClearSanPham = () => {
-    setSanPham(null);
-    getListData(null, Ngay, 1);
+  const handleOnSelectDonHang = (value) => {
+    setDonHang(value);
+    setTram(null);
+    setListTram([]);
+    getListDonHang(Chuyen, SanPham, value, Ngay, 1);
+    getListData(Chuyen, SanPham, value, null, Ngay, 1);
   };
 
-  const handleOnSelectCongDoan = (value) => {
-    getListData(SanPham, value, Ngay, 1);
-  };
-
-  const handleClearCongDoan = () => {
-    getListData(SanPham, null, Ngay, 1);
+  const handleOnSelectTram = (value) => {
+    setTram(value);
+    getListData(Chuyen, SanPham, DonHang, value, Ngay, 1);
   };
 
   const handleChangeNgay = (dateString) => {
     setNgay(dateString);
-    getListData(SanPham, dateString, 1);
+    getListData(Chuyen, SanPham, DonHang, Tram, dateString, 1);
   };
 
   return (
@@ -406,18 +452,40 @@ function CauHinhKanBan({ match, history, permission }) {
               marginBottom: 8,
             }}
           >
+            <h5>Chuyển:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListChuyen ? ListChuyen : []}
+              placeholder="Chọn chuyền"
+              optionsvalue={["id", "tenChuyen"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+              onSelect={handleOnSelectChuyen}
+              value={Chuyen}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={20}
+            xs={24}
+            style={{
+              marginBottom: 8,
+            }}
+          >
             <h5>Sản phẩm:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListSanPham ? ListSanPham : []}
               placeholder="Chọn sản phẩm"
-              optionsvalue={["id", "tenSanPham"]}
+              optionsvalue={["tits_qtsx_SanPham_Id", "tenSanPham"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
               onSelect={handleOnSelectSanPham}
-              allowClear
-              onClear={handleClearSanPham}
               value={SanPham}
             />
           </Col>
@@ -432,19 +500,41 @@ function CauHinhKanBan({ match, history, permission }) {
               marginBottom: 8,
             }}
           >
-            <h5>Công đoạn:</h5>
+            <h5>Đơn hàng:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListChuyen ? ListChuyen : []}
-              placeholder="Chọn công đoạn"
-              optionsvalue={["id", "tenCongDoan"]}
+              data={ListDonHang ? ListDonHang : []}
+              placeholder="Chọn đơn hàng"
+              optionsvalue={["tits_qtsx_DonHang_Id", "tenDonHang"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
-              onSelect={handleOnSelectCongDoan}
-              allowClear
-              onClear={handleClearCongDoan}
-              value={Chuyen}
+              onSelect={handleOnSelectDonHang}
+              value={DonHang}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={20}
+            xs={24}
+            style={{
+              marginBottom: 8,
+            }}
+          >
+            <h5>Trạm:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListTram ? ListTram : []}
+              placeholder="Chọn trạm"
+              optionsvalue={["tits_qtsx_Tram_Id", "tenTram"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+              onSelect={handleOnSelectTram}
+              value={Tram}
             />
           </Col>
           <Col
@@ -475,9 +565,7 @@ function CauHinhKanBan({ match, history, permission }) {
           className="gx-table-responsive"
           dataSource={reDataForTable(Data.datalist)}
           size="small"
-          rowClassName={(record) => {
-            return record.isParent ? "editable-row" : "editable-row";
-          }}
+          rowClassName={"editable-row"}
           pagination={{
             onChange: handleTableChange,
             pageSize: pageSize,
