@@ -15,6 +15,7 @@ import {
   Table,
 } from "src/components/Common";
 import { DeleteOutlined } from "@ant-design/icons";
+import Helpers from "src/helpers";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -32,6 +33,7 @@ function ModalChonHoiDongKiemKe({
     token: getTokenInfo().token,
   };
   const [ListHDKK, setListHDKK] = useState([]);
+  const [HDKK, setHDKK] = useState(null);
   const [ListHoiDongKiemKe, setListHoiDongKiemKe] = useState([]);
   const [DataHoiDongKiemKe, setDataHoiDongKiemKe] = useState([]);
 
@@ -103,12 +105,7 @@ function ModalChonHoiDongKiemKe({
   };
 
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.tenNguoiKiemKe,
-      "hội đồng kiểm kê"
-    );
+    ModalDeleteConfirm(deleteItemAction, item, item.tenNguoiKiemKe, "ông/bà");
   };
 
   const deleteItemAction = (item) => {
@@ -156,31 +153,46 @@ function ModalChonHoiDongKiemKe({
   };
 
   const handleSelectHDKK = (value) => {
-    const newData = ListHoiDongKiemKe.filter((data) => data.user_Id === value);
+    const hoidongkiemke =
+      DataHoiDongKiemKe.length &&
+      DataHoiDongKiemKe.filter((hdkk) => hdkk.id === value);
 
-    const HDKK = newData && {
-      id: newData[0].user_Id,
-      tenNguoiKiemKe: newData[0].fullName,
-      tenChucVu: newData[0].tenChucVu,
-    };
-    setDataHoiDongKiemKe([...DataHoiDongKiemKe, HDKK]);
+    if (hoidongkiemke.length) {
+      Helpers.alertError(
+        `Ông/Bà ${hoidongkiemke[0].tenNguoiKiemKe} đã được thêm vào`
+      );
+    } else {
+      setHDKK(value);
+      const newData = ListHoiDongKiemKe.filter(
+        (data) => data.user_Id === value
+      );
 
-    const newListHDKK = ListHoiDongKiemKe.filter(
-      (data) => data.user_Id !== value
-    );
-    setListHoiDongKiemKe(newListHDKK);
+      const HDKK = newData && {
+        id: newData[0].user_Id,
+        tenNguoiKiemKe: newData[0].fullName,
+        tenChucVu: newData[0].tenChucVu,
+      };
+      setDataHoiDongKiemKe([...DataHoiDongKiemKe, HDKK]);
+    }
+
+    // const newListHDKK = ListHoiDongKiemKe.filter(
+    //   (data) => data.user_Id !== value
+    // );
+    // setListHoiDongKiemKe(newListHDKK);
   };
 
   const XacNhan = () => {
     DataChonHDKK(DataHoiDongKiemKe);
     setDataHoiDongKiemKe([]);
     setListHoiDongKiemKe([]);
+    setHDKK(null);
     openModalFS(false);
   };
 
   const handleCancel = () => {
     setDataHoiDongKiemKe([]);
     setListHoiDongKiemKe([]);
+    setHDKK(null);
     openModalFS(false);
   };
 
@@ -230,6 +242,7 @@ function ModalChonHoiDongKiemKe({
                 showSearch
                 optionFilterProp="name"
                 onSelect={handleSelectHDKK}
+                value={HDKK}
               />
             </Col>
           </div>

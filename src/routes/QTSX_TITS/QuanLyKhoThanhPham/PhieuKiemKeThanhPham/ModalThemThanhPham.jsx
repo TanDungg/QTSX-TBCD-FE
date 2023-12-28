@@ -267,8 +267,8 @@ function ModalThemThanhPham({
     },
     {
       title: "Đánh giá",
-      dataIndex: "danhGia",
-      key: "danhGia",
+      dataIndex: "danhGiaChatLuong",
+      key: "danhGiaChatLuong",
       align: "center",
     },
     {
@@ -492,7 +492,7 @@ function ModalThemThanhPham({
               >
                 <FormItem
                   label="Đánh giá"
-                  name={["themthanhpham", "danhGia"]}
+                  name={["themthanhpham", "danhGiaChatLuong"]}
                   rules={[
                     {
                       required: true,
@@ -500,7 +500,10 @@ function ModalThemThanhPham({
                     },
                   ]}
                 >
-                  <Input className="input-item" placeholder="Nhập đánh giá" />
+                  <Input
+                    className="input-item"
+                    placeholder="Nhập đánh giá chất lượng"
+                  />
                 </FormItem>
               </Col>
               <Col

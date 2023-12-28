@@ -247,8 +247,8 @@ const PhieuKiemKeThanhPhamForm = ({ history, match, permission }) => {
           );
 
           setListThanhPham(
-            data.listPhieuKiemKeThanhPhamChiTiets &&
-              JSON.parse(data.listPhieuKiemKeThanhPhamChiTiets)
+            data.tits_qtsx_PhieuKiemKeThanhPhamChiTiets &&
+              JSON.parse(data.tits_qtsx_PhieuKiemKeThanhPhamChiTiets)
           );
         }
       })
@@ -418,8 +418,8 @@ const PhieuKiemKeThanhPhamForm = ({ history, match, permission }) => {
     },
     {
       title: "Đánh giá",
-      dataIndex: "danhGia",
-      key: "danhGia",
+      dataIndex: "danhGiaChatLuong",
+      key: "danhGiaChatLuong",
       align: "center",
     },
     {
@@ -927,7 +927,7 @@ const PhieuKiemKeThanhPhamForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Nội dung kiểm kê"
-                name={["phieukiemkethanhpham", "noiDungKiemKe"]}
+                name={["phieukiemkethanhpham", "noiDung"]}
                 rules={[
                   {
                     type: "string",
