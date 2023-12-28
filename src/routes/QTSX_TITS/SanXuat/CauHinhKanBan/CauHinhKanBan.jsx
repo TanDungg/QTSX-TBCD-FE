@@ -30,17 +30,23 @@ function CauHinhKanBan({ match, history, permission }) {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [Data, setData] = useState([]);
+  const [ListChuyen, setListChuyen] = useState([]);
+  const [Chuyen, setChuyen] = useState(null);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
-  const [ListCongDoan, setListCongDoan] = useState([]);
-  const [CongDoan, setCongDoan] = useState(null);
+  const [ListDonHang, setListDonHang] = useState([]);
+  const [DonHang, setDonHang] = useState(null);
+  const [ListTram, setListTram] = useState([]);
+  const [Tram, setTram] = useState(null);
+  const [ListChiTiet, setListChiTiet] = useState([]);
+  const [ChiTiet, setChiTiet] = useState(null);
   const [Ngay, setNgay] = useState(getDateNow());
 
   useEffect(() => {
     if (permission && permission.view) {
       getSanPham();
       getCongDoan();
-      getListData(SanPham, CongDoan, Ngay, page);
+      getListData(SanPham, Ngay, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -50,21 +56,27 @@ function CauHinhKanBan({ match, history, permission }) {
   }, []);
 
   const getListData = (
+    tits_qtsx_Chuyen_Id,
     tits_qtsx_SanPham_Id,
-    tits_qtsx_CongDoan_Id,
-    Ngay,
+    tits_qtsx_DonHang_Id,
+    tits_qtsx_Tram_Id,
+    tits_qtsx_ChiTiet_Id,
+    ngay,
     page
   ) => {
     const param = convertObjectToUrlParams({
+      tits_qtsx_Chuyen_Id,
       tits_qtsx_SanPham_Id,
-      tits_qtsx_CongDoan_Id,
-      Ngay,
+      tits_qtsx_DonHang_Id,
+      tits_qtsx_Tram_Id,
+      tits_qtsx_ChiTiet_Id,
+      ngay,
       page,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_HangMucKiemTra?${param}`,
+          `tits_qtsx_KanBan?${param}`,
           "GET",
           null,
           "LIST",
@@ -76,7 +88,17 @@ function CauHinhKanBan({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setData(res.data);
+          if (
+            !tits_qtsx_Chuyen_Id &&
+            !tits_qtsx_SanPham_Id &&
+            !tits_qtsx_DonHang_Id &&
+            !tits_qtsx_Tram_Id &&
+            tits_qtsx_ChiTiet_Id
+          ) {
+            setData(res.data);
+          } else if (!tits_qtsx_SanPham_Id) {
+            setDonHang(res.data);
+          }
         } else {
           setData([]);
         }
@@ -128,9 +150,9 @@ function CauHinhKanBan({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListCongDoan(res.data);
+          // setListCongDoan(res.data);
         } else {
-          setListCongDoan([]);
+          // setListCongDoan([]);
         }
       })
       .catch((error) => console.error(error));
@@ -180,7 +202,7 @@ function CauHinhKanBan({ match, history, permission }) {
     })
       .then((res) => {
         if (res.status !== 409) {
-          getListData(SanPham, CongDoan, Ngay, page);
+          getListData(SanPham, Ngay, page);
         }
       })
       .catch((error) => console.error(error));
@@ -188,7 +210,7 @@ function CauHinhKanBan({ match, history, permission }) {
 
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(SanPham, CongDoan, Ngay, pagination);
+    getListData(SanPham, Ngay, pagination);
   };
 
   const { totalRow, pageSize } = Data;
@@ -248,10 +270,7 @@ function CauHinhKanBan({ match, history, permission }) {
       align: "center",
       filters: removeDuplicates(
         map(Data.datalist, (d) => {
-          return {
-            text: d.tenCongDoan,
-            value: d.tenCongDoan,
-          };
+          return {};
         })
       ),
       onFilter: (value, record) => record.tenCongDoan.includes(value),
@@ -347,27 +366,25 @@ function CauHinhKanBan({ match, history, permission }) {
 
   const handleOnSelectSanPham = (value) => {
     setSanPham(value);
-    getListData(value, CongDoan, Ngay, 1);
+    getListData(value, Ngay, 1);
   };
 
   const handleClearSanPham = () => {
     setSanPham(null);
-    getListData(null, CongDoan, Ngay, 1);
+    getListData(null, Ngay, 1);
   };
 
   const handleOnSelectCongDoan = (value) => {
-    setCongDoan(value);
     getListData(SanPham, value, Ngay, 1);
   };
 
   const handleClearCongDoan = () => {
-    setCongDoan(null);
     getListData(SanPham, null, Ngay, 1);
   };
 
   const handleChangeNgay = (dateString) => {
     setNgay(dateString);
-    getListData(SanPham, CongDoan, dateString, 1);
+    getListData(SanPham, dateString, 1);
   };
 
   return (
@@ -418,7 +435,7 @@ function CauHinhKanBan({ match, history, permission }) {
             <h5>Công đoạn:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListCongDoan ? ListCongDoan : []}
+              data={ListChuyen ? ListChuyen : []}
               placeholder="Chọn công đoạn"
               optionsvalue={["id", "tenCongDoan"]}
               style={{ width: "100%" }}
@@ -427,7 +444,7 @@ function CauHinhKanBan({ match, history, permission }) {
               onSelect={handleOnSelectCongDoan}
               allowClear
               onClear={handleClearCongDoan}
-              value={CongDoan}
+              value={Chuyen}
             />
           </Col>
           <Col
