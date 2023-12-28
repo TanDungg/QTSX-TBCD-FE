@@ -59,6 +59,7 @@ function AddVatTuModal({ openModalFS, openModal, addVatTu }) {
             values.vatTu.tenDonViTinh = vt.tenDonViTinh;
             values.vatTu.maVatTu = vt.maVatTu;
             values.vatTu.tenVatTu = vt.tenVatTu;
+            values.vatTu.id = vt.id;
           }
         });
         addVatTu(values.vatTu);

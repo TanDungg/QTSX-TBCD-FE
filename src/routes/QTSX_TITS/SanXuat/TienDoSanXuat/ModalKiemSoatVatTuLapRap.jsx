@@ -15,7 +15,7 @@ import {
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ModalKiemSoatVatTuLapRap({ openModalFS, openModal, info }) {
+function ModalKiemSoatVatTuLapRap({ openModalFS, openModal, info, refesh }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
   const INFO = {
@@ -96,6 +96,7 @@ function ModalKiemSoatVatTuLapRap({ openModalFS, openModal, info }) {
           Helpers.alertSuccessMessage("Đã lưu thành công!!");
           resetFields();
           openModalFS(false);
+          refesh();
         }
       });
     } else {

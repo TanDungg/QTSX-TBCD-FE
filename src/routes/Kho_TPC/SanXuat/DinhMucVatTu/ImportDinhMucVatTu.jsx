@@ -275,7 +275,7 @@ function ImportDinhMucVatTu({
                 : undefined,
               dinhMucXaNhua: data[index][DMXN]
                 ? data[index][DMXN].toString().trim() !== ""
-                  ? data[index][DMXN].toString().trim()
+                  ? data[index][DMXN].toString().trim().toFixed(4)
                   : 0
                 : 0,
               ghiChu: data[index][GC]

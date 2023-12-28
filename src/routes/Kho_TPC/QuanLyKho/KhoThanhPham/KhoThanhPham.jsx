@@ -278,11 +278,26 @@ function KhoVatTu({ history, permission }) {
     },
     {
       title: "Vị trí lưu",
-      key: "tenKe",
+      key: "viTriLuu",
       align: "center",
-      render: (val) => (
-        <span>{val.tenNgan ? val.tenNgan : val.tenKe && val.tenKe}</span>
+      render: (val) => {
+        return (
+          <span>{val.tenNgan ? val.tenNgan : val.tenKe && val.tenKe}</span>
+        );
+      },
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNgan ? d.tenNgan : d.tenKe && d.tenKe,
+            value: d.tenNgan ? d.tenNgan : d.tenKe && d.tenKe,
+          };
+        })
       ),
+      onFilter: (value, record) =>
+        record.tenNgan
+          ? record.tenNgan.includes(value)
+          : record.tenKe && record.tenKe.includes(value),
+      filterSearch: true,
     },
   ];
 

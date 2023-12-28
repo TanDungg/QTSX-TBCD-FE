@@ -482,7 +482,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       setEditingRecord([...editingRecord, item]);
       item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
     } else {
-      const newData = editingRecord.filter((d) => d.vatTu_Id !== item.vatTu_Id);
+      const newData = editingRecord.filter((d) => d.id !== item.id);
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
@@ -499,7 +499,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (ct.vatTu_Id === item.vatTu_Id) {
+      if (ct.id === item.id) {
         isEditing = true;
         message = ct.message;
       }
@@ -544,13 +544,13 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     setFieldTouch(true);
     const newData = [...listVatTu];
     newData.forEach((ct, index) => {
-      if (ct.vatTu_Id === record.vatTu_Id) {
+      if (ct.id === record.id) {
         ct.hanMucSuDung = hanmuc;
       }
     });
     setListVatTu(newData);
   };
-
+  ///////////////////////////////////
   const handleInputChangeKhac = (val, item) => {
     const soLuong = val.target.value;
     if (isEmpty(soLuong) || Number(soLuong) <= 0) {

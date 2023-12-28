@@ -1,5 +1,17 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Col, Row, Input, List } from "antd";
+import {
+  Card,
+  Button,
+  Col,
+  Row,
+  Input,
+  List,
+  Upload,
+  Modal as ModalAnt,
+  Image,
+  Tag,
+  Divider,
+} from "antd";
 import {
   ReloadOutlined,
   SelectOutlined,
@@ -10,11 +22,18 @@ import {
   SaveFilled,
   CheckSquareOutlined,
   ToolOutlined,
+  PlusOutlined,
+  CloseOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Modal, Select, Toolbar } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams, setLocalStorage } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  setLocalStorage,
+  getTokenInfo,
+  getLocalStorage,
+} from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
 import ModalKiemSoatVatTuLapRap from "./ModalKiemSoatVatTuLapRap";
@@ -39,23 +58,32 @@ const optionsTime = {
 function TienDoSanXuat({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [ListXuong, setListXuong] = useState([]);
   const [ListChuyen, setListChuyen] = useState([]);
   const [ListTram, setListTram] = useState([]);
   const [Xuong, setXuong] = useState(null);
   const [Chuyen, setChuyen] = useState(null);
   const [Tram, setTram] = useState(null);
+  const [SoLo, setSoLo] = useState(null);
   const [keyword, setKeyword] = useState("");
+  const [Message, setMessage] = useState();
   const [InfoSanPham, setInfoSanPham] = useState({});
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [ListSoKhungNoiBo, setListSoKhungNoiBo] = useState([]);
-  const [DisableVaoTram, setDisableVaoTram] = useState(true);
   const [ActiveModalKiemSoatVatTu, setActiveModalKiemSoatVatTu] =
     useState(false);
   const [ActiveSuaChuaLai, setActiveSuaChuaLai] = useState(false);
   const [ActiveModalHoSoChatLuong, setActiveModalHoSoChatLuong] =
     useState(false);
   const [ActiveKiemSoatChatLuong, setActiveKiemSoatChatLuong] = useState(false);
+  const [FileHinhAnh, setFileHinhAnh] = useState(null);
+  const [FileAnh, setFileAnh] = useState(null);
+
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentDateTime(new Date());
@@ -258,6 +286,9 @@ function TienDoSanXuat({ match, history, permission }) {
       getSoKhunNoiBo(Tram, val.target.value);
     }
   };
+  const onChangeMessage = (val) => {
+    setMessage(val.target.value);
+  };
   const ClickVaoTram = () => {
     const param = convertObjectToUrlParams({
       tits_qtsx_TienDoSanXuat_Id: InfoSanPham.tits_qtsx_TienDoSanXuat_Id,
@@ -362,11 +393,111 @@ function TienDoSanXuat({ match, history, permission }) {
     setInfoSanPham({});
     setListSoKhungNoiBo([]);
   };
-
+  const UploadHinhAnh = () => {
+    if (FileHinhAnh) {
+      const formData = new FormData();
+      formData.append("file", FileHinhAnh);
+      fetch(`${BASE_URL_API}/api/Upload`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: "Bearer ".concat(INFO.token),
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          GuiGhiChu(data.path);
+        })
+        .catch(() => {
+          console.log("upload failed.");
+        });
+    } else {
+      GuiGhiChu();
+    }
+  };
+  const GuiGhiChu = (path) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_TienDoSanXuat/post-chat-tdsx`,
+          "POST",
+          {
+            tits_qtsx_TienDoSanXuat_Id: InfoSanPham.tits_qtsx_TienDoSanXuat_Id,
+            noiDung: Message,
+            hinhAnh: path && path,
+          },
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status === 200) {
+          Helpers.alertSuccessMessage("Gửi ghi chú thành công!!");
+          getInfoSanPham(SoLo, Tram);
+          setMessage();
+          setFileAnh();
+          setFileHinhAnh();
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const props = {
+    accept: "image/png, image/jpeg",
+    beforeUpload: (file) => {
+      setFileHinhAnh(file);
+      const reader = new FileReader();
+      reader.onload = (e) => setFileAnh(e.target.result);
+      reader.readAsDataURL(file);
+      return false;
+    },
+    showUploadList: false,
+    maxCount: 1,
+  };
+  const uploadButton = (
+    <div
+      style={{
+        cursor: "pointer",
+        borderRadius: "10%",
+        border: "1px dashed #d9d9d9",
+        width: 100,
+        height: 50,
+        textAlign: "center",
+      }}
+    >
+      <PlusOutlined />
+      <div
+        style={{
+          marginTop: 8,
+          fontSize: 11,
+        }}
+      >
+        Upload
+      </div>
+    </div>
+  );
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Nhập tiến độ sản xuất"
+        title={
+          <>
+            <p style={{ display: "inline" }}>Nhập tiến độ sản xuất</p>
+            <a
+              style={{
+                cursor: "none",
+                display: "inline",
+                position: "absolute",
+                right: 0,
+                bottom: 0,
+                fontSize: 15,
+              }}
+            >
+              {formattedDateTime},{"  "} {formattedTime}
+            </a>
+          </>
+        }
         description="Nhập tiến độ sản xuất"
       />
       <Card className="th-card-margin-bottom">
@@ -445,7 +576,7 @@ function TienDoSanXuat({ match, history, permission }) {
               disabled={!Chuyen}
             />
           </Col>
-          <Col
+          {/* <Col
             xxl={6}
             xl={8}
             lg={12}
@@ -460,7 +591,7 @@ function TienDoSanXuat({ match, history, permission }) {
             <a style={{ cursor: "none" }}>
               {formattedDateTime},{"  "} {formattedTime}
             </a>
-          </Col>
+          </Col> */}
         </Row>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
@@ -512,9 +643,10 @@ function TienDoSanXuat({ match, history, permission }) {
                           : "#FFF",
                       cursor: "pointer",
                     }}
-                    onClick={() =>
-                      getInfoSanPham(item.tits_qtsx_SoLoChiTiet_Id, Tram)
-                    }
+                    onClick={() => {
+                      setSoLo(item.tits_qtsx_SoLoChiTiet_Id);
+                      getInfoSanPham(item.tits_qtsx_SoLoChiTiet_Id, Tram);
+                    }}
                   >
                     <a>{item.maNoiBo}</a>
                   </List.Item>
@@ -611,7 +743,6 @@ function TienDoSanXuat({ match, history, permission }) {
                       setLocalStorage("inMa", [InfoSanPham]);
                       window.open(`${match.url}/in-ma-Qrcode`, "_blank");
                     }}
-                    // disabled={DisableVaoTram}
                   >
                     In Barcode
                   </Button>
@@ -629,7 +760,6 @@ function TienDoSanXuat({ match, history, permission }) {
                     icon={<FileTextOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
-                    // disabled={DisableVaoTram}
                     onClick={() => setActiveModalHoSoChatLuong(true)}
                   >
                     Xem hồ sơ chất lượng
@@ -641,7 +771,9 @@ function TienDoSanXuat({ match, history, permission }) {
                     disabled={!InfoSanPham.isSCL}
                     onClick={() => setActiveSuaChuaLai(true)}
                   >
-                    Sửa chữa lại
+                    {InfoSanPham.isDaSCL
+                      ? "Xác nhận sửa chữa lại"
+                      : "Sửa chữa lại"}
                   </Button>
                   <Button
                     icon={<CheckSquareOutlined />}
@@ -668,26 +800,125 @@ function TienDoSanXuat({ match, history, permission }) {
         </Row>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row>
-          <Col xxl={16} xl={16} lg={12} md={12} sm={24} xs={24}>
-            <Input disabled={DisableVaoTram} placeholder="Ghi chú"></Input>
+        <Row align="middle">
+          <Col xxl={14} xl={14} lg={14} md={12} sm={24} xs={24}>
+            <Input
+              disabled={InfoSanPham.thoiGianVaoTram ? false : true}
+              placeholder="Ghi chú"
+              onChange={onChangeMessage}
+              value={Message}
+            ></Input>
           </Col>
+          <Col xxl={2} xl={2} lg={2} md={2} sm={2} xs={2}>
+            <Upload
+              disabled={InfoSanPham.thoiGianVaoTram ? false : true}
+              listType="picture-circle"
+              {...props}
+            >
+              {FileAnh ? null : uploadButton}
+            </Upload>
+            {FileAnh && (
+              <div style={{ position: "relative" }}>
+                <span
+                  style={{
+                    position: "absolute",
+                    right: 0,
+                    cursor: "pointer",
+                    zIndex: 10,
+                  }}
+                  onClick={() => {
+                    setFileAnh();
+                    setFileHinhAnh();
+                  }}
+                >
+                  <CloseOutlined style={{ color: "blue" }} />
+                </span>
+                <Image width={100} height={50} src={FileAnh} />
+              </div>
+            )}
+          </Col>
+
           <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
             <Button
-              disabled={DisableVaoTram}
+              disabled={
+                InfoSanPham.thoiGianVaoTram && (Message || FileHinhAnh)
+                  ? false
+                  : true
+              }
               icon={<SendOutlined />}
               type="primary"
+              onClick={UploadHinhAnh}
             >
               Gửi
             </Button>
           </Col>
         </Row>
+        {InfoSanPham.list_tits_qtsx_TDSXChat &&
+          InfoSanPham.list_tits_qtsx_TDSXChat.length > 0 && (
+            <Card
+              className="th-card-margin-bottom th-card-reset-margin"
+              style={{
+                marginTop: 10,
+                overflow: "auto",
+                maxHeight: 300,
+              }}
+            >
+              {InfoSanPham.list_tits_qtsx_TDSXChat &&
+                InfoSanPham.list_tits_qtsx_TDSXChat.map((chat) => {
+                  return (
+                    <Row
+                      style={{
+                        margin: "5px 10px",
+                      }}
+                      // justify={TOKENINFO.fullName === nd.nguoiPhanHoi ? "end" : "start"}
+                    >
+                      <Col
+                        md={12}
+                        sm={18}
+                        xs={22}
+                        style={{
+                          marginBottom: 10,
+                          wordWrap: "break-word",
+                          backgroundColor: "#fff",
+                          border: "1px solid #0469B9",
+                          padding: 10,
+                          borderRadius: 15,
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            // justifyContent:
+                            //   TOKENINFO.fullName === nd.nguoiPhanHoi ? "end" : "start",
+                          }}
+                        >
+                          <Tag color={"blue"} style={{ marginBottom: 0 }}>
+                            {chat.tenNguoiTao}
+                          </Tag>
+                          - {chat.tenTram} - {chat.ngayTao}
+                        </div>
+                        <Divider style={{ margin: "10px 0" }} />
+                        <p style={{ marginBottom: 0 }}>{chat.noiDung}</p>
+                        {chat.hinhAnh && (
+                          <Image
+                            width={200}
+                            height={100}
+                            src={`${BASE_URL_API}${chat.hinhAnh}`}
+                          />
+                        )}
+                      </Col>
+                    </Row>
+                  );
+                })}
+            </Card>
+          )}
       </Card>
       <ModalKiemSoatVatTuLapRap
         openModal={ActiveModalKiemSoatVatTu}
         openModalFS={setActiveModalKiemSoatVatTu}
         info={InfoSanPham}
         tits_qtsx_Tram_Id={Tram}
+        refesh={() => getInfoSanPham(SoLo, Tram)}
       />
       <ModalHoSoChatLuong
         openModal={ActiveModalHoSoChatLuong}
@@ -698,11 +929,13 @@ function TienDoSanXuat({ match, history, permission }) {
         openModal={ActiveKiemSoatChatLuong}
         openModalFS={setActiveKiemSoatChatLuong}
         info={InfoSanPham}
+        refesh={() => getInfoSanPham(SoLo, Tram)}
       />
       <ModalSuaChuaLai
         openModal={ActiveSuaChuaLai}
         openModalFS={setActiveSuaChuaLai}
         info={InfoSanPham}
+        refesh={() => getInfoSanPham(SoLo, Tram)}
       />
     </div>
   );

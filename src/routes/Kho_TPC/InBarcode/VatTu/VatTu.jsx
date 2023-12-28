@@ -229,6 +229,22 @@ function VatTu({ match, permission, history }) {
       ),
     },
     {
+      title: "Ngày tạo",
+      dataIndex: "ngayTao",
+      key: "ngayTao",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayTao,
+            value: d.ngayTao,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayTao.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Chức năng",
       key: "action",
       align: "center",
@@ -284,7 +300,7 @@ function VatTu({ match, permission, history }) {
           icon={<UpCircleOutlined />}
           className="th-btn-margin-bottom-0"
           type="primary"
-          onClick={handlePrint}
+          onClick={() => setActiveModal(true)}
           disabled={permission && !permission.add}
         >
           Import

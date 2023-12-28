@@ -21,7 +21,7 @@ import { SaveOutlined } from "@ant-design/icons";
 import Helpers from "src/helpers";
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
+function ModalKiemSoatChatLuong({ openModalFS, openModal, info, refesh }) {
   const dispatch = useDispatch();
   // const { width } = useSelector(({ common }) => common).toJS();
   const [form] = Form.useForm();
@@ -347,6 +347,7 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
           Helpers.alertSuccessMessage("Đã lưu thành công!!");
           resetFields();
           openModalFS(false);
+          refesh();
         }
       });
     } else {
@@ -398,7 +399,7 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
           return (
             <>
               <Row key={index}>
-                <Col span={12}>
+                <Col xl={12} lg={24}>
                   <Row>
                     <Col span={24} style={{ marginBottom: 10 }}>
                       <span style={{ marginBottom: 10, display: "block" }}>
@@ -425,7 +426,8 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info }) {
                   </Row>
                 </Col>
                 <Col
-                  span={12}
+                  xl={12}
+                  lg={24}
                   align="center"
                   style={{
                     position: "relative",

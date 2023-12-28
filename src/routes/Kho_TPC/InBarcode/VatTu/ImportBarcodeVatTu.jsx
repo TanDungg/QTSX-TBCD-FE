@@ -45,28 +45,22 @@ function ImportBarcodeVatTu({ openModalFS, openModal, loading, refesh }) {
     },
 
     {
-      title: "Mã bộ phận",
-      dataIndex: "maBoPhan",
-      key: "maBoPhan",
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
       align: "center",
     },
     {
-      title: "Tên bộ phận",
-      dataIndex: "tenBoPhan",
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
       align: "center",
-      key: "tenBoPhan",
+      key: "tenVatTu",
     },
     {
-      title: "Mã Ban/Phòng",
-      dataIndex: "maPhongBan",
+      title: "Hạn sử dụng",
+      dataIndex: "hanSuDung",
       align: "center",
-      key: "maPhongBan",
-    },
-    {
-      title: "Mã bộ phận cha",
-      dataIndex: "maBoPhanCha",
-      align: "center",
-      key: "maBoPhanCha",
+      key: "hanSuDung",
     },
   ];
   const components = {
@@ -97,8 +91,8 @@ function ImportBarcodeVatTu({ openModalFS, openModal, loading, refesh }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `BoPhan/ExportFileExcel`,
-          "POST",
+          `lkn_QRCodeVatTu/export-file-excel`,
+          "GET",
           null,
           "DOWLOAD",
           "",
@@ -107,7 +101,7 @@ function ImportBarcodeVatTu({ openModalFS, openModal, loading, refesh }) {
         )
       );
     }).then((res) => {
-      exportExcel("File_Mau_Bo_Phan", res.data.dataexcel);
+      exportExcel("File_Mau_Barcode_Vat_Tu", res.data.dataexcel);
     });
   };
   const xuLyExcel = (file) => {
@@ -116,7 +110,7 @@ function ImportBarcodeVatTu({ openModalFS, openModal, loading, refesh }) {
       const workbook = XLSX.read(event.target.result, {
         type: "binary",
       });
-      const worksheet = workbook.Sheets["Bộ phận"];
+      const worksheet = workbook.Sheets["Import"];
 
       const checkMau =
         XLSX.utils
@@ -132,74 +126,59 @@ function ImportBarcodeVatTu({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã bộ phận" &&
+          .trim() === "Mã vật tư" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Tên bộ phận" &&
+          .trim() === "Tên vật tư" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã Ban/Phòng" &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Mã bộ phận cha";
+          .trim() === "Hạn sử dụng";
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
           range: 2,
         });
-        const MBP = "Mã bộ phận";
-        const TBP = "Tên bộ phận";
-        const MPB = "Mã Ban/Phòng";
-        const MBPC = "Mã bộ phận cha";
+        const MVT = "Mã vật tư";
+        const TVT = "Tên vật tư";
+        const HSD = "Hạn sử dụng";
         const Data = [];
         const NewData = [];
         data.forEach((d, index) => {
           if (
-            data[index][MBP] &&
-            data[index][MBP].toString().trim() === "" &&
-            data[index][TBP] &&
-            data[index][TBP].toString().trim() === "" &&
-            data[index][MPB] &&
-            data[index][MPB].toString().trim() === "" &&
-            data[index][MBPC] &&
-            data[index][MBPC].toString().trim() === ""
+            data[index][MVT] &&
+            data[index][MVT].toString().trim() === "" &&
+            data[index][TVT] &&
+            data[index][TVT].toString().trim() === "" &&
+            data[index][HSD] &&
+            data[index][HSD].toString().trim() === ""
           ) {
           } else {
             NewData.push({
-              maBoPhan: data[index][MBP]
-                ? data[index][MBP].toString().trim() !== ""
-                  ? data[index][MBP].toString().trim()
+              maVatTu: data[index][MVT]
+                ? data[index][MVT].toString().trim() !== ""
+                  ? data[index][MVT].toString().trim()
                   : undefined
                 : undefined,
-              tenBoPhan: data[index][TBP]
-                ? data[index][TBP].toString().trim() !== ""
-                  ? data[index][TBP].toString().trim()
+              tenVatTu: data[index][TVT]
+                ? data[index][TVT].toString().trim() !== ""
+                  ? data[index][TVT].toString().trim()
                   : undefined
                 : undefined,
-              maPhongBan: data[index][MPB]
-                ? data[index][MPB].toString().trim() !== ""
-                  ? data[index][MPB].toString().trim()
-                  : undefined
-                : undefined,
-              maBoPhanCha: data[index][MBPC]
-                ? data[index][MBPC].toString().trim() !== ""
-                  ? data[index][MBPC].toString().trim()
+              hanSuDung: data[index][HSD]
+                ? data[index][HSD].toString().trim() !== ""
+                  ? data[index][HSD].toString().trim()
                   : undefined
                 : undefined,
             });
           }
-          Data.push(data[index][MBP]);
+          Data.push(data[index][MVT] + data[index][HSD]);
         });
         if (NewData.length === 0) {
           setFileName(file.name);
@@ -227,9 +206,11 @@ function ImportBarcodeVatTu({ openModalFS, openModal, loading, refesh }) {
           setFileName(file.name);
           setDataLoi();
           if (indices.length > 0) {
-            setMessageError(`Hàng ${row.join(", ")} có mã bộ phận trùng nhau`);
+            setMessageError(
+              `Hàng ${row.join(", ")} có vật tư và hạn sử dụng trùng nhau`
+            );
             Helper.alertError(
-              `Hàng ${row.join(", ")} có mã bộ phận trùng nhau`
+              `Hàng ${row.join(", ")} có vật tư và hạn sử dụng trùng nhau`
             );
             setHangTrung(indices);
             setCheckDanger(true);
@@ -271,7 +252,7 @@ function ImportBarcodeVatTu({ openModalFS, openModal, loading, refesh }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `BoPhan/ImportExel`,
+          `lkn_QRCodeVatTu/ImportExel`,
           "POST",
           dataView,
           "IMPORT",
@@ -296,7 +277,7 @@ function ImportBarcodeVatTu({ openModalFS, openModal, loading, refesh }) {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận import bộ phận",
+    title: "Xác nhận import Barcode vật tư",
     onOk: handleSubmit,
   };
   const modalXK = () => {
@@ -305,26 +286,22 @@ function ImportBarcodeVatTu({ openModalFS, openModal, loading, refesh }) {
 
   const RowStyle = (current, index) => {
     if (HangTrung.length > 0) {
-      HangTrung.forEach((maBoPhan) => {
-        if (current.maBoPhan === maBoPhan) {
+      HangTrung.forEach((maVatTu) => {
+        if (current.maVatTu + current.hanSuDung === maVatTu) {
           setCheckDanger(true);
           return "red-row";
         }
       });
-    } else if (current.maBoPhan === undefined) {
+    } else if (current.maVatTu === undefined) {
       setCheckDanger(true);
-      setMessageError("Mã bộ phận không được rỗng");
+      setMessageError("Mã vật tư không được rỗng");
       return "red-row";
-    } else if (current.tenBoPhan === undefined) {
+    } else if (current.tenVatTu === undefined) {
       setCheckDanger(true);
-      setMessageError("Tên bộ phận không được rỗng");
-      return "red-row";
-    } else if (current.maPhongBan === undefined) {
-      setCheckDanger(true);
-      setMessageError("Mã Ban/Phòng không được rỗng");
+      setMessageError("Tên vật tư không được rỗng");
       return "red-row";
     } else if (DataLoi) {
-      if (current.maBoPhan.toString() === DataLoi.maBoPhan) {
+      if (current.maVatTu.toString() === DataLoi.maVatTu) {
         setCheckDanger(true);
         return "red-row";
       }
@@ -345,7 +322,7 @@ function ImportBarcodeVatTu({ openModalFS, openModal, loading, refesh }) {
 
   return (
     <AntModal
-      title="Import bộ phận"
+      title="Import Barcode vật tư"
       open={openModal}
       width={`80%`}
       closable={true}

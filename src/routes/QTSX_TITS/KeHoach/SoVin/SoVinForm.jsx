@@ -351,6 +351,7 @@ const SoVinForm = ({ history, match, permission }) => {
             } else {
               resetFields();
               setFieldTouch(false);
+              setListSanPham([]);
             }
           } else {
             if (saveQuit) {

@@ -15,7 +15,10 @@ const QuyTrinhSanXuatForm = asyncComponent(() =>
 const TienDoSanXuat = asyncComponent(() =>
   import("./TienDoSanXuat/TienDoSanXuat")
 );
-
+//Theo doi tiến độ sản xuất
+const TheoDoiTienDoSanXuat = asyncComponent(() =>
+  import("./TheoDoiTienDoSanXuat/TheoDoiTienDoSanXuat")
+);
 //Cấu hình KanBan
 const CauHinhKanBan = asyncComponent(() =>
   import("./CauHinhKanBan/CauHinhKanBan")
@@ -64,7 +67,12 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(TienDoSanXuat, menus, pathname, permission)}
       />
-
+      {/*Theo dõi Tiến độ sản xuất */}
+      <Route
+        path={`${match.url}/theo-doi-tien-do-san-xuat`}
+        exact
+        component={Auth(TheoDoiTienDoSanXuat, menus, pathname, permission)}
+      />
       {/* Cấu hình KanBan */}
       <Route
         path={`${match.url}/cau-hinh-kanban`}

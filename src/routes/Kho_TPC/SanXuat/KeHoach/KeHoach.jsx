@@ -581,12 +581,7 @@ function KeHoach({ match, history, permission }) {
           dataSource={dataList}
           size="small"
           rowClassName={"editable-row"}
-          pagination={{
-            total: totalRow,
-            pageSize: 20,
-            showSizeChanger: false,
-            showQuickJumper: true,
-          }}
+          pagination={false}
           loading={loading}
         />
       </Card>
