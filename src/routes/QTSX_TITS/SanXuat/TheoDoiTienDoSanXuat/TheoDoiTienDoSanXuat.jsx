@@ -414,14 +414,7 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
             </Row>
           </Card>
           <Progress
-            percent={
-              InfoSanPham.thuTuCongDoan &&
-              (
-                ((InfoSanPham.thuTuCongDoan - 1) /
-                  InfoSanPham.list_CongDoans.length) *
-                100
-              ).toFixed(2)
-            }
+            percent={InfoSanPham.phanTram}
             status="active"
             className="font-size-percent-20"
           />
@@ -429,6 +422,11 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
             style={{ overflow: "auto" }}
             size="small"
             current={InfoSanPham.thuTuCongDoan && InfoSanPham.thuTuCongDoan - 1}
+            status={
+              InfoSanPham.thuTuCongDoan &&
+              InfoSanPham.thuTuCongDoan === InfoSanPham.list_CongDoans.length &&
+              "finish"
+            }
             items={
               InfoSanPham.list_CongDoans
                 ? InfoSanPham.list_CongDoans.map((cd) => {

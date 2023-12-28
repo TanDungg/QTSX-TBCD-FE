@@ -80,26 +80,7 @@ function BOMForm({ match, permission, history }) {
   const [info, setInfo] = useState({});
   const [fieldTouch, setFieldTouch] = useState(false);
   const { setFieldsValue, validateFields, resetFields } = form;
-  const [dataThietLap, setDataThietLap] = useState({
-    giaCong: true,
-    ed: true,
-    xiMa: true,
-    nmk: true,
-    kho: true,
-    lazer: true,
-    lazerDamH: true,
-    cuaVong: true,
-    chanDot: true,
-    vatMep: true,
-    khoanLo: true,
-    xhlkr: true,
-    xhkx: true,
-    phunBi: true,
-    son: true,
-    xlr: true,
-    kiemDinh: true,
-    dongKien: true,
-  });
+  const [dataThietLap, setDataThietLap] = useState([]);
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
       if (permission && !permission.add) {
@@ -235,32 +216,24 @@ function BOMForm({ match, permission, history }) {
           setDataThietLap(res.data.congDoanSuDung);
           setListChiTiet(
             res.data.list_ChiTiets.map((ct) => {
+              const thuTuChuyenDong = {};
+              ct.thuTuChuyen_Dong.forEach((cd) => {
+                thuTuChuyenDong[cd.tits_qtsx_TramXuong_Id] = cd.thuTu;
+              });
               return {
                 ...ct,
+                ...thuTuChuyenDong,
                 STT: ct.thuTuNguoiDung,
                 dai: ct.quyCach.dai,
                 rong: ct.quyCach.rong,
                 day: ct.quyCach.day,
                 dn: ct.quyCach.dn,
                 dt: ct.quyCach.dt,
-                chanDot: ct.thuTuChuyen.chanDot,
-                cuaVong: ct.thuTuChuyen.cuaVong,
-                dongKien: ct.thuTuChuyen.dongKien,
-                eD: ct.thuTuChuyen.eD,
-                giaCong: ct.thuTuChuyen.giaCong,
-                kho: ct.thuTuChuyen.kho,
-                khoanLo: ct.thuTuChuyen.khoanLo,
-                kiemDinh: ct.thuTuChuyen.kiemDinh,
-                lazer: ct.thuTuChuyen.lazer,
-                lazerDamH: ct.thuTuChuyen.lazerDamH,
-                nMK: ct.thuTuChuyen.nMK,
-                phunBi: ct.thuTuChuyen.phunBi,
-                son: ct.thuTuChuyen.son,
-                vatMep: ct.thuTuChuyen.vatMep,
-                xHKX: ct.thuTuChuyen.xHKX,
-                xHLKR: ct.thuTuChuyen.xHLKR,
-                xLR: ct.thuTuChuyen.xLR,
-                xiMa: ct.thuTuChuyen.xiMa,
+                ed: ct.thuTuChuyen_Tinh.eD,
+                giaCong: ct.thuTuChuyen_Tinh.giaCong,
+                kho: ct.thuTuChuyen_Tinh.kho,
+                nmk: ct.thuTuChuyen_Tinh.nmk,
+                xiMa: ct.thuTuChuyen_Tinh.xiMa,
               };
             })
           );
@@ -352,316 +325,15 @@ function BOMForm({ match, permission, history }) {
     );
   };
   let colValues = () => {
-    const ThietLap = {
-      title: "Chuyển",
-      key: "chuyen",
-      align: "center",
-      children: [],
-    };
-    if (dataThietLap.giaCong || dataThietLap.ed || dataThietLap.xiMa) {
-      ThietLap.children.push({
-        title: "THCK(CMC)",
-        key: "THCK(CMC)",
+    const data = dataThietLap.map((dt, i) => {
+      return {
+        title: dt.name,
+        dataIndex: dt.tits_qtsx_TramXuong_Id,
+        key: dt.tits_qtsx_TramXuong_Id,
         align: "center",
-        children: [],
-      });
-      if (dataThietLap.giaCong) {
-        ThietLap.children.forEach((cd) => {
-          if (cd.title === "THCK(CMC)") {
-            cd.children.push({
-              title: "Gia công",
-              dataIndex: "giaCong",
-              key: "giaCong",
-              align: "center",
-              width: 55,
-            });
-          }
-        });
-      }
-      if (dataThietLap.ed) {
-        ThietLap.children.forEach((cd) => {
-          if (cd.title === "THCK(CMC)") {
-            cd.children.push({
-              title: "ED",
-              dataIndex: "eD",
-              key: "eD",
-              align: "center",
-              width: 50,
-            });
-          }
-        });
-      }
-      if (dataThietLap.xiMa) {
-        ThietLap.children.forEach((cd) => {
-          if (cd.title === "THCK(CMC)") {
-            cd.children.push({
-              title: "Xi mạ",
-              key: "xiMa",
-              dataIndex: "xiMa",
-              align: "center",
-              width: 50,
-            });
-          }
-        });
-      }
-    }
-    if (dataThietLap.nmk) {
-      ThietLap.children.push({
-        title: "NMK",
-        dataIndex: "nMK",
-        key: "nMK",
-        align: "center",
-        width: 50,
-      });
-    }
-    if (
-      dataThietLap.kho ||
-      dataThietLap.lazer ||
-      dataThietLap.lazerDamH ||
-      dataThietLap.cuaVong ||
-      dataThietLap.chanDot ||
-      dataThietLap.vatMep ||
-      dataThietLap.khoanLo ||
-      dataThietLap.xhlkr ||
-      dataThietLap.xhkx ||
-      dataThietLap.phunBi ||
-      dataThietLap.son ||
-      dataThietLap.xlr ||
-      dataThietLap.kiemDinh ||
-      dataThietLap.dongKien
-    ) {
-      ThietLap.children.push({
-        title: "Công ty SMRM & Cấu kiện nặng(TITS)",
-        key: "Công ty SMRM & Cấu kiện nặng(TITS)",
-        align: "center",
-        children: [],
-      });
-      if (dataThietLap.kho) {
-        ThietLap.children.forEach((cd) => {
-          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-            cd.children.push({
-              title: "Kho",
-              dataIndex: "kho",
-              key: "kho",
-              align: "center",
-              width: 50,
-            });
-          }
-        });
-      }
-      if (
-        dataThietLap.lazer ||
-        dataThietLap.lazerDamH ||
-        dataThietLap.cuaVong ||
-        dataThietLap.chanDot ||
-        dataThietLap.vatMep ||
-        dataThietLap.khoanLo
-      ) {
-        ThietLap.children.forEach((cd) => {
-          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-            cd.children.push({
-              title: "Xưởng GCCT",
-              key: "Xưởng GCCT",
-              align: "center",
-              children: [],
-            });
-          }
-        });
-        if (dataThietLap.lazer) {
-          ThietLap.children.forEach((cd) => {
-            if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-              cd.children.forEach((ct) => {
-                if (ct.title === "Xưởng GCCT") {
-                  ct.children.push({
-                    title: "Lazer",
-                    dataIndex: "lazer",
-                    key: "lazer",
-                    align: "center",
-                    width: 50,
-                  });
-                }
-              });
-            }
-          });
-        }
-        if (dataThietLap.lazerDamH) {
-          ThietLap.children.forEach((cd) => {
-            if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-              cd.children.forEach((ct) => {
-                if (ct.title === "Xưởng GCCT") {
-                  ct.children.push({
-                    title: "Lazer Dầm H",
-                    dataIndex: "lazerDamH",
-                    key: "lazerDamH",
-                    align: "center",
-                    width: 50,
-                  });
-                }
-              });
-            }
-          });
-        }
-        if (dataThietLap.cuaVong) {
-          ThietLap.children.forEach((cd) => {
-            if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-              cd.children.forEach((ct) => {
-                if (ct.title === "Xưởng GCCT") {
-                  ct.children.push({
-                    title: "Cưa vòng",
-                    key: "cuaVong",
-                    dataIndex: "cuaVong",
-                    align: "center",
-                    width: 50,
-                  });
-                }
-              });
-            }
-          });
-        }
-        if (dataThietLap.chanDot) {
-          ThietLap.children.forEach((cd) => {
-            if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-              cd.children.forEach((ct) => {
-                if (ct.title === "Xưởng GCCT") {
-                  ct.children.push({
-                    title: "Chấn/ Đột",
-                    key: "chanDot",
-                    dataIndex: "chanDot",
-                    align: "center",
-                    width: 50,
-                  });
-                }
-              });
-            }
-          });
-        }
-        if (dataThietLap.vatMep) {
-          ThietLap.children.forEach((cd) => {
-            if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-              cd.children.forEach((ct) => {
-                if (ct.title === "Xưởng GCCT") {
-                  ct.children.push({
-                    title: "Vát mép",
-                    key: "vatMep",
-                    dataIndex: "vatMep",
-                    align: "center",
-                    width: 50,
-                  });
-                }
-              });
-            }
-          });
-        }
-        if (dataThietLap.khoanLo) {
-          ThietLap.children.forEach((cd) => {
-            if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-              cd.children.forEach((ct) => {
-                if (ct.title === "Xưởng GCCT") {
-                  ct.children.push({
-                    title: "Khoan lỗ",
-                    key: "khoanLo",
-                    dataIndex: "khoanLo",
-                    align: "center",
-                    width: 55,
-                  });
-                }
-              });
-            }
-          });
-        }
-      }
-      if (dataThietLap.xhlkr) {
-        ThietLap.children.forEach((cd) => {
-          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-            cd.children.push({
-              title: "XHLKR",
-              key: "xHLKR",
-              dataIndex: "xHLKR",
-              align: "center",
-              width: 60,
-            });
-          }
-        });
-      }
-      if (dataThietLap.xhkx) {
-        ThietLap.children.forEach((cd) => {
-          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-            cd.children.push({
-              title: "XHKX",
-              key: "xHKX",
-              dataIndex: "xHKX",
-              align: "center",
-              width: 55,
-            });
-          }
-        });
-      }
-      if (dataThietLap.phunBi) {
-        ThietLap.children.forEach((cd) => {
-          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-            cd.children.push({
-              title: "Phun bi",
-              key: "phunBi",
-              dataIndex: "phunBi",
-              align: "center",
-              width: 55,
-            });
-          }
-        });
-      }
-      if (dataThietLap.son) {
-        ThietLap.children.forEach((cd) => {
-          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-            cd.children.push({
-              title: "Sơn",
-              key: "son",
-              dataIndex: "son",
-              align: "center",
-              width: 55,
-            });
-          }
-        });
-      }
-      if (dataThietLap.xlr) {
-        ThietLap.children.forEach((cd) => {
-          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-            cd.children.push({
-              title: "X - LR",
-              key: "xLR",
-              dataIndex: "xLR",
-              align: "center",
-              width: 55,
-            });
-          }
-        });
-      }
-      if (dataThietLap.kiemDinh) {
-        ThietLap.children.forEach((cd) => {
-          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-            cd.children.push({
-              title: "Kiểm định",
-              key: "kiemDinh",
-              dataIndex: "kiemDinh",
-              align: "center",
-              width: 55,
-            });
-          }
-        });
-      }
-      if (dataThietLap.dongKien) {
-        ThietLap.children.forEach((cd) => {
-          if (cd.title === "Công ty SMRM & Cấu kiện nặng(TITS)") {
-            cd.children.push({
-              title: "Đóng kiện",
-              key: "dongKien",
-              dataIndex: "dongKien",
-              align: "center",
-              width: 55,
-            });
-          }
-        });
-      }
-    }
+        width: 55,
+      };
+    });
     return [
       {
         title: "STT",
@@ -687,7 +359,6 @@ function BOMForm({ match, permission, history }) {
       },
       {
         title: "Tên chi tiết",
-        // dataIndex: "tenChiTiet",
         key: "tenChiTiet",
         align: "center",
         width: 150,
@@ -714,53 +385,46 @@ function BOMForm({ match, permission, history }) {
         width: 70,
       },
       {
-        title: "Quy cách(mm)",
-        key: "quyCach",
+        title: "Dài",
+        dataIndex: "dai",
+        key: "dai",
         align: "center",
-        children: [
-          {
-            title: "Dài",
-            dataIndex: "dai",
-            key: "dai",
-            align: "center",
-            width: 50,
-          },
-          {
-            title: "Rộng",
-            dataIndex: "rong",
-            key: "rong",
-            align: "center",
-            width: 50,
-          },
-          {
-            title: "Dày",
-            dataIndex: "day",
-            key: "day",
-            align: "center",
-            width: 50,
-          },
-          {
-            title: "Dn",
-            dataIndex: "dn",
-            key: "dn",
-            align: "center",
-            width: 50,
-          },
-          {
-            title: "Dt",
-            dataIndex: "dt",
-            key: "dt",
-            align: "center",
-            width: 50,
-          },
-          {
-            title: "Chung",
-            dataIndex: "chung",
-            key: "chung",
-            align: "center",
-            width: 55,
-          },
-        ],
+        width: 50,
+      },
+      {
+        title: "Rộng",
+        dataIndex: "rong",
+        key: "rong",
+        align: "center",
+        width: 50,
+      },
+      {
+        title: "Dày",
+        dataIndex: "day",
+        key: "day",
+        align: "center",
+        width: 50,
+      },
+      {
+        title: "Dn",
+        dataIndex: "dn",
+        key: "dn",
+        align: "center",
+        width: 50,
+      },
+      {
+        title: "Dt",
+        dataIndex: "dt",
+        key: "dt",
+        align: "center",
+        width: 50,
+      },
+      {
+        title: "Chung",
+        dataIndex: "chung",
+        key: "chung",
+        align: "center",
+        width: 55,
       },
       {
         title: "SL/SP",
@@ -776,7 +440,42 @@ function BOMForm({ match, permission, history }) {
         align: "center",
         width: 55,
       },
-      ThietLap,
+      {
+        title: "Gia công",
+        dataIndex: "giaCong",
+        key: "giaCong",
+        align: "center",
+        width: 55,
+      },
+      {
+        title: "ED",
+        dataIndex: "ed",
+        key: "ed",
+        align: "center",
+        width: 55,
+      },
+      {
+        title: "Xi mạ",
+        dataIndex: "xiMa",
+        key: "xiMa",
+        align: "center",
+        width: 55,
+      },
+      {
+        title: "NMK",
+        dataIndex: "nmk",
+        key: "nmk",
+        align: "center",
+        width: 55,
+      },
+      {
+        title: "Kho",
+        dataIndex: "kho",
+        key: "kho",
+        align: "center",
+        width: 55,
+      },
+      ...data,
       {
         title: "Phương pháp gia công",
         dataIndex: "phuongPhapGiaCong",
@@ -830,13 +529,10 @@ function BOMForm({ match, permission, history }) {
     };
   });
   const TaiFileMau = () => {
-    const param = convertObjectToUrlParams({
-      tits_qtsx_SanPham_Id: SanPham,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_BOM/export-file?${param}`,
+          `tits_qtsx_BOM/export-file?tits_qtsx_SanPham_Id=${SanPham}`,
           "POST",
           dataThietLap,
           "DOWLOAD",
@@ -922,7 +618,62 @@ function BOMForm({ match, permission, history }) {
             range: { s: { c: 5, r: 5 }, e: { c: 5, r: 5 } },
           })[0]
           .toString()
-          .trim() === "Quy cách (mm)" &&
+          .trim() === "Dài" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 6, r: 5 }, e: { c: 6, r: 5 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 6, r: 5 }, e: { c: 6, r: 5 } },
+          })[0]
+          .toString()
+          .trim() === "Rộng" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 7, r: 5 }, e: { c: 7, r: 5 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 7, r: 5 }, e: { c: 7, r: 5 } },
+          })[0]
+          .toString()
+          .trim() === "Dày" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 8, r: 5 }, e: { c: 8, r: 5 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 8, r: 5 }, e: { c: 8, r: 5 } },
+          })[0]
+          .toString()
+          .trim() === "Dn" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 9, r: 5 }, e: { c: 9, r: 5 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 9, r: 5 }, e: { c: 9, r: 5 } },
+          })[0]
+          .toString()
+          .trim() === "Dt" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 10, r: 5 }, e: { c: 10, r: 5 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 10, r: 5 }, e: { c: 10, r: 5 } },
+          })[0]
+          .toString()
+          .trim() === "Chung" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 11, r: 5 }, e: { c: 11, r: 5 } },
@@ -947,72 +698,6 @@ function BOMForm({ match, permission, history }) {
           .trim() === "Kl/xe" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 5, r: 8 }, e: { c: 5, r: 8 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 5, r: 8 }, e: { c: 5, r: 8 } },
-          })[0]
-          .toString()
-          .trim() === "Dài" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 6, r: 8 }, e: { c: 6, r: 8 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 6, r: 8 }, e: { c: 6, r: 8 } },
-          })[0]
-          .toString()
-          .trim() === "Rộng" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 7, r: 8 }, e: { c: 7, r: 8 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 7, r: 8 }, e: { c: 7, r: 8 } },
-          })[0]
-          .toString()
-          .trim() === "Dày" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 8, r: 8 }, e: { c: 8, r: 8 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 8, r: 8 }, e: { c: 8, r: 8 } },
-          })[0]
-          .toString()
-          .trim() === "Dn" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 9, r: 8 }, e: { c: 9, r: 8 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 9, r: 8 }, e: { c: 9, r: 8 } },
-          })[0]
-          .toString()
-          .trim() === "Dt" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 10, r: 8 }, e: { c: 10, r: 8 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 10, r: 8 }, e: { c: 10, r: 8 } },
-          })[0]
-          .toString()
-          .trim() === "Chung" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
           range: { s: { c: 13, r: 5 }, e: { c: 13, r: 5 } },
         })[0] &&
         XLSX.utils
@@ -1021,951 +706,77 @@ function BOMForm({ match, permission, history }) {
             range: { s: { c: 13, r: 5 }, e: { c: 13, r: 5 } },
           })[0]
           .toString()
-          .trim() === "Chuyển";
-
-      if (dataThietLap.giaCong || dataThietLap.ed || dataThietLap.xiMa) {
+          .trim() === "Gia công" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 14, r: 5 }, e: { c: 14, r: 5 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 14, r: 5 }, e: { c: 14, r: 5 } },
+          })[0]
+          .toString()
+          .trim() === "ED" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 15, r: 5 }, e: { c: 15, r: 5 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 15, r: 5 }, e: { c: 15, r: 5 } },
+          })[0]
+          .toString()
+          .trim() === "Xi mạ" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 16, r: 5 }, e: { c: 16, r: 5 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 16, r: 5 }, e: { c: 16, r: 5 } },
+          })[0]
+          .toString()
+          .trim() === "NMK" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 17, r: 5 }, e: { c: 17, r: 5 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 17, r: 5 }, e: { c: 17, r: 5 } },
+          })[0]
+          .toString()
+          .trim() === "Kho";
+      dataThietLap.forEach((dt, index) => {
         if (
           XLSX.utils.sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 13, r: 6 }, e: { c: 13, r: 6 } },
+            range: {
+              s: { c: 17 + index + 1, r: 5 },
+              e: { c: 17 + index + 1, r: 5 },
+            },
           })[0] &&
-          !XLSX.utils
+          XLSX.utils
             .sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: 13, r: 6 }, e: { c: 13, r: 6 } },
-            })[0]
-            .toString()
-            .trim() === "THCK(CMC)"
-        ) {
-          checkMau = false;
-        }
-        if (dataThietLap.giaCong) {
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: 13, r: 7 }, e: { c: 13, r: 7 } },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: 13, r: 7 }, e: { c: 13, r: 7 } },
-              })[0]
-              .toString()
-              .trim() === "Gia công"
-          ) {
-            checkMau = false;
-          }
-        }
-        if (dataThietLap.ed) {
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
               header: 1,
               range: {
-                s: { c: !dataThietLap.giaCong ? 13 : 14, r: 7 },
-                e: { c: 14, r: 7 },
+                s: { c: 17 + index + 1, r: 5 },
+                e: { c: 17 + index + 1, r: 5 },
               },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: {
-                  s: { c: !dataThietLap.giaCong ? 13 : 14, r: 7 },
-                  e: { c: 14, r: 7 },
-                },
-              })[0]
-              .toString()
-              .trim() === "ED"
-          ) {
-            checkMau = false;
-          }
-        }
-        if (dataThietLap.xiMa) {
-          const colum = dataThietLap.giaCong
-            ? dataThietLap.ed
-              ? 13 + 2
-              : 13 + 1
-            : dataThietLap.ed
-            ? 13 + 1
-            : 13;
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-              })[0]
-              .toString()
-              .trim() === "Xi mạ"
-          ) {
-            checkMau = false;
-          }
-        }
-      }
-      if (dataThietLap.nmk) {
-        let colum = 13;
-        if (dataThietLap.ed) {
-          colum += 1;
-        }
-        if (dataThietLap.giaCong) {
-          colum += 1;
-        }
-        if (dataThietLap.xiMa) {
-          colum += 1;
-        }
-
-        if (
-          XLSX.utils.sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: colum, r: 6 }, e: { c: colum, r: 6 } },
-          })[0] &&
-          !XLSX.utils
-            .sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum, r: 6 }, e: { c: colum, r: 6 } },
             })[0]
             .toString()
-            .trim() === "NMK"
+            .trim() !== dt.name
         ) {
           checkMau = false;
         }
-      }
-      if (
-        dataThietLap.kho ||
-        dataThietLap.lazer ||
-        dataThietLap.lazerDamH ||
-        dataThietLap.cuaVong ||
-        dataThietLap.chanDot ||
-        dataThietLap.vatMep ||
-        dataThietLap.khoanLo ||
-        dataThietLap.xhlkr ||
-        dataThietLap.xhkx ||
-        dataThietLap.phunBi ||
-        dataThietLap.son ||
-        dataThietLap.xlr ||
-        dataThietLap.kiemDinh ||
-        dataThietLap.dongKien
-      ) {
-        let colum = 13;
-        if (dataThietLap.ed) {
-          colum += 1;
-        }
-        if (dataThietLap.giaCong) {
-          colum += 1;
-        }
-        if (dataThietLap.xiMa) {
-          colum += 1;
-        }
-        if (dataThietLap.nmk) {
-          colum += 1;
-        }
-        if (
-          XLSX.utils.sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: colum, r: 6 }, e: { c: colum, r: 6 } },
-          })[0] &&
-          !XLSX.utils
-            .sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum, r: 6 }, e: { c: colum, r: 6 } },
-            })[0]
-            .toString()
-            .trim() === "Công ty SMRM & Cấu kiện nặng(TITS)"
-        ) {
-          checkMau = false;
-        }
-        if (dataThietLap.kho) {
-          let colum = 13;
-          if (dataThietLap.ed) {
-            colum += 1;
-          }
-          if (dataThietLap.giaCong) {
-            colum += 1;
-          }
-          if (dataThietLap.xiMa) {
-            colum += 1;
-          }
-          if (dataThietLap.nmk) {
-            colum += 1;
-          }
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-              })[0]
-              .toString()
-              .trim() === "Kho"
-          ) {
-            checkMau = false;
-          }
-        }
-        if (
-          dataThietLap.lazer ||
-          dataThietLap.lazerDamH ||
-          dataThietLap.cuaVong ||
-          dataThietLap.chanDot ||
-          dataThietLap.vatMep ||
-          dataThietLap.khoanLo
-        ) {
-          let colum = 13;
-          if (dataThietLap.ed) {
-            colum += 1;
-          }
-          if (dataThietLap.giaCong) {
-            colum += 1;
-          }
-          if (dataThietLap.xiMa) {
-            colum += 1;
-          }
-          if (dataThietLap.nmk) {
-            colum += 1;
-          }
-          if (dataThietLap.kho) {
-            colum += 1;
-          }
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-              })[0]
-              .toString()
-              .trim() === "Xưởng GCCT"
-          ) {
-            checkMau = false;
-          }
-          if (dataThietLap.lazer) {
-            let colum = 13;
-            if (dataThietLap.ed) {
-              colum += 1;
-            }
-            if (dataThietLap.giaCong) {
-              colum += 1;
-            }
-            if (dataThietLap.xiMa) {
-              colum += 1;
-            }
-            if (dataThietLap.nmk) {
-              colum += 1;
-            }
-            if (dataThietLap.kho) {
-              colum += 1;
-            }
-            if (
-              XLSX.utils.sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 8 }, e: { c: colum, r: 8 } },
-              })[0] &&
-              !XLSX.utils
-                .sheet_to_json(worksheet, {
-                  header: 1,
-                  range: { s: { c: colum, r: 8 }, e: { c: colum, r: 8 } },
-                })[0]
-                .toString()
-                .trim() === "Lazer"
-            ) {
-              checkMau = false;
-            }
-          }
-          if (dataThietLap.lazerDamH) {
-            let colum = 13;
-            if (dataThietLap.ed) {
-              colum += 1;
-            }
-            if (dataThietLap.giaCong) {
-              colum += 1;
-            }
-            if (dataThietLap.xiMa) {
-              colum += 1;
-            }
-            if (dataThietLap.nmk) {
-              colum += 1;
-            }
-            if (dataThietLap.kho) {
-              colum += 1;
-            }
-            if (dataThietLap.lazer) {
-              colum += 1;
-            }
-            if (
-              XLSX.utils.sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 8 }, e: { c: colum, r: 8 } },
-              })[0] &&
-              !XLSX.utils
-                .sheet_to_json(worksheet, {
-                  header: 1,
-                  range: { s: { c: colum, r: 8 }, e: { c: colum, r: 8 } },
-                })[0]
-                .toString()
-                .trim() === "Lazer Dầm H"
-            ) {
-              checkMau = false;
-            }
-          }
-          if (dataThietLap.cuaVong) {
-            let colum = 13;
-            if (dataThietLap.ed) {
-              colum += 1;
-            }
-            if (dataThietLap.giaCong) {
-              colum += 1;
-            }
-            if (dataThietLap.xiMa) {
-              colum += 1;
-            }
-            if (dataThietLap.nmk) {
-              colum += 1;
-            }
-            if (dataThietLap.kho) {
-              colum += 1;
-            }
-            if (dataThietLap.lazer) {
-              colum += 1;
-            }
-            if (dataThietLap.lazerDamH) {
-              colum += 1;
-            }
-            if (
-              XLSX.utils.sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 8 }, e: { c: colum, r: 8 } },
-              })[0] &&
-              !XLSX.utils
-                .sheet_to_json(worksheet, {
-                  header: 1,
-                  range: { s: { c: colum, r: 8 }, e: { c: colum, r: 8 } },
-                })[0]
-                .toString()
-                .trim() === "Cưa vòng"
-            ) {
-              checkMau = false;
-            }
-          }
-          if (dataThietLap.chanDot) {
-            let colum = 13;
-            if (dataThietLap.ed) {
-              colum += 1;
-            }
-            if (dataThietLap.giaCong) {
-              colum += 1;
-            }
-            if (dataThietLap.xiMa) {
-              colum += 1;
-            }
-            if (dataThietLap.nmk) {
-              colum += 1;
-            }
-            if (dataThietLap.kho) {
-              colum += 1;
-            }
-            if (dataThietLap.lazer) {
-              colum += 1;
-            }
-            if (dataThietLap.lazerDamH) {
-              colum += 1;
-            }
-            if (dataThietLap.cuaVong) {
-              colum += 1;
-            }
-            if (
-              XLSX.utils.sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 8 }, e: { c: colum, r: 8 } },
-              })[0] &&
-              !XLSX.utils
-                .sheet_to_json(worksheet, {
-                  header: 1,
-                  range: { s: { c: colum, r: 8 }, e: { c: colum, r: 8 } },
-                })[0]
-                .toString()
-                .trim() === "Chấn/ đột"
-            ) {
-              checkMau = false;
-            }
-          }
-          if (dataThietLap.vatMep) {
-            let colum = 13;
-            if (dataThietLap.ed) {
-              colum += 1;
-            }
-            if (dataThietLap.giaCong) {
-              colum += 1;
-            }
-            if (dataThietLap.xiMa) {
-              colum += 1;
-            }
-            if (dataThietLap.nmk) {
-              colum += 1;
-            }
-            if (dataThietLap.kho) {
-              colum += 1;
-            }
-            if (dataThietLap.lazer) {
-              colum += 1;
-            }
-            if (dataThietLap.lazerDamH) {
-              colum += 1;
-            }
-            if (dataThietLap.cuaVong) {
-              colum += 1;
-            }
-            if (dataThietLap.chanDot) {
-              colum += 1;
-            }
-            if (
-              XLSX.utils.sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 8 }, e: { c: colum, r: 8 } },
-              })[0] &&
-              !XLSX.utils
-                .sheet_to_json(worksheet, {
-                  header: 1,
-                  range: { s: { c: colum, r: 8 }, e: { c: colum, r: 8 } },
-                })[0]
-                .toString()
-                .trim() === "Vát mép"
-            ) {
-              checkMau = false;
-            }
-          }
-          if (dataThietLap.khoanLo) {
-            let colum = 13;
-            if (dataThietLap.ed) {
-              colum += 1;
-            }
-            if (dataThietLap.giaCong) {
-              colum += 1;
-            }
-            if (dataThietLap.xiMa) {
-              colum += 1;
-            }
-            if (dataThietLap.nmk) {
-              colum += 1;
-            }
-            if (dataThietLap.kho) {
-              colum += 1;
-            }
-            if (dataThietLap.lazer) {
-              colum += 1;
-            }
-            if (dataThietLap.lazerDamH) {
-              colum += 1;
-            }
-            if (dataThietLap.cuaVong) {
-              colum += 1;
-            }
-            if (dataThietLap.chanDot) {
-              colum += 1;
-            }
-            if (dataThietLap.vatMep) {
-              colum += 1;
-            }
-            if (
-              XLSX.utils.sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 8 }, e: { c: colum, r: 8 } },
-              })[0] &&
-              !XLSX.utils
-                .sheet_to_json(worksheet, {
-                  header: 1,
-                  range: { s: { c: colum, r: 8 }, e: { c: colum, r: 8 } },
-                })[0]
-                .toString()
-                .trim() === "Khoan lỗ"
-            ) {
-              checkMau = false;
-            }
-          }
-        }
-        if (dataThietLap.xhlkr) {
-          let colum = 13;
-          if (dataThietLap.ed) {
-            colum += 1;
-          }
-          if (dataThietLap.giaCong) {
-            colum += 1;
-          }
-          if (dataThietLap.xiMa) {
-            colum += 1;
-          }
-          if (dataThietLap.nmk) {
-            colum += 1;
-          }
-          if (dataThietLap.kho) {
-            colum += 1;
-          }
-          if (dataThietLap.lazer) {
-            colum += 1;
-          }
-          if (dataThietLap.lazerDamH) {
-            colum += 1;
-          }
-          if (dataThietLap.cuaVong) {
-            colum += 1;
-          }
-          if (dataThietLap.chanDot) {
-            colum += 1;
-          }
-          if (dataThietLap.vatMep) {
-            colum += 1;
-          }
-          if (dataThietLap.khoanLo) {
-            colum += 1;
-          }
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-              })[0]
-              .toString()
-              .trim() === "XHLKR"
-          ) {
-            checkMau = false;
-          }
-        }
-        if (dataThietLap.xhkx) {
-          let colum = 13;
-          if (dataThietLap.ed) {
-            colum += 1;
-          }
-          if (dataThietLap.giaCong) {
-            colum += 1;
-          }
-          if (dataThietLap.xiMa) {
-            colum += 1;
-          }
-          if (dataThietLap.nmk) {
-            colum += 1;
-          }
-          if (dataThietLap.kho) {
-            colum += 1;
-          }
-          if (dataThietLap.lazer) {
-            colum += 1;
-          }
-          if (dataThietLap.lazerDamH) {
-            colum += 1;
-          }
-          if (dataThietLap.cuaVong) {
-            colum += 1;
-          }
-          if (dataThietLap.chanDot) {
-            colum += 1;
-          }
-          if (dataThietLap.vatMep) {
-            colum += 1;
-          }
-          if (dataThietLap.khoanLo) {
-            colum += 1;
-          }
-          if (dataThietLap.xhlkr) {
-            colum += 1;
-          }
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-              })[0]
-              .toString()
-              .trim() === "XHKX"
-          ) {
-            checkMau = false;
-          }
-        }
-        if (dataThietLap.phunBi) {
-          let colum = 13;
-          if (dataThietLap.ed) {
-            colum += 1;
-          }
-          if (dataThietLap.giaCong) {
-            colum += 1;
-          }
-          if (dataThietLap.xiMa) {
-            colum += 1;
-          }
-          if (dataThietLap.nmk) {
-            colum += 1;
-          }
-          if (dataThietLap.kho) {
-            colum += 1;
-          }
-          if (dataThietLap.lazer) {
-            colum += 1;
-          }
-          if (dataThietLap.lazerDamH) {
-            colum += 1;
-          }
-          if (dataThietLap.cuaVong) {
-            colum += 1;
-          }
-          if (dataThietLap.chanDot) {
-            colum += 1;
-          }
-          if (dataThietLap.vatMep) {
-            colum += 1;
-          }
-          if (dataThietLap.khoanLo) {
-            colum += 1;
-          }
-          if (dataThietLap.xhlkr) {
-            colum += 1;
-          }
-          if (dataThietLap.xhkx) {
-            colum += 1;
-          }
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-              })[0]
-              .toString()
-              .trim() === "Phun bi"
-          ) {
-            checkMau = false;
-          }
-        }
-        if (dataThietLap.son) {
-          let colum = 13;
-          if (dataThietLap.ed) {
-            colum += 1;
-          }
-          if (dataThietLap.giaCong) {
-            colum += 1;
-          }
-          if (dataThietLap.xiMa) {
-            colum += 1;
-          }
-          if (dataThietLap.nmk) {
-            colum += 1;
-          }
-          if (dataThietLap.kho) {
-            colum += 1;
-          }
-          if (dataThietLap.lazer) {
-            colum += 1;
-          }
-          if (dataThietLap.lazerDamH) {
-            colum += 1;
-          }
-          if (dataThietLap.cuaVong) {
-            colum += 1;
-          }
-          if (dataThietLap.chanDot) {
-            colum += 1;
-          }
-          if (dataThietLap.vatMep) {
-            colum += 1;
-          }
-          if (dataThietLap.khoanLo) {
-            colum += 1;
-          }
-          if (dataThietLap.xhlkr) {
-            colum += 1;
-          }
-          if (dataThietLap.xhkx) {
-            colum += 1;
-          }
-          if (dataThietLap.phunBi) {
-            colum += 1;
-          }
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-              })[0]
-              .toString()
-              .trim() === "Sơn"
-          ) {
-            checkMau = false;
-          }
-        }
-        if (dataThietLap.xlr) {
-          let colum = 13;
-          if (dataThietLap.ed) {
-            colum += 1;
-          }
-          if (dataThietLap.giaCong) {
-            colum += 1;
-          }
-          if (dataThietLap.xiMa) {
-            colum += 1;
-          }
-          if (dataThietLap.nmk) {
-            colum += 1;
-          }
-          if (dataThietLap.kho) {
-            colum += 1;
-          }
-          if (dataThietLap.lazer) {
-            colum += 1;
-          }
-          if (dataThietLap.lazerDamH) {
-            colum += 1;
-          }
-          if (dataThietLap.cuaVong) {
-            colum += 1;
-          }
-          if (dataThietLap.chanDot) {
-            colum += 1;
-          }
-          if (dataThietLap.vatMep) {
-            colum += 1;
-          }
-          if (dataThietLap.khoanLo) {
-            colum += 1;
-          }
-          if (dataThietLap.xhlkr) {
-            colum += 1;
-          }
-          if (dataThietLap.xhkx) {
-            colum += 1;
-          }
-          if (dataThietLap.phunBi) {
-            colum += 1;
-          }
-          if (dataThietLap.son) {
-            colum += 1;
-          }
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-              })[0]
-              .toString() === "X - LR"
-          ) {
-            checkMau = false;
-          }
-        }
-        if (dataThietLap.kiemDinh) {
-          let colum = 13;
-          if (dataThietLap.ed) {
-            colum += 1;
-          }
-          if (dataThietLap.giaCong) {
-            colum += 1;
-          }
-          if (dataThietLap.xiMa) {
-            colum += 1;
-          }
-          if (dataThietLap.nmk) {
-            colum += 1;
-          }
-          if (dataThietLap.kho) {
-            colum += 1;
-          }
-          if (dataThietLap.lazer) {
-            colum += 1;
-          }
-          if (dataThietLap.lazerDamH) {
-            colum += 1;
-          }
-          if (dataThietLap.cuaVong) {
-            colum += 1;
-          }
-          if (dataThietLap.chanDot) {
-            colum += 1;
-          }
-          if (dataThietLap.vatMep) {
-            colum += 1;
-          }
-          if (dataThietLap.khoanLo) {
-            colum += 1;
-          }
-          if (dataThietLap.xhlkr) {
-            colum += 1;
-          }
-          if (dataThietLap.xhkx) {
-            colum += 1;
-          }
-          if (dataThietLap.phunBi) {
-            colum += 1;
-          }
-          if (dataThietLap.son) {
-            colum += 1;
-          }
-          if (dataThietLap.xlr) {
-            colum += 1;
-          }
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-              })[0]
-              .toString()
-              .trim() === "Kiểm định"
-          ) {
-            checkMau = false;
-          }
-        }
-        if (dataThietLap.dongKien) {
-          let colum = 13;
-          if (dataThietLap.ed) {
-            colum += 1;
-          }
-          if (dataThietLap.giaCong) {
-            colum += 1;
-          }
-          if (dataThietLap.xiMa) {
-            colum += 1;
-          }
-          if (dataThietLap.nmk) {
-            colum += 1;
-          }
-          if (dataThietLap.kho) {
-            colum += 1;
-          }
-          if (dataThietLap.lazer) {
-            colum += 1;
-          }
-          if (dataThietLap.lazerDamH) {
-            colum += 1;
-          }
-          if (dataThietLap.cuaVong) {
-            colum += 1;
-          }
-          if (dataThietLap.chanDot) {
-            colum += 1;
-          }
-          if (dataThietLap.vatMep) {
-            colum += 1;
-          }
-          if (dataThietLap.khoanLo) {
-            colum += 1;
-          }
-          if (dataThietLap.xhlkr) {
-            colum += 1;
-          }
-          if (dataThietLap.xhkx) {
-            colum += 1;
-          }
-          if (dataThietLap.phunBi) {
-            colum += 1;
-          }
-          if (dataThietLap.son) {
-            colum += 1;
-          }
-          if (dataThietLap.xlr) {
-            colum += 1;
-          }
-          if (dataThietLap.kiemDinh) {
-            colum += 1;
-          }
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum, r: 7 }, e: { c: colum, r: 7 } },
-              })[0]
-              .toString()
-              .trim() === "Đóng kiện"
-          ) {
-            checkMau = false;
-          }
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum + 1, r: 5 }, e: { c: colum + 1, r: 5 } },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum + 1, r: 5 }, e: { c: colum + 1, r: 5 } },
-              })[0]
-              .toString()
-              .trim() === "Phương pháp gia công"
-          ) {
-            checkMau = false;
-          }
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum + 2, r: 5 }, e: { c: colum + 2, r: 5 } },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum + 2, r: 5 }, e: { c: colum + 2, r: 5 } },
-              })[0]
-              .toString()
-              .trim() === "Mã trạm"
-          ) {
-            checkMau = false;
-          }
-          if (
-            XLSX.utils.sheet_to_json(worksheet, {
-              header: 1,
-              range: { s: { c: colum + 3, r: 5 }, e: { c: colum + 3, r: 5 } },
-            })[0] &&
-            !XLSX.utils
-              .sheet_to_json(worksheet, {
-                header: 1,
-                range: { s: { c: colum + 3, r: 5 }, e: { c: colum + 3, r: 5 } },
-              })[0]
-              .toString()
-              .trim() === "Ghi chú kĩ thuật"
-          ) {
-            checkMau = false;
-          }
-        }
-      }
+      });
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
           range: 5,
-        });
-        const data1 = XLSX.utils.sheet_to_json(worksheet, {
-          range: 6,
-        });
-        const data2 = XLSX.utils.sheet_to_json(worksheet, {
-          range: 7,
-        });
-        const data3 = XLSX.utils.sheet_to_json(worksheet, {
-          range: 8,
         });
         const MCT = "Mã số chi tiết";
         const TCT = "Tên chi tiết";
@@ -1989,7 +800,17 @@ function BOMForm({ match, permission, history }) {
               (d.STT !== 0 || d.STT === 0) &&
               d.STT.toString().trim() !== "")
           ) {
+            const object = {};
+            dataThietLap.forEach((dt) => {
+              object[dt.tits_qtsx_TramXuong_Id] =
+                (d[dt.name] && d[dt.name] !== 0) || d[dt.name] === 0
+                  ? d[dt.name].toString().trim() !== ""
+                    ? d[dt.name].toString().trim()
+                    : undefined
+                  : undefined;
+            });
             NewData.push({
+              ...object,
               STT:
                 (d.STT && d.STT !== 0) || d.STT === 0
                   ? d.STT.toString().trim() !== ""
@@ -2050,251 +871,52 @@ function BOMForm({ match, permission, history }) {
                     ? d[MT].toString().trim()
                     : undefined
                   : undefined,
+              dai:
+                (d["Dài"] && d["Dài"] !== 0) || d["Dài"] === 0
+                  ? d["Dài"].toString().trim() !== ""
+                    ? d["Dài"].toString().trim()
+                    : undefined
+                  : undefined,
+              rong:
+                (d["Rộng"] && d["Rộng"] !== 0) || d["Rộng"] === 0
+                  ? d["Rộng"].toString().trim() !== ""
+                    ? d["Rộng"].toString().trim()
+                    : undefined
+                  : undefined,
+              day:
+                (d["Dày"] && d["Dày"] !== 0) || d["Dày"] === 0
+                  ? d["Dày"].toString().trim() !== ""
+                    ? d["Dày"].toString().trim()
+                    : undefined
+                  : undefined,
+              dn:
+                (d["Dn"] && d["Dn"] !== 0) || d["Dn"] === 0
+                  ? d["Dn"].toString().trim() !== ""
+                    ? d["Dn"].toString().trim()
+                    : undefined
+                  : undefined,
+              dt:
+                (d["Dt"] && d["Dt"] !== 0) || d["Dt"] === 0
+                  ? d["Dt"].toString().trim() !== ""
+                    ? d["Dt"].toString().trim()
+                    : undefined
+                  : undefined,
+              chung:
+                (d["Chung"] && d["Chung"] !== 0) || d["Chung"] === 0
+                  ? d["Chung"].toString().trim() !== ""
+                    ? d["Chung"].toString().trim()
+                    : undefined
+                  : undefined,
+              kho:
+                (d["Kho"] && d["Kho"] !== 0) || d["Kho"] === 0
+                  ? d["Kho"].toString().trim() !== ""
+                    ? d["Kho"].toString().trim()
+                    : undefined
+                  : undefined,
             });
           }
         });
-        data1.forEach((d) => {
-          if (
-            d.__EMPTY_1 &&
-            d.__EMPTY_1.toString().trim() !== "" &&
-            d.__EMPTY_2 &&
-            d.__EMPTY_2.toString().trim() !== "" &&
-            ((d.NMK && d.NMK !== 0) || d.NMK === 0) &&
-            d.NMK.toString().trim() !== ""
-          ) {
-            NewData.forEach((dt) => {
-              if (dt.maChiTiet === d.__EMPTY_1) {
-                dt.nMK =
-                  (d.NMK && d.NMK !== 0) || d.NMK === 0
-                    ? d.NMK.toString().trim() !== ""
-                      ? d.NMK.toString().trim()
-                      : undefined
-                    : undefined;
-              }
-            });
-          }
-        });
-        data2.forEach((d) => {
-          if (
-            d.__EMPTY_1 &&
-            d.__EMPTY_1.toString().trim() !== "" &&
-            d.__EMPTY_2 &&
-            d.__EMPTY_2.toString().trim() !== "" &&
-            ((((d.ED && d.ED !== 0) || d.ED === 0) &&
-              d.ED.toString().trim() !== "") ||
-              (((d.Kho && d.Kho !== 0) || d.Kho === 0) &&
-                d.Kho.toString().trim() !== "") ||
-              (((d.XHLKR && d.XHLKR !== 0) || d.XHLKR === 0) &&
-                d.XHKX.toString().trim() !== "") ||
-              (((d.XHKX && d.XHKX !== 0) || d.XHKX === 0) &&
-                d.XHLKR.toString().trim() !== "") ||
-              (((d["Kiểm định"] && d["Kiểm định"] !== 0) ||
-                d["Kiểm định"] === 0) &&
-                d["Kiểm định"].toString().trim() !== "") ||
-              (((d["Gia công"] && d["Gia công"] !== 0) ||
-                d["Gia công"] === 0) &&
-                d["Gia công"].toString().trim() !== "") ||
-              (((d["Xi mạ"] && d["Xi mạ"] !== 0) || d["Xi mạ"] === 0) &&
-                d["Xi mạ"].toString().trim() !== "") ||
-              (((d["Đóng kiện"] && d["Đóng kiện"] !== 0) ||
-                d["Đóng kiện"] === 0) &&
-                d["Đóng kiện"].toString().trim() !== "") ||
-              (((d["Sơn"] && d["Sơn"] !== 0) || d["Sơn"] === 0) &&
-                d["Sơn"].toString().trim() !== "") ||
-              (((d["Phun bi"] && d["Phun bi"] !== 0) || d["Phun bi"] === 0) &&
-                d["Phun bi"].toString().trim() !== "") ||
-              (((d["X - LR"] && d["X - LR"] !== 0) || d["X - LR"] === 0) &&
-                d["X - LR"].toString().trim() !== ""))
-          ) {
-            NewData.forEach((dt) => {
-              if (dt.maChiTiet === d.__EMPTY_1) {
-                dt.eD =
-                  (d.ED && d.ED !== 0) || d.ED === 0
-                    ? d.ED.toString().trim() !== ""
-                      ? d.ED.toString().trim()
-                      : undefined
-                    : undefined;
-                dt.kho =
-                  (d.Kho && d.Kho !== 0) || d.Kho === 0
-                    ? d.Kho.toString().trim() !== ""
-                      ? d.Kho.toString().trim()
-                      : undefined
-                    : undefined;
-                dt.xHLKR =
-                  (d.XHLKR && d.XHLKR !== 0) || d.XHLKR === 0
-                    ? d.XHLKR.toString().trim() !== ""
-                      ? d.XHLKR.toString().trim()
-                      : undefined
-                    : undefined;
-                dt.xHKX =
-                  (d.XHKX && d.XHKX !== 0) || d.XHKX === 0
-                    ? d.XHKX.toString().trim() !== ""
-                      ? d.XHKX.toString().trim()
-                      : undefined
-                    : undefined;
-                dt.kiemDinh =
-                  (d["Kiểm định"] && d["Kiểm định"] !== 0) ||
-                  d["Kiểm định"] === 0
-                    ? d["Kiểm định"].toString().trim() !== ""
-                      ? d["Kiểm định"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.giaCong =
-                  (d["Gia công"] && d["Gia công"] !== 0) || d["Gia công"] === 0
-                    ? d["Gia công"].toString().trim() !== ""
-                      ? d["Gia công"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.xiMa =
-                  (d["Xi mạ"] && d["Xi mạ"] !== 0) || d["Xi mạ"] === 0
-                    ? d["Xi mạ"].toString().trim() !== ""
-                      ? d["Xi mạ"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.dongKien =
-                  (d["Đóng kiện"] && d["Đóng kiện"] !== 0) ||
-                  d["Đóng kiện"] === 0
-                    ? d["Đóng kiện"].toString().trim() !== ""
-                      ? d["Đóng kiện"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.son =
-                  (d["Sơn"] && d["Sơn"] !== 0) || d["Sơn"] === 0
-                    ? d["Sơn"].toString().trim() !== ""
-                      ? d["Sơn"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.phunBi =
-                  (d["Phun bi"] && d["Phun bi"] !== 0) || d["Phun bi"] === 0
-                    ? d["Phun bi"].toString().trim() !== ""
-                      ? d["Phun bi"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.xLR =
-                  (d["X - LR"] && d["X - LR"] !== 0) || d["X - LR"] === 0
-                    ? d["X - LR"].toString().trim() !== ""
-                      ? d["X - LR"].toString().trim()
-                      : undefined
-                    : undefined;
-              }
-            });
-          }
-        });
-        data3.forEach((d) => {
-          if (
-            d.__EMPTY_1 &&
-            d.__EMPTY_1.toString().trim() !== "" &&
-            d.__EMPTY_2 &&
-            d.__EMPTY_2.toString().trim() !== "" &&
-            ((((d["Lazer"] && d["Lazer"] !== 0) || d["Lazer"] === 0) &&
-              d["Lazer"].toString().trim() !== "") ||
-              (((d.Chung && d.Chung !== 0) || d.Chung === 0) &&
-                d.Chung.toString().trim() !== "") ||
-              (((d.Dn && d.Dn !== 0) || d.Dn === 0) &&
-                d.Dn.toString().trim() !== "") ||
-              (((d.Dt && d.Dt !== 0) || d.Dt === 0) &&
-                d.Dt.toString().trim() !== "") ||
-              (((d["Dài"] && d["Dài"] !== 0) || d["Dài"] === 0) &&
-                d["Dài"].toString().trim() !== "") ||
-              (((d["Rộng"] && d["Rộng"] !== 0) || d["Rộng"] === 0) &&
-                d["Rộng"].toString().trim() !== "") ||
-              (((d["Dày"] && d["Dày"] !== 0) || d["Dày"] === 0) &&
-                d["Dày"].toString().trim() !== "") ||
-              (((d["Lazer Dầm H"] && d["Lazer Dầm H"] !== 0) ||
-                d["Lazer Dầm H"] === 0) &&
-                d["Lazer Dầm H"].toString().trim() !== "") ||
-              (((d["Cưa vòng"] && d["Cưa vòng"] !== 0) ||
-                d["Cưa vòng"] === 0) &&
-                d["Cưa vòng"].toString().trim() !== "") ||
-              (((d["Chấn/ đột"] && d["Chấn/ đột"] !== 0) ||
-                d["Chấn/ đột"] === 0) &&
-                d["Chấn/ đột"].toString().trim() !== "") ||
-              (((d["Vát mép"] && d["Vát mép"] !== 0) || d["Vát mép"] === 0) &&
-                d["Vát mép"].toString().trim() !== "") ||
-              (((d["Khoan lỗ"] && d["Khoan lỗ"] !== 0) ||
-                d["Khoan lỗ"] === 0) &&
-                d["Khoan lỗ"].toString().trim() !== ""))
-          ) {
-            NewData.forEach((dt) => {
-              if (dt.maChiTiet === d.__EMPTY_1) {
-                dt.lazer =
-                  (d["Lazer"] && d["Lazer"] !== 0) || d["Lazer"] === 0
-                    ? d["Lazer"].toString().trim() !== ""
-                      ? d["Lazer"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.chung =
-                  (d.Chung && d.Chung !== 0) || d.Chung === 0
-                    ? d.Chung.toString().trim() !== ""
-                      ? d.Chung.toString().trim()
-                      : undefined
-                    : undefined;
-                dt.dt =
-                  (d.Dt && d.Dt !== 0) || d.Dt === 0
-                    ? d.Dt.toString().trim() !== ""
-                      ? d.Dt.toString().trim()
-                      : undefined
-                    : undefined;
-                dt.dn =
-                  (d.Dn && d.Dn !== 0) || d.Dn === 0
-                    ? d.Dn.toString().trim() !== ""
-                      ? d.Dn.toString().trim()
-                      : undefined
-                    : undefined;
-                dt.dai =
-                  (d["Dài"] && d["Dài"] !== 0) || d["Dài"] === 0
-                    ? d["Dài"].toString().trim() !== ""
-                      ? d["Dài"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.rong =
-                  (d["Rộng"] && d["Rộng"] !== 0) || d["Rộng"] === 0
-                    ? d["Rộng"].toString().trim() !== ""
-                      ? d["Rộng"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.day =
-                  (d["Dày"] && d["Dày"] !== 0) || d["Dày"] === 0
-                    ? d["Dày"].toString().trim() !== ""
-                      ? d["Dày"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.lazerDamH =
-                  (d["Lazer Dầm H"] && d["Lazer Dầm H"] !== 0) ||
-                  d["Lazer Dầm H"] === 0
-                    ? d["Lazer Dầm H"].toString().trim() !== ""
-                      ? d["Lazer Dầm H"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.cuaVong =
-                  (d["Cưa vòng"] && d["Cưa vòng"] !== 0) || d["Cưa vòng"] === 0
-                    ? d["Cưa vòng"].toString().trim() !== ""
-                      ? d["Cưa vòng"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.chanDot =
-                  (d["Chấn/ đột"] && d["Chấn/ đột"] !== 0) ||
-                  d["Chấn/ đột"] === 0
-                    ? d["Chấn/ đột"].toString().trim() !== ""
-                      ? d["Chấn/ đột"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.vatMep =
-                  (d["Vát mép"] && d["Vát mép"] !== 0) || d["Vát mép"] === 0
-                    ? d["Vát mép"].toString().trim() !== ""
-                      ? d["Vát mép"].toString().trim()
-                      : undefined
-                    : undefined;
-                dt.khoanLo =
-                  (d["Khoan lỗ"] && d["Khoan lỗ"] !== 0) || d["Khoan lỗ"] === 0
-                    ? d["Khoan lỗ"].toString().trim() !== ""
-                      ? d["Khoan lỗ"].toString().trim()
-                      : undefined
-                    : undefined;
-              }
-            });
-          }
-        });
+
         if (NewData.length === 0) {
           setFileName(file.name);
           setListChiTiet([]);
@@ -2407,29 +1029,29 @@ function BOMForm({ match, permission, history }) {
         ngayApDung: BOM.ngayApDung.format("DD/MM/YYYY"),
         congDoanSuDung: dataThietLap,
         list_ChiTiets: ListChiTiet.map((ct) => {
+          let keys = Object.keys(ct);
           return {
             ...ct,
             thuTuNguoiDung: ct.STT,
-            thuTuChuyen: {
+            thuTuChuyen_Tinh: {
               giaCong: ct.giaCong ? ct.giaCong : undefined,
-              eD: ct.eD ? ct.eD : undefined,
+              ed: ct.ed ? ct.ed : undefined,
               xiMa: ct.xiMa ? ct.xiMa : undefined,
-              nMK: ct.nMK ? ct.nMK : undefined,
+              nmk: ct.nmk ? ct.nmk : undefined,
               kho: ct.kho ? ct.kho : undefined,
-              lazer: ct.lazer ? ct.lazer : undefined,
-              lazerDamH: ct.lazerDamH ? ct.lazerDamH : undefined,
-              cuaVong: ct.cuaVong ? ct.cuaVong : undefined,
-              chanDot: ct.chanDot ? ct.chanDot : undefined,
-              vatMep: ct.vatMep ? ct.vatMep : undefined,
-              khoanLo: ct.khoanLo ? ct.khoanLo : undefined,
-              xHLKR: ct.xHLKR ? ct.xHLKR : undefined,
-              xHKX: ct.xHKX ? ct.xHKX : undefined,
-              phunBi: ct.phunBi ? ct.phunBi : undefined,
-              son: ct.son ? ct.son : undefined,
-              xLR: ct.xLR ? ct.xLR : undefined,
-              kiemDinh: ct.kiemDinh ? ct.kiemDinh : undefined,
-              dongKien: ct.dongKien ? ct.dongKien : undefined,
             },
+            thuTuChuyen_Dong: dataThietLap.map((dt) => {
+              let key = "";
+              keys.forEach((k) => {
+                if (k === dt.tits_qtsx_TramXuong_Id) {
+                  key = k;
+                }
+              });
+              return {
+                tits_qtsx_TramXuong_Id: dt.tits_qtsx_TramXuong_Id,
+                thuTu: ct[key] ? ct[key] : undefined,
+              };
+            }),
             quyCach: {
               dai: ct.dai ? ct.dai : undefined,
               rong: ct.rong ? ct.rong : undefined,
@@ -2462,6 +1084,7 @@ function BOMForm({ match, permission, history }) {
               resetFields();
               setFieldTouch(false);
               setListChiTiet([]);
+              setDataThietLap([]);
               setFileName(null);
               setFieldsValue({
                 BOM: {
@@ -2873,7 +1496,7 @@ function BOMForm({ match, permission, history }) {
       <Card className="th-card-margin-bottom" title="Thông tin vật tư BOM">
         {type === "new" && (
           <>
-            <Row>
+            <Row align="middle">
               <Col
                 xxl={2}
                 xl={3}
@@ -2895,77 +1518,9 @@ function BOMForm({ match, permission, history }) {
                 </Button>
               </Col>
               <Col xxl={22} xl={21} lg={20} md={20} sm={18} xs={17}>
-                <Row style={{ marginBottom: 5 }}>
-                  {dataThietLap.giaCong ||
-                  dataThietLap.ed ||
-                  dataThietLap.xiMa ? (
-                    <>
-                      <Tag color="#ff9c6e">CMC</Tag>
-                      {dataThietLap.giaCong ? (
-                        <Tag color="green">Gia công</Tag>
-                      ) : null}
-                      {dataThietLap.ed ? <Tag color="green">ED</Tag> : null}
-                      {dataThietLap.xiMa ? (
-                        <Tag color="green">Xi mạ</Tag>
-                      ) : null}
-                    </>
-                  ) : null}
-                </Row>
-                <Divider />
-                <Row>
-                  {dataThietLap.kho ||
-                  dataThietLap.lazer ||
-                  dataThietLap.lazerDamH ||
-                  dataThietLap.cuaVong ||
-                  dataThietLap.chanDot ||
-                  dataThietLap.vatMep ||
-                  dataThietLap.khoanLo ||
-                  dataThietLap.xhlkr ||
-                  dataThietLap.xhkx ||
-                  dataThietLap.phunBi ||
-                  dataThietLap.son ||
-                  dataThietLap.xlr ||
-                  dataThietLap.kiemDinh ||
-                  dataThietLap.dongKien ? (
-                    <>
-                      <Tag color="#ff9c6e">TITS</Tag>
-                      {dataThietLap.kho ? <Tag color="green">Kho</Tag> : null}
-                      {dataThietLap.lazer ? (
-                        <Tag color="green">Lazer</Tag>
-                      ) : null}
-                      {dataThietLap.lazerDamH ? (
-                        <Tag color="green">Lazer Dầm H</Tag>
-                      ) : null}
-                      {dataThietLap.cuaVong ? (
-                        <Tag color="green">Cưa vòng</Tag>
-                      ) : null}
-                      {dataThietLap.chanDot ? (
-                        <Tag color="green">Chấn đột</Tag>
-                      ) : null}
-                      {dataThietLap.vatMep ? (
-                        <Tag color="green">Vát mép</Tag>
-                      ) : null}
-                      {dataThietLap.khoanLo ? (
-                        <Tag color="green">Khoan lỗ</Tag>
-                      ) : null}
-                      {dataThietLap.xhlkr ? (
-                        <Tag color="green">XHLKR</Tag>
-                      ) : null}
-                      {dataThietLap.xhkx ? <Tag color="green">XHKX</Tag> : null}
-                      {dataThietLap.phunBi ? (
-                        <Tag color="green">Phun bi</Tag>
-                      ) : null}
-                      {dataThietLap.son ? <Tag color="green">Sơn</Tag> : null}
-                      {dataThietLap.xlr ? <Tag color="green">X-LR</Tag> : null}
-                      {dataThietLap.kiemDinh ? (
-                        <Tag color="green">Kiểm định</Tag>
-                      ) : null}
-                      {dataThietLap.dongKien ? (
-                        <Tag color="green">Đóng kiện</Tag>
-                      ) : null}
-                    </>
-                  ) : null}
-                </Row>
+                {dataThietLap.map((dt) => {
+                  return <Tag color="green">{dt.name}</Tag>;
+                })}
               </Col>
             </Row>
             <Row style={{ marginTop: 5 }}>
@@ -3002,7 +1557,7 @@ function BOMForm({ match, permission, history }) {
                         )
                       }
                     >
-                      <p style={{ color: !fieldTouch ? "red" : "#1890ff" }}>
+                      <p style={{ color: fieldTouch ? "red" : "#1890ff" }}>
                         {fileName.length > 20
                           ? fileName.substring(0, 20) + "..."
                           : fileName}{" "}
@@ -3052,7 +1607,7 @@ function BOMForm({ match, permission, history }) {
           goBack={goBack}
           saveAndClose={saveAndClose}
           handleSave={saveAndClose}
-          disabled={fieldTouch}
+          disabled={!fieldTouch}
         />
       ) : null}
       {type === "xacnhan" && info && info.tinhTrang === "Chưa xử lý" && (
@@ -3093,8 +1648,8 @@ function BOMForm({ match, permission, history }) {
       <ModalThietLap
         openModal={ActiceModalThietLap}
         openModalFS={setActiceModalThietLap}
-        dataTL={dataThietLap}
         saveThietLap={setDataThietLap}
+        dataTL={dataThietLap}
       />
     </div>
   );
