@@ -292,9 +292,27 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
   const renderLstViTri = (record) => {
     return (
       <div>
-        {record.list_ViTriLuuKhos.map((vt, index) => {
-          if (!vt.viTri) {
-            if (index === 0) {
+        {record.list_ViTriLuuKhos &&
+          record.list_ViTriLuuKhos.map((vt, index) => {
+            if (!vt.viTri) {
+              if (index === 0) {
+                return (
+                  <Tag
+                    key={index}
+                    color={"blue"}
+                    style={{
+                      marginRight: 5,
+                      marginBottom: 3,
+                      fontSize: 14,
+                    }}
+                  >
+                    {`${vt.tenKho} (SL: ${vt.soLuongThanhLy})`}
+                  </Tag>
+                );
+              } else {
+                return null;
+              }
+            } else {
               return (
                 <Tag
                   key={index}
@@ -303,32 +321,15 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
                     marginRight: 5,
                     marginBottom: 3,
                     fontSize: 14,
+                    wordWrap: "break-word",
+                    whiteSpace: "normal",
                   }}
                 >
-                  {`${vt.tenKho} (SL: ${vt.soLuongThanhLy})`}
+                  {`${vt.viTri} (SL: ${vt.soLuongThanhLy})`}
                 </Tag>
               );
-            } else {
-              return null;
             }
-          } else {
-            return (
-              <Tag
-                key={index}
-                color={"blue"}
-                style={{
-                  marginRight: 5,
-                  marginBottom: 3,
-                  fontSize: 14,
-                  wordWrap: "break-word",
-                  whiteSpace: "normal",
-                }}
-              >
-                {`${vt.viTri} (SL: ${vt.soLuongThanhLy})`}
-              </Tag>
-            );
-          }
-        })}
+          })}
       </div>
     );
   };

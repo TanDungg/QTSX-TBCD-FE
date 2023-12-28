@@ -273,7 +273,7 @@ function ModalThemVatPham({
   ];
 
   const deleteItemFunc = (item) => {
-    const title = "thành phẩm";
+    const title = "vật tư";
     ModalDeleteConfirm(deleteItemAction, item, item.tenVatPham, title);
   };
 
@@ -362,21 +362,15 @@ function ModalThemVatPham({
       align: "center",
     },
     {
-      title: "Mã thành phẩm",
+      title: "Mã vật tư",
       dataIndex: "maVatPham",
       key: "maVatPham",
       align: "center",
     },
     {
-      title: "Tên thành phẩm",
+      title: "Tên vật tư",
       dataIndex: "tenVatPham",
       key: "tenVatPham",
-      align: "center",
-    },
-    {
-      title: "Màu sắc",
-      dataIndex: "tenMauSac",
-      key: "tenMauSac",
       align: "center",
     },
     {
@@ -502,7 +496,7 @@ function ModalThemVatPham({
 
   return (
     <AntModal
-      title="Thêm danh sách thành phẩm"
+      title="Thêm danh sách vật tư"
       open={openModal}
       width={width > 1200 ? `85%` : `90%`}
       closable={true}
@@ -528,7 +522,7 @@ function ModalThemVatPham({
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Thành phẩm"
+                  label="Vật tư"
                   name={["themvatpham", "tits_qtsx_VatPham_Id"]}
                   rules={[
                     {
@@ -540,7 +534,7 @@ function ModalThemVatPham({
                   <Select
                     className="heading-select slt-search th-select-heading"
                     data={ListVatPham}
-                    placeholder="Chọn tên thành phẩm"
+                    placeholder="Chọn tên vật tư"
                     optionsvalue={["thanhPham", "thanhPham"]}
                     style={{ width: "100%" }}
                     showSearch
@@ -588,7 +582,7 @@ function ModalThemVatPham({
             />
             <Row justify={"center"} style={{ marginTop: 15 }}>
               <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
-                Thêm thành phẩm
+                Thêm vật tư
               </Button>
             </Row>
           </Form>

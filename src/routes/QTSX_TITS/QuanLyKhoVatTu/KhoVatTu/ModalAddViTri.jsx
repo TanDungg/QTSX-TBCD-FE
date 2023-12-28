@@ -1,4 +1,4 @@
-import { Modal as AntModal, Button, Row, Form, Input } from "antd";
+import { Modal as AntModal, Button, Row, Form, Input, Divider } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
@@ -30,16 +30,21 @@ function ModalAddViTri({ openModalFS, openModal, refesh, itemData }) {
         });
       }
       if (itemData.tits_qtsx_Ke_Id) {
+        getTang(itemData.tits_qtsx_Ke_Id);
+        getNgan(itemData.tits_qtsx_Tang_Id);
         setFieldsValue({
           addvitrivattu: {
             tenVatTu: itemData.tenVatTu,
             soLuong: itemData.soLuong,
             tits_qtsx_Ke_Id:
-              itemData.tits_qtsx_Ke_Id && itemData.tits_qtsx_Ke_Id,
+              itemData.tits_qtsx_Ke_Id &&
+              itemData.tits_qtsx_Ke_Id.toLowerCase(),
             tits_qtsx_Tang_Id:
-              itemData.tits_qtsx_Tang_Id && itemData.tits_qtsx_Tang_Id,
+              itemData.tits_qtsx_Tang_Id &&
+              itemData.tits_qtsx_Tang_Id.toLowerCase(),
             tits_qtsx_Ngan_Id:
-              itemData.tits_qtsx_Ngan_Id && itemData.tits_qtsx_Ngan_Id,
+              itemData.tits_qtsx_Ngan_Id &&
+              itemData.tits_qtsx_Ngan_Id.toLowerCase(),
           },
         });
       }
@@ -74,6 +79,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, itemData }) {
       })
       .catch((error) => console.error(error));
   };
+
   const getTang = (tits_qtsx_CauTrucKho_Id) => {
     const params = convertObjectToUrlParams({
       tits_qtsx_CauTrucKho_Id,
@@ -104,6 +110,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, itemData }) {
       })
       .catch((error) => console.error(error));
   };
+
   const getNgan = (tits_qtsx_CauTrucKho_Id) => {
     const params = convertObjectToUrlParams({
       tits_qtsx_CauTrucKho_Id,
@@ -192,7 +199,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, itemData }) {
           : "Chỉnh sửa vị trí"
       }
       open={openModal}
-      width={`80%`}
+      width={`60%`}
       closable={true}
       onCancel={handleCancel}
       footer={null}
@@ -298,10 +305,10 @@ function ModalAddViTri({ openModalFS, openModal, refesh, itemData }) {
               optionFilterProp="name"
             />
           </FormItem>
+          <Divider />
           <Row justify={"center"}>
             <Button
               className="th-btn-margin-bottom-0"
-              style={{ marginTop: 10, marginRight: 15 }}
               type="primary"
               htmlType="submit"
               disabled={!fieldTouch}

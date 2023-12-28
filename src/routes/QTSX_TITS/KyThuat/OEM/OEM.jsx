@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Col, Row, DatePicker, Tag } from "antd";
 import {
   PlusOutlined,
-  EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
 } from "@ant-design/icons";
@@ -26,20 +25,19 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { BASE_URL_API } from "src/constants/Config";
 import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
 function OEM({ match, history, permission }) {
-  const { width, loading, data } = useSelector(({ common }) => common).toJS();
+  const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
-  const [TuNgay, setTuNgay] = useState(getDateNow(-7));
+  const [TuNgay, setTuNgay] = useState(getDateNow(-14));
   const [DenNgay, setDenNgay] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
 
@@ -251,11 +249,18 @@ function OEM({ match, history, permission }) {
 
   let renderHead = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 100,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
       align: "center",
-      width: 45,
+      width: 50,
     },
     {
       title: "Mã OEM",
@@ -310,6 +315,7 @@ function OEM({ match, history, permission }) {
       dataIndex: "lanBanHanh",
       key: "lanBanHanh",
       align: "center",
+      width: 120,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -390,6 +396,7 @@ function OEM({ match, history, permission }) {
       dataIndex: "trangThai",
       key: "trangThai",
       align: "center",
+      width: 120,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -420,13 +427,6 @@ function OEM({ match, history, permission }) {
           )}
         </div>
       ),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 100,
-      render: (value) => actionContent(value),
     },
   ];
 

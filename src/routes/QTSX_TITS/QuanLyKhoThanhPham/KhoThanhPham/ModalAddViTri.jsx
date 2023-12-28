@@ -30,6 +30,8 @@ function ModalAddViTri({ openModalFS, openModal, refesh, itemData }) {
         });
       }
       if (itemData.tits_qtsx_Ke_Id) {
+        getTang(itemData.tits_qtsx_Ke_Id);
+        getNgan(itemData.tits_qtsx_Tang_Id);
         setFieldsValue({
           addvitrithanhpham: {
             tenSanPham: itemData.tenSanPham,
@@ -172,7 +174,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, itemData }) {
     getTang(val);
     setListNgan([]);
     setFieldsValue({
-      vatTu: {
+      addvitrithanhpham: {
         tits_qtsx_Tang_Id: null,
         tits_qtsx_Ngan_Id: null,
       },
@@ -182,7 +184,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, itemData }) {
   const handleSelectTang = (val) => {
     getNgan(val);
     setFieldsValue({
-      vatTu: {
+      addvitrithanhpham: {
         tits_qtsx_Ngan_Id: null,
       },
     });
@@ -196,7 +198,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, itemData }) {
           : "Chỉnh sửa vị trí"
       }
       open={openModal}
-      width={`80%`}
+      width={`60%`}
       closable={true}
       onCancel={handleCancel}
       footer={null}

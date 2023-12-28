@@ -55,7 +55,7 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
   const [info, setInfo] = useState({});
   const [ListThanhPham, setListThanhPham] = useState([]);
   const [ListKhoThanhPhamDi, setListKhoThanhPhamDi] = useState([]);
-  const [KhoThanhPhamDi, setKhoThanhPhamDi] = useState({});
+  const [KhoThanhPhamDi, setKhoThanhPhamDi] = useState(null);
   const [ListKhoThanhPhamDen, setListKhoThanhPhamDen] = useState([]);
   const [ListUserDuyet, setListUserDuyet] = useState([]);
   const [ListUser, setListUser] = useState([]);
@@ -512,7 +512,7 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
                 },
               });
               setListThanhPham([]);
-              setKhoThanhPhamDi({});
+              setKhoThanhPhamDi(null);
               getListKho();
               getUserLap();
               getUserDuyet();

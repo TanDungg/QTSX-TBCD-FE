@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Row, Col, Divider } from "antd";
+import { Card, Button, Row, Col, Divider, Tag } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -276,12 +276,23 @@ function KhoThanhPham({ history, permission }) {
       key: "viTriLuu",
       align: "center",
       render: (val) => {
+        const vitri = `${val.tenKe ? `${val.tenKe}` : ""}${
+          val.tenTang ? ` - ${val.tenTang}` : ""
+        }${val.tenNgan ? ` - ${val.tenNgan}` : ""}`;
         return (
-          <span>
-            {val.tenKe && val.tenKe}
-            {val.tenTang && ` - ${val.tenTang}`}
-            {val.tenNgan && ` - ${val.tenNgan}`}
-          </span>
+          vitri && (
+            <Tag
+              color={"blue"}
+              style={{
+                marginBottom: 3,
+                fontSize: 14,
+                wordWrap: "break-word",
+                whiteSpace: "normal",
+              }}
+            >
+              {vitri}
+            </Tag>
+          )
         );
       },
     },
