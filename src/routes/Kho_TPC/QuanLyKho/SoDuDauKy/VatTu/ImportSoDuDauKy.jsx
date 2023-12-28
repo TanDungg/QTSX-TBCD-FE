@@ -270,7 +270,6 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
         const SL = "Số lượng";
         const NN = "Ngày nhập";
         const TGSD = "Thời gian sử dụng";
-        const Data = [];
         const NewData = [];
         data.forEach((d, index) => {
           if (d[TVT] && d[MVT] && d[SL]) {
@@ -307,7 +306,6 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
                 : undefined,
             });
           }
-          Data.push(data[index][TVT]);
         });
         if (NewData.length === 0) {
           setFileName(file.name);
@@ -318,14 +316,16 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
         } else {
           const indices = [];
           const row = [];
-          for (let i = 0; i < Data.length; i++) {
-            for (let j = i + 1; j < Data.length; j++) {
+          for (let i = 0; i < NewData.length; i++) {
+            for (let j = i + 1; j < NewData.length; j++) {
               if (
-                Data[i] === Data[j] &&
-                Data[j] !== undefined &&
-                Data[i] !== undefined
+                NewData[i].maVatTu === NewData[j].maVatTu &&
+                NewData[j].maVatTu !== undefined &&
+                NewData[i].maVatTu !== undefined &&
+                NewData[i].maMauSac === NewData[j].maMauSac &&
+                NewData[i].maNgan === NewData[j].maNgan
               ) {
-                indices.push(Data[i]);
+                indices.push(NewData[i]);
                 row.push(i + 1);
                 row.push(j + 1);
               }
@@ -416,8 +416,14 @@ function ImportSoDuDauKy({ openModalFS, openModal, loading, refesh }) {
 
   const RowStyle = (current, index) => {
     if (HangTrung.length > 0) {
-      HangTrung.forEach((maVatTu) => {
-        if (current.maVatTu === maVatTu) {
+      HangTrung.forEach((sp) => {
+        if (
+          current.maVatTu === sp.maVatTu &&
+          current.maVatTu !== undefined &&
+          sp.maVatTu !== undefined &&
+          current.maNgan === sp.maNgan &&
+          current.maMauSac === sp.maMauSac
+        ) {
           setCheckDanger(true);
           return "red-row";
         }

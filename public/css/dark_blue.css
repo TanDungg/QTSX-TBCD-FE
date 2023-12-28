@@ -20890,7 +20890,7 @@ span.ant-radio + * {
   left: 100%;
   display: block;
   width: 9999px;
-  height: 1px;
+  height: 2px;
   background: #e8e8e8;
   content: "";
 }
@@ -21183,6 +21183,7 @@ span.ant-radio + * {
 }
 .ant-steps-small .ant-steps-item-title::after {
   top: 12px;
+  background: #004c94;
 }
 .ant-steps-small .ant-steps-item-description {
   color: #595959;
@@ -43309,4 +43310,9 @@ textarea.gx-chat-textarea {
 .font-size-percent-20 .ant-progress-text{
   font-weight: bold;
   color: #0469b9;
+}
+
+.overflow-treeTransfer .ant-transfer-list-body {
+  overflow: auto;
+  max-height: 60vh;
 }

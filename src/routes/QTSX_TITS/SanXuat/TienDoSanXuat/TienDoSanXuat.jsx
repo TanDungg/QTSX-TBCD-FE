@@ -768,10 +768,14 @@ function TienDoSanXuat({ match, history, permission }) {
                     icon={<ToolOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
-                    disabled={!InfoSanPham.isSCL}
+                    disabled={
+                      InfoSanPham.isSCL === null || InfoSanPham.isDaSCL
+                        ? true
+                        : false
+                    }
                     onClick={() => setActiveSuaChuaLai(true)}
                   >
-                    {InfoSanPham.isDaSCL
+                    {InfoSanPham.isDaSCL === false
                       ? "Xác nhận sửa chữa lại"
                       : "Sửa chữa lại"}
                   </Button>
