@@ -133,7 +133,7 @@ function ModalThemVatTu({ openModalFS, openModal, DataThemVatPham, itemData }) {
     if (isEmpty(SoLuongThanhLy) || Number(SoLuongThanhLy) <= 0) {
       setFieldTouch(false);
       setEditingRecord([...editingRecord, item]);
-      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+      item.message = "Số lượng thanh lý phải là số lớn hơn 0 và bắt buộc";
     } else if (SoLuongThanhLy > item.soLuongTonKho) {
       setFieldTouch(false);
       item.message = `Số lượng thanh lý không được lớn hơn ${item.soLuongTonKho}`;
