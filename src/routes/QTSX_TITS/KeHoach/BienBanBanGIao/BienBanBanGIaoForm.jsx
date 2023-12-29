@@ -21,9 +21,8 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
-import ImportSoVIN from "./ImportSoVIN";
-import ModalEditSanPham from "./ModalEditSanPham";
 import Helpers from "src/helpers";
+import ModalAddVatTu from "./ModalAddVatTu";
 
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -31,29 +30,20 @@ const { EditableRow, EditableCell } = EditableTableRow;
 const initialState = {
   tenLot: "",
 };
-const SoVinForm = ({ history, match, permission }) => {
+const BienBanBanGIaoForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [ListDonHang, setListDonHang] = useState([]);
+  const [ListVatTu, setListVatTu] = useState([]);
+  const [editingRecord, setEditingRecord] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
-  const [SoLuongSanPhamToiDa, setSoLuongSanPhamToiDa] = useState([]);
-  const [soLo, setSoLo] = useState("");
-
-  const [ListSanPhamSelect, setListSanPhamSelect] = useState([]);
-  const [DisableSoLuong, setDisableSoLuong] = useState(true);
-  const [infoSanPham, setInfoSanPham] = useState({});
   const [ActiveModal, setActiveModal] = useState(false);
-  const [ActiveModalEdit, setActiveModalEdit] = useState(false);
-
-  const [DisableAdd, setDisableAdd] = useState(true);
-  const [TypeAddTable, setTypeAddTable] = useState("new");
+  const [ListSoVin, setListSoVin] = useState([]);
 
   const [form] = Form.useForm();
-  const { tenLot } = initialState;
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
-  const [info, setInfo] = useState({});
 
   useEffect(() => {
     const load = () => {
@@ -70,7 +60,7 @@ const SoVinForm = ({ history, match, permission }) => {
           // Get info
           const { id } = match.params;
           setId(id);
-          getDonHang("", 1);
+          getDonHang("", "", 1);
           getInfo();
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -81,34 +71,28 @@ const SoVinForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const getDonHang = (id, key = 0) => {
-    const params = convertObjectToUrlParams({
-      tits_qtsx_DonHang_Id: id,
-      key,
-    });
-    const url = `tits_qtsx_SoVin/get-so-lo-chua-nhap-so-vin?${params}`;
-
+  const getDonHang = () => {
+    const params = convertObjectToUrlParams({});
+    const url = `tits_qtsx_SoLo/don-hang-chua-du-so-lo?${params}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "GET", null, "DETAIL", "", resolve, reject));
     })
       .then((res) => {
         if (res && res.data) {
-          if (id) {
-            setListSanPhamSelect(res.data);
-          } else {
-            setListDonHang(res.data);
-          }
+          setListDonHang(res.data);
         } else {
-          if (id) {
-            setListSanPhamSelect([]);
-          } else {
-            setListDonHang([]);
-          }
+          setListDonHang([]);
         }
       })
       .catch((error) => console.error(error));
   };
-  const getSoLo = (id) => {
+  /**
+   * Lấy thông tin
+   *
+   */
+  const getInfo = () => {
+    const { id } = match.params;
+    setId(id);
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -124,53 +108,16 @@ const SoVinForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setSoLuongSanPhamToiDa(
-            JSON.parse(res.data.tits_qtsx_SoLoChiTiets).length
-          );
-          setListSanPham(
-            reDataForTable(JSON.parse(res.data.tits_qtsx_SoLoChiTiets))
-          );
-        } else {
-          setListSanPham([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  /**
-   * Lấy thông tin
-   *
-   */
-  const getInfo = () => {
-    const { id } = match.params;
-    setId(id);
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_SoVin?tits_qtsx_SoLo_Id=${id}&&page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          getDonHang(res.data[0].tits_qtsx_DonHang_Id, 1);
-          setDisableAdd(false);
-          setDisableSoLuong(false);
-          setListSanPham(
-            reDataForTable(JSON.parse(res.data[0].tits_qtsx_SoVinChiTiets))
-          );
+          setListVatTu(JSON.parse(res.data.list_DoRois));
           setFieldsValue({
-            Lot: {
-              ...res.data[0],
+            khaibaosocontainer: {
+              ...res.data,
+              list_ChiTiets: JSON.parse(res.data.list_ChiTiets).map(
+                (ct) => ct.tits_qtsx_SoVin_Id
+              ),
             },
           });
         }
-        setInfo(res.data);
       })
       .catch((error) => console.error(error));
   };
@@ -181,8 +128,8 @@ const SoVinForm = ({ history, match, permission }) => {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "sản phẩm";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenSanPham, title);
+    const title = "vật tư";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
   };
 
   /**
@@ -191,8 +138,8 @@ const SoVinForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = ListSanPham.filter((d) => d.key !== item.key);
-    setListSanPham(newData);
+    const newData = ListVatTu.filter((d) => d.key !== item.key);
+    setListVatTu(newData);
   };
   /**
    * ActionContent: Action in table
@@ -201,16 +148,14 @@ const SoVinForm = ({ history, match, permission }) => {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const editItemVal =
-      type === "new" || type === "edit"
-        ? {
-            onClick: () => {
-              setActiveModalEdit(true);
-              setTypeAddTable("edit");
-              setInfoSanPham(item);
-            },
-          }
-        : { disabled: true };
+    // const editItemVal =
+    //   type === "new" || type === "edit"
+    //     ? {
+    //         onClick: () => {
+    //           setInfoSanPham(item);
+    //         },
+    //       }
+    //     : { disabled: true };
     const deleteItemVal =
       type === "new" || type === "edit"
         ? { onClick: () => deleteItemFunc(item) }
@@ -218,15 +163,65 @@ const SoVinForm = ({ history, match, permission }) => {
     return (
       <div>
         <React.Fragment>
-          <a {...editItemVal} title="Xóa">
+          {/* <a {...editItemVal} title="Xóa">
             <EditOutlined />
           </a>
-          {/* <Divider type="vertical" />
+          <Divider type="vertical" /> */}
           <a {...deleteItemVal} title="Xóa">
             <DeleteOutlined />
-          </a> */}
+          </a>
         </React.Fragment>
       </div>
+    );
+  };
+  const handleInputChange = (val, item) => {
+    const soLuongNhap = val.target.value;
+    if (isEmpty(soLuongNhap) || Number(soLuongNhap) <= 0) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+    } else {
+      const newData = editingRecord.filter(
+        (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
+      );
+      setEditingRecord(newData);
+      newData.length === 0 && setFieldTouch(true);
+    }
+    const newData = [...ListVatTu];
+    newData.forEach((ct, index) => {
+      if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
+        ct.soLuong = soLuongNhap;
+      }
+    });
+    setListVatTu(newData);
+  };
+
+  const rendersoLuong = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.soLuong}
+          disabled={
+            type === "new" || type === "edit" || type === "duyet" ? false : true
+          }
+          onChange={(val) => handleInputChange(val, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
     );
   };
   let colValues = [
@@ -238,29 +233,35 @@ const SoVinForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Tên sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
       align: "center",
     },
     {
-      title: "Loại sản phẩm",
-      dataIndex: "tenLoaiSanPham",
-      key: "tenLoaiSanPham",
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
       align: "center",
     },
     {
-      title: "Màu sắc",
-      dataIndex: "tenMauSac",
-      key: "tenMauSac",
+      title: "Đơn vị tính",
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
       align: "center",
     },
     {
-      title: "Số VIN",
-      dataIndex: "maSoVin",
-      key: "maSoVin",
+      title: "Số lượng",
+      key: "soLuong",
       align: "center",
+      render: (val) => rendersoLuong(val),
     },
+    // {
+    //   title: "Quy trình",
+    //   dataIndex: "tenQuyTrinhSanXuat",
+    //   key: "tenQuyTrinhSanXuat",
+    //   align: "center",
+    // },
     {
       title: "Chức năng",
       key: "action",
@@ -310,13 +311,13 @@ const SoVinForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.Lot);
+    saveData(values.khaibaosocontainer);
   };
 
   const saveAndClose = (value) => {
     validateFields()
       .then((values) => {
-        saveData(values.Lot, value);
+        saveData(values.khaibaosocontainer, value);
       })
       .catch((error) => {
         console.log("error", error);
@@ -325,16 +326,19 @@ const SoVinForm = ({ history, match, permission }) => {
 
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
-      const newData = ListSanPham.map((sp) => {
-        return {
-          maSoVin: sp.maSoVin,
-          tits_qtsx_SoLo_Id: user.tits_qtsx_SoLo_Id,
-        };
-      });
+      const newData = {
+        ...user,
+        list_ChiTiets: user.list_ChiTiets.map((ct) => {
+          return {
+            tits_qtsx_SoVin_Id: ct,
+          };
+        }),
+        list_DoRois: ListVatTu,
+      };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_SoVin`,
+            `tits_qtsx_SoLo`,
             "POST",
             newData,
             "ADD",
@@ -351,7 +355,7 @@ const SoVinForm = ({ history, match, permission }) => {
             } else {
               resetFields();
               setFieldTouch(false);
-              setListSanPham([]);
+              setListVatTu([]);
             }
           } else {
             if (saveQuit) {
@@ -364,17 +368,19 @@ const SoVinForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const newData = ListSanPham.map((sp) => {
-        return {
-          id: sp.id,
-          maSoVin: sp.maSoVin,
-          tits_qtsx_SoLo_Id: user.tits_qtsx_SoLo_Id,
-        };
-      });
+      const newData = {
+        ...user,
+        list_ChiTiets: user.list_ChiTiets.map((ct) => {
+          return {
+            tits_qtsx_SoVin_Id: ct,
+          };
+        }),
+        list_DoRois: ListVatTu,
+      };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_SoVin`,
+            `tits_qtsx_SoLo/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -395,68 +401,21 @@ const SoVinForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
   };
-  const validateSoLuong = (_, value) => {
-    if (value && value > SoLuongSanPhamToiDa) {
-      setDisableAdd(true);
-      return Promise.reject(
-        new Error(
-          `Số lượng lô phải nhỏ hơn hoặc bằng số lượng đơn hàng ${SoLuongSanPhamToiDa}!`
-        )
-      );
-    } else if (value && Number(value) === 0) {
-      setDisableAdd(true);
-      return Promise.reject(new Error(`Số lượng phải lớn hơn 0!`));
-    } else if (!value) {
-      setDisableAdd(true);
-      return Promise
-        .reject
-        // new Error(`Số lượng là bắt buộc!`)
-        ();
-    } else {
-      setDisableAdd(false);
-      return Promise.resolve();
-    }
-  };
-  const formTitle = type === "new" ? "Thêm mới số VIN" : "Chỉnh sửa số VIN";
+
+  const formTitle = type === "new" ? "Thêm mới Cont" : "Chỉnh sửa Cont";
   const onClickAddTable = () => {
-    getSoLo(soLo);
+    setActiveModal(true);
   };
-  const editSanPham = (data, type) => {
-    let check = false;
-    ListSanPham.forEach((sp) => {
-      if (sp.maSoVin === data.maSoVin) {
-        check = true;
-      }
-    });
-    if (check) {
-      Helpers.alertWarning("Mã số VIN trùng lặp.");
-    } else {
-      setActiveModalEdit(false);
-      if (type === "new") {
-        setListSanPham(reDataForTable([...ListSanPham, data]));
-      } else {
-        setFieldTouch(true);
-        setListSanPham([
-          ...ListSanPham.map((sp) => {
-            if (sp.key === data.key) {
-              return data;
-            } else {
-              return sp;
-            }
-          }),
-        ]);
-      }
-    }
-  };
-  const addSanPhamImport = (data) => {
-    setListSanPham(reDataForTable([...ListSanPham, ...data]));
+
+  const addSanPham = (data) => {
+    setListVatTu([...ListVatTu, data]);
   };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin số VIN"}
+        title={"Thông tin số lô"}
         headStyle={{
           textAlign: "center",
           backgroundColor: "#0469B9",
@@ -481,8 +440,83 @@ const SoVinForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
+                label="Số container"
+                name={["khaibaosocontainer", "soContainer"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                  {
+                    max: 250,
+                  },
+                ]}
+              >
+                <Input className="input-item" placeholder="Nhập số container" />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Số seal"
+                name={["khaibaosocontainer", "soSeal"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                  {
+                    max: 250,
+                  },
+                ]}
+              >
+                <Input className="input-item" placeholder="Nhập số seal" />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Dimensions"
+                name={["khaibaosocontainer", "dimensions"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                  {
+                    max: 250,
+                  },
+                ]}
+              >
+                <Input className="input-item" placeholder="Nhập dimensions" />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
                 label="Đơn hàng"
-                name={["Lot", "tits_qtsx_DonHang_Id"]}
+                name={["khaibaosocontainer", "tits_qtsx_DonHang_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -494,21 +528,8 @@ const SoVinForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListDonHang ? ListDonHang : []}
                   placeholder="Chọn đơn hàng"
-                  optionsvalue={["tits_qtsx_DonHang_Id", "tenDonHang"]}
+                  optionsvalue={["id", "tenDonHang"]}
                   style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type !== "new"}
-                  onSelect={(val) => {
-                    getDonHang(val);
-                    setFieldsValue({
-                      Lot: {
-                        soLuongDonHang: null,
-                        soLuong: null,
-                        tits_qtsx_DonHangChiTiet_Id: null,
-                      },
-                    });
-                  }}
                 />
               </FormItem>
             </Col>
@@ -522,8 +543,8 @@ const SoVinForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Số Lô"
-                name={["Lot", "tits_qtsx_SoLo_Id"]}
+                label="Sản phẩm"
+                name={["khaibaosocontainer", "tits_qtsx_DonHangChiTiet_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -533,19 +554,61 @@ const SoVinForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListSanPhamSelect ? ListSanPhamSelect : []}
-                  placeholder="Chọn số Lô"
-                  optionsvalue={["tits_qtsx_SoLo_Id", "tenSoLo"]}
+                  data={ListSanPham ? ListSanPham : []}
+                  placeholder="Chọn sản phẩm"
+                  optionsvalue={["tits_qtsx_DonHangChiTiet_Id", "name"]}
                   style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
-                  disabled={type !== "new"}
-                  onSelect={(val) => {
-                    setDisableSoLuong(false);
-                    setDisableAdd(false);
-                    setSoLo(val);
-                  }}
                 />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="List số VIN"
+                name={["khaibaosocontainer", "list_ChiTiets"]}
+                rules={[
+                  {
+                    type: "array",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListSoVin ? ListSoVin : []}
+                  placeholder="Chọn số VIN"
+                  optionsvalue={["id", "tenSoLo"]}
+                  style={{ width: "100%" }}
+                  mode={"multiple"}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Ghi chú"
+                name={["khaibaosocontainer", "moTa"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input className="input-item" placeholder="Nhập ghi chú" />
               </FormItem>
             </Col>
           </Row>
@@ -553,17 +616,14 @@ const SoVinForm = ({ history, match, permission }) => {
       </Card>
 
       <Card
-        title="Thông tin số VIN"
+        title="Thông tin checklist đồ rời"
         headStyle={{
           textAlign: "center",
           backgroundColor: "#0469B9",
           color: "#fff",
         }}
-        style={{
-          marginBottom: 0,
-        }}
       >
-        {type === "new" && (
+        {(type === "new" || type === "edit") && (
           <Col
             // xxl={12}
             // xl={12}
@@ -579,18 +639,19 @@ const SoVinForm = ({ history, match, permission }) => {
               icon={<PlusOutlined />}
               onClick={onClickAddTable}
               type="primary"
-              disabled={DisableAdd}
             >
-              Thêm
+              Thêm vật tư
             </Button>
-            <Button
-              icon={<UploadOutlined />}
-              onClick={() => setActiveModal(true)}
-              type="primary"
-              disabled={DisableAdd}
-            >
-              Import
-            </Button>
+            {/* {type === "new" && (
+              <Button
+                icon={<UploadOutlined />}
+                onClick={() => setActiveModal(true)}
+                type="primary"
+                disabled={DisableAdd}
+              >
+                Import
+              </Button>
+            )} */}
           </Col>
         )}
         <Table
@@ -599,36 +660,27 @@ const SoVinForm = ({ history, match, permission }) => {
           scroll={{ x: 1300, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
-          dataSource={ListSanPham}
+          dataSource={reDataForTable(ListVatTu)}
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
           // loading={loading}
         />
       </Card>
-
       <FormSubmit
         goBack={goBack}
         handleSave={saveAndClose}
         saveAndClose={saveAndClose}
         disabled={fieldTouch}
       />
-      <ImportSoVIN
+      <ModalAddVatTu
         openModal={ActiveModal}
         openModalFS={setActiveModal}
-        tits_qtsx_SoLo_Id={soLo}
-        addSanPham={addSanPhamImport}
-      />
-
-      <ModalEditSanPham
-        openModal={ActiveModalEdit}
-        openModalFS={setActiveModalEdit}
-        info={infoSanPham}
-        editSanPham={editSanPham}
-        type={TypeAddTable}
+        addSanPham={addSanPham}
+        listVT={ListVatTu}
       />
     </div>
   );
 };
 
-export default SoVinForm;
+export default BienBanBanGIaoForm;

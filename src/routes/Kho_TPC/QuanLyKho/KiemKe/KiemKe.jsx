@@ -92,7 +92,10 @@ function KiemKe({ match, history, permission }) {
         if (res && res.data) {
           const xuongsx = [];
           res.data.forEach((x) => {
-            if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+            if (
+              x.tenPhongBan.toLowerCase().includes("xưởng") ||
+              x.tenPhongBan.toLowerCase().includes("kho")
+            ) {
               xuongsx.push(x);
             }
           });
