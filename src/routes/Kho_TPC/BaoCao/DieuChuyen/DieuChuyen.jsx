@@ -126,9 +126,10 @@ function DieuChuyen({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=1&&isThanhPham=${
-            Loai === "sanpham" ? true : false
-          }`,
+          `CauTrucKho/cau-truc-kho-by-thu-tu?thuTu=${
+            Loai === "sanpham" ? 101 : 1
+          }
+          &&isThanhPham=${Loai === "sanpham" ? true : false}`,
           "GET",
           null,
           "DETAIL",
@@ -150,9 +151,7 @@ function DieuChuyen({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1${
-            Loai === "sanpham" ? "" : "isThanhPham=false"
-          }`,
+          `CauTrucKho/cau-truc-kho-vat-tu-san-pham`,
           "GET",
           null,
           "DETAIL",

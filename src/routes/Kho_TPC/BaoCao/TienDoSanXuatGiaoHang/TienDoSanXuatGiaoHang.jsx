@@ -150,7 +150,10 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
         if (res && res.data) {
           const xuong = [];
           res.data.forEach((x) => {
-            if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+            if (
+              x.tenPhongBan.toLowerCase().includes("xưởng") ||
+              x.tenPhongBan.toLowerCase().includes("kho")
+            ) {
               xuong.push(x);
             }
           });

@@ -50,7 +50,12 @@ const KhaiBaoSoContainer = asyncComponent(() =>
 const KhaiBaoSoContainerForm = asyncComponent(() =>
   import("./KhaiBaoSoContainer/KhaiBaoSoContainerForm")
 );
-
+const BienBanBanGIao = asyncComponent(() =>
+  import("./BienBanBanGIao/BienBanBanGIao")
+);
+const BienBanBanGIaoForm = asyncComponent(() =>
+  import("./BienBanBanGIao/BienBanBanGIaoForm")
+);
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -180,7 +185,21 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(KhaiBaoSoContainerForm, menus, pathname, permission)}
       />
-
+      <Route
+        path={`${match.url}/bien-ban-ban-giao`}
+        exact
+        component={Auth(BienBanBanGIao, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/bien-ban-ban-giao/them-moi`}
+        exact
+        component={Auth(BienBanBanGIaoForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/bien-ban-ban-giao/:id/chinh-sua`}
+        exact
+        component={Auth(BienBanBanGIaoForm, menus, pathname, permission)}
+      />
       {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
     </Switch>
   );

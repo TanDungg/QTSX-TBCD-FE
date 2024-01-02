@@ -690,7 +690,24 @@ export const getBase64 = (file) => {
     reader.onerror = (error) => reject(error);
   });
 };
+export function xoaPhanTuTrungTheoId(a, b) {
+  // Duyệt qua từng phần tử trong mảng a
+  for (let i = 0; i < a.length; i++) {
+    const phanTuA = a[i];
+    // Lấy id của phần tử trong mảng a
+    const idA = phanTuA.id;
 
+    // Tìm đối tượng trong mảng b có id giống với id của phần tử trong mảng a
+    const phanTuB = b.find((item) => item.id === idA);
+
+    // Nếu tìm thấy, xóa đối tượng đó khỏi mảng b
+    if (phanTuB) {
+      const index = b.indexOf(phanTuB);
+      b.splice(index, 1);
+    }
+  }
+  return b;
+}
 /**
  * * numberLocalConvert: chuyển đổi đơn vị số bản địa
  *

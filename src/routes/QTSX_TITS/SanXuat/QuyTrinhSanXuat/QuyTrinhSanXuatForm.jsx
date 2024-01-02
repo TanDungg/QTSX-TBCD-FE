@@ -734,10 +734,10 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
    * Lưu và thoát
    *
    */
-  const saveAndClose = () => {
+  const saveAndClose = (value) => {
     validateFields()
       .then((values) => {
-        saveData(values.quytrinhsanxuat, true);
+        saveData(values.quytrinhsanxuat, value);
       })
       .catch((error) => {
         console.log("error", error);
@@ -1470,6 +1470,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       {type === "new" || type === "edit" ? (
         <FormSubmit
           goBack={goBack}
+          handleSave={saveAndClose}
           saveAndClose={saveAndClose}
           disabled={fieldTouch}
         />
