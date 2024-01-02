@@ -30,14 +30,10 @@ function SanPhamHinhAnh({ history, permission }) {
       history.push("/home");
     }
 
-    return () => dispatch(fetchReset());
+    // return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Lấy dữ liệu về
-   *
-   */
   const getListData = (tits_qtsx_SanPham_Id) => {
     const param = convertObjectToUrlParams({
       tits_qtsx_SanPham_Id,
@@ -63,9 +59,9 @@ function SanPhamHinhAnh({ history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
+          setListSanPham(res.data);
           setSanPham(res.data[0].id);
           getListData(res.data[0].id);
-          setListSanPham(res.data);
         } else {
           setListSanPham([]);
         }

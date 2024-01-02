@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Card, Row, Col, DatePicker, Button } from "antd";
-import { EditOutlined, PrinterOutlined } from "@ant-design/icons";
+import { PrinterOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import { find, map, remove } from "lodash";
 import { Table, EditableTableRow, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
-  getLocalStorage,
-  getTokenInfo,
   removeDuplicates,
   getDateNow,
 } from "src/util/Common";
@@ -22,7 +19,6 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function CauHinhKanBan({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
   const [ListChuyen, setListChuyen] = useState([]);
   const [Chuyen, setChuyen] = useState(null);
@@ -173,6 +169,7 @@ function CauHinhKanBan({ match, history, permission }) {
       dataIndex: "maChiTiet",
       key: "maChiTiet",
       align: "center",
+      width: 200,
       filters: removeDuplicates(
         map(Data, (d) => {
           return {
@@ -189,6 +186,7 @@ function CauHinhKanBan({ match, history, permission }) {
       dataIndex: "tenChiTiet",
       key: "tenChiTiet",
       align: "center",
+      width: 200,
       filters: removeDuplicates(
         map(Data, (d) => {
           return {
@@ -205,6 +203,7 @@ function CauHinhKanBan({ match, history, permission }) {
       dataIndex: "tenCum",
       key: "tenCum",
       align: "center",
+      width: 200,
       filters: removeDuplicates(
         map(Data, (d) => {
           return {
@@ -235,6 +234,7 @@ function CauHinhKanBan({ match, history, permission }) {
       dataIndex: "moTa",
       key: "moTa",
       align: "center",
+      width: 150,
     },
   ];
 
@@ -243,6 +243,7 @@ function CauHinhKanBan({ match, history, permission }) {
       const tramColumn = {
         title: tram.tenTram,
         align: "center",
+        width: 100,
         render: (value) => <span>{tram.thuTuTram}</span>,
       };
       renderHead[renderHead.length - 2].children.push(tramColumn);

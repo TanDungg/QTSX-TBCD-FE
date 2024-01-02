@@ -35,7 +35,7 @@ const ChiTietCauHinhKanBan = asyncComponent(() =>
 const InKanBan = asyncComponent(() => import("./KanBan/InKanBan/InKanBan"));
 
 //Máy sản xuất
-const MaySanXuat = asyncComponent(() => import("./MaySanXuat/MaySanXuat"));
+const MaySanXuat = asyncComponent(() => import("./KanBan/MaySanXuat/MaySanXuat"));
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;

@@ -314,6 +314,26 @@ export default (state = INIT_STATE, action) => {
             .set("loadingSave", false)
             .set("reset", false);
         }
+        if (apiType === "BATDAU") {
+          if (customMessage) Helper.alertSuccessMessage(customMessage);
+          else Helper.alertSuccessMessage(messages.BAT_DAU_THANH_CONG);
+          return state
+            .set("message", messages.BAT_DAU_THANH_CONG)
+            .set("customMessage", customMessage)
+            .set("loading", false)
+            .set("loadingSave", false)
+            .set("reset", false);
+        }
+        if (apiType === "KETTHUC") {
+          if (customMessage) Helper.alertSuccessMessage(customMessage);
+          else Helper.alertSuccessMessage(messages.KET_THUC_THANH_CONG);
+          return state
+            .set("message", messages.KET_THUC_THANH_CONG)
+            .set("customMessage", customMessage)
+            .set("loading", false)
+            .set("loadingSave", false)
+            .set("reset", false);
+        }
         if (apiType === "TUCHOI") {
           // Message thêm mới
           if (customMessage) Helper.alertSuccessMessage(customMessage);

@@ -333,7 +333,7 @@ function Loi({ match, permission, history }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Loại sản phẩm:</h5>
+            <h5>Nhóm lỗi:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListNhomLoi ? ListNhomLoi : []}

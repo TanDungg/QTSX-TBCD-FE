@@ -276,27 +276,29 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
   };
 
   const onChangeThietBi = (value, item) => {
-    const newData = {
-      tits_qtsx_KanBanChiTietTram_Id: item.tits_qtsx_KanBanChiTietTram_Id,
-      tits_qtsx_ThietBi_Id: value,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_KanBan/thiet-bi/${item.tits_qtsx_KanBanChiTietTram_Id}`,
-          "PUT",
-          newData,
-          "EDIT",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      getListData(Chuyen, SanPham, DonHang, Tram, Ngay);
-    });
+    if (value) {
+      const newData = {
+        tits_qtsx_KanBanChiTietTram_Id: item.tits_qtsx_KanBanChiTietTram_Id,
+        tits_qtsx_ThietBi_Id: value,
+      };
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `tits_qtsx_KanBan/thiet-bi/${item.tits_qtsx_KanBanChiTietTram_Id}`,
+            "PUT",
+            newData,
+            "EDIT",
+            "",
+            resolve,
+            reject
+          )
+        );
+      }).then((res) => {
+        getListData(Chuyen, SanPham, DonHang, Tram, Ngay);
+      });
+    }
   };
-
+  
   const renderThietBi = (record) => {
     if (record) {
       return (

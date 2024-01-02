@@ -393,21 +393,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       cell: EditableCell,
     },
   };
-  const handleSave = (row) => {
-    const newData = [...listVatTu];
-    const index = newData.findIndex(
-      (item) =>
-        row.tits_qtsx_PhieuMuaHangChiTiet_Id ===
-        item.tits_qtsx_PhieuMuaHangChiTiet_Id
-    );
-    const item = newData[index];
-    newData.splice(index, 1, {
-      ...item,
-      ...row,
-    });
-    setFieldTouch(true);
-    setListVatTu(newData);
-  };
+
   const columns = map(colValues, (col) => {
     if (!col.editable) {
       return col;
@@ -420,7 +406,6 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
         dataIndex: col.dataIndex,
         title: col.title,
         info: col.info,
-        handleSave: handleSave,
       }),
     };
   });
@@ -673,8 +658,9 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={[
-                    { id: "true", name: "Phiếu mua hàng nội bộ" },
-                    { id: "false", name: "Phiếu xuất kho ngoại quan" },
+                    { id: "1", name: "Phiếu mua hàng nội bộ" },
+                    { id: "2", name: "Phiếu mua hàng ngoài" },
+                    { id: "3", name: "Phiếu xuất kho ngoại quan" },
                   ]}
                   placeholder="Chọn loại phiếu"
                   optionsvalue={["id", "name"]}
