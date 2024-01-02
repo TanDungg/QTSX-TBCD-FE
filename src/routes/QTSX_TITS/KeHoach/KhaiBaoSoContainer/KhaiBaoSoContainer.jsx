@@ -136,12 +136,7 @@ function KhaiBaoSoContainer({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item, title) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maKhaiBaoSoContainer,
-      title
-    );
+    ModalDeleteConfirm(deleteItemAction, item, item.soContainer, title);
   };
 
   /**
@@ -256,7 +251,7 @@ function KhaiBaoSoContainer({ match, history, permission }) {
       ),
     },
     {
-      title: "Số Container",
+      title: "CONTAINER NO",
       dataIndex: "soContainer",
       key: "soContainer",
       align: "center",
@@ -272,7 +267,7 @@ function KhaiBaoSoContainer({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Số Seal",
+      title: "SEAL NO",
       dataIndex: "soSeal",
       key: "soSeal",
       align: "center",
@@ -288,7 +283,7 @@ function KhaiBaoSoContainer({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Dimensions",
+      title: "DIMENSIONS",
       dataIndex: "dimensions",
       key: "dimensions",
       align: "center",
@@ -303,21 +298,21 @@ function KhaiBaoSoContainer({ match, history, permission }) {
       onFilter: (value, record) => record.dimensions.includes(value),
       filterSearch: true,
     },
-    {
-      title: "List số VIN",
-      key: "list_ChiTiets",
-      align: "center",
-      render: (record) => (
-        <Button
-          type="primary"
-          onClick={() => {
-            XemChiTiet(record);
-          }}
-        >
-          Xem chi tiết
-        </Button>
-      ),
-    },
+    // {
+    //   title: "List số VIN",
+    //   key: "list_ChiTiets",
+    //   align: "center",
+    //   render: (record) => (
+    //     <Button
+    //       type="primary"
+    //       onClick={() => {
+    //         XemChiTiet(record);
+    //       }}
+    //     >
+    //       Xem chi tiết
+    //     </Button>
+    //   ),
+    // },
     {
       title: "Ghi chú",
       dataIndex: "moTa",

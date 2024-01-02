@@ -467,8 +467,8 @@ function BienBanBanGIao({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Biên bản giao hàng"
-        description="Danh sách biên bản giao hàng"
+        title="Biên bản bàn giao"
+        description="Biên bản bàn giao"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom">

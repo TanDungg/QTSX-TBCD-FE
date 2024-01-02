@@ -42,6 +42,7 @@ import { isEmpty } from "lodash";
 import ModalHoSoChatLuong from "./ModalHoSoChatLuong";
 import Helpers from "src/helpers";
 import ModalSuaChuaLai from "./ModalSuaChuaLai";
+import ModalAddSoVIN from "./ModalAddSoVIN";
 const optionsDate = {
   weekday: "long", // Thứ
   year: "numeric", // Năm
@@ -78,6 +79,8 @@ function TienDoSanXuat({ match, history, permission }) {
   const [ActiveModalKiemSoatVatTu, setActiveModalKiemSoatVatTu] =
     useState(false);
   const [ActiveSuaChuaLai, setActiveSuaChuaLai] = useState(false);
+  const [ActiveAddSoVIN, setActiveAddSoVIN] = useState(false);
+
   const [ActiveModalHoSoChatLuong, setActiveModalHoSoChatLuong] =
     useState(false);
   const [ActiveKiemSoatChatLuong, setActiveKiemSoatChatLuong] = useState(false);
@@ -728,13 +731,23 @@ function TienDoSanXuat({ match, history, permission }) {
               ) : (
                 <>
                   <Button
+                    icon={<PlusOutlined />}
+                    type="primary"
+                    style={{ width: "80%" }}
+                    onClick={() => {
+                      setActiveAddSoVIN(true);
+                    }}
+                  >
+                    Thêm số VIN
+                  </Button>
+                  {/* <Button
                     icon={<SyncOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
                     // disabled={DisableVaoTram}
                   >
                     Chuyển sửa chữa lại
-                  </Button>
+                  </Button> */}
                   <Button
                     icon={<QrcodeOutlined />}
                     type="primary"
@@ -940,6 +953,13 @@ function TienDoSanXuat({ match, history, permission }) {
         openModalFS={setActiveSuaChuaLai}
         info={InfoSanPham}
         refesh={() => getInfoSanPham(SoLo, Tram)}
+      />
+      <ModalAddSoVIN
+        openModal={ActiveAddSoVIN}
+        openModalFS={setActiveAddSoVIN}
+        refesh={() => getInfoSanPham(SoLo, Tram)}
+        tits_qtsx_SoLo_Id={InfoSanPham.tits_qtsx_SoLo_Id}
+        tits_qtsx_SoLoChiTiet_Id={InfoSanPham.tits_qtsx_SoLoChiTiet_Id}
       />
     </div>
   );

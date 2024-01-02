@@ -402,7 +402,10 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle = type === "new" ? "Thêm mới Cont" : "Chỉnh sửa Cont";
+  const formTitle =
+    type === "new"
+      ? "Thêm mới biên bản giao hàng"
+      : "Chỉnh sửa biên bản giao hàng";
   const onClickAddTable = () => {
     setActiveModal(true);
   };
@@ -415,7 +418,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
       <ContainerHeader title={formTitle} back={goBack} />
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin số lô"}
+        title={"BIÊN BẢN GIAO HÀNG"}
         headStyle={{
           textAlign: "center",
           backgroundColor: "#0469B9",
@@ -616,7 +619,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
       </Card>
 
       <Card
-        title="Thông tin checklist đồ rời"
+        title="THÔNG TIN BÀN GIAO"
         headStyle={{
           textAlign: "center",
           backgroundColor: "#0469B9",
