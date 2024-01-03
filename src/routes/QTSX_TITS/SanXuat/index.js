@@ -31,9 +31,6 @@ const ChiTietCauHinhKanBan = asyncComponent(() =>
   import("./KanBan/ChiTietCauHinhKanBan/ChiTietCauHinhKanBan")
 );
 
-//In KanBan
-const InKanBan = asyncComponent(() => import("./KanBan/InKanBan/InKanBan"));
-
 //Máy sản xuất
 const MaySanXuat = asyncComponent(() => import("./KanBan/MaySanXuat/MaySanXuat"));
 
@@ -92,13 +89,6 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/kanban/chi-tiet-cau-hinh`}
         exact
         component={Auth(ChiTietCauHinhKanBan, menus, pathname, permission)}
-      />
-
-      {/* In KanBan */}
-      <Route
-        path={`${match.url}/kanban/in`}
-        exact
-        component={Auth(InKanBan, menus, pathname, permission)}
       />
 
       {/* Máy sản xuất */}

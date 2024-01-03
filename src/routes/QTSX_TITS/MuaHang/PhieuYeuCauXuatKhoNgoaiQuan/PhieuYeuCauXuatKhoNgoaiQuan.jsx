@@ -102,11 +102,7 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const editItem =
-      permission &&
-      permission.edit &&
-      item.nguoiYeuCau_Id === INFO.user_Id &&
-      moment(item.ngayYeuCau, "DD/MM/YYYY") >=
-        moment(getDateNow(-1), "DD/MM/YYYY") ? (
+      permission && permission.edit ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -123,11 +119,7 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
       );
 
     const deleteVal =
-      permission &&
-      permission.del &&
-      item.nguoiYeuCau_Id === INFO.user_Id &&
-      moment(item.ngayYeuCau, "DD/MM/YYYY") >=
-        moment(getDateNow(-1), "DD/MM/YYYY")
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -291,6 +283,13 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
 
   let renderHead = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -376,13 +375,6 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
       ),
       onFilter: (value, record) => record.ngayYeuCau.includes(value),
       filterSearch: true,
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
     },
   ];
 

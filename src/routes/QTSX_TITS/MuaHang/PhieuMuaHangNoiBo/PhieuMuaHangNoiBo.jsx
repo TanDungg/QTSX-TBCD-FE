@@ -23,7 +23,6 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
-  exportPDF,
   removeDuplicates,
   exportExcel,
 } from "src/util/Common";
@@ -84,8 +83,7 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
+      item.nguoiTaoPhieu_Id === INFO.user_Id ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -102,11 +100,7 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
       );
 
     const deleteVal =
-      permission &&
-      permission.del &&
-      !item.fileXacNhan &&
-      item.nguoiTaoPhieu_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận"
+      permission && permission.del && item.nguoiTaoPhieu_Id === INFO.user_Id
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
 
@@ -128,7 +122,12 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maPhieu, "đơn hàng");
+    ModalDeleteConfirm(
+      deleteItemAction,
+      item,
+      item.maPhieu,
+      "phiếu mua hàng nội bộ"
+    );
   };
 
   /**
@@ -279,6 +278,13 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
 
   let renderHead = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 120,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -386,49 +392,6 @@ function PhieuMuaHangNoiBo({ match, history, permission }) {
       key: "file",
       align: "center",
       render: (record) => renderFile(record),
-    },
-    // {
-    //   title: "Tình trạng",
-    //   dataIndex: "tinhTrang",
-    //   key: "tinhTrang",
-    //   align: "center",
-    //   filters: removeDuplicates(
-    //     map(dataList, (d) => {
-    //       return {
-    //         text: d.tinhTrang,
-    //         value: d.tinhTrang,
-    //       };
-    //     })
-    //   ),
-    //   onFilter: (value, record) => record.tinhTrang.includes(value),
-    //   filterSearch: true,
-    //   render: (value) => (
-    //     <div>
-    //       {value && (
-    //         <Tag
-    //           color={
-    //             value === "Chưa xác nhận"
-    //               ? "orange"
-    //               : value === "Đã xác nhận"
-    //               ? "blue"
-    //               : "red"
-    //           }
-    //           style={{
-    //             fontSize: 13,
-    //           }}
-    //         >
-    //           {value}
-    //         </Tag>
-    //       )}
-    //     </div>
-    //   ),
-    // },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 120,
-      render: (value) => actionContent(value),
     },
   ];
 

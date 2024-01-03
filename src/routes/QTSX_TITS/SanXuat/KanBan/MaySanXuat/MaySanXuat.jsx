@@ -12,7 +12,7 @@ import {
 } from "antd";
 import { PauseCircleOutlined, PlayCircleOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { find, map, remove } from "lodash";
+import { map } from "lodash";
 import { Table, EditableTableRow, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -26,6 +26,7 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
 import { BASE_URL_API } from "src/constants/Config";
+import ModalKetThuc from "./ModalKetThuc";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -50,6 +51,7 @@ function MaySanXuat({ match, history, permission }) {
   const [SelectedKanBan, setSelectedKanBan] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
   const [keyTabs, setKeyTabs] = useState("1");
+  const [ActiveModalKetThuc, setActiveModalKetThuc] = useState(false);
   const listchuyen = [
     {
       id: "63aece3b-f542-4c09-bc51-49a39f831906",
@@ -91,7 +93,11 @@ function MaySanXuat({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_KanBan/may-san-xuat?${param}`,
+          keyTabs === "1"
+            ? keyTabs === "1"
+              ? `tits_qtsx_KanBan/may-san-xuat?${param}`
+              : `tits_qtsx_KanBan/kiem-tra-chat-luong?${param}`
+            : `tits_qtsx_KanBan/kiem-tra-chat-luong?${param}`,
           "GET",
           null,
           "LIST",
@@ -131,7 +137,9 @@ function MaySanXuat({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_KanBan/may-san-xuat?${param}`,
+          keyTabs === "1"
+            ? `tits_qtsx_KanBan/may-san-xuat?${param}`
+            : `tits_qtsx_KanBan/kiem-tra-chat-luong?${param}`,
           "GET",
           null,
           "LIST",
@@ -167,7 +175,9 @@ function MaySanXuat({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_KanBan/may-san-xuat?${param}`,
+          keyTabs === "1"
+            ? `tits_qtsx_KanBan/may-san-xuat?${param}`
+            : `tits_qtsx_KanBan/kiem-tra-chat-luong?${param}`,
           "GET",
           null,
           "LIST",
@@ -210,7 +220,9 @@ function MaySanXuat({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_KanBan/may-san-xuat?${param}`,
+          keyTabs === "1"
+            ? `tits_qtsx_KanBan/may-san-xuat?${param}`
+            : `tits_qtsx_KanBan/kiem-tra-chat-luong?${param}`,
           "GET",
           null,
           "LIST",
@@ -256,7 +268,9 @@ function MaySanXuat({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_KanBan/may-san-xuat?${param}`,
+          keyTabs === "1"
+            ? `tits_qtsx_KanBan/may-san-xuat?${param}`
+            : `tits_qtsx_KanBan/kiem-tra-chat-luong?${param}`,
           "GET",
           null,
           "LIST",
@@ -270,14 +284,18 @@ function MaySanXuat({ match, history, permission }) {
         if (res && res.data) {
           setListThietBi(res.data);
           setThietBi(res.data[0].tits_qtsx_ThietBi_Id);
-          getListData(
-            tits_qtsx_Chuyen_Id,
-            tits_qtsx_SanPham_Id,
-            tits_qtsx_DonHang_Id,
-            tits_qtsx_Tram_Id,
-            res.data[0].tits_qtsx_ThietBi_Id,
-            ngay
-          );
+          if (res.data[0].tits_qtsx_ThietBi_Id) {
+            getListData(
+              tits_qtsx_Chuyen_Id,
+              tits_qtsx_SanPham_Id,
+              tits_qtsx_DonHang_Id,
+              tits_qtsx_Tram_Id,
+              res.data[0].tits_qtsx_ThietBi_Id,
+              ngay
+            );
+          } else {
+            setData([]);
+          }
         } else {
           setListThietBi([]);
           setThietBi(null);
@@ -695,7 +713,7 @@ function MaySanXuat({ match, history, permission }) {
           icon={<PauseCircleOutlined />}
           className="th-margin-bottom-0"
           type="danger"
-          // onClick={handleRedirect}
+          onClick={() => setActiveModalKetThuc(true)}
           disabled={!SelectedKetThuc.length}
         >
           Kết thúc
@@ -759,6 +777,7 @@ function MaySanXuat({ match, history, permission }) {
 
   const handleChangeTabs = (key) => {
     setKeyTabs(key);
+    getListSanPham(listchuyen[0].id, Ngay);
   };
 
   const handleChangeNgay = (dateString) => {
@@ -766,6 +785,9 @@ function MaySanXuat({ match, history, permission }) {
     getListData(Chuyen, SanPham, DonHang, Tram, ThietBi, dateString);
   };
 
+  const handleRefesh = () => {
+    getListData(Chuyen, SanPham, DonHang, Tram, ThietBi, Ngay);
+  };
   const rowSelection = {
     selectedRowKeys: SelectedKeys,
     selectedRowKanBans: SelectedKanBan,
@@ -1108,6 +1130,18 @@ function MaySanXuat({ match, history, permission }) {
           })}
         />
       </Card>
+      <ModalKetThuc
+        openModal={ActiveModalKetThuc}
+        openModalFS={setActiveModalKetThuc}
+        itemData={SelectedKetThuc.map((ketthuc) => {
+          return {
+            ...ketthuc,
+            tits_qtsx_Tram_Id: Tram,
+            tits_qtsx_ThietBi_Id: ThietBi,
+          };
+        })}
+        refesh={handleRefesh}
+      />
     </div>
   );
 }
