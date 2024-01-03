@@ -210,6 +210,13 @@ function PhieuNhanHang({ match, history, permission }) {
   };
   let renderHead = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -290,13 +297,6 @@ function PhieuNhanHang({ match, history, permission }) {
           {val && val.split("/")[5]}
         </a>
       ),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
     },
   ];
 
