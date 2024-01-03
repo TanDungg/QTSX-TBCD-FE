@@ -37,6 +37,7 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   DeleteOutlined,
+  EditOutlined,
   PlusCircleOutlined,
   RollbackOutlined,
 } from "@ant-design/icons";
@@ -45,6 +46,7 @@ import ModalCongDoan from "./ModalCongDoan";
 import Helpers from "src/helpers";
 import ModalTram from "./ModalTram";
 import ModalTuChoi from "./ModalTuChoi";
+import dayjs from "dayjs";
 
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -73,6 +75,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
   const [info, setInfo] = useState({});
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [editingRecord, setEditingRecord] = useState([]);
+  const [NgayBanHanh, setNgayBanHanh] = useState(getDateNow());
 
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
@@ -86,6 +89,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           quytrinhsanxuat: {
             ngayBanHanh: moment(getDateNow(), "DD/MM/YYYY"),
             ngayApDung: moment(getDateNow(), "DD/MM/YYYY"),
+            isSuDung: true,
           },
         });
       }
@@ -310,12 +314,13 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
 
   const actionContent = (item) => {
     const addtram =
-      OEM && (type === "new" || type === "edit")
+      OEM &&
+      (type === "new" || (type === "edit" && info.tinhTrang === "Chưa duyệt"))
         ? { onClick: () => handleModalTram(item) }
         : { disabled: true };
 
     const deleteVal =
-      permission && permission.del && (type === "new" || type === "edit")
+      type === "new" || (type === "edit" && info.tinhTrang === "Chưa duyệt")
         ? { onClick: () => deleteItemFunc(item, "công đoạn") }
         : { disabled: true };
 
@@ -367,7 +372,12 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       <Checkbox
         checked={record.isChoPhepSCL}
         onChange={() => handleCheckboxChange(record)}
-        disabled={type === "new" || type === "edit" ? false : true}
+        disabled={
+          !(
+            type === "new" ||
+            (type === "edit" && info.tinhTrang === "Chưa duyệt")
+          )
+        }
       />
     );
   };
@@ -444,7 +454,12 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           className={`input-item`}
           type="number"
           value={item.thuTu}
-          disabled={type === "new" || type === "edit" ? false : true}
+          disabled={
+            !(
+              type === "new" ||
+              (type === "edit" && info.tinhTrang === "Chưa duyệt")
+            )
+          }
           onChange={(val) => handleInputChange(val, item)}
           onBlur={(val) => type === "edit" && onChangeValue(val, item)}
         />
@@ -535,8 +550,13 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
   };
 
   const actionContentTram = (item) => {
-    const deleteVal =
-      type === "new" || type === "edit"
+    const editItem =
+      type === "new" || (type === "edit" && info.tinhTrang === "Chưa duyệt")
+        ? { onClick: () => handleModalTram(item) }
+        : { disabled: true };
+
+    const deleteItem =
+      type === "new" || (type === "edit" && info.tinhTrang === "Chưa duyệt")
         ? {
             onClick: () => deleteItemFuncTram(item, "trạm"),
           }
@@ -544,7 +564,11 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
 
     return (
       <div>
-        <a {...deleteVal} title="Xóa trạm">
+        <a {...editItem} title="Sửa trạm">
+          <EditOutlined />
+        </a>
+        <Divider type="vertical" />
+        <a {...deleteItem} title="Xóa trạm">
           <DeleteOutlined />
         </a>
       </div>
@@ -631,7 +655,12 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           className={`input-item`}
           type="number"
           value={item.thuTu}
-          disabled={type === "new" || type === "edit" ? false : true}
+          disabled={
+            !(
+              type === "new" ||
+              (type === "edit" && info.tinhTrang === "Chưa duyệt")
+            )
+          }
           onChange={(val) => handleInputChangeTram(val, item)}
           onBlur={(val) => type === "edit" && onChangeValueTram(val, item)}
         />
@@ -660,24 +689,28 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       dataIndex: "maTram",
       key: "maTram",
       align: "center",
+      width: 200,
     },
     {
       title: "Tên trạm",
       dataIndex: "tenTram",
       key: "tenTram",
       align: "center",
+      width: 200,
     },
     {
       title: "Thiết bị",
       dataIndex: "tenThietBi",
       key: "tenThietBi",
       align: "center",
+      width: 150,
     },
     {
       title: "List vật tư",
       dataIndex: "list_VatTus",
       key: "list_VatTus",
       align: "center",
+      width: 350,
       render: (_, { list_VatTus }) => (
         <>
           {list_VatTus &&
@@ -704,13 +737,17 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       dataIndex: "list_TramChiTiets",
       key: "list_TramChiTiets",
       align: "center",
+      width: 200,
       render: (value) => (
         <>
           {value &&
             value.map((thongtin) => (
               <Tag
                 color={"blue"}
-                style={{ fontSize: 13 }}
+                style={{
+                  fontSize: 13,
+                  marginRight: value.length > 1 ? "5px" : "0px",
+                }}
                 key={thongtin.tits_qtsx_ThongTinKiemSoat_Id}
               >
                 {thongtin.tenThongTinKiemSoat}
@@ -779,6 +816,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
                 quytrinhsanxuat: {
                   ngayBanHanh: moment(getDateNow(), "DD/MM/YYYY"),
                   ngayApDung: moment(getDateNow(), "DD/MM/YYYY"),
+                  isSuDung: true,
                 },
               });
             }
@@ -904,30 +942,57 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
   };
 
   const DataThemTram = (data) => {
-    console.log(data);
-    const newData = ListCongDoan.map((list) => {
-      if (
-        list.tits_qtsx_CongDoan_Id === data.tits_qtsx_CongDoan_Id &&
-        list.tits_qtsx_Xuong_Id === data.tits_qtsx_Xuong_Id
-      ) {
-        const tramExists = list.list_Trams.some(
-          (d) => d.tits_qtsx_Tram_Id === data.tits_qtsx_Tram_Id
-        );
+    if (data.loai === "add") {
+      const newData = ListCongDoan.map((list) => {
+        if (
+          list.tits_qtsx_CongDoan_Id === data.tits_qtsx_CongDoan_Id &&
+          list.tits_qtsx_Xuong_Id === data.tits_qtsx_Xuong_Id
+        ) {
+          const tramExists = list.list_Trams.some(
+            (d) => d.tits_qtsx_Tram_Id === data.tits_qtsx_Tram_Id
+          );
 
-        if (tramExists) {
-          Helpers.alertError(`Trạm ${data.tenTram} đã được thêm`);
-          return list;
-        } else {
+          if (tramExists) {
+            Helpers.alertError(`Trạm ${data.tenTram} đã được thêm`);
+            return list;
+          } else {
+            return {
+              ...list,
+              list_Trams: [...list.list_Trams, data],
+            };
+          }
+        }
+        return list;
+      });
+      setFieldTouch(true);
+      setListCongDoan(newData);
+    }
+    if (data.loai === "edit") {
+      const newData = ListCongDoan.map((list) => {
+        if (
+          list.tits_qtsx_CongDoan_Id.toLowerCase() ===
+            data.tits_qtsx_CongDoan_Id.toLowerCase() &&
+          list.tits_qtsx_Xuong_Id.toLowerCase() ===
+            data.tits_qtsx_Xuong_Id.toLowerCase()
+        ) {
           return {
             ...list,
-            list_Trams: [...list.list_Trams, data],
+            list_Trams: list.list_Trams.map((tram) => {
+              if (
+                tram.tits_qtsx_Tram_Id.toLowerCase() ===
+                data.tits_qtsx_Tram_Id.toLowerCase()
+              ) {
+                return data;
+              }
+              return tram;
+            }),
           };
         }
-      }
-      return list;
-    });
-    setFieldTouch(true);
-    setListCongDoan(newData);
+        return list;
+      });
+      setFieldTouch(true);
+      setListCongDoan(newData);
+    }
   };
 
   const goBack = () => {
@@ -942,6 +1007,18 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           : `/${id}/xac-nhan`,
         ""
       )}`
+    );
+  };
+
+  const handleChangeNgayBanHanh = (datetime) => {
+    setNgayBanHanh(datetime.format("DD/MM/YYYY"));
+  };
+
+  const disabledDate = (current) => {
+    return (
+      current &&
+      current <
+        dayjs(NgayBanHanh, "DD/MM/YYYY").subtract(1, "day").startOf("day")
     );
   };
 
@@ -999,17 +1076,6 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
-          {/* <Divider
-            orientation="left"
-            backgroundColor="none"
-            style={{
-              background: "none",
-              fontWeight: "bold",
-              marginBottom: "15px",
-            }}
-          >
-            Sản phẩm
-          </Divider> */}
           <Row>
             <Col
               xxl={12}
@@ -1307,6 +1373,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
                   format={"DD/MM/YYYY"}
                   allowClear={false}
                   disabled={type === "new" || type === "edit" ? false : true}
+                  onChange={(datetime) => handleChangeNgayBanHanh(datetime)}
                 />
               </FormItem>
             </Col>
@@ -1334,6 +1401,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
                   format={"DD/MM/YYYY"}
                   allowClear={false}
                   disabled={type === "new" || type === "edit" ? false : true}
+                  disabledDate={disabledDate}
                 />
               </FormItem>
             </Col>
@@ -1416,7 +1484,8 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
         className="th-card-margin-bottom th-card-reset-margin"
         title={"Danh sách công đoạn"}
       >
-        {(type === "new" || type === "edit") && (
+        {(type === "new" ||
+          (type === "edit" && info.tinhTrang === "Chưa duyệt")) && (
           <div align={"end"}>
             <Button
               icon={<PlusCircleOutlined />}

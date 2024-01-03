@@ -203,6 +203,13 @@ function Kho({ match, history, permission }) {
   };
   let renderHead = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -247,13 +254,6 @@ function Kho({ match, history, permission }) {
       key: "chiTietChungTus",
       align: "center",
       render: (val) => renderChungTu(val),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
     },
   ];
 

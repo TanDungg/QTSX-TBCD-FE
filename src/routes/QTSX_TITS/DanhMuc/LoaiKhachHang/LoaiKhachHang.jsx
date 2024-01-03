@@ -166,6 +166,13 @@ function LoaiKhachHang({ history, permission }) {
 
   let renderHead = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "stt",
       key: "stt",
@@ -204,13 +211,6 @@ function LoaiKhachHang({ history, permission }) {
       ),
       onFilter: (value, record) => record.tenLoaiKhachHang.includes(value),
       filterSearch: true,
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
     },
   ];
 

@@ -101,6 +101,7 @@ function ModalThemHinhAnh({ openModalFS, openModal, itemData, refesh }) {
       .then((res) => {
         if (res && res.status !== 409) {
           openModalFS(false);
+          setListFileAnh([]);
           resetFields();
           refesh();
         }
@@ -110,6 +111,7 @@ function ModalThemHinhAnh({ openModalFS, openModal, itemData, refesh }) {
 
   const handleCancel = () => {
     openModalFS(false);
+    setListFileAnh([]);
     resetFields();
     refesh();
   };

@@ -191,6 +191,13 @@ function LoaiDinhMucTonKho({ permission, history }) {
 
   let colValues = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -228,13 +235,6 @@ function LoaiDinhMucTonKho({ permission, history }) {
       ),
       onFilter: (value, record) => record.tenLoaiDinhMucTonKho.includes(value),
       filterSearch: true,
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
     },
   ];
   const components = {

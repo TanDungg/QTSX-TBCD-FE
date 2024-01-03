@@ -1060,8 +1060,10 @@ function MaySanXuat({ match, history, permission }) {
       );
       setSelectedBatDau(newBatDau);
 
-      setSelectedKanBan(newSelectedKanBan);
-      setSelectedKeys(newSelectedKey);
+      if (!newBatDau.length) {
+        setSelectedKanBan(newSelectedKanBan);
+        setSelectedKeys(newSelectedKey);
+      }
     },
   };
 

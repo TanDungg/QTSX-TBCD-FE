@@ -157,6 +157,13 @@ function LoaiNhaCungCap({ match, history, permission }) {
   let dataList = reDataForTable(data.datalist, page, pageSize);
   let renderHead = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -194,13 +201,6 @@ function LoaiNhaCungCap({ match, history, permission }) {
       ),
       onFilter: (value, record) => record.tenLoaiNhaCungCap.includes(value),
       filterSearch: true,
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
     },
   ];
 

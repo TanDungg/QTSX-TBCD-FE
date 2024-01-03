@@ -187,7 +187,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               (data) => {
                 return {
                   ...data,
-                  thanhTien: data.soLuong * data.donGia,
+                  thanhTien: data.donGia && data.soLuong * data.donGia,
                 };
               }
             );

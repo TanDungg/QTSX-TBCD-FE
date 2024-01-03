@@ -153,6 +153,13 @@ function ChucVu({ history, permission }) {
 
   let colValues = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -190,14 +197,6 @@ function ChucVu({ history, permission }) {
       ),
       onFilter: (value, record) => record.tenChucVu.includes(value),
       filterSearch: true,
-    },
-
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
     },
   ];
   const components = {

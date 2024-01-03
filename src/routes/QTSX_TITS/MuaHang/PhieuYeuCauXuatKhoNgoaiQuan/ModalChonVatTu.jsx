@@ -448,6 +448,7 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
                     step="0.01"
                     className="input-item"
                     placeholder="Nhập số lượng"
+                    inputMode="numeric"
                   />
                 </FormItem>
               </Col>
@@ -497,6 +498,7 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
                     step="0.01"
                     className="input-item"
                     placeholder="Nhập số lượng kiện"
+                    inputMode="numeric"
                   />
                 </FormItem>
               </Col>
@@ -516,6 +518,7 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
                     step="0.01"
                     className="input-item"
                     placeholder="Nhập số lượng nhập khẩu"
+                    inputMode="numeric"
                   />
                 </FormItem>
               </Col>
@@ -543,6 +546,7 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
                     step="0.01"
                     className="input-item"
                     placeholder="Nhập số lượng nhập khẩu"
+                    inputMode="numeric"
                   />
                 </FormItem>
               </Col>

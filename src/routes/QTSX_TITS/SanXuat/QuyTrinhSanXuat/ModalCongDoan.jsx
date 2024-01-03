@@ -15,7 +15,6 @@ import { Select } from "src/components/Common";
 import { DEFAULT_FORM_CONGDOAN } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
-  getDateNow,
   getLocalStorage,
   getTokenInfo,
 } from "src/util/Common";
@@ -32,13 +31,18 @@ function ModalCongDoan({ openModalFS, openModal, DataThemCongDoan, itemData }) {
   };
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { resetFields } = form;
+  const { resetFields, setFieldsValue } = form;
   const [ListCongDoan, setListCongDoan] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
 
   useEffect(() => {
     if (openModal) {
       getListCongDoan();
+      setFieldsValue({
+        themcongdoan: {
+          isChoPhepSCL: true,
+        },
+      });
     }
     return () => {
       dispatch(fetchReset());

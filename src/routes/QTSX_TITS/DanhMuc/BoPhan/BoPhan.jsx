@@ -195,6 +195,13 @@ function BoPhan({ match, permission, history }) {
   };
   let colValues = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "stt",
       key: "stt",
@@ -249,14 +256,6 @@ function BoPhan({ match, permission, history }) {
       ),
       onFilter: (value, record) => record.tenPhongBan.includes(value),
       filterSearch: true,
-    },
-
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
     },
   ];
   const components = {
