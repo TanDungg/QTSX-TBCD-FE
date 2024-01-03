@@ -461,65 +461,6 @@ function XuatKhoVatTu({ match, history, permission }) {
     });
   };
 
-  const handlePrint = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuSanXuat/${SelectedDevice[0].id}?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const listVatTu =
-            res.data.chiTiet_PhieuXuatKhoVatTus &&
-            JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus).map((list) => {
-              const SoLuong = list.chiTiet_LuuVatTus.reduce(
-                (tong, sl) => tong + sl.soLuongThucXuat,
-                0
-              );
-              return {
-                ...list,
-                soLuongThucXuat: SoLuong,
-              };
-            });
-          const newData = {
-            ...res.data,
-            boPhan: res.data.tenPhongBan,
-            lstpxkvtct: listVatTu,
-          };
-
-          new Promise((resolve, reject) => {
-            dispatch(
-              fetchStart(
-                `tits_qtsx_PhieuXuatKhoVatTuSanXuat/export-pdf`,
-                "POST",
-                newData,
-                "",
-                "",
-                resolve,
-                reject
-              )
-            );
-          }).then((res) => {
-            exportPDF("PhieuXuatKhoVatTu", res.data.datapdf);
-            setSelectedDevice([]);
-            setSelectedKeys([]);
-          });
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
   const handleXuatExcel = () => {
     const params = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id,

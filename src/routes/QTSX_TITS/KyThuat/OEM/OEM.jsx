@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Col, Row, DatePicker, Tag } from "antd";
 import {
   PlusOutlined,
-  EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
 } from "@ant-design/icons";
@@ -26,14 +25,13 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { BASE_URL_API } from "src/constants/Config";
 import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
 function OEM({ match, history, permission }) {
-  const { width, loading, data } = useSelector(({ common }) => common).toJS();
+  const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);

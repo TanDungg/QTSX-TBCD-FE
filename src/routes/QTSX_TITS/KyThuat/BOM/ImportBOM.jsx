@@ -45,7 +45,7 @@ function ImportBOM({
   const [dataView, setDataView] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
-  const [HangTrung, setHangTrung] = useState([]);
+  // const [HangTrung, setHangTrung] = useState([]);
   const [DataLoi, setDataLoi] = useState();
   const [ActiceModalThietLap, setActiceModalThietLap] = useState(false);
   const [dataThietLap, setDataThietLap] = useState({
@@ -69,25 +69,25 @@ function ImportBOM({
     dongKien: true,
   });
   const [message, setMessageError] = useState([]);
-  const renderLoi = (val) => {
-    let check = false;
-    let messageLoi = "";
-    if (DataLoi && DataLoi.length > 0) {
-      DataLoi.forEach((dt) => {
-        if (dt.maSanPham === val) {
-          check = true;
-          messageLoi = dt.ghiChuImport;
-        }
-      });
-    }
-    return check ? (
-      <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
-        {val}
-      </Popover>
-    ) : (
-      <span>{val}</span>
-    );
-  };
+  // const renderLoi = (val) => {
+  //   let check = false;
+  //   let messageLoi = "";
+  //   if (DataLoi && DataLoi.length > 0) {
+  //     DataLoi.forEach((dt) => {
+  //       if (dt.maSanPham === val) {
+  //         check = true;
+  //         messageLoi = dt.ghiChuImport;
+  //       }
+  //     });
+  //   }
+  //   return check ? (
+  //     <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
+  //       {val}
+  //     </Popover>
+  //   ) : (
+  //     <span>{val}</span>
+  //   );
+  // };
   let colValues = () => {
     const ThietLap = {
       title: "Chuyển",
@@ -2154,14 +2154,15 @@ function ImportBOM({
   };
 
   const RowStyle = (current, index) => {
-    if (HangTrung.length > 0) {
-      HangTrung.forEach((maChiTiet) => {
-        if (current.maChiTiet === maChiTiet) {
-          setCheckDanger(true);
-          return "red-row";
-        }
-      });
-    } else if (current.tenChiTiet === undefined) {
+    // if (HangTrung.length > 0) {
+    //   HangTrung.forEach((maChiTiet) => {
+    //     if (current.maChiTiet === maChiTiet) {
+    //       setCheckDanger(true);
+    //       return "red-row";
+    //     }
+    //   });
+    // } else
+    if (current.tenChiTiet === undefined) {
       setCheckDanger(true);
       setMessageError("Tên chi tiết không được rỗng");
       return "red-row";

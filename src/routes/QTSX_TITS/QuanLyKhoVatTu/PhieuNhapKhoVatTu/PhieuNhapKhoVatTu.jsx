@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
 import {
-  PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  PrinterOutlined,
   DownloadOutlined,
   CheckCircleOutlined,
 } from "@ant-design/icons";
@@ -23,9 +21,6 @@ import {
   convertObjectToUrlParams,
   reDataForTable,
   getDateNow,
-  getLocalStorage,
-  getTokenInfo,
-  exportPDF,
   removeDuplicates,
   exportExcel,
 } from "src/util/Common";
@@ -38,14 +33,12 @@ const { RangePicker } = DatePicker;
 function NhapKhoVatTu({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [selectedDevice, setSelectedDevice] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [DataXuatExcel, setDataXuatExcel] = useState([]);
   const [ListKhoVatTu, setListKhoVatTu] = useState([]);
   const [Kho, setKho] = useState("");
 
@@ -82,34 +75,6 @@ function NhapKhoVatTu({ match, history, permission }) {
     dispatch(
       fetchStart(`tits_qtsx_PhieuNhapKhoVatTu?${param}`, "GET", null, "LIST")
     );
-    const paramXuat = convertObjectToUrlParams({
-      keyword,
-      tits_qtsx_CauTrucKho_Id,
-      ngayBatDau,
-      ngayKetThuc,
-      page: -1,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuNhapKhoVatTu?${paramXuat}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDataXuatExcel(res.data);
-        } else {
-          setDataXuatExcel([]);
-        }
-      })
-      .catch((error) => console.error(error));
   };
 
   const getKhoVatTu = () => {

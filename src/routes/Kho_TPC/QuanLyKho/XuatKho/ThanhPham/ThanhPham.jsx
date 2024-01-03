@@ -467,11 +467,11 @@ function ThanhPham({ match, history, permission }) {
     setPage(1);
     loadData(keyword, val, FromDate, ToDate, 1);
   };
-  const handleClearKho = (val) => {
-    setKho("");
-    setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
-  };
+  // const handleClearKho = (val) => {
+  //   setKho("");
+  //   setPage(1);
+  //   loadData(keyword, "", FromDate, ToDate, 1);
+  // };
 
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);

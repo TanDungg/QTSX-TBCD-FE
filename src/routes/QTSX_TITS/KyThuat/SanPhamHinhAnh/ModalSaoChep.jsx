@@ -1,19 +1,14 @@
 import { Modal as AntModal, Form, Row, Button, Card, Divider } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { fetchReset, fetchStart } from "src/appRedux/actions";
+import { fetchStart } from "src/appRedux/actions";
 import { Select } from "src/components/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import { getLocalStorage, getTokenInfo } from "src/util/Common";
 const FormItem = Form.Item;
 
 function ModalSaoChep({ openModalFS, openModal, itemData, refesh }) {
   const dispatch = useDispatch();
-  const INFO = {
-    ...getLocalStorage("menu"),
-    user_Id: getTokenInfo().id,
-    token: getTokenInfo().token,
-  };
+
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { setFieldsValue, resetFields } = form;

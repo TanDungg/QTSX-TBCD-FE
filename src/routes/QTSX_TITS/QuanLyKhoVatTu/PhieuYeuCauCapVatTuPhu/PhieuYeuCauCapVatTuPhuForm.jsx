@@ -41,7 +41,6 @@ import {
 } from "src/util/Common";
 import AddVatTuModal from "./ModalChonVatTu";
 import ModalTuChoi from "./ModalTuChoi";
-import dayjs from "dayjs";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -59,7 +58,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
   const [ListUser, setListUser] = useState([]);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(false);
-  const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
+  const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   const [editingRecord, setEditingRecord] = useState([]);
 

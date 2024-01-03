@@ -1,7 +1,7 @@
 import { Modal as AntModal, Card, Input, Row, Col, Form, Tag } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
+import { fetchStart } from "src/appRedux/actions/Common";
 import { FormSubmit, Select } from "src/components/Common";
 import { DEFAULT_FORM_XUATKHONGOAIQUAN } from "src/constants/Config";
 import {

@@ -1,20 +1,17 @@
-import { Modal as AntModal, Button, Row, Form, DatePicker, Input } from "antd";
+import { Modal as AntModal, Button, Row, Form, Input } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
-  getDateNow,
   getLocalStorage,
   getTokenInfo,
 } from "src/util/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { Select } from "src/components/Common";
-import moment from "moment";
 import Helpers from "src/helpers";
 
 const FormItem = Form.Item;
-const { RangePicker } = DatePicker;
 
 function ModalAddVatTuSanPham({ openModalFS, openModal, refesh, hanldeThem }) {
   const dispatch = useDispatch();
@@ -26,7 +23,7 @@ function ModalAddVatTuSanPham({ openModalFS, openModal, refesh, hanldeThem }) {
   };
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { resetFields, setFieldsValue } = form;
+  const { resetFields } = form;
   const [ListSanPham, setListSanPham] = useState([]);
 
   useEffect(() => {

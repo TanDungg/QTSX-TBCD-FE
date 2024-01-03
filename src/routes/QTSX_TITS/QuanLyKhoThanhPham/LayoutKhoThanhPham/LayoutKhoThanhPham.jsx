@@ -5,19 +5,13 @@ import { map } from "lodash";
 import { Table, EditableTableRow, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import ModalChiTietKho from "./ModalChiTietKho";
-import {
-  convertObjectToUrlParams,
-  reDataForTable,
-  getLocalStorage,
-  getTokenInfo,
-} from "src/util/Common";
+import { reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 function LayoutKhoThanhPham({ history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [ListKho, setListKho] = useState([]);
   const [ListChiTietKho, setListChiTietKho] = useState([]);
   const [ListchiTietThanhPham, setListchiTietThanhPham] = useState([]);
@@ -91,24 +85,24 @@ function LayoutKhoThanhPham({ history, permission }) {
       }
     });
   };
-  /**
-   * Lấy dữ liệu về
-   *
-   */
-  const loadData = (cauTrucKho_Id) => {
-    const param = convertObjectToUrlParams({
-      cauTrucKho_Id,
-      donVi_Id: INFO.donVi_Id,
-    });
-    dispatch(
-      fetchStart(
-        `lkn_ViTriLuuKho/get-lay-out-kho-thanh-pham?${param}`,
-        "GET",
-        null,
-        "LIST"
-      )
-    );
-  };
+  // /**
+  //  * Lấy dữ liệu về
+  //  *
+  //  */
+  // const loadData = (cauTrucKho_Id) => {
+  //   const param = convertObjectToUrlParams({
+  //     cauTrucKho_Id,
+  //     donVi_Id: INFO.donVi_Id,
+  //   });
+  //   dispatch(
+  //     fetchStart(
+  //       `lkn_ViTriLuuKho/get-lay-out-kho-thanh-pham?${param}`,
+  //       "GET",
+  //       null,
+  //       "LIST"
+  //     )
+  //   );
+  // };
 
   let renderHead = [
     {

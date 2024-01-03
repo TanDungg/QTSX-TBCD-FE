@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Card, Button, Row, Col, Divider } from "antd";
 import {
-  CheckCircleOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { map, find, isEmpty, remove } from "lodash";
+import { map, isEmpty, remove } from "lodash";
 import {
   Table,
   EditableTableRow,
@@ -19,18 +18,14 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
-  getLocalStorage,
-  getTokenInfo,
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { Link } from "react-router-dom";
 import ModalAddViTri from "./ModalAddViTri";
 const { EditableRow, EditableCell } = EditableTableRow;
 function KhoThanhPham({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [ListThanhPhamSelected, setListThanhPhamSelected] = useState([]);

@@ -2,23 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Card, Form, Spin } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
-import { Icon } from "@ant-design/compatible";
-
-import { Input, TreeSelect, FormSubmit } from "src/components/Common";
-import {
-  fetchStart,
-  fetchReset,
-  fetchResetItem,
-} from "src/appRedux/actions/Common";
+import { Input, FormSubmit } from "src/components/Common";
+import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
-import { convertObjectToUrlParams, getLocalStorage } from "src/util/Common";
+import { getLocalStorage } from "src/util/Common";
 const FormItem = Form.Item;
-
-const initialState = {
-  parent_Id: "root",
-};
-
 function MenuAppForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
