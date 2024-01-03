@@ -24,7 +24,6 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
-  exportPDF,
   removeDuplicates,
   exportExcel,
 } from "src/util/Common";
@@ -40,13 +39,12 @@ function XuatKhoThanhPham({ match, history, permission }) {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
-  const [DataXuatExcel, setDataXuatExcel] = useState([]);
   const [ListXuongSanXuat, setListXuongSanXuat] = useState([]);
   const [KhoThanhPham, setKhoThanhPham] = useState(null);
   const [keyword, setKeyword] = useState(null);
   const [TuNgay, setTuNgay] = useState(getDateNow(-7));
   const [DenNgay, setDenNgay] = useState(getDateNow());
-  const [SelectedDevice, setSelectedDevice] = useState([]);
+  const [SelectedPhieu, setSelectedPhieu] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
@@ -82,35 +80,6 @@ function XuatKhoThanhPham({ match, history, permission }) {
         "LIST"
       )
     );
-    const paramXuat = convertObjectToUrlParams({
-      keyword,
-      tits_qtsx_Xuong_Id,
-      donVi_Id: INFO.donVi_Id,
-      tuNgay,
-      denNgay,
-      page: -1,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuXuatKhoThanhPham?${paramXuat}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDataXuatExcel(res.data);
-        } else {
-          setDataXuatExcel([]);
-        }
-      })
-      .catch((error) => console.error(error));
   };
 
   const getXuongSanXuat = () => {
@@ -424,7 +393,7 @@ function XuatKhoThanhPham({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuXuatKhoThanhPham/${SelectedDevice[0].id}?donVi_Id=${INFO.donVi_Id}`,
+          `tits_qtsx_PhieuXuatKhoThanhPham/${SelectedPhieu[0].id}?donVi_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -437,7 +406,6 @@ function XuatKhoThanhPham({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           const data = res.data;
-          console.log(data);
           const newData = {
             ...data,
             list_ThanhPhams:
@@ -480,7 +448,7 @@ function XuatKhoThanhPham({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handleXuatExcel}
-          disabled={SelectedDevice.length === 0}
+          disabled={SelectedPhieu.length === 0}
         >
           Xuất excel
         </Button>
@@ -509,12 +477,12 @@ function XuatKhoThanhPham({ match, history, permission }) {
 
   const rowSelection = {
     selectedRowKeys: SelectedKeys,
-    selectedRows: SelectedDevice,
+    selectedRows: SelectedPhieu,
 
     onChange: (selectedRowKeys, selectedRows) => {
       const row =
-        SelectedDevice.length > 0
-          ? selectedRows.filter((d) => d.key !== SelectedDevice[0].key)
+        SelectedPhieu.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectedPhieu[0].key)
           : [...selectedRows];
 
       const key =
@@ -524,7 +492,7 @@ function XuatKhoThanhPham({ match, history, permission }) {
       if (row.length && row[0].tinhTrang === "Bị từ chối") {
         Helpers.alertError("Không được chọn phiếu đã bị từ chối");
       } else {
-        setSelectedDevice(row);
+        setSelectedPhieu(row);
         setSelectedKeys(key);
       }
     },

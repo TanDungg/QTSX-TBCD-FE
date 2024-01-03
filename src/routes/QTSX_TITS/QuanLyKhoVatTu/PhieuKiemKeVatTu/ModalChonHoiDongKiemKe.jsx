@@ -186,7 +186,7 @@ function ModalChonHoiDongKiemKe({
 
   return (
     <AntModal
-      title={`Chọn vật tư điều chuyển`}
+      title={`Chọn hội đồng kiểm kê`}
       open={openModal}
       width={width > 1000 ? `60%` : "80%"}
       closable={true}

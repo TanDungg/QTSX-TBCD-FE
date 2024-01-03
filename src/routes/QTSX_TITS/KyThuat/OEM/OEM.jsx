@@ -37,7 +37,7 @@ function OEM({ match, history, permission }) {
   const [page, setPage] = useState(1);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
-  const [TuNgay, setTuNgay] = useState(getDateNow(-7));
+  const [TuNgay, setTuNgay] = useState(getDateNow(-14));
   const [DenNgay, setDenNgay] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
 
@@ -249,11 +249,18 @@ function OEM({ match, history, permission }) {
 
   let renderHead = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 100,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
       align: "center",
-      width: 45,
+      width: 50,
     },
     {
       title: "Mã OEM",
@@ -308,6 +315,7 @@ function OEM({ match, history, permission }) {
       dataIndex: "lanBanHanh",
       key: "lanBanHanh",
       align: "center",
+      width: 120,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -388,6 +396,7 @@ function OEM({ match, history, permission }) {
       dataIndex: "trangThai",
       key: "trangThai",
       align: "center",
+      width: 120,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -418,13 +427,6 @@ function OEM({ match, history, permission }) {
           )}
         </div>
       ),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 100,
-      render: (value) => actionContent(value),
     },
   ];
 

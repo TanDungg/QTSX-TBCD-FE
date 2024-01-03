@@ -287,8 +287,8 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
   const Title = (
     <span>
       Chọn vị trí xuất kho của vật tư/chi tiết -{" "}
-      {itemData.ListViTriVatTu.tenVatTu} (Số lượng:{" "}
-      {itemData.ListViTriVatTu.soLuongYeuCau})
+      {itemData.ListViTriVatTu && itemData.ListViTriVatTu.tenVatTu} (Số lượng:{" "}
+      {itemData.ListViTriVatTu && itemData.ListViTriVatTu.soLuongYeuCau})
     </span>
   );
 

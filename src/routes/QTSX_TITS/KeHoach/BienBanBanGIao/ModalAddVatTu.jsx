@@ -90,7 +90,7 @@ function ModalAddVatTu({ openModalFS, openModal, addSanPham, listVT }) {
     saveData(values.chitiet);
   };
 
-  const title = "Thông tin vật tư";
+  const title = "Thông tin bàn giao";
 
   return (
     <AntModal
@@ -110,14 +110,14 @@ function ModalAddVatTu({ openModalFS, openModal, addSanPham, listVT }) {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Vật tư"
+            label="Số Cont"
             name={["chitiet", "tits_qtsx_VatTu_Id"]}
             rules={[{ type: "string", required: true }]}
           >
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListVatTu}
-              placeholder="Chọn Vật tư"
+              placeholder="Chọn số Cont"
               optionsvalue={["id", "name"]}
               style={{ width: "100%" }}
               showSearch
@@ -127,7 +127,7 @@ function ModalAddVatTu({ openModalFS, openModal, addSanPham, listVT }) {
                   if (vt.id === val) {
                     setFieldsValue({
                       chitiet: {
-                        tenDonViTinh: vt.tenDonViTinh,
+                        soDonHang: vt.soDonHang,
                       },
                     });
                   }
@@ -136,24 +136,39 @@ function ModalAddVatTu({ openModalFS, openModal, addSanPham, listVT }) {
             />
           </FormItem>
           <FormItem
-            label="Đơn vị tính"
-            name={["chitiet", "tenDonViTinh"]}
+            label="Số đơn hàng"
+            name={["chitiet", "soDonHang"]}
             rules={[{ required: true }]}
           >
-            <Input placeholder="Đơn vị tính" disabled={true}></Input>
+            <Input placeholder="Số đơn hàng" disabled={true}></Input>
           </FormItem>
           <FormItem
-            label="Số lượng"
+            label="Số VIN"
             name={["chitiet", "soLuong"]}
             rules={[
               {
+                type: "array",
                 required: true,
               },
             ]}
           >
-            <Input type="number" placeholder="Số lượng"></Input>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListVatTu}
+              placeholder="Chọn số Cont"
+              optionsvalue={["id", "name"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+            />
           </FormItem>
-
+          <FormItem
+            label="Ghi chú"
+            name={["chitiet", "moTa"]}
+            rules={[{ type: "string" }]}
+          >
+            <Input placeholder="Ghi chú"></Input>
+          </FormItem>
           <FormSubmit disabled={fieldTouch} />
         </Form>
       </div>

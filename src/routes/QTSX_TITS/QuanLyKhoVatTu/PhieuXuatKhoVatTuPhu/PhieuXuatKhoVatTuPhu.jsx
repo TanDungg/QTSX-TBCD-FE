@@ -24,7 +24,6 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
-  exportPDF,
   removeDuplicates,
   exportExcel,
 } from "src/util/Common";
@@ -512,7 +511,7 @@ function XuatKhoVatTu({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handleXuatExcel}
-          disabled={dataList.length === 0}
+          disabled={SelectedPhieu.length === 0}
         >
           Xuất excel
         </Button>

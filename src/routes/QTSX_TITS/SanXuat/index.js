@@ -15,20 +15,27 @@ const QuyTrinhSanXuatForm = asyncComponent(() =>
 const TienDoSanXuat = asyncComponent(() =>
   import("./TienDoSanXuat/TienDoSanXuat")
 );
+
 //Theo doi tiến độ sản xuất
 const TheoDoiTienDoSanXuat = asyncComponent(() =>
   import("./TheoDoiTienDoSanXuat/TheoDoiTienDoSanXuat")
 );
+
 //Cấu hình KanBan
 const CauHinhKanBan = asyncComponent(() =>
-  import("./CauHinhKanBan/CauHinhKanBan")
+  import("./KanBan/CauHinhKanBan/CauHinhKanBan")
+);
+
+//Chi tiết cấu hình KanBan
+const ChiTietCauHinhKanBan = asyncComponent(() =>
+  import("./KanBan/ChiTietCauHinhKanBan/ChiTietCauHinhKanBan")
 );
 
 //In KanBan
-const InKanBan = asyncComponent(() => import("./InKanBan/InKanBan"));
+const InKanBan = asyncComponent(() => import("./KanBan/InKanBan/InKanBan"));
 
 //Máy sản xuất
-const MaySanXuat = asyncComponent(() => import("./MaySanXuat/MaySanXuat"));
+const MaySanXuat = asyncComponent(() => import("./KanBan/MaySanXuat/MaySanXuat"));
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -75,21 +82,28 @@ const App = ({ match, location, menus, permission }) => {
       />
       {/* Cấu hình KanBan */}
       <Route
-        path={`${match.url}/cau-hinh-kanban`}
+        path={`${match.url}/kanban/cau-hinh`}
         exact
         component={Auth(CauHinhKanBan, menus, pathname, permission)}
       />
 
+      {/* Chi tiết cầu hình KanBan */}
+      <Route
+        path={`${match.url}/kanban/chi-tiet-cau-hinh`}
+        exact
+        component={Auth(ChiTietCauHinhKanBan, menus, pathname, permission)}
+      />
+
       {/* In KanBan */}
       <Route
-        path={`${match.url}/in-kanban`}
+        path={`${match.url}/kanban/in`}
         exact
         component={Auth(InKanBan, menus, pathname, permission)}
       />
 
       {/* Máy sản xuất */}
       <Route
-        path={`${match.url}/may-san-xuat`}
+        path={`${match.url}/kanban/may-san-xuat`}
         exact
         component={Auth(MaySanXuat, menus, pathname, permission)}
       />

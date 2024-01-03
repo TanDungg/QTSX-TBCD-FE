@@ -1,4 +1,4 @@
-import { Modal as AntModal, Button, Row, Form, Input } from "antd";
+import { Modal as AntModal, Button, Row, Form, Input, Divider } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
@@ -8,9 +8,8 @@ import { Select } from "src/components/Common";
 
 const FormItem = Form.Item;
 
-function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
+function ModalAddViTri({ openModalFS, openModal, refesh, itemData }) {
   const dispatch = useDispatch();
-  const [listVatTu, setListVatTu] = useState([]);
   const [ListKe, setListKe] = useState([]);
   const [ListTang, setListTang] = useState([]);
   const [ListNgan, setListNgan] = useState([]);
@@ -21,43 +20,34 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
 
   useEffect(() => {
     if (openModal) {
-      getKe(vatTu.tits_qtsx_CauTrucKho_Id);
-      resetFields();
-      if (vatTu.tits_qtsx_Ke_Id) {
+      getKe(itemData.tits_qtsx_CauTrucKho_Id);
+      if (!itemData.tits_qtsx_Ke_Id) {
         setFieldsValue({
-          vatTu: {
-            tits_qtsx_Ke_Id: vatTu.tits_qtsx_Ke_Id,
-          },
-        });
-        getTang(vatTu.tits_qtsx_Ke_Id);
-      }
-      if (vatTu.tits_qtsx_Tang_Id) {
-        setFieldsValue({
-          vatTu: {
-            tits_qtsx_Tang_Id: vatTu.tits_qtsx_Tang_Id,
-          },
-        });
-        getNgan(vatTu.tits_qtsx_Tang_Id);
-      }
-      if (vatTu.tits_qtsx_Ngan_Id) {
-        setFieldsValue({
-          vatTu: {
-            tits_qtsx_Ngan_Id: vatTu.tits_qtsx_Ngan_Id,
+          addvitrivattu: {
+            tenVatTu: itemData.tenVatTu,
+            soLuong: itemData.soLuong,
           },
         });
       }
-      setFieldsValue({
-        vatTu: {
-          tits_qtsx_VatTu_Id: vatTu.tits_qtsx_VatTu_Id,
-          soLuong: vatTu.soLuong,
-        },
-      });
-      setListVatTu([
-        {
-          id: vatTu.tits_qtsx_VatTu_Id,
-          name: `${vatTu.maVatTu} - ${vatTu.tenVatTu}`,
-        },
-      ]);
+      if (itemData.tits_qtsx_Ke_Id) {
+        getTang(itemData.tits_qtsx_Ke_Id);
+        getNgan(itemData.tits_qtsx_Tang_Id);
+        setFieldsValue({
+          addvitrivattu: {
+            tenVatTu: itemData.tenVatTu,
+            soLuong: itemData.soLuong,
+            tits_qtsx_Ke_Id:
+              itemData.tits_qtsx_Ke_Id &&
+              itemData.tits_qtsx_Ke_Id.toLowerCase(),
+            tits_qtsx_Tang_Id:
+              itemData.tits_qtsx_Tang_Id &&
+              itemData.tits_qtsx_Tang_Id.toLowerCase(),
+            tits_qtsx_Ngan_Id:
+              itemData.tits_qtsx_Ngan_Id &&
+              itemData.tits_qtsx_Ngan_Id.toLowerCase(),
+          },
+        });
+      }
     }
   }, [openModal]);
 
@@ -89,6 +79,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
       })
       .catch((error) => console.error(error));
   };
+
   const getTang = (tits_qtsx_CauTrucKho_Id) => {
     const params = convertObjectToUrlParams({
       tits_qtsx_CauTrucKho_Id,
@@ -119,10 +110,12 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
       })
       .catch((error) => console.error(error));
   };
+
   const getNgan = (tits_qtsx_CauTrucKho_Id) => {
     const params = convertObjectToUrlParams({
       tits_qtsx_CauTrucKho_Id,
       thuTu: 4,
+      isThanhPham: false,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -146,23 +139,23 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
       })
       .catch((error) => console.error(error));
   };
-  const saveData = (vattu) => {
+
+  const handleCancel = () => {
+    openModalFS(false);
+  };
+
+  const onFinish = (values) => {
     const newData = {
-      tits_qtsx_PhieuNhapKhoVatTuChiTiet_Id: vatTu.tits_qtsx_ChiTietKhoVatTu_Id,
-      tits_qtsx_Ke_Id: vattu.tits_qtsx_Ke_Id,
-      tits_qtsx_Tang_Id: vattu.tits_qtsx_Tang_Id,
-      tits_qtsx_Ngan_Id: vattu.tits_qtsx_Ngan_Id,
-      soLuong: vattu.soLuong,
-      tits_qtsx_VatTu_Id: vattu.tits_qtsx_VatTu_Id,
-      tits_qtsx_CauTrucKho_Id: vatTu.tits_qtsx_CauTrucKho_Id,
+      ...values.addvitrivattu,
+      tits_qtsx_VatTu_Id: itemData.tits_qtsx_VatTu_Id,
     };
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_ViTriLuuKhoVatTu/vi-tri-luu-kho-vat-tu?id=${vatTu.tits_qtsx_ChiTietKhoVatTu_Id}`,
+          `tits_qtsx_ViTriLuuKhoVatTu/vi-tri-luu-kho-vat-tu?id=${itemData.tits_qtsx_ChiTietKhoVatTu_Id}`,
           "PUT",
           newData,
-          key === "add" ? "ADD" : "EDIT",
+          "EDIT",
           "",
           resolve,
           reject
@@ -179,40 +172,34 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
       .catch((error) => console.error(error));
   };
 
-  const handleCancel = () => {
-    openModalFS(false);
-  };
-  /**
-   * Khi submit
-   *
-   * @param {*} values
-   */
-  const onFinish = (values) => {
-    saveData(values.vatTu);
-  };
   const handleSelectKe = (val) => {
     getTang(val);
     setListNgan([]);
     setFieldsValue({
-      vatTu: {
+      addvitrivattu: {
         tits_qtsx_Tang_Id: null,
         tits_qtsx_Ngan_Id: null,
       },
     });
   };
+
   const handleSelectTang = (val) => {
     getNgan(val);
     setFieldsValue({
-      vatTu: {
+      addvitrivattu: {
         tits_qtsx_Ngan_Id: null,
       },
     });
   };
   return (
     <AntModal
-      title={key === "add" ? "Thêm vị trí" : "Chỉnh sửa vị trí"}
+      title={
+        itemData && !itemData.tits_qtsx_Ke_Id
+          ? "Thêm vị trí"
+          : "Chỉnh sửa vị trí"
+      }
       open={openModal}
-      width={`80%`}
+      width={`60%`}
       closable={true}
       onCancel={handleCancel}
       footer={null}
@@ -227,7 +214,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
         >
           <FormItem
             label="Vật tư"
-            name={["vatTu", "tits_qtsx_VatTu_Id"]}
+            name={["addvitrivattu", "tenVatTu"]}
             rules={[
               {
                 type: "string",
@@ -235,32 +222,30 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
               },
             ]}
           >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={listVatTu}
-              optionsvalue={["id", "name"]}
-              style={{ width: "100%" }}
+            <Input
+              className="input-item"
+              placeholder="Tên vật tư"
               disabled={true}
             />
           </FormItem>
           <FormItem
             label="Số lượng"
-            name={["vatTu", "soLuong"]}
+            name={["addvitrivattu", "soLuong"]}
             rules={[
               {
                 required: true,
               },
               {
-                pattern: /^[1-9]\d*$/,
+                pattern: /^[0-9]\d*$/,
                 message: "Số lượng không hợp lệ!",
               },
             ]}
           >
-            <Input placeholder="Số lượng" type="number"></Input>
+            <Input className="input-item" placeholder="Số lượng" />
           </FormItem>
           <FormItem
             label="Kệ"
-            name={["vatTu", "tits_qtsx_Ke_Id"]}
+            name={["addvitrivattu", "tits_qtsx_Ke_Id"]}
             rules={[
               {
                 type: "string",
@@ -281,7 +266,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
           </FormItem>
           <FormItem
             label="Tầng"
-            name={["vatTu", "tits_qtsx_Tang_Id"]}
+            name={["addvitrivattu", "tits_qtsx_Tang_Id"]}
             rules={[
               {
                 type: "string",
@@ -302,7 +287,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
           </FormItem>
           <FormItem
             label="Ngăn"
-            name={["vatTu", "tits_qtsx_Ngan_Id"]}
+            name={["addvitrivattu", "tits_qtsx_Ngan_Id"]}
             rules={[
               {
                 type: "string",
@@ -320,15 +305,15 @@ function ModalAddViTri({ openModalFS, openModal, refesh, vatTu, key }) {
               optionFilterProp="name"
             />
           </FormItem>
+          <Divider />
           <Row justify={"center"}>
             <Button
               className="th-btn-margin-bottom-0"
-              style={{ marginTop: 10, marginRight: 15 }}
               type="primary"
               htmlType="submit"
               disabled={!fieldTouch}
             >
-              {key === "add" ? "Thêm" : "Lưu"}
+              {itemData && !itemData.tits_qtsx_Ke_Id ? "Thêm" : "Lưu"}
             </Button>
           </Row>
         </Form>

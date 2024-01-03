@@ -5,6 +5,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -24,9 +25,11 @@ import {
   getLocalStorage,
   getTokenInfo,
   removeDuplicates,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import Helpers from "src/helpers";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -39,8 +42,10 @@ function PhieuKiemKe({ match, history, permission }) {
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState([]);
   const [keyword, setKeyword] = useState("");
-  const [TuNgay, setTuNgay] = useState(getDateNow(-7));
+  const [TuNgay, setTuNgay] = useState(getDateNow(-14));
   const [DenNgay, setDenNgay] = useState(getDateNow());
+  const [SelectedPhieu, setSelectedPhieu] = useState([]);
+  const [SelectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -91,11 +96,14 @@ function PhieuKiemKe({ match, history, permission }) {
     const param = convertObjectToUrlParams({
       keyword,
       tits_qtsx_CauTrucKho_Id,
+      donVi_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
       page,
     });
-    dispatch(fetchStart(`tits_qtsx_PhieuKiemKe?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(`tits_qtsx_PhieuKiemKeThanhPham?${param}`, "GET", null, "LIST")
+    );
   };
 
   /**
@@ -126,7 +134,7 @@ function PhieuKiemKe({ match, history, permission }) {
    */
   const actionContent = (item) => {
     const duyet =
-      permission && permission.cof && item.tinhTrang === "Chưa xử lý" ? (
+      permission && permission.cof && item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/duyet`,
@@ -145,8 +153,8 @@ function PhieuKiemKe({ match, history, permission }) {
     const editItem =
       permission &&
       permission.edit &&
-      item.nguoiTao_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xử lý" ? (
+      item.nguoiLapPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -165,8 +173,8 @@ function PhieuKiemKe({ match, history, permission }) {
     const deleteVal =
       permission &&
       permission.del &&
-      item.nguoiTao_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xử lý"
+      item.nguoiLapPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -189,7 +197,12 @@ function PhieuKiemKe({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maPhieu, "phiếu kiểm kê");
+    ModalDeleteConfirm(
+      deleteItemAction,
+      item,
+      item.maPhieu,
+      "phiếu kiểm kê thành phẩm"
+    );
   };
 
   /**
@@ -198,7 +211,7 @@ function PhieuKiemKe({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_PhieuKiemKe/${item.id}`;
+    let url = `tits_qtsx_PhieuKiemKeThanhPham/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -211,27 +224,62 @@ function PhieuKiemKe({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
   const handleTableChange = (pagination) => {
     setPage(pagination);
     getListData(keyword, Kho, TuNgay, DenNgay, pagination);
   };
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
   const handleRedirect = () => {
     history.push({
       pathname: `${match.url}/them-moi`,
     });
   };
+
+  const handleXuatExcel = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuKiemKeThanhPham/${SelectedPhieu[0].id}?donVi_Id=${INFO.donVi_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const data = res.data;
+          const newData = {
+            ...data,
+            list_HoiDongKiemKe:
+              data.list_HoiDongKiemKe && JSON.parse(data.list_HoiDongKiemKe),
+            tits_qtsx_PhieuKiemKeThanhPhamChiTiets:
+              data.tits_qtsx_PhieuKiemKeThanhPhamChiTiets &&
+              JSON.parse(data.tits_qtsx_PhieuKiemKeThanhPhamChiTiets),
+          };
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `tits_qtsx_PhieuKiemKeThanhPham/export-file-phieu-kiem-ke-thanh-pham`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportExcel("PhieuKiemKeThanhPham", res.data.dataexcel);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
     return (
       <>
@@ -243,6 +291,15 @@ function PhieuKiemKe({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
+        </Button>
+        <Button
+          icon={<DownloadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleXuatExcel}
+          disabled={SelectedPhieu.length === 0}
+        >
+          Xuất phiếu
         </Button>
       </>
     );
@@ -268,6 +325,13 @@ function PhieuKiemKe({ match, history, permission }) {
     return <div>{detail}</div>;
   };
   let renderHead = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -309,18 +373,18 @@ function PhieuKiemKe({ match, history, permission }) {
     },
     {
       title: "Người tạo phiếu",
-      dataIndex: "tenNguoiTao",
-      key: "tenNguoiTao",
+      dataIndex: "tenNguoiLapPhieu",
+      key: "tenNguoiLapPhieu",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenNguoiTao,
-            value: d.tenNguoiTao,
+            text: d.tenNguoiLapPhieu,
+            value: d.tenNguoiLapPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.tenNguoiTao.includes(value),
+      onFilter: (value, record) => record.tenNguoiLapPhieu.includes(value),
       filterSearch: true,
     },
     {
@@ -359,9 +423,9 @@ function PhieuKiemKe({ match, history, permission }) {
           {value && (
             <Tag
               color={
-                value === "Chưa xử lý"
+                value === "Chưa duyệt"
                   ? "orange"
-                  : value === "Phiếu đã được duyệt"
+                  : value === "Đã duyệt"
                   ? "blue"
                   : "red"
               }
@@ -375,13 +439,6 @@ function PhieuKiemKe({ match, history, permission }) {
         </div>
       ),
     },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
-    },
   ];
 
   const components = {
@@ -390,6 +447,7 @@ function PhieuKiemKe({ match, history, permission }) {
       cell: EditableCell,
     },
   };
+
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
@@ -417,6 +475,29 @@ function PhieuKiemKe({ match, history, permission }) {
     setDenNgay(dateString[1]);
     setPage(1);
     getListData(keyword, Kho, dateString[0], dateString[1], 1);
+  };
+
+  const rowSelection = {
+    selectedRowKeys: SelectedKeys,
+    selectedRows: SelectedPhieu,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        SelectedPhieu.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectedPhieu[0].key)
+          : [...selectedRows];
+
+      const key =
+        SelectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
+          : [...selectedRowKeys];
+      if (row.length && row[0].tinhTrang === "Đã từ chối") {
+        Helpers.alertError("Không được chọn phiếu đã bị từ chối");
+      } else {
+        setSelectedPhieu(row);
+        setSelectedKeys(key);
+      }
+    },
   };
 
   return (
@@ -518,6 +599,13 @@ function PhieuKiemKe({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: SelectedKeys,
+          }}
         />
       </Card>
     </div>

@@ -1,4 +1,4 @@
-import { Modal as AntModal, Card, Button, Row, Col, Form } from "antd";
+import { Modal as AntModal, Card, Button, Col } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
@@ -14,10 +14,9 @@ import {
   Select,
   Table,
 } from "src/components/Common";
-import { DEFAULT_FORM_THEMVATTU } from "src/constants/Config";
 import { DeleteOutlined } from "@ant-design/icons";
+import Helpers from "src/helpers";
 
-const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function ModalChonHoiDongKiemKe({
@@ -33,10 +32,8 @@ function ModalChonHoiDongKiemKe({
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const [fieldTouch, setFieldTouch] = useState(false);
-  const [form] = Form.useForm();
-  const { resetFields } = form;
   const [ListHDKK, setListHDKK] = useState([]);
+  const [HDKK, setHDKK] = useState(null);
   const [ListHoiDongKiemKe, setListHoiDongKiemKe] = useState([]);
   const [DataHoiDongKiemKe, setDataHoiDongKiemKe] = useState([]);
 
@@ -69,13 +66,23 @@ function ModalChonHoiDongKiemKe({
       );
     }).then((res) => {
       if (res && res.data) {
-        const newData = res.data.filter((data) => {
-          if (itemData.length === 0) {
-            return data;
-          } else {
-            return !itemData.some((item) => item.id === data.user_Id);
-          }
-        });
+        const newData = res.data
+          .map((data) => {
+            if (itemData.length === 0) {
+              return {
+                ...data,
+                nhanVien: `${data.maNhanVien} - ${data.fullName}`,
+              };
+            } else {
+              return !itemData.some((item) => item.id === data.user_Id)
+                ? {
+                    ...data,
+                    nhanVien: `${data.maNhanVien} - ${data.fullName}`,
+                  }
+                : null;
+            }
+          })
+          .filter(Boolean);
 
         setListHoiDongKiemKe(newData);
         setListHDKK(res.data);
@@ -98,12 +105,7 @@ function ModalChonHoiDongKiemKe({
   };
 
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.tenNguoiKiemKe,
-      "hội đồng kiểm kê"
-    );
+    ModalDeleteConfirm(deleteItemAction, item, item.tenNguoiKiemKe, "ông/bà");
   };
 
   const deleteItemAction = (item) => {
@@ -150,43 +152,53 @@ function ModalChonHoiDongKiemKe({
     },
   };
 
-  const onFinish = (value) => {
-    const newData = ListHoiDongKiemKe.filter(
-      (data) => data.id === value.chonhoidongkiemke.id
-    );
-    const HDKK = {
-      id: newData && newData[0].user_Id,
-      tenNguoiKiemKe: newData && newData[0].fullName,
-      tenChucVu: newData && newData[0].tenChucVu,
-    };
-    setDataHoiDongKiemKe([...DataHoiDongKiemKe, HDKK]);
+  const handleSelectHDKK = (value) => {
+    const hoidongkiemke =
+      DataHoiDongKiemKe.length &&
+      DataHoiDongKiemKe.filter((hdkk) => hdkk.id === value);
 
-    const newListHDKK = ListHoiDongKiemKe.filter(
-      (data) => data.user_Id !== value.chonhoidongkiemke.id
-    );
-    setListHoiDongKiemKe(newListHDKK);
-    setFieldTouch(false);
-    resetFields();
+    if (hoidongkiemke.length) {
+      Helpers.alertError(
+        `Ông/Bà ${hoidongkiemke[0].tenNguoiKiemKe} đã được thêm vào`
+      );
+    } else {
+      setHDKK(value);
+      const newData = ListHoiDongKiemKe.filter(
+        (data) => data.user_Id === value
+      );
+
+      const HDKK = newData && {
+        id: newData[0].user_Id,
+        tenNguoiKiemKe: newData[0].fullName,
+        tenChucVu: newData[0].tenChucVu,
+      };
+      setDataHoiDongKiemKe([...DataHoiDongKiemKe, HDKK]);
+    }
+
+    // const newListHDKK = ListHoiDongKiemKe.filter(
+    //   (data) => data.user_Id !== value
+    // );
+    // setListHoiDongKiemKe(newListHDKK);
   };
 
   const XacNhan = () => {
     DataChonHDKK(DataHoiDongKiemKe);
-    openModalFS(false);
-    resetFields();
     setDataHoiDongKiemKe([]);
     setListHoiDongKiemKe([]);
+    setHDKK(null);
+    openModalFS(false);
   };
 
   const handleCancel = () => {
     setDataHoiDongKiemKe([]);
     setListHoiDongKiemKe([]);
-    resetFields();
+    setHDKK(null);
     openModalFS(false);
   };
 
   return (
     <AntModal
-      title={`Chọn vật tư điều chuyển`}
+      title={`Chọn hội đồng kiểm kê`}
       open={openModal}
       width={width > 1000 ? `60%` : "80%"}
       closable={true}
@@ -195,85 +207,45 @@ function ModalChonHoiDongKiemKe({
     >
       <div className="gx-main-content">
         <Card className="th-card-margin-bottom">
-          <Form
-            {...DEFAULT_FORM_THEMVATTU}
-            form={form}
-            name="nguoi-dung-control"
-            onFinish={onFinish}
-            onFieldsChange={() => setFieldTouch(true)}
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: 10,
+            }}
           >
-            <Row>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Ông/bà"
-                  name={["chonhoidongkiemke", "id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListHoiDongKiemKe}
-                    placeholder="Chọn hội đồng kiểm kê"
-                    optionsvalue={["user_Id", "fullName"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp="name"
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Chức vụ"
-                  name={["chonhoidongkiemke", "id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListHoiDongKiemKe}
-                    placeholder="Chức vụ"
-                    optionsvalue={["user_Id", "tenChucVu"]}
-                    style={{ width: "100%" }}
-                    disabled={true}
-                  />
-                </FormItem>
-              </Col>
-            </Row>
-            <Row
-              justify={"center"}
+            <Col
+              xxl={12}
+              xl={12}
+              lg={16}
+              md={16}
+              sm={20}
+              xs={24}
               style={{
-                marginTop: 10,
+                display: "flex",
+                alignItems: "center",
               }}
             >
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
-                Thêm
-              </Button>
-            </Row>
-          </Form>
+              <span
+                style={{
+                  width: "80px",
+                }}
+              >
+                Ông/bà:
+              </span>
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListHoiDongKiemKe}
+                placeholder="Chọn hội đồng kiểm kê"
+                optionsvalue={["user_Id", "fullName"]}
+                style={{ width: "100%" }}
+                showSearch
+                optionFilterProp="name"
+                onSelect={handleSelectHDKK}
+                value={HDKK}
+              />
+            </Col>
+          </div>
           <Table
             bordered
             columns={colValues}

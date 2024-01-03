@@ -1,4 +1,4 @@
-import { UploadOutlined } from "@ant-design/icons";
+import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 import {
   Modal as AntModal,
   Form,
@@ -8,11 +8,13 @@ import {
   Upload,
   Card,
   Divider,
+  Space,
 } from "antd";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions";
 import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import Helpers from "src/helpers";
 import { getLocalStorage, getTokenInfo } from "src/util/Common";
 const FormItem = Form.Item;
 
@@ -26,17 +28,36 @@ function ModalThemHinhAnh({ openModalFS, openModal, itemData, refesh }) {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { resetFields } = form;
+  const [ListFileAnh, setListFileAnh] = useState([]);
 
-  /**
-   * Khi submit
-   *
-   * @param {*} values
-   */
+  const props = {
+    beforeUpload: (file) => {
+      const isImage = file.type.startsWith("image/");
+      if (!isImage) {
+        Helpers.alertError(`${file.name} không phải là file hình ảnh`);
+        return false;
+      } else {
+        setListFileAnh((prevList) => [...prevList, file]);
+        return false;
+      }
+    },
+    showUploadList: false,
+    maxCount: undefined,
+  };
+
+  const hanldeDeleteHinhAnh = (file) => {
+    const newListHinhAnh = ListFileAnh.filter(
+      (hinhanh) => hinhanh.name !== file.name
+    );
+
+    setListFileAnh(newListHinhAnh);
+  };
+
   const onFinish = (values) => {
     const data = values.themhinhanh;
     const formData = new FormData();
-    data.list_SanPhamHinhAnhs.fileList.map((file) => {
-      formData.append("lstFiles", file.originFileObj);
+    ListFileAnh.map((file) => {
+      formData.append("lstFiles", file);
     });
     fetch(`${BASE_URL_API}/api/Upload/Multi/Image`, {
       method: "POST",
@@ -145,17 +166,46 @@ function ModalThemHinhAnh({ openModalFS, openModal, itemData, refesh }) {
                 },
               ]}
             >
-              <Upload
-                action="http://10.14.7.215:1512/api/Upload/Multi"
-                listType="picture"
-                className="upload-list-inline"
-                headers={{
-                  Authorization: "Bearer ".concat(INFO.token),
-                }}
-                beforeUpload={() => false}
-              >
-                <Button icon={<UploadOutlined />}>Tải hình ảnh sản phẩm</Button>
-              </Upload>
+              <Space direction="vertical">
+                <Upload {...props}>
+                  <Button
+                    style={{
+                      marginBottom: 0,
+                    }}
+                    icon={<UploadOutlined />}
+                  >
+                    Tải hình ảnh sản phẩm
+                  </Button>
+                </Upload>
+                {ListFileAnh.length !== 0 &&
+                  ListFileAnh.map((hinhanh, index) => (
+                    <div
+                      key={index}
+                      style={{ display: "flex", alignItems: "center" }}
+                    >
+                      <span
+                        style={{
+                          color: "#0469B9",
+                          cursor: "pointer",
+                          whiteSpace: "break-spaces",
+                        }}
+                        onClick={() => ""}
+                      >
+                        {hinhanh.name}{" "}
+                      </span>
+                      <DeleteOutlined
+                        style={{
+                          cursor: "pointer",
+                          color: "red",
+                          marginLeft: "8px",
+                        }}
+                        onClick={() => {
+                          hanldeDeleteHinhAnh(hinhanh);
+                        }}
+                      />
+                    </div>
+                  ))}
+              </Space>
             </FormItem>
             <Divider />
             <Row justify={"center"}>

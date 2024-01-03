@@ -16,6 +16,7 @@ const initialState = {
   sdt: "",
   diaChi: "",
   email: "",
+  fax: "",
 };
 
 function KhachHangForm({ match, permission, history }) {
@@ -25,7 +26,7 @@ function KhachHangForm({ match, permission, history }) {
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
-  const { maKhachHang, tenKhachHang, nguoiLienHe, sdt, diaChi, email } =
+  const { maKhachHang, tenKhachHang, nguoiLienHe, sdt, diaChi, email, fax } =
     initialState;
   const { setFieldsValue, validateFields, resetFields } = form;
 
@@ -264,6 +265,18 @@ function KhachHangForm({ match, permission, history }) {
               initialValue={diaChi}
             >
               <Input placeholder="Nhập địa chỉ"></Input>
+            </FormItem>
+            <FormItem
+              label="Fax"
+              name={["khachhang", "fax"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+              initialValue={fax}
+            >
+              <Input placeholder="Nhập Fax"></Input>
             </FormItem>
             <FormItem
               label="Email"

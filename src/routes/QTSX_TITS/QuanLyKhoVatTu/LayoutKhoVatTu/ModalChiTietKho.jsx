@@ -1,26 +1,19 @@
-import { Modal as AntModal, Row, Form, Col } from "antd";
+import { Modal as AntModal, Row, Col, Card, Tag } from "antd";
 import React, { useEffect, useState } from "react";
-
 import { reDataForTable } from "src/util/Common";
 import { Table, EditableTableRow } from "src/components/Common";
 import { map } from "lodash";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-const FormItem = Form.Item;
-
-function ModalChiTietKho({
-  openModalFS,
-  openModal,
-  loading,
-  ListChiTietVatTu,
-}) {
+function ModalChiTietKho({ openModalFS, openModal, ListChiTiet }) {
   const [ListVatTu, setListVatTu] = useState([]);
   useEffect(() => {
     if (openModal) {
-      setListVatTu(ListChiTietVatTu);
+      setListVatTu(ListChiTiet);
     }
   }, [openModal]);
+
   let renderHead = [
     {
       title: "STT",
@@ -52,20 +45,25 @@ function ModalChiTietKho({
       key: "viTriLuu",
       align: "center",
       render: (val) => {
+        const vitri = `${val.tenKe ? `${val.tenKe}` : ""}${
+          val.tenTang ? ` - ${val.tenTang}` : ""
+        }${val.tenNgan ? ` - ${val.tenNgan}` : ""}`;
         return (
-          <span>
-            {val.tenKe && val.tenKe}
-            {val.tenTang && ` - ${val.tenTang}`}
-            {val.tenNgan && ` - ${val.tenNgan}`}
-          </span>
+          vitri && (
+            <Tag
+              color={"blue"}
+              style={{
+                marginBottom: 3,
+                fontSize: 14,
+                wordWrap: "break-word",
+                whiteSpace: "normal",
+              }}
+            >
+              {vitri}
+            </Tag>
+          )
         );
       },
-    },
-    {
-      title: "Hạn sử dụng",
-      dataIndex: "thoiGianSuDung",
-      key: "thoiGianSuDung",
-      align: "center",
     },
   ];
   const components = {
@@ -74,6 +72,7 @@ function ModalChiTietKho({
       cell: EditableCell,
     },
   };
+
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
@@ -89,6 +88,7 @@ function ModalChiTietKho({
       }),
     };
   });
+
   return (
     <AntModal
       title="Tồn kho theo vị trí"
@@ -98,23 +98,28 @@ function ModalChiTietKho({
       onCancel={() => openModalFS(false)}
       footer={null}
     >
-      <div className="gx-main-content">
-        <Row justify={"center"}>
-          <Col span={24}>
-            <h5 style={{ fontWeight: "bold" }}>Tồn kho theo vị trí</h5>
-          </Col>
-          <Table
-            bordered
-            scroll={{ x: 500, y: "70vh" }}
-            columns={columns}
-            components={components}
-            className="gx-table-responsive"
-            dataSource={reDataForTable(ListVatTu)}
-            size="small"
-            pagination={false}
-          />
-        </Row>
-      </div>
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        style={{
+          maxHeight: "60vh",
+          overflowY: "auto",
+        }}
+      >
+        <div className="gx-main-content">
+          <Row justify={"center"}>
+            <Table
+              bordered
+              scroll={{ x: 800, y: "55vh" }}
+              columns={columns}
+              components={components}
+              className="gx-table-responsive"
+              dataSource={reDataForTable(ListVatTu)}
+              size="small"
+              pagination={false}
+            />
+          </Row>
+        </div>
+      </Card>
     </AntModal>
   );
 }

@@ -1223,6 +1223,14 @@ const VatTuForm = ({ history, match, permission }) => {
   const onChange = (e) => {
     setValue(e.target.value);
     getUserLap(null, e.target.value);
+    setSanPham(null);
+    setVatTu(null);
+    setXuong(null);
+    setKhoVatTu(null);
+    setListSanPham([]);
+    setListSoLo([]);
+    setListVatTuTheoOEM([]);
+    setListVatTuTheoBOM([]);
     if (e.target.value === 0) {
       resetFields();
       setFieldsValue({
@@ -2264,7 +2272,7 @@ const VatTuForm = ({ history, match, permission }) => {
                           style={{ width: "100%" }}
                           showSearch
                           optionFilterProp="name"
-                          disabled={true}
+                          disabled={type === "new" ? false : true}
                         />
                       </FormItem>
                     ) : (

@@ -14,7 +14,6 @@ import {
   DatePicker,
   Button,
   Tag,
-  Upload,
   Image,
 } from "antd";
 import { includes, isEmpty, map } from "lodash";
@@ -38,7 +37,6 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
-  reDataForTable,
 } from "src/util/Common";
 import DanhSachImport from "./DanhSachImport";
 import ModalTuChoi from "./ModalTuChoi";
@@ -291,7 +289,7 @@ const OEMForm = ({ history, match, permission }) => {
       dataIndex: "key",
       key: "key",
       align: "center",
-      width: 45,
+      width: 50,
       onCell: (record) => ({
         className: record.key === "*" ? "total-row" : "",
       }),
@@ -346,6 +344,7 @@ const OEMForm = ({ history, match, permission }) => {
       dataIndex: "dinhMuc",
       key: "dinhMuc",
       align: "center",
+      width: 80,
       onCell: (record) => ({
         className: record.key === "*" ? "total-row" : "",
       }),
@@ -370,7 +369,7 @@ const OEMForm = ({ history, match, permission }) => {
             <Image
               src={BASE_URL_API + value}
               alt="Hình ảnh"
-              style={{ maxWidth: 50, maxHeight: 50 }}
+              style={{ maxWidth: 80, maxHeight: 80 }}
             />
           </span>
         ),

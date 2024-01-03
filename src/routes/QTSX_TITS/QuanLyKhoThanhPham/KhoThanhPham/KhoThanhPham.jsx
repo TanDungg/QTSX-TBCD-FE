@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Row, Col, Divider } from "antd";
+import { Card, Button, Row, Col, Tag } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { map, isEmpty, remove } from "lodash";
+
+import { map, isEmpty } from "lodash";
+
 import {
   Table,
   EditableTableRow,
@@ -22,19 +24,19 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import ModalAddViTri from "./ModalAddViTri";
+
 const { EditableRow, EditableCell } = EditableTableRow;
-function KhoThanhPham({ match, history, permission }) {
+
+function KhoThanhPham({ history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
-  const [keyword, setKeyword] = useState("");
-  const [ListThanhPhamSelected, setListThanhPhamSelected] = useState([]);
-
-  const [selectedKeys, setSelectedKeys] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState("");
+  const [keyword, setKeyword] = useState("");
   const [ActiveModal, setActiveModal] = useState(false);
-  const [KeyViTri, setKeyViTri] = useState("add");
+  const [SelectedViTri, setSelectedViTri] = useState([]);
+  const [SelectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -47,10 +49,6 @@ function KhoThanhPham({ match, history, permission }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Lấy dữ liệu về
-   *
-   */
   const loadData = (keyword, tits_qtsx_CauTrucKho_Id, page) => {
     const param = convertObjectToUrlParams({
       tits_qtsx_CauTrucKho_Id,
@@ -66,11 +64,13 @@ function KhoThanhPham({ match, history, permission }) {
       )
     );
   };
+
   const refesh = () => {
     loadData(keyword, Kho, page);
+    setSelectedViTri([]);
     setSelectedKeys([]);
-    setListThanhPhamSelected([]);
   };
+
   const getKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -96,141 +96,89 @@ function KhoThanhPham({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * Tìm kiếm sản phẩm
-   *
-   */
+
   const onSearchThanhPham = () => {
     loadData(keyword, Kho, page);
   };
 
-  /**
-   * Thay đổi keyword
-   *
-   * @param {*} val
-   */
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
       loadData(val.target.value, Kho, page);
     }
   };
-  /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
+
   const handleTableChange = (pagination) => {
     setPage(pagination);
     loadData(keyword, Kho, pagination);
   };
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
-  const handleRedirect = () => {
-    setActiveModal(true);
+  const deleteItemFunc = (item) => {
+    ModalDeleteConfirm(deleteItemAction, item, item.tenSanPham, "vị trí");
   };
+
+  const deleteItemAction = (item) => {
+    let url = `tits_qtsx_ViTriLuuKhoThanhPham/huy-vi-tri-luu-kho-thanh-pham?id=${item.tits_qtsx_ChiTietKhoThanhPham_Id}`;
+    new Promise((resolve, reject) => {
+      dispatch(fetchStart(url, "PUT", null, "EDIT", "", resolve, reject));
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          loadData(keyword, Kho, page);
+          setSelectedViTri([]);
+          setSelectedKeys([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
     return (
       <>
         <Button
+          icon={<PlusCircleOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={() => setActiveModal(true)}
+          disabled={
+            !SelectedViTri.length ||
+            (SelectedViTri.length && SelectedViTri[0].tits_qtsx_Ke_Id)
+          }
+        >
+          Thêm vị trí
+        </Button>
+        <Button
           icon={<EditOutlined />}
           className="th-margin-bottom-0"
           type="primary"
-          onClick={handleRedirect}
+          onClick={() => setActiveModal(true)}
           disabled={
-            (permission && !permission.add) ||
-            ListThanhPhamSelected.length === 0
+            !SelectedViTri.length ||
+            (SelectedViTri.length && !SelectedViTri[0].tits_qtsx_Ke_Id)
           }
         >
-          Vị trí
+          Chỉnh sửa vị trí
+        </Button>
+        <Button
+          icon={<DeleteOutlined />}
+          className="th-margin-bottom-0"
+          type="danger"
+          onClick={() => deleteItemFunc(SelectedViTri[0])}
+          disabled={
+            !SelectedViTri.length ||
+            (SelectedViTri.length && !SelectedViTri[0].tits_qtsx_Ke_Id)
+          }
+        >
+          Xóa vị trí
         </Button>
       </>
     );
   };
   const { totalRow, pageSize } = data;
-  let dataList = reDataForTable(data.splice((vt) => vt.soLuong !== 0));
-  /**
-   * deleteItemFunc: Xoá item theo item
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maThanhPham, "vị trí");
-  };
 
-  /**
-   * Xóa item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    let url = `tits_qtsx_ViTriLuuKhoThanhPham/huy-vi-tri-luu-kho-thanh-pham?id=${item.tits_qtsx_ChiTietKhoThanhPham_Id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "PUT", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        // Reload lại danh sách
-        if (res.status !== 409) {
-          loadData(keyword, Kho, page);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  const actionContent = (item) => {
-    const addItem =
-      permission && permission.add && !item.tits_qtsx_Ke_Id
-        ? {
-            onClick: () => {
-              setActiveModal(true);
-              setListThanhPhamSelected(item);
-              setKeyViTri("add");
-            },
-          }
-        : { disabled: true };
-    const editItem =
-      permission && permission.edit && item.tits_qtsx_Ke_Id
-        ? {
-            onClick: () => {
-              setActiveModal(true);
-              setListThanhPhamSelected(item);
-              setKeyViTri("edit");
-            },
-          }
-        : { disabled: true };
-    const deleteVal =
-      permission && permission.del && item.tits_qtsx_Ke_Id
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        <a {...addItem} title="Thêm vị trí">
-          <PlusCircleOutlined />
-        </a>
-        <Divider type="vertical" />
-        <a {...editItem} title="Sửa vị trí">
-          <EditOutlined />
-        </a>
-        <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa vị trí">
-          <DeleteOutlined />
-        </a>
-      </div>
-    );
-  };
+  let dataList = reDataForTable(data.splice((vt) => vt.soLuong !== 0));
+
   let renderHead = [
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
-    },
     {
       title: "STT",
       dataIndex: "key",
@@ -330,21 +278,26 @@ function KhoThanhPham({ match, history, permission }) {
       key: "viTriLuu",
       align: "center",
       render: (val) => {
+        const vitri = `${val.tenKe ? `${val.tenKe}` : ""}${
+          val.tenTang ? ` - ${val.tenTang}` : ""
+        }${val.tenNgan ? ` - ${val.tenNgan}` : ""}`;
         return (
-          <span>
-            {val.tenKe && val.tenKe}
-            {val.tenTang && ` - ${val.tenTang}`}
-            {val.tenNgan && ` - ${val.tenNgan}`}
-          </span>
+          vitri && (
+            <Tag
+              color={"blue"}
+              style={{
+                marginBottom: 3,
+                fontSize: 14,
+                wordWrap: "break-word",
+                whiteSpace: "normal",
+              }}
+            >
+              {vitri}
+            </Tag>
+          )
         );
       },
     },
-    // {
-    //   title: "Hạn sử dụng",
-    //   dataIndex: "thoiGianSuDung",
-    //   key: "thoiGianSuDung",
-    //   align: "center",
-    // },
   ];
 
   const components = {
@@ -369,40 +322,32 @@ function KhoThanhPham({ match, history, permission }) {
     };
   });
 
-  function hanldeRemoveSelected(device) {
-    const newDevice = remove(ListThanhPhamSelected, (d) => {
-      return d.key !== device.key;
-    });
-    const newKeys = remove(selectedKeys, (d) => {
-      return d !== device.key;
-    });
-    setListThanhPhamSelected(newDevice);
-    setSelectedKeys(newKeys);
-  }
-
-  const rowSelection = {
-    selectedRowKeys: selectedKeys,
-    selectedRows: ListThanhPhamSelected,
-    onChange: (selectedRowKeys, selectedRows) => {
-      const newListThanhPhamSelected =
-        ListThanhPhamSelected.length > 0
-          ? selectedRows.filter((d) => d.key !== ListThanhPhamSelected[0].key)
-          : [...selectedRows];
-      const newSelectedKey =
-        selectedKeys.length > 0
-          ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
-          : [...selectedRowKeys];
-
-      setListThanhPhamSelected(newListThanhPhamSelected);
-      setSelectedKeys(newSelectedKey);
-    },
-  };
   const handleOnSelectKho = (val) => {
     setKho(val);
     setPage(1);
     loadData(keyword, val, 1);
+    setSelectedViTri([]);
     setSelectedKeys([]);
-    setListThanhPhamSelected([]);
+  };
+
+  const rowSelection = {
+    selectedRowKeys: SelectedKeys,
+    selectedRows: SelectedViTri,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        SelectedViTri.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectedViTri[0].key)
+          : [...selectedRows];
+
+      const key =
+        SelectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
+          : [...selectedRowKeys];
+
+      setSelectedViTri(row);
+      setSelectedKeys(key);
+    },
   };
 
   return (
@@ -412,7 +357,6 @@ function KhoThanhPham({ match, history, permission }) {
         description="Kho thành phẩm"
         buttons={addButtonRender()}
       />
-
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
           <Col
@@ -465,27 +409,6 @@ function KhoThanhPham({ match, history, permission }) {
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
-          // rowSelection={{
-          //   type: "checkbox",
-          //   ...rowSelection,
-          //   preserveSelectedRowKeys: true,
-          //   selectedRowKeys: selectedKeys,
-          //   hideSelectAll: true,
-          //   getCheckboxProps: (record) => ({}),
-          // }}
-          // onRow={(record, rowIndex) => {
-          //   return {
-          //     onClick: (e) => {
-          //       const found = find(selectedKeys, (k) => k === record.key);
-          //       if (found === undefined) {
-          //         setListThanhPhamSelected([record]);
-          //         setSelectedKeys([record.key]);
-          //       } else {
-          //         hanldeRemoveSelected(record);
-          //       }
-          //     },
-          //   };
-          // }}
           bordered
           scroll={{ x: 700, y: "60vh" }}
           columns={columns}
@@ -504,14 +427,20 @@ function KhoThanhPham({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: SelectedKeys,
+          }}
         />
       </Card>
       <ModalAddViTri
         openModal={ActiveModal}
         openModalFS={setActiveModal}
-        ThanhPham={ListThanhPhamSelected}
+        itemData={SelectedViTri[0]}
         refesh={refesh}
-        key={KeyViTri}
       />
     </div>
   );

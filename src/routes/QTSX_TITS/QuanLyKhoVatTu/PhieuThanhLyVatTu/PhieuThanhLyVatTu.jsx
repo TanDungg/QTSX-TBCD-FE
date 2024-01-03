@@ -5,7 +5,6 @@ import {
   EditOutlined,
   CheckCircleOutlined,
   DeleteOutlined,
-  CloseCircleOutlined,
   DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -17,7 +16,6 @@ import {
   EditableTableRow,
   Toolbar,
   Select,
-  Modal,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -31,8 +29,8 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
-import ModalTuChoi from "./ModalTuChoi";
 import Helpers from "src/helpers";
+
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
@@ -46,15 +44,13 @@ function ThanhLyVatTu({ match, history, permission }) {
   const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
-  const [IdTuChoi, setIdTuChoi] = useState("");
-  const [SelectedPhieu, setSelectedPhieu] = useState([]);
-  const [SelectedKeys, setSelectedKeys] = useState([]);
-
-  const [ActiveModal, setActiveModal] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState([]);
+  const [selectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
       getKho();
+      getListData(keyword, Kho, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -100,8 +96,6 @@ function ThanhLyVatTu({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListKho(res.data);
-          setKho(res.data[0].id);
-          getListData(keyword, res.data[0].id, FromDate, ToDate, page);
         } else {
           setListKho([]);
         }
@@ -121,33 +115,17 @@ function ThanhLyVatTu({ match, history, permission }) {
   };
 
   const actionContent = (item) => {
-    const tuChoiItem =
-      permission &&
-      permission.cof &&
-      item.nguoiDuyet_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
-        <a
-          title="Từ chối"
-          onClick={() => {
-            setIdTuChoi(item.id);
-            setActiveModal(true);
-          }}
-        >
-          <CloseCircleOutlined />
-        </a>
-      ) : (
-        <span disabled title="Từ chối">
-          <CloseCircleOutlined />
-        </span>
-      );
     const xacNhanItem =
-      permission &&
-      permission.cof &&
-      item.nguoiDuyet_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
-        <a title="Xác nhận" onClick={() => modalXK(item.id)}>
+      permission && permission.cof && item.tinhTrang === "Chưa xác nhận" ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/xac-nhan`,
+            state: { itemData: item, permission },
+          }}
+          title="Xác nhận"
+        >
           <CheckCircleOutlined />
-        </a>
+        </Link>
       ) : (
         <span disabled title="Xác nhận">
           <CheckCircleOutlined />
@@ -182,8 +160,6 @@ function ThanhLyVatTu({ match, history, permission }) {
     return (
       <div>
         {xacNhanItem}
-        <Divider type="vertical" />
-        {tuChoiItem}
         <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
@@ -226,7 +202,7 @@ function ThanhLyVatTu({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuThanhLy/${SelectedPhieu[0].id}?isVatTu=true`,
+          `tits_qtsx_PhieuThanhLy/${selectedDevice[0].id}?isVatTu=true`,
           "GET",
           null,
           "DETAIL",
@@ -238,17 +214,16 @@ function ThanhLyVatTu({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const data = res.data;
           const newData = {
-            ...data,
+            ...res.data,
             tits_qtsx_PhieuThanhLyChiTiets:
-              data.tits_qtsx_PhieuThanhLyChiTiets &&
-              JSON.parse(data.tits_qtsx_PhieuThanhLyChiTiets),
+              res.data.tits_qtsx_PhieuThanhLyChiTiets &&
+              JSON.parse(res.data.tits_qtsx_PhieuThanhLyChiTiets),
           };
           new Promise((resolve, reject) => {
             dispatch(
               fetchStart(
-                `tits_qtsx_PhieuThanhLy/export-file-phieu-thanh-ly-vat-tu`,
+                `tits_qtsx_PhieuThanhLy/export-file-phieu-thanh-ly`,
                 "POST",
                 newData,
                 "",
@@ -259,6 +234,8 @@ function ThanhLyVatTu({ match, history, permission }) {
             );
           }).then((res) => {
             exportExcel("PhieuThanhLyVatTu", res.data.dataexcel);
+            setSelectedDevice([]);
+            setSelectedKeys([]);
           });
         }
       })
@@ -282,9 +259,7 @@ function ThanhLyVatTu({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handleXuatExcel}
-          disabled={
-            (permission && !permission.add) || SelectedPhieu.length === 0
-          }
+          disabled={selectedDevice.length === 0}
         >
           Xuất excel
         </Button>
@@ -400,11 +375,11 @@ function ThanhLyVatTu({ match, history, permission }) {
         return (
           <Tag
             color={
-              val === "Đã xác nhận"
+              val === "Chưa xác nhận"
+                ? "orange"
+                : val === "Đã xác nhận"
                 ? "blue"
-                : val === "Đã từ chối"
-                ? "red"
-                : "green"
+                : "red"
             }
           >
             {val}
@@ -465,84 +440,26 @@ function ThanhLyVatTu({ match, history, permission }) {
     setPage(1);
     getListData(keyword, Kho, dateString[0], dateString[1], 1);
   };
-  const saveTuChoi = (lyDoNguoiTruongBoPhanTuChoi) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuThanhLy/xac-nhan/${IdTuChoi}`,
-          "PUT",
-          {
-            id: IdTuChoi,
-            isNguoiTruongBoPhanDuyet: false,
-            lyDoNguoiTruongBoPhanTuChoi,
-          },
-          "TUCHOI",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.status !== 409) {
-          setPage(1);
-          getListData(keyword, Kho, FromDate, ToDate, 1);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  const hanldeXacNhan = (id) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuThanhLy/xac-nhan/${id}`,
-          "PUT",
-          { id: id, isNguoiTruongBoPhanDuyet: true },
-          "XACNHAN",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.status !== 409) {
-          setPage(1);
-          getListData(keyword, Kho, FromDate, ToDate, 1);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const prop = {
-    type: "confirm",
-    okText: "Xác nhận",
-    cancelText: "Hủy",
-    title: "Xác nhận phiếu thanh lý vật tư",
-  };
-
-  const modalXK = (id) => {
-    Modal({ ...prop, onOk: () => hanldeXacNhan(id) });
-  };
 
   const rowSelection = {
-    selectedRowKeys: SelectedKeys,
-    selectedRows: SelectedPhieu,
+    selectedRowKeys: selectedKeys,
+    selectedRows: selectedDevice,
 
     onChange: (selectedRowKeys, selectedRows) => {
       const row =
-        SelectedPhieu.length > 0
-          ? selectedRows.filter((d) => d.key !== SelectedPhieu[0].key)
+        selectedDevice.length > 0
+          ? selectedRows.filter((d) => d.key !== selectedDevice[0].key)
           : [...selectedRows];
 
       const key =
-        SelectedKeys.length > 0
-          ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
+        selectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
           : [...selectedRowKeys];
-      if (row.length && row[0].tinhTrang.startsWith("Đã từ chối")) {
-        Helpers.alertError("Không được chọn phiếu đã từ chối");
+
+      if (row.length && row[0].tinhTrang === "Bị từ chối") {
+        Helpers.alertError("Không được chọn phiếu đã bị từ chối");
       } else {
-        setSelectedPhieu(row);
+        setSelectedDevice(row);
         setSelectedKeys(key);
       }
     },
@@ -630,7 +547,7 @@ function ThanhLyVatTu({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 1000, y: "54vh" }}
+          scroll={{ x: 700, y: "54vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -652,15 +569,10 @@ function ThanhLyVatTu({ match, history, permission }) {
             ...rowSelection,
             hideSelectAll: true,
             preserveSelectedRowKeys: false,
-            selectedRowKeys: SelectedKeys,
+            selectedRowKeys: selectedKeys,
           }}
         />
       </Card>
-      <ModalTuChoi
-        openModal={ActiveModal}
-        openModalFS={setActiveModal}
-        saveTuChoi={saveTuChoi}
-      />
     </div>
   );
 }

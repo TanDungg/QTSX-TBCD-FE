@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Popover, Tag } from "antd";
+import { Card, Button, Divider, Col, Tag } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -20,12 +20,10 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
-  reDataSelectedTable,
   removeDuplicates,
-  treeToFlatlist,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import AddCauTrucKho from "./AddCauTrucKho";
+import ModalCauTrucKhoVatTu from "./ModalCauTrucKhoVatTu";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -36,6 +34,7 @@ function CauTrucKhoVatTu({ match, history, permission }) {
   const [ActiveModal, setActiveModal] = useState(false);
   const [Type, setType] = useState();
   const [info, setInfo] = useState();
+
   useEffect(() => {
     if (permission && permission.view) {
       loadData(keyword, 1);
@@ -518,10 +517,10 @@ function CauTrucKhoVatTu({ match, history, permission }) {
           expandable={{
             expandedRowRender: (record) => (
               <Table
-                style={{ marginLeft: "80px", width: "94.6%" }}
+                style={{ marginLeft: "30px", width: "95%" }}
                 bordered
                 columns={columnKes}
-                scroll={{ x: 500 }}
+                scroll={{ x: 800 }}
                 components={components}
                 className="gx-table-responsive th-F1D065-head"
                 dataSource={reDataForTable(record.listChildren)}
@@ -532,10 +531,10 @@ function CauTrucKhoVatTu({ match, history, permission }) {
                 expandable={{
                   expandedRowRender: (record) => (
                     <Table
-                      style={{ marginLeft: "80px", width: "94%" }}
+                      style={{ marginLeft: "30px", width: "95%" }}
                       bordered
                       columns={columnTangs}
-                      scroll={{ x: 500 }}
+                      scroll={{ x: 800 }}
                       components={components}
                       className="gx-table-responsive th-F1D065-head"
                       dataSource={reDataForTable(record.listChildren)}
@@ -546,10 +545,10 @@ function CauTrucKhoVatTu({ match, history, permission }) {
                       expandable={{
                         expandedRowRender: (record) => (
                           <Table
-                            style={{ marginLeft: "80px", width: "93.6%" }}
+                            style={{ marginLeft: "30px", width: "95%" }}
                             bordered
                             columns={columnNgans}
-                            scroll={{ x: 500 }}
+                            scroll={{ x: 800 }}
                             components={components}
                             className="gx-table-responsive th-F1D065-head"
                             dataSource={reDataForTable(record.listChildren)}
@@ -568,7 +567,7 @@ function CauTrucKhoVatTu({ match, history, permission }) {
           }}
         />
       </Card>
-      <AddCauTrucKho
+      <ModalCauTrucKhoVatTu
         openModal={ActiveModal}
         openModalFS={setActiveModal}
         info={info}

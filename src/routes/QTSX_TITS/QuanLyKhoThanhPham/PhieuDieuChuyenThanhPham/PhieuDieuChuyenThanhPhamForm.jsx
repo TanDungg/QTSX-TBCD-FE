@@ -14,7 +14,7 @@ import {
   DatePicker,
   Button,
   Tag,
-  Divider,
+  Image,
 } from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
@@ -38,7 +38,7 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
-import ModalChonThanhPham from "./ModalChonThanhPham";
+import ModalThemThanhPham from "./ModalThemThanhPham";
 import ModalTuChoi from "./ModalTuChoi";
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -59,16 +59,17 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
   const [ListKhoThanhPhamDen, setListKhoThanhPhamDen] = useState([]);
   const [ListUserDuyet, setListUserDuyet] = useState([]);
   const [ListUser, setListUser] = useState([]);
-  const [ActiveModalChonThanhPham, setActiveModalChonThanhPham] =
+  const [ActiveModalThemThanhPham, setActiveModalThemThanhPham] =
     useState(null);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
-  const [editingRecord, setEditingRecord] = useState([]);
 
   useEffect(() => {
     const load = () => {
+      getListKho();
+      getUserDuyet();
       if (includes(match.url, "them-moi")) {
-        getData();
         if (permission && permission.add) {
+          getUserLap();
           setType("new");
           setFieldsValue({
             phieudieuchuyenthanhpham: {
@@ -114,11 +115,6 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const getData = () => {
-    getUserLap(INFO, null);
-    getListKho();
-    getUserDuyet(INFO);
-  };
 
   const getListKho = () => {
     new Promise((resolve, reject) => {
@@ -146,15 +142,15 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const getUserLap = (info, nguoiTao_Id) => {
+  const getUserLap = (nguoiTao_Id) => {
     const params = convertObjectToUrlParams({
-      id: nguoiTao_Id ? nguoiTao_Id : info.user_Id,
-      donVi_Id: info.donVi_Id,
+      id: nguoiTao_Id ? nguoiTao_Id : INFO.user_Id,
+      donVi_Id: INFO.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : info.user_Id}?${params}`,
+          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : INFO.user_Id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -176,9 +172,9 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     });
   };
 
-  const getUserDuyet = (info) => {
+  const getUserDuyet = () => {
     const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
+      donviId: INFO.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -228,26 +224,32 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
               ngay: moment(res.data.ngay, "DD/MM/YYYY HH:mm"),
             },
           });
-          getListKho();
-          getUserDuyet(INFO);
           setKhoThanhPhamDi(res.data.tits_qtsx_CauTrucKhoBegin_Id);
-          getUserLap(INFO, res.data.nguoiTao_Id);
+          getUserLap(res.data.nguoiTao_Id);
+
+          const chiTiet =
+            res.data.list_ChiTiets && JSON.parse(res.data.list_ChiTiets);
 
           const newData =
-            res.data.list_ChiTiets &&
-            JSON.parse(res.data.list_ChiTiets).map((data) => {
-              const vitri = `${data.maKe ? `${data.maKe}` : ""}${
-                data.maTang ? ` - ${data.maTang}` : ""
-              }${data.maNgan ? ` - ${data.maNgan}` : ""}`;
+            chiTiet &&
+            chiTiet.map((data) => {
+              const lstViTri =
+                data.list_ViTriLuuKhos &&
+                data.list_ViTriLuuKhos.map((vt) => {
+                  const vitri = `${vt.maKe ? `${vt.maKe}` : ""}${
+                    vt.maTang ? ` - ${vt.maTang}` : ""
+                  }${vt.maNgan ? ` - ${vt.maNgan}` : ""}`;
+                  return {
+                    ...vt,
+                    viTri: vitri ? vitri : null,
+                  };
+                });
               return {
                 ...data,
-                tits_qtsx_ChiTietKhoBegin_Id:
-                  data.tits_qtsx_ChiTietKhoBegin_Id &&
-                  data.tits_qtsx_ChiTietKhoBegin_Id.toLowerCase(),
-                viTri: vitri ? vitri : data.tenKho,
+                list_ViTriLuuKhos: lstViTri && lstViTri,
               };
             });
-          setListThanhPham(newData);
+          setListThanhPham(newData && newData);
         }
       })
       .catch((error) => console.error(error));
@@ -290,8 +292,11 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
    */
   const deleteItemAction = (item) => {
     const newData = ListThanhPham.filter(
-      (d) =>
-        d.tits_qtsx_ChiTietKhoBegin_Id !== item.tits_qtsx_ChiTietKhoBegin_Id
+      (data) =>
+        item.tits_qtsx_VatPham_Id.toLowerCase() !==
+          data.tits_qtsx_VatPham_Id.toLowerCase() &&
+        (item.tits_qtsx_MauSac_Id && item.tits_qtsx_MauSac_Id.toLowerCase()) !==
+          (data.tits_qtsx_MauSac_Id && data.tits_qtsx_MauSac_Id.toLowerCase())
     );
     setListThanhPham(newData);
     setFieldTouch(true);
@@ -319,101 +324,64 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     );
   };
 
-  const handleInputChange = (val, item) => {
-    const soLuongDieuChuyen = val.target.value;
-    if (isEmpty(soLuongDieuChuyen) || soLuongDieuChuyen === "0") {
-      setFieldTouch(false);
-      setEditingRecord([...editingRecord, item]);
-      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
-    } else if (soLuongDieuChuyen > item.soLuongTonKho) {
-      setFieldTouch(false);
-      item.message = `Số lượng không được lớn hơn ${item.soLuongTonKho}`;
-      setEditingRecord([...editingRecord, item]);
-    } else {
-      const newData = editingRecord.filter(
-        (d) =>
-          d.tits_qtsx_ChiTietKhoBegin_Id !== item.tits_qtsx_ChiTietKhoBegin_Id
-      );
-      setEditingRecord(newData);
-      newData.length === 0 && setFieldTouch(true);
-    }
-    const newData = [...ListThanhPham];
-    newData.forEach((ct, index) => {
-      if (
-        ct.tits_qtsx_ChiTietKhoBegin_Id === item.tits_qtsx_ChiTietKhoBegin_Id
-      ) {
-        ct.soLuong = soLuongDieuChuyen;
-      }
-    });
-    setListThanhPham(newData);
-  };
-
-  const renderSoLuongDieuChuyen = (item) => {
-    let isEditing = false;
-    let message = "";
-    editingRecord.forEach((ct) => {
-      if (
-        ct.tits_qtsx_ChiTietKhoBegin_Id === item.tits_qtsx_ChiTietKhoBegin_Id
-      ) {
-        isEditing = true;
-        message = ct.message;
-      }
-    });
+  const renderLstViTri = (record) => {
     return (
-      <>
-        <Input
-          style={{
-            textAlign: "center",
-            width: "100%",
-            borderColor: isEditing ? "red" : "",
-          }}
-          className={`input-item`}
-          type="number"
-          value={item.soLuong}
-          disabled={type === "new" || type === "edit" ? false : true}
-          onChange={(val) => handleInputChange(val, item)}
-        />
-        {isEditing && <div style={{ color: "red" }}>{message}</div>}
-      </>
+      <div>
+        {record.list_ViTriLuuKhos.map((vt, index) => {
+          if (!vt.viTri) {
+            if (index === 0) {
+              return (
+                <Tag
+                  key={index}
+                  color={"blue"}
+                  style={{
+                    marginRight: 5,
+                    marginBottom: 3,
+                    fontSize: 14,
+                  }}
+                >
+                  {`${vt.tenKho} (SL: ${vt.soLuongDieuChuyen})`}
+                </Tag>
+              );
+            } else {
+              return null;
+            }
+          } else {
+            return (
+              <Tag
+                key={index}
+                color={"blue"}
+                style={{
+                  marginRight: 5,
+                  marginBottom: 3,
+                  fontSize: 14,
+                  wordWrap: "break-word",
+                  whiteSpace: "normal",
+                }}
+              >
+                {`${vt.viTri} (SL: ${vt.soLuongDieuChuyen})`}
+              </Tag>
+            );
+          }
+        })}
+      </div>
     );
-  };
-
-  const renderMoTa = (item) => {
-    return (
-      <Input
-        style={{
-          textAlign: "center",
-          width: "100%",
-        }}
-        disabled={type === "new" || type === "edit" ? false : true}
-        className={`input-item`}
-        value={item.moTa}
-        onChange={(val) => handleMoTa(val, item)}
-      />
-    );
-  };
-
-  const handleMoTa = (value, record) => {
-    const ghichu = value.target.value;
-    setFieldTouch(true);
-    const newData = [...ListThanhPham];
-    newData.forEach((ct, index) => {
-      if (
-        ct.tits_qtsx_ChiTietKhoBegin_Id === record.tits_qtsx_ChiTietKhoBegin_Id
-      ) {
-        ct.moTa = ghichu;
-      }
-    });
-    setListThanhPham(newData);
   };
 
   let colValues = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
-      align: "center",
       width: 50,
+      align: "center",
     },
     {
       title: "Mã thành phẩm",
@@ -428,35 +396,36 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
+      title: "Màu sắc",
+      dataIndex: "tenMauSac",
+      key: "tenMauSac",
+      align: "center",
+    },
+    {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
       align: "center",
-    },
-    {
-      title: "Vị trí",
-      dataIndex: "viTri",
-      key: "viTri",
-      align: "center",
+      width: 100,
     },
     {
       title: "SL điều chuyển",
-      key: "soLuong",
+      dataIndex: "soLuongDieuChuyen",
+      key: "soLuongDieuChuyen",
       align: "center",
-      render: (record) => renderSoLuongDieuChuyen(record),
+      width: 100,
     },
     {
-      title: "Mô tả",
+      title: "Vị trí",
+      key: "list_ViTriLuuKhos",
+      align: "center",
+      render: (record) => renderLstViTri(record),
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
       key: "moTa",
       align: "center",
-      render: (record) => renderMoTa(record),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
     },
   ];
 
@@ -496,7 +465,7 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     validateFields()
       .then((values) => {
         if (ListThanhPham.length === 0) {
-          Helpers.alertError("Danh sách thành phẩm rỗng");
+          Helpers.alertError("Danh sách thành phẩm không được rỗng");
         } else {
           saveData(values.phieudieuchuyenthanhpham, value);
         }
@@ -506,11 +475,11 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
       });
   };
 
-  const saveData = (data, saveQuit = false) => {
+  const saveData = (phieudieuchuyenthanhpham, saveQuit = false) => {
     if (type === "new") {
       const newData = {
-        ...data,
-        ngay: data.ngay.format("DD/MM/YYYY HH:mm"),
+        ...phieudieuchuyenthanhpham,
+        ngay: phieudieuchuyenthanhpham.ngay.format("DD/MM/YYYY HH:mm"),
         isVatTu: false,
         list_ChiTiets: ListThanhPham,
       };
@@ -543,7 +512,10 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
                 },
               });
               setListThanhPham([]);
-              getData();
+              setKhoThanhPhamDi(null);
+              getListKho();
+              getUserLap();
+              getUserDuyet();
             }
           } else {
             setFieldTouch(false);
@@ -553,9 +525,9 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
     }
     if (type === "edit") {
       const newData = {
-        ...data,
+        ...phieudieuchuyenthanhpham,
         id: id,
-        ngay: data.ngay.format("DD/MM/YYYY HH:mm"),
+        ngay: phieudieuchuyenthanhpham.ngay.format("DD/MM/YYYY HH:mm"),
         list_ChiTiets: ListThanhPham,
       };
       new Promise((resolve, reject) => {
@@ -644,16 +616,14 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const handleChonThanhPham = () => {
-    setActiveModalChonThanhPham(true);
+  const handleThemThanhPham = () => {
+    setActiveModalThemThanhPham(true);
   };
 
-  const handleThemThanhPham = (data) => {
+  const handleThemVatPham = (data) => {
     const newListThanhPham = [...ListThanhPham, ...data];
     setListThanhPham(newListThanhPham);
-    if (type === "edit") {
-      setFieldTouch(true);
-    }
+    setFieldTouch(true);
   };
 
   const handleSelectKhoDi = (value) => {
@@ -979,10 +949,10 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
               icon={<PlusCircleOutlined />}
               className="th-margin-bottom-0"
               type="primary"
-              onClick={handleChonThanhPham}
+              onClick={handleThemThanhPham}
               disabled={KhoThanhPhamDi === null ? true : false}
             >
-              Chọn thành phẩm
+              Thêm thành phẩm
             </Button>
           </Row>
         ) : null}
@@ -1030,14 +1000,14 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
           disabled={fieldTouch && ListThanhPham.length !== 0}
         />
       ) : null}
-      <ModalChonThanhPham
-        openModal={ActiveModalChonThanhPham}
-        openModalFS={setActiveModalChonThanhPham}
+      <ModalThemThanhPham
+        openModal={ActiveModalThemThanhPham}
+        openModalFS={setActiveModalThemThanhPham}
         itemData={{
           tits_qtsx_CauTrucKhoBegin_Id: KhoThanhPhamDi,
-          dataListVatPham: ListThanhPham && ListThanhPham,
+          ListVatPham: ListThanhPham && ListThanhPham,
         }}
-        DataThemThanhPham={handleThemThanhPham}
+        DataThemVatPham={handleThemVatPham}
       />
       <ModalTuChoi
         openModal={ActiveModalTuChoi}

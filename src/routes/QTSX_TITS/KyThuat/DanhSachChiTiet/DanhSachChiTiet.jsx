@@ -379,7 +379,7 @@ function DanhSachChiTiet({ match, history, permission }) {
             <Image
               src={BASE_URL_API + value}
               alt="Hình ảnh"
-              style={{ maxWidth: 100, maxHeight: 100 }}
+              style={{ maxWidth: 70, maxHeight: 70 }}
             />
           </span>
         ),

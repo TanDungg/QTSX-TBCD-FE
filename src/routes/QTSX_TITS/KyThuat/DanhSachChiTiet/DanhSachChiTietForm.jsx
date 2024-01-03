@@ -617,12 +617,14 @@ function DanhSachChiTietForm({ match, permission, history }) {
               ) : FileHinhAnh && FileHinhAnh.name ? (
                 <span>
                   <span
-                    style={{ color: "#0469B9", cursor: "pointer" }}
+                    style={{
+                      color: "#0469B9",
+                      cursor: "pointer",
+                      whiteSpace: "break-spaces",
+                    }}
                     onClick={() => handleViewFile(FileHinhAnh)}
                   >
-                    {FileHinhAnh.name.length > 30
-                      ? FileHinhAnh.name.substring(0, 30) + "..."
-                      : FileHinhAnh.name}{" "}
+                    {FileHinhAnh.name}{" "}
                   </span>
                   <DeleteOutlined
                     style={{ cursor: "pointer", color: "red" }}

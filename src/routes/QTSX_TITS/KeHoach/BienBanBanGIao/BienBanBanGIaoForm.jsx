@@ -19,23 +19,19 @@ import {
   Table,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { DEFAULT_FORM } from "src/constants/Config";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
-import Helpers from "src/helpers";
 import ModalAddVatTu from "./ModalAddVatTu";
 
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
-const initialState = {
-  tenLot: "",
-};
 const BienBanBanGIaoForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
-  const [ListDonHang, setListDonHang] = useState([]);
+  const [ListKhachHang, setListKhachHang] = useState([]);
   const [ListVatTu, setListVatTu] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
@@ -50,7 +46,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
           setType("new");
-          getDonHang();
+          getKhachHang();
         } else if (permission && !permission.add) {
           history.push("/home");
         }
@@ -60,7 +56,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
           // Get info
           const { id } = match.params;
           setId(id);
-          getDonHang("", "", 1);
+          getKhachHang("", "", 1);
           getInfo();
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -71,17 +67,25 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const getDonHang = () => {
-    const params = convertObjectToUrlParams({});
-    const url = `tits_qtsx_SoLo/don-hang-chua-du-so-lo?${params}`;
+  const getKhachHang = () => {
     new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "GET", null, "DETAIL", "", resolve, reject));
+      dispatch(
+        fetchStart(
+          `tits_qtsx_KhachHang?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
     })
       .then((res) => {
         if (res && res.data) {
-          setListDonHang(res.data);
+          setListKhachHang(res.data);
         } else {
-          setListDonHang([]);
+          setListKhachHang([]);
         }
       })
       .catch((error) => console.error(error));
@@ -110,7 +114,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
         if (res && res.data) {
           setListVatTu(JSON.parse(res.data.list_DoRois));
           setFieldsValue({
-            khaibaosocontainer: {
+            bienBanBanGiao: {
               ...res.data,
               list_ChiTiets: JSON.parse(res.data.list_ChiTiets).map(
                 (ct) => ct.tits_qtsx_SoVin_Id
@@ -311,13 +315,13 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.khaibaosocontainer);
+    saveData(values.bienBanBanGiao);
   };
 
   const saveAndClose = (value) => {
     validateFields()
       .then((values) => {
-        saveData(values.khaibaosocontainer, value);
+        saveData(values.bienBanBanGiao, value);
       })
       .catch((error) => {
         console.log("error", error);
@@ -426,198 +430,278 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
         }}
       >
         <Form
-          {...DEFAULT_FORM_CUSTOM}
+          {...DEFAULT_FORM}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
           <Row>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Số container"
-                name={["khaibaosocontainer", "soContainer"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                  {
-                    max: 250,
-                  },
-                ]}
+            <Col span={12}>
+              <Card
+                className="th-card-margin-bottom th-card-reset-margin"
+                title={"BÊN GIAO HÀNG"}
               >
-                <Input className="input-item" placeholder="Nhập số container" />
-              </FormItem>
+                <Row>
+                  <Col span={24}>
+                    <FormItem
+                      label="Bên giao"
+                      name={["bienBanBanGiao", "donVi_Id"]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                        {
+                          max: 250,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListKhachHang ? ListKhachHang : []}
+                        placeholder="Chọn bên nhận"
+                        optionsvalue={["id", "tenKhachHang"]}
+                        style={{ width: "100%" }}
+                        onSelect={(val) => {
+                          ListKhachHang.forEach((kh) => {
+                            if (val === kh.id) {
+                              setFieldsValue({
+                                bienBanBanGiao: {
+                                  diaChi: kh.diaChi,
+                                  dienThoai: kh.sDT,
+                                  nguoiLienHe: kh.nguoiLienHe,
+                                  fax: kh.fax,
+                                },
+                              });
+                            }
+                          });
+                        }}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span={24}>
+                    <FormItem
+                      label="Địa chỉ"
+                      name={["bienBanBanGiao", "diaChi"]}
+                      rules={[
+                        {
+                          type: "string",
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Địa chỉ"
+                        disabled={true}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span={24}>
+                    <FormItem
+                      label="Điện thoại"
+                      name={["bienBanBanGiao", "dienThoai"]}
+                      rules={[
+                        {
+                          type: "string",
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Điện thoại"
+                        disabled={true}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span={24}>
+                    <FormItem
+                      label="Fax"
+                      name={["bienBanBanGiao", "fax"]}
+                      rules={[
+                        {
+                          type: "string",
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Fax"
+                        disabled={true}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span={24}>
+                    <FormItem
+                      label="Đại diện bên giao"
+                      name={["bienBanBanGiao", "nguoiLienHe"]}
+                      rules={[
+                        {
+                          type: "string",
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Đại diện bên nhận"
+                        disabled={true}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span={24}>
+                    <FormItem
+                      label="Điện thoại"
+                      name={["bienBanBanGiao", "dienThoai"]}
+                      rules={[
+                        {
+                          type: "string",
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Điện thoại"
+                        disabled={true}
+                      />
+                    </FormItem>
+                  </Col>
+                </Row>
+              </Card>
             </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Số seal"
-                name={["khaibaosocontainer", "soSeal"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                  {
-                    max: 250,
-                  },
-                ]}
+            <Col span={12}>
+              <Card
+                className="th-card-margin-bottom th-card-reset-margin"
+                title={"BÊN NHẬN HÀNG"}
               >
-                <Input className="input-item" placeholder="Nhập số seal" />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Dimensions"
-                name={["khaibaosocontainer", "dimensions"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                  {
-                    max: 250,
-                  },
-                ]}
-              >
-                <Input className="input-item" placeholder="Nhập dimensions" />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Đơn hàng"
-                name={["khaibaosocontainer", "tits_qtsx_DonHang_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListDonHang ? ListDonHang : []}
-                  placeholder="Chọn đơn hàng"
-                  optionsvalue={["id", "tenDonHang"]}
-                  style={{ width: "100%" }}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Sản phẩm"
-                name={["khaibaosocontainer", "tits_qtsx_DonHangChiTiet_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListSanPham ? ListSanPham : []}
-                  placeholder="Chọn sản phẩm"
-                  optionsvalue={["tits_qtsx_DonHangChiTiet_Id", "name"]}
-                  style={{ width: "100%" }}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="List số VIN"
-                name={["khaibaosocontainer", "list_ChiTiets"]}
-                rules={[
-                  {
-                    type: "array",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListSoVin ? ListSoVin : []}
-                  placeholder="Chọn số VIN"
-                  optionsvalue={["id", "tenSoLo"]}
-                  style={{ width: "100%" }}
-                  mode={"multiple"}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Ghi chú"
-                name={["khaibaosocontainer", "moTa"]}
-                rules={[
-                  {
-                    type: "string",
-                  },
-                ]}
-              >
-                <Input className="input-item" placeholder="Nhập ghi chú" />
-              </FormItem>
+                <Row>
+                  <Col span={24}>
+                    <FormItem
+                      label="Bên nhận"
+                      name={["bienBanBanGiao", "tits_qtsx_KhachHang_Id"]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                        {
+                          max: 250,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListKhachHang ? ListKhachHang : []}
+                        placeholder="Chọn bên nhận"
+                        optionsvalue={["id", "tenKhachHang"]}
+                        style={{ width: "100%" }}
+                        onSelect={(val) => {
+                          ListKhachHang.forEach((kh) => {
+                            if (val === kh.id) {
+                              setFieldsValue({
+                                bienBanBanGiao: {
+                                  diaChi: kh.diaChi,
+                                  dienThoai: kh.sDT,
+                                  nguoiLienHe: kh.nguoiLienHe,
+                                  fax: kh.fax,
+                                },
+                              });
+                            }
+                          });
+                        }}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span={24}>
+                    <FormItem
+                      label="Địa chỉ"
+                      name={["bienBanBanGiao", "diaChi"]}
+                      rules={[
+                        {
+                          type: "string",
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Địa chỉ"
+                        disabled={true}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span={24}>
+                    <FormItem
+                      label="Điện thoại"
+                      name={["bienBanBanGiao", "dienThoai"]}
+                      rules={[
+                        {
+                          type: "string",
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Điện thoại"
+                        disabled={true}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span={24}>
+                    <FormItem
+                      label="Fax"
+                      name={["bienBanBanGiao", "fax"]}
+                      rules={[
+                        {
+                          type: "string",
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Fax"
+                        disabled={true}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span={24}>
+                    <FormItem
+                      label="Đại diện bên nhận"
+                      name={["bienBanBanGiao", "nguoiLienHe"]}
+                      rules={[
+                        {
+                          type: "string",
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Đại diện bên nhận"
+                        disabled={true}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col span={24}>
+                    <FormItem
+                      label="Điện thoại"
+                      name={["bienBanBanGiao", "dienThoai"]}
+                      rules={[
+                        {
+                          type: "string",
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Điện thoại"
+                        disabled={true}
+                      />
+                    </FormItem>
+                  </Col>
+                </Row>
+              </Card>
             </Col>
           </Row>
         </Form>
       </Card>
-
       <Card
         title="THÔNG TIN BÀN GIAO"
         headStyle={{
@@ -634,7 +718,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
             // md={24}
             // sm={24}
             // xs={24}
-            // style={{ marginBottom: 8 }}
+            //
             span={24}
             align="end"
           >
@@ -643,18 +727,8 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
               onClick={onClickAddTable}
               type="primary"
             >
-              Thêm vật tư
+              Thêm
             </Button>
-            {/* {type === "new" && (
-              <Button
-                icon={<UploadOutlined />}
-                onClick={() => setActiveModal(true)}
-                type="primary"
-                disabled={DisableAdd}
-              >
-                Import
-              </Button>
-            )} */}
           </Col>
         )}
         <Table

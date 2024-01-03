@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Popover, Tag } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Card, Button, Divider, Col, Tag } from "antd";
+import {
+  PlusOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  PlusCircleOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty, repeat } from "lodash";
@@ -14,18 +19,21 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
-  reDataSelectedTable,
+  reDataForTable,
   removeDuplicates,
-  treeToFlatlist,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import ModalCauTrucKhoThanhPham from "./ModalCauTrucKhoThanhPham";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function CauTrucKhoVatTu({ match, history, permission }) {
+function CauTrucKhoThanhPham({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [keyword, setKeyword] = useState("");
+  const [Active, setActive] = useState(false);
+  const [Type, setType] = useState();
+  const [info, setInfo] = useState();
   useEffect(() => {
     if (permission && permission.view) {
       loadData(keyword, 1);
@@ -72,38 +80,101 @@ function CauTrucKhoVatTu({ match, history, permission }) {
     }
   };
 
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
+  const actionContent = (item, type) => {
+    const addItem =
+      permission && permission.add
+        ? {
+            onClick: () => {
+              setActive(true);
+              setInfo(item);
+              setType(type + "New");
+            },
+          }
+        : { disabled: true };
+
     const editItem =
       permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
+        type === "kho" ? (
+          <Link
+            to={{
+              pathname: `${match.url}/${item.id}/chinh-sua`,
+              state: { itemData: item },
+            }}
+            title={"Sửa kho"}
+          >
+            <EditOutlined />
+          </Link>
+        ) : (
+          <a
+            title={
+              type === "ke"
+                ? "Sửa kệ"
+                : type === "tang"
+                ? "Sửa tầng"
+                : "Sửa ngăn"
+            }
+            onClick={() => {
+              setActive(true);
+              setInfo(item);
+              setType(type + "Edit");
+            }}
+          >
+            <EditOutlined />
+          </a>
+        )
       ) : (
-        <span disabled title="Sửa">
+        <span
+          disabled
+          title={
+            type === "kho"
+              ? "Sửa kho"
+              : type === "ke"
+              ? "Sửa kệ"
+              : type === "tang"
+              ? "Sửa tầng"
+              : "Sửa ngăn"
+          }
+        >
           <EditOutlined />
         </span>
       );
     const deleteVal =
       permission && permission.del
-        ? { onClick: () => deleteItemFunc(item) }
+        ? { onClick: () => deleteItemFunc(item, type) }
         : { disabled: true };
     return (
       <div>
+        {type !== "ngan" && (
+          <>
+            <a
+              {...addItem}
+              title={
+                type === "kho"
+                  ? "Thêm kệ"
+                  : type === "ke"
+                  ? "Thêm tầng"
+                  : type === "tang" && "Thêm ngăn"
+              }
+            >
+              <PlusCircleOutlined />
+            </a>
+            <Divider type="vertical" />
+          </>
+        )}
         {editItem}
         <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa">
+        <a
+          {...deleteVal}
+          title={
+            type === "kho"
+              ? "Xóa kho"
+              : type === "ke"
+              ? "Xóa kệ"
+              : type === "tang"
+              ? "Xóa tầng"
+              : "Xóa ngăn"
+          }
+        >
           <DeleteOutlined />
         </a>
       </div>
@@ -116,12 +187,18 @@ function CauTrucKhoVatTu({ match, history, permission }) {
    * @returns
    * @memberof VaiTro
    */
-  const deleteItemFunc = (item) => {
+  const deleteItemFunc = (item, type) => {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
       item.maCauTrucKho,
-      "cấu trúc kho"
+      type === "kho"
+        ? "kho"
+        : type === "ke"
+        ? "kệ"
+        : type === "tang"
+        ? "tầng"
+        : "ngăn"
     );
   };
 
@@ -142,11 +219,6 @@ function CauTrucKhoVatTu({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
   const handleRedirect = () => {
     history.push({
       pathname: `${match.url}/them-moi`,
@@ -167,97 +239,99 @@ function CauTrucKhoVatTu({ match, history, permission }) {
       </>
     );
   };
-  let dataList = treeToFlatlist(data);
-  dataList = reDataSelectedTable(dataList);
+  let dataList = reDataForTable(data);
 
-  let renderHead = [
-    {
-      title: "STT",
-      dataIndex: "stt",
-      key: "stt",
-      align: "center",
-      width: 70,
-    },
-    {
-      title: "Mã cấu trúc kho",
-      dataIndex: "maCauTrucKho",
-      key: "maCauTrucKho",
-      // render: (value, record) => renderTenMenu(value, record),
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.maCauTrucKho,
-            value: d.maCauTrucKho,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.maCauTrucKho.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Tên cấu trúc kho",
-      dataIndex: "tenCauTrucKho",
-      key: "tenCauTrucKho",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenCauTrucKho,
-            value: d.tenCauTrucKho,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenCauTrucKho.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Sức chứa",
-      dataIndex: "sucChua",
-      key: "sucChua",
-      align: "center",
-      render: (val) => <span>{val !== 0 && val}</span>,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.sucChua,
-            value: d.sucChua,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.sucChua.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Mã Barcode",
-      dataIndex: "id",
-      key: "id",
-      align: "center",
-      render: (value) => (
-        <div id="myqrcode">
-          <Popover content={value}>
+  let renderHead = (type) => {
+    const render = [
+      {
+        title: "Chức năng",
+        key: "action",
+        align: "center",
+        width: 110,
+        render: (value) => actionContent(value, type),
+      },
+      {
+        title: "STT",
+        dataIndex: "key",
+        key: "key",
+        align: "center",
+        width: 70,
+      },
+      {
+        title:
+          type === "kho"
+            ? "Mã kho thành phẩm"
+            : type === "ke"
+            ? "Mã kệ"
+            : type === "tang"
+            ? "Mã tầng"
+            : "Mã ngăn",
+        dataIndex: "maCauTrucKho",
+        align: "center",
+        key: "maCauTrucKho",
+        filters: removeDuplicates(
+          map(dataList, (d) => {
+            return {
+              text: d.maCauTrucKho,
+              value: d.maCauTrucKho,
+            };
+          })
+        ),
+        onFilter: (value, record) => record.maCauTrucKho.includes(value),
+        filterSearch: true,
+      },
+      {
+        title:
+          type === "kho"
+            ? "Tên kho thành phẩm"
+            : type === "ke"
+            ? "Tên kệ"
+            : type === "tang"
+            ? "Tên tầng"
+            : "Tên ngăn",
+        dataIndex: "tenCauTrucKho",
+        key: "tenCauTrucKho",
+        align: "center",
+        filters: removeDuplicates(
+          map(dataList, (d) => {
+            return {
+              text: d.tenCauTrucKho,
+              value: d.tenCauTrucKho,
+            };
+          })
+        ),
+        onFilter: (value, record) => record.tenCauTrucKho.includes(value),
+        filterSearch: true,
+      },
+      {
+        title: "Mã Barcode",
+        dataIndex: "id",
+        key: "id",
+        width: 100,
+        align: "center",
+        render: (value) => (
+          <div id="myqrcode">
             <QRCode
               value={value}
               bordered={false}
               style={{ width: 50, height: 50 }}
             />
-          </Popover>
-        </div>
-      ),
-    },
-    {
-      title: "Vị trí",
-      dataIndex: "viTri",
-      key: "viTri",
-      align: "center",
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-    },
-  ];
+          </div>
+        ),
+      },
+    ];
+    return type === "kho"
+      ? render
+      : [
+          ...render,
+          {
+            title: "Vị trí",
+            dataIndex: "viTri",
+            key: "viTri",
+            align: "center",
+          },
+        ];
+  };
 
   const components = {
     body: {
@@ -265,7 +339,8 @@ function CauTrucKhoVatTu({ match, history, permission }) {
       cell: EditableCell,
     },
   };
-  const columns = map(renderHead, (col) => {
+
+  const columns = map(renderHead("kho"), (col) => {
     if (!col.editable) {
       return col;
     }
@@ -280,240 +355,55 @@ function CauTrucKhoVatTu({ match, history, permission }) {
       }),
     };
   });
-  // const actionContentChiTiet = (item) => {
-  //   const deleteItemVal = "";
-  //   // permission && permission.del && (type === "new" || type === "edit");
-  //   // ? { onClick: () => deleteItemFuncChiTiet(item) }
-  //   // :
-  //   // {
-  //   //   disabled: true;
-  //   // }
-  //   return (
-  //     <div>
-  //       <React.Fragment>
-  //         <a {...deleteItemVal} title="Xóa">
-  //           <DeleteOutlined />
-  //         </a>
-  //       </React.Fragment>
-  //     </div>
-  //   );
-  // };
-  // let renderKe = [
-  //   {
-  //     title: "STT",
-  //     dataIndex: "key",
-  //     key: "key",
-  //     align: "center",
-  //     width: 45,
-  //   },
-  //   {
-  //     title: "Mã kệ",
-  //     dataIndex: "maCauTrucKho",
-  //     key: "maCauTrucKho",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Tên kệ",
-  //     dataIndex: "tenCauTrucKho",
-  //     key: "tenCauTrucKho",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Tên Ban/Phòng",
-  //     dataIndex: "tenPhongBan",
-  //     key: "tenPhongBan",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Mã barcode",
-  //     dataIndex: "qrCode",
-  //     align: "center",
-  //     key: "qrCode",
-  //     render: (value) => (
-  //       <div id="myqrcode">
-  //         <Popover content={value}>
-  //           <QRCode
-  //             value={value}
-  //             bordered={false}
-  //             style={{ width: 50, height: 50 }}
-  //           />
-  //         </Popover>
-  //       </div>
-  //     ),
-  //   },
-  //   {
-  //     title: "Vị trí",
-  //     dataIndex: "viTri",
-  //     key: "viTri",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Chức năng",
-  //     key: "action",
-  //     align: "center",
-  //     width: 100,
-  //     render: (value) => actionContentChiTiet(value),
-  //   },
-  // ];
-  // const columnKe = map(renderKe, (col) => {
-  //   if (!col.editable) {
-  //     return col;
-  //   }
-  //   return {
-  //     ...col,
-  //     onCell: (record) => ({
-  //       record,
-  //       editable: col.editable,
-  //       dataIndex: col.dataIndex,
-  //       title: col.title,
-  //       info: col.info,
-  //     }),
-  //   };
-  // });
-  // let renderTang = [
-  //   {
-  //     title: "STT",
-  //     dataIndex: "key",
-  //     key: "key",
-  //     align: "center",
-  //     width: 45,
-  //   },
-  //   {
-  //     title: "Mã tầng",
-  //     dataIndex: "maCauTrucKho",
-  //     key: "maCauTrucKho",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Tên tầng",
-  //     dataIndex: "tenCauTrucKho",
-  //     key: "tenCauTrucKho",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Tên Ban/Phòng",
-  //     dataIndex: "tenPhongBan",
-  //     key: "tenPhongBan",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Mã barcode",
-  //     dataIndex: "qrCode",
-  //     align: "center",
-  //     key: "qrCode",
-  //     render: (value) => (
-  //       <div id="myqrcode">
-  //         <Popover content={value}>
-  //           <QRCode
-  //             value={value}
-  //             bordered={false}
-  //             style={{ width: 50, height: 50 }}
-  //           />
-  //         </Popover>
-  //       </div>
-  //     ),
-  //   },
-  //   {
-  //     title: "Vị trí",
-  //     dataIndex: "viTri",
-  //     key: "viTri",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Chức năng",
-  //     key: "action",
-  //     align: "center",
-  //     width: 100,
-  //     render: (value) => actionContentChiTiet(value),
-  //   },
-  // ];
-  // const columnTang = map(renderTang, (col) => {
-  //   if (!col.editable) {
-  //     return col;
-  //   }
-  //   return {
-  //     ...col,
-  //     onCell: (record) => ({
-  //       record,
-  //       editable: col.editable,
-  //       dataIndex: col.dataIndex,
-  //       title: col.title,
-  //       info: col.info,
-  //     }),
-  //   };
-  // });
-  // let renderNgan = [
-  //   {
-  //     title: "STT",
-  //     dataIndex: "key",
-  //     key: "key",
-  //     align: "center",
-  //     width: 45,
-  //   },
-  //   {
-  //     title: "Mã ngăn",
-  //     dataIndex: "maCauTrucKho",
-  //     key: "maCauTrucKho",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Tên ngăn",
-  //     dataIndex: "tenCauTrucKho",
-  //     key: "tenCauTrucKho",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Tên Ban/Phòng",
-  //     dataIndex: "tenPhongBan",
-  //     key: "tenPhongBan",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Mã barcode",
-  //     dataIndex: "qrCode",
-  //     align: "center",
-  //     key: "qrCode",
-  //     render: (value) => (
-  //       <div id="myqrcode">
-  //         <Popover content={value}>
-  //           <QRCode
-  //             value={value}
-  //             bordered={false}
-  //             style={{ width: 50, height: 50 }}
-  //           />
-  //         </Popover>
-  //       </div>
-  //     ),
-  //   },
-  //   {
-  //     title: "Vị trí",
-  //     dataIndex: "viTri",
-  //     key: "viTri",
-  //     align: "center",
-  //   },
-  //   {
-  //     title: "Chức năng",
-  //     key: "action",
-  //     align: "center",
-  //     width: 100,
-  //     render: (value) => actionContentChiTiet(value),
-  //   },
-  // ];
-  // const columnNgan = map(renderNgan, (col) => {
-  //   if (!col.editable) {
-  //     return col;
-  //   }
-  //   return {
-  //     ...col,
-  //     onCell: (record) => ({
-  //       record,
-  //       editable: col.editable,
-  //       dataIndex: col.dataIndex,
-  //       title: col.title,
-  //       info: col.info,
-  //     }),
-  //   };
-  // });
+
+  const columnKes = map(renderHead("ke"), (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
+
+  const columnTangs = map(renderHead("tang"), (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
+
+  const columnNgans = map(renderHead("ngan"), (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -567,7 +457,7 @@ function CauTrucKhoVatTu({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 700, y: "50vh" }}
+          scroll={{ x: 1000, y: "50vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -575,61 +465,68 @@ function CauTrucKhoVatTu({ match, history, permission }) {
           size="small"
           pagination={false}
           loading={loading}
-          // expandable={{
-          //   expandedRowRender: (record) => (
-          //     <Table
-          //       style={{ marginLeft: "80px", width: "80%" }}
-          //       bordered
-          //       columns={columnKe}
-          //       scroll={{ x: 500 }}
-          //       components={components}
-          //       className="gx-table-responsive th-F1D065-head"
-          //       dataSource={reDataForTable(record.children)}
-          //       size="small"
-          //       rowClassName={"editable-row"}
-          //       // loading={loading}
-          //       pagination={false}
-          //       expandable={{
-          //         expandedRowRender: (record) => (
-          //           <Table
-          //             style={{ marginLeft: "80px", width: "80%" }}
-          //             bordered
-          //             columns={columnTang}
-          //             scroll={{ x: 500 }}
-          //             components={components}
-          //             className="gx-table-responsive th-F1D065-head"
-          //             dataSource={reDataForTable(record.children)}
-          //             size="small"
-          //             rowClassName={"editable-row"}
-          //             // loading={loading}
-          //             pagination={false}
-          //             expandable={{
-          //               expandedRowRender: (record) => (
-          //                 <Table
-          //                   style={{ marginLeft: "80px", width: "80%" }}
-          //                   bordered
-          //                   columns={columnNgan}
-          //                   scroll={{ x: 500 }}
-          //                   components={components}
-          //                   className="gx-table-responsive th-F1D065-head"
-          //                   dataSource={reDataForTable(record.children)}
-          //                   size="small"
-          //                   rowClassName={"editable-row"}
-          //                   // loading={loading}
-          //                   pagination={false}
-          //                 />
-          //               ),
-          //             }}
-          //           />
-          //         ),
-          //       }}
-          //     />
-          //   ),
-          // }}
+          expandable={{
+            expandedRowRender: (record) => (
+              <Table
+                style={{ marginLeft: "30px", width: "95%" }}
+                bordered
+                columns={columnKes}
+                scroll={{ x: 800 }}
+                components={components}
+                className="gx-table-responsive th-F1D065-head"
+                dataSource={reDataForTable(record.listChildren)}
+                size="small"
+                rowClassName={"editable-row"}
+                // loading={loading}
+                pagination={false}
+                expandable={{
+                  expandedRowRender: (record) => (
+                    <Table
+                      style={{ marginLeft: "30px", width: "95%" }}
+                      bordered
+                      columns={columnTangs}
+                      scroll={{ x: 800 }}
+                      components={components}
+                      className="gx-table-responsive th-F1D065-head"
+                      dataSource={reDataForTable(record.listChildren)}
+                      size="small"
+                      rowClassName={"editable-row"}
+                      // loading={loading}
+                      pagination={false}
+                      expandable={{
+                        expandedRowRender: (record) => (
+                          <Table
+                            style={{ marginLeft: "30px", width: "95%" }}
+                            bordered
+                            columns={columnNgans}
+                            scroll={{ x: 800 }}
+                            components={components}
+                            className="gx-table-responsive th-F1D065-head"
+                            dataSource={reDataForTable(record.listChildren)}
+                            size="small"
+                            rowClassName={"editable-row"}
+                            // loading={loading}
+                            pagination={false}
+                          />
+                        ),
+                      }}
+                    />
+                  ),
+                }}
+              />
+            ),
+          }}
         />
       </Card>
+      <ModalCauTrucKhoThanhPham
+        openModal={Active}
+        openModalFS={setActive}
+        info={info}
+        type={Type}
+        refesh={() => loadData(keyword, 1)}
+      />
     </div>
   );
 }
 
-export default CauTrucKhoVatTu;
+export default CauTrucKhoThanhPham;

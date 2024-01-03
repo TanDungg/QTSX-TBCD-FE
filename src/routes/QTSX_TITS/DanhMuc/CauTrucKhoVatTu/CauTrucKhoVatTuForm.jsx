@@ -1,37 +1,26 @@
 import React, { useState, useEffect } from "react";
-import { Card, Form, Spin, Switch } from "antd";
+import { Card, Form, Spin } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
-
-import { Input, TreeSelect, FormSubmit, Select } from "src/components/Common";
+import { Input, FormSubmit, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
-import { convertObjectToUrlParams, getLocalStorage } from "src/util/Common";
 
 const FormItem = Form.Item;
 
-const initialState = {
-  maCauTrucKho: "",
-  tenCauTrucKho: "",
-  tits_qtsx_CauTrucKho: "root",
-  isActive: false,
-};
-
 function CauTrucKhoVatTuForm({ match, permission, history }) {
   const dispatch = useDispatch();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const [form] = Form.useForm();
-  const { loading, item } = useSelector(({ common }) => common).toJS();
-  const INFO = getLocalStorage("menu");
+  const { setFieldsValue, validateFields, resetFields } = form;
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
-  const [listCauTrucKho, setListCauTrucKho] = useState([]);
-  const [disableViTri, setDisableViTri] = useState(true);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [ListChungTu, setListChungTu] = useState([]);
 
-  const { setFieldsValue, validateFields, resetFields, getFieldValue } = form;
   useEffect(() => {
+    getChungTu();
     if (includes(match.url, "them-moi")) {
       if (permission && !permission.add) {
         history.push("/home");
@@ -49,11 +38,6 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
         }
       }
     }
-    if (permission && (permission.add || permission.edit)) {
-      // Lấy danh sách CauTrucKho
-      getListCauTrucKho();
-      getChungTu();
-    }
 
     return () => {
       dispatch(fetchReset());
@@ -61,11 +45,6 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Lấy thông tin info
-   *
-   * @param {*} id
-   */
   const getInfo = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -81,19 +60,14 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
       );
     })
       .then((res) => {
-        const newData = res.data;
-        if (newData.tits_qtsx_CauTrucKho_Id === null) {
-          newData.tits_qtsx_CauTrucKho_Id = "root";
-        } else {
-          setDisableViTri(false);
-        }
+        const data = res.data;
         setFieldsValue({
-          CauTrucKho: {
-            ...newData,
-            viTri: newData.viTri,
+          cautruckhovattu: {
+            ...data,
+            viTri: data.viTri,
             tits_qtsx_CauTrucKho_ChungTus:
-              newData.chiTietChungTus &&
-              JSON.parse(newData.chiTietChungTus).map((ct) =>
+              data.chiTietChungTus &&
+              JSON.parse(data.chiTietChungTus).map((ct) =>
                 ct.tits_qtsx_ChungTu_Id.toLowerCase()
               ),
           },
@@ -101,6 +75,7 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
       })
       .catch((error) => console.error(error));
   };
+
   const getChungTu = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -124,72 +99,39 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * Lấy danh sách CauTrucKho
-   *
-   */
-  const getListCauTrucKho = async () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_CauTrucKho/cau-truc-kho-vat-tu-tree`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        setListCauTrucKho([]);
-        const newList = { id: "root", tenCauTrucKho: "Root", children: [] };
-        setListCauTrucKho([newList, ...res.data]);
-      })
-      .catch((error) => console.error(error));
-  };
 
-  const { maCauTrucKho, tenCauTrucKho, tits_qtsx_CauTrucKho, isActive } =
-    initialState;
-  /**
-   * Khi submit
-   *
-   * @param {*} values
-   */
   const onFinish = (values) => {
-    saveData(values.CauTrucKho);
+    saveData(values.cautruckhovattu);
   };
-  /**
-   * Lưu và thoát
-   *
-   */
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.CauTrucKho, true);
+        saveData(values.cautruckhovattu, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (CauTrucKho, saveQuit = false) => {
+  const saveData = (cautruckhovattu, saveQuit = false) => {
     if (type === "new") {
-      CauTrucKho.viTri === undefined
-        ? (CauTrucKho.viTri = 0)
-        : (CauTrucKho.viTri = CauTrucKho.viTri);
-      const newUser = CauTrucKho;
-      newUser.tits_qtsx_CauTrucKho_Id =
-        newUser.tits_qtsx_CauTrucKho_Id === "root"
-          ? null
-          : newUser.tits_qtsx_CauTrucKho_Id;
+      const cautruckho = {
+        ...cautruckhovattu,
+        viTri: !cautruckhovattu.viTri ? 0 : cautruckhovattu.viTri,
+        tits_qtsx_CauTrucKho_ChungTus:
+          cautruckhovattu.tits_qtsx_CauTrucKho_ChungTus.map((chungtu) => {
+            return {
+              tits_qtsx_ChungTu_Id: chungtu,
+            };
+          }),
+      };
+
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
             `tits_qtsx_CauTrucKho/cau-truc-kho-vat-tu`,
             "POST",
-            newUser,
+            cautruckho,
             "ADD",
             "",
             resolve,
@@ -204,24 +146,30 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
             } else {
               resetFields();
               setFieldTouch(false);
-              getListCauTrucKho();
             }
           }
         })
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const editUser = { id: id, ...item, ...CauTrucKho };
-      editUser.tits_qtsx_CauTrucKho_Id =
-        editUser.tits_qtsx_CauTrucKho_Id === "root"
-          ? (editUser.tits_qtsx_CauTrucKho_Id = null)
-          : editUser.tits_qtsx_CauTrucKho_Id;
+      const cautruckho = {
+        ...cautruckhovattu,
+        id: id,
+        viTri: !cautruckhovattu.viTri ? 0 : cautruckhovattu.viTri,
+        tits_qtsx_CauTrucKho_ChungTus:
+          cautruckhovattu.tits_qtsx_CauTrucKho_ChungTus.map((chungtu) => {
+            return {
+              tits_qtsx_ChungTu_Id: chungtu,
+            };
+          }),
+      };
+
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
             `tits_qtsx_CauTrucKho/${id}`,
             "PUT",
-            editUser,
+            cautruckho,
             "EDIT",
             "",
             resolve,
@@ -242,14 +190,7 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
         .catch((error) => console.log(error));
     }
   };
-  const handleSelectPhongBan = (val) => {
-    getListCauTrucKho(val);
-  };
 
-  /**
-   * Quay lại trang cấu trúc kho
-   *
-   */
   const goBack = () => {
     history.push(
       `${match.url.replace(
@@ -276,7 +217,7 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
           >
             <FormItem
               label="Mã kho vật tư"
-              name={["CauTrucKho", "maCauTrucKho"]}
+              name={["cautruckhovattu", "maCauTrucKho"]}
               rules={[
                 {
                   type: "string",
@@ -286,13 +227,12 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
                   max: 250,
                 },
               ]}
-              initialValue={maCauTrucKho}
             >
               <Input className="input-item" placeholder="Nhập mã kho vật tư" />
             </FormItem>
             <FormItem
               label="Tên kho vật tư"
-              name={["CauTrucKho", "tenCauTrucKho"]}
+              name={["cautruckhovattu", "tenCauTrucKho"]}
               rules={[
                 {
                   type: "string",
@@ -302,58 +242,12 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
                   max: 250,
                 },
               ]}
-              initialValue={tenCauTrucKho}
             >
               <Input className="input-item" placeholder="Nhập tên kho vật tư" />
             </FormItem>
-            {/* 
-            <FormItem
-              label="Cấu trúc kho cha"
-              name={["CauTrucKho", "tits_qtsx_CauTrucKho_Id"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-              initialValue={tits_qtsx_CauTrucKho}
-            >
-              <TreeSelect
-                className="tree-select-item"
-                datatreeselect={listCauTrucKho}
-                name="CauTrucKho"
-                options={["id", "tenCauTrucKho", "children"]}
-                placeholder="Chọn cấu trúc kho cha"
-                style={{ width: "100%" }}
-                onSelect={(val) => {
-                  if (val !== "root") {
-                    setDisableViTri(false);
-                    setFieldsValue({
-                      CauTrucKho: {
-                        tits_qtsx_CauTrucKho_ChungTus: null,
-                      },
-                    });
-                  } else {
-                    setDisableViTri(true);
-                    setFieldsValue({
-                      CauTrucKho: {
-                        viTri: null,
-                      },
-                    });
-                  }
-                }}
-              />
-            </FormItem> */}
-            {/* <FormItem label="Vị trí" name={["CauTrucKho", "viTri"]}>
-              <Input
-                className="input-item"
-                type="number"
-                placeholder="Nhập vị trí"
-                disabled={disableViTri}
-              />
-            </FormItem> */}
             <FormItem
               label="Chứng từ"
-              name={["CauTrucKho", "tits_qtsx_CauTrucKho_ChungTus"]}
+              name={["cautruckhovattu", "tits_qtsx_CauTrucKho_ChungTus"]}
               rules={[
                 {
                   type: "array",

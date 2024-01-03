@@ -1,25 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Card, Empty, Row, Col } from "antd";
+import { Card, Empty, Row, Col, Divider } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { map } from "lodash";
-import { Table, EditableTableRow, Select } from "src/components/Common";
+import {  Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import ModalChiTietKho from "./ModalChiTietKho";
-import { reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 
-const { EditableRow, EditableCell } = EditableTableRow;
 function LayoutKhoThanhPham({ history, permission }) {
-  const { loading } = useSelector(({ common }) => common).toJS();
+  const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [ListKho, setListKho] = useState([]);
-  const [ListChiTietKho, setListChiTietKho] = useState([]);
-  const [ListchiTietThanhPham, setListchiTietThanhPham] = useState([]);
-  const [focusKe, setFocusKe] = useState("");
-  const [focusNgan, setFocusNgan] = useState("");
+  const [ListCauTrucKho, setListCauTrucKho] = useState([]);
+  const [Kho, setKho] = useState(null);
+  const [ListChiTiet, setListChiTiet] = useState([]);
   const [soTangMax, setSoTangMax] = useState(1);
-  const [Kho, setKho] = useState("");
-  const [ActiveModal, setActiveModal] = useState("");
+  const [focusKe, setFocusKe] = useState(null);
+  const [focusNgan, setFocusNgan] = useState(null);
+  const [ActiveModal, setActiveModal] = useState(null);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -30,6 +27,7 @@ function LayoutKhoThanhPham({ history, permission }) {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   const getKho = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -46,11 +44,14 @@ function LayoutKhoThanhPham({ history, permission }) {
     }).then((res) => {
       if (res && res.data) {
         setListKho(res.data);
+        setKho(res.data[0].id);
+        getChiTietKho(res.data[0].id);
       } else {
         setListKho([]);
       }
     });
   };
+
   const getChiTietKho = (val) => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -79,107 +80,29 @@ function LayoutKhoThanhPham({ history, permission }) {
         });
         res.data.sort((a, b) => a.viTri - b.viTri);
         setSoTangMax(soTangMax);
-        setListChiTietKho(res.data);
+        setListCauTrucKho(res.data);
       } else {
-        setListChiTietKho([]);
+        setListCauTrucKho([]);
       }
     });
   };
-  // /**
-  //  * Lấy dữ liệu về
-  //  *
-  //  */
-  // const loadData = (cauTrucKho_Id) => {
-  //   const param = convertObjectToUrlParams({
-  //     cauTrucKho_Id,
-  //     donVi_Id: INFO.donVi_Id,
-  //   });
-  //   dispatch(
-  //     fetchStart(
-  //       `lkn_ViTriLuuKho/get-lay-out-kho-thanh-pham?${param}`,
-  //       "GET",
-  //       null,
-  //       "LIST"
-  //     )
-  //   );
-  // };
 
-  let renderHead = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      align: "center",
-      width: 45,
-    },
-    {
-      title: "Mã sản phẩm",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
-      align: "center",
-    },
-    {
-      title: "Tên sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
-      align: "center",
-    },
-    {
-      title: "Số lượng",
-      dataIndex: "soLuong",
-      key: "soLuong",
-      align: "center",
-    },
-    {
-      title: "Vị trí lưu",
-      key: "viTriLuu",
-      align: "center",
-      render: (val) => {
-        return (
-          <span>
-            {val.tenKe && val.tenKe}
-            {val.tenTang && ` - ${val.tenTang}`}
-            {val.tenNgan && ` - ${val.tenNgan}`}
-          </span>
-        );
-      },
-    },
-  ];
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
-  const columns = map(renderHead, (col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-      }),
-    };
-  });
   const handleOnSelectKho = (val) => {
-    setListchiTietThanhPham([]);
-    setFocusNgan("");
-    setFocusKe("");
+    setListChiTiet([]);
+    setFocusNgan(null);
+    setFocusKe(null);
     setKho(val);
     getChiTietKho(val);
   };
+
   const handleViewThongTin = (tt) => {
     if (tt) {
-      setListchiTietThanhPham(JSON.parse(tt));
+      setListChiTiet(JSON.parse(tt));
     } else {
-      setListchiTietThanhPham([]);
+      setListChiTiet([]);
     }
   };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -212,250 +135,232 @@ function LayoutKhoThanhPham({ history, permission }) {
           </Col>
         </Row>
         <Row>
-          <Col xxl={12} xl={12} xs={24}>
-            <Card style={{ width: "95%" }}>
-              {ListChiTietKho.length > 0 ? (
-                <Row>
-                  {ListChiTietKho.map((ke) => {
-                    return (
-                      <Col
-                        xxl={8}
-                        xl={12}
-                        lg={12}
+          <Card style={{ width: "100%" }}>
+            <Row style={{ marginLeft: 0 }}>
+              <div
+                style={{
+                  width: "120px",
+                  display: "flex",
+                  alignItems: "center",
+                  marginBottom: "10px",
+                }}
+              >
+                <span style={{ fontWeight: "bold" }}>Chú thích:</span>
+              </div>
+              <div
+                style={{
+                  width: "300px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-around",
+                  marginBottom: "10px",
+                }}
+              >
+                <span
+                  style={{
+                    width: 20,
+                    height: 20,
+                    backgroundColor: "#ff4d4f",
+                    display: "inline-block",
+                  }}
+                />
+                <span style={{ width: "calc(100% - 40px)" }}>
+                  Đang chứa thành phẩm
+                </span>
+              </div>
+              <div
+                style={{
+                  width: "300px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-around",
+                  marginBottom: "10px",
+                }}
+              >
+                <span
+                  style={{
+                    width: "20px",
+                    height: "20px",
+                    backgroundColor: "#ccc",
+                    display: "inline-block",
+                  }}
+                />
+                <span style={{ width: "calc(100% - 40px)" }}>Trống</span>
+              </div>
+              <div
+                style={{
+                  width: "300px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-around",
+                  marginBottom: "10px",
+                }}
+              >
+                <span
+                  style={{
+                    width: 20,
+                    height: 20,
+                    backgroundColor: "#5cdbd3",
+                    display: "inline-block",
+                  }}
+                />
+                <span style={{ width: "calc(100% - 40px)" }}>
+                  Vị trí đang chọn
+                </span>
+              </div>
+            </Row>
+            <Divider
+              orientation="left"
+              backgroundColor="none"
+              style={{
+                background: "none",
+                fontWeight: "bold",
+                marginBottom: "30px",
+              }}
+            >
+              CẤU TRÚC KHO THÀNH PHẨM
+            </Divider>
+            {ListCauTrucKho.length > 0 ? (
+              <Row>
+                {ListCauTrucKho.map((ke) => {
+                  return (
+                    <Col
+                      xxl={4}
+                      xl={6}
+                      lg={8}
+                      md={8}
+                      sm={12}
+                      xs={24}
+                      style={{
+                        height: soTangMax * 40,
+                        marginBottom: 50,
+                      }}
+                    >
+                      <h5>{ke.tenCauTrucKho}</h5>
+                      <div
                         style={{
-                          height:
-                            // ke.children_tits_qtsx_ViTriLuuKhoThanhPhams.length === 0
-                            //   ?
-                            soTangMax * 40,
-                          // : ke.children_tits_qtsx_ViTriLuuKhoThanhPhams.length * 40,
-                          marginBottom: 50,
+                          width: "100%",
+                          height: "100%",
+                          padding: "0 14px",
+                          cursor: "pointer",
+                          border:
+                            ke.children_tits_qtsx_ViTriLuuKhoThanhPhams
+                              .length === 0 && "1px solid #333",
+                          backgroundColor:
+                            focusKe === ke.id
+                              ? "#5cdbd3"
+                              : ke.children_tits_qtsx_ViTriLuuKhoThanhPhams
+                                  .length === 0 && ke.chiTietThanhPham
+                              ? "#ff4d4f"
+                              : "#ccc",
+                        }}
+                        onClick={() => {
+                          if (
+                            ke.children_tits_qtsx_ViTriLuuKhoThanhPhams
+                              .length === 0
+                          ) {
+                            setFocusKe(ke.id);
+                            setFocusNgan(null);
+                            handleViewThongTin(ke.chiTietThanhPham);
+                            setActiveModal(true);
+                          }
                         }}
                       >
-                        <h5>{ke.tenCauTrucKho}</h5>
-                        <div
-                          style={{
-                            border:
-                              ke.children_tits_qtsx_ViTriLuuKhoThanhPhams
-                                .length === 0 && "1px solid #333",
-                            width: "90%",
-                            height: "100%",
-                            padding: "0 14px",
-                            cursor: "pointer",
-                            backgroundColor:
-                              focusKe === ke.id
-                                ? "#5cdbd3"
-                                : ke.children_tits_qtsx_ViTriLuuKhoThanhPhams
-                                    .length === 0 && ke.chiTietThanhPham
-                                ? "#ff4d4f"
-                                : "#ccc",
-                          }}
-                          onClick={() => {
-                            if (
-                              ke.children_tits_qtsx_ViTriLuuKhoThanhPhams
-                                .length === 0
-                            ) {
-                              setFocusKe(ke.id);
-                              setFocusNgan("");
-                              handleViewThongTin(ke.chiTietThanhPham);
-                              // setActiveModal(true);
-                            }
-                          }}
-                        >
-                          {ke.children_tits_qtsx_ViTriLuuKhoThanhPhams.length >
-                          0
-                            ? [
-                                ...Array.from(
-                                  {
-                                    length:
-                                      soTangMax -
-                                      ke
-                                        .children_tits_qtsx_ViTriLuuKhoThanhPhams
-                                        .length,
-                                  },
-                                  (_, i) => (
+                        {ke.children_tits_qtsx_ViTriLuuKhoThanhPhams.length > 0
+                          ? [
+                              ...Array.from(
+                                {
+                                  length:
+                                    soTangMax -
+                                    ke.children_tits_qtsx_ViTriLuuKhoThanhPhams
+                                      .length,
+                                },
+                                (_, i) => (
+                                  <Row
+                                    style={{
+                                      height: 40,
+                                      backgroundColor: "#fff",
+                                    }}
+                                  />
+                                )
+                              ),
+                              ,
+                              ...ke.children_tits_qtsx_ViTriLuuKhoThanhPhams.map(
+                                (tang, index) => {
+                                  return (
                                     <Row
                                       style={{
+                                        marginRight: -16,
+                                        border:
+                                          tang
+                                            .children_tits_qtsx_ViTriLuuKhoThanhPhams
+                                            .length === 0 && "1px solid #333",
                                         height: 40,
-                                        backgroundColor: "#fff",
+                                        backgroundColor:
+                                          tang
+                                            .children_tits_qtsx_ViTriLuuKhoThanhPhams
+                                            .length === 0 && "#ccc",
                                       }}
-                                    ></Row>
-                                  )
-                                ),
-                                ,
-                                ...ke.children_tits_qtsx_ViTriLuuKhoThanhPhams.map(
-                                  (tang, index) => {
-                                    return (
-                                      <Row
-                                        style={{
-                                          marginRight: -16,
-                                          border:
-                                            tang
-                                              .children_tits_qtsx_ViTriLuuKhoThanhPhams
-                                              .length === 0 && "1px solid #333",
-                                          height: 40,
-                                          backgroundColor:
-                                            tang
-                                              .children_tits_qtsx_ViTriLuuKhoThanhPhams
-                                              .length === 0 && "#ccc",
-                                        }}
-                                      >
-                                        {tang
-                                          .children_tits_qtsx_ViTriLuuKhoThanhPhams
-                                          .length > 0 &&
-                                          tang.children_tits_qtsx_ViTriLuuKhoThanhPhams.map(
-                                            (ngan, index) => {
-                                              return (
-                                                <div
-                                                  // span={
-                                                  //   (tang.children_tits_qtsx_ViTriLuuKhoThanhPhams.length === 5 ||
-                                                  //     tang.children_tits_qtsx_ViTriLuuKhoThanhPhams.length === 7 ||
-                                                  //     tang.children_tits_qtsx_ViTriLuuKhoThanhPhams.length === 9 ||
-                                                  //     tang.children_tits_qtsx_ViTriLuuKhoThanhPhams.length === 10 ||
-                                                  //     tang.children_tits_qtsx_ViTriLuuKhoThanhPhams.length === 11 ||
-                                                  //     tang.children_tits_qtsx_ViTriLuuKhoThanhPhams.length ===
-                                                  //       13) &&
-                                                  //   index + 1 ===
-                                                  //     tang.children_tits_qtsx_ViTriLuuKhoThanhPhams.length
-                                                  //     ? Math.floor(
-                                                  //         24 / tang.children_tits_qtsx_ViTriLuuKhoThanhPhams.length
-                                                  //       ) * 2
-                                                  //     : Math.floor(
-                                                  //         24 / tang.children_tits_qtsx_ViTriLuuKhoThanhPhams.length
-                                                  //       )
-                                                  // }
-                                                  style={{
-                                                    height: 40,
-                                                    margin: 0,
-                                                    width: `${
-                                                      100 /
-                                                      tang
-                                                        .children_tits_qtsx_ViTriLuuKhoThanhPhams
-                                                        .length
-                                                    }%`,
-                                                    padding: 0,
-                                                    backgroundColor:
-                                                      focusNgan === ngan.id
-                                                        ? "#5cdbd3"
-                                                        : ngan.chiTietThanhPham
-                                                        ? "#ff4d4f"
-                                                        : "#ccc",
-                                                    border: "1px solid #333",
-                                                    cursor: "pointer",
-                                                  }}
-                                                  onClick={() => {
-                                                    // setActiveModal(true);
-                                                    handleViewThongTin(
-                                                      ngan.chiTietThanhPham
-                                                    );
-                                                    setFocusNgan(ngan.id);
-                                                    setFocusKe("");
-                                                  }}
-                                                ></div>
-                                              );
-                                            }
-                                          )}
-                                      </Row>
-                                    );
-                                  }
-                                ),
-                              ]
-                            : null}
-                        </div>
-                      </Col>
-                    );
-                  })}
-                </Row>
-              ) : (
-                <Empty description={false} />
-              )}
-            </Card>
-          </Col>
-          <Col xxl={12} xl={12} xs={24}>
-            <Card>
-              <div>
-                <h5>Chú thích</h5>
-                <Row>
-                  <Col
-                    span={12}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: 20,
-                        height: 20,
-                        backgroundColor: "#ccc",
-                        display: "inline-block",
-                        marginRight: 5,
-                      }}
-                    ></span>
-                    <span>Trống</span>
-                  </Col>
-                  <Col
-                    span={12}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: 20,
-                        height: 20,
-                        backgroundColor: "#ff4d4f",
-                        display: "inline-block",
-                        marginRight: 5,
-                      }}
-                    ></span>
-                    <span>Đang chứa thành phẩm</span>
-                  </Col>
-                  <Col
-                    span={12}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      marginTop: 10,
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: 20,
-                        height: 20,
-                        backgroundColor: "#5cdbd3",
-                        display: "inline-block",
-                        marginRight: 5,
-                      }}
-                    ></span>
-                    <span>Vị trí đang chọn</span>
-                  </Col>
-                </Row>
-                <Row style={{ marginTop: 20 }}>
-                  <Col span={24}>
-                    <h5 style={{ fontWeight: "bold" }}>Tồn kho theo vị trí</h5>
-                  </Col>
-                </Row>
-                <Table
-                  bordered
-                  scroll={{ x: 500, y: "70vh" }}
-                  columns={columns}
-                  components={components}
-                  className="gx-table-responsive"
-                  dataSource={reDataForTable(ListchiTietThanhPham)}
-                  size="small"
-                  pagination={false}
-                  loading={loading}
-                />
-              </div>
-            </Card>
-          </Col>
+                                    >
+                                      {tang
+                                        .children_tits_qtsx_ViTriLuuKhoThanhPhams
+                                        .length > 0 &&
+                                        tang.children_tits_qtsx_ViTriLuuKhoThanhPhams.map(
+                                          (ngan, index) => {
+                                            return (
+                                              <div
+                                                style={{
+                                                  height: 40,
+                                                  margin: 0,
+                                                  width: `${
+                                                    100 /
+                                                    tang
+                                                      .children_tits_qtsx_ViTriLuuKhoThanhPhams
+                                                      .length
+                                                  }%`,
+                                                  padding: 0,
+                                                  backgroundColor:
+                                                    focusNgan === ngan.id
+                                                      ? "#5cdbd3"
+                                                      : ngan.chiTietThanhPham
+                                                      ? "#ff4d4f"
+                                                      : "#ccc",
+                                                  border: "1px solid #333",
+                                                  cursor: "pointer",
+                                                }}
+                                                onClick={() => {
+                                                  setActiveModal(true);
+                                                  handleViewThongTin(
+                                                    ngan.chiTietThanhPham
+                                                  );
+                                                  setFocusNgan(ngan.id);
+                                                  setFocusKe(null);
+                                                }}
+                                              />
+                                            );
+                                          }
+                                        )}
+                                    </Row>
+                                  );
+                                }
+                              ),
+                            ]
+                          : null}
+                      </div>
+                    </Col>
+                  );
+                })}
+              </Row>
+            ) : (
+              <Empty description={false} />
+            )}
+          </Card>
         </Row>
       </Card>
       <ModalChiTietKho
         openModal={ActiveModal}
         openModalFS={setActiveModal}
-        ListchiTietThanhPham={ListchiTietThanhPham}
+        ListChiTiet={ListChiTiet}
       />
     </div>
   );

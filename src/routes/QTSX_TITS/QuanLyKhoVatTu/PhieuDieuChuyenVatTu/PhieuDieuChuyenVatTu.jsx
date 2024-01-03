@@ -29,6 +29,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import Helpers from "src/helpers";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -349,6 +350,13 @@ function PhieuDieuChuyenVatTu({ match, history, permission }) {
 
   let renderHead = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -471,13 +479,6 @@ function PhieuDieuChuyenVatTu({ match, history, permission }) {
         </div>
       ),
     },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
-    },
   ];
 
   const components = {
@@ -557,8 +558,12 @@ function PhieuDieuChuyenVatTu({ match, history, permission }) {
         selectedKeys.length > 0
           ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
           : [...selectedRowKeys];
-      setSelectedDevice(row);
-      setSelectedKeys(key);
+      if (row.length && row[0].tinhTrang === "Đã từ chối") {
+        Helpers.alertError("Không được chọn phiếu đã bị từ chối");
+      } else {
+        setSelectedDevice(row);
+        setSelectedKeys(key);
+      }
     },
   };
   return (
