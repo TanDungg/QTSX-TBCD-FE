@@ -4,7 +4,7 @@ import {
   PlusOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, Divider, Button } from "antd";
+import { Card, Form, Input, Row, Col, Divider, Button, Tag } from "antd";
 import { isEmpty, map } from "lodash";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
@@ -19,8 +19,13 @@ import {
   Table,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM } from "src/constants/Config";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import { DEFAULT_FORM, SMRM_BANGIAO } from "src/constants/Config";
+import {
+  convertObjectToUrlParams,
+  getLocalStorage,
+  getTokenInfo,
+  reDataForTable,
+} from "src/util/Common";
 import ModalAddVatTu from "./ModalAddVatTu";
 
 const FormItem = Form.Item;
@@ -30,13 +35,15 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
+  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+
   const [fieldTouch, setFieldTouch] = useState(false);
   const [ListKhachHang, setListKhachHang] = useState([]);
   const [ListVatTu, setListVatTu] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
-  const [ListSanPham, setListSanPham] = useState([]);
+  const [ListGiaoHang, setListGiaoHang] = useState([]);
   const [ActiveModal, setActiveModal] = useState(false);
-  const [ListSoVin, setListSoVin] = useState([]);
+  const [ListUser, setListUser] = useState([]);
 
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
@@ -47,6 +54,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           setType("new");
           getKhachHang();
+          getUser(INFO);
         } else if (permission && !permission.add) {
           history.push("/home");
         }
@@ -56,7 +64,8 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
           // Get info
           const { id } = match.params;
           setId(id);
-          getKhachHang("", "", 1);
+          getKhachHang();
+          getUser(INFO);
           getInfo();
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -84,11 +93,41 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setListKhachHang(res.data);
+          res.data.forEach((dt) => {
+            if (dt.id === SMRM_BANGIAO) {
+              setListGiaoHang([dt]);
+            }
+          });
         } else {
           setListKhachHang([]);
         }
       })
       .catch((error) => console.error(error));
+  };
+  const getUser = (info) => {
+    const params = convertObjectToUrlParams({
+      donviId: info.donVi_Id,
+      key: 1,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Account/get-cbnv?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListUser(res.data);
+      } else {
+        setListUser([]);
+      }
+    });
   };
   /**
    * Lấy thông tin
@@ -100,7 +139,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_SoLo/${id}`,
+          `tits_qtsx_BienBanBanGiao/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -112,13 +151,10 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListVatTu(JSON.parse(res.data.list_DoRois));
+          setListVatTu(JSON.parse(res.data.list_bbbgchitiets));
           setFieldsValue({
             bienBanBanGiao: {
               ...res.data,
-              list_ChiTiets: JSON.parse(res.data.list_ChiTiets).map(
-                (ct) => ct.tits_qtsx_SoVin_Id
-              ),
             },
           });
         }
@@ -237,16 +273,40 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      title: "Số Booking",
+      dataIndex: "soBooking",
+      key: "soBooking",
       align: "center",
     },
     {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      title: "Số Cont",
+      dataIndex: "soContainer",
+      key: "soContainer",
       align: "center",
+    },
+    {
+      title: "Đơn hàng",
+      dataIndex: "tenDonHang",
+      key: "tenDonHang",
+      align: "center",
+    },
+    {
+      title: "Số VIN",
+      dataIndex: "list_ChiTiets",
+      key: "list_ChiTiets",
+      align: "center",
+      render: (val) =>
+        val &&
+        val.map((ct) => {
+          return <Tag color="green">{ct.maSoVin}</Tag>;
+        }),
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "list_ChiTiets",
+      key: "soLuong",
+      align: "center",
+      render: (val) => <span>{val && val.length}</span>,
     },
     {
       title: "Đơn vị tính",
@@ -255,17 +315,11 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Số lượng",
-      key: "soLuong",
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
       align: "center",
-      render: (val) => rendersoLuong(val),
     },
-    // {
-    //   title: "Quy trình",
-    //   dataIndex: "tenQuyTrinhSanXuat",
-    //   key: "tenQuyTrinhSanXuat",
-    //   align: "center",
-    // },
     {
       title: "Chức năng",
       key: "action",
@@ -332,17 +386,12 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
     if (type === "new") {
       const newData = {
         ...user,
-        list_ChiTiets: user.list_ChiTiets.map((ct) => {
-          return {
-            tits_qtsx_SoVin_Id: ct,
-          };
-        }),
-        list_DoRois: ListVatTu,
+        list_bbbgchitiets: ListVatTu,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_SoLo`,
+            `tits_qtsx_BienBanBanGiao`,
             "POST",
             newData,
             "ADD",
@@ -374,17 +423,12 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
     if (type === "edit") {
       const newData = {
         ...user,
-        list_ChiTiets: user.list_ChiTiets.map((ct) => {
-          return {
-            tits_qtsx_SoVin_Id: ct,
-          };
-        }),
-        list_DoRois: ListVatTu,
+        list_bbbgchitiets: ListVatTu,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_SoLo/${id}`,
+            `tits_qtsx_BienBanBanGiao?id=${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -446,7 +490,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
                   <Col span={24}>
                     <FormItem
                       label="Bên giao"
-                      name={["bienBanBanGiao", "donVi_Id"]}
+                      name={["bienBanBanGiao", "tits_qtsx_KhachHangBenGiao_Id"]}
                       rules={[
                         {
                           type: "string",
@@ -459,19 +503,20 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
                     >
                       <Select
                         className="heading-select slt-search th-select-heading"
-                        data={ListKhachHang ? ListKhachHang : []}
+                        data={ListGiaoHang ? ListGiaoHang : []}
                         placeholder="Chọn bên nhận"
                         optionsvalue={["id", "tenKhachHang"]}
                         style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
                         onSelect={(val) => {
-                          ListKhachHang.forEach((kh) => {
+                          ListGiaoHang.forEach((kh) => {
                             if (val === kh.id) {
                               setFieldsValue({
                                 bienBanBanGiao: {
-                                  diaChi: kh.diaChi,
-                                  dienThoai: kh.sDT,
-                                  nguoiLienHe: kh.nguoiLienHe,
-                                  fax: kh.fax,
+                                  diaChiBenGiao: kh.diaChi,
+                                  sDTBenGiao: kh.sDT,
+                                  faxBenGiao: kh.fax,
                                 },
                               });
                             }
@@ -483,7 +528,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
                   <Col span={24}>
                     <FormItem
                       label="Địa chỉ"
-                      name={["bienBanBanGiao", "diaChi"]}
+                      name={["bienBanBanGiao", "diaChiBenGiao"]}
                       rules={[
                         {
                           type: "string",
@@ -500,7 +545,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
                   <Col span={24}>
                     <FormItem
                       label="Điện thoại"
-                      name={["bienBanBanGiao", "dienThoai"]}
+                      name={["bienBanBanGiao", "sDTBenGiao"]}
                       rules={[
                         {
                           type: "string",
@@ -517,7 +562,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
                   <Col span={24}>
                     <FormItem
                       label="Fax"
-                      name={["bienBanBanGiao", "fax"]}
+                      name={["bienBanBanGiao", "faxBenGiao"]}
                       rules={[
                         {
                           type: "string",
@@ -534,24 +579,40 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
                   <Col span={24}>
                     <FormItem
                       label="Đại diện bên giao"
-                      name={["bienBanBanGiao", "nguoiLienHe"]}
+                      name={["bienBanBanGiao", "daiDienBenGiao_Id"]}
                       rules={[
                         {
                           type: "string",
+                          required: true,
                         },
                       ]}
                     >
-                      <Input
-                        className="input-item"
-                        placeholder="Đại diện bên nhận"
-                        disabled={true}
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUser ? ListUser : []}
+                        placeholder="Chọn đại diện bên giao"
+                        optionsvalue={["id", "fullName"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        onSelect={(val) => {
+                          ListUser.forEach((kh) => {
+                            if (val === kh.id) {
+                              setFieldsValue({
+                                bienBanBanGiao: {
+                                  sDTDaiDienBenGiao: kh.phoneNumber,
+                                },
+                              });
+                            }
+                          });
+                        }}
                       />
                     </FormItem>
                   </Col>
                   <Col span={24}>
                     <FormItem
                       label="Điện thoại"
-                      name={["bienBanBanGiao", "dienThoai"]}
+                      name={["bienBanBanGiao", "sDTDaiDienBenGiao"]}
                       rules={[
                         {
                           type: "string",
@@ -600,7 +661,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
                               setFieldsValue({
                                 bienBanBanGiao: {
                                   diaChi: kh.diaChi,
-                                  dienThoai: kh.sDT,
+                                  sDT: kh.sDT,
                                   nguoiLienHe: kh.nguoiLienHe,
                                   fax: kh.fax,
                                 },
@@ -631,7 +692,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
                   <Col span={24}>
                     <FormItem
                       label="Điện thoại"
-                      name={["bienBanBanGiao", "dienThoai"]}
+                      name={["bienBanBanGiao", "sDT"]}
                       rules={[
                         {
                           type: "string",
@@ -682,7 +743,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
                   <Col span={24}>
                     <FormItem
                       label="Điện thoại"
-                      name={["bienBanBanGiao", "dienThoai"]}
+                      name={["bienBanBanGiao", "sDT"]}
                       rules={[
                         {
                           type: "string",

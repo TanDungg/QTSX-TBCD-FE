@@ -43316,3 +43316,6 @@ textarea.gx-chat-textarea {
   overflow: auto;
   max-height: 60vh;
 }
+.black-text .ant-select-selection-item-content{
+  color: #333;
+}

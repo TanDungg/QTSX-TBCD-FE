@@ -548,12 +548,12 @@ function KeHoachChiTiet({ match, history, permission }) {
           loading={loading}
         />
       </Card>
-      <EditKeHoach
+      {/* <EditKeHoach
         openModal={ActiveEditKeHoach}
         openModalFS={setActiveEditKeHoach}
-        // data={dataEdit}
-        // refesh={refeshData}
-      />
+        data={dataEdit} 
+       refesh={refeshData}
+       /> */}
     </div>
   );
 }

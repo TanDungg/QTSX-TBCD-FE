@@ -16,6 +16,7 @@ export const APP_NAME = "HỆ THỐNG ERP";
 export const PAGE_SIZE = 20;
 //TITS_QTSX
 export const XUONG_GCCT = "951c1ae9-6d79-4142-98b3-76faa32a28a2";
+export const SMRM_BANGIAO = "7b89430c-4069-41d4-980b-ff9079a44abe";
 
 export const DEFAULT_FORM_STYLE = {
   labelCol: {

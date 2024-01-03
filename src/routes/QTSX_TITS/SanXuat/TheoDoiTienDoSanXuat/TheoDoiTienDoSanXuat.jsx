@@ -82,6 +82,8 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setInfoSanPham(res.data);
+        } else {
+          setInfoSanPham({});
         }
       })
       .catch((error) => console.error(error));
@@ -90,8 +92,10 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
   /**
    * Tìm kiếm người dùng
    */
-  const onSearchSoKhung = () => {
-    getSoKhunNoiBo(keyword);
+  const onSearchSoKhung = (val) => {
+    if (!isEmpty(val)) {
+      getSoKhunNoiBo(keyword);
+    }
   };
   /**
    * Thay đổi keyword
