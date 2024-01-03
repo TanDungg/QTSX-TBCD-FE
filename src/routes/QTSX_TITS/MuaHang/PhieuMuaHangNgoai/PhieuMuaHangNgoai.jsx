@@ -163,7 +163,7 @@ function DeNghiMuaHang({ match, history, permission }) {
       deleteItemAction,
       item,
       item.maPhieu,
-      "phiếu đề nghị mua hàng"
+      "phiếu mua hàng ngoài"
     );
   };
 
@@ -316,6 +316,13 @@ function DeNghiMuaHang({ match, history, permission }) {
   };
 
   let renderHead = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 120,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -470,14 +477,6 @@ function DeNghiMuaHang({ match, history, permission }) {
           )}
         </div>
       ),
-    },
-
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 120,
-      render: (value) => actionContent(value),
     },
   ];
 
