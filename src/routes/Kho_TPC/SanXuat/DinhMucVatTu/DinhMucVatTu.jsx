@@ -1,9 +1,4 @@
-import {
-  EditOutlined,
-  DeleteOutlined,
-  CheckCircleOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { EditOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Row, Col, DatePicker, Divider } from "antd";
 import { map, isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";

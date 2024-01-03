@@ -3,7 +3,7 @@ import {
   DownloadOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
-import { Card, Row, Col, DatePicker, Button, Popover } from "antd";
+import { Card, Row, Col, DatePicker, Button } from "antd";
 
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
@@ -16,7 +16,10 @@ import {
   getThangNow,
 } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { reDataForTable, getLocalStorage } from "src/util/Common";
+import {
+  reDataForTable,
+  // getLocalStorage
+} from "src/util/Common";
 
 import {
   ModalDeleteConfirm,
@@ -33,7 +36,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function KeHoachChiTiet({ match, history, permission }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
-  const INFO = getLocalStorage("menu");
+  // const INFO = getLocalStorage("menu");
   const [ListXuong, setListXuong] = useState([]);
   const [Xuong, setXuong] = useState("");
   const [data, setData] = useState([]);
@@ -43,7 +46,7 @@ function KeHoachChiTiet({ match, history, permission }) {
   const [Nam, setNam] = useState(getNamNow());
   const [ActiveEditKeHoach, setActiveEditKeHoach] = useState(false);
   const [Version, setVersion] = useState("");
-  const [dataEdit, setDataEdit] = useState({});
+  // const [dataEdit, setDataEdit] = useState({});
   const [NguoiXem, setNguoiXem] = useState("");
   const [ListNguoiXem, setListNguoiXem] = useState([]);
 
@@ -545,12 +548,12 @@ function KeHoachChiTiet({ match, history, permission }) {
           loading={loading}
         />
       </Card>
-      <EditKeHoach
+      {/* <EditKeHoach
         openModal={ActiveEditKeHoach}
         openModalFS={setActiveEditKeHoach}
-        data={dataEdit}
-        // refesh={refeshData}
-      />
+        data={dataEdit} 
+       refesh={refeshData}
+       /> */}
     </div>
   );
 }

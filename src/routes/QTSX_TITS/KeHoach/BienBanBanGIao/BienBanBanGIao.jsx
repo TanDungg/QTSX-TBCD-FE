@@ -7,7 +7,7 @@ import {
   Row,
   Popover,
   Modal as AntModal,
-  Image,
+  DatePicker,
   Tag,
 } from "antd";
 import {
@@ -29,12 +29,15 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
+  getDateNow,
   reDataForTable,
   removeDuplicates,
   setLocalStorage,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
+import moment from "moment";
+const { RangePicker } = DatePicker;
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -48,10 +51,11 @@ function BienBanBanGIao({ match, history, permission }) {
   const [DisabledModal, setDisabledModal] = useState(false);
   const [DataChiTiet, setDataChiTiet] = useState([]);
   const [ChiTiet, setChiTiet] = useState([]);
-
+  const [FromDate, setFromDate] = useState(getDateNow(-7));
+  const [ToDate, setToDate] = useState(getDateNow());
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(keyword, page);
+      getListData(keyword, FromDate, ToDate, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -64,12 +68,16 @@ function BienBanBanGIao({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const getListData = (keyword, page) => {
+  const getListData = (keyword, ngayBatDau, ngayKetThuc, page) => {
     const param = convertObjectToUrlParams({
       keyword,
+      ngayBatDau,
+      ngayKetThuc,
       page,
     });
-    dispatch(fetchStart(`tits_qtsx_SoContainer?${param}`, "GET", null, "LIST"));
+    dispatch(
+      fetchStart(`tits_qtsx_BienBanBanGiao?${param}`, "GET", null, "LIST")
+    );
   };
 
   /**
@@ -105,24 +113,24 @@ function BienBanBanGIao({ match, history, permission }) {
             pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item },
           }}
-          title="Sửa số container"
+          title="Sửa biên bản bàn giao"
         >
           <EditOutlined />
         </Link>
       ) : (
-        <span disabled title="Sửa số container">
+        <span disabled title="Sửa biên bản bàn giao">
           <EditOutlined />
         </span>
       );
     const deleteVal =
       permission && permission.del && !item.isUsed
-        ? { onClick: () => deleteItemFunc(item, "số container") }
+        ? { onClick: () => deleteItemFunc(item, "biên bản bàn giao") }
         : { disabled: true };
     return (
       <div>
         {editItem}
         <Divider type="vertical" />
-        <a {...deleteVal} title="Xóa số container">
+        <a {...deleteVal} title="Xóa biên bản bàn giao">
           <DeleteOutlined />
         </a>
       </div>
@@ -136,12 +144,7 @@ function BienBanBanGIao({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item, title) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maKhaiBaoSoContainer,
-      title
-    );
+    ModalDeleteConfirm(deleteItemAction, item, item.maBBBG, title);
   };
 
   /**
@@ -150,14 +153,14 @@ function BienBanBanGIao({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_SoContainer/${item.id}`;
+    let url = `tits_qtsx_BienBanBanGiao/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(keyword, page);
+          getListData(keyword, FromDate, ToDate, page);
         }
       })
       .catch((error) => console.error(error));
@@ -207,7 +210,7 @@ function BienBanBanGIao({ match, history, permission }) {
             selectedSoContainer.length === 0
           }
         >
-          In mã QrCode
+          Xuất excel
         </Button>
       </>
     );
@@ -224,7 +227,9 @@ function BienBanBanGIao({ match, history, permission }) {
   const XemChiTiet = (record) => {
     setChiTiet(record);
     setDataChiTiet(
-      reDataForTable(record.list_ChiTiets && JSON.parse(record.list_ChiTiets))
+      reDataForTable(
+        record.list_bbbgchitiets && JSON.parse(record.list_bbbgchitiets)
+      )
     );
     setDisabledModal(true);
   };
@@ -238,74 +243,48 @@ function BienBanBanGIao({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã Qr Code",
-      dataIndex: "id",
-      key: "id",
+      title: "Mã BBBG",
+      dataIndex: "maBBBG",
+      key: "maBBBG",
       align: "center",
       width: 150,
-      render: (value) => (
-        <div id="myqrcode">
-          <Popover content={value}>
-            <QRCode
-              value={value}
-              bordered={false}
-              style={{ width: 50, height: 50 }}
-            />
-          </Popover>
-        </div>
-      ),
     },
     {
-      title: "Số Container",
-      dataIndex: "soContainer",
-      key: "soContainer",
+      title: "Nơi nhận",
+      dataIndex: "tenKhachHang",
+      key: "tenKhachHang",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.soContainer,
-            value: d.soContainer,
+            text: d.tenKhachHang,
+            value: d.tenKhachHang,
           };
         })
       ),
-      onFilter: (value, record) => record.soContainer.includes(value),
+      onFilter: (value, record) => record.tenKhachHang.includes(value),
       filterSearch: true,
     },
     {
-      title: "Số Seal",
-      dataIndex: "soSeal",
-      key: "soSeal",
+      title: "Ngày",
+      dataIndex: "ngayTao",
+      key: "ngayTao",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.soSeal,
-            value: d.soSeal,
+            text: d.ngayTao,
+            value: d.ngayTao,
           };
         })
       ),
-      onFilter: (value, record) => record.soSeal.includes(value),
+      onFilter: (value, record) => record.ngayTao.includes(value),
       filterSearch: true,
     },
+
     {
-      title: "Dimensions",
-      dataIndex: "dimensions",
-      key: "dimensions",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.dimensions,
-            value: d.dimensions,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.dimensions.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "List số VIN",
-      key: "list_ChiTiets",
+      title: "Chi tiết",
+      key: "list_bbbgchitiets",
       align: "center",
       render: (record) => (
         <Button
@@ -318,22 +297,7 @@ function BienBanBanGIao({ match, history, permission }) {
         </Button>
       ),
     },
-    {
-      title: "Ghi chú",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.moTa,
-            value: d.moTa,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.moTa.includes(value),
-      filterSearch: true,
-    },
+
     {
       title: "Chức năng",
       key: "action",
@@ -371,54 +335,56 @@ function BienBanBanGIao({ match, history, permission }) {
       title: "STT",
       dataIndex: "key",
       key: "key",
-      align: "center",
       width: 45,
-    },
-    {
-      title: "Mã chi tiết",
-      dataIndex: "maChiTiet",
-      key: "maChiTiet",
       align: "center",
     },
     {
-      title: "Tên chi tiết",
-      dataIndex: "tenChiTiet",
-      key: "tenChiTiet",
+      title: "Số Booking",
+      dataIndex: "soBooking",
+      key: "soBooking",
       align: "center",
     },
     {
-      title: "Thông số",
-      dataIndex: "thongSoKyThuat",
-      key: "thongSoKyThuat",
+      title: "Số Cont",
+      dataIndex: "soContainer",
+      key: "soContainer",
       align: "center",
     },
     {
-      title: "Sản phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
+      title: "Đơn hàng",
+      dataIndex: "tenDonHang",
+      key: "tenDonHang",
       align: "center",
     },
     {
-      title: "Công đoạn",
-      dataIndex: "tenCongDoan",
-      key: "tenCongDoan",
+      title: "Số VIN",
+      key: "list_chitiets",
       align: "center",
+      render: (val) =>
+        val.list_ChiTiets &&
+        val.list_ChiTiets.map((ct) => {
+          return <Tag color="green">{ct.maSoVin}</Tag>;
+        }),
     },
     {
-      title: "Hình ảnh",
-      dataIndex: "hinhAnh",
-      key: "hinhAnh",
+      title: "Số lượng",
+      key: "soLuong",
       align: "center",
-      render: (value) =>
-        value && (
-          <span>
-            <Image
-              src={BASE_URL_API + value}
-              alt="Hình ảnh"
-              style={{ maxWidth: 50, maxHeight: 50 }}
-            />
-          </span>
-        ),
+      render: (val) => (
+        <span>{val.list_ChiTiets && val.list_ChiTiets.length}</span>
+      ),
+    },
+    // {
+    //   title: "Đơn vị tính",
+    //   dataIndex: "tenDonViTinh",
+    //   key: "tenDonViTinh",
+    //   align: "center",
+    // },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "center",
     },
   ];
 
@@ -444,76 +410,103 @@ function BienBanBanGIao({ match, history, permission }) {
     };
   });
 
+  // const rowSelection = {
+  //   selectedRowKeys: selectedKeys,
+  //   selectedRows: selectedSoContainer,
+  //   onChange: (selectedRowKeys, selectedRows) => {
+  //     const newSelectedSoContainer = [...selectedRows];
+  //     const newSelectedKey = [...selectedRowKeys];
+  //     setSelectedSoContainer(newSelectedSoContainer);
+  //     setSelectedKeys(newSelectedKey);
+  //   },
+  // };
   const rowSelection = {
     selectedRowKeys: selectedKeys,
     selectedRows: selectedSoContainer,
+
     onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedSoContainer = [...selectedRows];
-      const newSelectedKey = [...selectedRowKeys];
-      setSelectedSoContainer(newSelectedSoContainer);
-      setSelectedKeys(newSelectedKey);
+      const row =
+        selectedSoContainer.length > 0
+          ? selectedRows.filter((d) => d.key !== selectedSoContainer[0].key)
+          : [...selectedRows];
+
+      const key =
+        selectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== selectedKeys[0])
+          : [...selectedRowKeys];
+
+      setSelectedSoContainer(row);
+      setSelectedKeys(key);
     },
   };
-
-  const title = (
-    <span>
-      Danh sách số VIN của{" "}
-      <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
-        {ChiTiet && ChiTiet.tenChiTiet}
-      </Tag>
-    </span>
-  );
+  const handleChangeNgay = (dateString) => {
+    setFromDate(dateString[0]);
+    setToDate(dateString[1]);
+    setPage(1);
+    getListData(keyword, dateString[0], dateString[1], 1);
+  };
+  const title = <span>Chi tiết biên bản bàn giao</span>;
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Biên bản giao hàng"
-        description="Danh sách biên bản giao hàng"
+        title="Biên bản bàn giao"
+        description="Biên bản bàn giao"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom">
         <Row>
           <Col
-            xxl={8}
-            xl={12}
-            lg={16}
-            md={16}
-            sm={20}
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Ngày:</h5>
+            <RangePicker
+              format={"DD/MM/YYYY"}
+              onChange={(date, dateString) => handleChangeNgay(dateString)}
+              defaultValue={[
+                moment(FromDate, "DD/MM/YYYY"),
+                moment(ToDate, "DD/MM/YYYY"),
+              ]}
+              allowClear={false}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
             xs={24}
             style={{
-              display: "flex",
               alignItems: "center",
-              marginLeft: 10,
             }}
           >
-            <span
+            <h5
               style={{
                 width: "80px",
               }}
             >
               Tìm kiếm:
-            </span>
-            <div
-              style={{
-                flex: 1,
-                alignItems: "center",
-                marginTop: width < 576 ? 10 : 0,
+            </h5>
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchKhaiBaoSoContainer,
+                onSearch: onSearchKhaiBaoSoContainer,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
               }}
-            >
-              <Toolbar
-                count={1}
-                search={{
-                  title: "Tìm kiếm",
-                  loading,
-                  value: keyword,
-                  onChange: onChangeKeyword,
-                  onPressEnter: onSearchKhaiBaoSoContainer,
-                  onSearch: onSearchKhaiBaoSoContainer,
-                  placeholder: "Nhập từ khóa",
-                  allowClear: true,
-                }}
-              />
-            </div>
+            />
           </Col>
         </Row>
       </Card>
@@ -540,6 +533,7 @@ function BienBanBanGIao({ match, history, permission }) {
           rowSelection={{
             type: "checkbox",
             ...rowSelection,
+            hideSelectAll: true,
             preserveSelectedRowKeys: true,
             selectedRowKeys: selectedKeys,
           }}

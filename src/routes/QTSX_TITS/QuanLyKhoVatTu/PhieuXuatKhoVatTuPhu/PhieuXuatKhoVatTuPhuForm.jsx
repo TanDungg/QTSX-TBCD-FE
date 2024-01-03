@@ -41,7 +41,6 @@ import {
   reDataForTable,
 } from "src/util/Common";
 import { useLocation } from "react-router-dom";
-import ModalChonViTri from "./ModalChonViTri";
 import ModalTuChoi from "./ModalTuChoi";
 
 const { EditableRow, EditableCell } = EditableTableRow;

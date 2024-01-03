@@ -206,18 +206,18 @@ function SoVin({ match, permission, history }) {
     },
     {
       title: "Đơn hàng",
-      dataIndex: "maPhieu",
-      key: "maPhieu",
+      dataIndex: "tenDonHang",
+      key: "tenDonHang",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieu,
-            value: d.maPhieu,
+            text: d.tenDonHang,
+            value: d.tenDonHang,
           };
         })
       ),
-      onFilter: (value, record) => record.maPhieu.includes(value),
+      onFilter: (value, record) => record.tenDonHang.includes(value),
       filterSearch: true,
     },
     {

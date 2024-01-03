@@ -14,24 +14,23 @@ const FormItem = Form.Item;
 function ModalAddVatTu({ openModalFS, openModal, addSanPham, listVT }) {
   const dispatch = useDispatch();
   const [fieldTouch, setFieldTouch] = useState(false);
-  const [ListVatTu, setListVatTu] = useState([]);
+  const [ListSoCont, setListSoCont] = useState([]);
+  const [ListSoVIN, setListSoVIN] = useState([]);
+
   const [form] = Form.useForm();
   const { resetFields, setFieldsValue } = form;
 
   useEffect(() => {
     if (openModal) {
-      getVatTu();
+      getCont();
     }
   }, [openModal]);
 
-  const getVatTu = () => {
-    const params = convertObjectToUrlParams({
-      page: -1,
-    });
+  const getCont = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_VatTu?${params}`,
+          `tits_qtsx_BienBanBanGiao/get-list-so-cont-chua-ban-giao`,
           "GET",
           null,
           "DETAIL",
@@ -45,32 +44,29 @@ function ModalAddVatTu({ openModalFS, openModal, addSanPham, listVT }) {
         if (res && res.data) {
           listVT.forEach((vt) => {
             const phanTuB = res.data.find(
-              (item) => item.id === vt.tits_qtsx_VatTu_Id
+              (item) =>
+                item.tits_qtsx_SoContainer_Id === vt.tits_qtsx_SoContainer_Id
             );
             if (phanTuB) {
               const index = res.data.indexOf(phanTuB);
               res.data.splice(index, 1);
             }
           });
-          setListVatTu(
-            res.data.map((d) => {
-              return {
-                ...d,
-                name: d.maVatTu + " - " + d.tenVatTu,
-              };
-            })
-          );
+
+          setListSoCont(res.data);
         } else {
-          setListVatTu([]);
+          setListSoCont([]);
         }
       })
       .catch((error) => console.error(error));
   };
   const saveData = (chitiet) => {
-    ListVatTu.forEach((vt) => {
-      if (vt.id === chitiet.tits_qtsx_VatTu_Id) {
-        chitiet.tenVatTu = vt.tenVatTu;
-        chitiet.maVatTu = vt.maVatTu;
+    ListSoCont.forEach((vt) => {
+      if (vt.tits_qtsx_SoContainer_Id === chitiet.tits_qtsx_SoContainer_Id) {
+        chitiet.list_ChiTiets = vt.list_chitiets;
+        chitiet.tenDonHang = vt.tenDonHang;
+        chitiet.tenDonViTinh = vt.tenDonHang;
+        chitiet.soContainer = vt.soContainer;
       }
     });
     addSanPham(chitiet);
@@ -90,7 +86,7 @@ function ModalAddVatTu({ openModalFS, openModal, addSanPham, listVT }) {
     saveData(values.chitiet);
   };
 
-  const title = "Thông tin vật tư";
+  const title = "Thông tin bàn giao";
 
   return (
     <AntModal
@@ -110,24 +106,35 @@ function ModalAddVatTu({ openModalFS, openModal, addSanPham, listVT }) {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Vật tư"
-            name={["chitiet", "tits_qtsx_VatTu_Id"]}
+            label="Số Booking:"
+            name={["chitiet", "soBooking"]}
+            rules={[{ type: "string", required: true }]}
+          >
+            <Input placeholder="Số Booking:"></Input>
+          </FormItem>
+          <FormItem
+            label="Số Cont"
+            name={["chitiet", "tits_qtsx_SoContainer_Id"]}
             rules={[{ type: "string", required: true }]}
           >
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListVatTu}
-              placeholder="Chọn Vật tư"
-              optionsvalue={["id", "name"]}
+              data={ListSoCont}
+              placeholder="Chọn số Cont"
+              optionsvalue={["tits_qtsx_SoContainer_Id", "soContainer"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
               onSelect={(val) => {
-                ListVatTu.forEach((vt) => {
-                  if (vt.id === val) {
+                ListSoCont.forEach((vt) => {
+                  if (vt.tits_qtsx_SoContainer_Id === val) {
+                    setListSoVIN(vt.list_chitiets);
                     setFieldsValue({
                       chitiet: {
-                        tenDonViTinh: vt.tenDonViTinh,
+                        tenDonHang: vt.tenDonHang,
+                        list_chitiets: vt.list_chitiets.map(
+                          (ct) => ct.tits_qtsx_SoVin_Id
+                        ),
                       },
                     });
                   }
@@ -136,24 +143,39 @@ function ModalAddVatTu({ openModalFS, openModal, addSanPham, listVT }) {
             />
           </FormItem>
           <FormItem
-            label="Đơn vị tính"
-            name={["chitiet", "tenDonViTinh"]}
+            label="Số đơn hàng"
+            name={["chitiet", "tenDonHang"]}
             rules={[{ required: true }]}
           >
-            <Input placeholder="Đơn vị tính" disabled={true}></Input>
+            <Input placeholder="Số đơn hàng" disabled={true}></Input>
           </FormItem>
           <FormItem
-            label="Số lượng"
-            name={["chitiet", "soLuong"]}
+            label="Số VIN"
+            name={["chitiet", "list_chitiets"]}
             rules={[
               {
+                type: "array",
                 required: true,
               },
             ]}
           >
-            <Input type="number" placeholder="Số lượng"></Input>
+            <Select
+              className="heading-select slt-search th-select-heading black-text"
+              data={ListSoVIN ? ListSoVIN : []}
+              placeholder="Số VIN"
+              optionsvalue={["tits_qtsx_SoVin_Id", "maSoVin"]}
+              style={{ width: "100%" }}
+              mode={"multiple"}
+              disabled={true}
+            />
           </FormItem>
-
+          <FormItem
+            label="Ghi chú"
+            name={["chitiet", "moTa"]}
+            rules={[{ type: "string" }]}
+          >
+            <Input placeholder="Ghi chú"></Input>
+          </FormItem>
           <FormSubmit disabled={fieldTouch} />
         </Form>
       </div>

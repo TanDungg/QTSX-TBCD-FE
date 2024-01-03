@@ -70,7 +70,6 @@ function BOMThepForm({ match, permission, history }) {
   const [fileName, setFileName] = useState("");
   const [message, setMessageError] = useState([]);
   const [DataLoi, setDataLoi] = useState();
-  const [HangTrung, setHangTrung] = useState([]);
 
   const [info, setInfo] = useState({});
   const [fieldTouch, setFieldTouch] = useState(false);
@@ -1019,11 +1018,6 @@ function BOMThepForm({ match, permission, history }) {
     );
   };
   const RowStyle = (current, index) => {
-    if (HangTrung.length > 0) {
-      if (HangTrung.some((maVatTu) => current.maVatTu === maVatTu)) {
-        return "red-row";
-      }
-    }
     if (current.tenVatTu === undefined) {
       setFieldTouch(false);
       setMessageError("Tên chi tiết không được rỗng");

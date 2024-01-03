@@ -303,6 +303,22 @@ function KhachHang({ match, history, permission }) {
       filterSearch: true,
     },
     {
+      title: "Fax",
+      dataIndex: "fax",
+      key: "fax",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.fax,
+            value: d.fax,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.fax.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Email",
       dataIndex: "email",
       key: "email",

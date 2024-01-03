@@ -14,7 +14,7 @@ import {
   Image,
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { includes, map } from "lodash";
+import { includes } from "lodash";
 import {
   Input,
   Select,
@@ -24,12 +24,7 @@ import {
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import {
-  convertObjectToUrlParams,
-  getDateNow,
-  getLocalStorage,
-  getTokenInfo,
-} from "src/util/Common";
+import { getLocalStorage, getTokenInfo } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import {
   DeleteOutlined,
@@ -41,10 +36,8 @@ import {
   CaretRightOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
-import moment from "moment";
 import Helpers from "src/helpers";
 import ModalHangMuc from "./ModalHangMuc";
-import ImageCanvas from "src/routes/QTSX_TITS/SanXuat/TienDoSanXuat/ImageDrawing";
 const FormItem = Form.Item;
 const { Panel } = Collapse;
 function QuanLyChecksheetsForm({ match, permission, history }) {

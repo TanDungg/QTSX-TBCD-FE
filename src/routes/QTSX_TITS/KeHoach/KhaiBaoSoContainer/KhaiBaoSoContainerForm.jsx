@@ -1,10 +1,5 @@
-import {
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, Divider, Button } from "antd";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { Card, Form, Input, Row, Col, Button } from "antd";
 import { isEmpty, map } from "lodash";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
@@ -21,15 +16,11 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
-import Helpers from "src/helpers";
 import ModalAddVatTu from "./ModalAddVatTu";
 
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
-const initialState = {
-  tenLot: "",
-};
 const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
@@ -43,7 +34,7 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
   const [ListSoVin, setListSoVin] = useState([]);
 
   const [form] = Form.useForm();
-  const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
+  const { validateFields, resetFields, setFieldsValue } = form;
 
   useEffect(() => {
     const load = () => {
@@ -99,17 +90,15 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * Lấy thông tin
-   *
-   */
-  const getInfo = () => {
-    const { id } = match.params;
-    setId(id);
+  const getListSoVIN = (tits_qtsx_SanPham_Id, tits_qtsx_DonHang_Id) => {
+    const params = convertObjectToUrlParams({
+      tits_qtsx_DonHang_Id,
+      tits_qtsx_SanPham_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_SoLo/${id}`,
+          `tits_qtsx_SoContainer/get-list-so-vin-theo-san-pham?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -121,13 +110,49 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListVatTu(JSON.parse(res.data.list_DoRois));
+          setListSoVin(res.data);
+        } else {
+          setListSoVin([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  /**
+   * Lấy thông tin
+   *
+   */
+  const getInfo = () => {
+    const { id } = match.params;
+    setId(id);
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_SoContainer/${id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListVatTu(res.data.list_DoRois);
+          getListSanPham(res.data.tits_qtsx_DonHang_Id);
+          getListSoVIN(
+            res.data.tits_qtsx_SanPham_Id,
+            res.data.tits_qtsx_DonHang_Id
+          );
           setFieldsValue({
             khaibaosocontainer: {
               ...res.data,
-              list_ChiTiets: JSON.parse(res.data.list_ChiTiets).map(
+              list_ChiTiets: res.data.list_ChiTiets.map(
                 (ct) => ct.tits_qtsx_SoVin_Id
               ),
+              tits_qtsx_DonHangChiTiet_Id:
+                res.data.tits_qtsx_SanPham_Id.toUpperCase(),
             },
           });
         }
@@ -339,6 +364,11 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
 
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
+      ListSanPham.forEach((Sp) => {
+        if (Sp.tits_qtsx_SanPham_Id === user.tits_qtsx_DonHangChiTiet_Id) {
+          user.tits_qtsx_DonHangChiTiet_Id = Sp.tits_qtsx_DonHangChiTiet_Id;
+        }
+      });
       const newData = {
         ...user,
         list_ChiTiets: user.list_ChiTiets.map((ct) => {
@@ -351,7 +381,7 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_SoLo`,
+            `tits_qtsx_SoContainer`,
             "POST",
             newData,
             "ADD",
@@ -381,6 +411,11 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
+      ListSanPham.forEach((Sp) => {
+        if (Sp.tits_qtsx_SanPham_Id === user.tits_qtsx_DonHangChiTiet_Id) {
+          user.tits_qtsx_DonHangChiTiet_Id = Sp.tits_qtsx_DonHangChiTiet_Id;
+        }
+      });
       const newData = {
         ...user,
         list_ChiTiets: user.list_ChiTiets.map((ct) => {
@@ -393,7 +428,7 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_SoLo/${id}`,
+            `tits_qtsx_SoContainer/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -453,7 +488,7 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Số container"
+                label="CONTAINER NO"
                 name={["khaibaosocontainer", "soContainer"]}
                 rules={[
                   {
@@ -465,7 +500,7 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
                   },
                 ]}
               >
-                <Input className="input-item" placeholder="Nhập số container" />
+                <Input className="input-item" placeholder="Nhập CONTAINER NO" />
               </FormItem>
             </Col>
             <Col
@@ -478,7 +513,7 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Số seal"
+                label="SEAL NO"
                 name={["khaibaosocontainer", "soSeal"]}
                 rules={[
                   {
@@ -490,7 +525,7 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
                   },
                 ]}
               >
-                <Input className="input-item" placeholder="Nhập số seal" />
+                <Input className="input-item" placeholder="Nhập SEAL NO" />
               </FormItem>
             </Col>
             <Col
@@ -503,7 +538,7 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Dimensions"
+                label="DIMENSIONS"
                 name={["khaibaosocontainer", "dimensions"]}
                 rules={[
                   {
@@ -570,8 +605,15 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListSanPham ? ListSanPham : []}
                   placeholder="Chọn sản phẩm"
-                  optionsvalue={["tits_qtsx_DonHangChiTiet_Id", "tenSanPham"]}
+                  optionsvalue={["tits_qtsx_SanPham_Id", "tenSanPham"]}
                   style={{ width: "100%" }}
+                  onSelect={(val) =>
+                    getListSoVIN(
+                      val,
+                      form.getFieldValue("khaibaosocontainer")
+                        .tits_qtsx_DonHang_Id
+                    )
+                  }
                 />
               </FormItem>
             </Col>
@@ -585,7 +627,7 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="List số VIN"
+                label="Số VIN"
                 name={["khaibaosocontainer", "list_ChiTiets"]}
                 rules={[
                   {
@@ -598,7 +640,7 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListSoVin ? ListSoVin : []}
                   placeholder="Chọn số VIN"
-                  optionsvalue={["id", "tenSoLo"]}
+                  optionsvalue={["tits_qtsx_SoVin_Id", "maSoVin"]}
                   style={{ width: "100%" }}
                   mode={"multiple"}
                 />

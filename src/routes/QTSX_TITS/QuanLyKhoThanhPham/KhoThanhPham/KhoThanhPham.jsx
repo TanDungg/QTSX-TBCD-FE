@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Row, Col, Divider, Tag } from "antd";
+import { Card, Button, Row, Col, Tag } from "antd";
 import {
   DeleteOutlined,
   EditOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
+
 import { map, isEmpty } from "lodash";
+
 import {
   Table,
   EditableTableRow,

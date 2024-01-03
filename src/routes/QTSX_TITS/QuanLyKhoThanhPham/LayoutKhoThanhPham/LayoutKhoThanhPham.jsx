@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Card, Empty, Row, Col, Divider } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { EditableTableRow, Select } from "src/components/Common";
+import {  Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import ModalChiTietKho from "./ModalChiTietKho";
 import ContainerHeader from "src/components/ContainerHeader";

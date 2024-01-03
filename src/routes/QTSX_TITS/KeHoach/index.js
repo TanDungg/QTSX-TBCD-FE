@@ -171,32 +171,32 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(LenhSanXuatForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/khai-bao-so-container`}
+        path={`${match.url}/dong-kien/khai-bao-so-container`}
         exact
         component={Auth(KhaiBaoSoContainer, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/khai-bao-so-container/them-moi`}
+        path={`${match.url}/dong-kien/khai-bao-so-container/them-moi`}
         exact
         component={Auth(KhaiBaoSoContainerForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/khai-bao-so-container/:id/chinh-sua`}
+        path={`${match.url}/dong-kien/khai-bao-so-container/:id/chinh-sua`}
         exact
         component={Auth(KhaiBaoSoContainerForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/bien-ban-ban-giao`}
+        path={`${match.url}/dong-kien/bien-ban-ban-giao`}
         exact
         component={Auth(BienBanBanGIao, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/bien-ban-ban-giao/them-moi`}
+        path={`${match.url}/dong-kien/bien-ban-ban-giao/them-moi`}
         exact
         component={Auth(BienBanBanGIaoForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/bien-ban-ban-giao/:id/chinh-sua`}
+        path={`${match.url}/dong-kien/bien-ban-ban-giao/:id/chinh-sua`}
         exact
         component={Auth(BienBanBanGIaoForm, menus, pathname, permission)}
       />

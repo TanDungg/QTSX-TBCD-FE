@@ -715,7 +715,7 @@ function HangMucKiemTraForm({ match, permission, history }) {
                     borderRadius: 15,
                   }}
                 >
-                  {ListHinhAnh.length > 0 ? (
+                  {ListHinhAnh && ListHinhAnh.length > 0 ? (
                     <div
                       style={{
                         overflowY: "auto",

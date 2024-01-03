@@ -2,18 +2,12 @@ import { Modal as AntModal, Button, Col, Row } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
-import { map } from "lodash";
 import { SaveOutlined } from "@ant-design/icons";
 import TreeTransfer from "src/components/Common/TreeTransfer";
-import {
-  reDataSelectedTable,
-  reSelectDataFromArray,
-  treeToFlatlist,
-} from "src/util/Common";
+import { treeToFlatlist } from "src/util/Common";
 
 function ModalThietLap({ openModalFS, openModal, saveThietLap, dataTL }) {
   const dispatch = useDispatch();
-  const [fieldTouch, setFieldTouch] = useState(true);
   const [treeData, settreeData] = useState([]);
   const [targetKeys, setTargetKeys] = useState([]);
 

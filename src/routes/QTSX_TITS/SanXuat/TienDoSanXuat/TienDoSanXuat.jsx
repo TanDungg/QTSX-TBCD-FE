@@ -7,7 +7,6 @@ import {
   Input,
   List,
   Upload,
-  Modal as ModalAnt,
   Image,
   Tag,
   Divider,
@@ -17,7 +16,6 @@ import {
   SelectOutlined,
   SendOutlined,
   QrcodeOutlined,
-  SyncOutlined,
   FileTextOutlined,
   SaveFilled,
   CheckSquareOutlined,
@@ -42,6 +40,7 @@ import { isEmpty } from "lodash";
 import ModalHoSoChatLuong from "./ModalHoSoChatLuong";
 import Helpers from "src/helpers";
 import ModalSuaChuaLai from "./ModalSuaChuaLai";
+import ModalAddSoVIN from "./ModalAddSoVIN";
 const optionsDate = {
   weekday: "long", // Thứ
   year: "numeric", // Năm
@@ -78,6 +77,8 @@ function TienDoSanXuat({ match, history, permission }) {
   const [ActiveModalKiemSoatVatTu, setActiveModalKiemSoatVatTu] =
     useState(false);
   const [ActiveSuaChuaLai, setActiveSuaChuaLai] = useState(false);
+  const [ActiveAddSoVIN, setActiveAddSoVIN] = useState(false);
+
   const [ActiveModalHoSoChatLuong, setActiveModalHoSoChatLuong] =
     useState(false);
   const [ActiveKiemSoatChatLuong, setActiveKiemSoatChatLuong] = useState(false);
@@ -101,7 +102,7 @@ function TienDoSanXuat({ match, history, permission }) {
   );
   useEffect(() => {
     if (permission && permission.view) {
-      getXuong();
+      getXuongChuyenTram(undefined, "xuong");
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -111,26 +112,16 @@ function TienDoSanXuat({ match, history, permission }) {
   }, []);
 
   /**
-   * Lấy dữ liệu về
-   */
-  const getListData = (keyword, tits_qtsx_Xuong_Id, page) => {
-    const param = convertObjectToUrlParams({
-      keyword,
-      tits_qtsx_Xuong_Id,
-      page,
-    });
-    dispatch(
-      fetchStart(`tits_qtsx_QuyTrinhSanXuat?${param}`, "GET", null, "LIST")
-    );
-  };
-  /**
    * Get list xưởng
    */
-  const getXuong = () => {
+  const getXuongChuyenTram = (val, tenXuongChuyenTram) => {
+    const params = convertObjectToUrlParams({
+      tits_qtsx_XuongChuyenTram_Id: val,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          "tits_qtsx_Xuong?page=-1",
+          `tits_qtsx_Mobile/get-list-phan-quyen-tram-theo-quyen-nguoi-dung?${params}`,
           "GET",
           null,
           "LIST",
@@ -142,9 +133,21 @@ function TienDoSanXuat({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListXuong(res.data);
+          if (tenXuongChuyenTram === "xuong") {
+            setListXuong(res.data);
+          } else if (tenXuongChuyenTram === "chuyen") {
+            setListChuyen(res.data);
+          } else if (tenXuongChuyenTram === "tram") {
+            setListTram(res.data);
+          }
         } else {
-          setListXuong([]);
+          if (tenXuongChuyenTram === "xuong") {
+            setListXuong();
+          } else if (tenXuongChuyenTram === "chuyen") {
+            setListChuyen();
+          } else if (tenXuongChuyenTram === "tram") {
+            setListTram();
+          }
         }
       })
       .catch((error) => console.error(error));
@@ -354,26 +357,29 @@ function TienDoSanXuat({ match, history, permission }) {
   };
 
   const handleOnSelectXuong = (value) => {
-    setXuong(value);
-    setChuyen(null);
-    setTram(null);
-    setInfoSanPham({});
-    setListSoKhungNoiBo([]);
-    getChuyen(value);
-    // getListData(keyword, value, 1);
+    if (Xuong !== value) {
+      setXuong(value);
+      setChuyen(null);
+      setTram(null);
+      setInfoSanPham({});
+      setListSoKhungNoiBo([]);
+      getXuongChuyenTram(value, "chuyen");
+    }
   };
   const handleOnSelectChuyen = (value) => {
-    setChuyen(value);
-    setTram(null);
-    setInfoSanPham({});
-    setListSoKhungNoiBo([]);
-    getTram(value);
-    // getListData(keyword, value, 1);
+    if (Chuyen !== value) {
+      setChuyen(value);
+      setTram(null);
+      setInfoSanPham({});
+      setListSoKhungNoiBo([]);
+      getXuongChuyenTram(value, "tram");
+    }
   };
   const handleOnSelectTram = (value) => {
-    setTram(value);
-    getSoKhunNoiBo(value);
-    // getListData(keyword, value, 1);
+    if (Tram !== value) {
+      setTram(value);
+      getSoKhunNoiBo(value);
+    }
   };
   const handleClearXuong = () => {
     setXuong(null);
@@ -516,7 +522,7 @@ function TienDoSanXuat({ match, history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListXuong ? ListXuong : []}
               placeholder="Chọn xưởng"
-              optionsvalue={["id", "tenXuong"]}
+              optionsvalue={["tits_qtsx_XuongChuyenTram_Id", "ten"]}
               style={{ width: "100%" }}
               showSearch
               onSelect={handleOnSelectXuong}
@@ -540,7 +546,7 @@ function TienDoSanXuat({ match, history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListChuyen ? ListChuyen : []}
               placeholder="Chọn chuyền"
-              optionsvalue={["id", "tenChuyen"]}
+              optionsvalue={["tits_qtsx_XuongChuyenTram_Id", "ten"]}
               style={{ width: "100%" }}
               showSearch
               onSelect={handleOnSelectChuyen}
@@ -565,7 +571,7 @@ function TienDoSanXuat({ match, history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListTram ? ListTram : []}
               placeholder="Chọn trạm"
-              optionsvalue={["id", "tenTram"]}
+              optionsvalue={["tits_qtsx_XuongChuyenTram_Id", "ten"]}
               style={{ width: "100%" }}
               showSearch
               onSelect={handleOnSelectTram}
@@ -644,8 +650,10 @@ function TienDoSanXuat({ match, history, permission }) {
                       cursor: "pointer",
                     }}
                     onClick={() => {
-                      setSoLo(item.tits_qtsx_SoLoChiTiet_Id);
-                      getInfoSanPham(item.tits_qtsx_SoLoChiTiet_Id, Tram);
+                      if (SoLo !== item.tits_qtsx_SoLoChiTiet_Id) {
+                        setSoLo(item.tits_qtsx_SoLoChiTiet_Id);
+                        getInfoSanPham(item.tits_qtsx_SoLoChiTiet_Id, Tram);
+                      }
                     }}
                   >
                     <a>{item.maNoiBo}</a>
@@ -728,13 +736,23 @@ function TienDoSanXuat({ match, history, permission }) {
               ) : (
                 <>
                   <Button
+                    icon={<PlusOutlined />}
+                    type="primary"
+                    style={{ width: "80%" }}
+                    onClick={() => {
+                      setActiveAddSoVIN(true);
+                    }}
+                  >
+                    Thêm số VIN
+                  </Button>
+                  {/* <Button
                     icon={<SyncOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
                     // disabled={DisableVaoTram}
                   >
                     Chuyển sửa chữa lại
-                  </Button>
+                  </Button> */}
                   <Button
                     icon={<QrcodeOutlined />}
                     type="primary"
@@ -940,6 +958,13 @@ function TienDoSanXuat({ match, history, permission }) {
         openModalFS={setActiveSuaChuaLai}
         info={InfoSanPham}
         refesh={() => getInfoSanPham(SoLo, Tram)}
+      />
+      <ModalAddSoVIN
+        openModal={ActiveAddSoVIN}
+        openModalFS={setActiveAddSoVIN}
+        refesh={() => getInfoSanPham(SoLo, Tram)}
+        tits_qtsx_SoLo_Id={InfoSanPham.tits_qtsx_SoLo_Id}
+        tits_qtsx_SoLoChiTiet_Id={InfoSanPham.tits_qtsx_SoLoChiTiet_Id}
       />
     </div>
   );

@@ -1,44 +1,11 @@
 import React, { useEffect, useState } from "react";
-import {
-  Card,
-  Button,
-  Col,
-  Row,
-  Input,
-  List,
-  Upload,
-  Modal as ModalAnt,
-  Image,
-  Tag,
-  Divider,
-  Steps,
-  Progress,
-} from "antd";
-import {
-  ReloadOutlined,
-  SelectOutlined,
-  SendOutlined,
-  QrcodeOutlined,
-  SyncOutlined,
-  FileTextOutlined,
-  SaveFilled,
-  CheckSquareOutlined,
-  ToolOutlined,
-  PlusOutlined,
-  CloseOutlined,
-} from "@ant-design/icons";
+import { Card, Col, Row, Steps, Progress } from "antd";
+
 import { useDispatch, useSelector } from "react-redux";
-import { Modal, EditableTableRow, Toolbar, Table } from "src/components/Common";
+import { EditableTableRow, Toolbar, Table } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import {
-  convertObjectToUrlParams,
-  setLocalStorage,
-  getTokenInfo,
-  getLocalStorage,
-  reDataForTable,
-} from "src/util/Common";
+import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { BASE_URL_API } from "src/constants/Config";
 import { isEmpty, map } from "lodash";
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -58,11 +25,7 @@ const optionsTime = {
 function TheoDoiTienDoSanXuat({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = {
-    ...getLocalStorage("menu"),
-    user_Id: getTokenInfo().id,
-    token: getTokenInfo().token,
-  };
+
   const [keyword, setKeyword] = useState("");
   const [InfoSanPham, setInfoSanPham] = useState({});
 
@@ -119,6 +82,8 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setInfoSanPham(res.data);
+        } else {
+          setInfoSanPham({});
         }
       })
       .catch((error) => console.error(error));
@@ -127,8 +92,10 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
   /**
    * Tìm kiếm người dùng
    */
-  const onSearchSoKhung = () => {
-    getSoKhunNoiBo(keyword);
+  const onSearchSoKhung = (val) => {
+    if (!isEmpty(val)) {
+      getSoKhunNoiBo(keyword);
+    }
   };
   /**
    * Thay đổi keyword

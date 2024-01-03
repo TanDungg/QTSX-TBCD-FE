@@ -450,7 +450,6 @@ function KeHoach({ match, history, permission }) {
     setNam(Nam);
     getVersion(KeHoach, Xuong, Thang, Nam);
   };
-  const { totalRow } = data;
   const handleClearVersion = (value) => {
     getListData(KeHoach, Xuong, Thang, Nam);
     setVersion(null);
