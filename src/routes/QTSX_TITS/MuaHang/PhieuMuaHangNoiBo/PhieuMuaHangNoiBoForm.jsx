@@ -623,18 +623,6 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
         <Tag color={"blue"} style={{ fontSize: 15 }}>
           {info && info.maPhieu}
         </Tag>
-        <Tag
-          color={
-            info && info.tinhTrang === "Chưa xác nhận"
-              ? "orange"
-              : info && info.tinhTrang === "Đã xác nhận"
-              ? "blue"
-              : "red"
-          }
-          style={{ fontSize: 15 }}
-        >
-          {info && info.tinhTrang}
-        </Tag>
       </span>
     );
 

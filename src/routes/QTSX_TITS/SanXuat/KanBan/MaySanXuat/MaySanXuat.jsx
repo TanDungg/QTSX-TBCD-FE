@@ -9,10 +9,15 @@ import {
   Image,
   Checkbox,
   Tag,
+  Input,
 } from "antd";
-import { PauseCircleOutlined, PlayCircleOutlined } from "@ant-design/icons";
+import {
+  CheckCircleOutlined,
+  PauseCircleOutlined,
+  PlayCircleOutlined,
+} from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { map } from "lodash";
+import { isEmpty, map } from "lodash";
 import { Table, EditableTableRow, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -34,7 +39,8 @@ function MaySanXuat({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [Data, setData] = useState([]);
+  const [DataMaySanXuat, setDataMaySanXuat] = useState([]);
+  const [DataKiemTra, setDataKiemTra] = useState([]);
   const [ListChuyen, setListChuyen] = useState([]);
   const [Chuyen, setChuyen] = useState(null);
   const [ListSanPham, setListSanPham] = useState([]);
@@ -52,6 +58,8 @@ function MaySanXuat({ match, history, permission }) {
   const [SelectedKeys, setSelectedKeys] = useState([]);
   const [keyTabs, setKeyTabs] = useState("1");
   const [ActiveModalKetThuc, setActiveModalKetThuc] = useState(false);
+  const [editingRecord, setEditingRecord] = useState([]);
+  const [DisabledKiemTra, setDisabledKiemTra] = useState(true);
   const listchuyen = [
     {
       id: "63aece3b-f542-4c09-bc51-49a39f831906",
@@ -65,7 +73,7 @@ function MaySanXuat({ match, history, permission }) {
     if (permission && permission.view) {
       setListChuyen(listchuyen);
       setChuyen(listchuyen[0].id);
-      getListSanPham(listchuyen[0].id, Ngay);
+      getListSanPham(listchuyen[0].id, Ngay, keyTabs);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -80,7 +88,8 @@ function MaySanXuat({ match, history, permission }) {
     tits_qtsx_DonHang_Id,
     tits_qtsx_Tram_Id,
     tits_qtsx_ThietBi_Id,
-    ngay
+    ngay,
+    keytabs
   ) => {
     const param = convertObjectToUrlParams({
       tits_qtsx_Chuyen_Id,
@@ -93,10 +102,8 @@ function MaySanXuat({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          keyTabs === "1"
-            ? keyTabs === "1"
-              ? `tits_qtsx_KanBan/may-san-xuat?${param}`
-              : `tits_qtsx_KanBan/kiem-tra-chat-luong?${param}`
+          keytabs === "1"
+            ? `tits_qtsx_KanBan/may-san-xuat?${param}`
             : `tits_qtsx_KanBan/kiem-tra-chat-luong?${param}`,
           "GET",
           null,
@@ -109,27 +116,49 @@ function MaySanXuat({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const newData = res.data.map((data) => {
-            return {
-              ...data,
-              ...data.quyCach,
-            };
-          });
+          if (keytabs === "1") {
+            const newData = res.data.map((data) => {
+              return {
+                ...data,
+                ...data.quyCach,
+              };
+            });
 
-          const newKetThuc = newData.filter(
-            (kanban) => kanban.isBatDau === true
-          );
+            const newKetThuc = newData.filter(
+              (kanban) => kanban.isBatDau === true
+            );
 
-          setSelectedKetThuc(newKetThuc);
-          setData(newData);
+            setSelectedKetThuc(newKetThuc);
+            setDataMaySanXuat(newData);
+          }
+          if (keytabs === "2") {
+            const newData = res.data.map((data) => {
+              return {
+                ...data,
+                soLuongKiemTra: data.soLuongDaSanXuat,
+                soLuongDat: data.soLuongDaSanXuat,
+                isDatNgoaiQuan: data.isDatNgoaiQuan
+                  ? data.isDatNgoaiQuan === true
+                    ? "true"
+                    : "false"
+                  : null,
+                isDatThongSoKyThuat: data.isDatThongSoKyThuat
+                  ? data.isDatThongSoKyThuat === true
+                    ? "true"
+                    : "false"
+                  : null,
+              };
+            });
+            setDataKiemTra(newData);
+          }
         } else {
-          setData([]);
+          setDataMaySanXuat([]);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  const getListSanPham = (tits_qtsx_Chuyen_Id, ngay) => {
+  const getListSanPham = (tits_qtsx_Chuyen_Id, ngay, keytabs) => {
     const param = convertObjectToUrlParams({
       tits_qtsx_Chuyen_Id,
       ngay,
@@ -137,7 +166,7 @@ function MaySanXuat({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          keyTabs === "1"
+          keytabs === "1"
             ? `tits_qtsx_KanBan/may-san-xuat?${param}`
             : `tits_qtsx_KanBan/kiem-tra-chat-luong?${param}`,
           "GET",
@@ -156,7 +185,8 @@ function MaySanXuat({ match, history, permission }) {
           getListDonHang(
             tits_qtsx_Chuyen_Id,
             res.data[0].tits_qtsx_SanPham_Id,
-            ngay
+            ngay,
+            keytabs
           );
         } else {
           setListSanPham([]);
@@ -166,7 +196,12 @@ function MaySanXuat({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const getListDonHang = (tits_qtsx_Chuyen_Id, tits_qtsx_SanPham_Id, ngay) => {
+  const getListDonHang = (
+    tits_qtsx_Chuyen_Id,
+    tits_qtsx_SanPham_Id,
+    ngay,
+    keytabs
+  ) => {
     const param = convertObjectToUrlParams({
       tits_qtsx_Chuyen_Id,
       tits_qtsx_SanPham_Id,
@@ -175,7 +210,7 @@ function MaySanXuat({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          keyTabs === "1"
+          keytabs === "1"
             ? `tits_qtsx_KanBan/may-san-xuat?${param}`
             : `tits_qtsx_KanBan/kiem-tra-chat-luong?${param}`,
           "GET",
@@ -195,7 +230,8 @@ function MaySanXuat({ match, history, permission }) {
             tits_qtsx_Chuyen_Id,
             tits_qtsx_SanPham_Id,
             res.data[0].tits_qtsx_DonHang_Id,
-            ngay
+            ngay,
+            keytabs
           );
         } else {
           setListDonHang([]);
@@ -209,7 +245,8 @@ function MaySanXuat({ match, history, permission }) {
     tits_qtsx_Chuyen_Id,
     tits_qtsx_SanPham_Id,
     tits_qtsx_DonHang_Id,
-    ngay
+    ngay,
+    keytabs
   ) => {
     const param = convertObjectToUrlParams({
       tits_qtsx_Chuyen_Id,
@@ -220,7 +257,7 @@ function MaySanXuat({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          keyTabs === "1"
+          keytabs === "1"
             ? `tits_qtsx_KanBan/may-san-xuat?${param}`
             : `tits_qtsx_KanBan/kiem-tra-chat-luong?${param}`,
           "GET",
@@ -241,7 +278,8 @@ function MaySanXuat({ match, history, permission }) {
             tits_qtsx_SanPham_Id,
             tits_qtsx_DonHang_Id,
             res.data[0].tits_qtsx_Tram_Id,
-            ngay
+            ngay,
+            keytabs
           );
         } else {
           setListTram([]);
@@ -256,7 +294,8 @@ function MaySanXuat({ match, history, permission }) {
     tits_qtsx_SanPham_Id,
     tits_qtsx_DonHang_Id,
     tits_qtsx_Tram_Id,
-    ngay
+    ngay,
+    keytabs
   ) => {
     const param = convertObjectToUrlParams({
       tits_qtsx_Chuyen_Id,
@@ -268,7 +307,7 @@ function MaySanXuat({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          keyTabs === "1"
+          keytabs === "1"
             ? `tits_qtsx_KanBan/may-san-xuat?${param}`
             : `tits_qtsx_KanBan/kiem-tra-chat-luong?${param}`,
           "GET",
@@ -291,10 +330,11 @@ function MaySanXuat({ match, history, permission }) {
               tits_qtsx_DonHang_Id,
               tits_qtsx_Tram_Id,
               res.data[0].tits_qtsx_ThietBi_Id,
-              ngay
+              ngay,
+              keytabs
             );
           } else {
-            setData([]);
+            setDataMaySanXuat([]);
           }
         } else {
           setListThietBi([]);
@@ -328,7 +368,7 @@ function MaySanXuat({ match, history, permission }) {
       key: "tenChiTiet",
       align: "center",
       filters: removeDuplicates(
-        map(Data, (d) => {
+        map(DataMaySanXuat, (d) => {
           return {
             text: d.tenChiTiet,
             value: d.tenChiTiet,
@@ -344,7 +384,7 @@ function MaySanXuat({ match, history, permission }) {
       key: "vatLieu",
       align: "center",
       filters: removeDuplicates(
-        map(Data, (d) => {
+        map(DataMaySanXuat, (d) => {
           return {
             text: d.vatLieu,
             value: d.vatLieu,
@@ -530,6 +570,185 @@ function MaySanXuat({ match, history, permission }) {
     };
   });
 
+  const handleThongTinSoLuong = (val, record, key) => {
+    const ThongTinSoLuong = val.target.value;
+    const editingKey = key;
+    if (
+      (isEmpty(ThongTinSoLuong) || Number(ThongTinSoLuong) <= 0) &&
+      key === "soLuongKiemTra"
+    ) {
+      setDisabledKiemTra(true);
+      record.editingKey = editingKey;
+      setEditingRecord([...editingRecord, record]);
+      record.message = "Số lượng nhận phải là số lớn hơn 0 và bắt buộc";
+    } else if (
+      Number(ThongTinSoLuong) > record.soLuong &&
+      key === "soLuongKiemTra"
+    ) {
+      setDisabledKiemTra(true);
+      record.editingKey = editingKey;
+      setEditingRecord([...editingRecord, record]);
+      record.message = "Số lượng kiểm tra không được lớn hơn số lượng nhận";
+    } else if (
+      (Number(ThongTinSoLuong) + Number(record.soLuongLoi) > record.soLuong &&
+        key === "soLuongDat") ||
+      (Number(ThongTinSoLuong) + Number(record.soLuongDat) > record.soLuong &&
+        key === "soLuongLoi")
+    ) {
+      setDisabledKiemTra(true);
+      record.editingKey = editingKey;
+      setEditingRecord([...editingRecord, record]);
+      record.message =
+        "Tổng số lượng nhập và số lượng lỗi không được lớn hơn số lượng nhận";
+    } else {
+      const newData = editingRecord.filter(
+        (d) =>
+          d.tits_qtsx_ChiTiet_Id.toLowerCase() !==
+          record.tits_qtsx_ChiTiet_Id.toLowerCase()
+      );
+      setEditingRecord(newData);
+      setDisabledKiemTra(false);
+    }
+    const newData = [...DataKiemTra];
+    newData.forEach((datakiemtra, index) => {
+      if (
+        datakiemtra.tits_qtsx_ChiTiet_Id.toLowerCase() ===
+        record.tits_qtsx_ChiTiet_Id.toLowerCase()
+      ) {
+        if (key === "soLuongKiemTra") {
+          datakiemtra.editingKey = editingKey;
+          datakiemtra.soLuongKiemTra = ThongTinSoLuong;
+        }
+        if (key === "soLuongDat") {
+          datakiemtra.editingKey = editingKey;
+          datakiemtra.soLuongDat = ThongTinSoLuong;
+        }
+        if (key === "soLuongLoi") {
+          datakiemtra.editingKey = editingKey;
+          datakiemtra.soLuongLoi = ThongTinSoLuong;
+        }
+      }
+    });
+    setDataKiemTra(newData);
+  };
+
+  const renderThongTinSoLuong = (record, key) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (
+        ct.tits_qtsx_ChiTiet_Id.toLowerCase() ===
+          record.tits_qtsx_ChiTiet_Id.toLowerCase() &&
+        key === ct.editingKey
+      ) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={record[key]}
+          disabled={
+            record.soLuongDaSanXuat === record.soLuongKiemTra &&
+            Number(record.soLuongLoi) === 0
+          }
+          onChange={(val) => handleThongTinSoLuong(val, record, key)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
+
+  const handleThongTinDatTinh = (value, record, key) => {
+    setDataKiemTra((prevDataKiemTra) => {
+      return prevDataKiemTra.map((item) => {
+        if (
+          record.tits_qtsx_ChiTiet_Id.toLowerCase() ===
+          item.tits_qtsx_ChiTiet_Id.toLowerCase()
+        ) {
+          if (key === "isDatNgoaiQuan") {
+            return {
+              ...item,
+              isDatNgoaiQuan: value,
+            };
+          } else if (key === "isDatThongSoKyThuat") {
+            return {
+              ...item,
+              isDatThongSoKyThuat: value,
+            };
+          }
+        }
+        return item;
+      });
+    });
+    setDisabledKiemTra(false);
+  };
+
+  const renderThongTinDatTinh = (record, key) => {
+    return (
+      <Select
+        className="heading-select slt-search th-select-heading"
+        data={[
+          { isKey: "true", value: "Đạt" },
+          { isKey: "false", value: "Không đạt" },
+        ]}
+        placeholder={"Chọn loại"}
+        optionsvalue={["isKey", "value"]}
+        style={{ width: "100%" }}
+        value={record[key]}
+        onSelect={(value) => handleThongTinDatTinh(value, record, key)}
+        disabled={
+          record.soLuongDaSanXuat === record.soLuongKiemTra &&
+          Number(record.soLuongLoi) === 0
+        }
+      />
+    );
+  };
+
+  const handleMoTa = (val, record, key) => {
+    const newData = [...DataKiemTra];
+    newData.forEach((datakiemtra, index) => {
+      if (
+        datakiemtra.tits_qtsx_ChiTiet_Id.toLowerCase() ===
+        record.tits_qtsx_ChiTiet_Id.toLowerCase()
+      ) {
+        if (key === "noiDungLoi") {
+          datakiemtra.noiDungLoi = val.target.value;
+        }
+        if (key === "moTa") {
+          datakiemtra.moTa = val.target.value;
+        }
+      }
+    });
+    setDataKiemTra(newData);
+    setDisabledKiemTra(false);
+  };
+
+  const renderThongTinLoi = (record, key) => {
+    return (
+      <Input
+        style={{
+          textAlign: "center",
+          width: "100%",
+        }}
+        className={`input-item`}
+        value={record[key]}
+        disabled={
+          record.soLuongDaSanXuat === record.soLuongKiemTra &&
+          Number(record.soLuongLoi) === 0
+        }
+        onChange={(val) => handleMoTa(val, record, key)}
+      />
+    );
+  };
+
   let renderColumnKiemTra = [
     {
       title: "STT",
@@ -539,22 +758,12 @@ function MaySanXuat({ match, history, permission }) {
       width: 50,
     },
     {
-      title: "Bắt đầu",
-      dataIndex: "isBatDau",
-      key: "isBatDau",
-      align: "center",
-      width: 70,
-      render: (value) => {
-        return <Checkbox checked={value} disabled={true} />;
-      },
-    },
-    {
       title: "Tên chi tiết",
       dataIndex: "tenChiTiet",
       key: "tenChiTiet",
       align: "center",
       filters: removeDuplicates(
-        map(Data, (d) => {
+        map(DataKiemTra, (d) => {
           return {
             text: d.tenChiTiet,
             value: d.tenChiTiet,
@@ -577,6 +786,18 @@ function MaySanXuat({ match, history, permission }) {
       key: "ngayKiemTra",
       align: "center",
       width: 120,
+      render: (value) => {
+        return (
+          <span
+            style={{
+              color: "#0469B9",
+              fontSize: "13px",
+            }}
+          >
+            {value}
+          </span>
+        );
+      },
     },
     {
       title: "SL chi tiết gia công",
@@ -586,66 +807,71 @@ function MaySanXuat({ match, history, permission }) {
       width: 70,
     },
     {
-      title: "SL kiểm tra",
-      dataIndex: "soLuongKiemTra",
-      key: "soLuongKiemTra",
+      title: "SL đã sản xuất",
+      dataIndex: "soLuongDaSanXuat",
+      key: "soLuongDaSanXuat",
       align: "center",
       width: 70,
     },
     {
-      title: "Đặt tính kiểm tra",
+      title: "SL kiểm tra",
+      key: "soLuongKiemTra",
       align: "center",
+      width: 100,
+      render: (record) => renderThongTinSoLuong(record, "soLuongKiemTra"),
+    },
+    {
+      title: "Đặt tính kiểm tra",
       children: [
         {
           title: "Ngoại quan",
-          dataIndex: "isNgoaiQuan",
-          key: "isNgoaiQuan",
+          key: "isDatNgoaiQuan",
           align: "center",
-          width: 70,
+          width: 150,
+          render: (record) => renderThongTinDatTinh(record, "isDatNgoaiQuan"),
         },
-        ,
         {
-          title: "Thông số kỹ thuật",
-          dataIndex: "isThongSoKyThuat",
-          key: "isThongSoKyThuat",
+          title: "TS kỹ thuật",
+          key: "isDatThongSoKyThuat",
           align: "center",
-          width: 80,
+          width: 150,
+          render: (record) =>
+            renderThongTinDatTinh(record, "isDatThongSoKyThuat"),
         },
       ],
     },
     {
       title: "Kết quả kiểm tra",
-      align: "center",
       children: [
         {
           title: "SL lỗi",
-          dataIndex: "soLuongLoi",
           key: "soLuongLoi",
           align: "center",
-          width: 70,
+          width: 100,
+          render: (record) => renderThongTinSoLuong(record, "soLuongLoi"),
         },
-        ,
         {
           title: "SL đạt",
-          dataIndex: "soLuongDat",
           key: "soLuongDat",
           align: "center",
-          width: 70,
+          width: 100,
+          render: (record) => renderThongTinSoLuong(record, "soLuongDat"),
         },
       ],
     },
     {
       title: "Nội dung lỗi (Nếu có)",
-      dataIndex: "tinhTrang",
-      key: "tinhTrang",
+      key: "noiDungLoi",
       align: "center",
+      width: 150,
+      render: (record) => renderThongTinLoi(record, "noiDungLoi"),
     },
     {
       title: "Ghi chú",
-      dataIndex: "moTa",
       key: "moTa",
       align: "center",
-      width: 120,
+      width: 150,
+      render: (record) => renderThongTinLoi(record, "moTa"),
     },
   ];
 
@@ -689,7 +915,7 @@ function MaySanXuat({ match, history, permission }) {
     })
       .then((res) => {
         if (res.status !== 409) {
-          getListData(Chuyen, SanPham, DonHang, Tram, ThietBi, Ngay);
+          getListData(Chuyen, SanPham, DonHang, Tram, ThietBi, Ngay, keyTabs);
           setSelectedKanBan([]);
           setSelectedKeys([]);
         }
@@ -697,8 +923,28 @@ function MaySanXuat({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
+  const handleKiemTra = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_KanBan/kiem-tra-chat-luong`,
+          "PUT",
+          DataKiemTra,
+          "XACNHAN",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        getListData(Chuyen, SanPham, DonHang, Tram, ThietBi, Ngay, keyTabs);
+      })
+      .catch((error) => console.error(error));
+  };
+
   const addButtonRender = () => {
-    return (
+    return keyTabs === "1" ? (
       <>
         <Button
           icon={<PlayCircleOutlined />}
@@ -719,6 +965,18 @@ function MaySanXuat({ match, history, permission }) {
           Kết thúc
         </Button>
       </>
+    ) : (
+      <>
+        <Button
+          icon={<CheckCircleOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleKiemTra}
+          disabled={!DataKiemTra.length || DisabledKiemTra}
+        >
+          Xác nhận
+        </Button>
+      </>
     );
   };
 
@@ -727,7 +985,7 @@ function MaySanXuat({ match, history, permission }) {
       setChuyen(value);
       setSanPham(null);
       setListSanPham([]);
-      getListSanPham(value, Ngay);
+      getListSanPham(value, Ngay, keyTabs);
       setDonHang(null);
       setListDonHang([]);
       setThietBi(null);
@@ -771,23 +1029,24 @@ function MaySanXuat({ match, history, permission }) {
   const handleOnSelectThietBi = (value) => {
     if (value !== ThietBi) {
       setThietBi(value);
-      getListData(Chuyen, SanPham, DonHang, Tram, value, Ngay);
+      getListData(Chuyen, SanPham, DonHang, Tram, value, Ngay, keyTabs);
     }
   };
 
   const handleChangeTabs = (key) => {
     setKeyTabs(key);
-    getListSanPham(listchuyen[0].id, Ngay);
+    getListSanPham(listchuyen[0].id, Ngay, key);
   };
 
   const handleChangeNgay = (dateString) => {
     setNgay(dateString);
-    getListData(Chuyen, SanPham, DonHang, Tram, ThietBi, dateString);
+    getListData(Chuyen, SanPham, DonHang, Tram, ThietBi, dateString, keyTabs);
   };
 
   const handleRefesh = () => {
-    getListData(Chuyen, SanPham, DonHang, Tram, ThietBi, Ngay);
+    getListData(Chuyen, SanPham, DonHang, Tram, ThietBi, Ngay, keyTabs);
   };
+
   const rowSelection = {
     selectedRowKeys: SelectedKeys,
     selectedRowKanBans: SelectedKanBan,
@@ -796,7 +1055,8 @@ function MaySanXuat({ match, history, permission }) {
       const newSelectedKey = [...selectedRowKeys];
 
       const newBatDau = newSelectedKanBan.filter(
-        (kanban) => kanban.isBatDau === true
+        (kanban) =>
+          kanban.isBatDau === true || kanban.tinhTrang === "Hoàn thành"
       );
       setSelectedBatDau(newBatDau);
 
@@ -810,7 +1070,7 @@ function MaySanXuat({ match, history, permission }) {
       <ContainerHeader
         title="Máy sản xuất"
         description="Máy sản xuất"
-        buttons={keyTabs === "1" && addButtonRender()}
+        buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Tabs
@@ -945,7 +1205,7 @@ function MaySanXuat({ match, history, permission }) {
                           <Select
                             className="heading-select slt-search th-select-heading"
                             data={ListThietBi ? ListThietBi : []}
-                            placeholder="Chọn trạm"
+                            placeholder="Chọn thiết bị"
                             optionsvalue={[
                               "tits_qtsx_ThietBi_Id",
                               "tenThietBi",
@@ -984,7 +1244,7 @@ function MaySanXuat({ match, history, permission }) {
                       columns={columns}
                       components={components}
                       className="gx-table-responsive"
-                      dataSource={reDataForTable(Data)}
+                      dataSource={reDataForTable(DataMaySanXuat)}
                       size="small"
                       rowClassName={"editable-row"}
                       pagination={false}
@@ -1103,6 +1363,33 @@ function MaySanXuat({ match, history, permission }) {
                             value={Tram}
                           />
                         </Col>
+                        <Col
+                          xxl={6}
+                          xl={8}
+                          lg={12}
+                          md={12}
+                          sm={20}
+                          xs={24}
+                          style={{
+                            marginBottom: 8,
+                          }}
+                        >
+                          <h5>Thiết bị:</h5>
+                          <Select
+                            className="heading-select slt-search th-select-heading"
+                            data={ListThietBi ? ListThietBi : []}
+                            placeholder="Chọn thiết bị"
+                            optionsvalue={[
+                              "tits_qtsx_ThietBi_Id",
+                              "tenThietBi",
+                            ]}
+                            style={{ width: "100%" }}
+                            showSearch
+                            optionFilterProp="name"
+                            onSelect={handleOnSelectThietBi}
+                            value={ThietBi}
+                          />
+                        </Col>
                       </Row>
                     </Card>
                     <Table
@@ -1111,18 +1398,11 @@ function MaySanXuat({ match, history, permission }) {
                       columns={columnkiemtras}
                       components={components}
                       className="gx-table-responsive"
-                      dataSource={reDataForTable(Data)}
+                      dataSource={reDataForTable(DataKiemTra)}
                       size="small"
                       rowClassName={"editable-row"}
                       pagination={false}
                       loading={loading}
-                      rowSelection={{
-                        type: "checkbox",
-                        ...rowSelection,
-                        preserveSelectedRowKeys: true,
-                        selectedRowKeys: SelectedKeys,
-                        getCheckboxProps: (record) => ({}),
-                      }}
                     />
                   </>
                 ),
