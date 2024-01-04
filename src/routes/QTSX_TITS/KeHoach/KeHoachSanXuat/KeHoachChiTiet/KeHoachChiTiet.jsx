@@ -27,7 +27,7 @@ import {
   EditableTableRow,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import EditKeHoach from "./EditKeHoach";
+// import EditKeHoach from "./EditKeHoach";
 import { convertObjectToUrlParams } from "src/util/Common";
 import moment from "moment";
 
@@ -44,7 +44,6 @@ function KeHoachChiTiet({ match, history, permission }) {
   const [VersionSelect, setVersionSelect] = useState([]);
   const [Thang, setThang] = useState(getThangNow());
   const [Nam, setNam] = useState(getNamNow());
-  const [ActiveEditKeHoach, setActiveEditKeHoach] = useState(false);
   const [Version, setVersion] = useState("");
   // const [dataEdit, setDataEdit] = useState({});
   const [NguoiXem, setNguoiXem] = useState("");
@@ -395,7 +394,6 @@ function KeHoachChiTiet({ match, history, permission }) {
         };
       }),
     };
-    console.log(newData);
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -412,6 +410,7 @@ function KeHoachChiTiet({ match, history, permission }) {
       exportExcel(`KeHoachChiTiet-${Thang}/${Nam}`, res.data.dataexcel);
     });
   };
+
   const addButtonRender = () => {
     return (
       <>
@@ -420,7 +419,7 @@ function KeHoachChiTiet({ match, history, permission }) {
           className="th-btn-margin-bottom-0"
           type="primary"
           onClick={handleImport}
-          disabled={permission && permission.add}
+          disabled={permission && !permission.add}
         >
           Import
         </Button>

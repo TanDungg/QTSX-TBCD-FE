@@ -7,7 +7,7 @@ import {
   Image,
   Tag,
   Empty,
-  Divider,
+  DatePicker,
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { map, isEmpty } from "lodash";
@@ -26,35 +26,33 @@ import {
   removeDuplicates,
   getNamNow,
   getThangNow,
+  getDateNow,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
 import Chart from "react-google-charts";
 import { Column } from "@ant-design/charts";
+import moment from "moment";
+const { RangePicker } = DatePicker;
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function BaoCaoChiTietSanXuatNgay({ match, history, permission }) {
-  const { loading, width } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [page, setPage] = useState(1);
-  const [keyword, setKeyword] = useState("");
   const [Xuong, setXuong] = useState(null);
   const [Chuyen, setChuyen] = useState(null);
   const [Tram, setTram] = useState(null);
-  const [DisabledModal, setDisabledModal] = useState(false);
-  const [ListHinhAnh, setListHinhAnh] = useState([]);
-  const [HangMuc, setHangMuc] = useState([]);
   const [Data, setData] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
   const [ListChuyen, setListChuyen] = useState([]);
   const [ListTram, setListTram] = useState([]);
-
+  const [FromDate, setFromDate] = useState(getDateNow(-7));
+  const [ToDate, setToDate] = useState(getDateNow());
   useEffect(() => {
     if (permission && permission.view) {
       getXuong();
-      //   getListData(Xuong, Chuyen, Tram, keyword, page);
+      getListData(Xuong, Chuyen, Tram, FromDate, ToDate);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -67,20 +65,20 @@ function BaoCaoChiTietSanXuatNgay({ match, history, permission }) {
     tits_qtsx_Xuong_Id,
     tits_qtsx_Chuyen_Id,
     tits_qtsx_Tram_Id,
-    keyword,
-    page
+    tuNgay,
+    denNgay
   ) => {
     const param = convertObjectToUrlParams({
       tits_qtsx_Xuong_Id,
       tits_qtsx_Chuyen_Id,
       tits_qtsx_Tram_Id,
-      keyword,
-      page,
+      tuNgay,
+      denNgay,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_HangMucKiemTra?${param}`,
+          `tits_qtsx_BaoCao/bao-cao-chi-tiet-san-xuat-ngay?${param}`,
           "GET",
           null,
           "LIST",
@@ -179,30 +177,6 @@ function BaoCaoChiTietSanXuatNgay({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const onSearchPhieuNhanHang = () => {
-    getListData(Xuong, Chuyen, Tram, keyword, page);
-  };
-
-  const onChangeKeyword = (val) => {
-    setKeyword(val.target.value);
-    if (isEmpty(val.target.value)) {
-      getListData(Xuong, Chuyen, Tram, val.target.value, page);
-    }
-  };
-
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    getListData(Xuong, Chuyen, Tram, keyword, pagination);
-  };
-
-  const { totalRow, pageSize } = Data;
-
-  const XemChiTiet = (record) => {
-    setHangMuc(record);
-    setListHinhAnh(record.list_HinhAnhs && JSON.parse(record.list_HinhAnhs));
-    setDisabledModal(true);
-  };
-
   let renderHead = [
     {
       title: "STT",
@@ -212,111 +186,157 @@ function BaoCaoChiTietSanXuatNgay({ match, history, permission }) {
       width: 50,
     },
     {
-      title: "Nhóm lỗi",
-      dataIndex: "maChuyen",
-      key: "maChuyen",
+      title: "Mã sản phẩm",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
       align: "center",
       filters: removeDuplicates(
-        map(Data.datalist, (d) => {
+        map(Data, (d) => {
           return {
-            text: d.maChuyen,
-            value: d.maChuyen,
+            text: d.maSanPham,
+            value: d.maSanPham,
           };
         })
       ),
-      onFilter: (value, record) => record.maChuyen.includes(value),
+      onFilter: (value, record) =>
+        record.maSanPham && record.maSanPham.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tháng 1",
-      dataIndex: "moTa",
-      key: "moTa",
+      title: "Tên sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       align: "center",
-      width: 90,
+      filters: removeDuplicates(
+        map(Data, (d) => {
+          return {
+            text: d.tenSanPham,
+            value: d.tenSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenSanPham && record.tenSanPham.includes(value),
+      filterSearch: true,
     },
     {
-      title: "Tháng 2",
-      dataIndex: "moTa",
-      key: "moTa",
+      title: "Xưởng",
+      dataIndex: "tenXuong",
+      key: "tenXuong",
       align: "center",
-      width: 90,
+      filters: removeDuplicates(
+        map(Data, (d) => {
+          return {
+            text: d.tenXuong,
+            value: d.tenXuong,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenXuong && record.tenXuong.includes(value),
+      filterSearch: true,
     },
     {
-      title: "Tháng 3",
-      dataIndex: "moTa",
-      key: "moTa",
+      title: "Trạm",
+      dataIndex: "tenTram",
+      key: "tenTram",
       align: "center",
-      width: 90,
+      filters: removeDuplicates(
+        map(Data, (d) => {
+          return {
+            text: d.tenTram,
+            value: d.tenTram,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenTram && record.tenTram.includes(value),
+      filterSearch: true,
     },
     {
-      title: "Tháng 4",
-      dataIndex: "moTa",
-      key: "moTa",
+      title: "Ngày hoàn thành",
+      dataIndex: "ngayHoanThanh",
+      key: "ngayHoanThanh",
       align: "center",
-      width: 90,
+      filters: removeDuplicates(
+        map(Data, (d) => {
+          return {
+            text: d.ngayHoanThanh,
+            value: d.ngayHoanThanh,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.ngayHoanThanh && record.ngayHoanThanh.includes(value),
+      filterSearch: true,
     },
     {
-      title: "Tháng 5",
-      dataIndex: "moTa",
-      key: "moTa",
+      title: "Thời gian hoàn thành",
+      dataIndex: "thoiGianHoanThanh",
+      key: "thoiGianHoanThanh",
       align: "center",
-      width: 90,
+      filters: removeDuplicates(
+        map(Data, (d) => {
+          return {
+            text: d.thoiGianHoanThanh,
+            value: d.thoiGianHoanThanh,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.thoiGianHoanThanh && record.thoiGianHoanThanh.includes(value),
+      filterSearch: true,
     },
     {
-      title: "Tháng 6",
-      dataIndex: "moTa",
-      key: "moTa",
+      title: "Số lô",
+      dataIndex: "maSoLo",
+      key: "maSoLo",
       align: "center",
-      width: 90,
+      filters: removeDuplicates(
+        map(Data, (d) => {
+          return {
+            text: d.maSoLo,
+            value: d.maSoLo,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.maSoLo && record.maSoLo.includes(value),
+      filterSearch: true,
     },
     {
-      title: "Tháng 7",
-      dataIndex: "moTa",
-      key: "moTa",
+      title: "Số khung nội bộ",
+      dataIndex: "maNoiBo",
+      key: "maNoiBo",
       align: "center",
-      width: 90,
+      filters: removeDuplicates(
+        map(Data, (d) => {
+          return {
+            text: d.maNoiBo,
+            value: d.maNoiBo,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.maNoiBo && record.maNoiBo.includes(value),
+      filterSearch: true,
     },
     {
-      title: "Tháng 8",
-      dataIndex: "moTa",
-      key: "moTa",
+      title: "Số VIN",
+      dataIndex: "maSoVin",
+      key: "maSoVin",
       align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 9",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 10",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 11",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 12",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: "Tổng",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
+      filters: removeDuplicates(
+        map(Data, (d) => {
+          return {
+            text: d.maSoVin,
+            value: d.maSoVin,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.maSoVin && record.maSoVin.includes(value),
+      filterSearch: true,
     },
   ];
 
@@ -342,205 +362,13 @@ function BaoCaoChiTietSanXuatNgay({ match, history, permission }) {
     };
   });
 
-  //Chuyền sản xuất nệm ghế
-  const newDataSXNemGhe = [
-    {
-      name: "KHSX",
-      type: "KHSX",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Thực hiện",
-      type: "Thực hiện",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng KHSX",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng sản xuất thực tế",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "KHSX",
-      type: "KHSX",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Thực hiện",
-      type: "Thực hiện",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng KHSX",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng sản xuất thực tế",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "KHSX",
-      type: "KHSX",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Thực hiện",
-      type: "Thực hiện",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng KHSX",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng sản xuất thực tế",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "KHSX",
-      type: "KHSX",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Thực hiện",
-      type: "Thực hiện",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng KHSX",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng sản xuất thực tế",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-  ];
-  // Data.datalist &&
-  //   Data.datalist.forEach((item) => {
-  //     newDataSXNemGhe.push({
-  //       name: "KHSX",
-  //       date: item.tenDongXe,
-  //       soLuong: item.keHoach,
-  //       type: "KHSX",
-  //     });
-
-  //     newDataSXNemGhe.push({
-  //       name: "Thực hiện",
-  //       date: item.tenDongXe,
-  //       soLuong: item.thucHien,
-  //       type: "Thực hiện",
-  //     });
-
-  //     newDataSXNemGhe.push({
-  //       name: "Tổng KHSX",
-  //       date: item.tenDongXe,
-  //       soLuong: item.tongKeHoach,
-  //       type: "Tổng",
-  //     });
-
-  //     newDataSXNemGhe.push({
-  //       name: "Tổng sản xuất thực tế",
-  //       date: item.tenDongXe,
-  //       soLuong: item.tongThucHien,
-  //       type: "Tổng",
-  //     });
-  //   });
-
-  const SanXuatNemGheColumn = {
-    data: newDataSXNemGhe,
-    isGroup: true,
-    xField: "date",
-    yField: "soLuong",
-    seriesField: "name",
-    // groupField: "type",
-    color: ["#1677ff", "#FFD700", "#00AA00", "#FFA500"],
-    label: {
-      position: "middle",
-      layout: [
-        {
-          type: "interval-adjust-position",
-        },
-        {
-          type: "interval-hide-overlap",
-        },
-      ],
-      style: {
-        fontSize: 15,
-        fill: "#000",
-        fontWeight: "bold",
-      },
-    },
-
-    legend: {
-      itemName: {
-        style: {
-          fontSize: 15,
-          fill: "#000",
-        },
-      },
-    },
-    xAxis: {
-      label: {
-        style: {
-          fontSize: 15,
-          fill: "#000",
-          fontWeight: "bold",
-        },
-      },
-    },
-  };
-
-  // const DataNemGheKiaPie = Data.datalist
-  //   ? Data.datalist
-  //       .filter((item) => item.tongThucHien > 0)
-  //       .map((item) => [item.tenDongXe, item.tongThucHien])
-  //   : [];
-
-  const DataNemGheKiaPie = [
-    ["Work", 11],
-    ["Eat", 2],
-    ["Commute", 2],
-    ["Watch TV", 2],
-    ["Sleep", 7],
-  ];
-  DataNemGheKiaPie.unshift(["tenDongXe", "soLuong"]);
-  const NemGheKiaPie = {
-    is3D: true,
-  };
-
   const handleOnSelectXuong = (value) => {
     if (Xuong !== value) {
       setXuong(value);
       setChuyen(null);
-      setPage(1);
       setTram(null);
-      getListData(value, null, null, keyword, 1);
+      getChuyen(value);
+      getListData(value, null, null, FromDate, ToDate);
     }
   };
 
@@ -548,42 +376,42 @@ function BaoCaoChiTietSanXuatNgay({ match, history, permission }) {
     setXuong(null);
     setChuyen(null);
     setTram(null);
-    getListData(null, null, null, keyword, 1);
+    getListData(null, null, null, FromDate, ToDate);
   };
 
   const handleOnSelectChuyen = (value) => {
     if (value !== Chuyen) {
       setChuyen(value);
       setTram(null);
-      setPage(1);
-      getListData(Xuong, value, Tram, keyword, 1);
+      getTram(value);
+      getListData(Xuong, value, Tram, FromDate, ToDate);
     }
   };
 
   const handleClearChuyen = () => {
     setChuyen(null);
     setTram(null);
-    getListData(Xuong, null, Tram, keyword, 1);
+    getListData(Xuong, null, Tram, FromDate, ToDate);
   };
 
   const handleOnSelectTram = (value) => {
-    setTram(value);
-    getListData(Xuong, Chuyen, value, keyword, 1);
+    if (Tram !== value) {
+      setTram(value);
+      getListData(Xuong, Chuyen, value, FromDate, ToDate);
+    }
   };
 
   const handleClearTram = () => {
     setTram(null);
-    getListData(Xuong, Chuyen, null, keyword, 1);
+    getListData(Xuong, Chuyen, null, FromDate, ToDate);
   };
-
-  const title = (
-    <span>
-      Hình ảnh của hạng mục kiểm tra{" "}
-      <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
-        {HangMuc && HangMuc.tenHangMucKiemTra}
-      </Tag>
-    </span>
-  );
+  const handleChangeNgay = (dateString) => {
+    if (FromDate !== dateString[0] && ToDate !== dateString[1]) {
+      setFromDate(dateString[0]);
+      setToDate(dateString[1]);
+      getListData(Xuong, Chuyen, Tram, dateString[0], dateString[1]);
+    }
+  };
 
   return (
     <div className="gx-main-content">
@@ -681,18 +509,15 @@ function BaoCaoChiTietSanXuatNgay({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Tìm kiếm:</h5>
-            <Toolbar
-              count={1}
-              search={{
-                loading,
-                value: keyword,
-                onChange: onChangeKeyword,
-                onPressEnter: onSearchPhieuNhanHang,
-                onSearch: onSearchPhieuNhanHang,
-                allowClear: true,
-                placeholder: "Tìm kiếm",
-              }}
+            <h5>Ngày:</h5>
+            <RangePicker
+              format={"DD/MM/YYYY"}
+              onChange={(date, dateString) => handleChangeNgay(dateString)}
+              defaultValue={[
+                moment(FromDate, "DD/MM/YYYY"),
+                moment(ToDate, "DD/MM/YYYY"),
+              ]}
+              allowClear={false}
             />
           </Col>
         </Row>
@@ -700,136 +525,19 @@ function BaoCaoChiTietSanXuatNgay({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 1400, y: "40vh" }}
+          scroll={{ x: 1400, y: "56vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
-          dataSource={reDataForTable(Data.datalist)}
+          dataSource={reDataForTable(Data)}
           size="small"
           rowClassName={(record) => {
-            return record.isParent ? "editable-row" : "editable-row";
+            "editable-row";
           }}
           pagination={false}
           loading={loading}
         />
-        <Divider
-          orientation="left"
-          backgroundColor="none"
-          style={{
-            background: "none",
-            fontWeight: "bold",
-            marginBottom: "30px",
-          }}
-        >
-          Biểu đồ số lượng lỗi chất lượng theo tháng
-        </Divider>
-        <Row>
-          {SanXuatNemGheColumn && (
-            <Col md={12} xs={24} justify="center">
-              <Row justify="center">
-                <h4 style={{ fontSize: 18, textAlign: "center" }}>
-                  <strong>6 tháng đầu năm {getNamNow()}</strong>
-                </h4>
-              </Row>
-              <Column
-                {...SanXuatNemGheColumn}
-                className="colum-height-plot"
-                style={{
-                  width: "100%",
-                  alignItems: "center",
-                  height: "30vh",
-                }}
-              />
-            </Col>
-          )}
-
-          <Col
-            md={12}
-            xs={24}
-            justify="center"
-            style={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              alignItems: "center",
-              paddingLeft: 20,
-            }}
-          >
-            <Row
-              style={{
-                width: "100%",
-                alignItems: "center",
-                height: "35vh",
-              }}
-            >
-              {DataNemGheKiaPie.length > 1 ? (
-                <Col
-                  span={24}
-                  style={{ display: "grid", placeItems: "center" }}
-                >
-                  <Chart
-                    chartType="PieChart"
-                    data={DataNemGheKiaPie}
-                    options={NemGheKiaPie}
-                    width={"100%"}
-                    height={"350px"}
-                  />
-                </Col>
-              ) : null}
-            </Row>
-          </Col>
-        </Row>
       </Card>
-      <AntModal
-        title={title}
-        className="th-card-reset-margin"
-        open={DisabledModal}
-        width={width > 786 ? `50%` : "90%"}
-        closable={true}
-        onCancel={() => setDisabledModal(false)}
-        footer={null}
-      >
-        {ListHinhAnh ? (
-          <div
-            style={{
-              overflowY: "auto",
-              maxHeight: "500px",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {ListHinhAnh &&
-              ListHinhAnh.map((hinhanh) => {
-                return (
-                  <div
-                    style={{
-                      position: "relative",
-                      display: "inline-block",
-                      borderRadius: 15,
-                      marginRight: 15,
-                      marginBottom: 15,
-                    }}
-                  >
-                    <Image
-                      width={200}
-                      height={200}
-                      style={{
-                        borderRadius: 15,
-                        border: "1px solid #c8c8c8",
-                        padding: 8,
-                      }}
-                      src={BASE_URL_API + hinhanh.hinhAnh}
-                    />
-                  </div>
-                );
-              })}
-          </div>
-        ) : (
-          <div>
-            <Empty style={{ height: "500px" }} />
-          </div>
-        )}
-      </AntModal>
     </div>
   );
 }
