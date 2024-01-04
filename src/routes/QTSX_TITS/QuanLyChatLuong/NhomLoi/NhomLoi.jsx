@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Checkbox } from "antd";
+import { Card, Button, Divider, Col, Checkbox, Row } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -9,12 +9,15 @@ import {
   Table,
   EditableTableRow,
   Toolbar,
+  Select,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
   removeDuplicates,
+  getLocalStorage,
+  getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 
@@ -23,12 +26,17 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function NhomLoi({ match, history, permission }) {
   const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  const [Data, setData] = useState([]);
+  const [ListCongDoan, setListCongDoan] = useState([]);
+  const [CongDoan, setCongDoan] = useState(null);
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (permission && permission.view) {
-      loadData(keyword, page);
+      getCongDoan();
+      getListData(CongDoan, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -37,30 +45,68 @@ function NhomLoi({ match, history, permission }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Lấy dữ liệu về
-   *
-   */
-  const loadData = (keyword, page) => {
-    const param = convertObjectToUrlParams({ keyword, page });
-    dispatch(fetchStart(`tits_qtsx_NhomLoi?${param}`, "GET", null, "LIST"));
+  const getListData = (tits_qtsx_CongDoan_Id, keyword, page) => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_CongDoan_Id,
+      keyword,
+      page,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_NhomLoi?${param}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setData(res.data);
+        } else {
+          setData([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
-  /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
+
+  const getCongDoan = () => {
+    let param = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+      page: -1,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_CongDoan?${param}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListCongDoan(res.data);
+        } else {
+          setListCongDoan([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, pagination);
+    getListData(CongDoan, keyword, pagination);
   };
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
+
   const actionContent = (item) => {
     const editItem =
       permission && permission.edit ? (
@@ -115,7 +161,7 @@ function NhomLoi({ match, history, permission }) {
     })
       .then((res) => {
         // Reload lại danh sách
-        loadData(keyword, page);
+        getListData(CongDoan, keyword, page);
       })
       .catch((error) => console.error(error));
   };
@@ -228,24 +274,15 @@ function NhomLoi({ match, history, permission }) {
     },
   ];
 
-  /**
-   * Tìm kiếm người dùng
-   *
-   */
   const onSearchNhomLoi = () => {
     setPage(1);
-    loadData(keyword, 1);
+    getListData(CongDoan, keyword, 1);
   };
 
-  /**
-   * Thay đổi keyword
-   *
-   * @param {*} val
-   */
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, page);
+      getListData(CongDoan, val.target.value, page);
     }
   };
   const components = {
@@ -270,6 +307,18 @@ function NhomLoi({ match, history, permission }) {
     };
   });
 
+  const handleOnSelectCongDoan = (value) => {
+    setCongDoan(value);
+    setPage(1);
+    getListData(value, keyword, 1);
+  };
+
+  const handleClearCongDoan = () => {
+    setCongDoan(null);
+    setPage(1);
+    getListData(null, keyword, 1);
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -278,47 +327,82 @@ function NhomLoi({ match, history, permission }) {
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Col
-          xxl={8}
-          xl={12}
-          lg={16}
-          md={16}
-          sm={20}
-          xs={24}
-          style={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <span
+        <Row>
+          <Col
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
             style={{
-              width: "80px",
-            }}
-          >
-            Tìm kiếm:
-          </span>
-          <div
-            style={{
-              flex: 1,
+              display: "flex",
               alignItems: "center",
-              marginTop: width < 576 ? 10 : 0,
             }}
           >
-            <Toolbar
-              count={1}
-              search={{
-                title: "Tìm kiếm",
-                loading,
-                value: keyword,
-                onChange: onChangeKeyword,
-                onPressEnter: onSearchNhomLoi,
-                onSearch: onSearchNhomLoi,
-                placeholder: "Nhập từ khóa",
-                allowClear: true,
+            <span
+              style={{
+                width: "100px",
               }}
+            >
+              Công đoạn:
+            </span>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListCongDoan ? ListCongDoan : []}
+              placeholder="Chọn công đoạn"
+              optionsvalue={["id", "tenCongDoan"]}
+              style={{ width: "calc(100% - 100px)" }}
+              showSearch
+              optionFilterProp="name"
+              onSelect={handleOnSelectCongDoan}
+              allowClear
+              onClear={handleClearCongDoan}
+              value={CongDoan}
             />
-          </div>
-        </Col>
+          </Col>
+          <Col
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
+          >
+            <span
+              style={{
+                width: "100px",
+              }}
+            >
+              Tìm kiếm:
+            </span>
+            <div
+              style={{
+                flex: 1,
+                alignItems: "center",
+                marginTop: width < 576 ? 10 : 0,
+              }}
+            >
+              <Toolbar
+                count={1}
+                search={{
+                  title: "Tìm kiếm",
+                  loading,
+                  value: keyword,
+                  onChange: onChangeKeyword,
+                  onPressEnter: onSearchNhomLoi,
+                  onSearch: onSearchNhomLoi,
+                  placeholder: "Nhập từ khóa",
+                  allowClear: true,
+                }}
+              />
+            </div>
+          </Col>
+        </Row>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table

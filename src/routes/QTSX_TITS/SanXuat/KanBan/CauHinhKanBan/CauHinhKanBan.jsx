@@ -10,6 +10,7 @@ import {
   reDataForTable,
   removeDuplicates,
   getDateNow,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -24,8 +25,10 @@ function CauHinhKanBan({ match, history, permission }) {
   const [Chuyen, setChuyen] = useState(null);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
+  const [TenSanPham, setTenSanPham] = useState(null);
   const [ListDonHang, setListDonHang] = useState([]);
   const [DonHang, setDonHang] = useState(null);
+  const [TenDonHang, setTenDonHang] = useState(null);
   const [Ngay, setNgay] = useState(getDateNow());
   const [SelectedKanBan, setSelectedKanBan] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
@@ -106,6 +109,7 @@ function CauHinhKanBan({ match, history, permission }) {
         if (res && res.data) {
           setListSanPham(res.data);
           setSanPham(res.data[0].tits_qtsx_SanPham_Id);
+          setTenSanPham(res.data[0].tenSanPham);
           getListDonHang(
             tits_qtsx_Chuyen_Id,
             res.data[0].tits_qtsx_SanPham_Id,
@@ -142,6 +146,7 @@ function CauHinhKanBan({ match, history, permission }) {
         if (res && res.data) {
           setListDonHang(res.data);
           setDonHang(res.data[0].tits_qtsx_DonHang_Id);
+          setTenDonHang(res.data[0].tenDonHang);
           getListData(
             tits_qtsx_Chuyen_Id,
             tits_qtsx_SanPham_Id,
@@ -272,7 +277,32 @@ function CauHinhKanBan({ match, history, permission }) {
     };
   });
 
-  const handleInKanBan = () => {};
+  const handleInKanBan = () => {
+    const newListKanBan = SelectedKanBan.map((kanban) => {
+      return {
+        ...kanban,
+        ngay: Ngay,
+        tenSanPham: TenSanPham,
+        tenDonHang: TenDonHang,
+      };
+    });
+    console.log(newListKanBan);
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_KanBan/export-file-the-kan-ban-san-xuat`,
+          "POST",
+          newListKanBan,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      exportExcel("TheKanBan", res.data.dataexcel);
+    });
+  };
 
   const buttonRenders = () => {
     return (
@@ -300,6 +330,11 @@ function CauHinhKanBan({ match, history, permission }) {
   };
 
   const handleOnSelectSanPham = (value) => {
+    const newSanPham = ListSanPham.filter(
+      (sp) => sp.tits_qtsx_SanPham_Id === value
+    );
+    setTenSanPham(newSanPham[0].tenSanPham);
+
     setSanPham(value);
     setDonHang(null);
     setListDonHang([]);
@@ -307,6 +342,11 @@ function CauHinhKanBan({ match, history, permission }) {
   };
 
   const handleOnSelectDonHang = (value) => {
+    const newDonHang = ListDonHang.filter(
+      (sp) => sp.tits_qtsx_DonHang_Id === value
+    );
+    setTenDonHang(newDonHang[0].tenDonHang);
+
     setDonHang(value);
     getListData(Chuyen, SanPham, value, Ngay);
   };

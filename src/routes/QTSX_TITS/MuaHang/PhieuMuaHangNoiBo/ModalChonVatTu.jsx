@@ -176,7 +176,7 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
       title: "STT",
       dataIndex: "key",
       key: "key",
-      width: 45,
+      width: 50,
       align: "center",
     },
     {
@@ -184,24 +184,28 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
+      width: 150,
     },
     {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
       align: "center",
+      width: 250,
     },
     {
       title: "Loại vật tư",
       dataIndex: "tenLoaiVatTu",
       key: "tenLoaiVatTu",
       align: "center",
+      width: 150,
     },
     {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
       align: "center",
+      width: 100,
     },
     {
       title: "Đơn hàng",
@@ -214,18 +218,21 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
       dataIndex: "soLuong",
       key: "soLuong",
       align: "center",
+      width: 100,
     },
     {
       title: "Ngày yêu cầu giao",
       dataIndex: "ngay",
       key: "ngay",
       align: "center",
+      width: 150,
     },
     {
       title: "Đơn giá",
       dataIndex: "donGia",
       key: "donGia",
       align: "center",
+      width: 100,
     },
     {
       title: "Thành tiền",
@@ -268,14 +275,14 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
   const onFinish = (values) => {
     const data = values.themvattu;
     const listvattu = ListVatTu.filter((d) => d.id === data.tits_qtsx_VatTu_Id);
-    const donhang = ListDonHang.filter(
-      (d) => d.id === data.tits_qtsx_DonHang_Id
-    );
+    const donhang =
+      data.tits_qtsx_DonHang_Id &&
+      ListDonHang.filter((d) => d.id === data.tits_qtsx_DonHang_Id);
     const DataList = {
       ...data,
       ...listvattu[0],
-      tenDonHang: donhang[0].tenDonHang,
-      maPhieu: donhang[0].maPhieu,
+      tenDonHang: donhang && donhang[0].tenDonHang,
+      maPhieu: donhang && donhang[0].maPhieu,
       thanhTien: data.donGia && parseFloat(data.soLuong * data.donGia),
       ngay: data.ngay.format("DD/MM/YYYY"),
     };
