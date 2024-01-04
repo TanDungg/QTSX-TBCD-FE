@@ -291,7 +291,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
     newData.forEach((ct, index) => {
       if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
         ct.soLuong = soLuong;
-        ct.thanhTien = soLuong * ct.donGia;
+        ct.thanhTien = ct.donGia && parseFloat(soLuong * ct.donGia);
       }
     });
     setListVatTu(newData);
@@ -329,7 +329,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       title: "STT",
       dataIndex: "key",
       key: "key",
-      width: 45,
+      width: 50,
       align: "center",
     },
     {
@@ -337,24 +337,28 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
+      width: 150,
     },
     {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
       align: "center",
+      width: 250,
     },
     {
       title: "Loại vật tư",
       dataIndex: "tenLoaiVatTu",
       key: "tenLoaiVatTu",
       align: "center",
+      width: 150,
     },
     {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
       align: "center",
+      width: 100,
     },
     {
       title: "Đơn hàng",
@@ -373,12 +377,14 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       dataIndex: "ngay",
       key: "ngay",
       align: "center",
+      width: 150,
     },
     {
       title: "Đơn giá",
       dataIndex: "donGia",
       key: "donGia",
       align: "center",
+      width: 100,
     },
     {
       title: "Thành tiền",

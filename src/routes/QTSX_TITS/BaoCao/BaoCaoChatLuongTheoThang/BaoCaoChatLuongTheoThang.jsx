@@ -1,14 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Card,
-  Row,
-  Col,
-  Modal as AntModal,
-  Image,
-  Tag,
-  Empty,
-  Divider,
-} from "antd";
+import { Card, Row, Col, Divider, DatePicker } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { map, isEmpty } from "lodash";
 import {
@@ -20,35 +11,32 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
-  reDataForTable,
   getLocalStorage,
   getTokenInfo,
   removeDuplicates,
   getNamNow,
-  getThangNow,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { BASE_URL_API } from "src/constants/Config";
 import Chart from "react-google-charts";
 import { Column } from "@ant-design/charts";
+import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function BaoCaoChatLuongTheoThang({ match, history, permission }) {
-  const { loading, data, width } = useSelector(({ common }) => common).toJS();
+function BaoCaoChatLuongTheoThang({ history, permission }) {
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [page, setPage] = useState(1);
-  const [keyword, setKeyword] = useState("");
   const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
   const [LoaiSanPham, setLoaiSanPham] = useState(null);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
   const [ListCongDoan, setListCongDoan] = useState([]);
   const [CongDoan, setCongDoan] = useState(null);
-  const [DisabledModal, setDisabledModal] = useState(false);
-  const [ListHinhAnh, setListHinhAnh] = useState([]);
-  const [HangMuc, setHangMuc] = useState([]);
+  const [ListNhomLoi, setListNhomLoi] = useState([]);
+  const [NhomLoi, setNhomLoi] = useState(null);
+  const [Nam, setNam] = useState(getNamNow());
+  const [keyword, setKeyword] = useState("");
   const [Data, setData] = useState([]);
 
   useEffect(() => {
@@ -56,7 +44,8 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
       getLoaiSanPham();
       getSanPham();
       getCongDoan();
-      getListData(LoaiSanPham, SanPham, CongDoan, keyword, page);
+      getListNhomLoi();
+      getListData(LoaiSanPham, SanPham, CongDoan, NhomLoi, Nam, keyword);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -69,20 +58,22 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
     tits_qtsx_LoaiSanPham_Id,
     tits_qtsx_SanPham_Id,
     tits_qtsx_CongDoan_Id,
-    keyword,
-    page
+    tits_qtsx_NhomLoi_Id,
+    nam,
+    keyword
   ) => {
     const param = convertObjectToUrlParams({
       tits_qtsx_LoaiSanPham_Id,
       tits_qtsx_SanPham_Id,
       tits_qtsx_CongDoan_Id,
+      tits_qtsx_NhomLoi_Id,
+      nam,
       keyword,
-      page,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_HangMucKiemTra?${param}`,
+          `tits_qtsx_BaoCao/bao-cao-chat-luong-theo-thang?${param}`,
           "GET",
           null,
           "LIST",
@@ -94,7 +85,40 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setData(res.data);
+          const newData = res.data.map((data, index) => {
+            const tong = data.list_ChiTiets.reduce(
+              (total, item) => total + item.soLuong,
+              0
+            );
+            return {
+              ...data,
+              key: index + 1,
+              tong: tong,
+            };
+          });
+
+          const tongtheothang = newData.reduce((tong, data) => {
+            data.list_ChiTiets.forEach((chitietthang) => {
+              const thang = chitietthang.thang;
+              tong[thang] = tong[thang] || {
+                thang: thang,
+                soLuong: 0,
+              };
+              tong[thang].soLuong += chitietthang.soLuong;
+            });
+            return tong;
+          }, {});
+
+          const HangTong = {
+            key: "Tổng",
+            tong: newData.reduce((total, item) => total + item.tong, 0),
+            list_ChiTiets: Object.values(tongtheothang),
+          };
+
+          if (newData.length !== 0) {
+            newData.push(HangTong);
+          }
+          setData(newData);
         } else {
           setData([]);
         }
@@ -182,28 +206,60 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
+  const getListNhomLoi = (tits_qtsx_CongDoan_Id) => {
+    let param = convertObjectToUrlParams({
+      tits_qtsx_CongDoan_Id,
+      page: -1,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_NhomLoi?${param}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListNhomLoi(res.data);
+        } else {
+          setListNhomLoi([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const onSearchPhieuNhanHang = () => {
-    getListData(LoaiSanPham, SanPham, CongDoan, keyword, page);
+    getListData(LoaiSanPham, SanPham, CongDoan, NhomLoi, Nam, keyword);
   };
 
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(LoaiSanPham, SanPham, CongDoan, val.target.value, page);
+      getListData(
+        LoaiSanPham,
+        SanPham,
+        CongDoan,
+        NhomLoi,
+        Nam,
+        val.target.value
+      );
     }
   };
 
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    getListData(LoaiSanPham, SanPham, CongDoan, keyword, pagination);
-  };
-
-  const { totalRow, pageSize } = Data;
-
-  const XemChiTiet = (record) => {
-    setHangMuc(record);
-    setListHinhAnh(record.list_HinhAnhs && JSON.parse(record.list_HinhAnhs));
-    setDisabledModal(true);
+  const renderChatLuong = (record, month) => {
+    const chiTiet = record.list_ChiTiets.find((item) => item.thang === month);
+    const soLuong = chiTiet ? chiTiet.soLuong : 0;
+    return (
+      <span style={{ fontWeight: record.key === "Tổng" ? "bold" : "" }}>
+        {soLuong}
+      </span>
+    );
   };
 
   let renderHead = [
@@ -213,113 +269,54 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
       key: "key",
       align: "center",
       width: 50,
+      fixed: width > 1500 ? "left" : "none",
+      onCell: (record) => ({
+        className: record.key === "Tổng" ? "total-row" : "",
+        colSpan: record.key === "Tổng" ? 2 : 1,
+      }),
     },
     {
       title: "Nhóm lỗi",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
+      dataIndex: "tenNhomLoi",
+      key: "tenNhomLoi",
       align: "center",
+      fixed: width > 1500 ? "left" : "none",
+      onCell: (record) => ({
+        colSpan: record.key === "Tổng" ? 0 : 1,
+      }),
       filters: removeDuplicates(
-        map(Data.datalist, (d) => {
+        map(Data, (d) => {
           return {
-            text: d.maSanPham,
-            value: d.maSanPham,
+            text: d.tenNhomLoi,
+            value: d.tenNhomLoi,
           };
         })
       ),
-      onFilter: (value, record) => record.maSanPham.includes(value),
+      onFilter: (value, record) => record.tenNhomLoi.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tháng 1",
-      dataIndex: "moTa",
-      key: "moTa",
+      title: `Năm ${Nam}`,
       align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 2",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 3",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 4",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 5",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 6",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 7",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 8",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 9",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 10",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 11",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
-    },
-    {
-      title: "Tháng 12",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 90,
+      children: Array.from({ length: 12 }, (_, index) => {
+        const month = index + 1;
+        return {
+          title: `Tháng ${month}`,
+          align: "center",
+          width: 90,
+          render: (record) => renderChatLuong(record, month),
+        };
+      }),
     },
     {
       title: "Tổng",
-      dataIndex: "moTa",
-      key: "moTa",
+      dataIndex: "tong",
+      key: "tong",
       align: "center",
       width: 90,
+      render: (value) => {
+        return <span style={{ fontWeight: "bold" }}>{value}</span>;
+      },
     },
   ];
 
@@ -329,6 +326,7 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
       cell: EditableCell,
     },
   };
+
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
@@ -345,143 +343,29 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
     };
   });
 
-  //Chuyền sản xuất nệm ghế
-  const newDataSXNemGhe = [
-    {
-      name: "KHSX",
-      type: "KHSX",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Thực hiện",
-      type: "Thực hiện",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng KHSX",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng sản xuất thực tế",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "KHSX",
-      type: "KHSX",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Thực hiện",
-      type: "Thực hiện",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng KHSX",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng sản xuất thực tế",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "KHSX",
-      type: "KHSX",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Thực hiện",
-      type: "Thực hiện",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng KHSX",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng sản xuất thực tế",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "KHSX",
-      type: "KHSX",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Thực hiện",
-      type: "Thực hiện",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng KHSX",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-    {
-      name: "Tổng sản xuất thực tế",
-      type: "Tổng",
-      date: "19/12/2023",
-      soLuong: 150,
-    },
-  ];
-  // Data.datalist &&
-  //   Data.datalist.forEach((item) => {
-  //     newDataSXNemGhe.push({
-  //       name: "KHSX",
-  //       date: item.tenDongXe,
-  //       soLuong: item.keHoach,
-  //       type: "KHSX",
-  //     });
+  //Data biểu đồ cột
+  const newDataColumnThang =
+    Data &&
+    Data.reduce((result, data) => {
+      if (data.key !== "Tổng") {
+        data.list_ChiTiets &&
+          data.list_ChiTiets.forEach((chitiet) => {
+            result.push({
+              name: data.tenNhomLoi,
+              thang: `Tháng ${chitiet.thang}`,
+              soLuong: chitiet.soLuong,
+            });
+          });
+      }
+      return result;
+    }, []);
 
-  //     newDataSXNemGhe.push({
-  //       name: "Thực hiện",
-  //       date: item.tenDongXe,
-  //       soLuong: item.thucHien,
-  //       type: "Thực hiện",
-  //     });
-
-  //     newDataSXNemGhe.push({
-  //       name: "Tổng KHSX",
-  //       date: item.tenDongXe,
-  //       soLuong: item.tongKeHoach,
-  //       type: "Tổng",
-  //     });
-
-  //     newDataSXNemGhe.push({
-  //       name: "Tổng sản xuất thực tế",
-  //       date: item.tenDongXe,
-  //       soLuong: item.tongThucHien,
-  //       type: "Tổng",
-  //     });
-  //   });
-
-  const SanXuatNemGheColumn = {
-    data: newDataSXNemGhe,
+  const ChatLuongTheoThangColumn = {
+    data: newDataColumnThang,
     isGroup: true,
-    xField: "date",
+    xField: "thang",
     yField: "soLuong",
     seriesField: "name",
-    // groupField: "type",
     color: ["#1677ff", "#FFD700", "#00AA00", "#FFA500"],
     label: {
       position: "middle",
@@ -519,20 +403,13 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
     },
   };
 
-  // const DataNemGheKiaPie = Data.datalist
-  //   ? Data.datalist
-  //       .filter((item) => item.tongThucHien > 0)
-  //       .map((item) => [item.tenDongXe, item.tongThucHien])
-  //   : [];
+  const newDataPieThang = Data
+    ? Data.filter((item) => item.key !== "Tổng" && item.tong > 0).map(
+        (item) => [item.tenNhomLoi, item.tong]
+      )
+    : [];
 
-  const DataNemGheKiaPie = [
-    ["Work", 11],
-    ["Eat", 2],
-    ["Commute", 2],
-    ["Watch TV", 2],
-    ["Sleep", 7],
-  ];
-  DataNemGheKiaPie.unshift(["tenDongXe", "soLuong"]);
+  newDataPieThang.unshift(["tenNhomLoi", "tong"]);
   const NemGheKiaPie = {
     is3D: true,
   };
@@ -540,48 +417,53 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
   const handleOnSelectLoaiSanPham = (value) => {
     setLoaiSanPham(value);
     setSanPham(null);
-    setCongDoan(null);
     getSanPham(value);
-    getListData(value, null, null, keyword, 1);
+    getListData(value, null, CongDoan, NhomLoi, Nam, keyword);
   };
 
   const handleClearLoaiSanPham = () => {
     setLoaiSanPham(null);
     setSanPham(null);
-    setCongDoan(null);
-    getListData(null, null, null, keyword, 1);
+    getListData(null, null, CongDoan, NhomLoi, Nam, keyword);
   };
 
   const handleOnSelectSanPham = (value) => {
     setSanPham(value);
-    setCongDoan(null);
-    getListData(LoaiSanPham, value, CongDoan, keyword, 1);
+    getListData(LoaiSanPham, value, CongDoan, NhomLoi, Nam, keyword);
   };
 
   const handleClearSanPham = () => {
     setSanPham(null);
-    setCongDoan(null);
-    getListData(LoaiSanPham, null, CongDoan, keyword, 1);
+    getListData(LoaiSanPham, null, CongDoan, NhomLoi, Nam, keyword);
   };
 
   const handleOnSelectCongDoan = (value) => {
     setCongDoan(value);
-    getListData(LoaiSanPham, SanPham, value, keyword, 1);
+    setNhomLoi(null);
+    getListNhomLoi(value);
+    getListData(LoaiSanPham, SanPham, value, null, Nam, keyword);
   };
 
   const handleClearCongDoan = () => {
     setCongDoan(null);
-    getListData(LoaiSanPham, SanPham, null, keyword, 1);
+    setNhomLoi(null);
+    getListData(LoaiSanPham, SanPham, null, null, Nam, keyword);
   };
 
-  const title = (
-    <span>
-      Hình ảnh của hạng mục kiểm tra{" "}
-      <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
-        {HangMuc && HangMuc.tenHangMucKiemTra}
-      </Tag>
-    </span>
-  );
+  const handleOnSelectNhomLoi = (value) => {
+    setNhomLoi(value);
+    getListData(LoaiSanPham, SanPham, CongDoan, value, Nam, keyword);
+  };
+
+  const handleClearNhomLoi = () => {
+    setNhomLoi(null);
+    getListData(LoaiSanPham, SanPham, CongDoan, null, Nam, keyword);
+  };
+
+  const handleChangeNam = (nam) => {
+    setNam(nam);
+    getListData(LoaiSanPham, SanPham, CongDoan, NhomLoi, nam, keyword);
+  };
 
   return (
     <div className="gx-main-content">
@@ -675,6 +557,49 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
             xl={8}
             lg={12}
             md={12}
+            sm={20}
+            xs={24}
+            style={{
+              marginBottom: 8,
+            }}
+          >
+            <h5>Nhóm lỗi:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListNhomLoi ? ListNhomLoi : []}
+              placeholder="Chọn nhóm lỗi"
+              optionsvalue={["id", "tenNhomLoi"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+              onSelect={handleOnSelectNhomLoi}
+              allowClear
+              onClear={handleClearNhomLoi}
+              value={NhomLoi}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Năm:</h5>
+            <DatePicker
+              onChange={(date, dateString) => handleChangeNam(dateString)}
+              picker="year"
+              defaultValue={moment(Nam, "YYYY")}
+              allowClear={false}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
             sm={24}
             xs={24}
             style={{ marginBottom: 8 }}
@@ -702,7 +627,7 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
           columns={columns}
           components={components}
           className="gx-table-responsive"
-          dataSource={reDataForTable(Data.datalist)}
+          dataSource={Data}
           size="small"
           rowClassName={(record) => {
             return record.isParent ? "editable-row" : "editable-row";
@@ -716,21 +641,17 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
           style={{
             background: "none",
             fontWeight: "bold",
+            marginTop: "30px",
             marginBottom: "30px",
           }}
         >
           Biểu đồ số lượng lỗi chất lượng theo tháng
         </Divider>
         <Row>
-          {SanXuatNemGheColumn && (
-            <Col md={12} xs={24} justify="center">
-              <Row justify="center">
-                <h4 style={{ fontSize: 18, textAlign: "center" }}>
-                  <strong>6 tháng đầu năm {getNamNow()}</strong>
-                </h4>
-              </Row>
+          {ChatLuongTheoThangColumn && (
+            <Col span={24} justify="center">
               <Column
-                {...SanXuatNemGheColumn}
+                {...ChatLuongTheoThangColumn}
                 className="colum-height-plot"
                 style={{
                   width: "100%",
@@ -742,8 +663,7 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
           )}
 
           <Col
-            md={12}
-            xs={24}
+            span={24}
             justify="center"
             style={{
               display: "flex",
@@ -755,19 +675,18 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
           >
             <Row
               style={{
-                width: "100%",
+                width: "90%",
                 alignItems: "center",
-                height: "35vh",
               }}
             >
-              {DataNemGheKiaPie.length > 1 ? (
+              {newDataPieThang.length > 1 ? (
                 <Col
                   span={24}
                   style={{ display: "grid", placeItems: "center" }}
                 >
                   <Chart
                     chartType="PieChart"
-                    data={DataNemGheKiaPie}
+                    data={newDataPieThang}
                     options={NemGheKiaPie}
                     width={"100%"}
                     height={"350px"}
@@ -778,56 +697,6 @@ function BaoCaoChatLuongTheoThang({ match, history, permission }) {
           </Col>
         </Row>
       </Card>
-      <AntModal
-        title={title}
-        className="th-card-reset-margin"
-        open={DisabledModal}
-        width={width > 786 ? `50%` : "90%"}
-        closable={true}
-        onCancel={() => setDisabledModal(false)}
-        footer={null}
-      >
-        {ListHinhAnh ? (
-          <div
-            style={{
-              overflowY: "auto",
-              maxHeight: "500px",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            {ListHinhAnh &&
-              ListHinhAnh.map((hinhanh) => {
-                return (
-                  <div
-                    style={{
-                      position: "relative",
-                      display: "inline-block",
-                      borderRadius: 15,
-                      marginRight: 15,
-                      marginBottom: 15,
-                    }}
-                  >
-                    <Image
-                      width={200}
-                      height={200}
-                      style={{
-                        borderRadius: 15,
-                        border: "1px solid #c8c8c8",
-                        padding: 8,
-                      }}
-                      src={BASE_URL_API + hinhanh.hinhAnh}
-                    />
-                  </div>
-                );
-              })}
-          </div>
-        ) : (
-          <div>
-            <Empty style={{ height: "500px" }} />
-          </div>
-        )}
-      </AntModal>
     </div>
   );
 }
