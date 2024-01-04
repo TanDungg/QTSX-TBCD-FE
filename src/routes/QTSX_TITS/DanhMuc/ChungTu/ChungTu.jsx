@@ -186,6 +186,13 @@ function ChungTu({ match, permission, history }) {
 
   let colValues = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -223,13 +230,6 @@ function ChungTu({ match, permission, history }) {
       ),
       onFilter: (value, record) => record.tenChungTu.includes(value),
       filterSearch: true,
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
     },
   ];
   const components = {

@@ -102,6 +102,13 @@ function DonVi({ match, permission, history }) {
 
   let colValues = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       stt: "key",
@@ -155,13 +162,6 @@ function DonVi({ match, permission, history }) {
       ),
       onFilter: (value, record) => record.tenTapDoan.includes(value),
       filterSearch: true,
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
     },
   ];
   const components = {

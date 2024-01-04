@@ -8,18 +8,17 @@ const FormItem = Form.Item;
 
 function ModalSaoChep({ openModalFS, openModal, itemData, refesh }) {
   const dispatch = useDispatch();
-
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { setFieldsValue, resetFields } = form;
-  const [ListSanPhamGoc, setListSanPhamGoc] = useState([]);
-  const [ListSanPhamCopy, setListSanPhamCopy] = useState([]);
+  const { resetFields } = form;
+  const [SanPhamGoc, setSanPhamGoc] = useState(null);
+  const [ListSanPham, setListSanPham] = useState([]);
 
   useEffect(() => {
     if (openModal) {
       getListSanPham();
     }
-  }, []);
+  }, [openModal]);
 
   const getListSanPham = () => {
     new Promise((resolve, reject) => {
@@ -37,32 +36,35 @@ function ModalSaoChep({ openModalFS, openModal, itemData, refesh }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListSanPhamGoc(res.data);
+          const newData = res.data.filter(
+            (dt) => dt.id.toLowerCase() === itemData.toLowerCase()
+          );
+          setSanPhamGoc(newData[0].tenSanPham);
+
+          const newListSanPham = res.data.filter(
+            (dt) => dt.id.toLowerCase() !== itemData.toLowerCase()
+          );
+          setListSanPham(newListSanPham);
         } else {
-          setListSanPhamGoc([]);
+          setSanPhamGoc(null);
+          setListSanPham([]);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  /**
-   * Khi submit
-   *
-   * @param {*} values
-   */
   const onFinish = (values) => {
-    const data = values.themhinhanh;
-    saveData(data);
-  };
-
-  const saveData = (data) => {
+    const data = {
+      ...values.saochephinhanh,
+      tits_qtsx_SanPham_Copy_Id: itemData,
+    };
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
           `tits_qtsx_SanPhamHinhAnh/san-pham-hinh-anh-copy`,
           "POST",
           data,
-          "ADD",
+          "SAOCHEP",
           "",
           resolve,
           reject
@@ -72,6 +74,8 @@ function ModalSaoChep({ openModalFS, openModal, itemData, refesh }) {
       .then((res) => {
         if (res && res.status !== 409) {
           openModalFS(false);
+          setSanPhamGoc(null);
+          setListSanPham([]);
           resetFields();
           refesh();
         }
@@ -79,25 +83,17 @@ function ModalSaoChep({ openModalFS, openModal, itemData, refesh }) {
       .catch((error) => console.error(error));
   };
 
-  const handleSelectSanPham = (value) => {
-    setFieldsValue({
-      themhinhanh: {
-        tits_qtsx_SanPham_Id: null,
-      },
-    });
-    const newData = ListSanPhamGoc.filter((d) => d.id !== value);
-    setListSanPhamCopy(newData);
-  };
-
   const handleCancel = () => {
     openModalFS(false);
+    setSanPhamGoc(null);
+    setListSanPham([]);
     resetFields();
     refesh();
   };
 
   return (
     <AntModal
-      title="Sao chép hình ảnh"
+      title={`Sao chép hình ảnh của sản phẩm ${SanPhamGoc}`}
       open={openModal}
       width={`50%`}
       closable={true}
@@ -114,29 +110,8 @@ function ModalSaoChep({ openModalFS, openModal, itemData, refesh }) {
             onFieldsChange={() => setFieldTouch(true)}
           >
             <FormItem
-              label="Sản phẩm gốc"
-              name={["themhinhanh", "tits_qtsx_SanPham_Copy_Id"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-              ]}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListSanPhamGoc ? ListSanPhamGoc : []}
-                placeholder="Chọn sản phẩm"
-                optionsvalue={["id", "tenSanPham"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp="name"
-                onSelect={handleSelectSanPham}
-              />
-            </FormItem>
-            <FormItem
               label="Sản phẩm sao chép"
-              name={["themhinhanh", "tits_qtsx_SanPham_Id"]}
+              name={["saochephinhanh", "tits_qtsx_SanPham_Id"]}
               rules={[
                 {
                   type: "string",
@@ -146,7 +121,7 @@ function ModalSaoChep({ openModalFS, openModal, itemData, refesh }) {
             >
               <Select
                 className="heading-select slt-search th-select-heading"
-                data={ListSanPhamCopy ? ListSanPhamCopy : []}
+                data={ListSanPham ? ListSanPham : []}
                 placeholder="Chọn sản phẩm"
                 optionsvalue={["id", "tenSanPham"]}
                 style={{ width: "100%" }}

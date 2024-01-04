@@ -9,7 +9,7 @@ import {
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchReset, fetchStart } from "src/appRedux/actions";
+import { fetchStart } from "src/appRedux/actions";
 import {
   EditableTableRow,
   ModalDeleteConfirm,
@@ -39,7 +39,8 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
   };
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { resetFields } = form;
+  const { resetFields, setFieldsValue } = form;
+  const [type, setType] = useState("add");
   const [ListTram, setListTram] = useState([]);
   const [ListThietBi, setListThietBi] = useState([]);
   const [ListVatTu, setListVatTu] = useState([]);
@@ -51,6 +52,28 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
       getListTram();
       getListThietBi();
       getListVatTu();
+      if (itemData.tram.tits_qtsx_Tram_Id) {
+        setFieldsValue({
+          themtram: {
+            tits_qtsx_Tram_Id: itemData.tram.tits_qtsx_Tram_Id.toLowerCase(),
+            tits_qtsx_ThietBi_Id:
+              itemData.tram.tits_qtsx_ThietBi_Id &&
+              itemData.tram.tits_qtsx_ThietBi_Id.toLowerCase(),
+            list_VatTus: itemData.tram.list_VatTus
+              ? itemData.tram.list_VatTus.map((vattu) => {
+                  return vattu.tits_qtsx_VatTu_Id.toLowerCase();
+                })
+              : [],
+            thuTu: itemData.tram.thuTu,
+          },
+        });
+        setListThongTinKiemSoat(
+          itemData.tram.list_TramChiTiets ? itemData.tram.list_TramChiTiets : []
+        );
+        setType("edit");
+      } else {
+        setType("add");
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
@@ -140,7 +163,8 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
   const deleteItemAction = (item) => {
     const newData = ListThongTinKiemSoat.filter(
       (d) =>
-        d.tits_qtsx_ThongTinKiemSoat_Id !== item.tits_qtsx_ThongTinKiemSoat_Id
+        d.tits_qtsx_ThongTinKiemSoat_Id.toLowerCase() !==
+        item.tits_qtsx_ThongTinKiemSoat_Id.toLowerCase()
     );
     setListThongTinKiemSoat(newData);
   };
@@ -162,8 +186,8 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
   const handleCheckboxChange = (record, value) => {
     const newData = ListThongTinKiemSoat.map((thongtin) => {
       if (
-        thongtin.tits_qtsx_ThongTinKiemSoat_Id ===
-        record.tits_qtsx_ThongTinKiemSoat_Id
+        thongtin.tits_qtsx_ThongTinKiemSoat_Id.toLowerCase() ===
+        record.tits_qtsx_ThongTinKiemSoat_Id.toLowerCase()
       ) {
         return value === "isXem"
           ? {
@@ -263,10 +287,13 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
     const listvattu =
       data.list_VatTus &&
       data.list_VatTus.map((dt) => {
-        const vattu = ListVatTu.filter((d) => d.tits_qtsx_VatTu_Id === dt);
+        const vattu = ListVatTu.filter(
+          (d) => d.tits_qtsx_VatTu_Id.toLowerCase() === dt
+        );
         if (vattu.length) {
           return {
-            tits_qtsx_VatTu_Id: vattu && vattu[0].tits_qtsx_VatTu_Id,
+            tits_qtsx_VatTu_Id:
+              vattu && vattu[0].tits_qtsx_VatTu_Id.toLowerCase(),
             maVatTu: vattu && vattu[0].maVatTu,
             tenVatTu: vattu && vattu[0].tenVatTu,
           };
@@ -274,21 +301,26 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
         return dt;
       });
 
-    const tram = ListTram.filter((d) => d.id === data.tits_qtsx_Tram_Id);
+    const tram = ListTram.filter(
+      (d) => d.id === data.tits_qtsx_Tram_Id.toLowerCase()
+    );
     const thietbi =
       data.tits_qtsx_ThietBi_Id &&
-      ListThietBi.filter((d) => d.id === data.tits_qtsx_ThietBi_Id);
+      ListThietBi.filter(
+        (d) => d.id.toLowerCase() === data.tits_qtsx_ThietBi_Id.toLowerCase()
+      );
 
     const newData = {
       ...data,
-      tits_qtsx_CongDoan_Id: itemData.tram.tits_qtsx_CongDoan_Id,
-      tits_qtsx_Xuong_Id: itemData.tram.tits_qtsx_Xuong_Id,
+      tits_qtsx_CongDoan_Id: itemData.tram.tits_qtsx_CongDoan_Id.toLowerCase(),
+      tits_qtsx_Xuong_Id: itemData.tram.tits_qtsx_Xuong_Id.toLowerCase(),
       maTram: tram[0].maTram,
       tenTram: tram[0].tenTram,
       maThietBi: thietbi && thietbi[0].maThietBi,
       tenThietBi: thietbi && thietbi[0].tenThietBi,
       list_VatTus: listvattu && listvattu,
       list_TramChiTiets: ListThongTinKiemSoat,
+      loai: type,
     };
     DataThemTram(newData);
     resetFields();
@@ -297,6 +329,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
   };
 
   const DataThemThongTin = (data) => {
+    console.log(data);
     setListThongTinKiemSoat([...ListThongTinKiemSoat, ...data]);
   };
 
@@ -429,7 +462,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
               <Button
                 type="primary"
                 htmlType={"submit"}
-                disabled={!fieldTouch && ListThongTinKiemSoat.length === 0}
+                disabled={!fieldTouch && !ListThongTinKiemSoat}
               >
                 Thêm trạm
               </Button>

@@ -9,43 +9,13 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { isEmpty, map } from "lodash";
 const { EditableRow, EditableCell } = EditableTableRow;
 
-const optionsDate = {
-  weekday: "long", // Thứ
-  year: "numeric", // Năm
-  month: "numeric", // Tháng
-  day: "numeric", // Ngày
-};
-
-const optionsTime = {
-  hour: "numeric", // Giờ
-  minute: "numeric", // Phút
-  second: "numeric", // Giây
-  hour12: false, // 24 giờ
-};
-function TheoDoiTienDoSanXuat({ match, history, permission }) {
+function TraCuuThongTinXe({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
 
   const [keyword, setKeyword] = useState("");
   const [InfoSanPham, setInfoSanPham] = useState({});
 
-  const [currentDateTime, setCurrentDateTime] = useState(new Date());
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setCurrentDateTime(new Date());
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, []);
-
-  const formattedDateTime = new Intl.DateTimeFormat(
-    "vi-VN",
-    optionsDate
-  ).format(currentDateTime);
-  const formattedTime = new Intl.DateTimeFormat("vi-VN", optionsTime).format(
-    currentDateTime
-  );
   useEffect(() => {
     if (permission && permission.view) {
       getSoKhunNoiBo();
@@ -246,18 +216,6 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
         title={
           <>
             <p style={{ display: "inline" }}>Theo dõi tiến độ sản xuất</p>
-            <a
-              style={{
-                cursor: "none",
-                display: "inline",
-                position: "absolute",
-                right: 0,
-                bottom: 0,
-                fontSize: 15,
-              }}
-            >
-              {formattedDateTime},{"  "} {formattedTime}
-            </a>
           </>
         }
         description="Theo dõi tiến độ sản xuất"
@@ -321,7 +279,7 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
                 <h5 style={{ fontWeight: "bold" }}>
                   {InfoSanPham.tenDonHang ? InfoSanPham.tenDonHang : ""}
                 </h5>
-              </Col>
+              </Col>{" "}
               <Col
                 xxl={8}
                 xl={8}
@@ -487,4 +445,4 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
   );
 }
 
-export default TheoDoiTienDoSanXuat;
+export default TraCuuThongTinXe;

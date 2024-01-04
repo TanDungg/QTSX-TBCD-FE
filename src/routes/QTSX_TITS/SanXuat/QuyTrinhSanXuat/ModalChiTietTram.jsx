@@ -71,13 +71,15 @@ function ModalThongTinKiemSoat({
     }).then((res) => {
       if (res && res.data) {
         const newData = res.data.filter((data) => {
-          return (
-            itemData &&
-            !itemData.some(
-              (item) => item.tits_qtsx_ThongTinKiemSoat_Id === data.id
-            )
-          );
+          return itemData
+            ? !itemData.some(
+                (item) =>
+                  item.tits_qtsx_ThongTinKiemSoat_Id.toLowerCase() ===
+                  data.id.toLowerCase()
+              )
+            : data;
         });
+
         setListThongTin(newData);
       } else {
         setListThongTin([]);

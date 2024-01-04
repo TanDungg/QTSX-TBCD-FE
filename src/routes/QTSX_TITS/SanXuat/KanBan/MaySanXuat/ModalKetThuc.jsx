@@ -32,14 +32,9 @@ function ModalKetThuc({ openModalFS, openModal, itemData, refesh }) {
           soLuong: dt.soLuongChuaSanXuat,
         };
       });
-      console.log(newData);
       setListChiTiet(newData);
       setDisabledXacNhan(false);
     }
-    return () => {
-      dispatch(fetchReset());
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
   const handleInputChange = (val, item) => {
@@ -285,6 +280,7 @@ function ModalKetThuc({ openModalFS, openModal, itemData, refesh }) {
   const handleCancel = () => {
     setListChiTiet([]);
     openModalFS(false);
+    refesh();
   };
 
   return (

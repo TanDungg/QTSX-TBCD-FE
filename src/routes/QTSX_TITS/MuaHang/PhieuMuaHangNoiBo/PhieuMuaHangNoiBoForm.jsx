@@ -187,7 +187,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
               (data) => {
                 return {
                   ...data,
-                  thanhTien: data.soLuong * data.donGia,
+                  thanhTien: data.donGia && data.soLuong * data.donGia,
                 };
               }
             );
@@ -622,18 +622,6 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
         Chi tiết phiếu mua hàng nội bộ -{" "}
         <Tag color={"blue"} style={{ fontSize: 15 }}>
           {info && info.maPhieu}
-        </Tag>
-        <Tag
-          color={
-            info && info.tinhTrang === "Chưa xác nhận"
-              ? "orange"
-              : info && info.tinhTrang === "Đã xác nhận"
-              ? "blue"
-              : "red"
-          }
-          style={{ fontSize: 15 }}
-        >
-          {info && info.tinhTrang}
         </Tag>
       </span>
     );

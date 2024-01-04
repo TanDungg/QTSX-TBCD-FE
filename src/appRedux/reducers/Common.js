@@ -314,6 +314,16 @@ export default (state = INIT_STATE, action) => {
             .set("loadingSave", false)
             .set("reset", false);
         }
+        if (apiType === "SAOCHEP") {
+          if (customMessage) Helper.alertSuccessMessage(customMessage);
+          else Helper.alertSuccessMessage(messages.SAO_CHEP_THANH_CONG);
+          return state
+            .set("message", messages.SAO_CHEP_THANH_CONG)
+            .set("customMessage", customMessage)
+            .set("loading", false)
+            .set("loadingSave", false)
+            .set("reset", false);
+        }
         if (apiType === "BATDAU") {
           if (customMessage) Helper.alertSuccessMessage(customMessage);
           else Helper.alertSuccessMessage(messages.BAT_DAU_THANH_CONG);

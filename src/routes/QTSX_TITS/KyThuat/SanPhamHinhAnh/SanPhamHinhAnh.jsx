@@ -17,6 +17,7 @@ import ModalSaoChep from "./ModalSaoChep";
 function SanPhamHinhAnh({ history, permission }) {
   const { data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const [Data, setData] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
   const [CongDoan, setCongDoan] = useState(null);
@@ -30,7 +31,7 @@ function SanPhamHinhAnh({ history, permission }) {
       history.push("/home");
     }
 
-    // return () => dispatch(fetchReset());
+    return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -38,9 +39,27 @@ function SanPhamHinhAnh({ history, permission }) {
     const param = convertObjectToUrlParams({
       tits_qtsx_SanPham_Id,
     });
-    dispatch(
-      fetchStart(`tits_qtsx_SanPhamHinhAnh?${param}`, "GET", null, "LIST")
-    );
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_SanPhamHinhAnh?${param}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setData(res.data);
+        } else {
+          setData([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   const getSanPham = () => {
@@ -175,141 +194,143 @@ function SanPhamHinhAnh({ history, permission }) {
         </Row>
       </Card>
       <Row>
-        {data.map((dt) => {
-          return (
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={12}
-              sm={20}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-around",
-                paddingBottom: 10,
-              }}
-            >
-              <Card
-                className="th-card-margin-bottom th-card-reset-margin"
+        {Data.length !== 0 &&
+          Data.map((dt) => {
+            return (
+              <Col
+                xxl={8}
+                xl={12}
+                lg={12}
+                md={12}
+                sm={20}
+                xs={24}
                 style={{
-                  width: "100%",
-                  height: "500px",
-                  display: "start",
-                  justifyContent: "space-around",
-                  overflowY: "relative",
+                  display: "flex",
                   alignItems: "center",
-                  borderColor: "#0469B9",
-                  borderRadius: 15,
+                  justifyContent: "space-around",
+                  paddingBottom: 10,
                 }}
               >
-                <ContainerHeader
-                  title={dt.tenCongDoan}
-                  buttons={ButtonAdd(dt)}
-                  style={{ position: "sticky", top: 0, zIndex: 1 }}
-                />
-                <Divider />
-                <div
+                <Card
+                  className="th-card-margin-bottom th-card-reset-margin"
                   style={{
-                    overflowY: "auto",
-                    maxHeight: "410px",
+                    width: "100%",
+                    height: "500px",
+                    display: "start",
+                    justifyContent: "space-around",
+                    overflowY: "relative",
+                    alignItems: "center",
+                    borderColor: "#0469B9",
+                    borderRadius: 15,
                   }}
                 >
-                  {dt.list_KhuVucs &&
-                    JSON.parse(dt.list_KhuVucs).map((khuvuc, index) => {
-                      return (
-                        <div
-                          key={index}
-                          style={{
-                            alignItems: "center",
-                            justifyContent: "center",
-                            flexDirection: "column",
-                            marginBottom: 10,
-                            maxWidth: "420px",
-                            overflowWrap: "break-word",
-                          }}
-                        >
-                          <span style={{ fontWeight: "bold", fontSize: 15 }}>
-                            {khuvuc.tenKhuVuc}
-                          </span>
-                          <br />
-                          <span style={{}}>Mô tả: {khuvuc.moTa}</span>
+                  <ContainerHeader
+                    title={dt.tenCongDoan}
+                    buttons={ButtonAdd(dt)}
+                    style={{ position: "sticky", top: 0, zIndex: 1 }}
+                  />
+                  <Divider />
+                  <div
+                    style={{
+                      overflowY: "auto",
+                      maxHeight: "410px",
+                    }}
+                  >
+                    {dt.list_KhuVucs &&
+                      JSON.parse(dt.list_KhuVucs).map((khuvuc, index) => {
+                        return (
                           <div
+                            key={index}
                             style={{
-                              display: "flex",
-                              flexDirection: "row",
-                              flexWrap: "wrap",
-                              marginTop: "10px",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              flexDirection: "column",
+                              marginBottom: 10,
+                              maxWidth: "420px",
+                              overflowWrap: "break-word",
                             }}
                           >
-                            {khuvuc.list_HinhAnhs &&
-                              khuvuc.list_HinhAnhs.map((hinhanh) => {
-                                return (
-                                  <div
-                                    style={{
-                                      position: "relative",
-                                      display: "inline-block",
-                                      borderRadius: 15,
-                                      marginRight: 10,
-                                      marginBottom: 10,
-                                    }}
-                                  >
-                                    <Image
-                                      width={110}
-                                      height={110}
+                            <span style={{ fontWeight: "bold", fontSize: 15 }}>
+                              {khuvuc.tenKhuVuc}
+                            </span>
+                            <br />
+                            <span style={{}}>Mô tả: {khuvuc.moTa}</span>
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "row",
+                                flexWrap: "wrap",
+                                marginTop: "10px",
+                              }}
+                            >
+                              {khuvuc.list_HinhAnhs &&
+                                khuvuc.list_HinhAnhs.map((hinhanh) => {
+                                  return (
+                                    <div
                                       style={{
+                                        position: "relative",
+                                        display: "inline-block",
                                         borderRadius: 15,
-                                        border: "1px solid #c8c8c8",
-                                        padding: 5,
+                                        marginRight: 10,
+                                        marginBottom: 10,
                                       }}
-                                      src={BASE_URL_API + hinhanh.hinhAnh}
-                                    />
-                                    <Button
-                                      title="Xóa hình ảnh"
-                                      style={{
-                                        width: 25,
-                                        height: 30,
-                                        position: "absolute",
-                                        top: -5,
-                                        right: -5,
-                                        cursor: "pointer",
-                                        display: "flex",
-                                        alignItems: "center",
-                                        justifyContent: "center",
-                                        color: "red",
-                                        backgroundColor: "#fff",
-                                        borderColor: "#c8c8c8",
-                                        borderRadius: 15,
-                                        transition:
-                                          "background-color 0.3s ease",
-                                      }}
-                                      onClick={() =>
-                                        handleDeleteClick({
-                                          id: hinhanh.tits_qtsx_SanPhamHinhAnh_Id,
-                                          tenKhuVuc: khuvuc.tenKhuVuc,
-                                        })
-                                      }
                                     >
-                                      <DeleteOutlined
-                                        style={{ fontSize: 15 }}
+                                      <Image
+                                        width={110}
+                                        height={110}
+                                        style={{
+                                          borderRadius: 15,
+                                          border: "1px solid #c8c8c8",
+                                          padding: 5,
+                                        }}
+                                        src={BASE_URL_API + hinhanh.hinhAnh}
                                       />
-                                    </Button>
-                                  </div>
-                                );
-                              })}
+                                      <Button
+                                        title="Xóa hình ảnh"
+                                        style={{
+                                          width: 25,
+                                          height: 30,
+                                          position: "absolute",
+                                          top: -5,
+                                          right: -5,
+                                          cursor: "pointer",
+                                          display: "flex",
+                                          alignItems: "center",
+                                          justifyContent: "center",
+                                          color: "red",
+                                          backgroundColor: "#fff",
+                                          borderColor: "#c8c8c8",
+                                          borderRadius: 15,
+                                          transition:
+                                            "background-color 0.3s ease",
+                                        }}
+                                        onClick={() =>
+                                          handleDeleteClick({
+                                            id: hinhanh.tits_qtsx_SanPhamHinhAnh_Id,
+                                            tenKhuVuc: khuvuc.tenKhuVuc,
+                                          })
+                                        }
+                                      >
+                                        <DeleteOutlined
+                                          style={{ fontSize: 15 }}
+                                        />
+                                      </Button>
+                                    </div>
+                                  );
+                                })}
+                            </div>
+                            {index !==
+                              JSON.parse(dt.list_KhuVucs).length - 1 && (
+                              <Divider />
+                            )}
                           </div>
-                          {index !== JSON.parse(dt.list_KhuVucs).length - 1 && (
-                            <Divider />
-                          )}
-                        </div>
-                      );
-                    })}
-                </div>
-              </Card>
-            </Col>
-          );
-        })}
+                        );
+                      })}
+                  </div>
+                </Card>
+              </Col>
+            );
+          })}
       </Row>
       <ModalThemHinhAnh
         openModal={ActiveModalThemHinhAnh}
@@ -324,6 +345,7 @@ function SanPhamHinhAnh({ history, permission }) {
         openModal={ActiveModalSaoChep}
         openModalFS={setActiveModalSaoChep}
         refesh={handleRefeshModal}
+        itemData={SanPham}
       />
     </div>
   );

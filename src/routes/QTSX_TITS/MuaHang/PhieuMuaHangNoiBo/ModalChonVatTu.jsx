@@ -276,9 +276,7 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
       ...listvattu[0],
       tenDonHang: donhang[0].tenDonHang,
       maPhieu: donhang[0].maPhieu,
-      thanhTien: data.donGia
-        ? parseFloat(data.soLuong * data.donGia)
-        : parseFloat(data.soLuong),
+      thanhTien: data.donGia && parseFloat(data.soLuong * data.donGia),
       ngay: data.ngay.format("DD/MM/YYYY"),
     };
     setDataListVatTu([...DataListVatTu, DataList]);
@@ -400,7 +398,6 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                   rules={[
                     {
                       type: "string",
-                      required: true,
                     },
                   ]}
                 >
@@ -436,7 +433,6 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                   <Input
                     type="number"
                     min={0}
-                    step="0.01"
                     className="input-item"
                     placeholder="Nhập số lượng"
                   />

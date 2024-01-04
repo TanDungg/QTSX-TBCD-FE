@@ -30,7 +30,7 @@ import ModalSaoChepQuyTrinh from "./ModalSaoChepQuyTrinh";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function QuyTrinhSanXuat({ match, history, permission }) {
-  const { width, loading, data } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = {
     ...getLocalStorage("menu"),
@@ -38,6 +38,7 @@ function QuyTrinhSanXuat({ match, history, permission }) {
     token: getTokenInfo().token,
   };
   const [page, setPage] = useState(1);
+  const [Data, setData] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
   const [keyword, setKeyword] = useState("");
@@ -66,9 +67,27 @@ function QuyTrinhSanXuat({ match, history, permission }) {
       tits_qtsx_SanPham_Id,
       page,
     });
-    dispatch(
-      fetchStart(`tits_qtsx_QuyTrinhSanXuat?${param}`, "GET", null, "LIST")
-    );
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_QuyTrinhSanXuat?${param}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setData(res.data);
+        } else {
+          setData([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   const getSanPham = () => {
@@ -144,10 +163,7 @@ function QuyTrinhSanXuat({ match, history, permission }) {
       );
 
     const editItem =
-      permission &&
-      permission.edit &&
-      // item.nguoiTao_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa duyệt" ? (
+      permission && permission.edit ? (
         <Link
           to={{
             pathname: `${match.url}/${item.tits_qtsx_QuyTrinhSanXuat_Id}/chinh-sua`,
@@ -164,10 +180,7 @@ function QuyTrinhSanXuat({ match, history, permission }) {
       );
 
     const deleteVal =
-      permission &&
-      permission.del &&
-      // item.nguoiTao_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa duyệt"
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item, "quy trình sản xuất") }
         : { disabled: true };
 
@@ -252,9 +265,9 @@ function QuyTrinhSanXuat({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, pageSize } = data;
+  const { totalRow, pageSize } = Data;
 
-  let dataList = reDataForTable(data.datalist, page, pageSize);
+  let dataList = reDataForTable(Data.datalist, page, pageSize);
 
   const renderDetail = (val) => {
     const detail =

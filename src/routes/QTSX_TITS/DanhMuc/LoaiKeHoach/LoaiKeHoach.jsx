@@ -149,6 +149,13 @@ function LoaiKeHoach({ match, permission, history }) {
 
   let colValues = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -186,13 +193,6 @@ function LoaiKeHoach({ match, permission, history }) {
       ),
       onFilter: (value, record) => record.tenLoaiKeHoach.includes(value),
       filterSearch: true,
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
     },
   ];
   const components = {

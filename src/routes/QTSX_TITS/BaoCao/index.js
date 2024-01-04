@@ -7,7 +7,12 @@ import Auth from "helpers/Auth";
 const BaoCaoChatLuongTheoThang = asyncComponent(() =>
   import("./BaoCaoChatLuongTheoThang/BaoCaoChatLuongTheoThang")
 );
-
+const BaoCaoChiTietSanXuatNgay = asyncComponent(() =>
+  import("./BaoCaoChiTietSanXuatNgay/BaoCaoChiTietSanXuatNgay")
+);
+const TraCuuThongTinXe = asyncComponent(() =>
+  import("./TraCuuThongTinXe/TraCuuThongTinXe")
+);
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -17,6 +22,16 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/chat-luong-theo-thang`}
         exact
         component={Auth(BaoCaoChatLuongTheoThang, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/tra-cuu-thong-tin-xe`}
+        exact
+        component={Auth(TraCuuThongTinXe, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/san-xuat-ngay`}
+        exact
+        component={Auth(BaoCaoChiTietSanXuatNgay, menus, pathname, permission)}
       />
     </Switch>
   );
