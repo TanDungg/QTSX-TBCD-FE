@@ -23,7 +23,7 @@ import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function BaoCaoChatLuongTheoThang({ history, permission }) {
+function ChatLuongTheoThang({ history, permission }) {
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
@@ -234,7 +234,7 @@ function BaoCaoChatLuongTheoThang({ history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const onSearchPhieuNhanHang = () => {
+  const onSearch = () => {
     getListData(LoaiSanPham, SanPham, CongDoan, NhomLoi, Nam, keyword);
   };
 
@@ -611,8 +611,8 @@ function BaoCaoChatLuongTheoThang({ history, permission }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchPhieuNhanHang,
-                onSearch: onSearchPhieuNhanHang,
+                onPressEnter: onSearch,
+                onSearch: onSearch,
                 allowClear: true,
                 placeholder: "Tìm kiếm",
               }}
@@ -701,4 +701,4 @@ function BaoCaoChatLuongTheoThang({ history, permission }) {
   );
 }
 
-export default BaoCaoChatLuongTheoThang;
+export default ChatLuongTheoThang;
