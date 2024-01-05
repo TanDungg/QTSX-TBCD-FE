@@ -113,16 +113,6 @@ function KhoVatTu({ match, history, permission }) {
       loadData(val.target.value, Kho, page);
     }
   };
-  /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    loadData(keyword, Kho, pagination);
-  };
 
   /**
    * Chuyển tới trang thêm mới chức năng
@@ -213,6 +203,9 @@ function KhoVatTu({ match, history, permission }) {
       dataIndex: "soLuong",
       key: "soLuong",
       align: "center",
+      render: (val) => (
+        <span>{val.toString().includes(".") ? val.toFixed(4) : val}</span>
+      ),
     },
     {
       title: "Đơn vị tính",

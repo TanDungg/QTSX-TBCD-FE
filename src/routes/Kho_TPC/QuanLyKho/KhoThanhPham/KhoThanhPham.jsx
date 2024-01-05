@@ -116,17 +116,6 @@ function KhoVatTu({ history, permission }) {
   };
 
   /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    loadData(keyword, Kho, pagination);
-  };
-
-  /**
    * Chuyển tới trang thêm mới chức năng
    *
    * @memberof ChucNang
@@ -162,8 +151,6 @@ function KhoVatTu({ history, permission }) {
       </>
     );
   };
-  const { totalRow } = data;
-
   let dataList = reDataForTable(data);
 
   let renderHead = [
@@ -243,6 +230,9 @@ function KhoVatTu({ history, permission }) {
       dataIndex: "soLuong",
       key: "soLuong",
       align: "center",
+      render: (val) => (
+        <span>{val.toString().includes(".") ? val.toFixed(4) : val}</span>
+      ),
     },
     {
       title: "Ngày nhập kho",

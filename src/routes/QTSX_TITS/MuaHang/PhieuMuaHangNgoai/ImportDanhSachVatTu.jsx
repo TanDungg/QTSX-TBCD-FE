@@ -32,162 +32,88 @@ import { getLocalStorage, getTokenInfo } from "src/util/Common";
 import { BASE_URL_API } from "src/constants/Config";
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
+function ImportDanhSachVatTu({
+  openModalFS,
+  openModal,
+  DataThemVatTu,
+  itemData,
+}) {
   const dispatch = useDispatch();
   const INFO = {
     ...getLocalStorage("menu"),
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const [dataView, setDataView] = useState([]);
+  const [DataListVatTu, setDataListVatTu] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
   const [HangTrung, setHangTrung] = useState([]);
   const [message, setMessageError] = useState([]);
-  const [FileAnh, setFileAnh] = useState(null);
-  const [OpenImage, setOpenImage] = useState(false);
-
-  const handleViewFile = () => {
-    setOpenImage(true);
-  };
-
-  const handleUploadFile = (file, index) => {
-    const isPNG = file.type === "image/png" || file.type === "image/jpeg";
-    if (!isPNG) {
-      Helper.alertError(`${file.name} không phải hình ảnh`);
-    } else {
-      const newData = dataView.map((data) => {
-        if (data.id === index.id) {
-          return {
-            ...data,
-            hinhAnh: file,
-          };
-        }
-        return data;
-      });
-      setDataView(newData);
-      const reader = new FileReader();
-      reader.onload = (e) => setFileAnh(e.target.result);
-      reader.readAsDataURL(file);
-      return false;
-    }
-  };
-
-  const renderHinhAnh = (record) => {
-    const trunglap = HangTrung.find(
-      (item) => item.maVatTuChiTiet === record.maVatTuChiTiet
-    );
-    return record.hinhAnh ? (
-      <span>
-        <span
-          style={{ color: "#0469B9", cursor: "pointer" }}
-          onClick={() => handleViewFile(record.hinhAnh)}
-        >
-          {record.hinhAnh.name.length > 20
-            ? record.hinhAnh.name.substring(0, 20) + "..."
-            : record.hinhAnh.name}
-        </span>
-        <DeleteOutlined
-          style={{ cursor: "pointer", color: "red" }}
-          onClick={() => {
-            const newDataView = dataView.map((data) => {
-              if (data.id === record.id) {
-                return {
-                  ...data,
-                  hinhAnh: null,
-                };
-              }
-              return data;
-            });
-            setDataView(newDataView);
-          }}
-        />
-      </span>
-    ) : (
-      <Upload
-        beforeUpload={(file) => handleUploadFile(file, record)}
-        showUploadList={false}
-        maxCount={1}
-      >
-        <Button
-          style={{
-            marginBottom: 0,
-            color: trunglap ? "red" : "",
-            borderColor: trunglap ? "red" : "",
-          }}
-          icon={<UploadOutlined />}
-          disabled={checkDanger ? true : false}
-        >
-          Tải file hình ảnh
-        </Button>
-      </Upload>
-    );
-  };
 
   let colValues = [
     {
       title: "STT",
       dataIndex: "key",
       key: "key",
-      align: "center",
       width: 45,
-    },
-    {
-      title: "Mã vật tư/chi tiết",
-      dataIndex: "maVatTuChiTiet",
-      key: "maVatTuChiTiet",
       align: "center",
     },
     {
-      title: "Tên vật tư/chi tiết",
-      dataIndex: "tenVatTuChiTiet",
-      key: "tenVatTuChiTiet",
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
       align: "center",
     },
     {
-      title: "Mã đơn vị tính",
-      dataIndex: "maDonViTinh",
-      key: "maDonViTinh",
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
       align: "center",
     },
     {
-      title: "Thông số kỹ thuật",
-      dataIndex: "thongSoKyThuat",
-      key: "thongSoKyThuat",
+      title: "Mã đơn hàng",
+      dataIndex: "maDonHang",
+      key: "maDonHang",
       align: "center",
     },
     {
-      title: "Vật liệu",
-      dataIndex: "vatLieu",
-      key: "vatLieu",
+      title: "Ngày yêu cầu giao",
+      dataIndex: "ngayYeuCauGiao",
+      key: "ngayYeuCauGiao",
       align: "center",
     },
     {
-      title: "Số lượng",
+      title: "Định mức",
       dataIndex: "dinhMuc",
       key: "dinhMuc",
       align: "center",
     },
     {
-      title: "Mã xưởng nhận",
-      dataIndex: "maXuong",
-      key: "maXuong",
+      title: "Số lượng dự phòng",
+      dataIndex: "soLuongDuPhong",
+      key: "soLuongDuPhong",
       align: "center",
     },
     {
-      title: "Hình ảnh",
-      key: "hinhAnh",
+      title: "Số lượng đặt mua",
+      dataIndex: "soLuongDatMua",
+      key: "soLuongDatMua",
       align: "center",
-      render: (record) => renderHinhAnh(record),
-      width: 200,
+    },
+    {
+      title: "Hạng mục sử dụng",
+      dataIndex: "hangMucSuDung",
+      key: "hangMucSuDung",
+      align: "center",
     },
     {
       title: "Ghi chú",
-      dataIndex: "moTa",
-      key: "moTa",
+      dataIndex: "ghiChuImport",
+      key: "ghiChuImport",
       align: "center",
     },
   ];
+
   const components = {
     body: {
       row: EditableRow,
@@ -212,15 +138,11 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
   });
 
   //File mẫu
-  const TaiFileMau = (tits_qtsx_SanPham_Id, donVi_Id) => {
-    let param = convertObjectToUrlParams({
-      tits_qtsx_SanPham_Id,
-      donVi_Id,
-    });
+  const TaiFileMau = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_OEM/export-file-mau?${param}`,
+          `tits_qtsx_PhieuMuaHangNgoai/export-file-mau-vat-tu`,
           "POST",
           null,
           "DOWLOAD",
@@ -230,7 +152,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
         )
       );
     }).then((res) => {
-      exportExcel("FileMauImportChiTietOEM", res.data.dataexcel);
+      exportExcel("FileMauImportDanhSachVatTu", res.data.dataexcel);
     });
   };
 
@@ -264,7 +186,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
             range: { s: { c: 1, r: 3 }, e: { c: 1, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Mã vật tư/chi tiết" &&
+          .trim() === "Mã vật tư" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
@@ -275,7 +197,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
             range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Tên vật tư/chi tiết" &&
+          .trim() === "Tên vật tư" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
@@ -286,7 +208,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
             range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Mã đơn vị tính" &&
+          .trim() === "Mã đơn hàng" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
@@ -297,7 +219,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
             range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Thông số kỹ thuật" &&
+          .trim() === "Ngày yêu cầu giao" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 5, r: 3 }, e: { c: 5, r: 3 } },
@@ -308,7 +230,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
             range: { s: { c: 5, r: 3 }, e: { c: 5, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Vật liệu" &&
+          .trim() === "Định mức" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 6, r: 3 }, e: { c: 6, r: 3 } },
@@ -319,7 +241,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
             range: { s: { c: 6, r: 3 }, e: { c: 6, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Số lượng" &&
+          .trim() === "Số lượng dự phòng" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 7, r: 3 }, e: { c: 7, r: 3 } },
@@ -330,7 +252,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
             range: { s: { c: 7, r: 3 }, e: { c: 7, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Mã xưởng nhận" &&
+          .trim() === "Số lượng đặt mua" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
           range: { s: { c: 8, r: 3 }, e: { c: 8, r: 3 } },
@@ -341,63 +263,55 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
             range: { s: { c: 8, r: 3 }, e: { c: 8, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Ghi chú";
+          .trim() === "Hạng mục sử dụng";
 
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
           range: 3,
         });
         const KEY = "STT";
-        const MVTCT = "Mã vật tư/chi tiết";
-        const TVTCT = "Tên vật tư/chi tiết";
-        const MDVT = "Mã đơn vị tính";
-        const TSKT = "Thông số kỹ thuật";
-        const VL = "Vật liệu";
-        const DM = "Số lượng";
-        const MXN = "Mã xưởng nhận";
-        const MT = "Ghi chú";
-
-        const DataChiTiet = [];
+        const MVT = "Mã vật tư";
+        const TVT = "Tên vật tư";
+        const MDH = "Mã đơn hàng";
+        const NYCG = "Ngày yêu cầu giao";
+        const DM = "Định mức";
+        const SLDP = "Số lượng dự phòng";
+        const SLDM = "Số lượng đặt mua";
+        const HMSD = "Hạng mục sử dụng";
         const DataVatTu = [];
-        const NewData = [];
         data.forEach((d, index) => {
           if (
             data[index][KEY] &&
             data[index][KEY].toString().trim() === "" &&
-            data[index][TVTCT] &&
-            data[index][TVTCT].toString().trim() === ""
+            data[index][TVT] &&
+            data[index][TVT].toString().trim() === ""
           ) {
           } else {
-            NewData.push({
+            DataVatTu.push({
               id: createGuid(),
               key: data[index][KEY]
                 ? data[index][KEY].toString().trim() !== ""
                   ? data[index][KEY].toString().trim()
                   : null
                 : null,
-              maVatTuChiTiet: data[index][MVTCT]
-                ? data[index][MVTCT].toString().trim() !== ""
-                  ? data[index][MVTCT].toString().trim()
+              maVatTu: data[index][MVT]
+                ? data[index][MVT].toString().trim() !== ""
+                  ? data[index][MVT].toString().trim()
                   : null
                 : null,
-              tenVatTuChiTiet: data[index][TVTCT]
-                ? data[index][TVTCT].toString().trim() !== ""
-                  ? data[index][TVTCT].toString().trim()
+              tenVatTu: data[index][TVT]
+                ? data[index][TVT].toString().trim() !== ""
+                  ? data[index][TVT].toString().trim()
                   : null
                 : null,
-              maDonViTinh: data[index][MDVT]
-                ? data[index][MDVT].toString().trim() !== ""
-                  ? data[index][MDVT].toString().trim()
+              maDonHang: data[index][MDH]
+                ? data[index][MDH].toString().trim() !== ""
+                  ? data[index][MDH].toString().trim()
                   : null
                 : null,
-              thongSoKyThuat: data[index][TSKT]
-                ? data[index][TSKT].toString().trim() !== ""
-                  ? data[index][TSKT].toString().trim()
-                  : null
-                : null,
-              vatLieu: data[index][VL]
-                ? data[index][VL].toString().trim() !== ""
-                  ? data[index][VL].toString().trim()
+              ngayYeuCauGiao: data[index][NYCG]
+                ? data[index][NYCG].toString().trim() !== ""
+                  ? data[index][NYCG].toString().trim()
                   : null
                 : null,
               dinhMuc: data[index][DM]
@@ -405,15 +319,19 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
                   ? data[index][DM].toString().trim()
                   : null
                 : null,
-              maXuong: data[index][MXN]
-                ? data[index][MXN].toString().trim() !== ""
-                  ? data[index][MXN].toString().trim()
+              soLuongDuPhong: data[index][SLDP]
+                ? data[index][SLDP].toString().trim() !== ""
+                  ? data[index][SLDP].toString().trim()
                   : null
                 : null,
-              hinhAnh: null,
-              moTa: data[index][MT]
-                ? data[index][MT].toString().trim() !== ""
-                  ? data[index][MT].toString().trim()
+              soLuongDatMua: data[index][SLDM]
+                ? data[index][SLDM].toString().trim() !== ""
+                  ? data[index][SLDM].toString().trim()
+                  : null
+                : null,
+              hangMucSuDung: data[index][HMSD]
+                ? data[index][HMSD].toString().trim() !== ""
+                  ? data[index][HMSD].toString().trim()
                   : null
                 : null,
               ghiChuImport: null,
@@ -421,113 +339,17 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
           }
         });
 
-        const ListChiTiet = [];
-        let children = null;
-
-        NewData.forEach((data) => {
-          if (data.key === "*") {
-            children = { ...data, list_VatTus: [] };
-            ListChiTiet.push(children);
-            DataChiTiet.push({
-              tenVatTuChiTiet: data.tenVatTuChiTiet,
-              maVatTuChiTiet: data.maVatTuChiTiet,
-            });
-          } else if (children) {
-            children.list_VatTus.push(data);
-            DataVatTu.push({
-              tenVatTuChiTiet: children.tenVatTuChiTiet,
-              maVatTuChiTiet: data.maVatTuChiTiet,
-            });
-          }
-        });
-
-        if (NewData.length === 0) {
+        if (DataVatTu.length === 0) {
           setFileName(file.name);
-          setDataView([]);
+          setDataListVatTu([]);
           setCheckDanger(true);
           setMessageError("Dữ liệu import không được rỗng");
           Helper.alertError("Dữ liệu import không được rỗng");
         } else {
-          const indices = [];
-          if (DataChiTiet) {
-            if (!indices.length && DataChiTiet) {
-              if (DataChiTiet) {
-                const data = DataChiTiet;
-                for (let i = 0; i < data.length - 1; i++) {
-                  for (let j = i + 1; j < data.length; j++) {
-                    if (
-                      data[i].tenVatTuChiTiet === data[j].tenVatTuChiTiet &&
-                      data[i].maVatTuChiTiet === data[j].maVatTuChiTiet
-                    ) {
-                      const isDuplicate = indices.some(
-                        (item) =>
-                          item.tenVatTuChiTiet === data[i].tenVatTuChiTiet &&
-                          item.maVatTuChiTiet === data[i].maVatTuChiTiet
-                      );
-
-                      if (!isDuplicate) {
-                        indices.push(data[i]);
-                      }
-                    }
-                  }
-                }
-              }
-            }
-            setDataView(NewData);
-            setFileName(file.name);
-            if (indices.length > 0) {
-              const item = indices
-                .map((item) => item.maVatTuChiTiet)
-                .join(", ");
-              setMessageError(`Chi tiết ${item} đã bị lặp`);
-              Helper.alertError(`Chi tiết ${item} đã bị lặp`);
-              setHangTrung(indices);
-              setCheckDanger(true);
-            }
-          }
-          if (!indices.length && DataVatTu) {
-            if (DataVatTu) {
-              const data = DataVatTu;
-              for (let i = 0; i < data.length - 1; i++) {
-                for (let j = i + 1; j < data.length; j++) {
-                  if (
-                    data[i].tenVatTuChiTiet === data[j].tenVatTuChiTiet &&
-                    data[i].maVatTuChiTiet === data[j].maVatTuChiTiet
-                  ) {
-                    const isDuplicate = indices.some(
-                      (item) =>
-                        item.tenVatTuChiTiet === data[i].tenVatTuChiTiet &&
-                        item.maVatTuChiTiet === data[i].maVatTuChiTiet
-                    );
-
-                    if (!isDuplicate) {
-                      indices.push(data[i]);
-                    }
-                  }
-                }
-              }
-            }
-
-            setDataView(NewData);
-            setFileName(file.name);
-            if (indices.length > 0) {
-              const item = indices
-                .map((item) => item.maVatTuChiTiet)
-                .join(", ");
-              setMessageError(`Vật tư ${item} đã bị lặp`);
-              Helper.alertError(`Vật tư ${item} đã bị lặp`);
-              setHangTrung(indices);
-              setCheckDanger(true);
-            }
-          }
-          if (!indices.length && !DataVatTu) {
-            setHangTrung([]);
-            setCheckDanger(false);
-          }
         }
       } else {
         setFileName(file.name);
-        setDataView([]);
+        setDataListVatTu([]);
         setCheckDanger(true);
         setMessageError("Mẫu import không hợp lệ");
         Helper.alertError("Mẫu file import không hợp lệ");
@@ -557,10 +379,10 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
   };
 
   const XacNhanImport = () => {
-    const newData = dataView.map((dataview) => {
-      if (dataview.hinhAnh) {
+    const newData = DataListVatTu.map((DataListVatTu) => {
+      if (DataListVatTu.hinhAnh) {
         const formData = new FormData();
-        formData.append("file", dataview.hinhAnh);
+        formData.append("file", DataListVatTu.hinhAnh);
         return fetch(`${BASE_URL_API}/api/Upload`, {
           method: "POST",
           body: formData,
@@ -571,19 +393,19 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
           .then((res) => res.json())
           .then((data) => {
             return {
-              ...dataview,
+              ...DataListVatTu,
               hinhAnh: data.path,
             };
           });
       } else {
-        return dataview;
+        return DataListVatTu;
       }
     });
 
     Promise.all(newData).then((Data) => {
-      DanhSachChiTiet(Data);
+      DataThemVatTu(Data);
       setFileName(null);
-      setDataView([]);
+      setDataListVatTu([]);
       openModalFS(false);
     });
   };
@@ -592,19 +414,19 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận import chi tiết/vật tư",
+    title: "Xác nhận import vật tư",
     onOk: XacNhanImport,
   };
 
   const modalXK = () => {
     Modal(prop);
   };
+
   const RowStyle = (current, index) => {
     if (HangTrung.length > 0) {
       const trunglap = HangTrung.find(
-        (item) => item.maVatTuChiTiet === current.maVatTuChiTiet
+        (item) => item.maVatTu === current.maVatTu
       );
-
       if (trunglap) {
         setCheckDanger(true);
         return "red-row";
@@ -613,11 +435,11 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
       setCheckDanger(true);
       setMessageError("STT không được rỗng");
       return "red-row";
-    } else if (current.STT === "*" && current.tenVatTuChiTiet === null) {
+    } else if (current.STT === "*" && current.tenVatTu === null) {
       setCheckDanger(true);
       setMessageError("Tên chi tiết không được rỗng");
       return "red-row";
-    } else if (current.STT !== "*" && current.maVatTuChiTiet === null) {
+    } else if (current.STT !== "*" && current.maVatTu === null) {
       setCheckDanger(true);
       setMessageError("Mã vật tư không được rỗng");
       return "red-row";
@@ -628,7 +450,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
       openModalFS(false);
       setCheckDanger(false);
       setFileName(null);
-      setDataView([]);
+      setDataListVatTu([]);
     } else {
       openModalFS(false);
     }
@@ -636,7 +458,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
 
   return (
     <AntModal
-      title="Import chi tiết/vật tư"
+      title="Import danh sách vật tư"
       open={openModal}
       width={`80%`}
       closable={true}
@@ -682,7 +504,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
                       <DeleteOutlined
                         style={{ cursor: "pointer" }}
                         onClick={() => {
-                          setDataView([]);
+                          setDataListVatTu([]);
                           setFileName(null);
                           setCheckDanger(false);
                         }}
@@ -695,7 +517,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
             <Col>
               <Button
                 icon={<DownloadOutlined />}
-                onClick={() => TaiFileMau(itemData, INFO.donVi_Id)}
+                onClick={() => TaiFileMau()}
                 className="th-btn-margin-bottom-0"
                 type="primary"
               >
@@ -709,7 +531,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
             scroll={{ x: 900, y: "40vh" }}
             components={components}
             className="gx-table-responsive"
-            dataSource={dataView}
+            dataSource={DataListVatTu}
             size="small"
             rowClassName={RowStyle}
             pagination={false}
@@ -720,30 +542,14 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
             style={{ marginTop: 10, float: "right" }}
             type="primary"
             onClick={modalXK}
-            disabled={dataView.length > 0 && checkDanger}
+            disabled={DataListVatTu.length > 0 && checkDanger}
           >
             Lưu
           </Button>
         </Card>
-        <Image
-          width={"80%"}
-          src={FileAnh}
-          alt="preview"
-          style={{
-            display: "none",
-          }}
-          preview={{
-            visible: OpenImage,
-            scaleStep: 0.5,
-            src: FileAnh,
-            onVisibleChange: (value) => {
-              setOpenImage(value);
-            },
-          }}
-        />
       </div>
     </AntModal>
   );
 }
 
-export default DanhSachImport;
+export default ImportDanhSachVatTu;

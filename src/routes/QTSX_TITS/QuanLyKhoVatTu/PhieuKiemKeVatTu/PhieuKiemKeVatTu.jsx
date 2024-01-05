@@ -327,7 +327,15 @@ function PhieuKiemKe({ match, history, permission }) {
       );
     return <div>{detail}</div>;
   };
+  
   let renderHead = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -434,13 +442,6 @@ function PhieuKiemKe({ match, history, permission }) {
           )}
         </div>
       ),
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
     },
   ];
 

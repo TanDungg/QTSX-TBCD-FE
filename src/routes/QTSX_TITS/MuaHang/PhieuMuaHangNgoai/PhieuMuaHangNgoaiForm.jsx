@@ -42,6 +42,7 @@ import {
 import Helper from "src/helpers";
 import ModalChonVatTu from "./ModalChonVatTu";
 import ModalTuChoi from "./ModalTuChoi";
+import ImportDanhSachVatTu from "./ImportDanhSachVatTu";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -66,11 +67,12 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
   const [File, setFile] = useState(null);
   const [FileXacNhan, setFileXacNhan] = useState(null);
   const [disableUploadXacNhan, setDisableUploadXacNhan] = useState(false);
-  const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
-  const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(false);
   const [editingRecord, setEditingRecord] = useState([]);
   const [errors, setErrors] = useState({});
   const [info, setInfo] = useState({});
+  const [ActiveModalImportVatTu, setActiveModalImportVatTu] = useState(false);
+  const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
+  const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(false);
 
   useEffect(() => {
     const load = () => {
@@ -1220,7 +1222,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                       <span>
                         <a
                           target="_blank"
-                          href={BASE_URL_API + FileXacNhan && FileXacNhan}
+                          href={BASE_URL_API + FileXacNhan}
                           rel="noopener noreferrer"
                           style={{
                             whiteSpace: "break-spaces",
@@ -1290,11 +1292,20 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         title={"Danh sách vật tư"}
       >
         {(type === "new" || type === "edit") && (
-          <div align={"end"}>
+          <div align={"end"} style={{ marginBottom: 10 }}>
+            <Button
+              icon={<UploadOutlined />}
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={() => setActiveModalImportVatTu(true)}
+            >
+              Import vật tư
+            </Button>
             <Button
               icon={<PlusCircleOutlined />}
-              onClick={() => setActiveModalChonVatTu(true)}
+              className="th-margin-bottom-0"
               type="primary"
+              onClick={() => setActiveModalChonVatTu(true)}
             >
               Thêm vật tư
             </Button>
@@ -1339,16 +1350,22 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           disabled={fieldTouch && ListVatTu.length !== 0}
         />
       ) : null}
-      <ModalTuChoi
-        openModal={ActiveModalTuChoi}
-        openModalFS={setActiveModalTuChoi}
-        saveTuChoi={saveTuChoi}
-      />
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
         itemData={ListVatTu && ListVatTu}
         DataThemVatTu={DataThemVatTu}
+      />
+      <ImportDanhSachVatTu
+        openModal={ActiveModalImportVatTu}
+        openModalFS={setActiveModalImportVatTu}
+        itemData={ListVatTu && ListVatTu}
+        DataThemVatTu={DataThemVatTu}
+      />
+      <ModalTuChoi
+        openModal={ActiveModalTuChoi}
+        openModalFS={setActiveModalTuChoi}
+        saveTuChoi={saveTuChoi}
       />
     </div>
   );

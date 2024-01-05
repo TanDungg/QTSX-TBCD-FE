@@ -13,6 +13,10 @@ const TraCuuThongTinXe = asyncComponent(() =>
   import("./TraCuuThongTinXe/TraCuuThongTinXe")
 );
 
+const BaoCaoChiTietSanXuatNgay = asyncComponent(() =>
+  import("./BaoCaoChiTietSanXuatNgay/BaoCaoChiTietSanXuatNgay")
+);
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (

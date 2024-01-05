@@ -1,21 +1,33 @@
 import React, { useEffect, useState } from "react";
-import { Card, Row, Col, Input, Button, Image } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  Input,
+  Button,
+  Image,
+  Modal as AntModal,
+  Divider,
+} from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import {
-  convertObjectToUrlParams,
-  getLocalStorage,
-  getTokenInfo,
-} from "src/util/Common";
+import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
+import { LeftCircleOutlined, RightCircleOutlined } from "@ant-design/icons";
+import { EditableTableRow, Table } from "src/components/Common";
+import { map } from "lodash";
+
+const { EditableRow, EditableCell } = EditableTableRow;
 
 function TraCuuThongTinXe({ history, permission }) {
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [keyword, setKeyword] = useState("");
   const [Data, setData] = useState(null);
+  const [DataHoSoChatLuong, setDataHoSoChatLuong] = useState(null);
+  const [DisabledModalHoSoChatLuong, setDisabledModalHoSoChatLuong] =
+    useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -47,7 +59,49 @@ function TraCuuThongTinXe({ history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setData(res.data);
+          const DataVatTu = res.data.list_VatTuLapRaps.reduce(
+            (result, item) => {
+              const vattu = result.find(
+                (group) => group.tenLoaiVatTu === item.tenLoaiVatTu
+              );
+
+              if (vattu) {
+                vattu.list_VatTu.push({
+                  tits_qtsx_TienDoSanXuat_Id: item.tits_qtsx_TienDoSanXuat_Id,
+                  maVatTu: item.maVatTu,
+                  tenVatTu: item.tenVatTu,
+                  maHopDong: item.maHopDong,
+                  ngayNhapKho: item.ngayNhapKho,
+                  tenNguoiNhap: item.tenNguoiNhap,
+                });
+              } else {
+                result.push({
+                  tenLoaiVatTu: item.tenLoaiVatTu,
+                  list_VatTu: [
+                    {
+                      tits_qtsx_TienDoSanXuat_Id:
+                        item.tits_qtsx_TienDoSanXuat_Id,
+                      maVatTu: item.maVatTu,
+                      tenVatTu: item.tenVatTu,
+                      maHopDong: item.maHopDong,
+                      ngayNhapKho: item.ngayNhapKho,
+                      tenNguoiNhap: item.tenNguoiNhap,
+                    },
+                  ],
+                });
+              }
+
+              return result;
+            },
+            []
+          );
+          const newData = {
+            ...res.data,
+            list_VatTuLapRaps: DataVatTu,
+          };
+          setData(newData);
+          newData.list_HoSoKiemTraChatLuongs &&
+            setDataHoSoChatLuong(newData.list_HoSoKiemTraChatLuongs);
         } else {
           setData(null);
         }
@@ -55,12 +109,67 @@ function TraCuuThongTinXe({ history, permission }) {
       .catch((error) => console.error(error));
   };
 
+  let colChiTiet = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 45,
+    },
+    {
+      title: "Công đoạn",
+      dataIndex: "tenCongDoan",
+      key: "tenCongDoan",
+      align: "center",
+    },
+    {
+      title: "Trạm kiểm tra",
+      dataIndex: "tenTram",
+      key: "tenTram",
+      align: "center",
+    },
+    {
+      title: "Thời gian kiểm tra",
+      dataIndex: "thoiGianKiemTra",
+      key: "thoiGianKiemTra",
+      align: "center",
+    },
+    {
+      title: "Hồ sơ",
+      dataIndex: "hoSo",
+      key: "hoSo",
+      align: "center",
+    },
+  ];
+
+  const componentschitiet = {
+    body: {
+      row: EditableRow,
+      cell: EditableCell,
+    },
+  };
+  const columnschitiet = map(colChiTiet, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
+
   const onSearchThongTinXe = () => {
     getListData(keyword);
   };
 
   const onChangeKeyword = (val) => {
-    console.log(val.target.value);
     setKeyword(val.target.value);
   };
 
@@ -123,7 +232,7 @@ function TraCuuThongTinXe({ history, permission }) {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    marginBottom: 15,
+                    marginBottom: 10,
                   }}
                 >
                   <span
@@ -149,7 +258,7 @@ function TraCuuThongTinXe({ history, permission }) {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    marginBottom: 15,
+                    marginBottom: 10,
                   }}
                 >
                   <span
@@ -173,7 +282,7 @@ function TraCuuThongTinXe({ history, permission }) {
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    marginBottom: 15,
+                    marginBottom: 10,
                   }}
                 >
                   <span
@@ -234,12 +343,12 @@ function TraCuuThongTinXe({ history, permission }) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                marginBottom: 15,
+                marginBottom: 10,
               }}
             >
               <span
                 style={{
-                  width: "100px",
+                  width: "140px",
                   fontWeight: "bold",
                 }}
               >
@@ -248,7 +357,7 @@ function TraCuuThongTinXe({ history, permission }) {
               {Data && (
                 <span
                   style={{
-                    width: "calc(100% - 100px)",
+                    width: "calc(100% - 140px)",
                   }}
                 >
                   {Data.tenDonHang}
@@ -261,12 +370,12 @@ function TraCuuThongTinXe({ history, permission }) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                marginBottom: 15,
+                marginBottom: 10,
               }}
             >
               <span
                 style={{
-                  width: "150px",
+                  width: "140px",
                   fontWeight: "bold",
                 }}
               >
@@ -274,7 +383,7 @@ function TraCuuThongTinXe({ history, permission }) {
               </span>
               <span
                 style={{
-                  width: "calc(100% - 150px)",
+                  width: "calc(100% - 140px)",
                 }}
               >
                 {Data.ngayXuatXuong}
@@ -286,12 +395,12 @@ function TraCuuThongTinXe({ history, permission }) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                marginBottom: 15,
+                marginBottom: 10,
               }}
             >
               <span
                 style={{
-                  width: "100px",
+                  width: "140px",
                   fontWeight: "bold",
                 }}
               >
@@ -299,7 +408,7 @@ function TraCuuThongTinXe({ history, permission }) {
               </span>
               <span
                 style={{
-                  width: "calc(100% - 100px)",
+                  width: "calc(100% - 140px)",
                 }}
               >
                 {Data.maSoLo}
@@ -311,12 +420,12 @@ function TraCuuThongTinXe({ history, permission }) {
               style={{
                 display: "flex",
                 alignItems: "center",
-                marginBottom: 15,
+                marginBottom: 10,
               }}
             >
               <span
                 style={{
-                  width: "150px",
+                  width: "140px",
                   fontWeight: "bold",
                 }}
               >
@@ -324,7 +433,7 @@ function TraCuuThongTinXe({ history, permission }) {
               </span>
               <span
                 style={{
-                  width: "calc(100% - 150px)",
+                  width: "calc(100% - 140px)",
                 }}
               >
                 {Data.ngayBanGiao}
@@ -345,7 +454,7 @@ function TraCuuThongTinXe({ history, permission }) {
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      marginBottom: 15,
+                      marginBottom: 10,
                     }}
                   >
                     <span
@@ -360,20 +469,39 @@ function TraCuuThongTinXe({ history, permission }) {
                       style={{
                         width: "calc(100% - 150px)",
                         alignItems: "start",
+                        display: "flex",
+                        flexDirection: "column",
                       }}
                     >
                       <span
                         style={{
-                          border: "1px solid #c8c8c8",
+                          borderBottom: "2px solid #c8c8c8",
+                          borderLeft: "2px solid #c8c8c8",
+                          display: "block",
+                          boxSizing: "border-box",
+                          padding: "5px",
                         }}
                       >
+                        <RightCircleOutlined
+                          style={{
+                            color: "#0469B9",
+                          }}
+                        />{" "}
                         {congdoan.thoiGianVaoCongDoan}
                       </span>
                       <span
                         style={{
-                          border: "1px solid #c8c8c8",
+                          borderLeft: "2px solid #c8c8c8",
+                          display: "block",
+                          boxSizing: "border-box",
+                          padding: "5px",
                         }}
                       >
+                        <LeftCircleOutlined
+                          style={{
+                            color: "#0469B9",
+                          }}
+                        />{" "}
                         {congdoan.thoiGianRaCongDoan}
                       </span>
                     </div>
@@ -381,10 +509,232 @@ function TraCuuThongTinXe({ history, permission }) {
                 );
               })}
           </Row>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              padding: "0px 50px",
+            }}
+          >
+            <a
+              onClick={() => setDisabledModalHoSoChatLuong(true)}
+              style={{ fontWeight: "bold" }}
+            >
+              Xem hồ sơ kiểm tra chất lượng
+            </a>
+          </div>
         </Card>
       )}
+      {Data && (
+        <Card className="th-card-margin-bottom th-card-reset-margin">
+          <div
+            style={{
+              padding: "0px 50px ",
+            }}
+          >
+            <Row
+              span={24}
+              style={{
+                marginBottom: 10,
+              }}
+            >
+              <h4
+                style={{
+                  fontWeight: "bold",
+                }}
+              >
+                Thông tin vật tư
+              </h4>
+            </Row>
+            <Row span={24}>
+              {Data.list_VatTuLapRaps &&
+                Data.list_VatTuLapRaps.map((chitiet, index) => {
+                  return (
+                    <>
+                      <Col
+                        lg={12}
+                        xs={24}
+                        key={index}
+                        style={{
+                          borderRight:
+                            index % 2 === 0 ? "2px solid #c8c8c8" : "",
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "center",
+                          }}
+                        >
+                          <span
+                            style={{
+                              color: "#0469B9",
+                              fontWeight: "bold",
+                            }}
+                          >
+                            {chitiet.tenLoaiVatTu}
+                          </span>
+                        </div>
+                        <Divider style={{ marginBottom: "10px" }} />
+                        {chitiet.list_VatTu &&
+                          chitiet.list_VatTu.map((vattu, index) => {
+                            return (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  marginBottom: "15px",
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontWeight: "bold",
+                                    marginRight: "5px",
+                                  }}
+                                >
+                                  {index + 1}.
+                                </span>
+                                <Row>
+                                  <Col
+                                    span={24}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      marginBottom: 10,
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        width: "140px",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      Tên vật tư:
+                                    </span>
+                                    <span
+                                      style={{
+                                        width: "calc(100% - 140px)",
+                                      }}
+                                    >
+                                      {vattu.tenVatTu}
+                                    </span>
+                                  </Col>
+                                  <Col
+                                    span={24}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      marginBottom: 10,
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        width: "140px",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      Mã hợp đồng:
+                                    </span>
+                                    <span
+                                      style={{
+                                        width: "calc(100% - 140px)",
+                                      }}
+                                    >
+                                      {vattu.maHopDong && vattu.maHopDong}
+                                    </span>
+                                  </Col>
+                                  <Col
+                                    span={24}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      marginBottom: 10,
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        width: "140px",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      Nhập kho:
+                                    </span>
+                                    <span
+                                      style={{
+                                        width: "calc(100% - 140px)",
+                                      }}
+                                    >
+                                      {vattu.ngayNhapKho && vattu.ngayNhapKho}
+                                    </span>
+                                  </Col>
+                                  <Col
+                                    span={24}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      marginBottom: 10,
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        width: "140px",
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      Người nhập kho:
+                                    </span>
+                                    <span
+                                      style={{
+                                        width: "calc(100% - 140px)",
+                                      }}
+                                    >
+                                      {vattu.tenNguoiNhap && vattu.tenNguoiNhap}
+                                    </span>
+                                  </Col>
+                                </Row>
+                              </div>
+                            );
+                          })}
+                      </Col>
+                    </>
+                  );
+                })}
+            </Row>
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <a
+                onClick={() => setDisabledModalHoSoChatLuong(true)}
+                style={{ fontWeight: "bold" }}
+              >
+                Xem thông tin hồ sơ chi tiết
+              </a>
+            </div>
+          </div>
+        </Card>
+      )}
+      <AntModal
+        title={"title"}
+        className="th-card-reset-margin"
+        open={DisabledModalHoSoChatLuong}
+        width={width > 1200 ? `80%` : "100%"}
+        closable={true}
+        onCancel={() => setDisabledModalHoSoChatLuong(false)}
+        footer={null}
+      >
+        <Table
+          bordered
+          columns={columnschitiet}
+          components={componentschitiet}
+          scroll={{ x: 1200, y: "40vh" }}
+          className="gx-table-responsive"
+          dataSource={reDataForTable(DataHoSoChatLuong)}
+          size="small"
+          loading={loading}
+          pagination={false}
+        />
+      </AntModal>
     </div>
   );
 }
+
+
 
 export default TraCuuThongTinXe;

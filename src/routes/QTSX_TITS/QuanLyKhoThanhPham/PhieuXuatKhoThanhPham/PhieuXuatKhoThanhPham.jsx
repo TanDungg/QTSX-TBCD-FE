@@ -95,8 +95,7 @@ function XuatKhoThanhPham({ match, history, permission }) {
           reject
         )
       );
-    })
-      .then((res) => {
+    }).then((res) => {
         if (res && res.data) {
           setListXuongSanXuat(res.data);
         } else {

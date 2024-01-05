@@ -5,7 +5,6 @@ import {
   Divider,
   Col,
   Row,
-  Popover,
   Modal as AntModal,
   DatePicker,
   Tag,
@@ -19,7 +18,6 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
-import QRCode from "qrcode.react";
 import {
   ModalDeleteConfirm,
   Table,
@@ -29,13 +27,13 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
+  exportExcel,
   getDateNow,
   reDataForTable,
   removeDuplicates,
   setLocalStorage,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { BASE_URL_API } from "src/constants/Config";
 import moment from "moment";
 const { RangePicker } = DatePicker;
 
@@ -50,7 +48,6 @@ function BienBanBanGIao({ match, history, permission }) {
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [DisabledModal, setDisabledModal] = useState(false);
   const [DataChiTiet, setDataChiTiet] = useState([]);
-  const [ChiTiet, setChiTiet] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   useEffect(() => {
@@ -85,7 +82,7 @@ function BienBanBanGIao({ match, history, permission }) {
    *
    */
   const onSearchKhaiBaoSoContainer = () => {
-    getListData(keyword, page);
+    getListData(keyword, FromDate, ToDate, page);
   };
 
   /**
@@ -96,7 +93,7 @@ function BienBanBanGIao({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, page);
+      getListData(val.target.value, FromDate, ToDate, page);
     }
   };
   /**
@@ -174,7 +171,7 @@ function BienBanBanGIao({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(keyword, pagination);
+    getListData(keyword, FromDate, ToDate, pagination);
   };
 
   /**
@@ -220,12 +217,26 @@ function BienBanBanGIao({ match, history, permission }) {
   let dataList = reDataForTable(data.datalist, page, pageSize);
 
   const handlePrint = () => {
-    setLocalStorage("maQrCodeSoContainer", selectedSoContainer);
-    window.open(`${match.url}/in-ma-Qrcode-SoContainer`, "_blank");
+    const newData = selectedSoContainer[0];
+    newData.list_bbbgchitiets = JSON.parse(newData.list_bbbgchitiets);
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_BienBanBanGiao/export-excel`,
+          "POST",
+          newData,
+          "TAIFILE",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      exportExcel("BienBanBanGiao", res.data.dataexcel);
+    });
   };
 
   const XemChiTiet = (record) => {
-    setChiTiet(record);
     setDataChiTiet(
       reDataForTable(
         record.list_bbbgchitiets && JSON.parse(record.list_bbbgchitiets)

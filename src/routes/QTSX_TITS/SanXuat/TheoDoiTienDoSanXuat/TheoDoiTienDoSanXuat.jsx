@@ -321,7 +321,7 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
                 <h5 style={{ fontWeight: "bold" }}>
                   {InfoSanPham.tenDonHang ? InfoSanPham.tenDonHang : ""}
                 </h5>
-              </Col>{" "}
+              </Col>
               <Col
                 xxl={8}
                 xl={8}
