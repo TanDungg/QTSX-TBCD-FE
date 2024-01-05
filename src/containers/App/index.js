@@ -336,12 +336,11 @@ const App = () => {
             path="/danh-muc-qtsx-tits/vat-tu/in-ma-Qrcode"
             component={InMaQrThongTinVatTu}
           />
-
-          {/* <Route
+          <Route
             exact
             path="/quan-ly-man-hinh-qtsx-tits/danh-sach-man-hinh/:id/chi-tiet-man-hinh"
             component={ChiTietManHinh}
-          /> */}
+          />
           <RestrictedRoute
             path={`${match.url}`}
             token={info ? info.token : null}
