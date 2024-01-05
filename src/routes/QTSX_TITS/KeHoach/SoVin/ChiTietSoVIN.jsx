@@ -1,17 +1,23 @@
-import { Modal as AntModal } from "antd";
-import React, { useEffect } from "react";
+import { Modal as AntModal, Row, Col, Button } from "antd";
+import React, { useEffect, useState } from "react";
 import { map } from "lodash";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset } from "src/appRedux/actions/Common";
-import { reDataForTable } from "src/util/Common";
+import {
+  reDataForTable,
+  removeDuplicates,
+  setLocalStorage,
+} from "src/util/Common";
 import { EditableTableRow, Table } from "src/components/Common";
+import { QrcodeOutlined } from "@ant-design/icons";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ChiTietSoLo({ openModalFS, openModal, data, refesh, type }) {
+function ChiTietSoVIN({ openModalFS, openModal, data, refesh, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
-
+  const [selectedDevice, setSelectedDevice] = useState([]);
+  const [selectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     if (openModal) {
     }
@@ -59,6 +65,16 @@ function ChiTietSoLo({ openModalFS, openModal, data, refesh, type }) {
       dataIndex: "maSoVin",
       align: "center",
       key: "maSoVin",
+      filters: removeDuplicates(
+        map(data, (d) => {
+          return {
+            text: d.maSoVin,
+            value: d.maSoVin,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maSoVin.includes(value),
+      filterSearch: true,
     },
   ];
   const components = {
@@ -88,7 +104,20 @@ function ChiTietSoLo({ openModalFS, openModal, data, refesh, type }) {
     refesh();
   };
   const formTitle = "Chi tiết số VIN";
-
+  const rowSelection = {
+    selectedRowKeys: selectedKeys,
+    selectedRows: selectedDevice,
+    onChange: (selectedRowKeys, selectedRows) => {
+      const newSelectedDevice = [...selectedRows];
+      const newSelectedKey = [...selectedRowKeys];
+      setSelectedDevice(newSelectedDevice);
+      setSelectedKeys(newSelectedKey);
+    },
+  };
+  const handlePrint = () => {
+    setLocalStorage("inMa", selectedDevice);
+    window.open(`${match.url}/in-ma-Qrcode`, "_blank");
+  };
   return (
     <div className="gx-main-content">
       <AntModal
@@ -99,6 +128,17 @@ function ChiTietSoLo({ openModalFS, openModal, data, refesh, type }) {
         onCancel={handleCancel}
         footer={null}
       >
+        <Row>
+          <Col span={24} align="end">
+            <Button
+              icon={<QrcodeOutlined />}
+              onClick={handlePrint}
+              type="primary"
+            >
+              In Barcode
+            </Button>
+          </Col>
+        </Row>
         <Table
           style={{ marginTop: 10 }}
           bordered
@@ -109,10 +149,17 @@ function ChiTietSoLo({ openModalFS, openModal, data, refesh, type }) {
           dataSource={reDataForTable(data)}
           size="small"
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            preserveSelectedRowKeys: true,
+            selectedRowKeys: selectedKeys,
+            getCheckboxProps: (record) => ({}),
+          }}
         />
       </AntModal>
     </div>
   );
 }
 
-export default ChiTietSoLo;
+export default ChiTietSoVIN;

@@ -16,7 +16,7 @@ import {
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
-import ChiTietSoLo from "./ChiTietSoLo";
+import ChiTietSoVIN from "./ChiTietSoVIN";
 const { EditableRow, EditableCell } = EditableTableRow;
 function SoVin({ match, permission, history }) {
   const dispatch = useDispatch();
@@ -401,11 +401,12 @@ function SoVin({ match, permission, history }) {
           loading={loading}
         />
       </Card>
-      <ChiTietSoLo
+      <ChiTietSoVIN
         openModal={ActiveModal}
         openModalFS={setActiveModal}
         data={infoChiTietMaNoiBo}
         refesh={refeshData}
+        match={match}
       />
     </div>
   );

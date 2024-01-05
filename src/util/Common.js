@@ -292,7 +292,16 @@ export const getDateNow = (number = 0) => {
 
   return `${day}/${month}/${year}`;
 };
+/**
+ * * lấy tháng năm hiện tại MM/YYYY
+ */
+export const getMonthYearNow = (number = 0) => {
+  const date = new Date();
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear().toString();
 
+  return `${month}/${year}`;
+};
 /**
  * * lấy giờ phút giây hiện tại HH:mm:ss
  */
@@ -351,16 +360,16 @@ export const removeFirstCharacterWithInputCharacter = (string, character) => {
  * @param {*} tree
  * @returns
  */
-export const treeToFlatlist = (tree) => {
+export const treeToFlatlist = (tree, children) => {
   function recurse(nodes, path) {
     return map(nodes, function (node) {
       const newPath = union(path, [node.id]);
       return [
         assign(
           { level: path.length, isParent: path.length % 2 === 0 },
-          omit(node, "children")
+          omit(node, children ? children : "children")
         ),
-        recurse(node.children, newPath),
+        recurse(children ? node[children] : node.children, newPath),
       ];
     });
   }

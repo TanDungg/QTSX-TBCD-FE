@@ -11,22 +11,27 @@ const FormItem = Form.Item;
 function ModalAddSoVIN({
   openModalFS,
   openModal,
-  refesh,
   tits_qtsx_SoLo_Id,
   tits_qtsx_SoLoChiTiet_Id,
+  soVIN,
+  refesh,
 }) {
   const dispatch = useDispatch();
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { resetFields, setFieldsValue } = form;
+  const { setFieldsValue } = form;
   const [ListSoVIN, setListSoVIN] = useState([]);
 
   useEffect(() => {
     if (openModal) {
       getListSoVIN(tits_qtsx_SoLo_Id);
-      setFieldsValue({
-        soVIN: {},
-      });
+      if (soVIN) {
+        setFieldsValue({
+          soVIN: {
+            tits_qtsx_SoVin_Id: soVIN.tits_qtsx_SoVin_Id,
+          },
+        });
+      }
     }
   }, [openModal]);
   const getListSoVIN = (val) => {
@@ -45,7 +50,11 @@ function ModalAddSoVIN({
     })
       .then((res) => {
         if (res && res.data) {
-          setListSoVIN(res.data);
+          if (soVIN) {
+            setListSoVIN([...res.data, soVIN]);
+          } else {
+            setListSoVIN(res.data);
+          }
         } else {
           setListSoVIN([]);
         }
@@ -82,6 +91,7 @@ function ModalAddSoVIN({
         if (res && res.status === 200) {
           Helpers.alertSuccessMessage("Thêm số VIN thành công!!!");
           openModalFS(false);
+          refesh();
         }
       })
       .catch((error) => console.error(error));

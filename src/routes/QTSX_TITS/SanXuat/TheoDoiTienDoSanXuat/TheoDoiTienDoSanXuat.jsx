@@ -296,7 +296,7 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
             <Row>
               <Col
                 xxl={8}
-                xl={8}
+                xl={12}
                 lg={12}
                 md={12}
                 sm={24}
@@ -310,7 +310,7 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
               </Col>
               <Col
                 xxl={8}
-                xl={8}
+                xl={12}
                 lg={12}
                 md={12}
                 sm={24}
@@ -324,7 +324,7 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
               </Col>
               <Col
                 xxl={8}
-                xl={8}
+                xl={12}
                 lg={12}
                 md={12}
                 sm={24}
@@ -338,7 +338,7 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
               </Col>
               <Col
                 xxl={8}
-                xl={8}
+                xl={12}
                 lg={12}
                 md={12}
                 sm={24}
@@ -352,7 +352,7 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
               </Col>
               <Col
                 xxl={8}
-                xl={8}
+                xl={12}
                 lg={12}
                 md={12}
                 sm={24}
@@ -366,7 +366,7 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
               </Col>
               <Col
                 xxl={8}
-                xl={8}
+                xl={12}
                 lg={12}
                 md={12}
                 sm={24}
@@ -449,7 +449,7 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
                 >
                   <Table
                     bordered
-                    // scroll={{ x: 100 }}
+                    scroll={{ x: 600 }}
                     columns={columnsSCL}
                     components={components}
                     className="gx-table-responsive"

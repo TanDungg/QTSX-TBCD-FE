@@ -388,11 +388,6 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
       dataIndex: "soLuongTon",
       key: "soLuongTon",
       align: "center",
-      render: (val, record) => (
-        <span>
-          {type === "detail" ? Number(val) + Number(record.soLuong) : val}
-        </span>
-      ),
     },
     {
       title: "SL điều chuyển",

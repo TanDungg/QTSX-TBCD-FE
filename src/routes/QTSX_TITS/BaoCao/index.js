@@ -5,13 +5,23 @@ import Auth from "helpers/Auth";
 
 //Báo cáo chất lượng theo tháng
 const BaoCaoChatLuongTheoThang = asyncComponent(() =>
-  import("./BaoCaoChatLuongTheoThang/BaoCaoChatLuongTheoThang")
+  import("./ChatLuongTheoThang/ChatLuongTheoThang")
+);
+//Tra cứu thông tin xe
+const TraCuuThongTinXe = asyncComponent(() =>
+  import("./TraCuuThongTinXe/TraCuuThongTinXe")
 );
 const BaoCaoChiTietSanXuatNgay = asyncComponent(() =>
   import("./BaoCaoChiTietSanXuatNgay/BaoCaoChiTietSanXuatNgay")
 );
-const TraCuuThongTinXe = asyncComponent(() =>
-  import("./TraCuuThongTinXe/TraCuuThongTinXe")
+const BaoCaoChiTietSanXuatThang = asyncComponent(() =>
+  import("./BaoCaoChiTietSanXuatThang/BaoCaoChiTietSanXuatThang")
+);
+const BaoCaoSanXuatNgay = asyncComponent(() =>
+  import("./BaoCaoSanXuatNgay/BaoCaoSanXuatNgay")
+);
+const BaoCaoGiaoXeThang = asyncComponent(() =>
+  import("./BaoCaoGiaoXeThang/BaoCaoGiaoXeThang")
 );
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -29,9 +39,24 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(TraCuuThongTinXe, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/san-xuat-ngay`}
+        path={`${match.url}/tien-do-san-xuat-ngay`}
         exact
         component={Auth(BaoCaoChiTietSanXuatNgay, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/san-xuat-thang`}
+        exact
+        component={Auth(BaoCaoChiTietSanXuatThang, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/san-xuat-ngay`}
+        exact
+        component={Auth(BaoCaoSanXuatNgay, menus, pathname, permission)}
+      />{" "}
+      <Route
+        path={`${match.url}/giao-xe-thang`}
+        exact
+        component={Auth(BaoCaoGiaoXeThang, menus, pathname, permission)}
       />
     </Switch>
   );

@@ -52,7 +52,13 @@ const PhieuKiemKeThanhPham = asyncComponent(() =>
 const PhieuKiemKeThanhPhamForm = asyncComponent(() =>
   import("./PhieuKiemKeThanhPham/PhieuKiemKeThanhPhamForm")
 );
-
+/* Biên bản giao xe*/
+const BienBanGiaoXe = asyncComponent(() =>
+  import("./BienBanGiaoXe/BienBanGiaoXe")
+);
+const BienBanGiaoXeForm = asyncComponent(() =>
+  import("./BienBanGiaoXe/BienBanGiaoXeForm")
+);
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -224,6 +230,22 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/phieu-kiem-ke-thanh-pham/:id/duyet`}
         exact
         component={Auth(PhieuKiemKeThanhPhamForm, menus, pathname, permission)}
+      />
+      {/* Biên bản giao xe */}
+      <Route
+        path={`${match.url}/bien-ban-giao-xe`}
+        exact
+        component={Auth(BienBanGiaoXe, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/bien-ban-giao-xe/them-moi`}
+        exact
+        component={Auth(BienBanGiaoXeForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/bien-ban-giao-xe/:id/chinh-sua`}
+        exact
+        component={Auth(BienBanGiaoXeForm, menus, pathname, permission)}
       />
     </Switch>
   );

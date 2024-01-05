@@ -1,24 +1,25 @@
 import React, { useEffect, useState } from "react";
-import { Card, Col, Row, Steps, Progress } from "antd";
-
+import { Card, Row, Col, Input, Button, Image } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { EditableTableRow, Toolbar, Table } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  getLocalStorage,
+  getTokenInfo,
+} from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { isEmpty, map } from "lodash";
-const { EditableRow, EditableCell } = EditableTableRow;
+import { BASE_URL_API } from "src/constants/Config";
 
-function TraCuuThongTinXe({ match, history, permission }) {
-  const { loading } = useSelector(({ common }) => common).toJS();
+function TraCuuThongTinXe({ history, permission }) {
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-
+  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [keyword, setKeyword] = useState("");
-  const [InfoSanPham, setInfoSanPham] = useState({});
+  const [Data, setData] = useState(null);
 
   useEffect(() => {
     if (permission && permission.view) {
-      getSoKhunNoiBo();
+      getListData(keyword);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -26,20 +27,15 @@ function TraCuuThongTinXe({ match, history, permission }) {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  /**
-   * Trạm Id
-   * Get list số khung nội bộ
-   * @param {*} tram_Id
-   * @param {*} keyword
-   */
-  const getSoKhunNoiBo = (keyword) => {
+
+  const getListData = (keyword) => {
     const param = convertObjectToUrlParams({
       keyword,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_TienDoSanXuat/theo-doi-tien-do-san-xuat?${param}`,
+          `tits_qtsx_BaoCao/tra-cuu-thong-tin-xe?${param}`,
           "GET",
           null,
           "LIST",
@@ -51,393 +47,339 @@ function TraCuuThongTinXe({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setInfoSanPham(res.data);
+          setData(res.data);
         } else {
-          setInfoSanPham({});
+          setData(null);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  /**
-   * Tìm kiếm người dùng
-   */
-  const onSearchSoKhung = (val) => {
-    if (!isEmpty(val)) {
-      getSoKhunNoiBo(keyword);
-    }
+  const onSearchThongTinXe = () => {
+    getListData(keyword);
   };
-  /**
-   * Thay đổi keyword
-   * @param {*} val
-   */
+
   const onChangeKeyword = (val) => {
+    console.log(val.target.value);
     setKeyword(val.target.value);
-    if (isEmpty(val.target.value)) {
-      getSoKhunNoiBo(val.target.value);
-    }
-  };
-  let renderHead = [
-    {
-      title: "Hạng mục",
-      dataIndex: "hangMuc",
-      key: "hangMuc",
-      align: "center",
-      width: 110,
-    },
-    {
-      title: "Nội dung",
-      dataIndex: "noiDung",
-      key: "noiDung",
-      align: "center",
-      width: 90,
-    },
-  ];
-
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
   };
 
-  const columns = map(renderHead, (col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-      }),
-    };
-  });
-  let renderHeadSCL = [
-    {
-      title: "Lần",
-      dataIndex: "key",
-      key: "key",
-      align: "center",
-    },
-    {
-      title: "Lỗi",
-      dataIndex: "tenLoi",
-      key: "tenLoi",
-      align: "center",
-    },
-    {
-      title: "Thời gian vào",
-      dataIndex: "thoiGianVao",
-      key: "thoiGianVao",
-      align: "center",
-    },
-    {
-      title: "Người thực hiện",
-      dataIndex: "tenNguoiSuaChuaLai",
-      key: "tenNguoiSuaChuaLai",
-      align: "center",
-    },
-    {
-      title: "Thời gian ra",
-      dataIndex: "thoiGianRa",
-      key: "thoiGianRa",
-      align: "center",
-    },
-    {
-      title: "Nhân viên QC",
-      dataIndex: "tenNguoiXacNhanSuaChuaLai",
-      key: "tenNguoiXacNhanSuaChuaLai",
-      align: "center",
-    },
-  ];
-  const columnsSCL = map(renderHeadSCL, (col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-      }),
-    };
-  });
-  let renderHeadKTP = [
-    {
-      title: "Kho",
-      dataIndex: "tenCauTrucKho",
-      key: "tenCauTrucKho",
-      align: "center",
-    },
-    // {
-    //   title:"Vị trí lưu",
-    //   dataIndex: "viTriLuu",
-    //   key: "viTriLuu",
-    //   align: "center",
-    // },
-    {
-      title: "Thời gian vào",
-      dataIndex: "thoiGianVao",
-      key: "thoiGianVao",
-      align: "center",
-    },
-    {
-      title: "Thời gian ra",
-      dataIndex: "thoiGianRa",
-      key: "thoiGianRa",
-      align: "center",
-    },
-  ];
-  const columnsKTP = map(renderHeadKTP, (col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-      }),
-    };
-  });
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={
-          <>
-            <p style={{ display: "inline" }}>Theo dõi tiến độ sản xuất</p>
-          </>
-        }
-        description="Theo dõi tiến độ sản xuất"
+        title="Tra cứu thông tin xe"
+        description="Tra cứu thông tin xe"
       />
-      <Card className="th-card-margin-bottom">
-        <Row>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
+
+      <Card className="th-card-margin-bottom th-card-reset-margin">
+        <Row
+          align="center"
+          style={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <Input
+            placeholder="Nhập số khung xe"
+            value={keyword}
+            style={{ marginRight: "20px", width: "350px" }}
+            onChange={(value) => onChangeKeyword(value)}
+          />
+          <Button
+            style={{ height: "35px !important" }}
+            className="th-margin-bottom-0"
+            type="primary"
+            onClick={onSearchThongTinXe}
           >
-            <h5>Số khung:</h5>
-            <Toolbar
-              count={1}
-              search={{
-                title: "Nhập số khung",
-                loading,
-                value: keyword,
-                onChange: onChangeKeyword,
-                onPressEnter: onSearchSoKhung,
-                onSearch: onSearchSoKhung,
-                placeholder: "Nhập số khung nội bộ",
-                allowClear: true,
-              }}
-            />
-          </Col>
+            Tìm kiếm
+          </Button>
         </Row>
       </Card>
-      {InfoSanPham.tenSanPham && (
-        <Card className="th-card-margin-bottom">
-          <Card className="th-card-margin-bottom">
-            <Row>
-              <Col
-                xxl={8}
-                xl={8}
-                lg={12}
-                md={12}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8, display: "flex" }}
-              >
-                Sản phẩm:&nbsp;&nbsp;
-                <h5 style={{ fontWeight: "bold" }}>
-                  {InfoSanPham.tenSanPham ? InfoSanPham.tenSanPham : ""}
-                </h5>
-              </Col>
-              <Col
-                xxl={8}
-                xl={8}
-                lg={12}
-                md={12}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8, display: "flex" }}
-              >
-                Đơn hàng:&nbsp;&nbsp;
-                <h5 style={{ fontWeight: "bold" }}>
-                  {InfoSanPham.tenDonHang ? InfoSanPham.tenDonHang : ""}
-                </h5>
-              </Col>{" "}
-              <Col
-                xxl={8}
-                xl={8}
-                lg={12}
-                md={12}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8, display: "flex" }}
-              >
-                Màu sơn:&nbsp;&nbsp;
-                <h5 style={{ fontWeight: "bold" }}>
-                  {InfoSanPham.tenMauSac ? InfoSanPham.tenMauSac : ""}
-                </h5>
-              </Col>
-              <Col
-                xxl={8}
-                xl={8}
-                lg={12}
-                md={12}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8, display: "flex" }}
-              >
-                Số khung nội bộ:&nbsp;&nbsp;
-                <h5 style={{ fontWeight: "bold" }}>
-                  {InfoSanPham.maNoiBo ? InfoSanPham.maNoiBo : ""}
-                </h5>
-              </Col>
-              <Col
-                xxl={8}
-                xl={8}
-                lg={12}
-                md={12}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8, display: "flex" }}
-              >
-                Lô:&nbsp;&nbsp;
-                <h5 style={{ fontWeight: "bold" }}>
-                  {InfoSanPham.maSoLo ? InfoSanPham.maSoLo : ""}
-                </h5>
-              </Col>
-              <Col
-                xxl={8}
-                xl={8}
-                lg={12}
-                md={12}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8, display: "flex" }}
-              >
-                Số VIN:&nbsp;&nbsp;
-                <h5 style={{ fontWeight: "bold" }}>
-                  {InfoSanPham.maSoVin ? InfoSanPham.maSoVin : ""}
-                </h5>
-              </Col>
-            </Row>
-          </Card>
-          <Progress
-            percent={InfoSanPham.phanTram}
-            status="active"
-            className="font-size-percent-20"
-          />
-          <Steps
-            style={{ overflow: "auto" }}
-            size="small"
-            current={InfoSanPham.thuTuCongDoan && InfoSanPham.thuTuCongDoan - 1}
-            status={
-              InfoSanPham.thuTuCongDoan &&
-              InfoSanPham.thuTuCongDoan === InfoSanPham.list_CongDoans.length &&
-              "finish"
-            }
-            items={
-              InfoSanPham.list_CongDoans
-                ? InfoSanPham.list_CongDoans.map((cd) => {
-                    return {
-                      ...cd,
-                      title: cd.tenCongDoan,
-                      description: (
-                        <Table
-                          bordered
-                          // scroll={{ x: 100 }}
-                          style={{ heigth: 222.13 }}
-                          columns={columns}
-                          components={components}
-                          className="gx-table-responsive heigth-table"
-                          dataSource={[
-                            {
-                              hangMuc: "Thời gian vào trạm",
-                              noiDung: cd.thoiGianVaoCongDoan,
-                            },
-                            {
-                              hangMuc: "Số trạm kiểm soát đã đi qua",
-                              noiDung: cd.soTramDaDiQua,
-                            },
-                            {
-                              hangMuc: "Lỗi",
-                              noiDung: cd.loi,
-                            },
-                            //  {
-                            //   hangMuc: "HSCL",
-                            //   noiDung: cd.thoiGianVaoCongDoan
-                            // },
-                            {
-                              hangMuc: "Thời gian ra trạm",
-                              noiDung: cd.thoiGianRaCongDoan,
-                            },
-                          ]}
-                          size="small"
-                          pagination={false}
-                        />
-                      ),
-                    };
-                  })
-                : []
-            }
-          />
-          <Row style={{ marginTop: 10 }}>
-            {InfoSanPham.list_SuaChuaLais.length > 0 && (
-              <Col xl={12} lg={24}>
-                <Card
-                  className="th-card-margin-bottom"
-                  title="SỬA CHỮA LẠI"
-                  bodyStyle={{ padding: "24px 0 0 0" }}
+      {Data && (
+        <Card className="th-card-margin-bottom th-card-reset-margin">
+          <Row
+            style={{
+              padding: "0px 50px",
+            }}
+          >
+            <Col lg={12} xs={24}>
+              <Row>
+                <Col
+                  span={24}
+                  style={{
+                    marginBottom: 10,
+                  }}
                 >
-                  <Table
-                    bordered
-                    // scroll={{ x: 100 }}
-                    columns={columnsSCL}
-                    components={components}
-                    className="gx-table-responsive"
-                    dataSource={reDataForTable(InfoSanPham.list_SuaChuaLais)}
-                    size="small"
-                    pagination={false}
-                  />
-                </Card>
-              </Col>
-            )}
-            {InfoSanPham.luuKhoThanhPham && (
-              <Col xl={12} lg={24}>
-                <Card
-                  className="th-card-margin-bottom"
-                  title="KHO THÀNH PHẨM"
-                  bodyStyle={{ padding: "24px 0 0 0" }}
+                  <h4
+                    style={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {Data.tenSanPham} ({Data.maNoiBo})
+                  </h4>
+                </Col>
+                <Col
+                  span={24}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: 15,
+                  }}
                 >
-                  <Table
-                    bordered
-                    // scroll={{ x: 100 }}
-                    columns={columnsKTP}
-                    components={components}
-                    className="gx-table-responsive"
-                    dataSource={reDataForTable([InfoSanPham.luuKhoThanhPham])}
-                    size="small"
-                    pagination={false}
-                  />
-                </Card>
-              </Col>
-            )}
+                  <span
+                    style={{
+                      width: "100px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Loại xe:
+                  </span>
+                  {Data && (
+                    <span
+                      style={{
+                        width: "calc(100% - 100px)",
+                      }}
+                    >
+                      {Data.tenLoaiSanPham}
+                    </span>
+                  )}
+                </Col>
+                <Col
+                  span={24}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: 15,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: "100px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Màu sắc:
+                  </span>
+                  <span
+                    style={{
+                      width: "calc(100% - 100px)",
+                    }}
+                  >
+                    {Data.tenMauSac}
+                  </span>
+                </Col>
+                <Col
+                  span={24}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    marginBottom: 15,
+                  }}
+                >
+                  <span
+                    style={{
+                      width: "180px",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Ngày kích hoạt bảo hành:
+                  </span>
+                  {Data && (
+                    <span
+                      style={{
+                        width: "calc(100% - 180px)",
+                      }}
+                    >
+                      {Data.ngayXuatXuong}
+                    </span>
+                  )}
+                </Col>
+              </Row>
+            </Col>
+            <Col lg={12} xs={24}>
+              <Image
+                src={BASE_URL_API + Data.hinhAnh}
+                alt="Hình ảnh"
+                style={{ maxWidth: "100%", maxHeight: "120px" }}
+              />
+            </Col>
+          </Row>
+        </Card>
+      )}
+      {Data && (
+        <Card className="th-card-margin-bottom th-card-reset-margin">
+          <Row
+            style={{
+              padding: "0px 50px ",
+              marginBottom: "20px",
+            }}
+          >
+            <Col
+              span={24}
+              style={{
+                marginBottom: 10,
+              }}
+            >
+              <h4
+                style={{
+                  fontWeight: "bold",
+                }}
+              >
+                Lịch sử sản xuất
+              </h4>
+            </Col>
+            <Col
+              lg={12}
+              xs={24}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: 15,
+              }}
+            >
+              <span
+                style={{
+                  width: "100px",
+                  fontWeight: "bold",
+                }}
+              >
+                Đơn hàng:
+              </span>
+              {Data && (
+                <span
+                  style={{
+                    width: "calc(100% - 100px)",
+                  }}
+                >
+                  {Data.tenDonHang}
+                </span>
+              )}
+            </Col>
+            <Col
+              lg={12}
+              xs={24}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: 15,
+              }}
+            >
+              <span
+                style={{
+                  width: "150px",
+                  fontWeight: "bold",
+                }}
+              >
+                Ngày xuất xưởng:
+              </span>
+              <span
+                style={{
+                  width: "calc(100% - 150px)",
+                }}
+              >
+                {Data.ngayXuatXuong}
+              </span>
+            </Col>
+            <Col
+              lg={12}
+              xs={24}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: 15,
+              }}
+            >
+              <span
+                style={{
+                  width: "100px",
+                  fontWeight: "bold",
+                }}
+              >
+                Số lô:
+              </span>
+              <span
+                style={{
+                  width: "calc(100% - 100px)",
+                }}
+              >
+                {Data.maSoLo}
+              </span>
+            </Col>
+            <Col
+              lg={12}
+              xs={24}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                marginBottom: 15,
+              }}
+            >
+              <span
+                style={{
+                  width: "150px",
+                  fontWeight: "bold",
+                }}
+              >
+                Ngày bàn giao:
+              </span>
+              <span
+                style={{
+                  width: "calc(100% - 150px)",
+                }}
+              >
+                {Data.ngayBanGiao}
+              </span>
+            </Col>
+          </Row>
+          <Row
+            style={{
+              padding: "0px 50px",
+            }}
+          >
+            {Data.list_CongDoans &&
+              Data.list_CongDoans.map((congdoan) => {
+                return (
+                  <Col
+                    lg={12}
+                    xs={24}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: 15,
+                    }}
+                  >
+                    <span
+                      style={{
+                        width: "150px",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {congdoan.tenCongDoan}
+                    </span>
+                    <div
+                      style={{
+                        width: "calc(100% - 150px)",
+                        alignItems: "start",
+                      }}
+                    >
+                      <span
+                        style={{
+                          border: "1px solid #c8c8c8",
+                        }}
+                      >
+                        {congdoan.thoiGianVaoCongDoan}
+                      </span>
+                      <span
+                        style={{
+                          border: "1px solid #c8c8c8",
+                        }}
+                      >
+                        {congdoan.thoiGianRaCongDoan}
+                      </span>
+                    </div>
+                  </Col>
+                );
+              })}
           </Row>
         </Card>
       )}
