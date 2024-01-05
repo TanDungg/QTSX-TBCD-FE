@@ -11,9 +11,11 @@ const BaoCaoChatLuongTheoThang = asyncComponent(() =>
 const TraCuuThongTinXe = asyncComponent(() =>
   import("./TraCuuThongTinXe/TraCuuThongTinXe")
 );
+
 const BaoCaoChiTietSanXuatNgay = asyncComponent(() =>
   import("./BaoCaoChiTietSanXuatNgay/BaoCaoChiTietSanXuatNgay")
 );
+
 const BaoCaoChiTietSanXuatThang = asyncComponent(() =>
   import("./BaoCaoChiTietSanXuatThang/BaoCaoChiTietSanXuatThang")
 );
@@ -23,6 +25,7 @@ const BaoCaoSanXuatNgay = asyncComponent(() =>
 const BaoCaoGiaoXeThang = asyncComponent(() =>
   import("./BaoCaoGiaoXeThang/BaoCaoGiaoXeThang")
 );
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -33,6 +36,7 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(BaoCaoChatLuongTheoThang, menus, pathname, permission)}
       />
+      {/* Tra cứu thông tin xe */}
       <Route
         path={`${match.url}/tra-cuu-thong-tin-xe`}
         exact
@@ -52,7 +56,7 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/san-xuat-ngay`}
         exact
         component={Auth(BaoCaoSanXuatNgay, menus, pathname, permission)}
-      />{" "}
+      />
       <Route
         path={`${match.url}/giao-xe-thang`}
         exact

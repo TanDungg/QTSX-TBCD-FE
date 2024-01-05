@@ -879,7 +879,7 @@ const OEMForm = ({ history, match, permission }) => {
               onClick={() => setActiveModal(true)}
               disabled={!SanPham ? true : false}
             >
-              File import
+              Import vật tư
             </Button>
           </Row>
         ) : null}
