@@ -1,11 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Row, Image } from "antd";
+import {
+  Card,
+  Button,
+  Divider,
+  Col,
+  Row,
+  Image,
+  Modal as AntModal,
+  Upload,
+} from "antd";
 import {
   CopyOutlined,
-  DeleteOutlined,
+  SyncOutlined,
   PlusCircleOutlined,
+  UploadOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { ModalDeleteConfirm, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams } from "src/util/Common";
@@ -13,9 +24,9 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
 import ModalThemHinhAnh from "./ModalThemHinhAnh";
 import ModalSaoChep from "./ModalSaoChep";
+import Helpers from "src/helpers";
 
 function SanPhamHinhAnh({ history, permission }) {
-  const { data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [Data, setData] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
@@ -23,6 +34,12 @@ function SanPhamHinhAnh({ history, permission }) {
   const [CongDoan, setCongDoan] = useState(null);
   const [ActiveModalSaoChep, setActiveModalSaoChep] = useState(false);
   const [ActiveModalThemHinhAnh, setActiveModalThemHinhAnh] = useState(false);
+  const [DisabledModalDoiHinhAnh, setDisabledModalDoiHinhAnh] = useState(false);
+  const [DataHinhAnh, setDataHinhAnh] = useState(null);
+  const [FileHinhAnh, setFileHinhAnh] = useState(null);
+  const [FileAnh, setFileAnh] = useState(null);
+  const [DisableUploadHinhAnh, setDisableUploadHinhAnh] = useState(false);
+  const [OpenImage, setOpenImage] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -139,11 +156,6 @@ function SanPhamHinhAnh({ history, permission }) {
     ModalDeleteConfirm(deleteItemAction, item, item.tenKhuVuc, "hình ảnh của ");
   };
 
-  /**
-   * Xóa item
-   *
-   * @param {*} item
-   */
   const deleteItemAction = (item) => {
     let url = `tits_qtsx_SanPhamHinhAnh/${item.id}`;
     new Promise((resolve, reject) => {
@@ -155,6 +167,30 @@ function SanPhamHinhAnh({ history, permission }) {
         }
       })
       .catch((error) => console.error(error));
+  };
+
+  const props = {
+    accept: "image/png, image/jpeg",
+    beforeUpload: (file) => {
+      const isPNG = file.type === "image/png" || file.type === "image/jpeg";
+      if (!isPNG) {
+        Helpers.alertError(`${file.name} không phải hình ảnh`);
+      } else {
+        setFileHinhAnh(file);
+        setDisableUploadHinhAnh(true);
+        const reader = new FileReader();
+        reader.onload = (e) => setFileAnh(e.target.result);
+        reader.readAsDataURL(file);
+        return false;
+      }
+    },
+    showUploadList: false,
+    maxCount: 1,
+  };
+
+  const handleThayDoiHinhAnh = (item) => {
+    setDataHinhAnh(item);
+    setDisabledModalDoiHinhAnh(true);
   };
 
   return (
@@ -286,7 +322,7 @@ function SanPhamHinhAnh({ history, permission }) {
                                         src={BASE_URL_API + hinhanh.hinhAnh}
                                       />
                                       <Button
-                                        title="Xóa hình ảnh"
+                                        title="Đổi hình ảnh"
                                         style={{
                                           width: 25,
                                           height: 30,
@@ -297,7 +333,7 @@ function SanPhamHinhAnh({ history, permission }) {
                                           display: "flex",
                                           alignItems: "center",
                                           justifyContent: "center",
-                                          color: "red",
+                                          color: "#0469B9",
                                           backgroundColor: "#fff",
                                           borderColor: "#c8c8c8",
                                           borderRadius: 15,
@@ -305,13 +341,15 @@ function SanPhamHinhAnh({ history, permission }) {
                                             "background-color 0.3s ease",
                                         }}
                                         onClick={() =>
-                                          handleDeleteClick({
+                                          handleThayDoiHinhAnh({
                                             id: hinhanh.tits_qtsx_SanPhamHinhAnh_Id,
+                                            hinhAnh: hinhanh.hinhAnh,
                                             tenKhuVuc: khuvuc.tenKhuVuc,
+                                            moTa: khuvuc.moTa,
                                           })
                                         }
                                       >
-                                        <DeleteOutlined
+                                        <SyncOutlined
                                           style={{ fontSize: 15 }}
                                         />
                                       </Button>
@@ -347,6 +385,89 @@ function SanPhamHinhAnh({ history, permission }) {
         refesh={handleRefeshModal}
         itemData={SanPham}
       />
+      <AntModal
+        title={"Thay đổi hình ảnh"}
+        className="th-card-reset-margin"
+        open={DisabledModalDoiHinhAnh}
+        width={`60%`}
+        closable={true}
+        onCancel={() => setDisabledModalDoiHinhAnh(false)}
+        footer={null}
+      >
+        <Card
+          className="th-card-margin-bottom"
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: 15,
+            }}
+          >
+            <span style={{ width: "120px" }}>Hình ảnh:</span>
+            {!DisableUploadHinhAnh ? (
+              <Upload {...props}>
+                <Button
+                  style={{
+                    marginBottom: 0,
+                  }}
+                  icon={<UploadOutlined />}
+                >
+                  Tải file hình ảnh
+                </Button>
+              </Upload>
+            ) : (
+              <span>
+                <span
+                  style={{
+                    color: "#0469B9",
+                    cursor: "pointer",
+                    whiteSpace: "break-spaces",
+                  }}
+                  onClick={() => setOpenImage(true)}
+                >
+                  {FileHinhAnh.name}{" "}
+                </span>
+                <DeleteOutlined
+                  style={{ cursor: "pointer", color: "red" }}
+                  onClick={() => {
+                    setFileHinhAnh(null);
+                    setDisableUploadHinhAnh(false);
+                  }}
+                />
+                <Image
+                  width={100}
+                  src={FileAnh}
+                  alt="preview"
+                  style={{
+                    display: "none",
+                  }}
+                  preview={{
+                    visible: OpenImage,
+                    scaleStep: 0.5,
+                    src: FileAnh,
+                    onVisibleChange: (value) => {
+                      setOpenImage(value);
+                    },
+                  }}
+                />
+              </span>
+            )}
+          </div>
+          <Button
+            className="th-margin-bottom-0"
+            type="primary"
+            // onClick={onSearchThongTinXe}
+          >
+            Thay đổi
+          </Button>
+        </Card>
+      </AntModal>
     </div>
   );
 }

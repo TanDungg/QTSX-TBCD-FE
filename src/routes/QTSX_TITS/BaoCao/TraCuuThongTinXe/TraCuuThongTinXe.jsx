@@ -195,7 +195,6 @@ function TraCuuThongTinXe({ history, permission }) {
             onChange={(value) => onChangeKeyword(value)}
           />
           <Button
-            style={{ height: "35px !important" }}
             className="th-margin-bottom-0"
             type="primary"
             onClick={onSearchThongTinXe}
@@ -711,10 +710,10 @@ function TraCuuThongTinXe({ history, permission }) {
         </Card>
       )}
       <AntModal
-        title={"title"}
+        title={"Hồ sơ kiểm tra chất lượng"}
         className="th-card-reset-margin"
         open={DisabledModalHoSoChatLuong}
-        width={width > 1200 ? `80%` : "100%"}
+        width={"80%"}
         closable={true}
         onCancel={() => setDisabledModalHoSoChatLuong(false)}
         footer={null}
