@@ -69,7 +69,7 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
   const [DisableFileDinhKem, setDisableFileDinhKem] = useState(false);
   const [FileDinhKem, setFileDinhKem] = useState(null);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
-  const { maBoPhan, diaChi, benGiao } = initialState;
+  const { diaChi, benGiao } = initialState;
 
   useEffect(() => {
     const load = () => {
@@ -79,7 +79,7 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
           setType("new");
           setFieldsValue({
             tranhacungcap: {
-              ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
+              ngayLap: moment(getDateNow(), "DD/MM/YYYY"),
             },
           });
         } else if (permission && !permission.add) {
