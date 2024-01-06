@@ -43319,3 +43319,6 @@ textarea.gx-chat-textarea {
 .black-text .ant-select-selection-item-content{
   color: #333;
 }
+.clicked {
+  transform: scale(1.2);
+}

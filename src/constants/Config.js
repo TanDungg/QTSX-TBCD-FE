@@ -341,15 +341,16 @@ export const DEFAULT_FORM_XUATKHONGOAIQUAN = {
 export const DEFAULT_FORM_170PX = {
   labelCol: {
     style: {
-      width: "170px",
+      width: "180px",
       textAlign: "left",
       fontWeight: "bold",
+      paddingLeft: "20px",
     },
   },
   wrapperCol: {
     style: {
-      width: "calc(100% - 170px)",
-      paddingRight: "20px",
+      width: "calc(100% - 180px)",
+      paddingRight: "50px",
     },
   },
 };

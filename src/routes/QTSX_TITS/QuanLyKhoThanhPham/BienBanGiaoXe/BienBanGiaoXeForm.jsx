@@ -1,30 +1,14 @@
-import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
-import {
-  Card,
-  Form,
-  Input,
-  Row,
-  Col,
-  DatePicker,
-  Tag,
-  Button,
-  Divider,
-} from "antd";
-import { includes, isEmpty, map } from "lodash";
+import { PlusCircleOutlined } from "@ant-design/icons";
+import { Card, Form, Input, Row, Col, DatePicker, Tag, Divider } from "antd";
+import { includes } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import {
-  FormSubmit,
-  Select,
-  ModalDeleteConfirm,
-  EditableTableRow,
-  Modal,
-} from "src/components/Common";
+import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_170PX } from "src/constants/Config";
+import { DEFAULT_FORM_170PX, SMRM_BANGIAO } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -32,7 +16,6 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 
-const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 
 const BienBanBanGiaoXe = ({ history, match, permission }) => {
@@ -48,18 +31,122 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
   const { validateFields, resetFields, setFieldsValue } = form;
   const [ListUser, setListUser] = useState([]);
   const [ListDonHang, setListDonHang] = useState([]);
-  const [ListDonVi, setListDonVi] = useState([]);
-  const [ListUserKy, setListUserKy] = useState([]);
+  const [ListGiaoHang, setListGiaoHang] = useState([]);
+  const [ListKhachHang, setListKhachHang] = useState([]);
+  const [ListDaiDien, setListDaiDien] = useState([]);
   const [ListThanhPham, setListThanhPham] = useState([]);
-  const [editingRecord, setEditingRecord] = useState([]);
+  const [VatTuKhac, setVatTuKhac] = useState(null);
+  const [NoiDungBanGiao, setNoiDungBanGiao] = useState(true);
   const [id, setId] = useState(undefined);
   const [info, setInfo] = useState({});
+  const PhuKienVatTuGoc = [
+    {
+      key: "Tổng quan",
+      value: null,
+      soLuong: null,
+      dieuKien: null,
+      tinhTrang: null,
+      soSeri: null,
+      moTa: null,
+    },
+    {
+      key: "Mâm - ốp(Bộ)",
+      value: null,
+      soLuong: null,
+      dieuKien: null,
+      tinhTrang: null,
+      soSeri: null,
+      moTa: null,
+    },
+    {
+      key: "Bình điện",
+      value: null,
+      soLuong: null,
+      dieuKien: null,
+      tinhTrang: null,
+      soSeri: null,
+      moTa: null,
+    },
+    {
+      key: "Máy lạnh",
+      value: null,
+      soLuong: null,
+      dieuKien: null,
+      tinhTrang: null,
+      soSeri: null,
+      moTa: null,
+    },
+    {
+      key: "Radio, Mp3",
+      value: null,
+      soLuong: null,
+      dieuKien: null,
+      tinhTrang: null,
+      soSeri: null,
+      moTa: null,
+    },
+    {
+      key: "Sổ bảo hành",
+      value: null,
+      soLuong: null,
+      dieuKien: null,
+      tinhTrang: null,
+      soSeri: null,
+      moTa: null,
+    },
+    {
+      key: "Bộ đồ nghề tiêu chuẩn",
+      value: null,
+      soLuong: null,
+      dieuKien: null,
+      tinhTrang: null,
+      soSeri: null,
+      moTa: null,
+    },
+    {
+      key: "Ticket",
+      value: null,
+      soLuong: null,
+      dieuKien: null,
+      tinhTrang: null,
+      soSeri: null,
+      moTa: null,
+    },
+    {
+      key: "Kính, gương",
+      value: null,
+      soLuong: null,
+      dieuKien: null,
+      tinhTrang: null,
+      soSeri: null,
+      moTa: null,
+    },
+    {
+      key: "Đèn, lái",
+      value: null,
+      soLuong: null,
+      dieuKien: null,
+      tinhTrang: null,
+      soSeri: null,
+      moTa: null,
+    },
+    {
+      key: "Khác",
+      value: null,
+      soLuong: null,
+      dieuKien: null,
+      tinhTrang: null,
+      soSeri: null,
+      moTa: null,
+    },
+  ];
+  const [PhuKienVatTu, setPhuKienVatTu] = useState(PhuKienVatTuGoc);
 
   useEffect(() => {
     const load = () => {
-      getUserKy();
       getListDonHang();
-      getListDonVi();
+      getListKhachHang();
+      getListDaiDien();
       if (includes(match.url, "them-moi")) {
         if (permission && permission.add) {
           setType("new");
@@ -67,7 +154,6 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
           setFieldsValue({
             bienbanbangiaoxe: {
               ngay: moment(getDateNow(), "DD/MM/YYYY"),
-              tits_qtsx_KhachHangBenGiao_Id: INFO.donVi_Id.toLowerCase(),
             },
           });
         } else if (permission && !permission.add) {
@@ -106,31 +192,6 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  const getUserKy = () => {
-    const params = convertObjectToUrlParams({
-      donviId: INFO.donVi_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        setListUserKy(res.data);
-      } else {
-        setListUserKy([]);
-      }
-    });
-  };
 
   const getUserLap = (nguoiTao_Id) => {
     const params = convertObjectToUrlParams({
@@ -187,16 +248,62 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const getListDonVi = () => {
+  const getListKhachHang = () => {
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(`DonVi?page=-1`, "GET", null, "DETAIL", "", resolve, reject)
+        fetchStart(
+          `tits_qtsx_KhachHang?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListKhachHang(res.data);
+          res.data.forEach((dt) => {
+            if (dt.id === SMRM_BANGIAO) {
+              setListGiaoHang([dt]);
+              setFieldsValue({
+                bienbanbangiaoxe: {
+                  tits_qtsx_KhachHangBenGiao_Id: dt.id,
+                  diaChi: dt.diaChi,
+                },
+              });
+            }
+          });
+        } else {
+          setListKhachHang([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListDaiDien = () => {
+    const params = convertObjectToUrlParams({
+      donviId: INFO.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Account/get-cbnv?${params}&key=1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
       );
     }).then((res) => {
       if (res && res.data) {
-        setListDonVi(res.data);
+        setListDaiDien(res.data);
       } else {
-        setListDonVi([]);
+        setListDaiDien([]);
       }
     });
   };
@@ -266,179 +373,6 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
     );
   };
 
-  const deleteItemFunc = (item) => {
-    const title = "thành phẩm";
-    ModalDeleteConfirm(deleteItemAction, item, item.thanhPham, title);
-  };
-
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    const newData = ListThanhPham.filter((d) => d.thanhPham !== item.thanhPham);
-    setListThanhPham(newData);
-  };
-
-  const actionContent = (item) => {
-    const deleteItemVal =
-      permission && permission.del && (type === "new" || type === "edit")
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        <React.Fragment>
-          <a {...deleteItemVal} title="Xóa">
-            <DeleteOutlined />
-          </a>
-        </React.Fragment>
-      </div>
-    );
-  };
-
-  const handleInputChange = (val, item) => {
-    const soLuongNhap = val.target.value;
-    if (isEmpty(soLuongNhap) || Number(soLuongNhap) <= 0) {
-      setFieldTouch(false);
-      setEditingRecord([...editingRecord, item]);
-      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
-    } else if (Number(soLuongNhap) > item.soLuongChuaNhap && type === "new") {
-      setFieldTouch(false);
-      setEditingRecord([...editingRecord, item]);
-      item.message = `Số lượng không được lớn hơn ${item.soLuongChuaNhap}`;
-    } else if (
-      Number(soLuongNhap) > Number(item.soLuongChuaNhap + item.soLuongDaNhap) &&
-      type === "edit"
-    ) {
-      setFieldTouch(false);
-      setEditingRecord([...editingRecord, item]);
-      item.message = `Số lượng không được lớn hơn ${Number(
-        item.soLuongChuaNhap + item.soLuongDaNhap
-      )}`;
-    } else {
-      const newData = editingRecord.filter(
-        (d) => d.thanhPham !== item.thanhPham
-      );
-      setEditingRecord(newData);
-      newData.length === 0 && setFieldTouch(true);
-    }
-    const newData = [...ListThanhPham];
-    newData.forEach((ct, index) => {
-      if (ct.thanhPham === item.thanhPham) {
-        ct.soLuong = soLuongNhap;
-      }
-    });
-    setListThanhPham(newData);
-  };
-
-  const rendersoLuong = (record, value) => {
-    let isEditing = false;
-    let message = "";
-    editingRecord.forEach((ct) => {
-      if (ct.thanhPham === record.thanhPham) {
-        isEditing = true;
-        message = ct.message;
-      }
-    });
-    return (
-      <>
-        <Input
-          style={{
-            textAlign: "center",
-            width: "100%",
-          }}
-          className={`input-item`}
-          type="number"
-          value={record.soLuong}
-          disabled={type === "new" || type === "edit" ? false : true}
-          onChange={(val) => handleInputChange(val, record, value)}
-        />
-        {isEditing && <div style={{ color: "red" }}>{message}</div>}
-      </>
-    );
-  };
-
-  let colValues = [
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-    },
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      width: 45,
-      align: "center",
-    },
-    {
-      title: "Mã thành phẩm",
-      dataIndex: "maSanPham",
-      key: "maSanPham",
-      align: "center",
-    },
-    {
-      title: "Tên thành phẩm",
-      dataIndex: "tenSanPham",
-      key: "tenSanPham",
-      align: "center",
-    },
-    {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
-      align: "center",
-    },
-    {
-      title: "Số lượng nhập",
-      key: "soLuong",
-      align: "center",
-      render: (record) => rendersoLuong(record),
-    },
-    {
-      title: "Màu sắc",
-      dataIndex: "tenMauSac",
-      key: "tenMauSac",
-      align: "center",
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-    },
-  ];
-
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
-
-  const columns = map(colValues, (col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-      }),
-    };
-  });
-  /**
-   * Khi submit
-   *
-   * @param {*} values
-   */
   const onFinish = (values) => {
     saveData(values.bienbanbangiaoxe);
   };
@@ -484,7 +418,6 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
             } else {
               resetFields();
               getUserLap();
-              getUserKy();
               setListThanhPham([]);
               setFieldsValue({
                 bienbanbangiaoxe: {
@@ -531,81 +464,28 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
     }
   };
 
-  const hanldeXacNhan = () => {
-    const newData = {
-      id: id,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuNhapKhoThanhPham/duyet/${id}`,
-          "PUT",
-          newData,
-          "XACNHAN",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) {
-          getInfo(id);
+  const handleChangeValue = (val, phukienvattu, key) => {
+    if (key !== "khac") {
+      const newData = [...PhuKienVatTu];
+      newData.forEach((ct, index) => {
+        if (ct.key === phukienvattu.key) {
+          ct[key] = val.target.value;
         }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const prop = {
-    type: "confirm",
-    okText: "Xác nhận",
-    cancelText: "Hủy",
-    title: "Xác nhận phiếu nhập kho thành phẩm",
-    onOk: hanldeXacNhan,
-  };
-
-  const modalXK = () => {
-    Modal(prop);
-  };
-
-  const saveTuChoi = (data) => {
-    const newData = {
-      id: id,
-      isDuyet: false,
-      lyDoDuyetTuChoi: data,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuNhapKhoThanhPham/xac-nhan/${id}`,
-          "PUT",
-          newData,
-          "TUCHOI",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) getInfo(id);
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const handleThemThanhPham = (data) => {
-    setListThanhPham([...ListThanhPham, ...data]);
-    setFieldTouch(true);
+      });
+      setPhuKienVatTu(newData);
+    } else {
+      setVatTuKhac(val.target.value);
+    }
   };
 
   const formTitle =
     type === "new" ? (
-      "Tạo phiếu nhập kho thành phẩm"
+      "Tạo biên bản bàn giao xe"
     ) : type === "edit" ? (
-      "Chỉnh sửa phiếu nhập kho thành phẩm"
+      "Chỉnh sửa biên bản bàn giao xe"
     ) : (
       <span>
-        Chi tiết phiếu nhập kho thành phẩm -{" "}
+        Chi tiết biên bản bàn giao xe -{" "}
         <Tag color={"blue"} style={{ fontSize: 15 }}>
           {info.maPhieu}
         </Tag>
@@ -629,7 +509,7 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
       <ContainerHeader title={formTitle} back={goBack} />
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
-        title={"Thông tin phiếu nhập kho thành phẩm"}
+        title={"Thông tin biên bản bàn giao xe"}
       >
         <Form
           {...DEFAULT_FORM_170PX}
@@ -638,12 +518,12 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
-          <Row style={{ padding: "0px 20px" }}>
+          <Row>
             <Col
               xxl={12}
               xl={12}
-              lg={24}
-              md={24}
+              lg={12}
+              md={12}
               sm={24}
               xs={24}
               style={{ marginBottom: 8 }}
@@ -670,8 +550,8 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
             <Col
               xxl={12}
               xl={12}
-              lg={24}
-              md={24}
+              lg={12}
+              md={12}
               sm={24}
               xs={24}
               style={{ marginBottom: 8 }}
@@ -692,8 +572,8 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
             <Col
               xxl={12}
               xl={12}
-              lg={24}
-              md={24}
+              lg={12}
+              md={12}
               sm={24}
               xs={24}
               style={{ marginBottom: 8 }}
@@ -717,8 +597,8 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
             <Col
               xxl={12}
               xl={12}
-              lg={24}
-              md={24}
+              lg={12}
+              md={12}
               sm={24}
               xs={24}
               style={{ marginBottom: 8 }}
@@ -742,8 +622,8 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
             <Col
               xxl={12}
               xl={12}
-              lg={24}
-              md={24}
+              lg={12}
+              md={12}
               sm={24}
               xs={24}
               style={{ marginBottom: 8 }}
@@ -768,8 +648,8 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
             <Col
               xxl={12}
               xl={12}
-              lg={24}
-              md={24}
+              lg={12}
+              md={12}
               sm={24}
               xs={24}
               style={{ marginBottom: 8 }}
@@ -796,12 +676,25 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Divider />
+          </Row>
+          <Divider
+            orientation="left"
+            backgroundColor="none"
+            style={{
+              background: "none",
+              fontWeight: "bold",
+              marginTop: "0px",
+              marginBottom: "15px",
+            }}
+          >
+            BÊN GIAO
+          </Divider>
+          <Row>
             <Col
               xxl={12}
               xl={12}
-              lg={24}
-              md={24}
+              lg={12}
+              md={12}
               sm={24}
               xs={24}
               style={{ marginBottom: 8 }}
@@ -818,9 +711,123 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListDonVi}
-                  placeholder="Chọn đơn vị giao"
-                  optionsvalue={["id", "tenDonVi"]}
+                  data={ListGiaoHang}
+                  placeholder="Chọn bên giao"
+                  optionsvalue={["id", "tenKhachHang"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Địa chỉ"
+                name={["bienbanbangiaoxe", "diaChi"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input placeholder="Địa chỉ bên giao" disabled={true} />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={8}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Đại diện"
+                name={["bienbanbangiaoxe", "daiDienBenGiao_Id"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListDaiDien}
+                  placeholder="Chọn đại diện bên giao"
+                  optionsvalue={["id", "fullName"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={8}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Chức vụ"
+                name={["bienbanbangiaoxe", "daiDienBenGiao_Id"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListDaiDien}
+                  placeholder="Chức vụ đại diện bên giao"
+                  optionsvalue={["id", "tenChucVu"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={8}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="SĐT"
+                name={["bienbanbangiaoxe", "daiDienBenGiao_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListDaiDien}
+                  placeholder="Số điện thoại đại diện bên giao"
+                  optionsvalue={["id", "phoneNumber"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -829,6 +836,901 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
               </FormItem>
             </Col>
           </Row>
+          <Divider
+            orientation="left"
+            backgroundColor="none"
+            style={{
+              background: "none",
+              fontWeight: "bold",
+              marginTop: "0px",
+              marginBottom: "15px",
+            }}
+          >
+            BÊN VẬN CHUYỂN
+          </Divider>
+          <Row>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="II. Bên vận chuyển"
+                name={[
+                  "bienbanbangiaoxe",
+                  "tits_qtsx_KhachHangBenVanChuyen_Id",
+                ]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListKhachHang}
+                  placeholder="Chọn bên vận chuyển"
+                  optionsvalue={["id", "tenKhachHang"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Địa chỉ"
+                name={[
+                  "bienbanbangiaoxe",
+                  "tits_qtsx_KhachHangBenVanChuyen_Id",
+                ]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListKhachHang}
+                  placeholder="Chọn bên vận chuyển"
+                  optionsvalue={["id", "diaChi"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Đại diện"
+                name={[
+                  "bienbanbangiaoxe",
+                  "tits_qtsx_KhachHangBenVanChuyen_Id",
+                ]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListKhachHang}
+                  placeholder="Người liên hệ bên vận chuyển"
+                  optionsvalue={["id", "nguoiLienHe"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="SĐT"
+                name={[
+                  "bienbanbangiaoxe",
+                  "tits_qtsx_KhachHangBenVanChuyen_Id",
+                ]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListKhachHang}
+                  placeholder="Số điện thoại bên vận chuyển"
+                  optionsvalue={["id", "sDT"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={8}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Tài xế vận chuyển"
+                name={["bienbanbangiaoxe", "taiXeVanChuyen"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nhập tên tài xế vận chuyển"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={8}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Bằng lái xe"
+                name={["bienbanbangiaoxe", "bangLaiXe"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nhập số bằng lái xe"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={8}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Ngày cấp"
+                name={["bienbanbangiaoxe", "ngayCap"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nhập tên tài xế vận chuyển"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="CCCD/CMND"
+                name={["bienbanbangiaoxe", "soCCCD"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nhập số CCCD/CMND"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Nơi cấp"
+                name={["bienbanbangiaoxe", "noiCap"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nhập nơi cấp CCCD/CMND"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+          </Row>
+          <Divider
+            orientation="left"
+            backgroundColor="none"
+            style={{
+              background: "none",
+              fontWeight: "bold",
+              marginTop: "0px",
+              marginBottom: "15px",
+            }}
+          >
+            BÊN NHẬN
+          </Divider>
+          <Row>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="III. Bên nhận"
+                name={["bienbanbangiaoxe", "tits_qtsx_KhachHangBenNhan_Id"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListKhachHang}
+                  placeholder="Chọn bên nhận"
+                  optionsvalue={["id", "tenKhachHang"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Địa chỉ"
+                name={["bienbanbangiaoxe", "tits_qtsx_KhachHangBenNhan_Id"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListKhachHang}
+                  placeholder="Chọn bên vận chuyển"
+                  optionsvalue={["id", "diaChi"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Đại diện"
+                name={["bienbanbangiaoxe", "tits_qtsx_KhachHangBenNhan_Id"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListKhachHang}
+                  placeholder="Người liên hệ bên vận chuyển"
+                  optionsvalue={["id", "nguoiLienHe"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="SĐT"
+                name={["bienbanbangiaoxe", "tits_qtsx_KhachHangBenNhan_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListKhachHang}
+                  placeholder="Số điện thoại bên vận chuyển"
+                  optionsvalue={["id", "sDT"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Người nhận"
+                name={["bienbanbangiaoxe", "nguoiNhanTrucTiep"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nhập tên người nhận trực tiếp"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Chức vụ"
+                name={["bienbanbangiaoxe", "chucVu"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nhập chức vụ"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="SĐT"
+                name={["bienbanbangiaoxe", "sDT"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nhập số điện thoại"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Địa chỉ nhận"
+                name={["bienbanbangiaoxe", "diaChiNhanTrucTiep"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nhập địa chỉ nhận trực tiếp"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
+              </FormItem>
+            </Col>
+          </Row>
+          <Divider
+            orientation="left"
+            backgroundColor="none"
+            style={{
+              background: "none",
+              fontWeight: "bold",
+              marginTop: "0px",
+              marginBottom: "15px",
+            }}
+          >
+            NỘI DUNG BÀN GIAO
+          </Divider>
+          <Row>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <span style={{ width: "200px", fontWeight: "bold" }}>
+                IV. Nội dung bàn giao:{" "}
+              </span>
+              <PlusCircleOutlined
+                onClick={() => setNoiDungBanGiao(!NoiDungBanGiao)}
+                style={{
+                  fontSize: "16px",
+                  color: NoiDungBanGiao ? "#0469B9" : "",
+                  transition: "color 0.1s ease-in-out",
+                }}
+              />
+            </Col>
+          </Row>
+
+          {NoiDungBanGiao && (
+            <Card
+              className="th-card-margin-bottom th-card-reset-margin"
+              title={"Nội dung bàn giao"}
+            >
+              <Row>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="Số khung"
+                    name={["bienbanbangiaoxe", "tits_qtsx_SoLoChiTiet_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUser ? ListUser : []}
+                      optionsvalue={["Id", "fullName"]}
+                      style={{ width: "100%" }}
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="Số máy"
+                    name={["bienbanbangiaoxe", "soMay"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Input
+                      className="input-item"
+                      placeholder="Nhập số máy"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="Màu"
+                    name={["bienbanbangiaoxe", "canCuYeuCauGiaoXe"]}
+                    rules={[
+                      {
+                        required: true,
+                        type: "string",
+                      },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập căn cứ yêu cầu giao xe số"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="Số"
+                    name={["bienbanbangiaoxe", "so"]}
+                    rules={[
+                      {
+                        required: true,
+                        type: "string",
+                      },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập số"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="Ngày nhập"
+                    name={["bienbanbangiaoxe", "ngay"]}
+                    rules={[
+                      {
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <DatePicker
+                      format={"DD/MM/YYYY"}
+                      showTime
+                      disabled={true}
+                      allowClear={false}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="Đơn hàng"
+                    name={["bienbanbangiaoxe", "tits_qtsx_DonHang_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListDonHang}
+                      placeholder="Chọn đơn hàng"
+                      optionsvalue={["id", "tenDonHang"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp="name"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+              </Row>
+              {PhuKienVatTu.length &&
+                PhuKienVatTu.map((phukienvattu, index) => {
+                  if (phukienvattu.key !== "Khác") {
+                    return (
+                      <Row>
+                        <Col
+                          xxl={6}
+                          xl={6}
+                          lg={8}
+                          md={8}
+                          sm={12}
+                          xs={12}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "15px",
+                          }}
+                        >
+                          <span style={{ width: "130px" }}>
+                            {phukienvattu.key}
+                          </span>
+                          <Input
+                            value={phukienvattu.value}
+                            style={{ width: "calc(100% - 130px)" }}
+                            onChange={(value) =>
+                              handleChangeValue(value, phukienvattu, "value")
+                            }
+                          />
+                        </Col>
+                        <Col
+                          xxl={3}
+                          xl={3}
+                          lg={3}
+                          md={8}
+                          sm={8}
+                          xs={8}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "15px",
+                          }}
+                        >
+                          <span style={{ width: "30px" }}>SL</span>
+                          <Input
+                            type="number"
+                            value={phukienvattu.soLuong}
+                            style={{ width: "calc(100% - 30px)" }}
+                            onChange={(value) =>
+                              handleChangeValue(value, phukienvattu, "soLuong")
+                            }
+                          />
+                        </Col>
+                        <Col
+                          xxl={3}
+                          xl={3}
+                          lg={3}
+                          md={8}
+                          sm={8}
+                          xs={8}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "15px",
+                          }}
+                        >
+                          <span style={{ width: "40px" }}>D/K</span>
+                          <Input
+                            value={phukienvattu.dieuKien}
+                            style={{ width: "calc(100% - 40px)" }}
+                            onChange={(value) =>
+                              handleChangeValue(value, phukienvattu, "dieuKien")
+                            }
+                          />
+                        </Col>
+                        <Col
+                          xxl={4}
+                          xl={4}
+                          lg={6}
+                          md={6}
+                          sm={8}
+                          xs={8}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "15px",
+                          }}
+                        >
+                          <span style={{ width: "80px" }}>Tình trạng</span>
+                          <Input
+                            value={phukienvattu.tinhTrang}
+                            style={{ width: "calc(100% - 80px)" }}
+                            onChange={(value) =>
+                              handleChangeValue(
+                                value,
+                                phukienvattu,
+                                "tinhTrang"
+                              )
+                            }
+                          />
+                        </Col>
+                        <Col
+                          xxl={4}
+                          xl={4}
+                          lg={6}
+                          md={6}
+                          sm={8}
+                          xs={8}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "15px",
+                          }}
+                        >
+                          <span style={{ width: "60px" }}>Số seri</span>
+                          <Input
+                            value={phukienvattu.soSeri}
+                            style={{ width: "calc(100% - 60px)" }}
+                            onChange={(value) =>
+                              handleChangeValue(value, phukienvattu, "soSeri")
+                            }
+                          />
+                        </Col>
+                        <Col
+                          xxl={4}
+                          xl={4}
+                          lg={6}
+                          md={6}
+                          sm={8}
+                          xs={8}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: "15px",
+                          }}
+                        >
+                          <span style={{ width: "70px" }}>Ghi chú</span>
+                          <Input
+                            value={phukienvattu.moTa}
+                            style={{ width: "calc(100% - 70px)" }}
+                            onChange={(value) =>
+                              handleChangeValue(value, phukienvattu, "moTa")
+                            }
+                          />
+                        </Col>
+                      </Row>
+                    );
+                  } else {
+                    return (
+                      <Col
+                        span={24}
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: "15px",
+                        }}
+                      >
+                        <span style={{ width: "120px" }}>Các vật tư khác:</span>
+                        <Input
+                          value={VatTuKhac}
+                          style={{ width: "calc(100% - 120px)" }}
+                          onChange={(value) =>
+                            handleChangeValue(value, null, "khac")
+                          }
+                        />
+                      </Col>
+                    );
+                  }
+                })}
+            </Card>
+          )}
         </Form>
       </Card>
       {type === "new" || type === "edit" ? (
