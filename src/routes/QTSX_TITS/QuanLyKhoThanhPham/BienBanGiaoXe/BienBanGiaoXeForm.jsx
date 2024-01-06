@@ -1,8 +1,4 @@
-import {
-  DeleteOutlined,
-  PlusCircleOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -10,10 +6,9 @@ import {
   Row,
   Col,
   DatePicker,
-  Button,
   Tag,
+  Button,
   Divider,
-  Upload,
 } from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
@@ -24,62 +19,55 @@ import { fetchReset, fetchStart } from "src/appRedux/actions";
 import {
   FormSubmit,
   Select,
-  Table,
-  EditableTableRow,
   ModalDeleteConfirm,
+  EditableTableRow,
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { BASE_URL_API, DEFAULT_FORM_STYLE } from "src/constants/Config";
+import { DEFAULT_FORM_170PX } from "src/constants/Config";
 import {
-  FileName,
   convertObjectToUrlParams,
-  createGuid,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
-  reDataForTable,
 } from "src/util/Common";
+
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
-const initialState = {
-  benGiao:
-    "CÔNG TY TNHH SẢN XUẤT SƠMI RƠMOÓC VÀ CẤU KIỆN NẶNG THACO INDUSTRIES",
-  diaChi:
-    "KCN Cơ khí ôtô Chu Lai-Trường hải, xã Tam Hiệp, huyện Núi Thành, tỉnh Quảng Nam",
-  boPhan_Id: "root",
-};
-const BienBanGiaoXeForm = ({ history, match, permission }) => {
+
+const BienBanBanGiaoXe = ({ history, match, permission }) => {
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
+  const [type, setType] = useState("new");
+  const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
-  const [fieldTouch, setFieldTouch] = useState(false);
-  const [type, setType] = useState("new");
+  const [ListUser, setListUser] = useState([]);
+  const [ListDonHang, setListDonHang] = useState([]);
+  const [ListDonVi, setListDonVi] = useState([]);
+  const [ListUserKy, setListUserKy] = useState([]);
+  const [ListThanhPham, setListThanhPham] = useState([]);
+  const [editingRecord, setEditingRecord] = useState([]);
   const [id, setId] = useState(undefined);
   const [info, setInfo] = useState({});
-  const [ListNhaCungCap, setListNhaCungCap] = useState([]);
-  const [ListVatTu, setListVatTu] = useState([]);
-  const [ListKhoVatTu, setListKhoVatTu] = useState([]);
-  const [ListUser, setListUser] = useState([]);
-  const [ListUserDuyet, setListUserDuyet] = useState([]);
-  const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(null);
-  const [editingRecord, setEditingRecord] = useState([]);
-  const [DisabledSave, setDisabledSave] = useState(true);
-  const [DisableFileDinhKem, setDisableFileDinhKem] = useState(false);
-  const [FileDinhKem, setFileDinhKem] = useState(null);
-  const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
-  const { diaChi, benGiao } = initialState;
 
   useEffect(() => {
     const load = () => {
+      getUserKy();
+      getListDonHang();
+      getListDonVi();
       if (includes(match.url, "them-moi")) {
-        getData();
         if (permission && permission.add) {
           setType("new");
+          getUserLap();
           setFieldsValue({
-            tranhacungcap: {
-              ngayLap: moment(getDateNow(), "DD/MM/YYYY"),
+            bienbanbangiaoxe: {
+              ngay: moment(getDateNow(), "DD/MM/YYYY"),
+              tits_qtsx_KhachHangBenGiao_Id: INFO.donVi_Id.toLowerCase(),
             },
           });
         } else if (permission && !permission.add) {
@@ -95,21 +83,21 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
           history.push("/home");
         }
       } else if (includes(match.url, "chi-tiet")) {
-        if (permission && permission.view) {
+        if (permission && permission.edit) {
           setType("detail");
           const { id } = match.params;
           setId(id);
           getInfo(id);
-        } else if (permission && !permission.view) {
+        } else if (permission && !permission.edit) {
           history.push("/home");
         }
       } else if (includes(match.url, "xac-nhan")) {
-        if (permission && permission.cof) {
+        if (permission && permission.edit) {
           setType("xacnhan");
           const { id } = match.params;
           setId(id);
           getInfo(id);
-        } else if (permission && !permission.cof) {
+        } else if (permission && !permission.edit) {
           history.push("/home");
         }
       }
@@ -118,62 +106,15 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const getData = () => {
-    getNhaCungCap();
-    getListKho();
-    getUserLap(INFO, null);
-    getUserDuyet(INFO);
-  };
 
-  const getNhaCungCap = (id) => {
-    if (id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `NhaCungCap/${id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListNhaCungCap([res.data]);
-        } else {
-          setListNhaCungCap([]);
-        }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `NhaCungCap?page=-1`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListNhaCungCap(res.data);
-        } else {
-          setListNhaCungCap([]);
-        }
-      });
-    }
-  };
-
-  const getListKho = () => {
+  const getUserKy = () => {
+    const params = convertObjectToUrlParams({
+      donviId: INFO.donVi_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&isThanhPham=false`,
+          `Account/get-cbnv?${params}&key=1`,
           "GET",
           null,
           "DETAIL",
@@ -182,26 +123,24 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
           reject
         )
       );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListKhoVatTu(res.data);
-        } else {
-          setListKhoVatTu([]);
-        }
-      })
-      .catch((error) => console.error(error));
+    }).then((res) => {
+      if (res && res.data) {
+        setListUserKy(res.data);
+      } else {
+        setListUserKy([]);
+      }
+    });
   };
 
-  const getUserLap = (info, nguoiLap_Id) => {
+  const getUserLap = (nguoiTao_Id) => {
     const params = convertObjectToUrlParams({
-      id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
-      donVi_Id: info.donVi_Id,
+      id: nguoiTao_Id ? nguoiTao_Id : INFO.user_Id,
+      donVi_Id: INFO.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${info.user_Id}?${params}`,
+          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : INFO.user_Id}?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -214,24 +153,21 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
       if (res && res.data) {
         setListUser([res.data]);
         setFieldsValue({
-          tranhacungcap: {
-            userLap_Id: res.data.Id,
+          bienbanbangiaoxe: {
+            nguoiTao_Id: res.data.Id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
+      } else {
       }
     });
   };
 
-  const getUserDuyet = (info) => {
-    const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
-      key: 1,
-    });
+  const getListDonHang = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}`,
+          `tits_qtsx_DonHang?page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -240,11 +176,27 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
           reject
         )
       );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListDonHang(res.data);
+        } else {
+          setListDonHang([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListDonVi = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(`DonVi?page=-1`, "GET", null, "DETAIL", "", resolve, reject)
+      );
     }).then((res) => {
       if (res && res.data) {
-        setListUserDuyet(res.data);
+        setListDonVi(res.data);
       } else {
-        setListUserDuyet([]);
+        setListDonVi([]);
       }
     });
   };
@@ -254,13 +206,10 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
    *
    */
   const getInfo = (id) => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuTraHangNCC/${id}?${params}`,
+          `tits_qtsx_PhieuNhapKhoThanhPham/${id}?donVi_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -273,49 +222,35 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setInfo(res.data);
-          getNhaCungCap();
-          getUserDuyet(INFO);
-          getListKho();
-          getUserLap(INFO, res.data.userLap_Id);
-          setFileDinhKem(res.data.fileDanhGiaChatLuong);
+          const newData =
+            res.data.tits_qtsx_PhieuNhapKhoThanhPhamChiTiets &&
+            JSON.parse(res.data.tits_qtsx_PhieuNhapKhoThanhPhamChiTiets).map(
+              (data) => {
+                return {
+                  ...data,
+                  soLuongChuaNhap: data.soLuongChuaNhap
+                    ? data.soLuongChuaNhap
+                    : 0,
+                  thanhPham: `${data.tenThanhPham}${
+                    data.tenMauSac ? ` (${data.tenMauSac})` : ""
+                  }`,
+                };
+              }
+            );
+          setListThanhPham(newData);
+          getUserLap(res.data.nguoiTao_Id);
+
           setFieldsValue({
-            tranhacungcap: {
-              ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
-              benNhan_Id: res.data.benNhan_Id,
-              benVanChuyen_Id: res.data.benVanChuyen_Id,
-              userDuyet_Id: res.data.userDuyet_Id,
-              fileDanhGiaChatLuong: res.data.fileDanhGiaChatLuong,
+            bienbanbangiaoxe: {
+              ...res.data,
+              ngay: res.data.ngay ? moment(res.data.ngay, "DD/MM/YYYY") : null,
             },
           });
-
-          const newData =
-            res.data.chiTietVatTu &&
-            JSON.parse(res.data.chiTietVatTu).map((data) => {
-              const vitri = `${data.tenKe ? `${data.tenKe}` : ""}${
-                data.tenTang ? ` - ${data.tenTang}` : ""
-              }${data.tenNgan ? ` - ${data.tenNgan}` : ""}`;
-
-              return {
-                ...data,
-                soLuongTraNCC: data.soLuongTraNCC,
-                lkn_ChiTietKhoVatTu_Id: data.lkn_ChiTietKhoVatTu_Id
-                  ? data.lkn_ChiTietKhoVatTu_Id.toLowerCase()
-                  : createGuid(),
-                vatTu: `${data.maVatTu} - ${data.tenVatTu}${
-                  vitri ? ` (${vitri})` : ""
-                }`,
-              };
-            });
-          setListVatTu(newData ? newData : []);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  /**
-   * Quay lại trang bộ phận
-   *
-   */
   const goBack = () => {
     history.push(
       `${match.url.replace(
@@ -331,15 +266,9 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
     );
   };
 
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
   const deleteItemFunc = (item) => {
-    const title = "vật tư";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
+    const title = "thành phẩm";
+    ModalDeleteConfirm(deleteItemAction, item, item.thanhPham, title);
   };
 
   /**
@@ -348,17 +277,10 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = ListVatTu.filter((d) => d.maVatTu !== item.maVatTu);
-    setListVatTu(newData);
-    setFieldTouch(true);
+    const newData = ListThanhPham.filter((d) => d.thanhPham !== item.thanhPham);
+    setListThanhPham(newData);
   };
 
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
   const actionContent = (item) => {
     const deleteItemVal =
       permission && permission.del && (type === "new" || type === "edit")
@@ -374,37 +296,47 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
       </div>
     );
   };
+
   const handleInputChange = (val, item) => {
-    const soLuongTraNCC = val.target.value;
-    if (isEmpty(soLuongTraNCC) || Number(soLuongTraNCC) <= 0) {
+    const soLuongNhap = val.target.value;
+    if (isEmpty(soLuongNhap) || Number(soLuongNhap) <= 0) {
       setFieldTouch(false);
       setEditingRecord([...editingRecord, item]);
       item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
-    } else if (Number(soLuongTraNCC) > Number(item.soLuong)) {
+    } else if (Number(soLuongNhap) > item.soLuongChuaNhap && type === "new") {
       setFieldTouch(false);
       setEditingRecord([...editingRecord, item]);
-      item.message = `Số lượng phải nhỏ hơn số lượng trong kho ${item.soLuong}`;
+      item.message = `Số lượng không được lớn hơn ${item.soLuongChuaNhap}`;
+    } else if (
+      Number(soLuongNhap) > Number(item.soLuongChuaNhap + item.soLuongDaNhap) &&
+      type === "edit"
+    ) {
+      setFieldTouch(false);
+      setEditingRecord([...editingRecord, item]);
+      item.message = `Số lượng không được lớn hơn ${Number(
+        item.soLuongChuaNhap + item.soLuongDaNhap
+      )}`;
     } else {
       const newData = editingRecord.filter(
-        (d) => d.lkn_ChiTietKhoVatTu_Id !== item.lkn_ChiTietKhoVatTu_Id
+        (d) => d.thanhPham !== item.thanhPham
       );
       setEditingRecord(newData);
       newData.length === 0 && setFieldTouch(true);
     }
-    const newData = [...ListVatTu];
+    const newData = [...ListThanhPham];
     newData.forEach((ct, index) => {
-      if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
-        ct.soLuongTraNCC = soLuongTraNCC;
+      if (ct.thanhPham === item.thanhPham) {
+        ct.soLuong = soLuongNhap;
       }
     });
-    setListVatTu(newData);
+    setListThanhPham(newData);
   };
 
-  const renderSoLuongTraNCC = (item) => {
+  const rendersoLuong = (record, value) => {
     let isEditing = false;
     let message = "";
     editingRecord.forEach((ct) => {
-      if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
+      if (ct.thanhPham === record.thanhPham) {
         isEditing = true;
         message = ct.message;
       }
@@ -418,63 +350,41 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
           }}
           className={`input-item`}
           type="number"
-          value={item.soLuongTraNCC}
+          value={record.soLuong}
           disabled={type === "new" || type === "edit" ? false : true}
-          onChange={(val) => handleInputChange(val, item)}
+          onChange={(val) => handleInputChange(val, record, value)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
       </>
     );
   };
+
   let colValues = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
       key: "key",
-      align: "center",
-      width: 50,
-    },
-    {
-      title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      width: 45,
       align: "center",
     },
     {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      title: "Mã thành phẩm",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
       align: "center",
     },
     {
-      title: "Tên kho",
-      dataIndex: "tenCTKho",
-      key: "tenCTKho",
+      title: "Tên thành phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
       align: "center",
-    },
-    {
-      title: "Tên kệ",
-      dataIndex: "tenKe",
-      key: "tenKe",
-      align: "center",
-    },
-    {
-      title: "Tên tầng",
-      dataIndex: "tenTang",
-      key: "tenTang",
-      align: "center",
-    },
-    {
-      title: "Tên ngăn",
-      dataIndex: "tenNgan",
-      key: "tenNgan",
-      align: "center",
-    },
-    {
-      title: "Số lượng",
-      key: "soLuongTraNCC",
-      align: "center",
-      render: (record) => renderSoLuongTraNCC(record),
     },
     {
       title: "Đơn vị tính",
@@ -483,11 +393,22 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Chức năng",
-      key: "action",
+      title: "Số lượng nhập",
+      key: "soLuong",
       align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
+      render: (record) => rendersoLuong(record),
+    },
+    {
+      title: "Màu sắc",
+      dataIndex: "tenMauSac",
+      key: "tenMauSac",
+      align: "center",
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "center",
     },
   ];
 
@@ -513,217 +434,111 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
       }),
     };
   });
-
   /**
    * Khi submit
    *
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.tranhacungcap);
+    saveData(values.bienbanbangiaoxe);
   };
 
-  const saveAndClose = (value) => {
+  const saveAndClose = (val) => {
     validateFields()
       .then((values) => {
-        saveData(values.tranhacungcap, value);
+        if (ListThanhPham.length === 0) {
+          Helpers.alertError("Danh sách thành phẩm không được rỗng");
+        } else {
+          saveData(values.bienbanbangiaoxe, val);
+        }
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (data, saveQuit = false) => {
-    const tokenInfo = getTokenInfo();
+  const saveData = (bienbanbangiaoxe, saveQuit = false) => {
     if (type === "new") {
-      if (ListVatTu.length === 0) {
-        Helpers.alertError("Danh sách vật tư rỗng");
-      } else {
-        if (FileDinhKem === null) {
-          const newData = {
-            ...data,
-            ngayYeuCau: data.ngayYeuCau.format("DD/MM/YYYY"),
-            chiTiet_traHangNCCs: ListVatTu,
-          };
-          new Promise((resolve, reject) => {
-            dispatch(
-              fetchStart(
-                `lkn_PhieuTraHangNCC`,
-                "POST",
-                newData,
-                "ADD",
-                "",
-                resolve,
-                reject
-              )
-            );
-          })
-            .then((res) => {
-              if (res.status !== 409) {
-                if (saveQuit) {
-                  goBack();
-                } else {
-                  resetFields();
-                  setFieldTouch(false);
-                  getUserLap(INFO);
-                  setFieldsValue({
-                    tranhacungcap: {
-                      ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
-                    },
-                  });
-                  setListVatTu([]);
-                  setFileDinhKem(null);
-                  setDisableFileDinhKem(false);
-                }
-              } else {
-                setFieldTouch(false);
-              }
-            })
-            .catch((error) => console.error(error));
-        } else {
-          const formData = new FormData();
-          FileDinhKem !== null && formData.append("lstFiles", FileDinhKem);
-          fetch(`${BASE_URL_API}/api/Upload/Multi`, {
-            method: "POST",
-            body: formData,
-            headers: {
-              Authorization: "Bearer ".concat(tokenInfo.token),
-            },
-          })
-            .then((res) => res.json())
-            .then((path) => {
-              const newData = {
-                ...data,
-                ngayYeuCau: data.ngayYeuCau.format("DD/MM/YYYY"),
-                fileDanhGiaChatLuong: path[0].path,
-                chiTiet_traHangNCCs: ListVatTu,
-              };
-              new Promise((resolve, reject) => {
-                dispatch(
-                  fetchStart(
-                    `lkn_PhieuTraHangNCC`,
-                    "POST",
-                    newData,
-                    "ADD",
-                    "",
-                    resolve,
-                    reject
-                  )
-                );
-              })
-                .then((res) => {
-                  if (res.status !== 409) {
-                    if (saveQuit) {
-                      goBack();
-                    } else {
-                      resetFields();
-                      setFieldTouch(false);
-                      getUserLap(INFO);
-                      setFieldsValue({
-                        tranhacungcap: {
-                          ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
-                        },
-                      });
-                      setListVatTu([]);
-                      setFileDinhKem(null);
-                      setDisableFileDinhKem(false);
-                    }
-                  } else {
-                    setFieldTouch(false);
-                  }
-                })
-                .catch((error) => console.error(error));
-            });
-        }
-      }
+      const newData = {
+        ...bienbanbangiaoxe,
+        ngay: bienbanbangiaoxe.ngay.format("DD/MM/YYYY"),
+        tits_qtsx_PhieuNhapKhoThanhPhamChiTiets: ListThanhPham,
+      };
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `tits_qtsx_PhieuNhapKhoThanhPham`,
+            "POST",
+            newData,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (res.status !== 409) {
+            if (saveQuit) {
+              goBack();
+            } else {
+              resetFields();
+              getUserLap();
+              getUserKy();
+              setListThanhPham([]);
+              setFieldsValue({
+                bienbanbangiaoxe: {
+                  ngay: moment(getDateNow(), "DD/MM/YYYY"),
+                },
+              });
+              setFieldTouch(false);
+            }
+          } else {
+            setFieldTouch(false);
+          }
+        })
+        .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      if (!FileDinhKem || !FileDinhKem.name) {
-        const newData = {
-          ...data,
-          id: id,
-          ngayYeuCau: data.ngayYeuCau.format("DD/MM/YYYY"),
-          chiTiet_traHangNCCs: ListVatTu,
-        };
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `lkn_PhieuTraHangNCC/${id}`,
-              "PUT",
-              newData,
-              "EDIT",
-              "",
-              resolve,
-              reject
-            )
-          );
+      const newData = {
+        ...bienbanbangiaoxe,
+        id: id,
+        ngay: bienbanbangiaoxe.ngay.format("DD/MM/YYYY"),
+        tits_qtsx_PhieuNhapKhoThanhPhamChiTiets: ListThanhPham,
+      };
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `tits_qtsx_PhieuNhapKhoThanhPham/${id}`,
+            "PUT",
+            newData,
+            "EDIT",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (saveQuit) {
+            if (res.status !== 409) goBack();
+          } else {
+            getInfo(id);
+            setFieldTouch(false);
+          }
         })
-          .then((res) => {
-            if (saveQuit) {
-              if (res.status !== 409) goBack();
-            } else {
-              getInfo(id);
-              setFieldTouch(false);
-              setDisabledSave(true);
-            }
-          })
-          .catch((error) => console.error(error));
-      } else {
-        const formData = new FormData();
-        FileDinhKem.name !== null && formData.append("lstFiles", FileDinhKem);
-        fetch(`${BASE_URL_API}/api/Upload/Multi`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(tokenInfo.token),
-          },
-        })
-          .then((res) => res.json())
-          .then((path) => {
-            const newData = {
-              ...data,
-              id: id,
-              ngayYeuCau: data.ngayYeuCau.format("DD/MM/YYYY"),
-              fileDanhGiaChatLuong: path[0].path,
-              chiTiet_traHangNCCs: ListVatTu,
-            };
-            new Promise((resolve, reject) => {
-              dispatch(
-                fetchStart(
-                  `lkn_PhieuTraHangNCC/${id}`,
-                  "PUT",
-                  newData,
-                  "EDIT",
-                  "",
-                  resolve,
-                  reject
-                )
-              );
-            })
-              .then((res) => {
-                if (saveQuit) {
-                  if (res.status !== 409) goBack();
-                } else {
-                  getInfo(id);
-                  setFieldTouch(false);
-                  setDisabledSave(true);
-                }
-              })
-              .catch((error) => console.error(error));
-          });
-      }
+        .catch((error) => console.error(error));
     }
   };
 
-  const handleXacNhan = () => {
+  const hanldeXacNhan = () => {
     const newData = {
       id: id,
-      isXacNhan: true,
     };
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuTraHangNCC/xac-nhan/${id}`,
+          `tits_qtsx_PhieuNhapKhoThanhPham/duyet/${id}`,
           "PUT",
           newData,
           "XACNHAN",
@@ -735,7 +550,7 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res.status !== 409) {
-          goBack();
+          getInfo(id);
         }
       })
       .catch((error) => console.error(error));
@@ -745,71 +560,66 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận phiếu trả vật tư nhà cung cấp",
-    onOk: handleXacNhan,
+    title: "Xác nhận phiếu nhập kho thành phẩm",
+    onOk: hanldeXacNhan,
   };
 
   const modalXK = () => {
     Modal(prop);
   };
 
-  const hanldeTuChoi = () => {
-    setActiveModalTuChoi(true);
+  const saveTuChoi = (data) => {
+    const newData = {
+      id: id,
+      isDuyet: false,
+      lyDoDuyetTuChoi: data,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuNhapKhoThanhPham/xac-nhan/${id}`,
+          "PUT",
+          newData,
+          "TUCHOI",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) getInfo(id);
+      })
+      .catch((error) => console.error(error));
   };
 
-  const handleRefeshModal = () => {
-    goBack();
-  };
-
-  const handleChonVatTu = () => {
-    setActiveModalChonVatTu(true);
-  };
-
-  const handleThemVatTu = (data) => {
-    console.log(data);
-    const newListVatTu = [...ListVatTu, ...data];
-    setListVatTu(newListVatTu);
-    if (type === "edit") {
-      setFieldTouch(true);
-    }
-  };
-
-  const propsFileDinhKem = {
-    beforeUpload: (file) => {
-      setFileDinhKem(file);
-      setDisableFileDinhKem(true);
-      return false;
-    },
-    showUploadList: false,
-    maxCount: 1,
+  const handleThemThanhPham = (data) => {
+    setListThanhPham([...ListThanhPham, ...data]);
+    setFieldTouch(true);
   };
 
   const formTitle =
     type === "new" ? (
-      "Tạo biên bản bàn giao xe"
+      "Tạo phiếu nhập kho thành phẩm"
     ) : type === "edit" ? (
-      "Chỉnh sửa biên bản bàn giao xe"
+      "Chỉnh sửa phiếu nhập kho thành phẩm"
     ) : (
       <span>
-        Chi tiết biên bản bàn giao xe -{" "}
-        <Tag color={"blue"} style={{ fontSize: "14px" }}>
-          {info.maPhieuTraHangNCC}
+        Chi tiết phiếu nhập kho thành phẩm -{" "}
+        <Tag color={"blue"} style={{ fontSize: 15 }}>
+          {info.maPhieu}
         </Tag>
         <Tag
           color={
-            info.isXacNhan === null
+            info.tinhTrang === "Chưa duyệt"
               ? "orange"
-              : info.isXacNhan === true
+              : info.tinhTrang === "Đã duyệt"
               ? "blue"
-              : "error"
+              : "red"
           }
-          style={{ fontSize: "14px" }}
+          style={{ fontSize: 15 }}
         >
-          {info.isXacNhan === null
-            ? "Chưa xác nhận"
-            : info.isXacNhan === true
-            ? "Đã xác nhận"
-            : "Đã từ chối"}
+          {info.tinhTrang}
         </Tag>
       </span>
     );
@@ -817,15 +627,18 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card className="th-card-margin-bottom">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        title={"Thông tin phiếu nhập kho thành phẩm"}
+      >
         <Form
-          {...DEFAULT_FORM_STYLE}
+          {...DEFAULT_FORM_170PX}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
-          <Row>
+          <Row style={{ padding: "0px 20px" }}>
             <Col
               xxl={12}
               xl={12}
@@ -836,8 +649,8 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Người lập"
-                name={["tranhacungcap", "userLap_Id"]}
+                label="Người nhập"
+                name={["bienbanbangiaoxe", "nguoiTao_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -865,7 +678,7 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Ban/Phòng"
-                name={["tranhacungcap", "tenPhongBan"]}
+                name={["bienbanbangiaoxe", "tenPhongBan"]}
                 rules={[
                   {
                     type: "string",
@@ -886,16 +699,19 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Yêu cầu giao xe"
-                name={["tranhacungcap", "benNhan_Id"]}
+                label="Số yêu cầu giao xe"
+                name={["bienbanbangiaoxe", "canCuYeuCauGiaoXe"]}
                 rules={[
                   {
-                    type: "string",
                     required: true,
+                    type: "string",
                   },
                 ]}
               >
-                <Input className="input-item" placeholder="Yêu cầu giao xe" />
+                <Input
+                  placeholder="Nhập căn cứ yêu cầu giao xe số"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
               </FormItem>
             </Col>
             <Col
@@ -909,17 +725,20 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Số"
-                name={["tranhacungcap", "benNhan_Id"]}
+                name={["bienbanbangiaoxe", "so"]}
                 rules={[
                   {
-                    type: "string",
                     required: true,
+                    type: "string",
                   },
                 ]}
               >
-                <Input className="input-item" placeholder="Số" />
+                <Input
+                  placeholder="Nhập số"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                />
               </FormItem>
-            </Col>{" "}
+            </Col>
             <Col
               xxl={12}
               xl={12}
@@ -930,8 +749,8 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Ngày lập"
-                name={["tranhacungcap", "ngayLap"]}
+                label="Ngày nhập"
+                name={["bienbanbangiaoxe", "ngay"]}
                 rules={[
                   {
                     required: true,
@@ -940,8 +759,9 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
               >
                 <DatePicker
                   format={"DD/MM/YYYY"}
-                  allowClear={false}
+                  showTime
                   disabled={true}
+                  allowClear={false}
                 />
               </FormItem>
             </Col>
@@ -956,27 +776,27 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Đơn hàng"
-                name={["tranhacungcap", "benNhan_Id"]}
+                name={["bienbanbangiaoxe", "tits_qtsx_DonHang_Id"]}
                 rules={[
                   {
                     type: "string",
+                    required: true,
                   },
                 ]}
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListNhaCungCap}
-                  placeholder="Đơn hàng"
-                  optionsvalue={["id", "nguoiLienHe"]}
+                  data={ListDonHang}
+                  placeholder="Chọn đơn hàng"
+                  optionsvalue={["id", "tenDonHang"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
+                  disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
             </Col>
-          </Row>
-          <Divider style={{ marginBottom: 20 }} />
-          <Row>
+            <Divider />
             <Col
               xxl={12}
               xl={12}
@@ -988,216 +808,39 @@ const BienBanGiaoXeForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="I. Bên giao"
-                name={["tranhacungcap", "benGiao"]}
+                name={["bienbanbangiaoxe", "tits_qtsx_KhachHangBenGiao_Id"]}
                 rules={[
                   {
+                    required: true,
                     type: "string",
-                    required: true,
-                  },
-                ]}
-                initialValue={benGiao}
-              >
-                <Input className="input-item" placeholder="Bên giao" />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Địa chỉ"
-                name={["tranhacungcap", "diaChi"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-                initialValue={diaChi}
-              >
-                <Input className="input-item" placeholder="Địa chỉ" />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="Ngày yêu cầu"
-                name={["tranhacungcap", "ngayYeuCau"]}
-                rules={[
-                  {
-                    required: true,
                   },
                 ]}
               >
-                <DatePicker
-                  format={"DD/MM/YYYY"}
-                  allowClear={false}
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListDonVi}
+                  placeholder="Chọn đơn vị giao"
+                  optionsvalue={["id", "tenDonVi"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
                   disabled={true}
                 />
               </FormItem>
             </Col>
-            <Col
-              xxl={12}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: 8 }}
-            >
-              <FormItem
-                label="File đính kèm"
-                name={["tranhacungcap", "fileDanhGiaChatLuong"]}
-              >
-                {!DisableFileDinhKem && FileDinhKem === null ? (
-                  <Upload {...propsFileDinhKem}>
-                    <Button
-                      style={{
-                        marginBottom: 0,
-                        height: 30,
-                        lineHeight: "25px",
-                      }}
-                      icon={<UploadOutlined />}
-                      disabled={type === "detail" || type === "xacnhan"}
-                    >
-                      Tải file đính kèm
-                    </Button>
-                  </Upload>
-                ) : (
-                  <>
-                    {FileDinhKem && FileDinhKem.name ? (
-                      <span
-                        style={{ color: "#0469B9", cursor: "pointer" }}
-                        // onClick={() => renderPDF(FileDinhKem)}
-                      >
-                        {FileDinhKem.name}
-                      </span>
-                    ) : (
-                      <a
-                        href={`${BASE_URL_API}${FileDinhKem}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {FileDinhKem && FileName(FileDinhKem)}
-                      </a>
-                    )}
-                    {type === "detail" || type === "xacnhan" ? null : (
-                      <DeleteOutlined
-                        style={{
-                          cursor: "pointer",
-                          marginLeft: 10,
-                          color: "red",
-                        }}
-                        onClick={() => {
-                          setFileDinhKem(null);
-                          setDisableFileDinhKem(false);
-                        }}
-                      />
-                    )}
-                  </>
-                )}
-              </FormItem>
-            </Col>
           </Row>
         </Form>
-        <Divider style={{ marginBottom: 15 }} />
-        <Row justify={"center"}>
-          <h2 style={{ color: "#0469B9" }}>
-            <strong>DANH SÁCH VẬT TƯ</strong>
-          </h2>
-        </Row>
-        {type === "xacnhan" || type === "detail" ? null : (
-          <Row justify={"end"} style={{ padding: "0px 20px 10px 20px" }}>
-            <Button
-              icon={<PlusCircleOutlined />}
-              className="th-margin-bottom-0"
-              type="primary"
-              onClick={handleChonVatTu}
-            >
-              Chọn vật tư
-            </Button>
-          </Row>
-        )}
-        <Table
-          bordered
-          columns={columns}
-          scroll={{ x: 1300, y: "55vh" }}
-          components={components}
-          className="gx-table-responsive"
-          dataSource={
-            type === "new"
-              ? reDataForTable(ListVatTu)
-              : reDataForTable(
-                  ListVatTu.map((list) => {
-                    const Kho = ListKhoVatTu.filter(
-                      (d) =>
-                        d.id.toLowerCase() === list.cauTrucKho_Id.toLowerCase()
-                    );
-                    return {
-                      ...list,
-                      tenCTKho: Kho.length !== 0 && Kho[0].tenCTKho,
-                    };
-                  })
-                )
-          }
-          size="small"
-          rowClassName={"editable-row"}
-          pagination={false}
-          // loading={loading}
-        />
-        {type === "xacnhan" || type === "detail" ? null : (
-          <FormSubmit
-            goBack={goBack}
-            handleSave={onFinish}
-            saveAndClose={saveAndClose}
-            disabled={
-              type === "new"
-                ? fieldTouch && ListVatTu.length !== 0
-                : fieldTouch || !DisabledSave
-            }
-          />
-        )}
-        {type === "xacnhan" && (
-          <Row justify={"end"} style={{ marginTop: 15 }}>
-            <Col style={{ marginRight: 15 }}>
-              <Button type="primary" onClick={modalXK}>
-                Xác nhận
-              </Button>
-            </Col>
-            <Col style={{ marginRight: 15 }}>
-              <Button danger onClick={hanldeTuChoi}>
-                Từ chối
-              </Button>
-            </Col>
-          </Row>
-        )}
       </Card>
-      {/* <ModalChonVatTu
-        openModal={ActiveModalChonVatTu}
-        openModalFS={setActiveModalChonVatTu}
-        itemData={ListVatTu && ListVatTu}
-        ThemVatTu={handleThemVatTu}
-      />
-      <ModalTuChoi
-        openModal={ActiveModalTuChoi}
-        openModalFS={setActiveModalTuChoi}
-        itemData={info}
-        refesh={handleRefeshModal}
-      /> */}
+      {type === "new" || type === "edit" ? (
+        <FormSubmit
+          goBack={goBack}
+          handleSave={saveAndClose}
+          saveAndClose={saveAndClose}
+          disabled={fieldTouch}
+        />
+      ) : null}
     </div>
   );
 };
 
-export default BienBanGiaoXeForm;
+export default BienBanBanGiaoXe;

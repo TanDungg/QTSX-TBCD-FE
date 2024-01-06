@@ -29,7 +29,7 @@ import {
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { BASE_URL_API, DEFAULT_FORM_NHAPKHOVATTU } from "src/constants/Config";
+import { BASE_URL_API, DEFAULT_FORM_170PX } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -993,7 +993,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         title={"Thông tin phiếu nhập kho vật tư"}
       >
         <Form
-          {...DEFAULT_FORM_NHAPKHOVATTU}
+          {...DEFAULT_FORM_170PX}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}

@@ -436,7 +436,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       render: (value) => rendersoLuong(value, "soLuongDatMua"),
     },
     {
-      title: "Ngày yêu cầu",
+      title: "Ngày yêu cầu giao",
       dataIndex: "ngay",
       key: "ngay",
       align: "center",

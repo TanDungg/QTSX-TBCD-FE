@@ -337,33 +337,19 @@ export const DEFAULT_FORM_XUATKHONGOAIQUAN = {
         : 17,
   },
 };
-export const DEFAULT_FORM_NHAPKHOVATTU = {
+
+export const DEFAULT_FORM_170PX = {
   labelCol: {
-    span:
-      window.innerWidth >= 1600
-        ? 8
-        : window.innerWidth >= 1200
-        ? 9
-        : window.innerWidth >= 768
-        ? 6
-        : window.innerWidth >= 576
-        ? 8
-        : 7,
     style: {
+      width: "170px",
+      textAlign: "left",
       fontWeight: "bold",
-      marginLeft: window.innerWidth >= 1200 ? -15 : 0,
     },
   },
   wrapperCol: {
-    span:
-      window.innerWidth >= 1600
-        ? 15
-        : window.innerWidth >= 1200
-        ? 15
-        : window.innerWidth >= 768
-        ? 17
-        : window.innerWidth >= 576
-        ? 16
-        : 17,
+    style: {
+      width: "calc(100% - 170px)",
+      paddingRight: "20px",
+    },
   },
 };

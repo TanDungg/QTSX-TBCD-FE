@@ -15,7 +15,7 @@ import {
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_NHAPKHOVATTU } from "src/constants/Config";
+import { DEFAULT_FORM_170PX } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getLocalStorage,
@@ -647,7 +647,7 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
         title={"Thông tin phiếu nhập kho thành phẩm"}
       >
         <Form
-          {...DEFAULT_FORM_NHAPKHOVATTU}
+          {...DEFAULT_FORM_170PX}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}

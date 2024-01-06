@@ -395,7 +395,7 @@ function DeNghiMuaHang({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Ngày yêu cầu",
+      title: "Ngày tạo phiếu",
       dataIndex: "ngayYeuCau",
       key: "ngayYeuCau",
       align: "center",

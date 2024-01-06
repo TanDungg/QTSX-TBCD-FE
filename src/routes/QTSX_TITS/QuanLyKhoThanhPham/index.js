@@ -52,6 +52,7 @@ const PhieuKiemKeThanhPham = asyncComponent(() =>
 const PhieuKiemKeThanhPhamForm = asyncComponent(() =>
   import("./PhieuKiemKeThanhPham/PhieuKiemKeThanhPhamForm")
 );
+
 /* Biên bản giao xe*/
 const BienBanGiaoXe = asyncComponent(() =>
   import("./BienBanGiaoXe/BienBanGiaoXe")
