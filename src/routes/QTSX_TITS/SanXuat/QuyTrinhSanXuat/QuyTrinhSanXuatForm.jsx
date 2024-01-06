@@ -945,15 +945,19 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
     if (data.loai === "add") {
       const newData = ListCongDoan.map((list) => {
         if (
-          list.tits_qtsx_CongDoan_Id === data.tits_qtsx_CongDoan_Id &&
-          list.tits_qtsx_Xuong_Id === data.tits_qtsx_Xuong_Id
+          list.tits_qtsx_CongDoan_Id.toLowerCase() ===
+            data.tits_qtsx_CongDoan_Id.toLowerCase() &&
+          list.tits_qtsx_Xuong_Id.toLowerCase() ===
+            data.tits_qtsx_Xuong_Id.toLowerCase()
         ) {
-          const tramExists = list.list_Trams.some(
-            (d) => d.tits_qtsx_Tram_Id === data.tits_qtsx_Tram_Id
+          const tramtrung = list.list_Trams.filter(
+            (t) =>
+              t.tits_qtsx_Tram_Id.toLowerCase() ===
+              data.tits_qtsx_Tram_Id.toLowerCase()
           );
 
-          if (tramExists) {
-            Helpers.alertError(`Trạm ${data.tenTram} đã được thêm`);
+          if (tramtrung.length) {
+            Helpers.alertError(`Trạm ${data.tenTram} đã tồn tại`);
             return list;
           } else {
             return {
@@ -975,18 +979,34 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           list.tits_qtsx_Xuong_Id.toLowerCase() ===
             data.tits_qtsx_Xuong_Id.toLowerCase()
         ) {
-          return {
-            ...list,
-            list_Trams: list.list_Trams.map((tram) => {
-              if (
-                tram.tits_qtsx_Tram_Id.toLowerCase() ===
-                data.tits_qtsx_Tram_Id.toLowerCase()
-              ) {
-                return data;
-              }
-              return tram;
-            }),
-          };
+          const tramtrung = list.list_Trams.filter(
+            (t) =>
+              t.tits_qtsx_Tram_Id.toLowerCase() ===
+              data.tits_qtsx_Tram_Id.toLowerCase()
+          );
+
+          if (!tramtrung.length) {
+            return {
+              ...list,
+              list_Trams: list.list_Trams.map((tram) => {
+                if (
+                  tram.tits_qtsx_QuyTrinhSanXuatTram_Id.toLowerCase() ===
+                  data.tits_qtsx_QuyTrinhSanXuatTram_Id.toLowerCase()
+                ) {
+                  return {
+                    ...tram,
+                    tits_qtsx_Tram_Id: data.tits_qtsx_Tram_Id,
+                    maTram: data.maTram,
+                    tenTram: data.tenTram,
+                    list_VatTus: data.list_VatTus,
+                  };
+                }
+                return tram;
+              }),
+            };
+          } else {
+            Helpers.alertError(`Trạm ${data.tenTram} đã tồn tại`);
+          }
         }
         return list;
       });
@@ -1503,10 +1523,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           scroll={{ x: 1000, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
-          dataSource={reDataForTable(
-            ListCongDoan &&
-              ListCongDoan.slice().sort((a, b) => a.thuTu - b.thuTu)
-          )}
+          dataSource={reDataForTable(ListCongDoan && ListCongDoan)}
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
@@ -1525,8 +1542,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
                 components={components}
                 className="gx-table-responsive th-F1D065-head"
                 dataSource={reDataForTable(
-                  record.list_Trams &&
-                    record.list_Trams.slice().sort((a, b) => a.thuTu - b.thuTu)
+                  record.list_Trams && record.list_Trams
                 )}
                 size="small"
                 rowClassName={"editable-row"}

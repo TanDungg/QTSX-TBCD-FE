@@ -37,6 +37,7 @@ function ModalCongDoan({ openModalFS, openModal, DataThemCongDoan, itemData }) {
 
   useEffect(() => {
     if (openModal) {
+      
       getListCongDoan();
       setFieldsValue({
         themcongdoan: {

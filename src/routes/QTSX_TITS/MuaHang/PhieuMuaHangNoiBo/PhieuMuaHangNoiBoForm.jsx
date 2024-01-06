@@ -587,6 +587,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
 
   const DataThemVatTu = (data) => {
     setListVatTu([...ListVatTu, ...data]);
+    setFieldTouch(true);
   };
 
   const props = {

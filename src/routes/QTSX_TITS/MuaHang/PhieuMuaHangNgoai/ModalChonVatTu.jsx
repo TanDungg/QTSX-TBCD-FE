@@ -264,14 +264,14 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
   const onFinish = (values) => {
     const data = values.themvattu;
     const listvattu = ListVatTu.filter((d) => d.id === data.tits_qtsx_VatTu_Id);
-    const donhang = ListDonHang.filter(
-      (d) => d.id === data.tits_qtsx_DonHang_Id
-    );
+    const donhang =
+      data.tits_qtsx_DonHang_Id &&
+      ListDonHang.filter((d) => d.id === data.tits_qtsx_DonHang_Id);
     const DataList = {
       ...data,
       ...listvattu[0],
-      tenDonHang: donhang[0].tenDonHang,
-      maPhieu: donhang[0].maPhieu,
+      tenDonHang: donhang && donhang[0].tenDonHang,
+      maPhieu: donhang && donhang[0].maPhieu,
       ngay: data.ngay.format("DD/MM/YYYY"),
     };
     setDataListVatTu([...DataListVatTu, DataList]);

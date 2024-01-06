@@ -304,6 +304,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
     const tram = ListTram.filter(
       (d) => d.id === data.tits_qtsx_Tram_Id.toLowerCase()
     );
+
     const thietbi =
       data.tits_qtsx_ThietBi_Id &&
       ListThietBi.filter(
@@ -313,6 +314,9 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
     const newData = {
       ...data,
       tits_qtsx_CongDoan_Id: itemData.tram.tits_qtsx_CongDoan_Id.toLowerCase(),
+      tits_qtsx_QuyTrinhSanXuatTram_Id:
+        itemData.tram.tits_qtsx_QuyTrinhSanXuatTram_Id &&
+        itemData.tram.tits_qtsx_QuyTrinhSanXuatTram_Id.toLowerCase(),
       tits_qtsx_Xuong_Id: itemData.tram.tits_qtsx_Xuong_Id.toLowerCase(),
       maTram: tram[0].maTram,
       tenTram: tram[0].tenTram,
@@ -329,12 +333,14 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
   };
 
   const DataThemThongTin = (data) => {
-    console.log(data);
     setListThongTinKiemSoat([...ListThongTinKiemSoat, ...data]);
+    setFieldTouch(true);
   };
 
   const handleCancel = () => {
     openModalFS(false);
+    setFieldTouch(false);
+    resetFields();
   };
 
   return (
@@ -459,12 +465,8 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
               />
             </Card>
             <Row justify={"center"}>
-              <Button
-                type="primary"
-                htmlType={"submit"}
-                disabled={!fieldTouch && !ListThongTinKiemSoat}
-              >
-                Thêm trạm
+              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+                {type === "add" ? "Thêm trạm" : "Cập nhật"}
               </Button>
             </Row>
           </Form>

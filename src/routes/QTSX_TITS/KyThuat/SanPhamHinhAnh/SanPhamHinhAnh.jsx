@@ -394,19 +394,15 @@ function SanPhamHinhAnh({ history, permission }) {
         onCancel={() => setDisabledModalDoiHinhAnh(false)}
         footer={null}
       >
-        <Card
-          className="th-card-margin-bottom"
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-          }}
-        >
+        <Card className="th-card-margin-bottom" align="center">
           <div
             style={{
               display: "flex",
               alignItems: "center",
+              justifyContent: "center",
               marginBottom: 15,
+              height: 20,
+              width: "100%",
             }}
           >
             <span style={{ width: "120px" }}>Hình ảnh:</span>
@@ -459,6 +455,7 @@ function SanPhamHinhAnh({ history, permission }) {
               </span>
             )}
           </div>
+          <Divider />
           <Button
             className="th-margin-bottom-0"
             type="primary"
