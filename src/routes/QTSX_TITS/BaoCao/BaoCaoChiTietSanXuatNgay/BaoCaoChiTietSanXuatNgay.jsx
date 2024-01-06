@@ -1,38 +1,19 @@
 import React, { useEffect, useState } from "react";
-import {
-  Card,
-  Row,
-  Col,
-  Modal as AntModal,
-  Image,
-  Tag,
-  Empty,
-  DatePicker,
-} from "antd";
+import { Card, Row, Col, DatePicker, Button } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { map, isEmpty } from "lodash";
-import {
-  Table,
-  EditableTableRow,
-  Toolbar,
-  Select,
-} from "src/components/Common";
+import { map } from "lodash";
+import { Table, EditableTableRow, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
-  getLocalStorage,
-  getTokenInfo,
   removeDuplicates,
-  getNamNow,
-  getThangNow,
   getDateNow,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { BASE_URL_API } from "src/constants/Config";
-import Chart from "react-google-charts";
-import { Column } from "@ant-design/charts";
 import moment from "moment";
+import { DownloadOutlined } from "@ant-design/icons";
 const { RangePicker } = DatePicker;
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -412,14 +393,45 @@ function BaoCaoChiTietSanXuatNgay({ match, history, permission }) {
       getListData(Xuong, Chuyen, Tram, dateString[0], dateString[1]);
     }
   };
+  const handleXuatExcel = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_BaoCao/export-excel-bao-cao-chi-tiet-san-xuat-ngay`,
+          "POST",
+          Data,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      exportExcel("BaoCaoSanXuatNgay", res.data.dataexcel);
+    });
+  };
+  const addButtonRender = () => {
+    return (
+      <>
+        <Button
+          icon={<DownloadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleXuatExcel}
+        >
+          Xuất Excel
+        </Button>
+      </>
+    );
+  };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Báo cáo chi tiết sản xuất ngày"
-        description="Báo cáo chi tiết sản xuất ngày"
+        title="Báo cáo tiến độ sản xuất ngày"
+        description="Báo cáo tiến độ sản xuất ngày"
+        buttons={addButtonRender()}
       />
-
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
           <Col

@@ -49,9 +49,7 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
         if (permission && permission.edit) {
           setType("edit");
           // Get info
-          const { id } = match.params;
-          setId(id);
-          getDonHang("", "", 1);
+          getDonHang();
           getInfo();
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -90,7 +88,7 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
-  const getListSoVIN = (tits_qtsx_SanPham_Id, tits_qtsx_DonHang_Id) => {
+  const getListSoVIN = (tits_qtsx_SanPham_Id, tits_qtsx_DonHang_Id, data) => {
     const params = convertObjectToUrlParams({
       tits_qtsx_DonHang_Id,
       tits_qtsx_SanPham_Id,
@@ -110,7 +108,11 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListSoVin(res.data);
+          if (data) {
+            setListSoVin([...res.data, ...data]);
+          } else {
+            setListSoVin(res.data);
+          }
         } else {
           setListSoVin([]);
         }
@@ -143,7 +145,8 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
           getListSanPham(res.data.tits_qtsx_DonHang_Id);
           getListSoVIN(
             res.data.tits_qtsx_SanPham_Id,
-            res.data.tits_qtsx_DonHang_Id
+            res.data.tits_qtsx_DonHang_Id,
+            res.data.list_ChiTiets
           );
           setFieldsValue({
             khaibaosocontainer: {

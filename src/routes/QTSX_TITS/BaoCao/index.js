@@ -7,7 +7,6 @@ import Auth from "helpers/Auth";
 const BaoCaoChatLuongTheoThang = asyncComponent(() =>
   import("./ChatLuongTheoThang/ChatLuongTheoThang")
 );
-
 //Tra cứu thông tin xe
 const TraCuuThongTinXe = asyncComponent(() =>
   import("./TraCuuThongTinXe/TraCuuThongTinXe")
@@ -15,6 +14,16 @@ const TraCuuThongTinXe = asyncComponent(() =>
 
 const BaoCaoChiTietSanXuatNgay = asyncComponent(() =>
   import("./BaoCaoChiTietSanXuatNgay/BaoCaoChiTietSanXuatNgay")
+);
+
+const BaoCaoChiTietSanXuatThang = asyncComponent(() =>
+  import("./BaoCaoChiTietSanXuatThang/BaoCaoChiTietSanXuatThang")
+);
+const BaoCaoSanXuatNgay = asyncComponent(() =>
+  import("./BaoCaoSanXuatNgay/BaoCaoSanXuatNgay")
+);
+const BaoCaoGiaoXeThang = asyncComponent(() =>
+  import("./BaoCaoGiaoXeThang/BaoCaoGiaoXeThang")
 );
 
 const App = ({ match, location, menus, permission }) => {
@@ -27,12 +36,31 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(BaoCaoChatLuongTheoThang, menus, pathname, permission)}
       />
-
       {/* Tra cứu thông tin xe */}
       <Route
         path={`${match.url}/tra-cuu-thong-tin-xe`}
         exact
         component={Auth(TraCuuThongTinXe, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/tien-do-san-xuat-ngay`}
+        exact
+        component={Auth(BaoCaoChiTietSanXuatNgay, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/san-xuat-thang`}
+        exact
+        component={Auth(BaoCaoChiTietSanXuatThang, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/san-xuat-ngay`}
+        exact
+        component={Auth(BaoCaoSanXuatNgay, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/giao-xe-thang`}
+        exact
+        component={Auth(BaoCaoGiaoXeThang, menus, pathname, permission)}
       />
     </Switch>
   );

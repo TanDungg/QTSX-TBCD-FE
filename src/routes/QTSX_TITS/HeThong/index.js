@@ -20,7 +20,14 @@ const ChuKy = asyncComponent(() => import("./ChuKy/ChuKy"));
 const PhanQuyenTram = asyncComponent(() =>
   import("./PhanQuyenTram/PhanQuyenTram")
 );
-
+const NguoiDungApp = asyncComponent(() =>
+  import("./NguoiDungApp/NguoiDungApp")
+);
+const NguoiDungAppForm = asyncComponent(() =>
+  import("./NguoiDungApp/NguoiDungAppForm")
+);
+const MenuApp = asyncComponent(() => import("./MenuApp/MenuApp"));
+const MenuAppForm = asyncComponent(() => import("./MenuApp/MenuAppForm"));
 // const PhanQuyenDonVi = asyncComponent(() =>
 //   import("./PhanQuyenDonVi/PhanQuyenDonVi")
 // );
@@ -146,6 +153,36 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/phan-quyen-tram`}
         exact
         component={Auth(PhanQuyenTram, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nguoi-dung-app`}
+        exact
+        component={Auth(NguoiDungApp, menus, pathname, permission)}
+      />{" "}
+      <Route
+        path={`${match.url}/nguoi-dung-app/them-moi`}
+        exact
+        component={Auth(NguoiDungAppForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nguoi-dung-app/:id/chinh-sua`}
+        exact
+        component={Auth(NguoiDungAppForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/menu-app`}
+        exact
+        component={Auth(MenuApp, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/menu-app/them-moi`}
+        exact
+        component={Auth(MenuAppForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/menu-app/:id/chinh-sua`}
+        exact
+        component={Auth(MenuAppForm, menus, pathname, permission)}
       />
       {/* <Route
         path={`${match.url}/dieu-chuyen-cbnv`}

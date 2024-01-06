@@ -46,6 +46,8 @@ import {
   setSessionStorage,
   removeLocalStorage,
 } from "src/util/Common";
+import InMaQrSoVIN from "src/routes/QTSX_TITS/KeHoach/SoVin/InMaQrSoVIN";
+import InMaQrCauTrucKho_TITS_QTSX from "src/routes/QTSX_TITS/InBarcode/CauTrucKho/InMaQrCauTrucKho_TITS_QTSX";
 
 // import { messaging } from "src/constants/firebase";
 // import { onMessage } from "firebase/messaging";
@@ -313,6 +315,26 @@ const App = () => {
             exact
             path="/san-xuat-qtsx-tits/tien-do-san-xuat/in-ma-Qrcode"
             component={InMaQrCodeSoKhungNoiBo}
+          />
+          <Route
+            exact
+            path="/ke-hoach-qtsx-tits/so-vin/in-ma-Qrcode"
+            component={InMaQrSoVIN}
+          />
+          <Route
+            exact
+            path="/in-barcode-qtsx-tits/cau-truc-kho-thanh-pham/in-ma-Qrcode"
+            component={InMaQrCauTrucKho_TITS_QTSX}
+          />
+          <Route
+            exact
+            path="/in-barcode-qtsx-tits/cau-truc-kho-vat-tu/in-ma-Qrcode"
+            component={InMaQrCauTrucKho_TITS_QTSX}
+          />
+          <Route
+            exact
+            path="/danh-muc-qtsx-tits/vat-tu/in-ma-Qrcode"
+            component={InMaQrThongTinVatTu}
           />
           <Route
             exact

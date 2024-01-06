@@ -21,9 +21,11 @@ export const SMRM_BANGIAO = "7b89430c-4069-41d4-980b-ff9079a44abe";
 export const DEFAULT_FORM_STYLE = {
   labelCol: {
     span: 6,
+    style: { fontWeight: "bold" },
   },
   wrapperCol: {
     span: 18,
+    style: { fontWeight: "bold" },
   },
 };
 

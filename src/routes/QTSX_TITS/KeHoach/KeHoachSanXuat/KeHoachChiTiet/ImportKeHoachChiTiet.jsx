@@ -59,9 +59,9 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
 
   useEffect(() => {
     if (includes(match.url, "import")) {
-      if (permission && !permission.add) {
+      if (permission && permission.add) {
         getData();
-      } else if (permission && permission.add) {
+      } else if (permission && !permission.add) {
         history.push("/home");
       }
     }

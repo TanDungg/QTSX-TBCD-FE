@@ -734,6 +734,4 @@ function TraCuuThongTinXe({ history, permission }) {
   );
 }
 
-
-
 export default TraCuuThongTinXe;

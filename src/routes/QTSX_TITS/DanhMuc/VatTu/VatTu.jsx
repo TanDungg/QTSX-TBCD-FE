@@ -5,10 +5,12 @@ import {
   EditOutlined,
   DeleteOutlined,
   ImportOutlined,
+  QrcodeOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
+import QRCode from "qrcode.react";
 import ImportVatTu from "./ImportVatTu";
 import {
   ModalDeleteConfirm,
@@ -22,6 +24,7 @@ import {
   convertObjectToUrlParams,
   reDataForTable,
   removeDuplicates,
+  setLocalStorage,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 
@@ -35,7 +38,8 @@ function VatTu({ match, history, permission }) {
   const [ActiveModal, setActiveModal] = useState(false);
   const [ListLoaiVatTu, setListLoaiVatTu] = useState([]);
   const [LoaiVatTu, setLoaiVatTu] = useState(null);
-
+  const [selectedDevice, setSelectedDevice] = useState([]);
+  const [selectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     if (permission && permission.view) {
       getLoaiVatTu();
@@ -212,7 +216,20 @@ function VatTu({ match, history, permission }) {
   const refeshData = () => {
     loadData(keyword, LoaiVatTu, page);
   };
-
+  const rowSelection = {
+    selectedRowKeys: selectedKeys,
+    selectedRows: selectedDevice,
+    onChange: (selectedRowKeys, selectedRows) => {
+      const newSelectedDevice = [...selectedRows];
+      const newSelectedKey = [...selectedRowKeys];
+      setSelectedDevice(newSelectedDevice);
+      setSelectedKeys(newSelectedKey);
+    },
+  };
+  const handlePrint = () => {
+    setLocalStorage("inMa", selectedDevice);
+    window.open(`${match.url}/in-ma-Qrcode`, "_blank");
+  };
   const addButtonRender = () => {
     return (
       <>
@@ -224,6 +241,15 @@ function VatTu({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Import
+        </Button>
+        <Button
+          icon={<QrcodeOutlined />}
+          className="th-btn-margin-bottom-0"
+          type="primary"
+          onClick={handlePrint}
+          disabled={permission && !permission.add}
+        >
+          In mã
         </Button>
         <Button
           icon={<PlusOutlined />}
@@ -378,6 +404,20 @@ function VatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
+      title: "Mã barcode",
+      key: "hanSuDung",
+      align: "center",
+      render: (value) => (
+        <div id="myqrcode">
+          <QRCode
+            value={value.id}
+            bordered={false}
+            style={{ width: 50, height: 50 }}
+          />
+        </div>
+      ),
+    },
+    {
       title: "Chức năng",
       key: "action",
       align: "center",
@@ -507,6 +547,13 @@ function VatTu({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            preserveSelectedRowKeys: true,
+            selectedRowKeys: selectedKeys,
+            getCheckboxProps: (record) => ({}),
+          }}
         />
       </Card>
       <ImportVatTu

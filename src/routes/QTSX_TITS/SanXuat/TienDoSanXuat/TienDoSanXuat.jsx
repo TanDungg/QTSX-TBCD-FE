@@ -965,6 +965,14 @@ function TienDoSanXuat({ match, history, permission }) {
         refesh={() => getInfoSanPham(SoLo, Tram)}
         tits_qtsx_SoLo_Id={InfoSanPham.tits_qtsx_SoLo_Id}
         tits_qtsx_SoLoChiTiet_Id={InfoSanPham.tits_qtsx_SoLoChiTiet_Id}
+        soVIN={
+          InfoSanPham.maSoVin && InfoSanPham.tits_qtsx_SoVin_Id
+            ? {
+                maSoVin: InfoSanPham.maSoVin,
+                tits_qtsx_SoVin_Id: InfoSanPham.tits_qtsx_SoVin_Id,
+              }
+            : null
+        }
       />
     </div>
   );

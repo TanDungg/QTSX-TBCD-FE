@@ -314,15 +314,7 @@ function BOMForm({ match, permission, history }) {
         }
       });
     }
-    return check ? (
-      <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
-        {val.maChiTiet}
-      </Popover>
-    ) : val.STT === "*" ? (
-      <span style={{ fontWeight: "bold" }}>{val.maChiTiet}</span>
-    ) : (
-      <span>{val.maChiTiet}</span>
-    );
+    return check ? <span>{messageLoi}</span> : null;
   };
   let colValues = () => {
     const data = dataThietLap.map((dt, i) => {
@@ -351,11 +343,10 @@ function BOMForm({ match, permission, history }) {
       },
       {
         title: "Mã chi tiết",
-        // dataIndex: "maChiTiet",
+        dataIndex: "maChiTiet",
         key: "maChiTiet",
         align: "center",
         width: 150,
-        render: (val) => renderLoi(val),
       },
       {
         title: "Tên chi tiết",
@@ -497,13 +488,14 @@ function BOMForm({ match, permission, history }) {
         align: "center",
         width: 150,
       },
-      // {
-      //   title: "Chức năng",
-      //   key: "action",
-      //   align: "center",
-      //   width: 80,
-      //   render: (value) => actionContent(value),
-      // },
+      {
+        title: "Lỗi",
+        // dataIndex: "ghiChuImport",
+        key: "ghiChuImport",
+        width: 150,
+        align: "center",
+        render: (val) => renderLoi(val),
+      },
     ];
   };
   const components = {
@@ -920,7 +912,7 @@ function BOMForm({ match, permission, history }) {
         if (NewData.length === 0) {
           setFileName(file.name);
           setListChiTiet([]);
-          setFieldTouch(true);
+          setFieldTouch(false);
           setMessageError("Dữ liệu import không được rỗng");
           Helper.alertError("Dữ liệu import không được rỗng");
         } else {
@@ -958,10 +950,10 @@ function BOMForm({ match, permission, history }) {
             setMessageError("Có chi tiết trong 1 cụm trùng nhau");
             Helper.alertError("Có chi tiết trong 1 cụm trùng nhau");
             setHangTrung(indices);
-            setFieldTouch(true);
+            setFieldTouch(false);
           } else {
             setHangTrung([]);
-            setFieldTouch(false);
+            setFieldTouch(true);
           }
           setListChiTiet(NewData);
           setFileName(file.name);
@@ -970,7 +962,7 @@ function BOMForm({ match, permission, history }) {
       } else {
         setFileName(file.name);
         setListChiTiet([]);
-        setFieldTouch(true);
+        setFieldTouch(false);
         setMessageError("Mẫu import không hợp lệ");
         Helper.alertError("Mẫu file import không hợp lệ");
       }
@@ -1003,7 +995,11 @@ function BOMForm({ match, permission, history }) {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.BOM);
+    if (ListChiTiet.length === 0) {
+      Helpers.alertError("Chưa import chi tiết BOM");
+    } else {
+      saveData(values.BOM);
+    }
   };
 
   /**
@@ -1013,7 +1009,11 @@ function BOMForm({ match, permission, history }) {
   const saveAndClose = (value) => {
     validateFields()
       .then((values) => {
-        saveData(values.BOM, value);
+        if (ListChiTiet.length === 0) {
+          Helpers.alertError("Chưa import chi tiết BOM");
+        } else {
+          saveData(values.BOM, value);
+        }
       })
       .catch((error) => {
         console.log("error", error);
@@ -1077,7 +1077,7 @@ function BOMForm({ match, permission, history }) {
         );
       })
         .then((res) => {
-          if (res && res.status !== 409) {
+          if (res && res.status === 200) {
             if (saveQuit) {
               goBack();
             } else {
@@ -1116,7 +1116,7 @@ function BOMForm({ match, permission, history }) {
         );
       })
         .then((res) => {
-          if (res && res.status !== 409) {
+          if (res && res.status === 200) {
             if (saveQuit) {
               goBack();
             } else {
@@ -1607,7 +1607,7 @@ function BOMForm({ match, permission, history }) {
           goBack={goBack}
           saveAndClose={saveAndClose}
           handleSave={saveAndClose}
-          disabled={!fieldTouch}
+          disabled={fieldTouch}
         />
       ) : null}
       {type === "xacnhan" && info && info.tinhTrang === "Chưa xử lý" && (
