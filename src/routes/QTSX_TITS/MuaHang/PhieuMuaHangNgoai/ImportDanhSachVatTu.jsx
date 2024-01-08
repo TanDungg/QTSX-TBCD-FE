@@ -73,14 +73,14 @@ function ImportDanhSachVatTu({
     },
     {
       title: "Mã đơn hàng",
-      dataIndex: "maDonHang",
-      key: "maDonHang",
+      dataIndex: "maPhieu",
+      key: "maPhieu",
       align: "center",
     },
     {
       title: "Ngày yêu cầu giao",
-      dataIndex: "ngayYeuCauGiao",
-      key: "ngayYeuCauGiao",
+      dataIndex: "ngay",
+      key: "ngay",
       align: "center",
     },
     {
@@ -308,12 +308,12 @@ function ImportDanhSachVatTu({
                   ? data[index][TVT].toString().trim()
                   : null
                 : null,
-              maDonHang: data[index][MDH]
+              maPhieu: data[index][MDH]
                 ? data[index][MDH].toString().trim() !== ""
                   ? data[index][MDH].toString().trim()
                   : null
                 : null,
-              ngayYeuCauGiao: data[index][NYCG]
+              ngay: data[index][NYCG]
                 ? data[index][NYCG].toString().trim() !== ""
                   ? data[index][NYCG].toString().trim()
                   : null
@@ -387,34 +387,28 @@ function ImportDanhSachVatTu({
   };
 
   const XacNhanImport = () => {
-    const newData = DataListVatTu.map((DataListVatTu) => {
-      if (DataListVatTu.hinhAnh) {
-        const formData = new FormData();
-        formData.append("file", DataListVatTu.hinhAnh);
-        return fetch(`${BASE_URL_API}/api/Upload`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(INFO.token),
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            return {
-              ...DataListVatTu,
-              hinhAnh: data.path,
-            };
-          });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuMuaHangNgoai/import-vat-tu`,
+          "POST",
+          DataListVatTu,
+          "IMPORT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res.status !== 409) {
+        DataThemVatTu(res.data);
+        setFileName(null);
+        setDataListVatTu([]);
+        openModalFS(false);
       } else {
-        return DataListVatTu;
+        DataThemVatTu(res.data);
+        setCheckDanger(true);
       }
-    });
-
-    Promise.all(newData).then((Data) => {
-      DataThemVatTu(Data);
-      setFileName(null);
-      setDataListVatTu([]);
-      openModalFS(false);
     });
   };
 
@@ -439,6 +433,9 @@ function ImportDanhSachVatTu({
         setCheckDanger(true);
         return "red-row";
       }
+    } else if (current.ghiChuImport !== null) {
+      setCheckDanger(true);
+      return "red-row";
     } else if (current.STT === null) {
       setCheckDanger(true);
       setMessageError("STT không được rỗng");
@@ -547,7 +544,7 @@ function ImportDanhSachVatTu({
           />
           <Divider
             style={{
-              marginTop: "10px",
+              marginTop: "20px",
             }}
           />
           <div style={{ display: "flex", justifyContent: "center" }}>

@@ -401,14 +401,14 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
     },
     {
       title: "Mã đơn hàng",
-      dataIndex: "maDonHang",
-      key: "maDonHang",
+      dataIndex: "maPhieu",
+      key: "maPhieu",
       align: "center",
     },
     {
       title: "Ngày yêu cầu giao",
-      dataIndex: "ngayYeuCauGiao",
-      key: "ngayYeuCauGiao",
+      dataIndex: "ngay",
+      key: "ngay",
       align: "center",
     },
     {
@@ -733,6 +733,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
 
   const DataThemVatTu = (data) => {
     setListVatTu([...ListVatTu, ...data]);
+    setFieldTouch(true);
   };
 
   const props = {
@@ -792,7 +793,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         Chi tiết phiếu mua hàng ngoài -{" "}
         <Tag color={"blue"} style={{ fontSize: 15 }}>
           {info && info.maPhieu}
-        </Tag>
+        </Tag>{" "}
         <Tag
           color={
             info && info.tinhTrang === "Chưa xác nhận"
