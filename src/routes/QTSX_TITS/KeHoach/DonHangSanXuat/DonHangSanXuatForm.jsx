@@ -991,7 +991,6 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
                 rules={[
                   {
                     type: "string",
-                    required: true,
                   },
                 ]}
               >
@@ -1013,7 +1012,6 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
                 rules={[
                   {
                     type: "email",
-                    required: true,
                   },
                 ]}
               >

@@ -34,6 +34,7 @@ import moment from "moment";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function KeHoachChiTiet({ match, history, permission }) {
+  console.log(permission);
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
   // const INFO = getLocalStorage("menu");
@@ -416,7 +417,7 @@ function KeHoachChiTiet({ match, history, permission }) {
       <>
         <Button
           icon={<UploadOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={handleImport}
           disabled={permission && !permission.add}

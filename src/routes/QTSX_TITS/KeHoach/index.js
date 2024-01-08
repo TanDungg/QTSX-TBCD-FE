@@ -141,7 +141,7 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(ImportKeHoachChiTiet, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/ke-hoach-san-xuat/kh-chi-tiet`}
+        path={`${match.url}/ke-hoach-san-xuat/kh-chitiet`}
         exact
         component={Auth(KeHoachChiTiet, menus, pathname, permission)}
       />
