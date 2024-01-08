@@ -13,6 +13,7 @@ import {
   Alert,
   Popover,
   Image,
+  Divider,
 } from "antd";
 import { messages } from "src/constants/Messages";
 import Helper from "src/helpers";
@@ -162,112 +163,112 @@ function ImportDanhSachVatTu({
       const workbook = XLSX.read(event.target.result, {
         type: "binary",
       });
-      const worksheet = workbook.Sheets["Import OEM"];
+      const worksheet = workbook.Sheets["Import"];
 
       const checkMau =
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 0, r: 3 }, e: { c: 0, r: 3 } },
+          range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 0, r: 3 }, e: { c: 0, r: 3 } },
+            range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
           })[0]
           .toString()
           .trim() === "STT" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 1, r: 3 }, e: { c: 1, r: 3 } },
+          range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 1, r: 3 }, e: { c: 1, r: 3 } },
+            range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
           })[0]
           .toString()
           .trim() === "Mã vật tư" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
+          range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 2, r: 3 }, e: { c: 2, r: 3 } },
+            range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
           })[0]
           .toString()
           .trim() === "Tên vật tư" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
+          range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
+            range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
           })[0]
           .toString()
           .trim() === "Mã đơn hàng" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
+          range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
+            range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
           })[0]
           .toString()
           .trim() === "Ngày yêu cầu giao" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 5, r: 3 }, e: { c: 5, r: 3 } },
+          range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 5, r: 3 }, e: { c: 5, r: 3 } },
+            range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
           })[0]
           .toString()
           .trim() === "Định mức" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 6, r: 3 }, e: { c: 6, r: 3 } },
+          range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 6, r: 3 }, e: { c: 6, r: 3 } },
+            range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
           })[0]
           .toString()
           .trim() === "Số lượng dự phòng" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 7, r: 3 }, e: { c: 7, r: 3 } },
+          range: { s: { c: 7, r: 2 }, e: { c: 7, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 7, r: 3 }, e: { c: 7, r: 3 } },
+            range: { s: { c: 7, r: 2 }, e: { c: 7, r: 2 } },
           })[0]
           .toString()
           .trim() === "Số lượng đặt mua" &&
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
-          range: { s: { c: 8, r: 3 }, e: { c: 8, r: 3 } },
+          range: { s: { c: 8, r: 2 }, e: { c: 8, r: 2 } },
         })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 8, r: 3 }, e: { c: 8, r: 3 } },
+            range: { s: { c: 8, r: 2 }, e: { c: 8, r: 2 } },
           })[0]
           .toString()
           .trim() === "Hạng mục sử dụng";
 
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
-          range: 3,
+          range: 2,
         });
         const KEY = "STT";
         const MVT = "Mã vật tư";
@@ -278,11 +279,14 @@ function ImportDanhSachVatTu({
         const SLDP = "Số lượng dự phòng";
         const SLDM = "Số lượng đặt mua";
         const HMSD = "Hạng mục sử dụng";
+
         const DataVatTu = [];
         data.forEach((d, index) => {
           if (
             data[index][KEY] &&
             data[index][KEY].toString().trim() === "" &&
+            data[index][MVT] &&
+            data[index][MVT].toString().trim() === "" &&
             data[index][TVT] &&
             data[index][TVT].toString().trim() === ""
           ) {
@@ -346,6 +350,10 @@ function ImportDanhSachVatTu({
           setMessageError("Dữ liệu import không được rỗng");
           Helper.alertError("Dữ liệu import không được rỗng");
         } else {
+          setFileName(file.name);
+          setDataListVatTu(DataVatTu);
+          setCheckDanger(false);
+          setMessageError(null);
         }
       } else {
         setFileName(file.name);
@@ -537,15 +545,21 @@ function ImportDanhSachVatTu({
             pagination={false}
             // loading={loading}
           />
-          <Button
-            className="th-btn-margin-bottom-0"
-            style={{ marginTop: 10, float: "right" }}
-            type="primary"
-            onClick={modalXK}
-            disabled={DataListVatTu.length > 0 && checkDanger}
-          >
-            Lưu
-          </Button>
+          <Divider
+            style={{
+              marginTop: "10px",
+            }}
+          />
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Button
+              className="th-btn-margin-bottom-0"
+              type="primary"
+              onClick={modalXK}
+              disabled={DataListVatTu.length > 0 && checkDanger}
+            >
+              Lưu
+            </Button>
+          </div>
         </Card>
       </div>
     </AntModal>
