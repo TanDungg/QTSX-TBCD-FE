@@ -438,7 +438,6 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
         thongTinVatTuPhuKiens: PhuKienVatTu,
         thongTinVatTuPhuKienKhac: VatTuKhac,
       };
-      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -528,7 +527,7 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
   };
 
   const handleSelectSoLo = (value) => {
-    const solo = ListSoLo.forEach((sl) => sl.tits_qtsx_SoLo_Id === value);
+    const solo = ListSoLo.find((sl) => sl.tits_qtsx_SoLo_Id === value);
     setSoLo(solo);
   };
 

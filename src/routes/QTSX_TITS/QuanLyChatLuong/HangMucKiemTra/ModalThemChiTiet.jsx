@@ -158,13 +158,18 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
             if (saveQuit) {
               handleCancel();
             } else {
-              resetFields();
               setFieldTouch(false);
               getListDonVi();
               getListXuong();
               setFieldsValue({
                 themchitiet: {
-                  donVi_Id: INFO.donVi_Id.toLowerCase(),
+                  maSo: null,
+                  noiDungKiemTra: null,
+                  tieuChuanDanhGia: null,
+                  giaTriMin: null,
+                  giaTriMax: null,
+                  giaTriTieuChuan: null,
+                  phuongPhapTieuChuan: null,
                 },
               });
             }
@@ -274,6 +279,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
                   name={["themchitiet", "maSo"]}
                   rules={[
                     {
+                      required: true,
                       type: "string",
                     },
                   ]}
