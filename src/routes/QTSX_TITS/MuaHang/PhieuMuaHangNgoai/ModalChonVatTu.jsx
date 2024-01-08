@@ -182,21 +182,15 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
       align: "center",
     },
     {
-      title: "Loại vật tư",
-      dataIndex: "tenLoaiVatTu",
-      key: "tenLoaiVatTu",
-      align: "center",
-    },
-    {
-      title: "Đơn vị tính",
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
-      align: "center",
-    },
-    {
-      title: "Đơn hàng",
+      title: "Mã đơn hàng",
       dataIndex: "maPhieu",
       key: "maPhieu",
+      align: "center",
+    },
+    {
+      title: "Ngày yêu cầu giao",
+      dataIndex: "ngay",
+      key: "ngay",
       align: "center",
     },
     {
@@ -206,21 +200,15 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
       align: "center",
     },
     {
-      title: "SL dự phòng",
+      title: "Số lượng dự phòng",
       dataIndex: "soLuongDuPhong",
       key: "soLuongDuPhong",
       align: "center",
     },
     {
-      title: "SL đặt mua",
+      title: "Số lượng đặt mua",
       dataIndex: "soLuongDatMua",
       key: "soLuongDatMua",
-      align: "center",
-    },
-    {
-      title: "Ngày yêu cầu",
-      dataIndex: "ngay",
-      key: "ngay",
       align: "center",
     },
     {

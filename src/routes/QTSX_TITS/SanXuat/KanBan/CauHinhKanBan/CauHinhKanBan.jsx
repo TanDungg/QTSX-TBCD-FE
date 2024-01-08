@@ -16,13 +16,29 @@ import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
+const listchuyen = [
+  {
+    id: "63aece3b-f542-4c09-bc51-49a39f831906",
+    maChuyen: "HLKR",
+    tenChuyen: "Chuyền Hàn linh kiện rời",
+    tenXuong: "Gia công linh kiện",
+  },
+  {
+    id: "e165873f-f701-4bfd-afdb-ee2ba34c3ea8",
+    maChuyen: "GCTP",
+    tenChuyen: "Chuyền gia công tạo phôi",
+    tenXuong: "Gia công linh kiện",
+  },
+];
 
 function CauHinhKanBan({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [Data, setData] = useState([]);
+  const [ListTram, setListTram] = useState([]);
   const [ListChuyen, setListChuyen] = useState([]);
   const [Chuyen, setChuyen] = useState(null);
+  const [TenChuyen, setTenChuyen] = useState(null);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
   const [TenSanPham, setTenSanPham] = useState(null);
@@ -32,18 +48,12 @@ function CauHinhKanBan({ match, history, permission }) {
   const [Ngay, setNgay] = useState(getDateNow());
   const [SelectedKanBan, setSelectedKanBan] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
-  const listchuyen = [
-    {
-      id: "63aece3b-f542-4c09-bc51-49a39f831906",
-      maChuyen: "HLKR",
-      tenChuyen: "Chuyền Hàn linh kiện rời",
-      tenXuong: "Gia công linh kiện",
-    },
-  ];
+
   useEffect(() => {
     if (permission && permission.view) {
       setListChuyen(listchuyen);
       setChuyen(listchuyen[0].id);
+      setTenChuyen(listchuyen[0] && listchuyen[0].tenChuyen);
       getListSanPham(listchuyen[0].id, Ngay);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
@@ -79,8 +89,10 @@ function CauHinhKanBan({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
+          setListTram(res.data.list_Trams);
           setData(res.data.list_ChiTiets);
         } else {
+          setListTram([]);
           setData([]);
         }
       })
@@ -161,6 +173,43 @@ function CauHinhKanBan({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
+  const ChildrenData = {};
+  const DataKanBan = {};
+
+  Data.forEach((item) => {
+    if (item.list_Trams) {
+      item.list_Trams.forEach((tram) => {
+        const { tenTram } = tram;
+        ChildrenData[tenTram] = ChildrenData[tenTram] || [];
+      });
+    }
+
+    const { tits_qtsx_KanBanChiTiet_Id, list_Trams } = item;
+    DataKanBan[tits_qtsx_KanBanChiTiet_Id] =
+      DataKanBan[tits_qtsx_KanBanChiTiet_Id] || {};
+
+    if (list_Trams) {
+      list_Trams.forEach((listtram) => {
+        const { thuTuTram, tenTram } = listtram;
+        DataKanBan[tits_qtsx_KanBanChiTiet_Id][tenTram] = thuTuTram;
+      });
+    }
+  });
+
+  const tramColumns = Object.keys(ChildrenData).map((tenTram) => {
+    return {
+      title: tenTram,
+      dataIndex: tenTram,
+      key: tenTram,
+      align: "center",
+      width: 80,
+      render: (text, record) => {
+        const { tits_qtsx_KanBanChiTiet_Id } = record;
+        return DataKanBan[tits_qtsx_KanBanChiTiet_Id][tenTram] || "-";
+      },
+    };
+  });
+
   let renderHead = [
     {
       title: "STT",
@@ -228,11 +277,11 @@ function CauHinhKanBan({ match, history, permission }) {
       width: 90,
     },
     {
-      title: "Xưởng gia công linh kiện",
+      title: TenChuyen,
       dataIndex: "list_Trams",
       key: "list_Trams",
       align: "center",
-      children: [],
+      children: tramColumns,
     },
     {
       title: "Ghi chú",
@@ -242,18 +291,6 @@ function CauHinhKanBan({ match, history, permission }) {
       width: 150,
     },
   ];
-
-  Data.forEach((item) => {
-    item.list_Trams.forEach((tram) => {
-      const tramColumn = {
-        title: tram.tenTram,
-        align: "center",
-        width: 100,
-        render: (value) => <span>{tram.thuTuTram}</span>,
-      };
-      renderHead[renderHead.length - 2].children.push(tramColumn);
-    });
-  });
 
   const components = {
     body: {
@@ -286,7 +323,6 @@ function CauHinhKanBan({ match, history, permission }) {
         tenDonHang: TenDonHang,
       };
     });
-    console.log(newListKanBan);
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -321,6 +357,9 @@ function CauHinhKanBan({ match, history, permission }) {
   };
 
   const handleOnSelectChuyen = (value) => {
+    const newChuyen = ListChuyen.find((chuyen) => chuyen.id === value);
+    setTenChuyen(newChuyen && newChuyen.tenChuyen);
+
     setChuyen(value);
     setSanPham(null);
     setListSanPham([]);
