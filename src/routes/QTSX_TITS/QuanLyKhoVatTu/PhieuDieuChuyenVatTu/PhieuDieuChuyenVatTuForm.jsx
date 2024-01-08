@@ -5,7 +5,17 @@ import {
   PlusCircleOutlined,
   RollbackOutlined,
 } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, DatePicker, Button, Tag } from "antd";
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Col,
+  DatePicker,
+  Button,
+  Tag,
+  Divider,
+} from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -944,9 +954,18 @@ const PhieuDieuChuyenVatTuForm = ({ history, match, permission }) => {
         />
       </Card>
       {type === "xacnhan" &&
+        info.tinhTrang === "Chưa duyệt" &&
+        info.nguoiPTBoPhan_Id === INFO.user_Id && <Divider />}
+      {type === "xacnhan" &&
       info.tinhTrang === "Chưa duyệt" &&
       info.nguoiPTBoPhan_Id === INFO.user_Id ? (
-        <div style={{ display: "flex", justifyContent: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "10px",
+          }}
+        >
           <Button icon={<RollbackOutlined />} type="default" onClick={goBack}>
             Quay lại
           </Button>

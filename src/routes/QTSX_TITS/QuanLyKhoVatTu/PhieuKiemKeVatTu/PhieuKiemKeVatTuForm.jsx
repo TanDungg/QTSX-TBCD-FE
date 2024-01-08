@@ -1053,8 +1053,15 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
           disabled={fieldTouch}
         />
       ) : null}
+      {type === "duyet" && info.tinhTrang === "Chưa xử lý" && <Divider />}
       {type === "duyet" && info.tinhTrang === "Chưa xử lý" ? (
-        <div style={{ display: "flex", justifyContent: "center" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "10px",
+          }}
+        >
           <Button icon={<RollbackOutlined />} type="default" onClick={goBack}>
             Quay lại
           </Button>
