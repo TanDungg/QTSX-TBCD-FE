@@ -342,6 +342,7 @@ function TienDoSanXuat({ match, history, permission }) {
           Helpers.alertSuccessMessage("Hoàn thành ra trạm thành công!!");
           getSoKhunNoiBo(Tram);
           setInfoSanPham({});
+          setSoLo(null);
         }
       })
       .catch((error) => console.error(error));
@@ -379,6 +380,8 @@ function TienDoSanXuat({ match, history, permission }) {
     if (Tram !== value) {
       setTram(value);
       getSoKhunNoiBo(value);
+      setInfoSanPham({});
+      setSoLo(null);
     }
   };
   const handleClearXuong = () => {
@@ -397,6 +400,7 @@ function TienDoSanXuat({ match, history, permission }) {
   const handleClearTram = () => {
     setTram(null);
     setInfoSanPham({});
+    setSoLo(null);
     setListSoKhungNoiBo([]);
   };
   const UploadHinhAnh = () => {

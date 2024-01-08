@@ -954,7 +954,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                         {hm.list_HangMucKiemTraChiTiets.map((cthm) => {
                           return (
                             <Panel
-                              header={cthm.tieuChuanDanhGia}
+                              header={cthm.noiDungKiemTra}
                               key={cthm.id}
                             ></Panel>
                           );
