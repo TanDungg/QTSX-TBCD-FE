@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker } from "antd";
+import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -24,57 +25,48 @@ import {
   getLocalStorage,
   getTokenInfo,
   removeDuplicates,
+  exportExcel,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
+import Helpers from "src/helpers";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
-function BienBanGiaoXe({ match, history, permission }) {
+function PhieuKiemKe({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  const [Data, setData] = useState([]);
   const [page, setPage] = useState(1);
-  const [ListBanPhong, setListBanPhong] = useState([]);
-  const [BanPhong, setBanPhong] = useState("");
-  const [FromDate, setFromDate] = useState(getDateNow(-7));
-  const [ToDate, setToDate] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");
+  const [TuNgay, setTuNgay] = useState(getDateNow(-14));
+  const [DenNgay, setDenNgay] = useState(getDateNow());
+  const [SelectedPhieu, setSelectedPhieu] = useState([]);
+  const [SelectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
-      getBanPhong();
-      getListData(keyword, BanPhong, FromDate, ToDate, page);
+      getListData(keyword, TuNgay, DenNgay, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
-
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Lấy dữ liệu về
-   *
-   */
-  const getListData = (keyword, phongBanId, tuNgay, denNgay, page) => {
+  const getListData = (keyword, ngayBatDau, ngayKetThuc, page) => {
     const param = convertObjectToUrlParams({
-      phongBanId,
-      donVi_Id: INFO.donVi_Id,
-      tuNgay,
-      denNgay,
       keyword,
+      ngayBatDau,
+      ngayKetThuc,
       page,
     });
-    dispatch(fetchStart(`lkn_PhieuTraHangNCC?${param}`, "GET", null, "LIST"));
-  };
-
-  const getBanPhong = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          `tits_qtsx_BienBanBanGiaoXe?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -86,45 +78,31 @@ function BienBanGiaoXe({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListBanPhong(res.data);
+          setData(res.data);
         } else {
-          setListBanPhong([]);
+          setData([]);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  const onSearchDeNghiMuaHang = () => {
-    getListData(keyword, BanPhong, FromDate, ToDate, page);
+  const onSearchPhieuKiemKe = () => {
+    getListData(keyword, TuNgay, DenNgay, page);
   };
 
-  /**
-   * Thay đổi keyword
-   *
-   * @param {*} val
-   */
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, BanPhong, FromDate, ToDate, page);
+      getListData(val.target.value, TuNgay, DenNgay, page);
     }
   };
 
-  /**
-   * ActionContent: Hành động trên bảng
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
   const actionContent = (item) => {
-    const detailItem =
-      permission &&
-      permission.cof &&
-      item.userDuyet_Id === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
+    const duyet =
+      permission && permission.cof && item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.id}/xac-nhan`,
+            pathname: `${match.url}/${item.id}/duyet`,
             state: { itemData: item, permission },
           }}
           title="Xác nhận"
@@ -136,11 +114,12 @@ function BienBanGiaoXe({ match, history, permission }) {
           <CheckCircleOutlined />
         </span>
       );
+
     const editItem =
       permission &&
       permission.edit &&
-      item.createdBy === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận" ? (
+      item.nguoiLapPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -155,16 +134,17 @@ function BienBanGiaoXe({ match, history, permission }) {
           <EditOutlined />
         </span>
       );
+
     const deleteVal =
       permission &&
       permission.del &&
-      item.createdBy === INFO.user_Id &&
-      item.tinhTrang === "Chưa xác nhận"
+      item.nguoiLapPhieu_Id === INFO.user_Id &&
+      item.tinhTrang === "Chưa duyệt"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <div>
-        {detailItem}
+        {duyet}
         <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
@@ -185,8 +165,8 @@ function BienBanGiaoXe({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieuTraHang,
-      "phiếu trả hàng nhà cung cấp"
+      item.maPhieu,
+      "biên bản bàn giao xe"
     );
   };
 
@@ -196,38 +176,73 @@ function BienBanGiaoXe({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `lkn_PhieuTraHangNCC?id=${item.id}`;
+    let url = `tits_qtsx_BienBanBanGiaoXe/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
+        // Reload lại danh sách
         if (res.status !== 409) {
-          getListData(keyword, BanPhong, FromDate, ToDate, page);
+          getListData(keyword, TuNgay, DenNgay, page);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  /**
-   * handleTableChange
-   *
-   * Fetch dữ liệu dựa theo thay đổi trang
-   * @param {number} pagination
-   */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(keyword, BanPhong, FromDate, ToDate, pagination);
+    getListData(keyword, TuNgay, DenNgay, pagination);
   };
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
   const handleRedirect = () => {
     history.push({
       pathname: `${match.url}/them-moi`,
     });
+  };
+
+  const handleXuatExcel = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_BienBanBanGiaoXe/${SelectedPhieu[0].id}?donVi_Id=${INFO.donVi_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const data = res.data;
+          const newData = {
+            ...data,
+            list_HoiDongKiemKe:
+              data.list_HoiDongKiemKe && JSON.parse(data.list_HoiDongKiemKe),
+            tits_qtsx_BienBanBanGiaoXeChiTiets:
+              data.tits_qtsx_BienBanBanGiaoXeChiTiets &&
+              JSON.parse(data.tits_qtsx_BienBanBanGiaoXeChiTiets),
+          };
+          new Promise((resolve, reject) => {
+            dispatch(
+              fetchStart(
+                `tits_qtsx_BienBanBanGiaoXe/export-file-phieu-kiem-ke-thanh-pham`,
+                "POST",
+                newData,
+                "",
+                "",
+                resolve,
+                reject
+              )
+            );
+          }).then((res) => {
+            exportExcel("PhieuKiemKeThanhPham", res.data.dataexcel);
+          });
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   const addButtonRender = () => {
@@ -241,6 +256,15 @@ function BienBanGiaoXe({ match, history, permission }) {
           disabled={permission && !permission.add}
         >
           Tạo phiếu
+        </Button>
+        <Button
+          icon={<DownloadOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleXuatExcel}
+          disabled={SelectedPhieu.length === 0}
+        >
+          Xuất phiếu
         </Button>
       </>
     );
@@ -258,15 +282,21 @@ function BienBanGiaoXe({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieuTraHang}
+          {val.maPhieu}
         </Link>
       ) : (
-        <span disabled>{val.maPhieuTraHang}</span>
+        <span disabled>{val.maPhieu}</span>
       );
     return <div>{detail}</div>;
   };
-
   let renderHead = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 110,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -275,67 +305,51 @@ function BienBanGiaoXe({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu",
-      key: "maPhieuTraHang",
+      title: "Mã phiếu kiểm kê",
+      key: "maPhieu",
       align: "center",
       render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieuTraHang,
-            value: d.maPhieuTraHang,
+            text: d.maPhieu,
+            value: d.maPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.maPhieuTraHang.includes(value),
+      onFilter: (value, record) => record.maPhieu.includes(value),
       filterSearch: true,
     },
     {
-      title: "Ngày yêu cầu",
-      dataIndex: "ngayYeuCau",
-      key: "ngayYeuCau",
+      title: "Người tạo phiếu",
+      dataIndex: "tenNguoiLapPhieu",
+      key: "tenNguoiLapPhieu",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.ngayYeuCau,
-            value: d.ngayYeuCau,
+            text: d.tenNguoiLapPhieu,
+            value: d.tenNguoiLapPhieu,
           };
         })
       ),
-      onFilter: (value, record) => record.ngayYeuCau.includes(value),
+      onFilter: (value, record) => record.tenNguoiLapPhieu.includes(value),
       filterSearch: true,
     },
     {
-      title: "Ban/Phòng",
-      dataIndex: "tenPhongBan",
-      key: "tenPhongBan",
+      title: "Ngày kiểm kê",
+      dataIndex: "ngay",
+      key: "ngay",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenPhongBan,
-            value: d.tenPhongBan,
+            text: d.ngay,
+            value: d.ngay,
           };
         })
       ),
-      onFilter: (value, record) => record.tenPhongBan.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Người lập phiếu",
-      dataIndex: "tenNguoiYeuCau",
-      key: "tenNguoiYeuCau",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenNguoiYeuCau,
-            value: d.tenNguoiYeuCau,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenNguoiYeuCau.includes(value),
+      onFilter: (value, record) => record.ngay.includes(value),
       filterSearch: true,
     },
     {
@@ -353,13 +367,26 @@ function BienBanGiaoXe({ match, history, permission }) {
       ),
       onFilter: (value, record) => record.tinhTrang.includes(value),
       filterSearch: true,
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 110,
-      render: (value) => actionContent(value),
+      render: (value) => (
+        <div>
+          {value && (
+            <Tag
+              color={
+                value === "Chưa duyệt"
+                  ? "orange"
+                  : value === "Đã duyệt"
+                  ? "blue"
+                  : "red"
+              }
+              style={{
+                fontSize: 13,
+              }}
+            >
+              {value}
+            </Tag>
+          )}
+        </div>
+      ),
     },
   ];
 
@@ -369,6 +396,7 @@ function BienBanGiaoXe({ match, history, permission }) {
       cell: EditableCell,
     },
   };
+
   const columns = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
@@ -385,30 +413,41 @@ function BienBanGiaoXe({ match, history, permission }) {
     };
   });
 
-  const handleOnSelectBanPhong = (val) => {
-    setBanPhong(val);
-    setPage(1);
-    getListData(keyword, val, FromDate, ToDate, 1);
-  };
-
-  const handleClearBanPhong = (val) => {
-    setBanPhong("");
-    setPage(1);
-    getListData(keyword, "", FromDate, ToDate, 1);
-  };
-
   const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
+    setTuNgay(dateString[0]);
+    setDenNgay(dateString[1]);
     setPage(1);
-    getListData(keyword, BanPhong, dateString[0], dateString[1], 1);
+    getListData(keyword, dateString[0], dateString[1], 1);
+  };
+
+  const rowSelection = {
+    selectedRowKeys: SelectedKeys,
+    selectedRows: SelectedPhieu,
+
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        SelectedPhieu.length > 0
+          ? selectedRows.filter((d) => d.key !== SelectedPhieu[0].key)
+          : [...selectedRows];
+
+      const key =
+        SelectedKeys.length > 0
+          ? selectedRowKeys.filter((d) => d !== SelectedKeys[0])
+          : [...selectedRowKeys];
+      if (row.length && row[0].tinhTrang === "Đã từ chối") {
+        Helpers.alertError("Không được chọn phiếu đã bị từ chối");
+      } else {
+        setSelectedPhieu(row);
+        setSelectedKeys(key);
+      }
+    },
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
         title="Biên bản bàn giao xe"
-        description="Biên bản bàn giao xe"
+        description="Danh sách biên bản bàn giao xe"
         buttons={addButtonRender()}
       />
 
@@ -423,43 +462,18 @@ function BienBanGiaoXe({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Ban/Phòng:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListBanPhong ? ListBanPhong : []}
-              placeholder="Chọn Ban/Phòng"
-              optionsvalue={["id", "tenPhongBan"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectBanPhong}
-              value={BanPhong}
-              onChange={(value) => setBanPhong(value)}
-              allowClear
-              onClear={handleClearBanPhong}
-            />
-          </Col>
-
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
             <h5>Ngày:</h5>
             <RangePicker
               format={"DD/MM/YYYY"}
               onChange={(date, dateString) => handleChangeNgay(dateString)}
               defaultValue={[
-                moment(FromDate, "DD/MM/YYYY"),
-                moment(ToDate, "DD/MM/YYYY"),
+                moment(TuNgay, "DD/MM/YYYY"),
+                moment(DenNgay, "DD/MM/YYYY"),
               ]}
               allowClear={false}
             />
           </Col>
+
           <Col
             xxl={6}
             xl={8}
@@ -476,17 +490,19 @@ function BienBanGiaoXe({ match, history, permission }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchDeNghiMuaHang,
-                onSearch: onSearchDeNghiMuaHang,
+                onPressEnter: onSearchPhieuKiemKe,
+                onSearch: onSearchPhieuKiemKe,
                 allowClear: true,
                 placeholder: "Tìm kiếm",
               }}
             />
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom">
         <Table
           bordered
-          scroll={{ x: 800, y: "70vh" }}
+          scroll={{ x: 1200, y: "55vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive"
@@ -503,10 +519,17 @@ function BienBanGiaoXe({ match, history, permission }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            hideSelectAll: true,
+            preserveSelectedRowKeys: false,
+            selectedRowKeys: SelectedKeys,
+          }}
         />
       </Card>
     </div>
   );
 }
 
-export default BienBanGiaoXe;
+export default PhieuKiemKe;

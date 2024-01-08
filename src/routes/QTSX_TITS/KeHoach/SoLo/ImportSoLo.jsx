@@ -152,7 +152,9 @@ function ImportSoLo({
         )
       );
     }).then((res) => {
-      exportExcel("File_Mau_So_Lo", res.data.dataexcel);
+      if (res.status !== 409) {
+        exportExcel("File_Mau_So_Lo", res.data.dataexcel);
+      } 
     });
   };
   const xuLyExcel = (file) => {

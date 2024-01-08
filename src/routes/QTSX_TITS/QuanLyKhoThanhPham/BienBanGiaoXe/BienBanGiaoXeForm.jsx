@@ -17,6 +17,107 @@ import {
 } from "src/util/Common";
 
 const FormItem = Form.Item;
+const PhuKienVatTuGoc = [
+  {
+    key: "Tổng quan",
+    value: null,
+    soLuong: null,
+    dieuKien: null,
+    tinhTrang: null,
+    soSeri: null,
+    moTa: null,
+  },
+  {
+    key: "Mâm - ốp(Bộ)",
+    value: null,
+    soLuong: null,
+    dieuKien: null,
+    tinhTrang: null,
+    soSeri: null,
+    moTa: null,
+  },
+  {
+    key: "Bình điện",
+    value: null,
+    soLuong: null,
+    dieuKien: null,
+    tinhTrang: null,
+    soSeri: null,
+    moTa: null,
+  },
+  {
+    key: "Máy lạnh",
+    value: null,
+    soLuong: null,
+    dieuKien: null,
+    tinhTrang: null,
+    soSeri: null,
+    moTa: null,
+  },
+  {
+    key: "Radio, Mp3",
+    value: null,
+    soLuong: null,
+    dieuKien: null,
+    tinhTrang: null,
+    soSeri: null,
+    moTa: null,
+  },
+  {
+    key: "Sổ bảo hành",
+    value: null,
+    soLuong: null,
+    dieuKien: null,
+    tinhTrang: null,
+    soSeri: null,
+    moTa: null,
+  },
+  {
+    key: "Bộ đồ nghề tiêu chuẩn",
+    value: null,
+    soLuong: null,
+    dieuKien: null,
+    tinhTrang: null,
+    soSeri: null,
+    moTa: null,
+  },
+  {
+    key: "Ticket",
+    value: null,
+    soLuong: null,
+    dieuKien: null,
+    tinhTrang: null,
+    soSeri: null,
+    moTa: null,
+  },
+  {
+    key: "Kính, gương",
+    value: null,
+    soLuong: null,
+    dieuKien: null,
+    tinhTrang: null,
+    soSeri: null,
+    moTa: null,
+  },
+  {
+    key: "Đèn, lái",
+    value: null,
+    soLuong: null,
+    dieuKien: null,
+    tinhTrang: null,
+    soSeri: null,
+    moTa: null,
+  },
+  {
+    key: "Khác",
+    value: null,
+    soLuong: null,
+    dieuKien: null,
+    tinhTrang: null,
+    soSeri: null,
+    moTa: null,
+  },
+];
 
 const BienBanBanGiaoXe = ({ history, match, permission }) => {
   const dispatch = useDispatch();
@@ -34,161 +135,58 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
   const [ListGiaoHang, setListGiaoHang] = useState([]);
   const [ListKhachHang, setListKhachHang] = useState([]);
   const [ListDaiDien, setListDaiDien] = useState([]);
-  const [ListThanhPham, setListThanhPham] = useState([]);
+  const [ListSoLo, setListSoLo] = useState([]);
+  const [SoLo, setSoLo] = useState(null);
   const [VatTuKhac, setVatTuKhac] = useState(null);
+  const [PhuKienVatTu, setPhuKienVatTu] = useState(PhuKienVatTuGoc);
   const [NoiDungBanGiao, setNoiDungBanGiao] = useState(true);
   const [id, setId] = useState(undefined);
   const [info, setInfo] = useState({});
-  const PhuKienVatTuGoc = [
-    {
-      key: "Tổng quan",
-      value: null,
-      soLuong: null,
-      dieuKien: null,
-      tinhTrang: null,
-      soSeri: null,
-      moTa: null,
-    },
-    {
-      key: "Mâm - ốp(Bộ)",
-      value: null,
-      soLuong: null,
-      dieuKien: null,
-      tinhTrang: null,
-      soSeri: null,
-      moTa: null,
-    },
-    {
-      key: "Bình điện",
-      value: null,
-      soLuong: null,
-      dieuKien: null,
-      tinhTrang: null,
-      soSeri: null,
-      moTa: null,
-    },
-    {
-      key: "Máy lạnh",
-      value: null,
-      soLuong: null,
-      dieuKien: null,
-      tinhTrang: null,
-      soSeri: null,
-      moTa: null,
-    },
-    {
-      key: "Radio, Mp3",
-      value: null,
-      soLuong: null,
-      dieuKien: null,
-      tinhTrang: null,
-      soSeri: null,
-      moTa: null,
-    },
-    {
-      key: "Sổ bảo hành",
-      value: null,
-      soLuong: null,
-      dieuKien: null,
-      tinhTrang: null,
-      soSeri: null,
-      moTa: null,
-    },
-    {
-      key: "Bộ đồ nghề tiêu chuẩn",
-      value: null,
-      soLuong: null,
-      dieuKien: null,
-      tinhTrang: null,
-      soSeri: null,
-      moTa: null,
-    },
-    {
-      key: "Ticket",
-      value: null,
-      soLuong: null,
-      dieuKien: null,
-      tinhTrang: null,
-      soSeri: null,
-      moTa: null,
-    },
-    {
-      key: "Kính, gương",
-      value: null,
-      soLuong: null,
-      dieuKien: null,
-      tinhTrang: null,
-      soSeri: null,
-      moTa: null,
-    },
-    {
-      key: "Đèn, lái",
-      value: null,
-      soLuong: null,
-      dieuKien: null,
-      tinhTrang: null,
-      soSeri: null,
-      moTa: null,
-    },
-    {
-      key: "Khác",
-      value: null,
-      soLuong: null,
-      dieuKien: null,
-      tinhTrang: null,
-      soSeri: null,
-      moTa: null,
-    },
-  ];
-  const [PhuKienVatTu, setPhuKienVatTu] = useState(PhuKienVatTuGoc);
 
   useEffect(() => {
-    const load = () => {
-      getListDonHang();
-      getListKhachHang();
-      getListDaiDien();
-      if (includes(match.url, "them-moi")) {
-        if (permission && permission.add) {
-          setType("new");
-          getUserLap();
-          setFieldsValue({
-            bienbanbangiaoxe: {
-              ngay: moment(getDateNow(), "DD/MM/YYYY"),
-            },
-          });
-        } else if (permission && !permission.add) {
-          history.push("/home");
-        }
-      } else if (includes(match.url, "chinh-sua")) {
-        if (permission && permission.edit) {
-          setType("edit");
-          const { id } = match.params;
-          setId(id);
-          getInfo(id);
-        } else if (permission && !permission.edit) {
-          history.push("/home");
-        }
-      } else if (includes(match.url, "chi-tiet")) {
-        if (permission && permission.edit) {
-          setType("detail");
-          const { id } = match.params;
-          setId(id);
-          getInfo(id);
-        } else if (permission && !permission.edit) {
-          history.push("/home");
-        }
-      } else if (includes(match.url, "xac-nhan")) {
-        if (permission && permission.edit) {
-          setType("xacnhan");
-          const { id } = match.params;
-          setId(id);
-          getInfo(id);
-        } else if (permission && !permission.edit) {
-          history.push("/home");
-        }
+    getListDonHang();
+    getListKhachHang();
+    getListDaiDien();
+    if (includes(match.url, "them-moi")) {
+      if (permission && permission.add) {
+        setType("new");
+        getUserLap();
+        setFieldsValue({
+          bienbanbangiaoxe: {
+            ngay: moment(getDateNow(), "DD/MM/YYYY"),
+          },
+        });
+      } else if (permission && !permission.add) {
+        history.push("/home");
       }
-    };
-    load();
+    } else if (includes(match.url, "chinh-sua")) {
+      if (permission && permission.edit) {
+        setType("edit");
+        const { id } = match.params;
+        setId(id);
+        getInfo(id);
+      } else if (permission && !permission.edit) {
+        history.push("/home");
+      }
+    } else if (includes(match.url, "chi-tiet")) {
+      if (permission && permission.edit) {
+        setType("detail");
+        const { id } = match.params;
+        setId(id);
+        getInfo(id);
+      } else if (permission && !permission.edit) {
+        history.push("/home");
+      }
+    } else if (includes(match.url, "xac-nhan")) {
+      if (permission && permission.edit) {
+        setType("xacnhan");
+        const { id } = match.params;
+        setId(id);
+        getInfo(id);
+      } else if (permission && !permission.edit) {
+        history.push("/home");
+      }
+    }
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -308,6 +306,37 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
     });
   };
 
+  const getListSoLo = (tits_qtsx_DonHang_Id) => {
+    const param = convertObjectToUrlParams({ tits_qtsx_DonHang_Id });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_BienBanBanGiaoXe/list-ma-noi-bo-ban-giao-xe?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        const newData =
+          res.data &&
+          res.data.map((dt) => {
+            return {
+              ...dt,
+              soKhung: `${dt.tenSoLo} (${dt.maNoiBo})`,
+            };
+          });
+        setListSoLo(newData);
+      } else {
+        setListSoLo([]);
+      }
+    });
+  };
+
   /**
    * Lấy thông tin
    *
@@ -344,7 +373,7 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
                 };
               }
             );
-          setListThanhPham(newData);
+          setListSoLo(newData);
           getUserLap(res.data.nguoiTao_Id);
 
           setFieldsValue({
@@ -380,11 +409,7 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
   const saveAndClose = (val) => {
     validateFields()
       .then((values) => {
-        if (ListThanhPham.length === 0) {
-          Helpers.alertError("Danh sách thành phẩm không được rỗng");
-        } else {
-          saveData(values.bienbanbangiaoxe, val);
-        }
+        saveData(values.bienbanbangiaoxe, val);
       })
       .catch((error) => {
         console.log("error", error);
@@ -396,12 +421,27 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
       const newData = {
         ...bienbanbangiaoxe,
         ngay: bienbanbangiaoxe.ngay.format("DD/MM/YYYY"),
-        tits_qtsx_PhieuNhapKhoThanhPhamChiTiets: ListThanhPham,
+        thongTinTaiXes: {
+          taiXeVanChuyen: bienbanbangiaoxe.taiXeVanChuyen,
+          bangLaiXe: bienbanbangiaoxe.bangLaiXe,
+          soCCCD: bienbanbangiaoxe.soCCCD,
+          noiCap: bienbanbangiaoxe.noiCap,
+          ngayCap: bienbanbangiaoxe.ngayCap.format("DD/MM/YYYY"),
+        },
+        thongTinNguoiNhanTrucTieps: {
+          nguoiNhanTrucTiep: bienbanbangiaoxe.nguoiNhanTrucTiep,
+          chucVu: bienbanbangiaoxe.chucVu,
+          sDT: bienbanbangiaoxe.sDT,
+          diaChiNhanTrucTiep: bienbanbangiaoxe.diaChiNhanTrucTiep,
+        },
+        thongTinVatTuPhuKiens: PhuKienVatTu,
+        thongTinVatTuPhuKienKhac: VatTuKhac,
       };
+      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_PhieuNhapKhoThanhPham`,
+            `tits_qtsx_BienBanBanGiaoXe`,
             "POST",
             newData,
             "ADD",
@@ -417,8 +457,12 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
               goBack();
             } else {
               resetFields();
-              getUserLap();
-              setListThanhPham([]);
+              getListDonHang();
+              getListKhachHang();
+              getListDaiDien();
+              getListSoLo();
+              setPhuKienVatTu(PhuKienVatTuGoc);
+              setVatTuKhac([]);
               setFieldsValue({
                 bienbanbangiaoxe: {
                   ngay: moment(getDateNow(), "DD/MM/YYYY"),
@@ -437,7 +481,7 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
         ...bienbanbangiaoxe,
         id: id,
         ngay: bienbanbangiaoxe.ngay.format("DD/MM/YYYY"),
-        tits_qtsx_PhieuNhapKhoThanhPhamChiTiets: ListThanhPham,
+        tits_qtsx_PhieuNhapKhoThanhPhamChiTiets: ListSoLo,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -476,6 +520,16 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
     } else {
       setVatTuKhac(val.target.value);
     }
+  };
+
+  const handleSelectDonHang = (value) => {
+    getListSoLo(value);
+  };
+
+  const handleSelectSoLo = (value) => {
+    const solo = ListSoLo.forEach((sl) => sl.tits_qtsx_SoLo_Id === value);
+    console.log(solo);
+    setSoLo(solo);
   };
 
   const formTitle =
@@ -639,7 +693,6 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
               >
                 <DatePicker
                   format={"DD/MM/YYYY"}
-                  showTime
                   disabled={true}
                   allowClear={false}
                 />
@@ -671,6 +724,7 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
                   optionsvalue={["id", "tenDonHang"]}
                   style={{ width: "100%" }}
                   showSearch
+                  onSelect={handleSelectDonHang}
                   optionFilterProp="name"
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
@@ -1049,13 +1103,13 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
                 rules={[
                   {
                     required: true,
-                    type: "string",
                   },
                 ]}
               >
-                <Input
-                  placeholder="Nhập tên tài xế vận chuyển"
+                <DatePicker
+                  format={"DD/MM/YYYY"}
                   disabled={type === "new" || type === "edit" ? false : true}
+                  allowClear={false}
                 />
               </FormItem>
             </Col>
@@ -1409,38 +1463,14 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
                     ]}
                   >
                     <Select
+                      placeholder="Chọn số lô xe"
                       className="heading-select slt-search th-select-heading"
-                      data={ListUser ? ListUser : []}
-                      optionsvalue={["Id", "fullName"]}
+                      data={ListSoLo ? ListSoLo : []}
+                      optionsvalue={["tits_qtsx_SoLoChiTiet_Id", "soKhung"]}
+                      showSearch
+                      onSelect={handleSelectSoLo}
+                      optionFilterProp="name"
                       style={{ width: "100%" }}
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={12}
-                  md={12}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Số máy"
-                    name={["bienbanbangiaoxe", "soMay"]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Input
-                      className="input-item"
-                      placeholder="Nhập số máy"
                       disabled={
                         type === "new" || type === "edit" ? false : true
                       }
@@ -1458,102 +1488,153 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
                 >
                   <FormItem
                     label="Màu"
-                    name={["bienbanbangiaoxe", "canCuYeuCauGiaoXe"]}
+                    name={["bienbanbangiaoxe", "tits_qtsx_SoLoChiTiet_Id"]}
                     rules={[
                       {
                         required: true,
                         type: "string",
-                      },
-                    ]}
-                  >
-                    <Input
-                      placeholder="Nhập căn cứ yêu cầu giao xe số"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={12}
-                  md={12}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Số"
-                    name={["bienbanbangiaoxe", "so"]}
-                    rules={[
-                      {
-                        required: true,
-                        type: "string",
-                      },
-                    ]}
-                  >
-                    <Input
-                      placeholder="Nhập số"
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={12}
-                  md={12}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Ngày nhập"
-                    name={["bienbanbangiaoxe", "ngay"]}
-                    rules={[
-                      {
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <DatePicker
-                      format={"DD/MM/YYYY"}
-                      showTime
-                      disabled={true}
-                      allowClear={false}
-                    />
-                  </FormItem>
-                </Col>
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={12}
-                  md={12}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Đơn hàng"
-                    name={["bienbanbangiaoxe", "tits_qtsx_DonHang_Id"]}
-                    rules={[
-                      {
-                        type: "string",
-                        required: true,
                       },
                     ]}
                   >
                     <Select
+                      placeholder="Màu sắc xe"
                       className="heading-select slt-search th-select-heading"
-                      data={ListDonHang}
-                      placeholder="Chọn đơn hàng"
-                      optionsvalue={["id", "tenDonHang"]}
+                      data={ListSoLo ? ListSoLo : []}
+                      optionsvalue={["tits_qtsx_SoLoChiTiet_Id", "tenMauSac"]}
                       style={{ width: "100%" }}
-                      showSearch
-                      optionFilterProp="name"
+                      disabled={true}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="Số máy"
+                    name={["bienbanbangiaoxe", "soMay"]}
+                    rules={[
+                      {
+                        required: true,
+                        type: "string",
+                      },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập số máy"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="Thùng"
+                    name={["bienbanbangiaoxe", "thung"]}
+                    rules={[
+                      {
+                        required: true,
+                        type: "string",
+                      },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập thùng"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="Số seri"
+                    name={["bienbanbangiaoxe", "soSeri"]}
+                    rules={[
+                      {
+                        required: true,
+                        type: "string",
+                      },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập số seri"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="Tình trạng giao"
+                    name={["bienbanbangiaoxe", "tinhTrang"]}
+                    rules={[
+                      {
+                        required: true,
+                        type: "string",
+                      },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập tình trạng"
+                      disabled={
+                        type === "new" || type === "edit" ? false : true
+                      }
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label="Vận chuyển"
+                    name={["bienbanbangiaoxe", "phuongThucVanChuyen"]}
+                    rules={[
+                      {
+                        required: true,
+                        type: "string",
+                      },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập phương thức vận chuyển"
                       disabled={
                         type === "new" || type === "edit" ? false : true
                       }
