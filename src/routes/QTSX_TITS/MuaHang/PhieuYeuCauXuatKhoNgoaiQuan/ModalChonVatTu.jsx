@@ -21,7 +21,9 @@ import {
   Table,
 } from "src/components/Common";
 import { DEFAULT_FORM_XUATKHONGOAIQUAN } from "src/constants/Config";
+import Helpers from "src/helpers";
 import {
+  convertObjectToUrlParams,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
@@ -49,7 +51,6 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
   useEffect(() => {
     if (openModal) {
       getListVatTu();
-      getListPhieuMuaHang();
       setFieldsValue({
         themvattu: {
           ngayHoanThanh: moment(getDateNow(), "DD/MM/YYYY"),
@@ -100,11 +101,12 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
     });
   };
 
-  const getListPhieuMuaHang = () => {
+  const getListPhieuMuaHang = (tits_qtsx_VatTu_Id) => {
+    const param = convertObjectToUrlParams({ tits_qtsx_VatTu_Id });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuYeuCauXuatKhoNgoaiQuan/list-phieu-mua-hang-ngoai`,
+          `tits_qtsx_PhieuYeuCauXuatKhoNgoaiQuan/list-phieu-mua-hang-ngoai?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -309,28 +311,38 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
 
   const onFinish = (values) => {
     const data = values.themvattu;
-    const listvattu = ListVatTu.filter((d) => d.id === data.tits_qtsx_VatTu_Id);
-    const donhang = ListPhieuMuaHang.filter(
-      (d) => d.id === data.tits_qtsx_PhieuMuaHangNgoai_Id
-    );
-    const DataList = {
-      ...data,
-      ...listvattu[0],
-      maPhieu: donhang[0].maPhieu,
-      ngayHoanThanh: data.ngayHoanThanh.format("DD/MM/YYYY"),
-      tong: data.nhapKhau && parseFloat(data.nhapKhau) + parseFloat(data.vat),
-    };
-    setDataListVatTu([...DataListVatTu, DataList]);
+    const listvattu = ListVatTu.find((d) => d.id === data.tits_qtsx_VatTu_Id);
 
-    const VatTu = ListVatTu.filter((d) => d.id !== data.tits_qtsx_VatTu_Id);
-    setListVatTu(VatTu);
-    resetFields();
-    setFieldTouch(false);
-    setFieldsValue({
-      themvattu: {
-        ngayHoanThanh: moment(getDateNow(), "DD/MM/YYYY"),
-      },
-    });
+    const donhang = ListPhieuMuaHang.find(
+      (d) =>
+        d.tits_qtsx_PhieuMuaHangNgoai_Id === data.tits_qtsx_PhieuMuaHangNgoai_Id
+    );
+
+    if (Number(data.soLuong) > Number(donhang.soLuongChuaNhan)) {
+      Helpers.alertError(
+        "Số lượng phải nhỏ hơn hoặc bằng số lượng của phiếu mua hàng"
+      );
+      setFieldTouch(false);
+    } else {
+      const DataList = {
+        ...data,
+        ...(listvattu && listvattu),
+        maPhieu: donhang && donhang.maPhieu,
+        ngayHoanThanh: data.ngayHoanThanh.format("DD/MM/YYYY"),
+        tong: data.nhapKhau && parseFloat(data.nhapKhau) + parseFloat(data.vat),
+      };
+      setDataListVatTu([...DataListVatTu, DataList]);
+
+      const VatTu = ListVatTu.filter((d) => d.id !== data.tits_qtsx_VatTu_Id);
+      setListVatTu(VatTu);
+      resetFields();
+      setFieldTouch(false);
+      setFieldsValue({
+        themvattu: {
+          ngayHoanThanh: moment(getDateNow(), "DD/MM/YYYY"),
+        },
+      });
+    }
   };
 
   const XacNhan = () => {
@@ -338,6 +350,10 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
     openModalFS(false);
     setListVatTu([]);
     setDataListVatTu([]);
+  };
+
+  const handleSelectVatTu = (value) => {
+    getListPhieuMuaHang(value);
   };
 
   const handleCancel = () => {
@@ -389,6 +405,7 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
                     optionsvalue={["id", "vatTu"]}
                     style={{ width: "100%" }}
                     showSearch
+                    onSelect={handleSelectVatTu}
                     optionFilterProp="name"
                   />
                 </FormItem>
@@ -421,6 +438,36 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
                     showSearch
                     optionFilterProp="name"
                     disabled={true}
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Phiếu mua hàng"
+                  name={["themvattu", "tits_qtsx_PhieuMuaHangNgoai_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListPhieuMuaHang}
+                    placeholder="Chọn phiếu mua hàng ngoài"
+                    optionsvalue={["tits_qtsx_PhieuMuaHangNgoai_Id", "maPhieu"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    optionFilterProp="name"
                   />
                 </FormItem>
               </Col>
@@ -547,36 +594,6 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
                     className="input-item"
                     placeholder="Nhập số lượng nhập khẩu"
                     inputMode="numeric"
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Phiếu mua hàng"
-                  name={["themvattu", "tits_qtsx_PhieuMuaHangNgoai_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListPhieuMuaHang}
-                    placeholder="Chọn phiếu mua hàng ngoài"
-                    optionsvalue={["id", "maPhieu"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp="name"
                   />
                 </FormItem>
               </Col>

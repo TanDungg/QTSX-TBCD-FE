@@ -420,6 +420,7 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
     if (type === "new") {
       const newData = {
         ...bienbanbangiaoxe,
+        tits_qtsx_DonHangChiTiet_Id: SoLo.tits_qtsx_DonHangChiTiet_Id,
         ngay: bienbanbangiaoxe.ngay.format("DD/MM/YYYY"),
         thongTinTaiXes: {
           taiXeVanChuyen: bienbanbangiaoxe.taiXeVanChuyen,
@@ -528,7 +529,6 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
 
   const handleSelectSoLo = (value) => {
     const solo = ListSoLo.forEach((sl) => sl.tits_qtsx_SoLo_Id === value);
-    console.log(solo);
     setSoLo(solo);
   };
 
