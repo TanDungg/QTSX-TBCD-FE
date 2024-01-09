@@ -40,6 +40,7 @@ import {
 } from "src/util/Common";
 import Helper from "src/helpers";
 import ModalChonVatTu from "./ModalChonVatTu";
+import ImportDanhSachVatTu from "./ImportDanhSachVatTu";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -61,9 +62,10 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
   const [ListUserKy, setListUserKy] = useState([]);
   const [disableUpload, setDisableUpload] = useState(false);
   const [File, setFile] = useState(null);
-  const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(false);
   const [editingRecord, setEditingRecord] = useState([]);
   const [info, setInfo] = useState({});
+  const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(false);
+  const [ActiveModalImportVatTu, setActiveModalImportVatTu] = useState(false);
 
   useEffect(() => {
     const load = () => {
@@ -1048,9 +1050,18 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
         title={"Danh sách vật tư"}
       >
         {type !== "detail" && (
-          <div align={"end"}>
+          <div align={"end"} style={{ marginBottom: 10 }}>
+            <Button
+              icon={<UploadOutlined />}
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={() => setActiveModalImportVatTu(true)}
+            >
+              Import vật tư
+            </Button>
             <Button
               icon={<PlusCircleOutlined />}
+              className="th-margin-bottom-0"
               onClick={() => setActiveModalChonVatTu(true)}
               type="primary"
             >
@@ -1079,6 +1090,12 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           disabled={fieldTouch && ListVatTu.length !== 0}
         />
       ) : null}
+      <ImportDanhSachVatTu
+        openModal={ActiveModalImportVatTu}
+        openModalFS={setActiveModalImportVatTu}
+        itemData={ListVatTu && ListVatTu}
+        DataThemVatTu={DataThemVatTu}
+      />
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
