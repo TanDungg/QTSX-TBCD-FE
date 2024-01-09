@@ -28,6 +28,11 @@ const NhomLoiForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           setType("new");
           getListCongDoan();
+          setFieldsValue({
+            nhomloi: {
+              isSuDung: true,
+            },
+          });
         } else if (permission && !permission.add) {
           history.push("/home");
         }
@@ -154,6 +159,11 @@ const NhomLoiForm = ({ history, match, permission }) => {
             } else {
               resetFields();
               setFieldTouch(false);
+              setFieldsValue({
+                nhomloi: {
+                  isSuDung: true,
+                },
+              });
             }
           } else {
             if (saveQuit) {

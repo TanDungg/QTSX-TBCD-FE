@@ -318,8 +318,24 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
           console.log("upload failed.");
         });
     } else {
+      const DataList = {
+        ...themvattu,
+        ...VatTuTrongKho,
+        soLuongYeuCau:
+          parseFloat(themvattu.soLuongCan) +
+          parseFloat(themvattu.soLuongTonKho),
+      };
+      setDataListVatTu([...DataListVatTu, DataList]);
+
+      const vattu = ListVatTu.filter(
+        (d) => d.id !== themvattu.tits_qtsx_VatTu_Id
+      );
+      setListVatTu(vattu);
+      setVatTuTrongKho({});
+      resetFields();
       setFieldTouch(false);
-      Helpers.alertError(`Vui lòng tải hình ảnh lên`);
+      setDisableUpload(false);
+      setFileHinhAnh(null);
     }
   };
 
@@ -516,6 +532,7 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                   ]}
                 >
                   <Input
+                    type="string"
                     className="input-item"
                     placeholder="Nhập hạn mục sử dụng"
                   />
@@ -536,7 +553,6 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                   rules={[
                     {
                       type: "file",
-                      required: true,
                     },
                   ]}
                 >
