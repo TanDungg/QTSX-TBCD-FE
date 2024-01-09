@@ -844,21 +844,8 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
         >
           {info.maPhieu}
         </Tag>
-        <Tag
-          color={
-            info.isXacNhan === null
-              ? "orange"
-              : info.isXacNhan === true
-              ? "blue"
-              : "red"
-          }
-          style={{ fontSize: 14 }}
-        >
-          {info.isXacNhan === null
-            ? "Chưa xác nhận"
-            : info.isXacNhan === true
-            ? "Đã xác nhận"
-            : "Đã từ chối"}
+        <Tag color={info.isXacNhan ? "blue" : "red"} style={{ fontSize: 14 }}>
+          {info.trangThai}
         </Tag>
       </span>
     );
@@ -1114,7 +1101,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
                       }}
                       onClick={() => handleViewFile(File)}
                     >
-                      {File.name}{" "}
+                      {File.name}
                     </span>
                     <DeleteOutlined
                       style={{ cursor: "pointer", color: "red" }}
@@ -1161,7 +1148,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
                     >
                       {File.split("/")[5]}{" "}
                     </a>
-                    {!info.isXacNhan && (
+                    {!info.isXacNhan && type === "edit" && (
                       <DeleteOutlined
                         style={{ cursor: "pointer", color: "red" }}
                         onClick={() => {
