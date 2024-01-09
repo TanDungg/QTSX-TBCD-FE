@@ -34,6 +34,20 @@ import { BASE_URL_API } from "src/constants/Config";
 import ModalKetThuc from "./ModalKetThuc";
 
 const { EditableRow, EditableCell } = EditableTableRow;
+const listchuyen = [
+  {
+    id: "63aece3b-f542-4c09-bc51-49a39f831906",
+    maChuyen: "HLKR",
+    tenChuyen: "Chuyền Hàn linh kiện rời",
+    tenXuong: "Gia công linh kiện",
+  },
+  {
+    id: "e165873f-f701-4bfd-afdb-ee2ba34c3ea8",
+    maChuyen: "GCTP",
+    tenChuyen: "Chuyền gia công tạo phôi",
+    tenXuong: "Gia công linh kiện",
+  },
+];
 
 function MaySanXuat({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
@@ -60,14 +74,6 @@ function MaySanXuat({ match, history, permission }) {
   const [ActiveModalKetThuc, setActiveModalKetThuc] = useState(false);
   const [editingRecord, setEditingRecord] = useState([]);
   const [DisabledKiemTra, setDisabledKiemTra] = useState(true);
-  const listchuyen = [
-    {
-      id: "63aece3b-f542-4c09-bc51-49a39f831906",
-      maChuyen: "HLKR",
-      tenChuyen: "Chuyền Hàn linh kiện rời",
-      tenXuong: "Gia công linh kiện",
-    },
-  ];
 
   useEffect(() => {
     if (permission && permission.view) {
