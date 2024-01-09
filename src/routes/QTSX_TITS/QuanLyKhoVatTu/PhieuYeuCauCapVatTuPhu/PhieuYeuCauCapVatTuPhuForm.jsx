@@ -356,6 +356,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
           textAlign: "center",
           width: "100%",
         }}
+        type="string"
         className={`input-item`}
         disabled={type === "new" || type === "edit" ? false : true}
         value={record.hangMucSuDung}
@@ -431,15 +432,16 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       dataIndex: "hinhAnh",
       key: "hinhAnh",
       align: "center",
-      render: (value) => (
-        <span>
-          <Image
-            src={BASE_URL_API + value}
-            alt="Hình ảnh"
-            style={{ maxWidth: 100, maxHeight: 100 }}
-          />
-        </span>
-      ),
+      render: (value) =>
+        value && (
+          <span>
+            <Image
+              src={BASE_URL_API + value}
+              alt="Hình ảnh"
+              style={{ maxWidth: 100, maxHeight: 100 }}
+            />
+          </span>
+        ),
     },
     {
       title: "Chức năng",
@@ -601,7 +603,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res.status !== 409) {
-          getInfo(id);
+          goBack();
         }
       })
       .catch((error) => console.error(error));
