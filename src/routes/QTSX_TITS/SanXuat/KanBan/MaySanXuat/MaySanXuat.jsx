@@ -78,8 +78,6 @@ function MaySanXuat({ match, history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       setListChuyen(listchuyen);
-      setChuyen(listchuyen[0].id);
-      getListSanPham(listchuyen[0].id, Ngay, keyTabs);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -187,16 +185,8 @@ function MaySanXuat({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListSanPham(res.data);
-          setSanPham(res.data[0].tits_qtsx_SanPham_Id);
-          getListDonHang(
-            tits_qtsx_Chuyen_Id,
-            res.data[0].tits_qtsx_SanPham_Id,
-            ngay,
-            keytabs
-          );
         } else {
           setListSanPham([]);
-          setSanPham([]);
         }
       })
       .catch((error) => console.error(error));
@@ -231,17 +221,8 @@ function MaySanXuat({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListDonHang(res.data);
-          setDonHang(res.data[0].tits_qtsx_DonHang_Id);
-          getListTram(
-            tits_qtsx_Chuyen_Id,
-            tits_qtsx_SanPham_Id,
-            res.data[0].tits_qtsx_DonHang_Id,
-            ngay,
-            keytabs
-          );
         } else {
           setListDonHang([]);
-          setDonHang([]);
         }
       })
       .catch((error) => console.error(error));
@@ -278,18 +259,8 @@ function MaySanXuat({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListTram(res.data);
-          setTram(res.data[0].tits_qtsx_Tram_Id);
-          getListThietBi(
-            tits_qtsx_Chuyen_Id,
-            tits_qtsx_SanPham_Id,
-            tits_qtsx_DonHang_Id,
-            res.data[0].tits_qtsx_Tram_Id,
-            ngay,
-            keytabs
-          );
         } else {
           setListTram([]);
-          setTram(null);
         }
       })
       .catch((error) => console.error(error));
@@ -326,25 +297,10 @@ function MaySanXuat({ match, history, permission }) {
       );
     })
       .then((res) => {
-        if (res && res.data) {
+        if (res && res.data.length) {
           setListThietBi(res.data);
-          setThietBi(res.data[0].tits_qtsx_ThietBi_Id);
-          if (res.data[0].tits_qtsx_ThietBi_Id) {
-            getListData(
-              tits_qtsx_Chuyen_Id,
-              tits_qtsx_SanPham_Id,
-              tits_qtsx_DonHang_Id,
-              tits_qtsx_Tram_Id,
-              res.data[0].tits_qtsx_ThietBi_Id,
-              ngay,
-              keytabs
-            );
-          } else {
-            setDataMaySanXuat([]);
-          }
         } else {
           setListThietBi([]);
-          setThietBi(null);
         }
       })
       .catch((error) => console.error(error));
@@ -662,6 +618,7 @@ function MaySanXuat({ match, history, permission }) {
           type="number"
           value={record[key]}
           disabled={
+            record.soLuongChiTiet === record.soLuongDaSanXuat &&
             record.soLuongDaSanXuat === record.soLuongKiemTra &&
             Number(record.soLuongLoi) === 0
           }
@@ -711,6 +668,7 @@ function MaySanXuat({ match, history, permission }) {
         value={record[key]}
         onSelect={(value) => handleThongTinDatTinh(value, record, key)}
         disabled={
+          record.soLuongChiTiet === record.soLuongDaSanXuat &&
           record.soLuongDaSanXuat === record.soLuongKiemTra &&
           Number(record.soLuongLoi) === 0
         }
@@ -747,6 +705,7 @@ function MaySanXuat({ match, history, permission }) {
         className={`input-item`}
         value={record[key]}
         disabled={
+          record.soLuongChiTiet === record.soLuongDaSanXuat &&
           record.soLuongDaSanXuat === record.soLuongKiemTra &&
           Number(record.soLuongLoi) === 0
         }
@@ -1041,7 +1000,19 @@ function MaySanXuat({ match, history, permission }) {
 
   const handleChangeTabs = (key) => {
     setKeyTabs(key);
-    getListSanPham(listchuyen[0].id, Ngay, key);
+    setChuyen(null);
+    setListChuyen(listchuyen);
+    setSanPham(null);
+    setListSanPham([]);
+    setDonHang(null);
+    setListDonHang([]);
+    setTram(null);
+    setListTram([]);
+    setThietBi(null);
+    setListThietBi([]);
+    setNgay(getDateNow());
+    setDataMaySanXuat([]);
+    setDataKiemTra([]);
   };
 
   const handleChangeNgay = (dateString) => {
