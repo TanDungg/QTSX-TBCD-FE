@@ -19,6 +19,20 @@ import moment from "moment";
 import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
+const listchuyen = [
+  {
+    id: "63aece3b-f542-4c09-bc51-49a39f831906",
+    maChuyen: "HLKR",
+    tenChuyen: "Chuyền Hàn linh kiện rời",
+    tenXuong: "Gia công linh kiện",
+  },
+  {
+    id: "e165873f-f701-4bfd-afdb-ee2ba34c3ea8",
+    maChuyen: "GCTP",
+    tenChuyen: "Chuyền gia công tạo phôi",
+    tenXuong: "Gia công linh kiện",
+  },
+];
 
 function ChiTietCauHinhKanBan({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
@@ -37,14 +51,7 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
   const [Ngay, setNgay] = useState(getDateNow());
   const [ListThietBi, setListThietBi] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
-  const listchuyen = [
-    {
-      id: "63aece3b-f542-4c09-bc51-49a39f831906",
-      maChuyen: "HLKR",
-      tenChuyen: "Chuyền Hàn linh kiện rời",
-      tenXuong: "Gia công linh kiện",
-    },
-  ];
+
   useEffect(() => {
     if (permission && permission.view) {
       setListChuyen(listchuyen);

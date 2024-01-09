@@ -35,7 +35,6 @@ function CauHinhKanBan({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [Data, setData] = useState([]);
-  const [ListTram, setListTram] = useState([]);
   const [ListChuyen, setListChuyen] = useState([]);
   const [Chuyen, setChuyen] = useState(null);
   const [TenChuyen, setTenChuyen] = useState(null);
@@ -89,10 +88,8 @@ function CauHinhKanBan({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListTram(res.data.list_Trams);
           setData(res.data.list_ChiTiets);
         } else {
-          setListTram([]);
           setData([]);
         }
       })
