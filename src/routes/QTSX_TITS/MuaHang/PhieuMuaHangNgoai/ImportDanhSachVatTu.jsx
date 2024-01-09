@@ -406,7 +406,15 @@ function ImportDanhSachVatTu({
         setDataListVatTu([]);
         openModalFS(false);
       } else {
-        DataThemVatTu(res.data);
+        const newData = DataListVatTu.map((vt) => {
+          const loi = res.data.find((dt) => dt.maVatTu == vt.maVatTu);
+          if (loi) {
+            return { ...vt, ghiChuImport: loi.ghiChuImport };
+          }
+          return vt;
+        });
+        setMessageError("Mẫu import không hợp lệ");
+        setDataListVatTu(newData);
         setCheckDanger(true);
       }
     });
