@@ -7,7 +7,11 @@ import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
-import { convertObjectToUrlParams } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  getLocalStorage,
+  getTokenInfo,
+} from "src/util/Common";
 
 const FormItem = Form.Item;
 
@@ -19,7 +23,9 @@ const LotForm = ({ history, match, permission }) => {
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
+  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [ListSanPham, setListSanPham] = useState([]);
+  const [ListXuong, setListXuong] = useState([]);
   const [form] = Form.useForm();
   const { tenLot } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
@@ -31,6 +37,7 @@ const LotForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           setType("new");
           getSanPham();
+          getXuong();
         } else if (permission && !permission.add) {
           history.push("/home");
         }
@@ -41,6 +48,7 @@ const LotForm = ({ history, match, permission }) => {
           const { id } = match.params;
           setId(id);
           getSanPham();
+          getXuong();
           getInfo();
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -72,6 +80,37 @@ const LotForm = ({ history, match, permission }) => {
         }
       })
       .catch((error) => console.error(error));
+  };
+  const getXuong = () => {
+    const params = convertObjectToUrlParams({
+      page: -1,
+      donviid: INFO.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `PhongBan?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        const xuong = [];
+        res.data.forEach((x) => {
+          if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+            xuong.push(x);
+          }
+        });
+        setListXuong(xuong);
+      } else {
+        setListXuong([]);
+      }
+    });
   };
   /**
    * Lấy thông tin
@@ -216,6 +255,46 @@ const LotForm = ({ history, match, permission }) => {
               className="heading-select slt-search th-select-heading"
               data={ListSanPham ? ListSanPham : []}
               placeholder="Chọn sản phẩm"
+              optionsvalue={["id", "tenSanPham"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+            />
+          </FormItem>
+          <FormItem
+            label="Xưởng"
+            name={["Lot", "phongBan_Id"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
+          >
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListXuong ? ListXuong : []}
+              placeholder="Chọn xưởng"
+              optionsvalue={["id", "tenSanPham"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+            />
+          </FormItem>
+          <FormItem
+            label="Phiên bản định mức"
+            name={["Lot", "phongBan_Id"]}
+            rules={[
+              {
+                type: "string",
+                required: true,
+              },
+            ]}
+          >
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListSanPham ? ListSanPham : []}
+              placeholder="Chọn phiên bản định mức"
               optionsvalue={["id", "tenSanPham"]}
               style={{ width: "100%" }}
               showSearch

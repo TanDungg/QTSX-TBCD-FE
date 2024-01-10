@@ -34,6 +34,7 @@ import moment from "moment";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function KeHoachChiTiet({ match, history, permission }) {
+  console.log(permission);
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
   // const INFO = getLocalStorage("menu");

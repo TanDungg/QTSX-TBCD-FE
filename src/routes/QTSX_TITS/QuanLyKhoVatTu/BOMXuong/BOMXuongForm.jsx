@@ -34,7 +34,6 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import {
   DeleteOutlined,
-  EditOutlined,
   RollbackOutlined,
   SaveOutlined,
   CloseOutlined,
@@ -67,10 +66,6 @@ function BOMXuongForm({ match, permission, history }) {
   const [ListUser, setListUser] = useState([]);
 
   const [ActiveModal, setActiveModal] = useState(false);
-  // const [fileName, setFileName] = useState("");
-  // const [message, setMessageError] = useState([]);
-  // const [DataLoi, setDataLoi] = useState();
-  // const [HangTrung, setHangTrung] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
   const [LoXe, setLoXe] = useState();
 
@@ -259,7 +254,6 @@ function BOMXuongForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          // if (!data) {
           setListChiTiet(
             res.data.list_ChiTiets.map((ct) => {
               return {
@@ -276,32 +270,6 @@ function BOMXuongForm({ match, permission, history }) {
               };
             })
           );
-          // } else {
-          //   const newData = [];
-          //   res.data.list_ChiTiets.forEach((ct) => {
-          //     data.forEach((dt) => {
-          //       if (
-          //         ct.tits_qtsx_VatTu_Id.toLowerCase() ===
-          //         dt.tits_qtsx_VatTuChiTiet_Id.toLowerCase()
-          //       ) {
-          //         newData.push({
-          //           ...ct,
-          //           chung: ct.quyCach.chung,
-          //           dai: ct.quyCach.dai,
-          //           day: ct.quyCach.day,
-          //           dn: ct.quyCach.dn,
-          //           dt: ct.quyCach.dt,
-          //           rong: ct.quyCach.rong,
-          //           dinhMuc: dt.dinhMuc,
-          //           yeuCauGiao: dt.yeuCauGiao,
-          //           tits_qtsx_VatTuChiTiet_Id: ct.tits_qtsx_VatTu_Id,
-          //         });
-          //       }
-          //     });
-          // }
-          //   );
-          //   setListChiTiet([...newData]);
-          // }
         } else {
           setListChiTiet([]);
         }
@@ -406,7 +374,7 @@ function BOMXuongForm({ match, permission, history }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    const title = "vật tư";
+    const title = "chi tiết";
     ModalDeleteConfirm(deleteItemAction, item, item.maVatTu, title);
   };
 
@@ -416,8 +384,10 @@ function BOMXuongForm({ match, permission, history }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = ListSanPham.filter((d) => d.id !== item.id);
-    setListSanPham(newData);
+    const newData = ListChiTiet.filter(
+      (d) => d.tits_qtsx_VatTuChiTiet_Id !== item.tits_qtsx_VatTuChiTiet_Id
+    );
+    setListChiTiet(newData);
   };
   /**
    * ActionContent: Action in table
@@ -426,16 +396,6 @@ function BOMXuongForm({ match, permission, history }) {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
-    const editItemVal =
-      type === "new" || type === "edit"
-        ? {
-            onClick: () => {
-              // setActiveModalEdit(true);
-              // setTypeAddTable("edit");
-              // setInfoSanPham(item);
-            },
-          }
-        : { disabled: true };
     const deleteItemVal =
       type === "new" || type === "edit"
         ? { onClick: () => deleteItemFunc(item) }
@@ -443,10 +403,6 @@ function BOMXuongForm({ match, permission, history }) {
     return (
       <div>
         <React.Fragment>
-          <a {...editItemVal} title="Xóa">
-            <EditOutlined />
-          </a>
-          <Divider type="vertical" />
           <a {...deleteItemVal} title="Xóa">
             <DeleteOutlined />
           </a>
@@ -454,27 +410,6 @@ function BOMXuongForm({ match, permission, history }) {
       </div>
     );
   };
-  // const renderLoi = (val) => {
-  //   let check = false;
-  //   let messageLoi = "";
-  //   if (DataLoi && DataLoi.length > 0) {
-  //     DataLoi.forEach((dt) => {
-  //       if (dt.maVatTuChiTiet === val.maVatTuChiTiet) {
-  //         check = true;
-  //         messageLoi = dt.ghiChuImport;
-  //       }
-  //     });
-  //   }
-  //   return check ? (
-  //     <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
-  //       {val.maVatTuChiTiet}
-  //     </Popover>
-  //   ) : val.STT === "*" ? (
-  //     <span style={{ fontWeight: "bold" }}>{val.maVatTuChiTiet}</span>
-  //   ) : (
-  //     <span>{val.maVatTuChiTiet}</span>
-  //   );
-  // };
   const handleInputChange = (val, item) => {
     const soLuongNhap = val.target.value;
     if (isEmpty(soLuongNhap) || Number(soLuongNhap) <= 0) {
@@ -650,367 +585,6 @@ function BOMXuongForm({ match, permission, history }) {
       }),
     };
   });
-  // const TaiFileMau = () => {
-  //   const param = convertObjectToUrlParams({
-  //     tits_qtsx_SanPham_Id: SanPham,
-  //   });
-  //   new Promise((resolve, reject) => {
-  //     dispatch(
-  //       fetchStart(
-  //         `tits_qtsx_DinhMucVatTuThep/export-file-mau?${param}`,
-  //         "POST",
-  //         null,
-  //         "DOWLOAD",
-  //         "",
-  //         resolve,
-  //         reject
-  //       )
-  //     );
-  //   }).then((res) => {
-  //     exportExcel("File_Mau_DinhMucVatTuThep", res.data.dataexcel);
-  //   });
-  // };
-  // const xuLyExcel = (file) => {
-  //   const reader = new FileReader();
-  //   reader.onload = (event) => {
-  //     const workbook = XLSX.read(event.target.result, {
-  //       type: "binary",
-  //     });
-  //     const worksheet = workbook.Sheets["Import"];
-  //     let checkMau =
-  //       XLSX.utils.sheet_to_json(worksheet, {
-  //         header: 1,
-  //         range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
-  //       })[0] &&
-  //       XLSX.utils
-  //         .sheet_to_json(worksheet, {
-  //           header: 1,
-  //           range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
-  //         })[0]
-  //         .toString()
-  //         .trim() === "STT" &&
-  //       XLSX.utils.sheet_to_json(worksheet, {
-  //         header: 1,
-  //         range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
-  //       })[0] &&
-  //       XLSX.utils
-  //         .sheet_to_json(worksheet, {
-  //           header: 1,
-  //           range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
-  //         })[0]
-  //         .toString()
-  //         .trim() === "Mã vật tư" &&
-  //       XLSX.utils.sheet_to_json(worksheet, {
-  //         header: 1,
-  //         range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
-  //       })[0] &&
-  //       XLSX.utils
-  //         .sheet_to_json(worksheet, {
-  //           header: 1,
-  //           range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
-  //         })[0]
-  //         .toString()
-  //         .trim() === "Tên vật tư" &&
-  //       XLSX.utils.sheet_to_json(worksheet, {
-  //         header: 1,
-  //         range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
-  //       })[0] &&
-  //       XLSX.utils
-  //         .sheet_to_json(worksheet, {
-  //           header: 1,
-  //           range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
-  //         })[0]
-  //         .toString()
-  //         .trim() === "Vật liệu" &&
-  //       XLSX.utils.sheet_to_json(worksheet, {
-  //         header: 1,
-  //         range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
-  //       })[0] &&
-  //       XLSX.utils
-  //         .sheet_to_json(worksheet, {
-  //           header: 1,
-  //           range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
-  //         })[0]
-  //         .toString()
-  //         .trim() === "Quy cách" &&
-  //       XLSX.utils.sheet_to_json(worksheet, {
-  //         header: 1,
-  //         range: { s: { c: 10, r: 2 }, e: { c: 10, r: 2 } },
-  //       })[0] &&
-  //       XLSX.utils
-  //         .sheet_to_json(worksheet, {
-  //           header: 1,
-  //           range: { s: { c: 10, r: 2 }, e: { c: 10, r: 2 } },
-  //         })[0]
-  //         .toString()
-  //         .trim() === "Khối lượng" &&
-  //       XLSX.utils.sheet_to_json(worksheet, {
-  //         header: 1,
-  //         range: { s: { c: 11, r: 2 }, e: { c: 11, r: 2 } },
-  //       })[0] &&
-  //       XLSX.utils
-  //         .sheet_to_json(worksheet, {
-  //           header: 1,
-  //           range: { s: { c: 11, r: 2 }, e: { c: 11, r: 2 } },
-  //         })[0]
-  //         .toString()
-  //         .trim() === "Ghi chú" &&
-  //       XLSX.utils.sheet_to_json(worksheet, {
-  //         header: 1,
-  //         range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
-  //       })[0] &&
-  //       XLSX.utils
-  //         .sheet_to_json(worksheet, {
-  //           header: 1,
-  //           range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
-  //         })[0]
-  //         .toString()
-  //         .trim() === "Dài" &&
-  //       XLSX.utils.sheet_to_json(worksheet, {
-  //         header: 1,
-  //         range: { s: { c: 5, r: 3 }, e: { c: 5, r: 3 } },
-  //       })[0] &&
-  //       XLSX.utils
-  //         .sheet_to_json(worksheet, {
-  //           header: 1,
-  //           range: { s: { c: 5, r: 3 }, e: { c: 5, r: 3 } },
-  //         })[0]
-  //         .toString()
-  //         .trim() === "Rộng" &&
-  //       XLSX.utils.sheet_to_json(worksheet, {
-  //         header: 1,
-  //         range: { s: { c: 6, r: 3 }, e: { c: 6, r: 3 } },
-  //       })[0] &&
-  //       XLSX.utils
-  //         .sheet_to_json(worksheet, {
-  //           header: 1,
-  //           range: { s: { c: 6, r: 3 }, e: { c: 6, r: 3 } },
-  //         })[0]
-  //         .toString()
-  //         .trim() === "Dày" &&
-  //       XLSX.utils.sheet_to_json(worksheet, {
-  //         header: 1,
-  //         range: { s: { c: 7, r: 3 }, e: { c: 7, r: 3 } },
-  //       })[0] &&
-  //       XLSX.utils
-  //         .sheet_to_json(worksheet, {
-  //           header: 1,
-  //           range: { s: { c: 7, r: 3 }, e: { c: 7, r: 3 } },
-  //         })[0]
-  //         .toString()
-  //         .trim() === "Dn" &&
-  //       XLSX.utils.sheet_to_json(worksheet, {
-  //         header: 1,
-  //         range: { s: { c: 8, r: 3 }, e: { c: 8, r: 3 } },
-  //       })[0] &&
-  //       XLSX.utils
-  //         .sheet_to_json(worksheet, {
-  //           header: 1,
-  //           range: { s: { c: 8, r: 3 }, e: { c: 8, r: 3 } },
-  //         })[0]
-  //         .toString()
-  //         .trim() === "Dt" &&
-  //       XLSX.utils.sheet_to_json(worksheet, {
-  //         header: 1,
-  //         range: { s: { c: 9, r: 3 }, e: { c: 9, r: 3 } },
-  //       })[0] &&
-  //       XLSX.utils
-  //         .sheet_to_json(worksheet, {
-  //           header: 1,
-  //           range: { s: { c: 9, r: 3 }, e: { c: 9, r: 3 } },
-  //         })[0]
-  //         .toString()
-  //         .trim() === "Chung";
-
-  //     if (checkMau) {
-  //       const data = XLSX.utils.sheet_to_json(worksheet, {
-  //         range: 2,
-  //       });
-  //       const data2 = XLSX.utils.sheet_to_json(worksheet, {
-  //         range: 3,
-  //       });
-  //       const MCT = "Mã vật tư";
-  //       const TCT = "Tên vật tư";
-  //       const VL = "Vật liệu";
-  //       const KL = "Khối lượng";
-  //       const GC = "Ghi chú";
-  //       const NewData = [];
-  //       data.forEach((d) => {
-  //         if (
-  //           (typeof d[TCT] !== "undefined" &&
-  //             (d[TCT] !== 0 || d[TCT] === 0) &&
-  //             d[TCT].toString().trim() !== "") ||
-  //           (typeof d[MCT] !== "undefined" &&
-  //             (d[MCT] !== 0 || d[MCT] === 0) &&
-  //             d[MCT].toString().trim() !== "") ||
-  //           (typeof d.VL !== "undefined" &&
-  //             (d.VL !== 0 || d.VL === 0) &&
-  //             d.VL.toString().trim() !== "")
-  //         ) {
-  //           NewData.push({
-  //             tenVatTuChiTiet:
-  //               (d[TCT] && d[TCT] !== 0) || d[TCT] === 0
-  //                 ? d[TCT].toString().trim() !== ""
-  //                   ? d[TCT].toString().trim()
-  //                   : undefined
-  //                 : undefined,
-  //             maVatTuChiTiet:
-  //               (d[MCT] && d[MCT] !== 0) || d[MCT] === 0
-  //                 ? d[MCT].toString().trim() !== ""
-  //                   ? d[MCT].toString().trim()
-  //                   : undefined
-  //                 : undefined,
-  //             vatLieu:
-  //               (d[VL] && d[VL] !== 0) || d[VL] === 0
-  //                 ? d[VL].toString().trim() !== ""
-  //                   ? d[VL].toString().trim()
-  //                   : undefined
-  //                 : undefined,
-  //             dai:
-  //               (d["Dài"] && d["Dài"] !== 0) || d["Dài"] === 0
-  //                 ? d["Dài"].toString().trim() !== ""
-  //                   ? d["Dài"].toString().trim()
-  //                   : undefined
-  //                 : undefined,
-  //             khoiLuong:
-  //               (d[KL] && d[KL] !== 0) || d[KL] === 0
-  //                 ? d[KL].toString().trim() !== ""
-  //                   ? Number(d[KL].toString().trim()).toFixed(3)
-  //                   : undefined
-  //                 : undefined,
-  //             moTa:
-  //               (d[GC] && d[GC] !== 0) || d[GC] === 0
-  //                 ? d[GC].toString().trim() !== ""
-  //                   ? d[GC].toString().trim()
-  //                   : undefined
-  //                 : undefined,
-  //             rong:
-  //               (d["Rộng"] && d["Rộng"] !== 0) || d["Rộng"] === 0
-  //                 ? d["Rộng"].toString().trim() !== ""
-  //                   ? d["Rộng"].toString().trim()
-  //                   : undefined
-  //                 : undefined,
-  //             day:
-  //               (d["Dày"] && d["Dày"] !== 0) || d["Dày"] === 0
-  //                 ? d["Dày"].toString().trim() !== ""
-  //                   ? d["Dày"].toString().trim()
-  //                   : undefined
-  //                 : undefined,
-  //             chung:
-  //               (d["Chung"] && d["Chung"] !== 0) || d["Chung"] === 0
-  //                 ? d["Chung"].toString().trim() !== ""
-  //                   ? d["Chung"].toString().trim()
-  //                   : undefined
-  //                 : undefined,
-  //             dn:
-  //               (d["Dn"] && d["Dn"] !== 0) || d["Dn"] === 0
-  //                 ? d["Dn"].toString().trim() !== ""
-  //                   ? d["Dn"].toString().trim()
-  //                   : undefined
-  //                 : undefined,
-  //             dt:
-  //               (d["Dt"] && d["Dt"] !== 0) || d["Dt"] === 0
-  //                 ? d["Dt"].toString().trim() !== ""
-  //                   ? d["Dt"].toString().trim()
-  //                   : undefined
-  //                 : undefined,
-  //           });
-  //         }
-  //       });
-  //       data2.forEach((d) => {
-  //         if (
-  //           (typeof d["Dài"] !== "undefined" &&
-  //             (d["Dài"] !== 0 || d["Dài"] === 0) &&
-  //             d["Dài"].toString().trim() !== "") ||
-  //           (typeof d["Rộng"] !== "undefined" &&
-  //             (d["Rộng"] !== 0 || d["Rộng"] === 0) &&
-  //             d["Rộng"].toString().trim() !== "") ||
-  //           (typeof d["Dày"] !== "undefined" &&
-  //             (d["Dày"] !== 0 || d["Dày"] === 0) &&
-  //             d["Dày"].toString().trim() !== "")
-  //         ) {
-  //           NewData.forEach((dt) => {
-  //             if (dt.maVatTuChiTiet === d.__EMPTY_1) {
-  //               dt.dai =
-  //                 (d["Dài"] && d["Dài"] !== 0) || d["Dài"] === 0
-  //                   ? d["Dài"].toString().trim() !== ""
-  //                     ? d["Dài"].toString().trim()
-  //                     : undefined
-  //                   : undefined;
-  //               dt.rong =
-  //                 (d["Rộng"] && d["Rộng"] !== 0) || d["Rộng"] === 0
-  //                   ? d["Rộng"].toString().trim() !== ""
-  //                     ? d["Rộng"].toString().trim()
-  //                     : undefined
-  //                   : undefined;
-  //               dt.day =
-  //                 (d["Dày"] && d["Dày"] !== 0) || d["Dày"] === 0
-  //                   ? d["Dày"].toString().trim() !== ""
-  //                     ? d["Dày"].toString().trim()
-  //                     : undefined
-  //                   : undefined;
-  //               dt.chung =
-  //                 (d["Chung"] && d["Chung"] !== 0) || d["Chung"] === 0
-  //                   ? d["Chung"].toString().trim() !== ""
-  //                     ? d["Chung"].toString().trim()
-  //                     : undefined
-  //                   : undefined;
-  //               dt.dn =
-  //                 (d["Dn"] && d["Dn"] !== 0) || d["Dn"] === 0
-  //                   ? d["Dn"].toString().trim() !== ""
-  //                     ? d["Dn"].toString().trim()
-  //                     : undefined
-  //                   : undefined;
-  //               dt.dt =
-  //                 (d["Dt"] && d["Dt"] !== 0) || d["Dt"] === 0
-  //                   ? d["Dt"].toString().trim() !== ""
-  //                     ? d["Dt"].toString().trim()
-  //                     : undefined
-  //                   : undefined;
-  //             }
-  //           });
-  //         }
-  //       });
-  //       if (NewData.length === 0) {
-  //         setFileName(file.name);
-  //         setListChiTiet([]);
-  //         setFieldTouch(true);
-  //         setMessageError("Dữ liệu import không được rỗng");
-  //         Helper.alertError("Dữ liệu import không được rỗng");
-  //       } else {
-  //         setListChiTiet(NewData);
-  //         setFileName(file.name);
-  //         setDataLoi();
-  //       }
-  //     } else {
-  //       setFileName(file.name);
-  //       setListChiTiet([]);
-  //       setFieldTouch(true);
-  //       setMessageError("Mẫu import không hợp lệ");
-  //       Helper.alertError("Mẫu file import không hợp lệ");
-  //     }
-  //   };
-  //   reader.readAsBinaryString(file);
-  // };
-
-  // const props = {
-  //   accept: ".xls, .xlsx",
-  //   beforeUpload: (file) => {
-  //     const isPNG =
-  //       file.type ===
-  //       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-  //     if (!isPNG) {
-  //       Helper.alertError(messages.UPLOAD_ERROR);
-  //       return isPNG || Upload.LIST_IGNORE;
-  //     } else {
-  //       xuLyExcel(file);
-  //       return false;
-  //     }
-  //   },
-
-  //   showUploadList: false,
-  //   maxCount: 1,
-  // };
 
   /**
    * Khi submit

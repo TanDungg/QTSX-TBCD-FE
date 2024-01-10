@@ -75,7 +75,6 @@ function PhanQuyenTram({ permission, history }) {
       dispatch(
         fetchStart(
           `tits_qtsx_Mobile/get-list-tram-tree`,
-          // "tits_qtsx_Tram?page=-1",
           "GET",
           null,
           "DETAIL",
@@ -86,39 +85,6 @@ function PhanQuyenTram({ permission, history }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        // setTreeData(
-        //   res.data
-        //     .map((t) => {
-        //       return {
-        //         ...t,
-        //         name: t.tenXuong + " - " + t.tenChuyen + " - " + t.tenTram,
-        //       };
-        //     })
-        //     .sort(function (a, b) {
-        //       var tenXuongA = a.tenXuong.toUpperCase();
-        //       var tenXuongB = b.tenXuong.toUpperCase();
-
-        //       if (tenXuongA < tenXuongB) {
-        //         return -1;
-        //       }
-        //       if (tenXuongA > tenXuongB) {
-        //         return 1;
-        //       }
-        //       return 0;
-        //     })
-        //     .sort(function (a, b) {
-        //       var tenXuongA = a.tenChuyen.toUpperCase();
-        //       var tenXuongB = b.tenChuyen.toUpperCase();
-
-        //       if (tenXuongA < tenXuongB) {
-        //         return -1;
-        //       }
-        //       if (tenXuongA > tenXuongB) {
-        //         return 1;
-        //       }
-        //       return 0;
-        //     })
-        // );
         setTreeData(res.data);
       }
     });

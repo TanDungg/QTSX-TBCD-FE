@@ -1140,6 +1140,30 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
+                label="Phiên bản"
+                name={["dinhmucvattu", "phienBan"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nhập phiên bản"
+                  disabled={type === "new" || type === "edit" ? false : true}
+                ></Input>
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
                 label="Ghi chú"
                 name={["dinhmucvattu", "ghiChu"]}
                 rules={[
