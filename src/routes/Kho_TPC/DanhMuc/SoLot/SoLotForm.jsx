@@ -26,6 +26,7 @@ const LotForm = ({ history, match, permission }) => {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
+  const [ListPhienBanDinhMuc, setListPhienBanDinhMuc] = useState([]);
   const [form] = Form.useForm();
   const { tenLot } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
@@ -44,9 +45,6 @@ const LotForm = ({ history, match, permission }) => {
       } else {
         if (permission && permission.edit) {
           setType("edit");
-          // Get info
-          const { id } = match.params;
-          setId(id);
           getSanPham();
           getXuong();
           getInfo();
@@ -112,6 +110,31 @@ const LotForm = ({ history, match, permission }) => {
       }
     });
   };
+  const getPhienBan = (SanPham_Id, phongBan_Id) => {
+    const params = convertObjectToUrlParams({
+      SanPham_Id,
+      phongBan_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Lot/bom-by-san-pham-ckd?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.status === 200) {
+        setListPhienBanDinhMuc(res.data.filter((d) => d.phienBan));
+      } else {
+        setListPhienBanDinhMuc([]);
+      }
+    });
+  };
   /**
    * Lấy thông tin
    *
@@ -131,6 +154,7 @@ const LotForm = ({ history, match, permission }) => {
           });
         }
         setInfo(res.data);
+        getPhienBan(res.data.sanPham_Id, res.data.phongBan_Id);
       })
       .catch((error) => console.error(error));
   };
@@ -259,46 +283,12 @@ const LotForm = ({ history, match, permission }) => {
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
-            />
-          </FormItem>
-          <FormItem
-            label="Xưởng"
-            name={["Lot", "phongBan_Id"]}
-            rules={[
-              {
-                type: "string",
-                required: true,
-              },
-            ]}
-          >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListXuong ? ListXuong : []}
-              placeholder="Chọn xưởng"
-              optionsvalue={["id", "tenSanPham"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-            />
-          </FormItem>
-          <FormItem
-            label="Phiên bản định mức"
-            name={["Lot", "phongBan_Id"]}
-            rules={[
-              {
-                type: "string",
-                required: true,
-              },
-            ]}
-          >
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListSanPham ? ListSanPham : []}
-              placeholder="Chọn phiên bản định mức"
-              optionsvalue={["id", "tenSanPham"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
+              onSelect={(val) => {
+                const pb = form.getFieldValue("Lot").phongBan_Id;
+                if (pb) {
+                  getPhienBan(val, pb);
+                }
+              }}
             />
           </FormItem>
           <FormItem
@@ -307,6 +297,7 @@ const LotForm = ({ history, match, permission }) => {
             rules={[
               {
                 pattern: /^[1-9]\d*$/,
+                required: true,
                 message: "Số lượng phải lớn hơn 0!",
               },
             ]}
@@ -318,6 +309,51 @@ const LotForm = ({ history, match, permission }) => {
               placeholder="Nhập số lượng"
             />
           </FormItem>
+          <FormItem
+            label="Xưởng"
+            name={["Lot", "phongBan_Id"]}
+            rules={[
+              {
+                type: "string",
+              },
+            ]}
+          >
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListXuong ? ListXuong : []}
+              placeholder="Chọn xưởng"
+              optionsvalue={["id", "tenPhongBan"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+              onSelect={(val) => {
+                const sp = form.getFieldValue("Lot").sanPham_Id;
+                if (sp) {
+                  getPhienBan(sp, val);
+                }
+              }}
+            />
+          </FormItem>
+          <FormItem
+            label="Phiên bản định mức"
+            name={["Lot", "lkn_DinhMucVatTu_Id"]}
+            rules={[
+              {
+                type: "string",
+              },
+            ]}
+          >
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListPhienBanDinhMuc ? ListPhienBanDinhMuc : []}
+              placeholder="Chọn phiên bản định mức"
+              optionsvalue={["id", "phienBan"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+            />
+          </FormItem>
+
           <FormSubmit
             goBack={goBack}
             saveAndClose={saveAndClose}

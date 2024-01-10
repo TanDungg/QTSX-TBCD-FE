@@ -3,7 +3,7 @@ import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit, Select, TreeSelect } from "src/components/Common";
+import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 
@@ -17,8 +17,6 @@ const ManHinhForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [ListXuong, setListXuong] = useState([]);
   const [id, setId] = useState(undefined);
-  const [info, setInfo] = useState({});
-
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
       if (permission && permission.add) {
@@ -80,7 +78,6 @@ const ManHinhForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           getListXuong();
-          setInfo(res.data);
           setFieldsValue({
             danhsachmanhinh: res.data,
           });

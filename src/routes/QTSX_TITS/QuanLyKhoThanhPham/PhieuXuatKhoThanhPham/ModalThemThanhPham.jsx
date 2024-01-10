@@ -20,12 +20,7 @@ import {
   Table,
 } from "src/components/Common";
 import { DEFAULT_FORM_THEMVATTU } from "src/constants/Config";
-import {
-  convertObjectToUrlParams,
-  getLocalStorage,
-  getTokenInfo,
-  reDataForTable,
-} from "src/util/Common";
+import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;

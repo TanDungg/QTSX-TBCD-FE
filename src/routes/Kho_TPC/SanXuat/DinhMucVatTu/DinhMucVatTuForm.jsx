@@ -372,6 +372,7 @@ const DinhMucVatTuForm = ({ history, match, permission }) => {
               ngayYeuCau: moment(res.data.ngayYeuCau, "DD/MM/YYYY"),
               nguoiKy_Id: res.data.nguoiKy_Id,
               ghiChu: res.data.ghiChu,
+              phienBan: res.data.phienBan,
             },
           });
         }

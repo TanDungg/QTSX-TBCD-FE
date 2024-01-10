@@ -26,7 +26,7 @@ import {
   Modal,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -49,7 +49,6 @@ import {
 } from "@ant-design/icons";
 import * as XLSX from "xlsx";
 import moment from "moment";
-import ImportBOM from "./ImportBOM";
 import { messages } from "src/constants/Messages";
 import ModalThietLap from "./ModalThietLap";
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -64,7 +63,7 @@ function BOMForm({ match, permission, history }) {
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const { loading } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [ListSanPham, setListSanPham] = useState([]);
@@ -329,7 +328,6 @@ function BOMForm({ match, permission, history }) {
     return [
       {
         title: "STT",
-        // dataIndex: "STT",
         key: "STT",
         width: 45,
         align: "center",
@@ -340,6 +338,7 @@ function BOMForm({ match, permission, history }) {
             return <span>{val.STT}</span>;
           }
         },
+        fixed: width > 992 ? "left" : "none",
       },
       {
         title: "Mã chi tiết",
@@ -347,6 +346,7 @@ function BOMForm({ match, permission, history }) {
         key: "maChiTiet",
         align: "center",
         width: 150,
+        fixed: width > 992 ? "left" : "none",
       },
       {
         title: "Tên chi tiết",
@@ -360,6 +360,7 @@ function BOMForm({ match, permission, history }) {
             return <span>{val.tenChiTiet}</span>;
           }
         },
+        fixed: width > 992 ? "left" : "none",
       },
       {
         title: "Vật liệu",

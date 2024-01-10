@@ -41,10 +41,8 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
-import { useLocation } from "react-router-dom";
 import ModalThemVatTu from "./ModalThemVatTu";
 import ModalTuChoi from "./ModalTuChoi";
-import ModalViTri from "./ModalViTri";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -60,19 +58,19 @@ const VatTuForm = ({ history, match, permission }) => {
   const [ListKho, setListKho] = useState([]);
   const [ListPhieuDeNghi, setListPhieuDeNghi] = useState([]);
 
-  const [Xuong, setXuong] = useState([]);
+  // const [Xuong, setXuong] = useState([]);
   const [Kho, setKho] = useState("");
   const [InfoVatTu, setInfoVatTu] = useState();
 
   const [listVatTu, setListVatTu] = useState([]);
-  const [VatTu, setVatTu] = useState([]);
+  // const [VatTu, setVatTu] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ActiveModalChonViTri, setActiveModalChonViTri] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
-  const [NgayYeuCau, setNgayYeuCau] = useState(
-    moment(getDateNow(), "DD/MM/YYYY")
-  );
+  // const [NgayYeuCau, setNgayYeuCau] = useState(
+  //   moment(getDateNow(), "DD/MM/YYYY")
+  // );
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState([]);
 
@@ -413,31 +411,31 @@ const VatTuForm = ({ history, match, permission }) => {
 
   const HandleChonViTri = (record, check) => {
     setActiveModalChonViTri(true);
-    setVatTu({
-      ...record,
-      isCheck: check,
-    });
+    // setVatTu({
+    //   ...record,
+    //   isCheck: check,
+    // });
   };
 
-  const ThemViTri = (data) => {
-    const newData = listVatTu.map((listvattu) => {
-      if (listvattu.vatTu_Id.toLowerCase() === data.vatTu_Id.toLowerCase()) {
-        if (data.soLuongThucXuat <= listvattu.soLuong) {
-          return {
-            ...listvattu,
-            ...data,
-          };
-        } else {
-          Helpers.alertError(
-            `Số lượng xuất không được lớn hơn ${listvattu.soLuong}`
-          );
-        }
-      }
-      return listvattu;
-    });
-    setListVatTu(newData);
-    setFieldTouch(true);
-  };
+  // const ThemViTri = (data) => {
+  //   const newData = listVatTu.map((listvattu) => {
+  //     if (listvattu.vatTu_Id.toLowerCase() === data.vatTu_Id.toLowerCase()) {
+  //       if (data.soLuongThucXuat <= listvattu.soLuong) {
+  //         return {
+  //           ...listvattu,
+  //           ...data,
+  //         };
+  //       } else {
+  //         Helpers.alertError(
+  //           `Số lượng xuất không được lớn hơn ${listvattu.soLuong}`
+  //         );
+  //       }
+  //     }
+  //     return listvattu;
+  //   });
+  //   setListVatTu(newData);
+  //   setFieldTouch(true);
+  // };
 
   const renderLstViTri = (record) => {
     return (
@@ -892,7 +890,7 @@ const VatTuForm = ({ history, match, permission }) => {
     );
 
   const handleSelectXuong = (val) => {
-    setXuong(val);
+    // setXuong(val);
     setFieldsValue({
       phieuxuatkhovattu: {
         phieuDeNghiCapVatTu_Id: null,
@@ -1017,7 +1015,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   format={"DD/MM/YYYY"}
                   allowClear={false}
                   onChange={(date, dateString) => {
-                    setNgayYeuCau(moment(dateString, "DD/MM/YYYY"));
+                    // setNgayYeuCau(moment(dateString, "DD/MM/YYYY"));
                     setListVatTu([]);
                     setFieldsValue({
                       phieuxuatkhovattu: {

@@ -61,7 +61,7 @@ function CKD({ match, history, permission }) {
     });
     dispatch(
       fetchStart(
-        `lkn_PhieuNhapKhoVatTu/nhap-kho-ckd?${param}`,
+        `lkn_PhieuNhapKhoVatTu/get-list-phieu-nhap-kho-ckd?${param}`,
         "GET",
         null,
         "LIST"
@@ -397,7 +397,6 @@ function CKD({ match, history, permission }) {
         description="Nhập kho CKD"
         buttons={addButtonRender()}
       />
-
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
           <Col xl={6} lg={8} md={8} sm={19} xs={17} style={{ marginBottom: 8 }}>

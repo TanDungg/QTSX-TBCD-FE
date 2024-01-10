@@ -310,6 +310,7 @@ const PhienBanForm = ({ history, match, permission }) => {
           >
             <Input className="input-item" placeholder="Nhập tên file" />
           </FormItem>
+
           <FormItem
             label="File url"
             name={["phienban", "fileUrl"]}

@@ -1,12 +1,18 @@
-import { Card, Form, Input } from "antd";
+import { Card, Form, Input, Upload, Button, Modal } from "antd";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { Icon } from "@ant-design/compatible";
+import {
+  LoadingOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import Helpers from "src/helpers";
 
 const FormItem = Form.Item;
 
@@ -17,14 +23,16 @@ const initialState = {
 const PhanMemForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
+  const { loading } = useSelector(({ common }) => common).toJS();
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { maPhanMem, tenPhanMem } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [info, setInfo] = useState({});
   const [icon, setIcon] = useState("file-unknown");
-
+  const [imageUrl, setImageUrl] = useState([]);
   useEffect(() => {
     const load = () => {
       if (includes(match.url, "them-moi")) {
@@ -157,7 +165,59 @@ const PhanMemForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
   };
-  console.log(icon);
+  const handlePreview = async (file) => {
+    setPreviewOpen(true);
+  };
+  const handleRemove = async (file) => {
+    setImageUrl([]);
+  };
+  const props = {
+    accept: ".jpeg, .png",
+    listType: "picture-card",
+    beforeUpload: (file) => {
+      const isPNG = file.type === "image/png" || file.type === "image/jpeg";
+      if (!isPNG) {
+        Helpers.alertError(`${file.name} không phải hình ảnh`);
+      } else {
+        const reader = new FileReader();
+        reader.onload = (e) =>
+          setImageUrl([
+            {
+              uid: "1",
+              name: file.name,
+              status: "done",
+              url: e.target.result,
+              file: file,
+            },
+          ]);
+        reader.readAsDataURL(file);
+        return false;
+      }
+    },
+    fileList: imageUrl,
+    maxCount: 1,
+    onPreview: handlePreview,
+    onRemove: handleRemove,
+  };
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </button>
+  );
+  const handleCancel = () => setPreviewOpen(false);
   const formTitle = type === "new" ? "Thêm mới phần mềm" : "Chỉnh sửa phần mềm";
   return (
     <div className="gx-main-content">
@@ -224,6 +284,34 @@ const PhanMemForm = ({ history, match, permission }) => {
               addonAfter={<Icon type={icon} />}
               onChange={(e) => setIcon(e.target.value)}
             />
+          </FormItem>
+          <FormItem
+            label="Hình ảnh"
+            name={["PhanMem", "fileUrl"]}
+            rules={[
+              {
+                type: "file",
+                required: true,
+              },
+            ]}
+          >
+            <Upload {...props}>
+              {imageUrl.length > 0 ? null : uploadButton}
+            </Upload>
+            <Modal
+              open={previewOpen}
+              title={imageUrl.length > 0 && imageUrl[0].name}
+              footer={null}
+              onCancel={handleCancel}
+            >
+              <img
+                alt="example"
+                style={{
+                  width: "100%",
+                }}
+                src={imageUrl.length > 0 && imageUrl[0].url}
+              />
+            </Modal>
           </FormItem>
           <FormSubmit
             goBack={goBack}

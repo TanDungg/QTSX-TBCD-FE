@@ -23,7 +23,6 @@ import { Modal } from "src/components/Common";
 import {
   convertObjectToUrlParams,
   exportExcel,
-  getLocalStorage,
   getNamNow,
   getNumberDayOfMonth,
   getThangNow,
@@ -39,7 +38,6 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function ImportKeHoachChiTiet({ match, permission, history }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
-  const INFO = getLocalStorage("menu");
   const [dataView, setDataView] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);

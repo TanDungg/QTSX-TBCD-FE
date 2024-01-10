@@ -238,7 +238,6 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
               ngay: moment(data.ngay, "DD/MM/YYYY"),
             },
           });
-
           const listHDKK =
             data.list_HoiDongKiemKe && JSON.parse(data.list_HoiDongKiemKe);
           setListHoiDongKiemKe(listHDKK);
@@ -411,6 +410,12 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
       key: "soLuongKiemKe",
       align: "center",
       render: (record) => renderSoLuongKiemKe(record),
+    },
+    {
+      title: "Chênh lệch",
+      dataIndex: "chenhLech",
+      key: "chenhLech",
+      align: "center",
     },
     {
       title: "Đánh giá",
@@ -983,7 +988,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem label="Hội đồng kiểm kê">
-                {ListHoiDongKiemKe.length !== 0 && (
+                {ListHoiDongKiemKe && ListHoiDongKiemKe.length !== 0 && (
                   <Button
                     icon={<SearchOutlined />}
                     className="th-margin-bottom-0"
@@ -1000,7 +1005,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
                     type="primary"
                     onClick={() => setActiveModalHoiDongKiemKe(true)}
                   >
-                    {ListHoiDongKiemKe.length === 0
+                    {ListHoiDongKiemKe && ListHoiDongKiemKe.length === 0
                       ? `Thêm hội đồng kiểm kê`
                       : `Chỉnh sửa hội đồng kiểm kê`}
                   </Button>

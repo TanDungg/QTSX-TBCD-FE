@@ -232,6 +232,23 @@ function Lot({ match, permission, history }) {
       filterSearch: true,
     },
     {
+      title: "Phiên bản định mức",
+      dataIndex: "phienBan",
+      key: "phienBan",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.phienBan,
+            value: d.phienBan,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.phienBan && record.phienBan.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Số lượng",
       dataIndex: "soLuong",
       key: "soLuong",

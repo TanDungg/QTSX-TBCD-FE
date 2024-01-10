@@ -23,8 +23,6 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
-  getLocalStorage,
-  getTokenInfo,
   removeDuplicates,
   getDateNow,
 } from "src/util/Common";
@@ -52,7 +50,6 @@ const listchuyen = [
 function MaySanXuat({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [DataMaySanXuat, setDataMaySanXuat] = useState([]);
   const [DataKiemTra, setDataKiemTra] = useState([]);
   const [ListChuyen, setListChuyen] = useState([]);

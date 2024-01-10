@@ -80,19 +80,6 @@ function CauTrucKhoVatTu({ match, history, permission }) {
       loadData(val.target.value, 1);
     }
   };
-  /**
-   * Thêm dấu để phân cấp tiêu đề dựa theo tree (flatlist)
-   *
-   * @param {*} value
-   * @param {*} record
-   * @returns
-   * @memberof ChucNang
-   */
-  const renderTenMenu = (value, record) => {
-    let string = repeat("- ", record.level);
-    string = `${string} ${value}`;
-    return <div>{string}</div>;
-  };
 
   /**
    * ActionContent: Hành động trên bảng

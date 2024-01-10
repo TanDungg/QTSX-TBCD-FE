@@ -16,13 +16,10 @@ import {
   convertObjectToUrlParams,
   reDataForTable,
   getDateNow,
-  getLocalStorage,
-  getTokenInfo,
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
-import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -30,7 +27,6 @@ const { RangePicker } = DatePicker;
 function PhieuNhanHang({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [ListPhieuNhanHang, setListPhieuNhanHang] = useState([]);
   const [PhieuNhanHang, setPhieuNhanHang] = useState(null);

@@ -80,6 +80,12 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
       key: "soLuong",
       align: "center",
     },
+    {
+      title: "Phiên bản BOM",
+      dataIndex: "phienBan",
+      key: "phienBan",
+      align: "center",
+    },
   ];
   const components = {
     body: {
@@ -174,7 +180,18 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 3, r: 3 }, e: { c: 3, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Số lượng";
+          .trim() === "Số lượng" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
+          })[0]
+          .toString()
+          .trim() === "Phiên bản BOM";
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
           range: 3,
@@ -206,6 +223,11 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
               soLuong: data[index][SLuong]
                 ? data[index][SLuong].toString().trim() !== ""
                   ? data[index][SLuong].toString().trim()
+                  : undefined
+                : undefined,
+              phienBan: data[index]["Phiên bản BOM"]
+                ? data[index]["Phiên bản BOM"].toString().trim() !== ""
+                  ? data[index]["Phiên bản BOM"].toString().trim()
                   : undefined
                 : undefined,
             });
@@ -328,6 +350,10 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
     } else if (current.maSanPham === undefined) {
       setCheckDanger(true);
       setMessageError("Mã sản phẩm không được rỗng");
+      return "red-row";
+    } else if (current.soLuong === undefined) {
+      setCheckDanger(true);
+      setMessageError("Số lượng không được rỗng");
       return "red-row";
     } else if (DataLoi && DataLoi.length > 0) {
       let check = false;
