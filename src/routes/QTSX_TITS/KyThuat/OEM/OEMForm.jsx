@@ -181,7 +181,6 @@ const OEMForm = ({ history, match, permission }) => {
         if (res && res.data) {
           const data = res.data;
           setInfo(data);
-
           setFieldsValue({
             oem: {
               ...data,
@@ -189,30 +188,8 @@ const OEMForm = ({ history, match, permission }) => {
               ngayApDung: moment(data.ngayApDung, "DD/MM/YYYY"),
             },
           });
-          const chiTiet =
-            data.list_ChiTiets &&
-            data.list_ChiTiets.map((listchitiet) => {
-              let stt = 0;
-              return {
-                ...listchitiet,
-                key: "*",
-                list_VatTus: listchitiet.list_VatTus.map((listvattu) => {
-                  stt++;
-                  return {
-                    ...listvattu,
-                    key: stt,
-                  };
-                }),
-              };
-            });
-          const newData = chiTiet;
 
-          chiTiet.forEach((chiTiet) => {
-            if (chiTiet.list_VatTus) {
-              newData.push(...chiTiet.list_VatTus);
-            }
-          });
-          setListVatTu(newData);
+          setListVatTu(data.list_ChiTiets && data.list_ChiTiets);
         }
       })
       .catch((error) => console.error(error));
@@ -438,38 +415,20 @@ const OEMForm = ({ history, match, permission }) => {
 
   const saveData = (oem, saveQuit = false) => {
     if (type === "new") {
-      const ListChiTiet = [];
-      let children = null;
-
-      listVatTu.forEach((data) => {
-        if (data.key === "*") {
-          children = { ...data, list_VatTus: [] };
-          ListChiTiet.push(children);
-        } else if (children) {
-          children.list_VatTus.push(data);
-        }
-      });
-
       const newData = {
         ...oem,
         donVi_Id: INFO.donVi_Id,
         ngayBanHanh: oem.ngayBanHanh.format("DD/MM/YYYY"),
         ngayApDung: oem.ngayApDung.format("DD/MM/YYYY"),
-        list_ChiTiets: ListChiTiet.map((listchitiet) => {
+        list_ChiTiets: listVatTu.map((listvattu) => {
           return {
-            ...listchitiet,
-            dinhMuc: listchitiet.dinhMuc && parseFloat(listchitiet.dinhMuc),
-            list_VatTus:
-              listchitiet.list_VatTus &&
-              listchitiet.list_VatTus.map((listvattu) => {
-                return {
-                  ...listvattu,
-                  dinhMuc: listvattu.dinhMuc && parseFloat(listvattu.dinhMuc),
-                };
-              }),
+            ...listvattu,
+            isChiTiet: listvattu.key === "*" ? true : false,
+            dinhMuc: listvattu.dinhMuc && parseFloat(listvattu.dinhMuc),
           };
         }),
       };
+      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
