@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { Icon } from "@ant-design/compatible";
 import {
   LoadingOutlined,
@@ -76,6 +76,15 @@ const PhanMemForm = ({ history, match, permission }) => {
             PhanMem: res.data,
           });
           setInfo(res.data);
+          res.data.hinhAnh &&
+            setImageUrl([
+              {
+                uid: "1",
+                name: res.data.hinhAnh,
+                status: "done",
+                url: BASE_URL_API + res.data.hinhAnh,
+              },
+            ]);
         }
       })
       .catch((error) => console.error(error));
@@ -100,19 +109,82 @@ const PhanMemForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.PhanMem);
+    if (imageUrl.length === 0 || imageUrl[0].name === info.hinhAnh) {
+      if (imageUrl.length === 0 && info.hinhAnh) {
+        DeleteFile(info.hinhAnh);
+        values.PhanMem.hinhAnh = null;
+        saveData(values.PhanMem);
+      } else {
+        saveData(values.PhanMem);
+      }
+    } else {
+      UploadImage(values.PhanMem);
+    }
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.PhanMem, true);
+        if (imageUrl.length === 0 || imageUrl[0].name === info.hinhAnh) {
+          if (info.hinhAnh) {
+            DeleteFile(info.hinhAnh);
+            values.PhanMem.hinhAnh = null;
+            saveData(values.PhanMem);
+          } else {
+            saveData(values.PhanMem, true);
+          }
+        } else {
+          UploadImage(values.PhanMem, true);
+        }
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
-
+  const DeleteFile = (file) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Upload/delete-image?stringPath=${file}`,
+          "POST",
+          null,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {})
+      .catch((error) => console.error(error));
+  };
+  const UploadImage = (data, saveQuit) => {
+    const formData = new FormData();
+    formData.append("file", imageUrl[0].file);
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          type === "new" || (type === "edit" && !info.hinhAnh)
+            ? `Upload`
+            : `Upload?stringPath=${info.hinhAnh}`,
+          "POST",
+          formData,
+          "",
+          "",
+          resolve,
+          reject,
+          true
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          data.hinhAnh = res.data.path;
+          saveData(data, saveQuit);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
       const newData = user;
@@ -138,8 +210,7 @@ const PhanMemForm = ({ history, match, permission }) => {
           }
         })
         .catch((error) => console.error(error));
-    }
-    if (type === "edit") {
+    } else if (type === "edit") {
       var newData = { ...info, ...user };
       new Promise((resolve, reject) => {
         dispatch(
@@ -191,6 +262,7 @@ const PhanMemForm = ({ history, match, permission }) => {
             },
           ]);
         reader.readAsDataURL(file);
+        setFieldTouch(true);
         return false;
       }
     },
@@ -270,7 +342,6 @@ const PhanMemForm = ({ history, match, permission }) => {
             rules={[
               {
                 type: "string",
-                required: true,
               },
               {
                 max: 50,
@@ -291,7 +362,6 @@ const PhanMemForm = ({ history, match, permission }) => {
             rules={[
               {
                 type: "file",
-                required: true,
               },
             ]}
           >

@@ -12,6 +12,7 @@ import {
 } from "src/util/Common";
 import { loadMenu, donViLoad } from "src/appRedux/actions";
 import { Select } from "src/components/Common";
+import { BASE_URL_API } from "src/constants/Config";
 function Home({ permission, history }) {
   const TOKENINFO = getTokenInfo();
   const MENUINFO = getLocalStorage("menu");
@@ -120,14 +121,26 @@ function Home({ permission, history }) {
                       //   paddingBottom: 0,
                       // }}
                     >
-                      <Icon
-                        type={dt.icon}
-                        style={{
-                          fontSize: 100,
-                          color: "#0469B9",
-                          marginBottom: 10,
-                        }}
-                      />
+                      {dt.hinhAnh ? (
+                        <img
+                          alt="example"
+                          style={{
+                            width: 100,
+                            height: 100,
+                            marginBottom: 10,
+                          }}
+                          src={BASE_URL_API + dt.hinhAnh}
+                        />
+                      ) : (
+                        <Icon
+                          type={dt.icon}
+                          style={{
+                            fontSize: 100,
+                            color: "#0469B9",
+                            marginBottom: 10,
+                          }}
+                        />
+                      )}
                       <h4 style={{ color: "#0469B9" }}>{dt.tenPhanMem}</h4>
                     </Card>
                   </Col>

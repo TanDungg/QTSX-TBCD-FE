@@ -1152,6 +1152,7 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
                 rules={[
                   {
                     type: "string",
+                    required: true,
                   },
                 ]}
               >

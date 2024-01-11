@@ -1,22 +1,30 @@
-import axios from 'axios';
-import { isEmpty } from 'lodash';
+import axios from "axios";
+import { isEmpty } from "lodash";
 
-import { BASE_URL_API, BASE_URL_APP } from 'src/constants/Config';
-import {getTokenInfo} from "src/util/Common";
+import { BASE_URL_API, BASE_URL_APP } from "src/constants/Config";
+import { getTokenInfo } from "src/util/Common";
 
-export default function apiCaller(endpoint, method = 'GET', body, path = '') {
+export default function apiCaller(
+  endpoint,
+  method = "GET",
+  body,
+  path = "",
+  upload
+) {
   const tokenInfo = getTokenInfo();
-  const accessToken = tokenInfo ? tokenInfo.token : '';
+  const accessToken = tokenInfo ? tokenInfo.token : "";
   if (!isEmpty(accessToken)) {
-    const newPath = path === 'refresh' ? '' : '/api';
+    const newPath = path === "refresh" ? "" : "/api";
     return axios({
       method: method,
       url: `${BASE_URL_API}${newPath}/${endpoint}`,
       data: body,
       headers: {
-        'Content-Type': 'application/json;charset=utf-8',
-        'Authorization': 'Bearer '.concat(accessToken)
-      }
+        "Content-Type": upload
+          ? "multipart/form-data"
+          : "application/json;charset=utf-8",
+        Authorization: "Bearer ".concat(accessToken),
+      },
     }).catch((err) => {
       return err.response;
     });

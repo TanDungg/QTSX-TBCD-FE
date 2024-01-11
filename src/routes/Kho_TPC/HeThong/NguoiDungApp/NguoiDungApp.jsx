@@ -238,7 +238,7 @@ function NguoiDungApp({ match, history, permission }) {
         dataIndex: "lkn_ChiTiets",
         key: "lkn_ChiTiets",
         align: "center",
-        render: (val) => renderDisplayName(JSON.parse(val)),
+        render: (val) => val && renderDisplayName(JSON.parse(val)),
       },
       {
         title: "Mã nhân viên",

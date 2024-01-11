@@ -24,7 +24,8 @@ export const fetchStart = (
   apiType,
   getName = "",
   resolve = null,
-  reject = null
+  reject = null,
+  upload = null
 ) => {
   return {
     type: FETCH_START,
@@ -35,6 +36,7 @@ export const fetchStart = (
     getName,
     resolve,
     reject,
+    upload,
   };
 };
 
