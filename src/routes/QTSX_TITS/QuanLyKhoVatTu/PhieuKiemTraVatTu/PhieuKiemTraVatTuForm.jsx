@@ -637,6 +637,8 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
                 soLuongNhap: data.soLuong,
                 soLuongLoi: 0,
                 tits_qtsx_PhieuNhanHangChiTiet_Id: data.id,
+                isThongSoKyThuat: "true",
+                isNgoaiQuan: "true",
               };
             });
           setListVatTuKiemTra(data);

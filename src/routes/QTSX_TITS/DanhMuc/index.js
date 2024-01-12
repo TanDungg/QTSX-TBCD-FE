@@ -113,6 +113,8 @@ const Kho = asyncComponent(() => import("./Kho/Kho"));
 const KhoForm = asyncComponent(() => import("./Kho/KhoForm"));
 const LoiVatTu = asyncComponent(() => import("./LoiVatTu/LoiVatTu"));
 const LoiVatTuForm = asyncComponent(() => import("./LoiVatTu/LoiVatTuForm"));
+const PhienBan = asyncComponent(() => import("./PhienBan/PhienBan"));
+const PhienBanForm = asyncComponent(() => import("./PhienBan/PhienBanForm"));
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -551,6 +553,21 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/loi-vat-tu/:id/chinh-sua`}
         exact
         component={Auth(LoiVatTuForm, menus, pathname, permission)}
+      />{" "}
+      <Route
+        path={`${match.url}/phien-ban`}
+        exact
+        component={Auth(PhienBan, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phien-ban/them-moi`}
+        exact
+        component={Auth(PhienBanForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phien-ban/:id/chinh-sua`}
+        exact
+        component={Auth(PhienBanForm, menus, pathname, permission)}
       />
       {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
     </Switch>
