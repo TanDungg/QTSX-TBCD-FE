@@ -672,6 +672,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                       setFieldsValue({
                         checkSheets: { tits_qtsx_SanPham_Id: null },
                       });
+                      setListHangMucKiemTra([]);
                     }}
                   />
                 </FormItem>
@@ -714,6 +715,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                         }
                       });
                       setDataModal(newData);
+                      setListHangMucKiemTra([]);
                     }}
                   />
                 </FormItem>
@@ -755,6 +757,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                         }
                       });
                       setDataModal(newData);
+                      setListHangMucKiemTra([]);
                     }}
                   />
                 </FormItem>

@@ -42,6 +42,7 @@ import {
 } from "src/util/Common";
 import { useLocation } from "react-router-dom";
 import ModalTuChoi from "./ModalTuChoi";
+import ModalChonViTri from "./ModalChonViTri";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -1249,6 +1250,15 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
         openModal={ActiveModalTuChoi}
         openModalFS={setActiveModalTuChoi}
         saveTuChoi={saveTuChoi}
+      />
+      <ModalChonViTri
+        openModal={ActiveModalChonViTri}
+        openModalFS={setActiveModalChonViTri}
+        itemData={{
+          tits_qtsx_CauTrucKho_Id: KhoVatTu,
+          ListVatTu: VatTu,
+        }}
+        ThemViTri={ThemViTri}
       />
     </div>
   );

@@ -18,6 +18,7 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { reDataForTable, setLocalStorage } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import ModalThemChiTiet from "./ModalThemChiTiet";
+import ModalThemHangMucTieuDe from "./ModalThemHangMucTieuDe";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -27,7 +28,11 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
   const [ListChiTiet, setListChiTiet] = useState([]);
   const [id, setId] = useState(undefined);
   const [ActiveModalThemChiTiet, setActiveModalThemChiTiet] = useState(false);
+  const [ActiveModalThemHangMucTieuDe, setActiveModalThemHangMucTieuDe] =
+    useState(false);
+
   const [ChiTiet, setChiTiet] = useState({});
+  const [HangMucTieuDe, setHangMucTieuDe] = useState({});
   const [info, setInfo] = useState({});
   const [editingRecord, setEditingRecord] = useState([]);
 
@@ -59,10 +64,7 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setInfo(res.data);
-          setListChiTiet(
-            res.data.list_HangMucKiemTraChiTiets &&
-              res.data.list_HangMucKiemTraChiTiets
-          );
+          setListChiTiet(res.data.list_TieuDePhus && res.data.list_TieuDePhus);
         }
       })
       .catch((error) => console.error(error));
@@ -146,14 +148,10 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
    * @memberof ChucNang
    */
   const handleThemChiTiet = () => {
-    setChiTiet({
-      ...info,
-      tits_qtsx_SanPham_Id: info && info.tits_qtsx_SanPham_Id,
-      tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
-      isNoiDung: info && info.isNoiDung,
-      loai: "new",
+    setHangMucTieuDe({
+      type: "new",
     });
-    setActiveModalThemChiTiet(true);
+    setActiveModalThemHangMucTieuDe(true);
   };
   const addButtonRender = () => {
     return (
@@ -247,7 +245,56 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       </>
     );
   };
+  const onChangeValueTieuDe = (val, item) => {
+    // const newData = {
+    //   tits_qtsx_HangMucKiemTraChiTiet_Id: item.id,
+    //   thuTu: val.target.value,
+    // };
+    // new Promise((resolve, reject) => {
+    //   dispatch(
+    //     fetchStart(
+    //       `tits_qtsx_HangMucKiemTra/doi-thu-tu-hang-muc-kiem-tra-chi-tiet`,
+    //       "PUT",
+    //       newData,
+    //       "EDIT",
+    //       "",
+    //       resolve,
+    //       reject
+    //     )
+    //   );
+    // }).then((res) => {
+    //   if (res.status !== 409) {
+    //     getInfo(id);
+    //   }
+    // });
+  };
 
+  const renderThuTuTieuDe = (item, key) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.id === item.id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.thuTuTieuDePhu}
+          onBlur={(val) => onChangeValueTieuDe(val, item)}
+          onChange={(val) => onChangeValueTieuDe(val, item, key)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
   let renderHead = [
     {
       title: "Chức năng",
@@ -321,7 +368,38 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       cell: EditableCell,
     },
   };
-  const columns = map(renderHead, (col) => {
+
+  let renderHeadTieuDe = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 100,
+      render: (value) => actionContent(value),
+      fixed: "left",
+    },
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 50,
+    },
+    {
+      title: "Hạng mục",
+      dataIndex: "tieuDePhu",
+      key: "tieuDePhu",
+      align: "center",
+    },
+    {
+      title: "Thứ tự",
+      key: "thuTuTieuDePhu",
+      align: "center",
+      width: 100,
+      render: (value) => renderThuTuTieuDe(value),
+    },
+  ];
+  const columns = map(renderHeadTieuDe, (col) => {
     if (!col.editable) {
       return col;
     }
@@ -336,7 +414,6 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       }),
     };
   });
-
   const handleRefesh = () => {
     getInfo(id);
   };
@@ -549,6 +626,12 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
         openModalFS={setActiveModalThemChiTiet}
         refesh={handleRefesh}
         itemData={ChiTiet}
+      />
+      <ModalThemHangMucTieuDe
+        openModal={ActiveModalThemHangMucTieuDe}
+        openModalFS={setActiveModalThemHangMucTieuDe}
+        refesh={handleRefesh}
+        itemData={HangMucTieuDe}
       />
     </div>
   );

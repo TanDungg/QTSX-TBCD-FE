@@ -706,7 +706,13 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
         </Tag>
       </span>
     );
+  const disabledDate = (current) => {
+    // Lấy ngày hiện tại
+    const today = moment();
 
+    // Kiểm tra xem ngày được chọn có thuộc tháng hiện tại không
+    return !current.isSame(today, "month");
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -826,6 +832,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
                   format={"DD/MM/YYYY"}
                   allowClear={false}
                   disabled={type === "new" ? false : true}
+                  disabledDate={disabledDate}
                 />
               </FormItem>
             </Col>
@@ -891,7 +898,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col
+            {/* <Col
               xxl={12}
               xl={12}
               lg={24}
@@ -921,7 +928,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
               </FormItem>
-            </Col>
+            </Col> */}
             <Col
               xxl={12}
               xl={12}

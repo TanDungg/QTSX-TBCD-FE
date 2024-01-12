@@ -29,7 +29,7 @@ const { RangePicker } = DatePicker;
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function BOMXuong({ match, history, permission }) {
-  const { width, loading, data } = useSelector(({ common }) => common).toJS();
+  const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [ListXuong, setListXuong] = useState([]);
@@ -77,7 +77,7 @@ function BOMXuong({ match, history, permission }) {
           "tits_qtsx_Xuong?page=-1",
           "GET",
           null,
-          "LIST",
+          "DETAIL",
           "",
           resolve,
           reject
