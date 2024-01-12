@@ -364,6 +364,8 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
           if (
             data[index][KEY] &&
             data[index][KEY].toString().trim() === "" &&
+            data[index][MVTCT] &&
+            data[index][MVTCT].toString().trim() === "" &&
             data[index][TVTCT] &&
             data[index][TVTCT].toString().trim() === ""
           ) {
