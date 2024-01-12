@@ -141,6 +141,7 @@ const PhanMemForm = ({ history, match, permission }) => {
         console.log("error", error);
       });
   };
+  
   const DeleteFile = (file) => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -158,6 +159,7 @@ const PhanMemForm = ({ history, match, permission }) => {
       .then((res) => {})
       .catch((error) => console.error(error));
   };
+
   const UploadImage = (data, saveQuit) => {
     const formData = new FormData();
     formData.append("file", imageUrl[0].file);
@@ -185,6 +187,7 @@ const PhanMemForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
+
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
       const newData = user;
@@ -236,12 +239,15 @@ const PhanMemForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
   };
+  
   const handlePreview = async (file) => {
     setPreviewOpen(true);
   };
+
   const handleRemove = async (file) => {
     setImageUrl([]);
   };
+
   const props = {
     accept: ".jpeg, .png",
     listType: "picture-card",

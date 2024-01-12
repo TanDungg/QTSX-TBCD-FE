@@ -14,12 +14,13 @@ import { loadMenu, donViLoad } from "src/appRedux/actions";
 import { Select } from "src/components/Common";
 import { BASE_URL_API } from "src/constants/Config";
 function Home({ permission, history }) {
+  const dispatch = useDispatch();
   const TOKENINFO = getTokenInfo();
   const MENUINFO = getLocalStorage("menu");
   const { donvi } = useSelector(({ donvi }) => donvi);
   const { data, width } = useSelector(({ common }) => common).toJS();
   const [DonVi, setDonVi] = useState("");
-  const dispatch = useDispatch();
+  
   useEffect(() => {
     getInfo();
     setDonVi(

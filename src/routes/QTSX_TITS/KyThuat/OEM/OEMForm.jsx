@@ -428,7 +428,6 @@ const OEMForm = ({ history, match, permission }) => {
           };
         }),
       };
-      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -460,10 +459,15 @@ const OEMForm = ({ history, match, permission }) => {
           } else {
             setDataLoi(res.data);
             const newData = listVatTu.map((data) => {
-              const dt = res.data.find(
-                (item) =>
-                  item.maVatTuChiTiet === data.maVatTuChiTiet &&
-                  item.tenVatTuChiTiet === data.tenVatTuChiTiet
+              const dt = res.data.find((item) =>
+                item.tenVatTuChiTiet
+                  ? data.maVatTuChiTiet.toString() ===
+                      item.maVatTuChiTiet.toString() &&
+                    data.tenVatTuChiTiet &&
+                    data.tenVatTuChiTiet.toString() ===
+                      item.tenVatTuChiTiet.toString()
+                  : data.maVatTuChiTiet.toString() ===
+                    item.maVatTuChiTiet.toString()
               );
 
               if (dt) {
@@ -572,8 +576,13 @@ const OEMForm = ({ history, match, permission }) => {
       let check = false;
       DataLoi.forEach((dt) => {
         if (
-          current.maVatTuChiTiet.toString() === dt.maVatTuChiTiet.toString() &&
-          current.tenVatTuChiTiet.toString() === dt.tenVatTuChiTiet.toString()
+          dt.tenVatTuChiTiet
+            ? current.maVatTuChiTiet.toString() ===
+                dt.maVatTuChiTiet.toString() &&
+              current.tenVatTuChiTiet &&
+              current.tenVatTuChiTiet.toString() ===
+                dt.tenVatTuChiTiet.toString()
+            : current.maVatTuChiTiet.toString() === dt.maVatTuChiTiet.toString()
         ) {
           check = true;
         }
