@@ -545,6 +545,18 @@ function BOMForm({ match, permission, history }) {
         type: "binary",
       });
       const worksheet = workbook.Sheets["BOM"];
+      console.log(
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 8, r: 5 }, e: { c: 8, r: 5 } },
+        })[0]
+      );
+      console.log(
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 9, r: 5 }, e: { c: 9, r: 5 } },
+        })[0]
+      );
       let checkMau =
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
@@ -764,6 +776,7 @@ function BOMForm({ match, permission, history }) {
             .toString()
             .trim() !== dt.name
         ) {
+          console.log("object");
           checkMau = false;
         }
       });
@@ -904,6 +917,30 @@ function BOMForm({ match, permission, history }) {
                 (d["Kho"] && d["Kho"] !== 0) || d["Kho"] === 0
                   ? d["Kho"].toString().trim() !== ""
                     ? d["Kho"].toString().trim()
+                    : undefined
+                  : undefined,
+              ed:
+                (d["ED"] && d["ED"] !== 0) || d["ED"] === 0
+                  ? d["ED"].toString().trim() !== ""
+                    ? d["ED"].toString().trim()
+                    : undefined
+                  : undefined,
+              giaCong:
+                (d["Gia công"] && d["Gia công"] !== 0) || d["Gia công"] === 0
+                  ? d["Gia công"].toString().trim() !== ""
+                    ? d["Gia công"].toString().trim()
+                    : undefined
+                  : undefined,
+              xiMa:
+                (d["Xi mạ"] && d["Xi mạ"] !== 0) || d["Xi mạ"] === 0
+                  ? d["Xi mạ"].toString().trim() !== ""
+                    ? d["Xi mạ"].toString().trim()
+                    : undefined
+                  : undefined,
+              nmk:
+                (d["NMK"] && d["NMK"] !== 0) || d["NMK"] === 0
+                  ? d["NMK"].toString().trim() !== ""
+                    ? d["NMK"].toString().trim()
                     : undefined
                   : undefined,
             });
@@ -1551,14 +1588,14 @@ function BOMForm({ match, permission, history }) {
                   <>
                     <Popover
                       content={
-                        fieldTouch ? (
+                        !fieldTouch ? (
                           fileName
                         ) : (
                           <Alert type="error" message={message} banner />
                         )
                       }
                     >
-                      <p style={{ color: fieldTouch ? "red" : "#1890ff" }}>
+                      <p style={{ color: !fieldTouch ? "red" : "#1890ff" }}>
                         {fileName.length > 20
                           ? fileName.substring(0, 20) + "..."
                           : fileName}{" "}

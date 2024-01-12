@@ -249,7 +249,7 @@ const PhanMemForm = ({ history, match, permission }) => {
   };
 
   const props = {
-    accept: ".jpeg, .png",
+    accept: ".jpeg, .jpg,.png",
     listType: "picture-card",
     beforeUpload: (file) => {
       const isPNG = file.type === "image/png" || file.type === "image/jpeg";
