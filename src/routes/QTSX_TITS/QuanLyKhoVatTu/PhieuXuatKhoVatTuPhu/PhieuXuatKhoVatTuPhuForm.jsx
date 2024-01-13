@@ -1245,7 +1245,15 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
           </Button>
         </div>
       ) : null}
-
+      <ModalChonViTri
+        openModal={ActiveModalChonViTri}
+        openModalFS={setActiveModalChonViTri}
+        itemData={{
+          tits_qtsx_CauTrucKho_Id: KhoVatTu,
+          ListViTriVatTu: VatTu,
+        }}
+        ThemViTri={ThemViTri}
+      />
       <ModalTuChoi
         openModal={ActiveModalTuChoi}
         openModalFS={setActiveModalTuChoi}

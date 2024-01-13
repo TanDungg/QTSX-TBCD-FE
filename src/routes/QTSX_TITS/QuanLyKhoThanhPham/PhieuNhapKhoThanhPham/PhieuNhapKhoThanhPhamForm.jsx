@@ -592,7 +592,7 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuNhapKhoThanhPham/xac-nhan/${id}`,
+          `tits_qtsx_PhieuNhapKhoThanhPham/duyet/${id}`,
           "PUT",
           newData,
           "TUCHOI",
@@ -917,7 +917,7 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
             <Button
               type="danger"
               onClick={() => setActiveModalTuChoi(true)}
-              disabled={info.tinhTrang !== "Chưa xác nhận"}
+              disabled={info.tinhTrang !== "Chưa duyệt"}
             >
               Từ chối
             </Button>

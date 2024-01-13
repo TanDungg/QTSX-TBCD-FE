@@ -38,6 +38,7 @@ import { DEFAULT_FORM_TWO_COL } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getLocalStorage,
+  getThangNow,
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
@@ -417,6 +418,12 @@ const PhieuKiemKeThanhPhamForm = ({ history, match, permission }) => {
       render: (record) => renderSoLuongKiemKe(record),
     },
     {
+      title: "Chênh lệch",
+      dataIndex: "chenhLech",
+      key: "chenhLech",
+      align: "center",
+    },
+    {
       title: "Đánh giá",
       dataIndex: "danhGiaChatLuong",
       key: "danhGiaChatLuong",
@@ -475,11 +482,6 @@ const PhieuKiemKeThanhPhamForm = ({ history, match, permission }) => {
     },
   ];
 
-  /**
-   * Khi submit
-   *
-   * @param {*} values
-   */
   const onFinish = (values) => {
     saveData(values.phieukiemkethanhpham);
   };
@@ -671,6 +673,12 @@ const PhieuKiemKeThanhPhamForm = ({ history, match, permission }) => {
     setFieldTouch(true);
   };
 
+  const disabledDate = (current) => {
+    const currentMonth = getThangNow();
+    const selectedMonth = moment(current).format("MM");
+    return currentMonth !== selectedMonth;
+  };
+
   const formTitle =
     type === "new" ? (
       "Tạo phiếu kiểm kê thành phầm"
@@ -818,8 +826,10 @@ const PhieuKiemKeThanhPhamForm = ({ history, match, permission }) => {
               >
                 <DatePicker
                   format={"DD/MM/YYYY HH:mm:ss"}
+                  showTime
                   allowClear={false}
                   disabled={type === "new" ? false : true}
+                  disabledDate={disabledDate}
                 />
               </FormItem>
             </Col>
