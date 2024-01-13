@@ -20,7 +20,6 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
-  reDataForTable,
   reDataSelectedTable,
   removeDuplicates,
   treeToFlatlist,

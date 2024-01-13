@@ -17,7 +17,7 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
-import { ModalDeleteConfirm, Select } from "src/components/Common";
+import { Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { convertObjectToUrlParams } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";

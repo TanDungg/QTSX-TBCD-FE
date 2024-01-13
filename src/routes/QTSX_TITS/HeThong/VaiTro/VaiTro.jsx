@@ -205,11 +205,7 @@ function VaiTro({ match, history, permission }) {
       render: (value) => actionContent(value),
     },
   ];
-  const handleOnSelectPhanMem = (val) => {
-    getListData(val);
-    setPhanMem(val);
-  };
-  // const { totalRow, pageSize } = data;
+
   const dataList = reDataForTable(data ? data : []);
   return (
     <div className="gx-main-content">

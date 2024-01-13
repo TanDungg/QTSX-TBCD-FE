@@ -183,9 +183,8 @@ function CauTrucKhoThanhPhamForm({ match, permission, history }) {
 
   const saveData = (CauTrucKho, saveQuit = false) => {
     if (type === "new") {
-      CauTrucKho.viTri === undefined
-        ? (CauTrucKho.viTri = 0)
-        : (CauTrucKho.viTri = CauTrucKho.viTri);
+      CauTrucKho.viTri =
+        CauTrucKho.viTri === undefined ? null : CauTrucKho.viTri;
       const newUser = CauTrucKho;
       newUser.cauTrucKho_Id =
         newUser.cauTrucKho_Id === "root" ? null : newUser.cauTrucKho_Id;

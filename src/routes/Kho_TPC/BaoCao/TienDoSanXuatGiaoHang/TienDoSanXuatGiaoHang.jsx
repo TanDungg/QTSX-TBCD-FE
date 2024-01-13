@@ -17,7 +17,6 @@ import {
   getTokenInfo,
   getLocalStorage,
 } from "src/util/Common";
-import { ClearFix } from "react-grid-system";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -26,7 +25,6 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
-  const [DataXuat, setDataXuat] = useState([]);
   const [ListLoaiKeHoach, setListLoaiKeHoach] = useState([]);
   const [LoaiKeHoach, setLoaiKeHoach] = useState(null);
   const [TenKeHoach, setTenKeHoach] = useState(null);
@@ -80,31 +78,6 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
         }
       })
       .catch((error) => console.error(error));
-    // let params = convertObjectToUrlParams({
-    //   LoaiKeHoach_Id,
-    //   phongBan_Id,
-    //   keyword,
-    //   page: -1,
-    // });
-    // new Promise((resolve, reject) => {
-    //   dispatch(
-    //     fetchStart(
-    //       `lkn_BaoCao/bao-cao-tien-do-sx-gh?${params}`,
-    //       "GET",
-    //       null,
-    //       "DETAIL",
-    //       "",
-    //       resolve,
-    //       reject
-    //     )
-    //   );
-    // })
-    //   .then((res) => {
-    //     if (res && res.data) {
-    //       setDataXuat(res.data);
-    //     }
-    //   })
-    //   .catch((error) => console.error(error));
   };
 
   const getLoaiKeHoach = () => {
@@ -178,11 +151,6 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
     getListData(LoaiKeHoach, Xuong, keyword, page);
   };
 
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    getListData(LoaiKeHoach, Xuong, keyword, pagination);
-  };
-
   function removeDuplicates(arr) {
     const uniqueObjects = [];
     arr.forEach((obj) => {
@@ -195,7 +163,6 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
     });
     return uniqueObjects;
   }
-  // const { totalRow, pageSize } = Data;
 
   const dataList = reDataForTable(Data);
 
@@ -336,7 +303,7 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
           className="th-btn-margin-bottom-0"
           type="primary"
           onClick={XuatExcel}
-          disabled={(permission && !permission.add) || DataXuat.length === 0}
+          disabled={permission && !permission.add}
         >
           Xuất excel
         </Button>
@@ -345,13 +312,17 @@ function TienDoSanXuatGiaoHang({ permission, history, match }) {
   };
 
   const handleOnSelectLoaiKeHoach = (value) => {
-    setLoaiKeHoach(value);
-    getListData(value, Xuong, keyword, page);
+    if (LoaiKeHoach !== value) {
+      setLoaiKeHoach(value);
+      getListData(value, Xuong, keyword, page);
+    }
   };
 
   const handleOnSelectXuong = (value) => {
-    setXuong(value);
-    getListData(LoaiKeHoach, value, keyword, page);
+    if (Xuong !== value) {
+      setXuong(value);
+      getListData(LoaiKeHoach, value, keyword, page);
+    }
   };
 
   return (

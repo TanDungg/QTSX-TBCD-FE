@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { theme, Transfer, Tree } from "antd";
+import React from "react";
+import { Transfer, Tree } from "antd";
 import { regenaratorTreeList } from "src/util/Common";
 // Customize Table Transfer
 const isChecked = (selectedKeys, eventKey) => selectedKeys.includes(eventKey);

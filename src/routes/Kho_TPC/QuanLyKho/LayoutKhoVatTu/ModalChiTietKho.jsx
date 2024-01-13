@@ -1,4 +1,4 @@
-import { Modal as AntModal, Row, Form, Col } from "antd";
+import { Modal as AntModal, Row, Col } from "antd";
 import React, { useEffect, useState } from "react";
 
 import { reDataForTable } from "src/util/Common";
@@ -6,8 +6,6 @@ import { Table, EditableTableRow } from "src/components/Common";
 import { map } from "lodash";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-
-const FormItem = Form.Item;
 
 function ModalChiTietKho({
   openModalFS,

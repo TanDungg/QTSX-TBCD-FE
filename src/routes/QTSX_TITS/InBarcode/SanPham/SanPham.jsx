@@ -17,7 +17,7 @@ function SanPham({ match, permission, history }) {
 
   const [fieldTouch, setFieldTouch] = useState(false);
 
-  const { setFieldsValue, validateFields, resetFields } = form;
+  const { setFieldsValue } = form;
   useEffect(() => {
     if (permission && !permission.view) {
       history.push("/home");

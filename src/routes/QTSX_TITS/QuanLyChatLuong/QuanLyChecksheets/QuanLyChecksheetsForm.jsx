@@ -15,20 +15,13 @@ import {
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
-import {
-  Input,
-  Select,
-  FormSubmit,
-  ModalDeleteConfirm,
-  Modal,
-} from "src/components/Common";
+import { Input, Select, FormSubmit, Modal } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { getLocalStorage, getTokenInfo } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import {
   DeleteOutlined,
-  EditOutlined,
   UploadOutlined,
   RollbackOutlined,
   SaveOutlined,
@@ -856,7 +849,11 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
         <Col span={24}>
           <h4 style={{ fontWeight: "bold", margin: 0 }}>
             Hạng mục kiểm tra chất lượng{" "}
-            <a
+            <span
+              style={{
+                color: "#0469b9",
+                cursor: "pointer",
+              }}
               onClick={() => setActiveModal(true)}
               disabled={
                 DataModal.tits_qtsx_LoaiSanPham_Id === "" ||
@@ -866,7 +863,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
               }
             >
               <PlusCircleOutlined />
-            </a>
+            </span>
           </h4>
         </Col>
       </Row>

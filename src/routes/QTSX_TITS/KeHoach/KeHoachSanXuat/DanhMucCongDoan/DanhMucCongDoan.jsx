@@ -117,7 +117,11 @@ function DanhMucCongDoan({ match, history, permission }) {
             <EditOutlined />
           </Link>
         ) : (
-          <a
+          <span
+            style={{
+              color: "#0469b9",
+              cursor: "pointer",
+            }}
             title={
               ma === "xuong"
                 ? "Sửa xưởng"
@@ -132,7 +136,7 @@ function DanhMucCongDoan({ match, history, permission }) {
             }}
           >
             <EditOutlined />
-          </a>
+          </span>
         )
       ) : (
         <span disabled title="Sửa công đoạn">

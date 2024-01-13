@@ -21,7 +21,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 
 function Loi({ match, permission, history }) {
   const dispatch = useDispatch();
-  const { width, data, loading } = useSelector(({ common }) => common).toJS();
+  const { data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const { totalRow, pageSize } = data;

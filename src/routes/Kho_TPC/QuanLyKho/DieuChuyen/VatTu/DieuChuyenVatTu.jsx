@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Card, Divider, Row, Col, DatePicker, Tag } from "antd";
-import {
-  EditOutlined,
-  DeleteOutlined,
-  CheckCircleOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -199,22 +195,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
           <CheckCircleOutlined />
         </span>
       );
-    const editItem =
-      permission && permission.edit && check ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
+
     const deleteVal =
       permission &&
       permission.del &&

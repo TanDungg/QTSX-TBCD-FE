@@ -5,7 +5,6 @@ import {
   EditOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
-  CopyOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -125,26 +124,12 @@ function QuyTrinhSanXuat({ match, history, permission }) {
     }
   };
 
-  const handleSaoChep = (item) => {
-    setQuyTrinh(item);
-    setActiveModalSaoChep(true);
-  };
+  // const handleSaoChep = (item) => {
+  //   setQuyTrinh(item);
+  //   setActiveModalSaoChep(true);
+  // };
 
   const actionContent = (item) => {
-    const copy =
-      item.tinhTrang === "Đã duyệt" ? (
-        <Link
-          onClick={() => handleSaoChep(item)}
-          title="Sao chép quy trình sản xuất"
-        >
-          <CopyOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Xác nhận">
-          <CopyOutlined />
-        </span>
-      );
-
     const xacnhan =
       item.nguoiDuyet_Id === INFO.user_Id && item.tinhTrang === "Chưa duyệt" ? (
         <Link

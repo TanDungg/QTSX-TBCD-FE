@@ -19,11 +19,7 @@ import {
   BASE_URL_API,
   DEFAULT_FORM_XUATKHONGOAIQUAN,
 } from "src/constants/Config";
-import {
-  convertObjectToUrlParams,
-  getLocalStorage,
-  getTokenInfo,
-} from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { PlusCircleOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import Helpers from "src/helpers";

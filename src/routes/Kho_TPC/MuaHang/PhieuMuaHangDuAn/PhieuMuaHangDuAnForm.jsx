@@ -150,7 +150,6 @@ const PhieuMuaHangDuAnForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
-  const [ListNhaCungCap, setListNhaCungCap] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [disableUpload, setDisableUpload] = useState(false);
   const [FileChat, setFileChat] = useState("");
@@ -169,7 +168,6 @@ const PhieuMuaHangDuAnForm = ({ history, match, permission }) => {
           setType("new");
           getUserLap(INFO);
           getUserKy(INFO);
-          getNhaCungCap();
           setFieldsValue({
             dathangnoibo: {
               ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
@@ -269,49 +267,6 @@ const PhieuMuaHangDuAnForm = ({ history, match, permission }) => {
     });
   };
 
-  const getNhaCungCap = (id) => {
-    if (id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `NhaCungCap/${id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListNhaCungCap([res.data]);
-        } else {
-          setListNhaCungCap([]);
-        }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `NhaCungCap?page=-1`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListNhaCungCap(res.data);
-        } else {
-          setListNhaCungCap([]);
-        }
-      });
-    }
-  };
   /**
    * Lấy thông tin
    *
@@ -346,7 +301,6 @@ const PhieuMuaHangDuAnForm = ({ history, match, permission }) => {
             setDisableUpload(true);
           }
           setInfo(res.data);
-          getNhaCungCap(res.data.userNhan_Id);
           setFieldsValue({
             dathangnoibo: {
               ...res.data,
@@ -519,17 +473,6 @@ const PhieuMuaHangDuAnForm = ({ history, match, permission }) => {
     );
   };
 
-  const handleHinhAnhVatTu = (value, record) => {
-    const hanmuc = value.target.value;
-    setFieldTouch(true);
-    const newData = [...listVatTu];
-    newData.forEach((ct, index) => {
-      if (ct.vatTu_Id === record.vatTu_Id) {
-        ct.hangMucSuDung = hanmuc;
-      }
-    });
-    setListVatTu(newData);
-  };
   const renderGhiChu = (record) => {
     return (
       <Input
@@ -698,7 +641,6 @@ const PhieuMuaHangDuAnForm = ({ history, match, permission }) => {
               setListVatTu([]);
               getUserLap(INFO);
               getUserKy(INFO);
-              getNhaCungCap();
               setFieldsValue({
                 dathangnoibo: {
                   ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),

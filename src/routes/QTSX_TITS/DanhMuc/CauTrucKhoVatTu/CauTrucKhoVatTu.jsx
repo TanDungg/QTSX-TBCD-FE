@@ -8,7 +8,7 @@ import {
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { map, isEmpty, repeat } from "lodash";
+import { map, isEmpty } from "lodash";
 import QRCode from "qrcode.react";
 import {
   ModalDeleteConfirm,
@@ -112,7 +112,11 @@ function CauTrucKhoVatTu({ match, history, permission }) {
             <EditOutlined />
           </Link>
         ) : (
-          <a
+          <span
+            style={{
+              color: "#0469b9",
+              cursor: "pointer",
+            }}
             title={
               type === "ke"
                 ? "Sửa kệ"
@@ -127,7 +131,7 @@ function CauTrucKhoVatTu({ match, history, permission }) {
             }}
           >
             <EditOutlined />
-          </a>
+          </span>
         )
       ) : (
         <span

@@ -139,7 +139,6 @@ function KhoVatTu({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, pageSize } = data;
   let dataList = reDataForTable(data.splice((vt) => vt.soLuong !== 0));
 
   let renderHead = [

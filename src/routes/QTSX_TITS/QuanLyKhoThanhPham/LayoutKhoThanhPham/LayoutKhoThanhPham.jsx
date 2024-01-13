@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Card, Empty, Row, Col, Divider } from "antd";
-import { useDispatch, useSelector } from "react-redux";
-import {  Select } from "src/components/Common";
+import { useDispatch } from "react-redux";
+import { Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import ModalChiTietKho from "./ModalChiTietKho";
 import ContainerHeader from "src/components/ContainerHeader";
 
 function LayoutKhoThanhPham({ history, permission }) {
-  const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [ListKho, setListKho] = useState([]);
   const [ListCauTrucKho, setListCauTrucKho] = useState([]);
@@ -284,7 +283,7 @@ function LayoutKhoThanhPham({ history, permission }) {
                                   />
                                 )
                               ),
-                              ,
+
                               ...ke.children_tits_qtsx_ViTriLuuKhoThanhPhams.map(
                                 (tang, index) => {
                                   return (

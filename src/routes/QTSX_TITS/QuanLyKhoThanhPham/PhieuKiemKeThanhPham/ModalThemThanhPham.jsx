@@ -1,14 +1,5 @@
 import { DeleteOutlined } from "@ant-design/icons";
-import {
-  Modal as AntModal,
-  Form,
-  Input,
-  Row,
-  Button,
-  Col,
-  Card,
-  Tag,
-} from "antd";
+import { Modal as AntModal, Form, Input, Row, Button, Col, Card } from "antd";
 import { isEmpty, map } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";

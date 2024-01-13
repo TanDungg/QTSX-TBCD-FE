@@ -21,7 +21,7 @@ import { map } from "lodash";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function TraCuuThongTinXe({ history, permission }) {
-  const { loading, width } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [keyword, setKeyword] = useState("");
   const [Data, setData] = useState(null);
@@ -515,12 +515,16 @@ function TraCuuThongTinXe({ history, permission }) {
               padding: "0px 50px",
             }}
           >
-            <a
+            <span
               onClick={() => setDisabledModalHoSoChatLuong(true)}
-              style={{ fontWeight: "bold" }}
+              style={{
+                fontWeight: "bold",
+                color: "#0469b9",
+                cursor: "pointer",
+              }}
             >
               Xem hồ sơ kiểm tra chất lượng
-            </a>
+            </span>
           </div>
         </Card>
       )}
@@ -699,12 +703,16 @@ function TraCuuThongTinXe({ history, permission }) {
                 })}
             </Row>
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
-              <a
+              <span
+                style={{
+                  color: "#0469b9",
+                  cursor: "pointer",
+                  fontWeight: "bold",
+                }}
                 onClick={() => setDisabledModalHoSoChatLuong(true)}
-                style={{ fontWeight: "bold" }}
               >
                 Xem thông tin hồ sơ chi tiết
-              </a>
+              </span>
             </div>
           </div>
         </Card>

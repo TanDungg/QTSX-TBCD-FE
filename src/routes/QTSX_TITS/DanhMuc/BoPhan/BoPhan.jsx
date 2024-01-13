@@ -24,7 +24,6 @@ import {
 } from "src/util/Common";
 import ImportBoPhan from "./ImportBoPhan";
 import { repeat } from "lodash";
-import { APP_NAME } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 

@@ -246,7 +246,7 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
         title={
           <>
             <p style={{ display: "inline" }}>Theo dõi tiến độ sản xuất</p>
-            <a
+            <span
               style={{
                 cursor: "none",
                 display: "inline",
@@ -254,10 +254,11 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
                 right: 0,
                 bottom: 0,
                 fontSize: 15,
+                color: "#0469b9",
               }}
             >
               {formattedDateTime},{"  "} {formattedTime}
-            </a>
+            </span>
           </>
         }
         description="Theo dõi tiến độ sản xuất"

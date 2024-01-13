@@ -15,7 +15,8 @@ function DongBoCKD({ permission, history }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
-  const [Lot, setLot] = useState("");
+  const Lot = "";
+  // const [Lot, setLot] = useState("");
   const [SanPham, setSanPham] = useState("");
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);

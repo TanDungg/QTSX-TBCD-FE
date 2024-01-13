@@ -282,7 +282,7 @@ function LayoutKhoVatTu({ history, permission }) {
                                   />
                                 )
                               ),
-                              ,
+
                               ...ke.children_tits_qtsx_ViTriLuuKhoVatTus.map(
                                 (tang, index) => {
                                   return (

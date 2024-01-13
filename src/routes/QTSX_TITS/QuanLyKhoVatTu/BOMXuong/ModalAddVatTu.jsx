@@ -13,7 +13,7 @@ function ModalAddVatTu({ openModalFS, openModal, addChiTiet, ListChiTiet }) {
   const [listVatTu, setListVatTu] = useState([]);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { resetFields, setFieldsValue } = form;
+  const { resetFields } = form;
 
   useEffect(() => {
     if (openModal) {

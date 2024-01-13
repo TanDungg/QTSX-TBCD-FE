@@ -1,4 +1,4 @@
-import { Modal as AntModal, Row, Col, Card, Tag } from "antd";
+import { Modal as AntModal, Row, Card, Tag } from "antd";
 import React, { useEffect, useState } from "react";
 import { reDataForTable } from "src/util/Common";
 import { Table, EditableTableRow } from "src/components/Common";

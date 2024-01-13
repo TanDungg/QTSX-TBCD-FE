@@ -1,16 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { Card, Row, Col, DatePicker, Image, Input } from "antd";
-import { EditOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
 import { isEmpty, map } from "lodash";
 import { Table, EditableTableRow, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
-  getLocalStorage,
-  getTokenInfo,
   removeDuplicates,
   getDateNow,
 } from "src/util/Common";
@@ -31,7 +27,6 @@ const listchuyen = [
 function ChiTietCauHinhKanBan({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
   const [ListChuyen, setListChuyen] = useState([]);
   const [Chuyen, setChuyen] = useState(null);
@@ -236,27 +231,6 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
         }
       })
       .catch((error) => console.error(error));
-  };
-
-  const actionContent = (item) => {
-    const editItem =
-      permission && permission.edit && item.nguoiTao_Id === INFO.user_Id ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.tits_qtsx_HangMucKiemTra_Id}/chinh-sua`,
-            state: { itemData: item },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
-
-    return <div>{editItem}</div>;
   };
 
   const handleThietBi = (value, record) => {

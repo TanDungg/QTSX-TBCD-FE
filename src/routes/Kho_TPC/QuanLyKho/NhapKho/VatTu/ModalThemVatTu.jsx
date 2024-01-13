@@ -7,7 +7,6 @@ import { DEFAULT_FORM_MODAL } from "src/constants/Config";
 import { Select } from "src/components/Common";
 import dayjs from "dayjs";
 import moment from "moment";
-import { string } from "prop-types";
 
 const FormItem = Form.Item;
 

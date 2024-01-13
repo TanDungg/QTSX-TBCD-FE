@@ -21,7 +21,11 @@ function ModalChiTietPhieu({ openModalFS, openModal, data, loai, info }) {
   }, [openModal]);
   const renderDetail = (val) => {
     const detail = (
-      <a
+      <span
+        style={{
+          color: "#0469b9",
+          cursor: "pointer",
+        }}
         onClick={() => {
           let url = "";
           if (val.isNhap === undefined) {
@@ -55,7 +59,7 @@ function ModalChiTietPhieu({ openModalFS, openModal, data, loai, info }) {
         }}
       >
         {val.maPhieu}
-      </a>
+      </span>
     );
     return <div>{detail}</div>;
   };

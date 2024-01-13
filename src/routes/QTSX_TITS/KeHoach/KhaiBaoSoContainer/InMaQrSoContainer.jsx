@@ -21,7 +21,6 @@ function InMaQrSoContainer() {
     <Row justify={"center"}>
       {ListSoContainer &&
         ListSoContainer.map((d, index) => {
-          const item = ListSoContainer.length === 1;
           return (
             <Col
               key={index}

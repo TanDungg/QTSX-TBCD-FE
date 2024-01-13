@@ -1,4 +1,4 @@
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -11,7 +11,6 @@ import {
   Button,
 } from "antd";
 import { includes, isEmpty, map } from "lodash";
-import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState, useRef, useContext } from "react";
 import { useDispatch } from "react-redux";
@@ -140,7 +139,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   const [ListSanPham, setListSanPham] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
 
-  const { validateFields, setFieldsValue } = form;
+  const { setFieldsValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
     const load = () => {
@@ -638,20 +637,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     saveData(values.phieunhapkho);
   };
 
-  const saveAndClose = (val) => {
-    validateFields()
-      .then((values) => {
-        if (ListSanPham.length === 0) {
-          Helpers.alertError("Danh sách sản phẩm rỗng");
-        } else {
-          saveData(values.phieunhapkho, val);
-        }
-      })
-      .catch((error) => {
-        console.log("error", error);
-      });
-  };
-
   const saveData = (nhapkho, saveQuit = false) => {
     if (type === "edit") {
       const newData = {
@@ -709,15 +694,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   const dataList = reDataForTable(ListSanPham);
   const disabledDate = (current) => {
     return current && current > dayjs().startOf("day");
-  };
-  const prop1 = {
-    type: "confirm",
-    okText: "Xác nhận",
-    cancelText: "Hủy",
-    title: "Xác nhận từ chối phiếu nhập kho",
-    onOk: () => {
-      saveAndClose(false, false);
-    },
   };
   return (
     <div className="gx-main-content">

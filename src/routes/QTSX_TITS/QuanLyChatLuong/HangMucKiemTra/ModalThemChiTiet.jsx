@@ -1,5 +1,5 @@
-import { Modal as AntModal, Card, Input, Row, Col, Form, Tag } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import { Modal as AntModal, Input, Row, Col, Form, Tag } from "antd";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
 import { FormSubmit, Select } from "src/components/Common";
@@ -14,7 +14,6 @@ const FormItem = Form.Item;
 
 function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
   const dispatch = useDispatch();
-  const cardRef = useRef(null);
   const INFO = {
     ...getLocalStorage("menu"),
     user_Id: getTokenInfo().id,

@@ -181,9 +181,7 @@ const PhongBanForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      user.phongBan_Id === "root"
-        ? (user.phongBan_Id = null)
-        : (user.phongBan_Id = user.phongBan_Id);
+      user.phongBan_Id = user.phongBan_Id === "root" ? null : user.phongBan_Id;
       var newData = { ...info, ...user };
       new Promise((resolve, reject) => {
         dispatch(

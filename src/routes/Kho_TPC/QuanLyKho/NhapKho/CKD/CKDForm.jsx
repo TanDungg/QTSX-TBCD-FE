@@ -1,15 +1,5 @@
 import { DeleteOutlined } from "@ant-design/icons";
-import {
-  Card,
-  Form,
-  Input,
-  Row,
-  Col,
-  DatePicker,
-  Tag,
-  Divider,
-  Button,
-} from "antd";
+import { Card, Form, Input, Row, Col, DatePicker, Tag, Button } from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
