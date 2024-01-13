@@ -39,6 +39,7 @@ function ModalThemThanhPham({
   const [ListKhoThanhPham, setListKhoThanhPham] = useState([]);
   const [DataListThanhPham, setDataListThanhPham] = useState([]);
   const [ListThanhPham, setListThanhPham] = useState([]);
+  const [ThanhPham, setThanhPham] = useState(null);
   const [ListDonHang, setListDonHang] = useState([]);
   const [ListViTriKho, setListViTriKho] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
@@ -49,7 +50,6 @@ function ModalThemThanhPham({
     if (openModal) {
       getListKho();
       getListViTriThanhPham(itemData.tits_qtsx_CauTrucKho_Id);
-      getListDonHang();
       setFieldsValue({
         themthanhpham: {
           tits_qtsx_CauTrucKho_Id: itemData.tits_qtsx_CauTrucKho_Id,
@@ -113,7 +113,7 @@ function ModalThemThanhPham({
         if (!tits_qtsx_ThanhPham_Id) {
           const newListThanhPham = res.data.map((data) => {
             const thanhpham = `${data.tenSanPham}${
-              data.mauSac ? data.mauSac : ""
+              data.tenMauSac ? ` (${data.tenMauSac})` : ""
             }`;
             return {
               ...data,
@@ -151,6 +151,34 @@ function ModalThemThanhPham({
         }
       }
     });
+  };
+
+  const getListDonHang = (tits_qtsx_ThanhPham_Id, tits_qtsx_MauSac_Id) => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_ThanhPham_Id,
+      tits_qtsx_MauSac_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuXuatKhoThanhPham/san-pham-don-hang-chua-xuat?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListDonHang(res.data);
+        } else {
+          setListDonHang([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   const handleInputChange = (val, item) => {
@@ -283,29 +311,6 @@ function ModalThemThanhPham({
       align: "center",
     },
   ];
-
-  const getListDonHang = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_DonHang?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        const newData = res.data.filter((d) => d.isXacNhan === true);
-        setListDonHang(newData);
-      } else {
-        setListDonHang([]);
-      }
-    });
-  };
 
   const deleteItemFunc = (item) => {
     const title = "thành phẩm";
@@ -474,8 +479,8 @@ function ModalThemThanhPham({
 
   const onFinish = (values) => {
     const data = values.themthanhpham;
-    const thanhpham = ListThanhPham.filter(
-      (d) => d.tits_qtsx_ThanhPham_Id === data.tits_qtsx_ThanhPham_Id
+    const thanhpham = ListThanhPham.find(
+      (d) => d.thanhPham.toString() === data.thanhPham.toString()
     );
 
     const tong =
@@ -487,23 +492,26 @@ function ModalThemThanhPham({
 
     const donhang =
       data.tits_qtsx_DonHang_Id &&
-      ListDonHang.filter(
-        (d) => d.id.toLowerCase() === data.tits_qtsx_DonHang_Id.toLowerCase()
+      ListDonHang.find(
+        (d) =>
+          d.tits_qtsx_DonHang_Id.toLowerCase() ===
+          data.tits_qtsx_DonHang_Id.toLowerCase()
       );
 
     const newData = {
       ...data,
-      ...thanhpham[0],
+      ...(thanhpham && thanhpham),
       soLuong: tong,
-      maDonHang: donhang && donhang[0].maPhieu,
+      maDonHang: donhang && donhang.maPhieu,
       list_ChiTietLuuKhos: SelectedViTri,
     };
 
     setDataListThanhPham([...DataListThanhPham, newData]);
 
     const listthanhpham = ListThanhPham.filter(
-      (d) => d.tits_qtsx_ThanhPham_Id !== data.tits_qtsx_ThanhPham_Id
+      (d) => d.thanhPham.toString() !== data.thanhPham.toString()
     );
+
     setListThanhPham(listthanhpham);
     resetFields();
     setFieldTouch(false);
@@ -524,14 +532,22 @@ function ModalThemThanhPham({
   };
 
   const handleSelectViTri = (value) => {
-    const thanhpham = ListThanhPham.filter(
-      (vt) => vt.tits_qtsx_ThanhPham_Id === value
+    const thanhpham = ListThanhPham.find(
+      (vt) => vt.thanhPham.toString() === value.toString()
     );
+
+    getListDonHang(
+      thanhpham ? thanhpham.tits_qtsx_ThanhPham_Id : null,
+      thanhpham ? thanhpham.tits_qtsx_MauSac_Id : null
+    );
+
     getListViTriThanhPham(
       itemData.tits_qtsx_CauTrucKho_Id,
-      value,
-      thanhpham.length ? thanhpham[0].tits_qtsx_MauSac_Id : null
+      thanhpham ? thanhpham.tits_qtsx_ThanhPham_Id : null,
+      thanhpham ? thanhpham.tits_qtsx_MauSac_Id : null
     );
+
+    setThanhPham(thanhpham);
     setSelectedViTri([]);
     setSelectedKeys([]);
   };
@@ -616,7 +632,7 @@ function ModalThemThanhPham({
               >
                 <FormItem
                   label="Thành phẩm"
-                  name={["themthanhpham", "tits_qtsx_ThanhPham_Id"]}
+                  name={["themthanhpham", "thanhPham"]}
                   rules={[
                     {
                       type: "string",
@@ -628,7 +644,7 @@ function ModalThemThanhPham({
                     className="heading-select slt-search th-select-heading"
                     data={ListThanhPham}
                     placeholder="Chọn tên thành phẩm"
-                    optionsvalue={["tits_qtsx_ThanhPham_Id", "thanhPham"]}
+                    optionsvalue={["thanhPham", "thanhPham"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
@@ -658,7 +674,7 @@ function ModalThemThanhPham({
                     className="heading-select slt-search th-select-heading"
                     data={ListDonHang}
                     placeholder="Chọn đơn hàng"
-                    optionsvalue={["id", "maPhieu"]}
+                    optionsvalue={["tits_qtsx_DonHang_Id", "maPhieu"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"

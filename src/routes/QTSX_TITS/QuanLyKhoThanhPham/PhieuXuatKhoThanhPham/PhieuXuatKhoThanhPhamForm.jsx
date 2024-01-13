@@ -219,6 +219,9 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
           const newData =
             chiTiet &&
             chiTiet.map((data) => {
+              const thanhpham = `${data.tenSanPham}${
+                data.tenMauSac ? ` (${data.tenMauSac})` : ""
+              }`;
               const lstViTri =
                 data.list_ChiTietLuuKhos &&
                 data.list_ChiTietLuuKhos.map((vt) => {
@@ -232,6 +235,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
                 });
               return {
                 ...data,
+                thanhPham: thanhpham,
                 list_ChiTietLuuKhos: lstViTri && lstViTri,
               };
             });
@@ -915,6 +919,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
               onClick={() => setActiveModalThemThanhPham(true)}
               type="primary"
               disabled={!KhoVatTu}
+              className="th-margin-bottom-0"
             >
               Thêm thành phẩm
             </Button>
@@ -943,11 +948,17 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
       ) : null}
       {type === "xacnhan" && info.tinhTrang === "Chưa duyệt" ? (
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button icon={<RollbackOutlined />} type="default" onClick={goBack}>
+          <Button
+            icon={<RollbackOutlined />}
+            className="th-margin-bottom-0"
+            type="default"
+            onClick={goBack}
+          >
             Quay lại
           </Button>
           <Button
             icon={<CheckCircleOutlined />}
+            className="th-margin-bottom-0"
             type="primary"
             onClick={modalXK}
           >
@@ -955,6 +966,7 @@ const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
           </Button>
           <Button
             icon={<CloseCircleOutlined />}
+            className="th-margin-bottom-0"
             type="danger"
             onClick={() => setActiveModalTuChoi(true)}
           >
