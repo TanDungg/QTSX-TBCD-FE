@@ -1,10 +1,4 @@
-import {
-  CloseOutlined,
-  DeleteOutlined,
-  PlusOutlined,
-  RollbackOutlined,
-  SaveOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import {
   Card,
   Form,
@@ -23,7 +17,6 @@ import React, { useEffect, useState, useRef, useContext } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import {
-  FormSubmit,
   Select,
   Table,
   ModalDeleteConfirm,
@@ -40,7 +33,6 @@ import {
   reDataForTable,
 } from "src/util/Common";
 import dayjs from "dayjs";
-import AddSanPhamModal from "./AddSanPhamModal";
 const EditableContext = React.createContext(null);
 
 const EditableRow = ({ index, ...props }) => {
@@ -141,16 +133,14 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
-  const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const [ListUser, setListUser] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
-  const [ActiveModal, setActiveModal] = useState(false);
   const [editingRecord, setEditingRecord] = useState([]);
 
-  const { validateFields, resetFields, setFieldsValue } = form;
+  const { validateFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
     const load = () => {
@@ -364,7 +354,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         getInfo(id);
-        setFieldTouch(false);
       })
       .catch((error) => console.error(error));
   };
@@ -408,18 +397,15 @@ const ThanhPhamForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         getInfo(id);
-        setFieldTouch(false);
       })
       .catch((error) => console.error(error));
   };
   const handleInputChange = (val, item) => {
     const soLuongNhap = val.target.value;
     if (isEmpty(soLuongNhap) || Number(soLuongNhap) <= 0) {
-      setFieldTouch(false);
       setEditingRecord([...editingRecord, item]);
       item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
     } else if (Number(soLuongNhap) > item.soLuongNhan) {
-      setFieldTouch(false);
       setEditingRecord([...editingRecord, item]);
       item.message = "Số lượng phải nhỏ hơn";
     } else {
@@ -429,7 +415,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           item.lkn_ChiTietPhieuNhapKhoThanhPham_Id
       );
       setEditingRecord(newData);
-      newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...ListSanPham];
     newData.forEach((ct, index) => {
@@ -466,18 +451,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           value={item.soLuongNhap}
           disabled={type === "new" || type === "edit" ? false : true}
           onChange={(val) => handleInputChange(val, item)}
-          // onBlur={(val) =>
-          //   updateSoLuong(
-          //     item.soLuongNhap,
-          //     item.lkn_ChiTietPhieuNhapKhoThanhPham_Id
-          //   )
-          // }
-          // onPressEnter={(val) =>
-          //   updateSoLuong(
-          //     item.soLuongNhap,
-          //     item.lkn_ChiTietPhieuNhapKhoThanhPham_Id
-          //   )
-          // }
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
       </>
@@ -573,22 +546,7 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         dataIndex: "tenMauSac",
         key: "tenMauSac",
         align: "center",
-        // render: (val, record) => renderMauSac(val, record),
       },
-      // {
-      //   title: "Vị trí",
-      //   key: "viTri",
-      //   align: "center",
-      //   render: (val) => {
-      //     return (
-      //       <span>
-      //         {val.tenKe && val.tenKe}
-      //         {val.tenTang && ` - ${val.tenTang}`}
-      //         {val.tenNgan && ` - ${val.tenNgan}`}
-      //       </span>
-      //     );
-      //   },
-      // },
       {
         title: "Số lượng",
         key: "soLuongNhap",
@@ -653,7 +611,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       ...item,
       ...row,
     });
-    setFieldTouch(true);
     setListSanPham(newData);
   };
   const columns = map(colValues(), (col) => {
@@ -696,54 +653,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
   };
 
   const saveData = (nhapkho, saveQuit = false) => {
-    // if (type === "new") {
-    //   const newData = {
-    //     ...nhapkho,
-    //     chiTiet_PhieuNhapKhoThanhPhams: ListSanPham.map((tp) => {
-    //       return {
-    //         ...tp,
-    //         lst_ChiTiets: tp.lst_ChiTiets,
-    //       };
-    //     }),
-    //     ngaySanXuat: nhapkho.ngaySanXuat._i,
-    //     ngayNhap: nhapkho.ngayNhap._i,
-    //   };
-    //   new Promise((resolve, reject) => {
-    //     dispatch(
-    //       fetchStart(
-    //         `lkn_PhieuNhapKhoThanhPham`,
-    //         "POST",
-    //         newData,
-    //         "ADD",
-    //         "",
-    //         resolve,
-    //         reject
-    //       )
-    //     );
-    //   })
-    //     .then((res) => {
-    //       if (res.status !== 409) {
-    //         if (saveQuit) {
-    //           goBack();
-    //         } else {
-    //           resetFields();
-    //           setFieldTouch(false);
-    //           setListSanPham([]);
-    //           getUserLap(INFO);
-    //           getXuong();
-    //           setFieldsValue({
-    //             phieunhapkho: {
-    //               ngayNhap: moment(getDateNow(), "DD/MM/YYYY"),
-    //               ngaySanXuat: moment(getDateNow(), "DD/MM/YYYY"),
-    //             },
-    //           });
-    //         }
-    //       } else {
-    //         setFieldTouch(false);
-    //       }
-    //     })
-    //     .catch((error) => console.error(error));
-    // }
     if (type === "edit") {
       const newData = {
         id: id,
@@ -751,8 +660,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         chiTiet_PhieuNhapKhoThanhPhams: ListSanPham,
         ngaySanXuat: nhapkho.ngaySanXuat._i,
         ngayNhap: nhapkho.ngayNhap._i,
-        // isDuyet: isDuyet,
-        // lyDoTuChoi: !isDuyet ? "Từ chối" : undefined,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -761,7 +668,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
             "PUT",
             newData,
             "EDIT",
-            // !isDuyet ? "TUCHOI" : "XACNHAN",
             "",
             resolve,
             reject
@@ -773,7 +679,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
             if (res.status !== 409) goBack();
           } else {
             getInfo(id);
-            setFieldTouch(false);
           }
         })
         .catch((error) => console.error(error));
@@ -801,37 +706,9 @@ const ThanhPhamForm = ({ history, match, permission }) => {
         </Tag>
       </span>
     );
-
-  const addSanPham = (data) => {
-    let check = false;
-    ListSanPham.forEach((dl) => {
-      if (
-        dl.sanPham_Id.toLowerCase() === data.sanPham_Id &&
-        dl.mauSac_Id === data.mauSac_Id
-      ) {
-        check = true;
-        Helpers.alertWarning(`Sản phẩm đã được thêm`);
-      }
-    });
-    !check && ListSanPham.length > 0 && setListSanPham([...ListSanPham, data]);
-    !check && ListSanPham.length === 0 && setListSanPham([data]);
-    !check && setFieldTouch(true);
-  };
   const dataList = reDataForTable(ListSanPham);
   const disabledDate = (current) => {
     return current && current > dayjs().startOf("day");
-  };
-  const prop = {
-    type: "confirm",
-    okText: "Xác nhận",
-    cancelText: "Hủy",
-    title: "Xác nhận duyệt phiếu nhập kho",
-    onOk: () => {
-      saveAndClose(false, true);
-    },
-  };
-  const modalDuyet = () => {
-    Modal(prop);
   };
   const prop1 = {
     type: "confirm",
@@ -842,9 +719,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
       saveAndClose(false, false);
     },
   };
-  const modalTuChoi = () => {
-    Modal(prop1);
-  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -854,7 +728,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
-          onFieldsChange={() => setFieldTouch(true)}
         >
           <Row>
             <Col span={12}>
@@ -987,17 +860,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            {type === "new" ? (
-              <Col span={12} align="center">
-                <Button
-                  icon={<PlusOutlined />}
-                  type="primary"
-                  onClick={() => setActiveModal(true)}
-                >
-                  Chọn sản phẩm
-                </Button>
-              </Col>
-            ) : null}
           </Row>
           <Divider />
         </Form>
@@ -1012,49 +874,6 @@ const ThanhPhamForm = ({ history, match, permission }) => {
           rowClassName={"editable-row"}
           pagination={false}
         />
-        {/* {type === "edit" && info.tinhTrang === "Chưa xử lý" ? (
-          <>
-            <Divider />
-            <Row style={{ marginTop: 20 }}>
-              <Col style={{ marginBottom: 8, textAlign: "center" }} span={24}>
-                <Button
-                  className="th-btn-margin-bottom-0"
-                  icon={<RollbackOutlined />}
-                  onClick={goBack}
-                  style={{ marginTop: 10 }}
-                >
-                  Quay lại
-                </Button>
-                <Button
-                  className="th-btn-margin-bottom-0"
-                  type="primary"
-                  onClick={() => modalDuyet()}
-                  icon={<SaveOutlined />}
-                  style={{ marginTop: 10 }}
-                >
-                  Duyệt
-                </Button>
-                <Button
-                  // disabled={!fieldTouch}
-                  className="th-btn-margin-bottom-0"
-                  icon={<CloseOutlined />}
-                  style={{ marginTop: 10 }}
-                  onClick={() => modalTuChoi()}
-                >
-                  Từ chối
-                </Button>
-              </Col>
-            </Row>
-          </>
-        ) : null} */}
-        {/* {type === "edit" && (
-          <FormSubmit
-            goBack={goBack}
-            handleSave={saveAndClose}
-            saveAndClose={saveAndClose}
-            disabled={fieldTouch}
-          />
-        )} */}
       </Card>
     </div>
   );

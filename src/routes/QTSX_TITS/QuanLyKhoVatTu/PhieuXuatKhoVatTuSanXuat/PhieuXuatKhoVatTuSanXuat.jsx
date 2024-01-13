@@ -24,7 +24,6 @@ import {
   getDateNow,
   getLocalStorage,
   getTokenInfo,
-  exportPDF,
   removeDuplicates,
   exportExcel,
 } from "src/util/Common";
@@ -39,7 +38,6 @@ function XuatKhoVatTu({ match, history, permission }) {
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
-  const [DataXuatExcel, setDataXuatExcel] = useState([]);
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState(null);
   const [keyword, setKeyword] = useState(null);
@@ -81,35 +79,6 @@ function XuatKhoVatTu({ match, history, permission }) {
         "LIST"
       )
     );
-    const paramXuat = convertObjectToUrlParams({
-      keyword,
-      donVi_Id: INFO.donVi_Id,
-      tits_qtsx_Xuong_Id,
-      tuNgay,
-      denNgay,
-      page: -1,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuSanXuat?${paramXuat}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setDataXuatExcel(res.data);
-        } else {
-          setDataXuatExcel([]);
-        }
-      })
-      .catch((error) => console.error(error));
   };
 
   const getKho = () => {
@@ -459,65 +428,6 @@ function XuatKhoVatTu({ match, history, permission }) {
     history.push({
       pathname: `${match.url}/them-moi`,
     });
-  };
-
-  const handlePrint = () => {
-    const params = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuSanXuat/${SelectedPhieu[0].id}?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const listVatTu =
-            res.data.chiTiet_PhieuXuatKhoVatTus &&
-            JSON.parse(res.data.chiTiet_PhieuXuatKhoVatTus).map((list) => {
-              const SoLuong = list.chiTiet_LuuVatTus.reduce(
-                (tong, sl) => tong + sl.soLuongThucXuat,
-                0
-              );
-              return {
-                ...list,
-                soLuongThucXuat: SoLuong,
-              };
-            });
-          const newData = {
-            ...res.data,
-            boPhan: res.data.tenPhongBan,
-            lstpxkvtct: listVatTu,
-          };
-
-          new Promise((resolve, reject) => {
-            dispatch(
-              fetchStart(
-                `tits_qtsx_PhieuXuatKhoVatTuSanXuat/export-pdf`,
-                "POST",
-                newData,
-                "",
-                "",
-                resolve,
-                reject
-              )
-            );
-          }).then((res) => {
-            exportPDF("PhieuXuatKhoVatTu", res.data.datapdf);
-            setSelectedPhieu([]);
-            setSelectedKeys([]);
-          });
-        }
-      })
-      .catch((error) => console.error(error));
   };
 
   const handleXuatExcel = () => {

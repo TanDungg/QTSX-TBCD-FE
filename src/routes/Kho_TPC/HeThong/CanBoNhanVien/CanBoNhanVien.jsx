@@ -11,7 +11,7 @@ import { useDispatch, useSelector } from "react-redux";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import ImportCanBoNhanVien from "./ImportCanBoNhanVien";
-import ModalNghiViec from "./ModalNghiViec";
+// import ModalNghiViec from "./ModalNghiViec";
 import {
   ModalDeleteConfirm,
   Table,
@@ -36,8 +36,6 @@ function CanBoNhanVien({ match, history, permission }) {
   const [ActiveModal, setActiveModal] = useState(false);
   const [donViSelect, setDonViSelect] = useState([]);
   const [donVi, setDonVi] = useState("");
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [NhanSuNghi, setNhanSuNghi] = useState();
   const [data, setData] = useState([]);
   const { totalRow, pageSize } = data;
   const dataList = reDataForTable(data.datalist, page, pageSize);
@@ -375,10 +373,6 @@ function CanBoNhanVien({ match, history, permission }) {
     return renderHead;
   };
 
-  const handleImport = () => {
-    setActiveModal(true);
-  };
-
   //Xuất phiếu bàn giao
   const XuatExcel = () => {
     const newData = dataList.map((d) => {
@@ -533,12 +527,12 @@ function CanBoNhanVien({ match, history, permission }) {
           openModalFS={setActiveModal}
           refesh={refeshData}
         />
-        <ModalNghiViec
+        {/* <ModalNghiViec
           openModal={isModalOpen}
           openModalFS={setIsModalOpen}
           data={NhanSuNghi}
           refesh={refeshData}
-        />
+        /> */}
       </Card>
     </div>
   );

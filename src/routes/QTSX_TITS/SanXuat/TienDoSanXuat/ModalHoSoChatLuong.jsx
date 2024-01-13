@@ -314,10 +314,6 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
               }),
             ]
           );
-
-          {
-            /* </Row> */
-          }
         })}
     </AntModal>
   );

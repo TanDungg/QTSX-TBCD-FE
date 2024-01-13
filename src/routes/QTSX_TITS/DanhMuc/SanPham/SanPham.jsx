@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Tag, Col, Image, Row } from "antd";
+import { Card, Button, Divider, Col, Image, Row } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -224,23 +224,6 @@ function SanPham({ match, history, permission }) {
   const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
-
-  const renderHinhAnh = (item) => {
-    if (!isEmpty(item.hinhAnh)) {
-      return (
-        <span>
-          <a
-            target="_blank"
-            href={BASE_URL_API + item.hinhAnh}
-            rel="noopener noreferrer"
-          >
-            {item.hinhAnh.split("/")[5]}
-          </a>
-        </span>
-      );
-    }
-    return null;
-  };
 
   let renderHead = [
     {

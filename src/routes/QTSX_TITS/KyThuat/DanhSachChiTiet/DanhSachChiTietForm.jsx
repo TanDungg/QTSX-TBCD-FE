@@ -35,7 +35,6 @@ function DanhSachChiTietForm({ match, permission, history }) {
   const [FileAnh, setFileAnh] = useState(null);
   const [DisableUpload, setDisableUpload] = useState(false);
   const [OpenImage, setOpenImage] = useState(false);
-  const [info, setInfo] = useState(null);
   const [fieldTouch, setFieldTouch] = useState(false);
 
   useEffect(() => {
@@ -187,7 +186,6 @@ function DanhSachChiTietForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setInfo(res.data);
           setFieldsValue({
             danhsachchitiet: {
               ...res.data,

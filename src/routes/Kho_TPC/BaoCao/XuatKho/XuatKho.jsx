@@ -19,15 +19,12 @@ import {
 } from "src/util/Common";
 import moment from "moment";
 const { RangePicker } = DatePicker;
-
 const { EditableRow, EditableCell } = EditableTableRow;
-
 function XuatKho({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
-  const [DataXuat, setDataXuat] = useState([]);
   const [Loai, setLoai] = useState("sanpham");
   const [ListKho, setListKho] = useState([]);
   const [Kho_Id, setKho_Id] = useState(null);
@@ -104,35 +101,6 @@ function XuatKho({ permission, history, match }) {
         }
       })
       .catch((error) => console.error(error));
-    // let paramxuat = convertObjectToUrlParams({
-    //   keyword,
-    //   Kho_Id,
-    //   loaiVT_nhomSP,
-    //   phongBan_Id,
-    //   tungay,
-    //   denngay,
-    //   page: -1,
-    //   IsSanPham,
-    // });
-    // new Promise((resolve, reject) => {
-    //   dispatch(
-    //     fetchStart(
-    //       `lkn_BaoCao/bao-cao-xuat-kho?${paramxuat}`,
-    //       "GET",
-    //       null,
-    //       "DETAIL",
-    //       "",
-    //       resolve,
-    //       reject
-    //     )
-    //   );
-    // })
-    //   .then((res) => {
-    //     if (res && res.data) {
-    //       setDataXuat(res.data);
-    //     }
-    //   })
-    //   .catch((error) => console.error(error));
   };
 
   const getKho = (Loai) => {
@@ -259,20 +227,6 @@ function XuatKho({ permission, history, match }) {
       TuNgay,
       DenNgay,
       page,
-      Loai === "sanpham" ? true : false
-    );
-  };
-
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    getListData(
-      keyword,
-      Kho_Id,
-      Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
-      Xuong,
-      TuNgay,
-      DenNgay,
-      pagination,
       Loai === "sanpham" ? true : false
     );
   };

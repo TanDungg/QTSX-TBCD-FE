@@ -54,16 +54,15 @@ function ModalThemHangMucTieuDe({
   };
 
   const saveData = (hangMucTieuDePhu, saveQuit = false) => {
-    if (itemData.loai === "new") {
+    if (itemData.type === "new") {
       const newData = {
         ...hangMucTieuDePhu,
         tits_qtsx_HangMucKiemTra_Id: itemData.tits_qtsx_HangMucKiemTra_Id,
-        tits_qtsx_HangMucKiemTraChiTiet_Id: itemData.id,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_HangMucKiemTra/chi-tiet`,
+            `tits_qtsx_HangMucKiemTra/tieu-de-phu`,
             "POST",
             newData,
             "ADD",
@@ -84,7 +83,7 @@ function ModalThemHangMucTieuDe({
         })
         .catch((error) => console.error(error));
     }
-    if (itemData.loai === "edit") {
+    if (itemData.type === "edit") {
       const newData = {
         ...hangMucTieuDePhu,
         id: itemData.id,
@@ -92,7 +91,7 @@ function ModalThemHangMucTieuDe({
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_HangMucKiemTra/hang-muc-kiem-tra-chi-tiet/${itemData.id}`,
+            `tits_qtsx_HangMucKiemTra/hang-muc-kiem-tra-tieu-de-phu/${itemData.id}`,
             "PUT",
             newData,
             "EDIT",
@@ -164,7 +163,7 @@ function ModalThemHangMucTieuDe({
             <Input className="input-item" placeholder="Nhập hạng mục" />
           </FormItem>
 
-          <FormItem
+          {/* <FormItem
             label="Vị trí"
             name={["hangMucTieuDePhu", "thuTuTieuDePhu"]}
             rules={[
@@ -176,7 +175,7 @@ function ModalThemHangMucTieuDe({
             ]}
           >
             <Input className="input-item" placeholder="Nhập vị trí" />
-          </FormItem>
+          </FormItem> */}
 
           <FormSubmit
             goBack={handleCancel}

@@ -56,7 +56,7 @@ function ModalThemHinhAnh({ openModalFS, openModal, itemData, refesh }) {
   const onFinish = (values) => {
     const data = values.themhinhanh;
     const formData = new FormData();
-    ListFileAnh.map((file) => {
+    ListFileAnh.forEach((file) => {
       formData.append("lstFiles", file);
     });
     fetch(`${BASE_URL_API}/api/Upload/Multi/Image`, {

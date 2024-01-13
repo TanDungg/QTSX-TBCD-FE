@@ -1,4 +1,4 @@
-import { Card, Form, Input, Upload, Button, Modal } from "antd";
+import { Card, Form, Input, Upload, Modal } from "antd";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -7,11 +7,7 @@ import { FormSubmit } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { Icon } from "@ant-design/compatible";
-import {
-  LoadingOutlined,
-  PlusOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import Helpers from "src/helpers";
 
 const FormItem = Form.Item;
@@ -141,7 +137,7 @@ const PhanMemForm = ({ history, match, permission }) => {
         console.log("error", error);
       });
   };
-  
+
   const DeleteFile = (file) => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -239,7 +235,7 @@ const PhanMemForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
   };
-  
+
   const handlePreview = async (file) => {
     setPreviewOpen(true);
   };

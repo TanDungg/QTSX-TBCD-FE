@@ -23,7 +23,7 @@ import { BASE_URL_API } from "src/constants/Config";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function LenhSanXuat({ match, history, permission }) {
-  const { width, loading, data } = useSelector(({ common }) => common).toJS();
+  const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [ListSanPham, setListSanPham] = useState([]);

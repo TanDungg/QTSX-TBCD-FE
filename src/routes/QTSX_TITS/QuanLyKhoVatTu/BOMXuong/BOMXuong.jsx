@@ -399,20 +399,7 @@ function BOMXuong({ match, history, permission }) {
       getListData(value, TuNgay, DenNgay, keyword, 1);
     }
   };
-  const handleOnSelectLoaiDinhMuc = (value) => {
-    if (DenNgay !== value) {
-      setDenNgay(value);
-      setPage(1);
-      getListData(Xuong, TuNgay, value, keyword, 1);
-    }
-  };
-  const handleOnSelectTrangThai = (value) => {
-    if (TuNgay !== value) {
-      setTuNgay(value);
-      setPage(1);
-      getListData(Xuong, value, DenNgay, keyword, 1);
-    }
-  };
+
   const handleClearXuong = (value) => {
     setXuong(null);
     setPage(1);

@@ -21,8 +21,6 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
   reDataForTable,
-  getLocalStorage,
-  getTokenInfo,
   removeDuplicates,
   getThangNow,
   getNamNow,
@@ -37,7 +35,6 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function DonHangSanXuat({ match, history, permission }) {
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
   const [Thang, setThang] = useState(getThangNow());

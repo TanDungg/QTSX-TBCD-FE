@@ -152,11 +152,8 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const [listVatTu, setListVatTu] = useState([]);
-  const [ListSanPham, setListSanPham] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListUser, setListUser] = useState([]);
-  const [SanPham_Id, setSanPham_Id] = useState(null);
-  const [SoLuong, setSoLuong] = useState(null);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [ActiveModalAddVatTuKHSX, setActiveModalAddVatTuKHSX] = useState(false);
   const [ActiveModalAddVatTuSanPham, setActiveModalAddVatTuSanPham] =
@@ -165,14 +162,10 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const [File, setFile] = useState("");
   const [disableUpload, setDisableUpload] = useState(false);
   const [FileChat, setFileChat] = useState("");
-  const [Message, setMessage] = useState(null);
-  const [DisabledThem, setDisabledThem] = useState(true);
   const [openImage, setOpenImage] = useState(false);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   const [editingRecord, setEditingRecord] = useState([]);
-  const [ListXuong, setListXuong] = useState([]);
-  const [Xuong, setXuong] = useState(null);
 
   useEffect(() => {
     const load = () => {
@@ -181,7 +174,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           getUserLap(INFO);
           setType("new");
           getUserKy(INFO);
-          getXuong();
           setFieldsValue({
             deNghiMuaHang: {
               ngayYeuCau: moment(getDateNow(), "DD/MM/YYYY"),
@@ -196,7 +188,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
           setType("edit");
           const { id } = match.params;
           setId(id);
-          getXuong();
           getInfo(id);
           getUserKy(INFO);
         } else if (permission && !permission.edit) {
@@ -228,33 +219,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const getXuong = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        const xuong = [];
-        res.data.forEach((x) => {
-          if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
-            xuong.push(x);
-          }
-        });
-        setListXuong(xuong);
-      } else {
-        setListXuong([]);
-      }
-    });
-  };
   const getUserLap = (info, nguoiLap_Id) => {
     const params = convertObjectToUrlParams({
       id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
@@ -309,56 +273,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
         setListUserKy([]);
       }
     });
-  };
-
-  const getSanPham = (id, phongBan_Id) => {
-    if (id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `SanPham/${id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListSanPham([res.data]);
-        } else {
-          setListSanPham([]);
-        }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `lkn_DinhMucVatTu/list-san-pham-bom-theo-phong-ban?PhongBan_Id=${phongBan_Id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          const newData = res.data.map((ct) => {
-            return {
-              ...ct,
-              name: ct.maSanPham + " - " + ct.tenSanPham,
-            };
-          });
-          setListSanPham(newData);
-        } else {
-          setListSanPham([]);
-        }
-      });
-    }
   };
 
   /**
@@ -1067,25 +981,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       </span>
     );
 
-  const hanldeSoLuong = (value) => {
-    if (value === null || value === "") {
-      setMessage("Vui lòng nhập số lượng");
-      setDisabledThem(true);
-    } else {
-      if (value <= 0) {
-        setMessage("Số lượng phải lớn hơn 0");
-        setDisabledThem(true);
-      } else {
-        setSoLuong(value);
-        setMessage(null);
-        setDisabledThem(false);
-      }
-    }
-  };
-  const hanleOnSelectXuong = (val) => {
-    setXuong(val);
-    getSanPham(null, val);
-  };
   const hanldeThemKHSX = (data) => {
     setListVatTu([...listVatTu, ...data]);
     setActiveModalAddVatTuKHSX(false);
@@ -1093,67 +988,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
   const hanldeThem = (data) => {
     setListVatTu([...listVatTu, ...data]);
     setActiveModalAddVatTuSanPham(false);
-    // const params = convertObjectToUrlParams({
-    //   SanPham_Id: SanPham_Id,
-    //   phongBan_Id: Xuong,
-    // });
-    // new Promise((resolve, reject) => {
-    //   dispatch(
-    //     fetchStart(
-    //       `lkn_DinhMucVatTu/bom-vat-tu-by-san-pham?${params}`,
-    //       "GET",
-    //       null,
-    //       "LIST",
-    //       "",
-    //       resolve,
-    //       reject
-    //     )
-    //   );
-    // })
-    //   .then((res) => {
-    //     if (res && res.data.length !== 0) {
-    //       const data = res.data[0];
-    //       const newData =
-    //         data.chiTietBOM &&
-    //         JSON.parse(data.chiTietBOM).map((ct) => {
-    //           return {
-    //             ...ct,
-    //             sanPham_Id: data.sanPham_Id,
-    //             tenSanPham: data.tenSanPham,
-    //             bom_Id: data.id,
-    //             lkn_ChiTietBOM_Id: ct.lkn_ChiTietBOM_Id.toLowerCase(),
-    //             vatTu_Id: ct.vatTu_Id.toLowerCase(),
-    //             soLuongTheoDinhMuc: Number((ct.dinhMuc * SoLuong).toFixed(6)),
-    //             ghiChu: "",
-    //             hangMucSuDung: "",
-    //             soLuong: Number((ct.dinhMuc * SoLuong).toFixed(6)),
-    //           };
-    //         });
-
-    //       if (newData) {
-    //         const newListSanPham = ListSanPham.filter(
-    //           (d) => d.id !== data.sanPham_Id
-    //         );
-    //         setListVatTu([...listVatTu, ...newData]);
-    //         setListSanPham(newListSanPham);
-    //         setFieldsValue({
-    //           sanPham: {
-    //             phongBan_Id: null,
-    //             sanPham_Id: null,
-    //             soLuong: null,
-    //           },
-    //         });
-    //         setSanPham_Id(null);
-    //         setSoLuong(null);
-    //         setDisabledThem(true);
-    //       } else {
-    //         Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
-    //       }
-    //     } else {
-    //       Helpers.alertWarning("Không tìm thấy BOM của sản phẩm");
-    //     }
-    //   })
-    //   .catch((error) => console.error(error));
   };
 
   const props = {
@@ -1177,7 +1011,6 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
     showUploadList: false,
     maxCount: 1,
   };
-
   const handleViewFile = (file) => {
     if (file.type === "application/pdf") {
       renderPDF(file);
@@ -1185,15 +1018,9 @@ const DeNghiMuaHangForm = ({ history, match, permission }) => {
       setOpenImage(true);
     }
   };
-
-  const hanldeSelectSanPham = (val) => {
-    setSanPham_Id(val);
-  };
-
   const disabledDate = (current) => {
     return current && current < dayjs().startOf("day");
   };
-
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />

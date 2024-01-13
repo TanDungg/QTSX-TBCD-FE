@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Tag, Col, Image, Row } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  ImportOutlined,
-} from "@ant-design/icons";
+import { Card, Button, Divider, Col, Row } from "antd";
+import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -28,7 +23,7 @@ import { BASE_URL_API } from "src/constants/Config";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function QuyTrinhCongNghe({ match, history, permission }) {
-  const { width, loading, data } = useSelector(({ common }) => common).toJS();
+  const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);

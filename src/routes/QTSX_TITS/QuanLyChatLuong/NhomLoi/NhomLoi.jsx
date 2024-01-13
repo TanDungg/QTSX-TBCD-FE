@@ -24,7 +24,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function NhomLoi({ match, history, permission }) {
-  const { width, loading, data } = useSelector(({ common }) => common).toJS();
+  const { width, loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
@@ -190,8 +190,8 @@ function NhomLoi({ match, history, permission }) {
       </Button>
     );
   };
-  const { pageSize, totalRow } = data;
-  const dataList = reDataForTable(data.datalist, page, pageSize);
+  const { pageSize, totalRow } = Data;
+  const dataList = reDataForTable(Data.datalist, page, pageSize);
 
   const renderSuDung = (item) => {
     return <Checkbox checked={item.isSuDung} disabled={true} />;

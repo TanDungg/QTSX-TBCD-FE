@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col } from "antd";
+import { Card, Button, Divider } from "antd";
 import { Icon } from "@ant-design/compatible";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,16 +10,9 @@ import {
   ModalDeleteConfirm,
   Table,
   EditableTableRow,
-  Select,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import {
-  convertObjectToUrlParams,
-  getLocalStorage,
-  reDataForTable,
-  reDataSelectedTable,
-  treeToFlatlist,
-} from "src/util/Common";
+import { getLocalStorage, reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -28,12 +21,9 @@ function MenuApp({ match, history, permission }) {
   const INFO = getLocalStorage("menu");
   const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const [PhanMemSelect, setPhanMemSelect] = useState([]);
-  const [PhanMem, setPhanMem] = useState("");
 
   useEffect(() => {
     if (permission && permission.view) {
-      getPhanMem(INFO.phanMem_Id);
       loadData(INFO);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
@@ -56,39 +46,6 @@ function MenuApp({ match, history, permission }) {
         "LIST"
       )
     );
-  };
-  /**
-   * Lấy list phần mềm
-   *
-   */
-  const getPhanMem = (id) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(`PhanMem/${id}`, "GET", null, "DETAIL", "", resolve, reject)
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setPhanMem(res.data.id);
-          setPhanMemSelect([res.data]);
-        } else {
-          setPhanMemSelect([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  /**
-   * Thêm dấu để phân cấp tiêu đề dựa theo tree (flatlist)
-   *
-   * @param {*} value
-   * @param {*} record
-   * @returns
-   * @memberof ChucNang
-   */
-  const renderTenMenu = (value, record) => {
-    let string = repeat("- ", record.level);
-    string = `${string} ${value}`;
-    return <div>{string}</div>;
   };
 
   /**

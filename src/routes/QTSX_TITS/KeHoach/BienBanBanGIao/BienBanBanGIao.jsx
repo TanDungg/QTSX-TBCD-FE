@@ -31,7 +31,6 @@ import {
   getDateNow,
   reDataForTable,
   removeDuplicates,
-  setLocalStorage,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";

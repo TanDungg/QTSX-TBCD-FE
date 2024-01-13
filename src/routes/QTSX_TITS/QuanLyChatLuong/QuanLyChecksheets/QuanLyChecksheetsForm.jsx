@@ -260,61 +260,6 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    const title = "chi tiết";
-    ModalDeleteConfirm(deleteItemAction, item, item.maChiTiet, title);
-  };
-
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    const newData = ListSanPham.filter((d) => d.key !== item.key);
-    setListSanPham(newData);
-  };
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const editItemVal =
-      type === "new" || type === "edit"
-        ? {
-            onClick: () => {
-              // setActiveModalEdit(true);
-              // setTypeAddTable("edit");
-              // setInfoSanPham(item);
-            },
-          }
-        : { disabled: true };
-    const deleteItemVal =
-      type === "new" || type === "edit"
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        <React.Fragment>
-          <a {...editItemVal} title="Xóa">
-            <EditOutlined />
-          </a>
-          <Divider type="vertical" />
-          <a {...deleteItemVal} title="Xóa">
-            <DeleteOutlined />
-          </a>
-        </React.Fragment>
-      </div>
-    );
-  };
 
   const props = {
     accept: ".png, .jpg, .jpeg, .pdf",

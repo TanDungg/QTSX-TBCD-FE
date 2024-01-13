@@ -404,28 +404,7 @@ const SoLoForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
   };
-  const validateSoLuong = (_, value) => {
-    if (value && value > SoLuongSanPhamToiDa) {
-      setDisableAdd(true);
-      return Promise.reject(
-        new Error(
-          `Số lượng lô phải nhỏ hơn hoặc bằng số lượng đơn hàng ${SoLuongSanPhamToiDa}!`
-        )
-      );
-    } else if (value && Number(value) === 0) {
-      setDisableAdd(true);
-      return Promise.reject(new Error(`Số lượng phải lớn hơn 0!`));
-    } else if (!value) {
-      setDisableAdd(true);
-      return Promise
-        .reject
-        // new Error(`Số lượng là bắt buộc!`)
-        ();
-    } else {
-      setDisableAdd(false);
-      return Promise.resolve();
-    }
-  };
+
   const formTitle = type === "new" ? "Thêm mới Số Lô" : "Chỉnh sửa Số Lô";
   const onClickAddTable = () => {
     if (SoLuongSanPhamToiDa === ListSanPham.length) {

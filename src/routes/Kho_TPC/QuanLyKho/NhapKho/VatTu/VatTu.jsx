@@ -32,7 +32,6 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
 import { setHistory } from "src/appRedux/actions";
-import { HISTORY, HISTORY_SUCCESS } from "src/constants/ActionTypes";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
@@ -639,11 +638,7 @@ function VatTu({ match, history, permission }) {
     setPage(1);
     loadData(keyword, val, FromDate, ToDate, 1);
   };
-  const handleClearKho = (val) => {
-    setKho("");
-    setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
-  };
+
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);

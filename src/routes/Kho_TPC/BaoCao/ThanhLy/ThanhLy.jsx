@@ -12,11 +12,7 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import {
-  convertObjectToUrlParams,
-  // getTokenInfo,
-  // getLocalStorage,
-} from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 import moment from "moment";
 
 const { RangePicker } = DatePicker;
@@ -25,9 +21,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function ThanhLy({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
-  // const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
-  const [DataXuat, setDataXuat] = useState([]);
   const [Loai, setLoai] = useState("sanpham");
   const [ListKho, setListKho] = useState([]);
   const [Kho, setKho] = useState(null);
@@ -82,33 +76,6 @@ function ThanhLy({ permission, history, match }) {
         }
       })
       .catch((error) => console.error(error));
-    // let params = convertObjectToUrlParams({
-    //   Kho_Id,
-    //   KeyWord,
-    //   TuNgay,
-    //   DenNgay,
-    //   page: -1,
-    //   IsThanhPham,
-    // });
-    // new Promise((resolve, reject) => {
-    //   dispatch(
-    //     fetchStart(
-    //       `lkn_BaoCao/bao-cao-thanh-ly?${params}`,
-    //       "GET",
-    //       null,
-    //       "DETAIL",
-    //       "",
-    //       resolve,
-    //       reject
-    //     )
-    //   );
-    // })
-    //   .then((res) => {
-    //     if (res && res.data) {
-    //       setDataXuat(res.data);
-    //     }
-    //   })
-    //   .catch((error) => console.error(error));
   };
 
   const getKho = (Loai) => {
@@ -161,18 +128,6 @@ function ThanhLy({ permission, history, match }) {
     );
   };
 
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    getListData(
-      Kho,
-      keyword,
-      TuNgay,
-      DenNgay,
-      pagination,
-      Loai === "sanpham" ? true : false
-    );
-  };
-
   function removeDuplicates(arr) {
     const uniqueObjects = [];
     arr.forEach((obj) => {
@@ -185,7 +140,6 @@ function ThanhLy({ permission, history, match }) {
     });
     return uniqueObjects;
   }
-  // const { totalRow, pageSize } = Data;
 
   const dataList = reDataForTable(Data);
 

@@ -1,11 +1,6 @@
-import {
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, Divider, Button } from "antd";
-import { isEmpty, map } from "lodash";
+import { EditOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons";
+import { Card, Form, Row, Col, Button } from "antd";
+import { map } from "lodash";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -28,9 +23,6 @@ import Helpers from "src/helpers";
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
 
-const initialState = {
-  tenLot: "",
-};
 const SoVinForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
@@ -42,7 +34,6 @@ const SoVinForm = ({ history, match, permission }) => {
   const [soLo, setSoLo] = useState("");
 
   const [ListSanPhamSelect, setListSanPhamSelect] = useState([]);
-  const [DisableSoLuong, setDisableSoLuong] = useState(true);
   const [infoSanPham, setInfoSanPham] = useState({});
   const [ActiveModal, setActiveModal] = useState(false);
   const [ActiveModalEdit, setActiveModalEdit] = useState(false);
@@ -51,9 +42,7 @@ const SoVinForm = ({ history, match, permission }) => {
   const [TypeAddTable, setTypeAddTable] = useState("new");
 
   const [form] = Form.useForm();
-  const { tenLot } = initialState;
-  const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
-  const [info, setInfo] = useState({});
+  const { validateFields, resetFields, setFieldsValue } = form;
 
   useEffect(() => {
     const load = () => {
@@ -160,7 +149,6 @@ const SoVinForm = ({ history, match, permission }) => {
         if (res && res.data) {
           getDonHang(res.data[0].tits_qtsx_DonHang_Id, 1);
           setDisableAdd(false);
-          setDisableSoLuong(false);
           setListSanPham(
             reDataForTable(JSON.parse(res.data[0].tits_qtsx_SoVinChiTiets))
           );
@@ -170,7 +158,6 @@ const SoVinForm = ({ history, match, permission }) => {
             },
           });
         }
-        setInfo(res.data);
       })
       .catch((error) => console.error(error));
   };
@@ -541,7 +528,6 @@ const SoVinForm = ({ history, match, permission }) => {
                   optionFilterProp="name"
                   disabled={type !== "new"}
                   onSelect={(val) => {
-                    setDisableSoLuong(false);
                     setDisableAdd(false);
                     setSoLo(val);
                   }}

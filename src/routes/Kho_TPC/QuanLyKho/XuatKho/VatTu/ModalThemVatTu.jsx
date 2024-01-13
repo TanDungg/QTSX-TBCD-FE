@@ -298,42 +298,7 @@ function ModalThemVatTu({
       </>
     );
   };
-  const handleInputGhiChu = (val, item) => {
-    const ghiChu = val.target.value;
 
-    const newData = [...ListViTri];
-    const vitri = [...SelectedViTri];
-
-    newData.forEach((ct, index) => {
-      if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
-        ct.ghiChu = ghiChu;
-      }
-    });
-    vitri.forEach((ct, index) => {
-      if (ct.lkn_ChiTietKhoVatTu_Id === item.lkn_ChiTietKhoVatTu_Id) {
-        ct.ghiChu = ghiChu;
-      }
-    });
-    setListViTri(newData);
-    setSelectedViTri(vitri);
-  };
-
-  const renderGhiChu = (item) => {
-    return (
-      <>
-        <Input
-          style={{
-            textAlign: "center",
-            width: "100%",
-          }}
-          className={`input-item`}
-          type="number"
-          value={item.ghiChu}
-          onChange={(val) => handleInputGhiChu(val, item)}
-        />
-      </>
-    );
-  };
   let colListViTri = [
     {
       title: "STT",
@@ -342,7 +307,6 @@ function ModalThemVatTu({
       align: "center",
       width: 50,
     },
-
     {
       title: "Vị trí",
       dataIndex: "viTri",

@@ -15,7 +15,7 @@ import {
   getThangNow,
 } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { reDataForTable, getLocalStorage } from "src/util/Common";
+import { reDataForTable } from "src/util/Common";
 
 import {
   ModalDeleteConfirm,
@@ -31,7 +31,6 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function KeHoachGiaoXe({ match, history, permission }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
-  const INFO = getLocalStorage("menu");
   const [data, setData] = useState([]);
   const [VersionSelect, setVersionSelect] = useState([]);
   const [Thang, setThang] = useState(getThangNow());

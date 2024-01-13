@@ -17,7 +17,7 @@ import {
   Upload,
   Image,
 } from "antd";
-import { includes, isEmpty, map } from "lodash";
+import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState, useRef, useContext } from "react";
@@ -39,11 +39,9 @@ import {
   getLocalStorage,
   getTokenInfo,
   reDataForTable,
-  removeDuplicates,
   renderPDF,
 } from "src/util/Common";
 import ModalTuChoi from "./ModalTuChoi";
-import dayjs from "dayjs";
 import AddSanPham from "./AddSanPham";
 import ImportSanPham from "./ImportSanPham";
 const EditableContext = React.createContext(null);
@@ -159,12 +157,10 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
   const [disableUpload, setDisableUpload] = useState(false);
   const [FileChat, setFileChat] = useState("");
   const [openImage, setOpenImage] = useState(false);
-  const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
+  const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   const [infoSanPham, setInfoSanPham] = useState({});
   const [ActiveModal, setActiveModal] = useState(false);
-
-  const [editingRecord, setEditingRecord] = useState([]);
   const [ActiveModalImport, setActiveModalImport] = useState(false);
 
   useEffect(() => {
@@ -368,120 +364,6 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
     );
   };
 
-  // const renderSoLuong = (record) => {
-  //   if (record) {
-  //     const isEditing =
-  //       editingRecord &&
-  //       editingRecord.lkn_ChiTietBOM_Id === record.lkn_ChiTietBOM_Id;
-
-  //     return type === "new" || type === "edit" ? (
-  //       <div>
-  //         <Input
-  //           min={0}
-  //           style={{
-  //             textAlign: "center",
-  //             width: "100%",
-  //             borderColor: isEditing && hasError ? "red" : "",
-  //           }}
-  //           className={`input-item ${
-  //             isEditing && hasError ? "input-error" : ""
-  //           }`}
-  //           value={record.soLuong}
-  //           type="number"
-  //           onChange={(val) => handleInputChange(val, record)}
-  //         />
-  //         {isEditing && hasError && (
-  //           <div style={{ color: "red" }}>{errorMessage}</div>
-  //         )}
-  //       </div>
-  //     ) : (
-  //       record.soLuong
-  //     );
-  //   }
-  //   return null;
-  // };
-
-  // const handleInputChange = (val, record) => {
-  //   const sl = val.target.value;
-
-  //   if (sl === null || sl === "") {
-  //     setHasError(true);
-  //     setErrorMessage("Vui lòng nhập số lượng");
-  //     setFieldTouch(false);
-  //   } else {
-  //     if (sl <= 0) {
-  //       setHasError(true);
-  //       setErrorMessage("Số lượng xuất phải lớn hơn 0");
-  //       setFieldTouch(false);
-  //     } else {
-  //       setHasError(false);
-  //       setErrorMessage(null);
-  //       setFieldTouch(true);
-  //     }
-  //   }
-  //   setEditingRecord(record);
-
-  //   setListSanPham((prevListSanPham) => {
-  //     return prevListSanPham.map((item) => {
-  //       if (record.lkn_ChiTietBOM_Id === item.lkn_ChiTietBOM_Id) {
-  //         return {
-  //           ...item,
-  //           soLuong: sl ? parseFloat(sl) : 0,
-  //         };
-  //       }
-  //       return item;
-  //     });
-  //   });
-  // };
-
-  // const handleInputChange = (val, item) => {
-  //   const soLuong = val.target.value;
-  //   if (isEmpty(soLuong) || Number(soLuong) <= 0) {
-  //     setFieldTouch(false);
-  //     setEditingRecord([...editingRecord, item]);
-  //     item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
-  //   } else {
-  //     const newData = editingRecord.filter(
-  //       (d) => d.lkn_ChiTietBOM_Id !== item.lkn_ChiTietBOM_Id
-  //     );
-  //     setEditingRecord(newData);
-  //     newData.length === 0 && setFieldTouch(true);
-  //   }
-  //   const newData = [...ListSanPham];
-  //   newData.forEach((ct, index) => {
-  //     if (ct.lkn_ChiTietBOM_Id === item.lkn_ChiTietBOM_Id) {
-  //       ct.soLuong = soLuong;
-  //     }
-  //   });
-  //   setListSanPham(newData);
-  // };
-
-  // const rendersoLuong = (item) => {
-  //   let isEditing = false;
-  //   let message = "";
-  //   editingRecord.forEach((ct) => {
-  //     if (ct.lkn_ChiTietBOM_Id === item.lkn_ChiTietBOM_Id) {
-  //       isEditing = true;
-  //       message = ct.message;
-  //     }
-  //   });
-  //   return (
-  //     <>
-  //       <Input
-  //         style={{
-  //           textAlign: "center",
-  //           width: "100%",
-  //         }}
-  //         className={`input-item`}
-  //         type="number"
-  //         value={item.soLuong}
-  //         disabled={type === "new" || type === "edit" ? false : true}
-  //         onChange={(val) => handleInputChange(val, item)}
-  //       />
-  //       {isEditing && <div style={{ color: "red" }}>{message}</div>}
-  //     </>
-  //   );
-  // };
   let colValues = [
     {
       title: "STT",
@@ -871,9 +753,7 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
     showUploadList: false,
     maxCount: 1,
   };
-  const disabledDate = (current) => {
-    return current && current < dayjs().startOf("day");
-  };
+
   const addSanPhamImport = (data) => {
     setListSanPham([...data, ...ListSanPham]);
     setFieldTouch(true);

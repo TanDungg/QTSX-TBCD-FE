@@ -45,10 +45,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
   const [DataLoi, setDataLoi] = useState();
   const [message, setMessageError] = useState([]);
   const [DisableTaiFile, setDisableTaiFile] = useState(false);
-  const [listKeHoach, setListKeHoach] = useState([]);
   const [listXuong, setListXuong] = useState([]);
-  const [KeHoach, setKeHoach] = useState();
-  const [TenKeHoach, setTenKeHoach] = useState();
   const [TenXuong, setTenXuong] = useState();
 
   const [Xuong, setXuong] = useState();
@@ -72,29 +69,6 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_LoaiKeHoach?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListKeHoach(res.data);
-          setKeHoach(res.data[1].id);
-          setTenKeHoach(res.data[1].tenLoaiKeHoach);
-        } else {
-          setListKeHoach([]);
-        }
-      })
-      .catch((error) => console.error(error));
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
           `tits_qtsx_Xuong?page=-1`,
           "GET",
           null,
@@ -108,7 +82,6 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
       .then((res) => {
         if (res && res.data) {
           const xuong = res.data;
-
           setListXuong(xuong);
         } else {
           setListXuong([]);

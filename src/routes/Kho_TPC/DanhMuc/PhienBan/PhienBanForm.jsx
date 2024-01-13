@@ -1,10 +1,10 @@
 import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Card, Checkbox, Form, Input, Upload } from "antd";
+import { Button, Card, Form, Input, Upload } from "antd";
 import includes from "lodash/includes";
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit, Select } from "src/components/Common";
+import { FormSubmit } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import Helpers from "src/helpers";

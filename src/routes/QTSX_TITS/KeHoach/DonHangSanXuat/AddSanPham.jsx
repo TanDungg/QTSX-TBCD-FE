@@ -23,7 +23,7 @@ function AddSanPham({
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListMauSac, setListMauSac] = useState([]);
   const [form] = Form.useForm();
-  const { validateFields, resetFields, setFieldsValue } = form;
+  const { resetFields, setFieldsValue } = form;
   useEffect(() => {
     if (openModal) {
       getLoaiSanPham();

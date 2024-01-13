@@ -35,7 +35,6 @@ function SanPhamHinhAnh({ history, permission }) {
   const [ActiveModalSaoChep, setActiveModalSaoChep] = useState(false);
   const [ActiveModalThemHinhAnh, setActiveModalThemHinhAnh] = useState(false);
   const [DisabledModalDoiHinhAnh, setDisabledModalDoiHinhAnh] = useState(false);
-  const [DataHinhAnh, setDataHinhAnh] = useState(null);
   const [FileHinhAnh, setFileHinhAnh] = useState(null);
   const [FileAnh, setFileAnh] = useState(null);
   const [DisableUploadHinhAnh, setDisableUploadHinhAnh] = useState(false);
@@ -152,23 +151,6 @@ function SanPhamHinhAnh({ history, permission }) {
     );
   };
 
-  const handleDeleteClick = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.tenKhuVuc, "hình ảnh của ");
-  };
-
-  const deleteItemAction = (item) => {
-    let url = `tits_qtsx_SanPhamHinhAnh/${item.id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        if (res.status !== 409) {
-          getListData(SanPham);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
   const props = {
     accept: "image/png, image/jpeg",
     beforeUpload: (file) => {
@@ -189,7 +171,6 @@ function SanPhamHinhAnh({ history, permission }) {
   };
 
   const handleThayDoiHinhAnh = (item) => {
-    setDataHinhAnh(item);
     setDisabledModalDoiHinhAnh(true);
   };
 

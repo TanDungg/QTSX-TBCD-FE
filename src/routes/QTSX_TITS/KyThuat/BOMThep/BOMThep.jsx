@@ -27,7 +27,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function BOMThep({ match, history, permission }) {
-  const { width, loading, data } = useSelector(({ common }) => common).toJS();
+  const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [ListSanPham, setListSanPham] = useState([]);
@@ -498,14 +498,7 @@ function BOMThep({ match, history, permission }) {
     setPage(1);
     getListData("", IsDuyet, IsThepTam, keyword, 1);
   };
-  const handleChangeNgay = (dateString) => {
-    if (IsDuyet !== dateString[0] && IsThepTam !== dateString[1]) {
-      setIsDuyet(dateString[0]);
-      setIsThepTam(dateString[1]);
-      setPage(1);
-      getListData(SanPham, dateString[0], dateString[1], keyword, 1);
-    }
-  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader

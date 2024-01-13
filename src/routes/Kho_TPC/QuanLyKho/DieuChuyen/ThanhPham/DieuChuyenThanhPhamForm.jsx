@@ -1,25 +1,12 @@
 import {
   CloseCircleOutlined,
-  CloseOutlined,
   DeleteOutlined,
-  PlusCircleOutlined,
   RollbackOutlined,
   SaveOutlined,
 } from "@ant-design/icons";
-import {
-  Card,
-  Form,
-  Input,
-  Row,
-  Col,
-  DatePicker,
-  Button,
-  Tag,
-  Divider,
-} from "antd";
+import { Card, Form, Input, Row, Col, Button, Tag, Divider } from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
-import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
@@ -35,7 +22,6 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_DIEUCHUYEN_THANHLY } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
-  createGuid,
   getLocalStorage,
   getTokenInfo,
   reDataForTable,
@@ -61,7 +47,6 @@ const DieuChuyenThanhPhamForm = ({ history, match, permission }) => {
   const [editingRecord, setEditingRecord] = useState([]);
   const [DisabledSave, setDisabledSave] = useState(true);
   const [selectedDevice, setSelectedDevice] = useState([]);
-
   const [selectedKeys, setSelectedKeys] = useState([]);
   useEffect(() => {
     const load = () => {

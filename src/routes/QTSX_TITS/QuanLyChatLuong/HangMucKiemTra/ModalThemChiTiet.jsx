@@ -30,7 +30,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
 
   useEffect(() => {
     if (openModal) {
-      if (itemData.loai === "new") {
+      if (itemData.type === "add") {
         getListDonVi();
         getListXuong();
         setFieldsValue({
@@ -38,7 +38,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
             donVi_Id: INFO.donVi_Id.toLowerCase(),
           },
         });
-      } else if (itemData.loai === "edit") {
+      } else if (itemData.type === "edit") {
         getListDonVi();
         getListXuong();
         getListTram(itemData.tits_qtsx_Xuong_Id);
@@ -134,11 +134,12 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
   };
 
   const saveData = (themchitiet, saveQuit = false) => {
-    if (itemData.loai === "new") {
+    if (itemData.type === "add") {
       const newData = {
         ...themchitiet,
-        tits_qtsx_HangMucKiemTra_Id: itemData.tits_qtsx_HangMucKiemTra_Id,
-        tits_qtsx_HangMucKiemTraChiTiet_Id: itemData.id,
+        tits_qtsx_HangMucKiemTraTieuDePhu_Id:
+          itemData.tits_qtsx_HangMucKiemTraTieuDePhu_Id &&
+          itemData.tits_qtsx_HangMucKiemTraTieuDePhu_Id,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -154,7 +155,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
         );
       })
         .then((res) => {
-          if (res && res.status !== 409) {
+          if (res && res.status === 200) {
             if (saveQuit) {
               handleCancel();
             } else {
@@ -177,15 +178,15 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
         })
         .catch((error) => console.error(error));
     }
-    if (itemData.loai === "edit") {
+    if (itemData.type === "edit") {
       const newData = {
         ...themchitiet,
-        id: itemData.id,
+        id: itemData.tits_qtsx_HangMucKiemTraChiTiet_Id,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_HangMucKiemTra/hang-muc-kiem-tra-chi-tiet/${itemData.id}`,
+            `tits_qtsx_HangMucKiemTra/hang-muc-kiem-tra-chi-tiet/${itemData.tits_qtsx_HangMucKiemTraChiTiet_Id}`,
             "PUT",
             newData,
             "EDIT",
@@ -196,7 +197,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
         );
       })
         .then((res) => {
-          if (res && res.status !== 409) {
+          if (res && res.status === 200) {
             if (saveQuit) {
               handleCancel();
             } else {
@@ -220,16 +221,16 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
     refesh();
   };
   const title =
-    itemData.loai === "new" ? (
+    itemData.type === "add" ? (
       <span>
-        Thêm mới chi tiết hạng mục kiểm tra{" "}
-        <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
+        Thêm mới chi tiết hạng mục kiểm tra chi tiết{" "}
+        {/* <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
           {itemData && itemData.tenHangMucKiemTra}
-        </Tag>
+        </Tag> */}
       </span>
     ) : (
       <span>
-        Chỉnh sửa chi tiết hạng mục kiểm tra{" "}
+        Chỉnh sửa chi tiết hạng mục kiểm tra chi tiết{" "}
         <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
           {itemData && itemData.maSo}
         </Tag>
@@ -244,27 +245,184 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
       onCancel={handleCancel}
       footer={null}
       bodyStyle={{
-        height:
-          cardRef.current && cardRef.current.clientHeight <= 640
-            ? cardRef.current && cardRef.current.clientHeight + 60
-            : 700,
-        overflowY: "auto",
+        paddingBottom: 0,
       }}
     >
       <div className="gx-main-content">
-        <Card
-          ref={cardRef}
-          className="th-card-margin-bottom"
-          style={{ marginBottom: 20 }}
+        <Form
+          {...DEFAULT_FORM_XUATKHONGOAIQUAN}
+          form={form}
+          name="nguoi-dung-control"
+          onFinish={onFinish}
+          onFieldsChange={() => setFieldTouch(true)}
         >
-          <Form
-            {...DEFAULT_FORM_XUATKHONGOAIQUAN}
-            form={form}
-            name="nguoi-dung-control"
-            onFinish={onFinish}
-            onFieldsChange={() => setFieldTouch(true)}
-          >
-            <Row>
+          <Row>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Mã số"
+                name={["themchitiet", "maSo"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input className="input-item" placeholder="Nhập mã số" />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Nhà máy"
+                name={["themchitiet", "donVi_Id"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListDonVi ? ListDonVi : []}
+                  optionsvalue={["id", "tenDonVi"]}
+                  style={{ width: "100%" }}
+                  placeholder="Chọn đơn vị nhà máy"
+                  showSearch
+                  optionFilterProp={"name"}
+                  disabled={true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Xưởng"
+                name={["themchitiet", "tits_qtsx_Xuong_Id"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListXuong ? ListXuong : []}
+                  placeholder="Chọn xưởng"
+                  optionsvalue={["id", "tenXuong"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  onSelect={handleSelectXuong}
+                  disabled={itemData.type === "add" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Trạm"
+                name={["themchitiet", "tits_qtsx_Tram_Id"]}
+                rules={[
+                  {
+                    required: true,
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListTram ? ListTram : []}
+                  placeholder="Chọn trạm"
+                  optionsvalue={["id", "tenTram"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp="name"
+                  disabled={itemData.type === "add" ? false : true}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Nội dung kiểm tra"
+                name={["themchitiet", "noiDungKiemTra"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Input
+                  className="input-item"
+                  placeholder="Nhập nội dung kiểm tra"
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Tiêu chuẩn đánh giá"
+                name={["themchitiet", "tieuChuanDanhGia"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input
+                  className="input-item"
+                  placeholder="Nhập tiêu chuẩn đánh giá"
+                />
+              </FormItem>
+            </Col>
+            {itemData && !itemData.isNoiDung && (
               <Col
                 xxl={12}
                 xl={12}
@@ -275,137 +433,25 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Mã số"
-                  name={["themchitiet", "maSo"]}
+                  label="Giá trị tiêu chuẩn MIN"
+                  name={["themchitiet", "giaTriMin"]}
                   rules={[
                     {
-                      required: true,
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Input className="input-item" placeholder="Nhập mã số" />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Nhà máy"
-                  name={["themchitiet", "donVi_Id"]}
-                  rules={[
-                    {
-                      required: true,
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListDonVi ? ListDonVi : []}
-                    optionsvalue={["id", "tenDonVi"]}
-                    style={{ width: "100%" }}
-                    placeholder="Chọn đơn vị nhà máy"
-                    showSearch
-                    optionFilterProp={"name"}
-                    disabled={true}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Xưởng"
-                  name={["themchitiet", "tits_qtsx_Xuong_Id"]}
-                  rules={[
-                    {
-                      required: true,
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListXuong ? ListXuong : []}
-                    placeholder="Chọn xưởng"
-                    optionsvalue={["id", "tenXuong"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp="name"
-                    onSelect={handleSelectXuong}
-                    disabled={itemData.loai === "new" ? false : true}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Trạm"
-                  name={["themchitiet", "tits_qtsx_Tram_Id"]}
-                  rules={[
-                    {
-                      required: true,
-                      type: "string",
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListTram ? ListTram : []}
-                    placeholder="Chọn trạm"
-                    optionsvalue={["id", "tenTram"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp="name"
-                    disabled={itemData.loai === "new" ? false : true}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Nội dung kiểm tra"
-                  name={["themchitiet", "noiDungKiemTra"]}
-                  rules={[
-                    {
-                      type: "string",
                       required: true,
                     },
                   ]}
                 >
                   <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
                     className="input-item"
-                    placeholder="Nhập nội dung kiểm tra"
+                    placeholder="Nhập giá trị tiêu chuẩn MIN"
                   />
                 </FormItem>
               </Col>
+            )}
+            {itemData && !itemData.isNoiDung && (
               <Col
                 xxl={12}
                 xl={12}
@@ -416,8 +462,66 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Tiêu chuẩn đánh giá"
-                  name={["themchitiet", "tieuChuanDanhGia"]}
+                  label="Giá trị tiêu chuẩn MAX"
+                  name={["themchitiet", "giaTriMax"]}
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    className="input-item"
+                    placeholder="Nhập giá trị tiêu chuẩn MAX"
+                  />
+                </FormItem>
+              </Col>
+            )}
+            {itemData && itemData.isNoiDung && (
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Giá trị tiêu chuẩn"
+                  name={["themchitiet", "giaTriTieuChuan"]}
+                  rules={[
+                    {
+                      type: "string",
+                    },
+                  ]}
+                >
+                  <Input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    className="input-item"
+                    placeholder="Nhập giá trị tiêu chuẩn"
+                  />
+                </FormItem>
+              </Col>
+            )}
+            {itemData && itemData.isNoiDung && (
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Phương pháp tiêu chuẩn"
+                  name={["themchitiet", "phuongPhapTieuChuan"]}
                   rules={[
                     {
                       type: "string",
@@ -426,131 +530,18 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
                 >
                   <Input
                     className="input-item"
-                    placeholder="Nhập tiêu chuẩn đánh giá"
+                    placeholder="Nhập phương pháp tiêu chuẩn"
                   />
                 </FormItem>
               </Col>
-              {itemData && !itemData.isNoiDung && (
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Giá trị tiêu chuẩn MIN"
-                    name={["themchitiet", "giaTriMin"]}
-                    rules={[
-                      {
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      className="input-item"
-                      placeholder="Nhập giá trị tiêu chuẩn MIN"
-                    />
-                  </FormItem>
-                </Col>
-              )}
-              {itemData && !itemData.isNoiDung && (
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Giá trị tiêu chuẩn MAX"
-                    name={["themchitiet", "giaTriMax"]}
-                    rules={[
-                      {
-                        required: true,
-                      },
-                    ]}
-                  >
-                    <Input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      className="input-item"
-                      placeholder="Nhập giá trị tiêu chuẩn MAX"
-                    />
-                  </FormItem>
-                </Col>
-              )}
-              {itemData && itemData.isNoiDung && (
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Giá trị tiêu chuẩn"
-                    name={["themchitiet", "giaTriTieuChuan"]}
-                    rules={[
-                      {
-                        type: "string",
-                      },
-                    ]}
-                  >
-                    <Input
-                      type="number"
-                      min={0}
-                      step="0.01"
-                      className="input-item"
-                      placeholder="Nhập giá trị tiêu chuẩn"
-                    />
-                  </FormItem>
-                </Col>
-              )}
-              {itemData && itemData.isNoiDung && (
-                <Col
-                  xxl={12}
-                  xl={12}
-                  lg={24}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{ marginBottom: 8 }}
-                >
-                  <FormItem
-                    label="Phương pháp tiêu chuẩn"
-                    name={["themchitiet", "phuongPhapTieuChuan"]}
-                    rules={[
-                      {
-                        type: "string",
-                      },
-                    ]}
-                  >
-                    <Input
-                      className="input-item"
-                      placeholder="Nhập phương pháp tiêu chuẩn"
-                    />
-                  </FormItem>
-                </Col>
-              )}
-            </Row>
-            <FormSubmit
-              goBack={handleCancel}
-              saveAndClose={saveAndClose}
-              disabled={fieldTouch}
-            />
-          </Form>
-        </Card>
+            )}
+          </Row>
+          <FormSubmit
+            goBack={handleCancel}
+            saveAndClose={saveAndClose}
+            disabled={fieldTouch}
+          />
+        </Form>
       </div>
     </AntModal>
   );
