@@ -1,6 +1,9 @@
 import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
+  RollbackOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
 import {
@@ -65,7 +68,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
   const [ListUserKy, setListUserKy] = useState([]);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
-  const [ChungTu, setChungTu] = useState([]);
+  const [ListChungTu, setListChungTu] = useState([]);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [DisabledXacNhan, setDisabledXacNhan] = useState(false);
 
@@ -196,7 +199,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     }).then((res) => {
       if (res && res.data) {
         const newChungTu = res.data.filter((d) => d.id === cautruckho);
-        setChungTu(
+        setListChungTu(
           newChungTu &&
             newChungTu[0].chiTietChungTus &&
             JSON.parse(newChungTu[0].chiTietChungTus)
@@ -304,7 +307,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               newListChungTu[key] = chungtu.fileChungTu;
             });
 
-          setChungTu(listchungtu && listchungtu);
+          setListChungTu(listchungtu && listchungtu);
           setFieldsValue({
             phieunhapkhovattu: {
               ...res.data,
@@ -402,8 +405,8 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       <div>
         {record.list_ViTriLuuKhos.map((vt) => {
           const vitri = `${vt.tenKe && vt.tenKe}${
-            vt.tenTang && ` - ${vt.tenTang}`
-          }${vt.tenNgan && ` - ${vt.tenNgan}`}`;
+            vt.tenTang ? ` - ${vt.tenTang}` : ""
+          }${vt.tenNgan ? ` - ${vt.tenNgan}` : ""}`;
           return (
             <Tag
               color="blue"
@@ -545,11 +548,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       }),
     };
   });
-  /**
-   * Khi submit
-   *
-   * @param {*} values
-   */
+
   const onFinish = (values) => {
     uploadFile(values.phieunhapkhovattu);
   };
@@ -567,8 +566,9 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         console.log("error", error);
       });
   };
+
   const uploadFile = (phieunhapkhovattu, saveQuit) => {
-    if (type === "new" && ChungTu) {
+    if (type === "new" && ListChungTu) {
       const formData = new FormData();
       Object.keys(phieunhapkhovattu).forEach((key) => {
         if (key.startsWith("fileChungTu") && phieunhapkhovattu[key] !== "") {
@@ -607,7 +607,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
             ngayNhapKho: phieunhapkhovattu.ngayNhapKho.format(
               "DD/MM/YYYY HH:mm:ss"
             ),
-            list_ChungTu: ChungTu.map((chungtu) => {
+            list_ChungTu: ListChungTu.map((chungtu) => {
               const filechungtu = [];
               for (const key in phieunhapkhovattu) {
                 if (
@@ -629,11 +629,11 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         .catch(() => {
           console.log("upload failed.");
         });
-    } else if (type === "edit" && ChungTu) {
+    } else if (type === "edit" && ListChungTu) {
       const formData = new FormData();
       Object.keys(phieunhapkhovattu).forEach((key) => {
         if (key.startsWith("fileChungTu")) {
-          phieunhapkhovattu[key].file &&
+          phieunhapkhovattu[key] &&
             formData.append("lstFiles", phieunhapkhovattu[key].file);
         }
       });
@@ -671,7 +671,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
             ngayNhapKho: phieunhapkhovattu.ngayNhapKho.format(
               "DD/MM/YYYY HH:mm:ss"
             ),
-            list_ChungTu: ChungTu.map((chungtu) => {
+            list_ChungTu: ListChungTu.map((chungtu) => {
               const filechungtu = [];
               for (const key in phieunhapkhovattu) {
                 if (
@@ -693,18 +693,6 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         .catch(() => {
           console.log("upload failed.");
         });
-    } else {
-      const newData = {
-        ...phieunhapkhovattu,
-        id: id,
-        tits_qtsx_PhieuKiemTraVatTu_Id: info.tits_qtsx_PhieuKiemTraVatTu_Id,
-        ngayNhapKho: phieunhapkhovattu.ngayNhapKho.format(
-          "DD/MM/YYYY HH:mm:ss"
-        ),
-        list_ChungTu: ChungTu,
-        tits_qtsx_PhieuNhapKhoVatTuChiTiets: ListVatTu,
-      };
-      saveData(newData, saveQuit);
     }
   };
 
@@ -734,7 +722,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               getListPhieuKiemTra();
               getPhieuNhanHang();
               getKho();
-              setChungTu([]);
+              setListChungTu([]);
               setFieldsValue({
                 phieunhapkhovattu: {
                   ngayNhapKho: moment(
@@ -768,10 +756,14 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       })
         .then((res) => {
           if (saveQuit) {
-            if (res.status !== 409) goBack();
+            goBack();
           } else {
-            getInfo(id);
-            setFieldTouch(false);
+            if (res.status !== 409) {
+              getInfo(id);
+              setFieldTouch(false);
+            } else {
+              setFieldTouch(false);
+            }
           }
         })
         .catch((error) => console.error(error));
@@ -824,7 +816,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuNhapKhoVatTu/xac-nhan/${id}`,
+          `tits_qtsx_PhieuNhapKhoVatTu/duyet/${id}`,
           "PUT",
           newData,
           "TUCHOI",
@@ -870,24 +862,31 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     const chungtu = [];
     const [FileChungTu, setFileChungTu] = useState([]);
 
-    const handleFileChange = (index, file) => {
+    const handleFileChange = (index, file, key) => {
+      setFieldTouch(key);
       setFileChungTu((prevFileChungTu) => {
         const newChungTu = [...prevFileChungTu];
         newChungTu[index] = file;
         return newChungTu;
       });
-    };
 
+      const maChungTu = ListChungTu[index].maChungTu;
+      setFieldsValue({
+        phieunhapkhovattu: {
+          [`fileChungTu${maChungTu}`]: file,
+        },
+      });
+    };
     useEffect(() => {
-      ChungTu &&
-        ChungTu.forEach((item, i) => {
+      ListChungTu &&
+        ListChungTu.forEach((item, i) => {
           if (item.fileChungTu) {
-            handleFileChange(i, item.fileChungTu);
+            handleFileChange(i, item.fileChungTu, false);
           }
         });
-    }, [ChungTu]);
+    }, [ListChungTu]);
 
-    for (let i = 0; i < (ChungTu && ChungTu.length); i++) {
+    for (let i = 0; i < (ListChungTu && ListChungTu.length); i++) {
       const props = {
         accept: ".pdf",
         beforeUpload: (file) => {
@@ -896,7 +895,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           if (!isPDF) {
             Helpers.alertError(`${file.name} không phải là file PDF`);
           } else {
-            handleFileChange(i, file);
+            handleFileChange(i, file, true);
             return false;
           }
         },
@@ -916,8 +915,11 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           style={{ marginBottom: 8 }}
         >
           <Form.Item
-            label={`File chứng từ ${ChungTu[i].maChungTu}`}
-            name={["phieunhapkhovattu", `fileChungTu${ChungTu[i].maChungTu}`]}
+            label={`File chứng từ ${ListChungTu[i].maChungTu}`}
+            name={[
+              "phieunhapkhovattu",
+              `fileChungTu${ListChungTu[i].maChungTu}`,
+            ]}
             rules={[
               {
                 type: "file",
@@ -932,7 +934,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                   icon={<UploadOutlined />}
                   disabled={type === "xacnhan" || type === "detail"}
                 >
-                  File chứng từ {ChungTu[i].maChungTu}
+                  File chứng từ {ListChungTu[i].maChungTu}
                 </Button>
               </Upload>
             ) : FileChungTu[i].name ? (
@@ -951,7 +953,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 <DeleteOutlined
                   style={{ cursor: "pointer", color: "red" }}
                   disabled={type === "edit" ? false : true}
-                  onClick={() => handleFileChange(i, null)}
+                  onClick={() => handleFileChange(i, null, true)}
                 />
               </span>
             ) : (
@@ -972,7 +974,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                     style={{ cursor: "pointer", color: "red" }}
                     disabled={type === "edit" ? false : true}
                     onClick={() => {
-                      handleFileChange(i, null);
+                      handleFileChange(i, null, true);
                     }}
                   />
                 )}
@@ -1348,30 +1350,38 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         />
       </Card>
       {type === "xacnhan" && info.tinhTrang === "Chưa xác nhận" && (
-        <Row justify={"end"} style={{ marginTop: 15 }}>
-          <Col style={{ marginRight: 15 }}>
-            <Button
-              type="primary"
-              onClick={modalXK}
-              disabled={
-                info.tinhTrang !== "Chưa xác nhận" || DisabledXacNhan === true
-              }
-            >
-              Xác nhận
-            </Button>
-          </Col>
-          <Col style={{ marginRight: 15 }}>
-            <Button
-              type="danger"
-              onClick={() => setActiveModalTuChoi(true)}
-              disabled={
-                info.tinhTrang !== "Chưa xác nhận" || DisabledXacNhan === true
-              }
-            >
-              Từ chối
-            </Button>
-          </Col>
-        </Row>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <Button
+            icon={<RollbackOutlined />}
+            className="th-margin-bottom-0"
+            type="default"
+            onClick={goBack}
+          >
+            Quay lại
+          </Button>
+          <Button
+            icon={<CheckCircleOutlined />}
+            className="th-margin-bottom-0"
+            type="primary"
+            onClick={modalXK}
+            disabled={
+              info.tinhTrang !== "Chưa xác nhận" || DisabledXacNhan === true
+            }
+          >
+            Xác nhận
+          </Button>
+          <Button
+            icon={<CloseCircleOutlined />}
+            className="th-margin-bottom-0"
+            type="danger"
+            onClick={() => setActiveModalTuChoi(true)}
+            disabled={
+              info.tinhTrang !== "Chưa xác nhận" || DisabledXacNhan === true
+            }
+          >
+            Từ chối
+          </Button>
+        </div>
       )}
       {type === "edit" ? (
         <FormSubmit

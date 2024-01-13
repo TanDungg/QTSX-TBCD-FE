@@ -264,7 +264,14 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
           className={`input-item`}
           type="number"
           value={record[key]}
-          disabled={type === "new" || type === "edit" ? false : true}
+          disabled={
+            type === "detail" ||
+            (key === "soLuongLoi" &&
+            record.isThongSoKyThuat === "true" &&
+            record.isNgoaiQuan === "true"
+              ? true
+              : false)
+          }
           onChange={(val) => handleThongTinSoLuong(val, record, key)}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
@@ -326,7 +333,14 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
         style={{ width: "100%" }}
         onSelect={(value) => handleThongTinDatTinh(value, record, key)}
         value={record[key]}
-        disabled={type === "detail" ? true : false}
+        disabled={
+          type === "detail" ||
+          (key === "tits_qtsx_LoiVatTu_Id" &&
+          record.isThongSoKyThuat === "true" &&
+          record.isNgoaiQuan === "true"
+            ? true
+            : false)
+        }
       />
     );
   };

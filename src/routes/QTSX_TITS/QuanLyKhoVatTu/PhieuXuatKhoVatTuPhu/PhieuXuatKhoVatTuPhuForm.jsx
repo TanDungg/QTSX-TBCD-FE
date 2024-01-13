@@ -42,6 +42,7 @@ import {
 } from "src/util/Common";
 import { useLocation } from "react-router-dom";
 import ModalTuChoi from "./ModalTuChoi";
+import ModalChonViTri from "./ModalChonViTri";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
