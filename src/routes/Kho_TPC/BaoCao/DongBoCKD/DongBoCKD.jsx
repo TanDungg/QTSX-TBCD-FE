@@ -1,16 +1,10 @@
-import { DownloadOutlined } from "@ant-design/icons";
-import { Button, Card, Row, Col, DatePicker } from "antd";
-import { map, isEmpty } from "lodash";
+import { Card, Row, Col, DatePicker } from "antd";
+import { map } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { exportExcel, getDateNow, reDataForTable } from "src/util/Common";
-import {
-  EditableTableRow,
-  Table,
-  Select,
-  Toolbar,
-} from "src/components/Common";
+import { getDateNow, reDataForTable } from "src/util/Common";
+import { EditableTableRow, Table, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 import moment from "moment";
@@ -21,17 +15,21 @@ function DongBoCKD({ permission, history }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
-  const [Lot, setLot] = useState("");
+  const Lot = "";
+  // const [Lot, setLot] = useState("");
   const [SanPham, setSanPham] = useState("");
   const [ListSanPham, setListSanPham] = useState([]);
-  const [ListLot, setListLot] = useState([]);
+  const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
+  const [LoaiSanPham, setLoaiSanPham] = useState("");
+  // const [ListLot, setListLot] = useState([]);
   const [TuNgay, setTuNgay] = useState(getDateNow(-new Date().getDate() + 1));
   const [DenNgay, setDenNgay] = useState(getDateNow());
-  const [keyword, setKeyword] = useState(null);
+  // const [keyword, setKeyword] = useState(null);
 
   useEffect(() => {
     if (permission && permission.view) {
-      getSanPham();
+      getLoaiSanPham();
+      getListData(LoaiSanPham, SanPham, Lot, TuNgay, DenNgay);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -39,17 +37,48 @@ function DongBoCKD({ permission, history }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListData = (lot_Id, sanPham_Id, TuNgay, DenNgay) => {
+  const getListData = (loaiSanPham_Id, sanPham_Id, lot_Id, TuNgay, DenNgay) => {
     let param = convertObjectToUrlParams({
       lot_Id,
       TuNgay,
       DenNgay,
       sanPham_Id,
+      loaiSanPham_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_BaoCao/bao-cao-ton-SanPham-theo-SanPham-sp-vt?${param}`,
+          `lkn_BaoCao/bao-cao-dong-bo-ckd?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status === 200) {
+          const newData = [];
+          res.data.forEach((dt) => {
+            dt.list_chiTiet.forEach((ct) => {
+              newData.push({
+                ...dt,
+                ...ct,
+              });
+            });
+          });
+          setData(newData);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const getLoaiSanPham = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `LoaiSanPham?page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -61,15 +90,18 @@ function DongBoCKD({ permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
+          setListLoaiSanPham(res.data);
+        } else {
+          setListLoaiSanPham([]);
         }
       })
       .catch((error) => console.error(error));
   };
-  const getSanPham = () => {
+  const getSanPham = (loaiSanPham_Id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_SanPham?page=-1`,
+          `SanPham?loaiSanPham_Id=${loaiSanPham_Id}&&page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -88,16 +120,16 @@ function DongBoCKD({ permission, history }) {
       })
       .catch((error) => console.error(error));
   };
-  const onChangeKeyword = (val) => {
-    setKeyword(val.target.value);
-    if (isEmpty(val.target.value)) {
-      getListData(val.target.value, TuNgay, DenNgay, SanPham);
-    }
-  };
+  // const onChangeKeyword = (val) => {
+  //   setKeyword(val.target.value);
+  //   if (isEmpty(val.target.value)) {
+  //     getListData(val.target.value, TuNgay, DenNgay, SanPham);
+  //   }
+  // };
 
-  const onSearchKeyword = () => {
-    getListData(keyword, TuNgay, DenNgay, SanPham);
-  };
+  // const onSearchKeyword = () => {
+  //   getListData(keyword, TuNgay, DenNgay, SanPham);
+  // };
 
   function removeDuplicates(arr) {
     const uniqueObjects = [];
@@ -113,7 +145,23 @@ function DongBoCKD({ permission, history }) {
   }
 
   const dataList = reDataForTable(Data);
-
+  const renderRow = (record) => {
+    const index = record.list_chiTiet.findIndex(
+      (ct) => ct.maVatTu === record.maVatTu
+    );
+    if (index !== -1) {
+      if (index === 0) {
+        return {
+          rowSpan: record.list_chiTiet.length,
+        };
+      } else {
+        return {
+          rowSpan: 0,
+        };
+      }
+    }
+    return {};
+  };
   let colValues = [
     {
       title: "STT",
@@ -121,13 +169,47 @@ function DongBoCKD({ permission, history }) {
       key: "key",
       width: 50,
       align: "center",
+      onCell: renderRow,
+    },
+    {
+      title: "Tên sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenSanPham,
+            value: d.tenSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenSanPham.includes(value),
+      filterSearch: true,
+      onCell: renderRow,
+    },
+    {
+      title: "Lot",
+      dataIndex: "soLot",
+      key: "soLot",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.soLot,
+            value: d.soLot,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.soLot.includes(value),
+      filterSearch: true,
+      onCell: renderRow,
     },
     {
       title: "Mã vật tư",
       dataIndex: "maVatTu",
       key: "maVatTu",
       align: "center",
-      width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -143,7 +225,8 @@ function DongBoCKD({ permission, history }) {
       title: "Tên vật tư",
       dataIndex: "tenVatTu",
       key: "tenVatTu",
-      width: 250,
+      align: "center",
+
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -154,6 +237,26 @@ function DongBoCKD({ permission, history }) {
       ),
       onFilter: (value, record) => record.tenVatTu.includes(value),
       filterSearch: true,
+    },
+    {
+      title: "Số lượng chi tiết",
+      dataIndex: "soLuongDaNhan",
+      key: "soLuongDaNhan",
+      align: "center",
+    },
+    {
+      title: "Số lượng bộ",
+      dataIndex: "soLuongBoDaNhan",
+      key: "soLuongBoDaNhan",
+      align: "center",
+      onCell: renderRow,
+    },
+    {
+      title: "Số lượng Lot",
+      dataIndex: "soLuongLot",
+      key: "soLuongLot",
+      align: "center",
+      onCell: renderRow,
     },
   ];
   const components = {
@@ -179,67 +282,74 @@ function DongBoCKD({ permission, history }) {
     };
   });
 
-  const XuatExcel = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_BaoCao/export-file-bao-cao-ton-SanPham-theo-SanPham-sp-vt`,
-          "POST",
-          {
-            cauTrucSanPham_Id: SanPham,
-            tuNgay: TuNgay,
-            denNgay: DenNgay,
-            list_ChiTiets: Data,
-          },
-          "",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      exportExcel(
-        `BaoCaoTonSanPham${Lot ? "ThanhPham" : "VatTu"}`,
-        res.data.dataexcel
-      );
-    });
-  };
+  // const XuatExcel = () => {
+  //   new Promise((resolve, reject) => {
+  //     dispatch(
+  //       fetchStart(
+  //         `lkn_BaoCao/export-file-bao-cao-ton-SanPham-theo-SanPham-sp-vt`,
+  //         "POST",
+  //         {
+  //           cauTrucSanPham_Id: SanPham,
+  //           tuNgay: TuNgay,
+  //           denNgay: DenNgay,
+  //           list_ChiTiets: Data,
+  //         },
+  //         "",
+  //         "",
+  //         resolve,
+  //         reject
+  //       )
+  //     );
+  //   }).then((res) => {
+  //     exportExcel(
+  //       `BaoCaoTonSanPham${Lot ? "ThanhPham" : "VatTu"}`,
+  //       res.data.dataexcel
+  //     );
+  //   });
+  // };
 
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<DownloadOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={XuatExcel}
-          disabled={(permission && !permission.add) || Data.length === 0}
-        >
-          Xuất excel
-        </Button>
-      </>
-    );
-  };
+  // const addButtonRender = () => {
+  //   return (
+  //     <>
+  //       <Button
+  //         icon={<DownloadOutlined />}
+  //         className="th-btn-margin-bottom-0"
+  //         type="primary"
+  //         onClick={XuatExcel}
+  //         disabled={(permission && !permission.add) || Data.length === 0}
+  //       >
+  //         Xuất excel
+  //       </Button>
+  //     </>
+  //   );
+  // };
   const handleOnSelectSanPham = (val) => {
     if (val !== SanPham) {
-      ListSanPham.forEach((k) => {
-        if (k.id === val) {
-          if (k.isThanhPham) {
-            setLot(true);
-          } else {
-            setLot(false);
-          }
-        }
-      });
       setSanPham(val);
-      getListData(keyword, TuNgay, DenNgay, val);
+      getListData(LoaiSanPham, val, Lot, TuNgay, DenNgay);
     }
+  };
+  const handleOnSelectLoaiSanPham = (val) => {
+    if (val !== LoaiSanPham) {
+      setLoaiSanPham(val);
+      getSanPham(val);
+      getListData(val, SanPham, Lot, TuNgay, DenNgay);
+    }
+  };
+  const handleOnClearLoaiSanPham = () => {
+    setLoaiSanPham("");
+    setSanPham("");
+    getListData("", "", Lot, TuNgay, DenNgay);
+  };
+  const handleOnClearSanPham = () => {
+    setSanPham("");
+    getListData(LoaiSanPham, "", Lot, TuNgay, DenNgay);
   };
   const handleChangeNgay = (dateString) => {
     if (TuNgay !== dateString[0] || DenNgay !== dateString[1]) {
       setTuNgay(dateString[0]);
       setDenNgay(dateString[1]);
-      getListData(keyword, dateString[0], dateString[1], SanPham);
+      getListData(LoaiSanPham, SanPham, dateString[0], dateString[1]);
     }
   };
 
@@ -248,10 +358,34 @@ function DongBoCKD({ permission, history }) {
       <ContainerHeader
         title={"Báo cáo đồng bộ CKD"}
         description="Báo cáo đồng bộ CKD"
-        buttons={addButtonRender()}
+        // buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ marginBottom: 10 }}>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Loại sản phẩm:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListLoaiSanPham}
+              placeholder="Chọn loại sản phẩm"
+              optionsvalue={["id", "tenLoaiSanPham"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+              onSelect={handleOnSelectLoaiSanPham}
+              onClear={handleOnClearLoaiSanPham}
+              value={LoaiSanPham}
+              allowClear
+            />
+          </Col>
           <Col
             xxl={6}
             xl={8}
@@ -271,7 +405,9 @@ function DongBoCKD({ permission, history }) {
               showSearch
               optionFilterProp="name"
               onSelect={handleOnSelectSanPham}
+              onClear={handleOnClearSanPham}
               value={SanPham}
+              allowClear
             />
           </Col>
           <Col
@@ -294,7 +430,7 @@ function DongBoCKD({ permission, history }) {
               allowClear={false}
             />
           </Col>
-          <Col
+          {/* <Col
             xxl={6}
             xl={8}
             lg={12}
@@ -316,12 +452,12 @@ function DongBoCKD({ permission, history }) {
                 placeholder: "Tìm kiếm",
               }}
             />
-          </Col>
+          </Col> */}
         </Row>
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1200, y: "55vh" }}
+          scroll={{ x: 992, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}

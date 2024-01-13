@@ -25,8 +25,6 @@ import Helpers from "src/helpers";
 import {
   convertObjectToUrlParams,
   getDateNow,
-  getLocalStorage,
-  getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
 
@@ -36,11 +34,6 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
-  const INFO = {
-    ...getLocalStorage("menu"),
-    user_Id: getTokenInfo().id,
-    token: getTokenInfo().token,
-  };
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { resetFields, setFieldsValue } = form;

@@ -9,7 +9,7 @@ import {
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
+import { fetchStart } from "src/appRedux/actions/Common";
 import { EditableTableRow, Table } from "src/components/Common";
 import { isEmpty, map } from "lodash";
 import { reDataForTable } from "src/util/Common";
@@ -130,7 +130,7 @@ function ModalKetThuc({ openModalFS, openModal, itemData, refesh }) {
           align: "center",
           width: 70,
         },
-        ,
+
         {
           title: "Rộng",
           dataIndex: "rong",
@@ -138,7 +138,7 @@ function ModalKetThuc({ openModalFS, openModal, itemData, refesh }) {
           align: "center",
           width: 70,
         },
-        ,
+
         {
           title: "Dày",
           dataIndex: "day",

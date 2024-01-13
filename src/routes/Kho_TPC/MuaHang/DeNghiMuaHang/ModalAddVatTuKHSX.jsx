@@ -16,7 +16,6 @@ import { Select } from "src/components/Common";
 import moment from "moment";
 
 const FormItem = Form.Item;
-const { RangePicker } = DatePicker;
 
 function ModalAddVatTuKHSX({ openModalFS, openModal, refesh, hanldeThem }) {
   const dispatch = useDispatch();
@@ -28,8 +27,7 @@ function ModalAddVatTuKHSX({ openModalFS, openModal, refesh, hanldeThem }) {
   };
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { resetFields, setFieldsValue, getFieldValue } = form;
-  const [firstDate, setFirstDate] = useState(null);
+  const { setFieldsValue, getFieldValue } = form;
   useEffect(() => {
     if (openModal) {
       getXuong();

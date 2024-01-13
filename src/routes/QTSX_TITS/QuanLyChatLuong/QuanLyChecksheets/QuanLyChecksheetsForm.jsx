@@ -15,20 +15,13 @@ import {
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
-import {
-  Input,
-  Select,
-  FormSubmit,
-  ModalDeleteConfirm,
-  Modal,
-} from "src/components/Common";
+import { Input, Select, FormSubmit, Modal } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { getLocalStorage, getTokenInfo } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import {
   DeleteOutlined,
-  EditOutlined,
   UploadOutlined,
   RollbackOutlined,
   SaveOutlined,
@@ -259,61 +252,6 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
         }
       })
       .catch((error) => console.error(error));
-  };
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    const title = "chi tiết";
-    ModalDeleteConfirm(deleteItemAction, item, item.maChiTiet, title);
-  };
-
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    const newData = ListSanPham.filter((d) => d.key !== item.key);
-    setListSanPham(newData);
-  };
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const editItemVal =
-      type === "new" || type === "edit"
-        ? {
-            onClick: () => {
-              // setActiveModalEdit(true);
-              // setTypeAddTable("edit");
-              // setInfoSanPham(item);
-            },
-          }
-        : { disabled: true };
-    const deleteItemVal =
-      type === "new" || type === "edit"
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        <React.Fragment>
-          <a {...editItemVal} title="Xóa">
-            <EditOutlined />
-          </a>
-          <Divider type="vertical" />
-          <a {...deleteItemVal} title="Xóa">
-            <DeleteOutlined />
-          </a>
-        </React.Fragment>
-      </div>
-    );
   };
 
   const props = {
@@ -672,6 +610,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                       setFieldsValue({
                         checkSheets: { tits_qtsx_SanPham_Id: null },
                       });
+                      setListHangMucKiemTra([]);
                     }}
                   />
                 </FormItem>
@@ -714,6 +653,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                         }
                       });
                       setDataModal(newData);
+                      setListHangMucKiemTra([]);
                     }}
                   />
                 </FormItem>
@@ -755,6 +695,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                         }
                       });
                       setDataModal(newData);
+                      setListHangMucKiemTra([]);
                     }}
                   />
                 </FormItem>
@@ -909,7 +850,11 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
         <Col span={24}>
           <h4 style={{ fontWeight: "bold", margin: 0 }}>
             Hạng mục kiểm tra chất lượng{" "}
-            <a
+            <span
+              style={{
+                color: "#0469b9",
+                cursor: "pointer",
+              }}
               onClick={() => setActiveModal(true)}
               disabled={
                 DataModal.tits_qtsx_LoaiSanPham_Id === "" ||
@@ -919,7 +864,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
               }
             >
               <PlusCircleOutlined />
-            </a>
+            </span>
           </h4>
         </Col>
       </Row>

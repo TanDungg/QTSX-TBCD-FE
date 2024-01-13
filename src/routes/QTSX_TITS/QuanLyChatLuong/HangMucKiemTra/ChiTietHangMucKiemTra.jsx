@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, Checkbox, Input } from "antd";
+import { Card, Button, Divider, Row, Col, Input } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -15,9 +15,10 @@ import {
   EditableTableRow,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { reDataForTable, setLocalStorage } from "src/util/Common";
+import { reDataForTable } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import ModalThemChiTiet from "./ModalThemChiTiet";
+import ModalThemHangMucTieuDe from "./ModalThemHangMucTieuDe";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -27,7 +28,10 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
   const [ListChiTiet, setListChiTiet] = useState([]);
   const [id, setId] = useState(undefined);
   const [ActiveModalThemChiTiet, setActiveModalThemChiTiet] = useState(false);
+  const [ActiveModalThemHangMucTieuDe, setActiveModalThemHangMucTieuDe] =
+    useState(false);
   const [ChiTiet, setChiTiet] = useState({});
+  const [HangMucTieuDe, setHangMucTieuDe] = useState({});
   const [info, setInfo] = useState({});
   const [editingRecord, setEditingRecord] = useState([]);
 
@@ -59,16 +63,41 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setInfo(res.data);
-          setListChiTiet(
-            res.data.list_HangMucKiemTraChiTiets &&
-              res.data.list_HangMucKiemTraChiTiets
-          );
+          if (res.data.list_HangMucKiemTraTieuDePhus.length > 0) {
+            if (res.data.list_HangMucKiemTraTieuDePhus[0].tieuDePhu) {
+              setListChiTiet(res.data.list_HangMucKiemTraTieuDePhus);
+            }
+          }
         }
       })
       .catch((error) => console.error(error));
   };
 
   const actionContent = (item) => {
+    const addItem =
+      permission && permission.edit ? (
+        <Link
+          onClick={() => {
+            setChiTiet({
+              ...item,
+              tits_qtsx_SanPham_Id: info && info.tits_qtsx_SanPham_Id,
+              tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
+              tits_qtsx_HangMucKiemTraTieuDePhu_Id:
+                item.tits_qtsx_HangMucKiemTraTieuDePhu_Id,
+              isNoiDung: info && info.isNoiDung,
+              type: "add",
+            });
+            setActiveModalThemChiTiet(true);
+          }}
+          title="Thêm"
+        >
+          <PlusCircleOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Thêm">
+          <PlusCircleOutlined />
+        </span>
+      );
     const editItem =
       permission && permission.edit ? (
         <Link
@@ -78,7 +107,7 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
               tits_qtsx_SanPham_Id: info && info.tits_qtsx_SanPham_Id,
               tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
               isNoiDung: info && info.isNoiDung,
-              loai: "edit",
+              type: "edit",
             });
             setActiveModalThemChiTiet(true);
           }}
@@ -98,6 +127,46 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
         : { disabled: true };
     return (
       <div>
+        {addItem}
+        <Divider type="vertical" />
+        {editItem}
+        <Divider type="vertical" />
+        <a {...deleteVal} title="Xóa">
+          <DeleteOutlined />
+        </a>
+      </div>
+    );
+  };
+  const actionContentChiTiet = (item) => {
+    const editItem =
+      permission && permission.edit ? (
+        <Link
+          onClick={() => {
+            setChiTiet({
+              ...item,
+              tits_qtsx_SanPham_Id: info && info.tits_qtsx_SanPham_Id,
+              tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
+              isNoiDung: info && info.isNoiDung,
+              type: "edit",
+            });
+            setActiveModalThemChiTiet(true);
+          }}
+          title="Sửa"
+        >
+          <EditOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Sửa">
+          <EditOutlined />
+        </span>
+      );
+
+    const deleteVal =
+      permission && permission.del
+        ? { onClick: () => deleteItemFuncChiTiet(item) }
+        : { disabled: true };
+    return (
+      <div>
         {editItem}
         <Divider type="vertical" />
         <a {...deleteVal} title="Xóa">
@@ -114,12 +183,7 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.maSo,
-      "chi tiết hạng mục kiểm tra mã số"
-    );
+    ModalDeleteConfirm(deleteItemAction, item, item.tieuDePhu, "hạng mục");
   };
 
   /**
@@ -128,7 +192,7 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_HangMucKiemTra/chi-tiet/${item.id}`;
+    let url = `tits_qtsx_HangMucKiemTra/tieu-de-phu/${item.tits_qtsx_HangMucKiemTraTieuDePhu_Id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -139,7 +203,38 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
+  /**
+   * deleteItemFunc: Xoá item theo item
+   * @param {object} item
+   * @returns
+   * @memberof VaiTro
+   */
+  const deleteItemFuncChiTiet = (item) => {
+    ModalDeleteConfirm(
+      deleteItemActionChiTiet,
+      item,
+      item.maSo,
+      "hạng mục kiểm tra chi tiết "
+    );
+  };
 
+  /**
+   * Xóa item
+   *
+   * @param {*} item
+   */
+  const deleteItemActionChiTiet = (item) => {
+    let url = `tits_qtsx_HangMucKiemTra/chi-tiet/${item.tits_qtsx_HangMucKiemTraChiTiet_Id}`;
+    new Promise((resolve, reject) => {
+      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          getInfo(id);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   /**
    * Chuyển tới trang thêm mới chức năng
    *
@@ -147,13 +242,24 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
    */
   const handleThemChiTiet = () => {
     setChiTiet({
-      ...info,
       tits_qtsx_SanPham_Id: info && info.tits_qtsx_SanPham_Id,
       tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
       isNoiDung: info && info.isNoiDung,
-      loai: "new",
+      type: "add",
     });
     setActiveModalThemChiTiet(true);
+  };
+  /**
+   * Chuyển tới trang thêm mới chức năng
+   *
+   * @memberof ChucNang
+   */
+  const handleThemTieuDe = () => {
+    setHangMucTieuDe({
+      type: "new",
+      tits_qtsx_HangMucKiemTra_Id: info.tits_qtsx_HangMucKiemTra_Id,
+    });
+    setActiveModalThemHangMucTieuDe(true);
   };
   const addButtonRender = () => {
     return (
@@ -162,10 +268,19 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"
           type="primary"
+          onClick={handleThemTieuDe}
+          disabled={permission && !permission.add}
+        >
+          Thêm mới hạng mục
+        </Button>
+        <Button
+          icon={<PlusOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
           onClick={handleThemChiTiet}
           disabled={permission && !permission.add}
         >
-          Thêm mới
+          Thêm mới hạng mục chi tiết
         </Button>
       </>
     );
@@ -180,26 +295,36 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
         { ...item, message: "Thứ tự phải là số lớn hơn 0 và bắt buộc" },
       ]);
     } else {
-      const newData = editingRecord.filter((d) => d.id !== item.id);
+      const newData = editingRecord.filter(
+        (d) =>
+          d.tits_qtsx_HangMucKiemTraChiTiet_Id !==
+          item.tits_qtsx_HangMucKiemTraChiTiet_Id
+      );
       setEditingRecord(newData);
     }
-
-    const newListChiTiet = ListChiTiet.map((list) => {
-      if (list.id === item.id) {
-        return {
-          ...list,
-          thuTu: ThuTu,
-        };
+    ListChiTiet.forEach((list) => {
+      if (
+        list.tits_qtsx_HangMucKiemTraTieuDePhu_Id.toLowerCase() ===
+        item.tits_qtsx_HangMucKiemTraTieuDePhu_Id.toLowerCase()
+      ) {
+        list.list_HangMucKiemTraChiTiets.forEach((ct) => {
+          if (
+            ct.tits_qtsx_HangMucKiemTraChiTiet_Id.toLowerCase() ===
+            item.tits_qtsx_HangMucKiemTraChiTiet_Id.toLowerCase()
+          ) {
+            ct.thuTu = ThuTu;
+          }
+        });
       }
-      return list;
     });
 
-    setListChiTiet(newListChiTiet);
+    setListChiTiet([...ListChiTiet]);
   };
 
   const onChangeValueThuTu = (val, item) => {
     const newData = {
-      tits_qtsx_HangMucKiemTraChiTiet_Id: item.id,
+      tits_qtsx_HangMucKiemTraChiTiet_Id:
+        item.tits_qtsx_HangMucKiemTraChiTiet_Id,
       thuTu: val.target.value,
     };
     new Promise((resolve, reject) => {
@@ -247,14 +372,88 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       </>
     );
   };
+  const onChangePUTieuDe = (val, item) => {
+    const newData = {
+      tits_qtsx_HangMucKiemTraTieuDePhu_Id:
+        item.tits_qtsx_HangMucKiemTraTieuDePhu_Id,
+      thuTu: val.target.value,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_HangMucKiemTra/doi-thu-tu-hang-muc-kiem-tra-tieu-de-phu`,
+          "PUT",
+          newData,
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res.status !== 409) {
+        getInfo(id);
+      }
+    });
+  };
+  const onChangeValueTieuDe = (val, item, key) => {
+    const ThuTu = val.target.value;
 
+    if (!ThuTu || Number(ThuTu) <= 0) {
+      setEditingRecord([
+        ...editingRecord,
+        { ...item, message: "Thứ tự phải là số lớn hơn 0 và bắt buộc" },
+      ]);
+    } else {
+      const newData = editingRecord.filter((d) => d.id !== item.id);
+      setEditingRecord(newData);
+    }
+
+    const newListChiTiet = ListChiTiet.map((list) => {
+      if (list.id === item.id) {
+        return {
+          ...list,
+          thuTu: ThuTu,
+        };
+      }
+      return list;
+    });
+
+    setListChiTiet(newListChiTiet);
+  };
+  const renderThuTuTieuDe = (item, key) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.id === item.id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.thuTu}
+          onBlur={(val) => onChangePUTieuDe(val, item)}
+          onChange={(val) => onChangeValueTieuDe(val, item, key)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
   let renderHead = [
     {
       title: "Chức năng",
       key: "action",
       align: "center",
       width: 80,
-      render: (value) => actionContent(value),
+      render: (value) => actionContentChiTiet(value),
       fixed: "left",
     },
     {
@@ -321,7 +520,38 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       cell: EditableCell,
     },
   };
-  const columns = map(renderHead, (col) => {
+
+  let renderHeadTieuDe = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 100,
+      render: (value) => actionContent(value),
+      fixed: "left",
+    },
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 50,
+    },
+    {
+      title: "Hạng mục",
+      dataIndex: "tieuDePhu",
+      key: "tieuDePhu",
+      align: "center",
+    },
+    {
+      title: "Thứ tự",
+      key: "thuTu",
+      align: "center",
+      width: 100,
+      render: (value) => renderThuTuTieuDe(value),
+    },
+  ];
+  const columnChiTiet = map(renderHead, (col) => {
     if (!col.editable) {
       return col;
     }
@@ -336,7 +566,21 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       }),
     };
   });
-
+  const columns = map(renderHeadTieuDe, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
   const handleRefesh = () => {
     getInfo(id);
   };
@@ -353,7 +597,6 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
         back={goBack}
         buttons={addButtonRender()}
       />
-
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
         title={"Thông tin hạng mục kiểm tra"}
@@ -542,6 +785,22 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
           rowClassName="editable-row"
           pagination={false}
           loading={loading}
+          expandable={{
+            expandedRowRender: (record) => (
+              <Table
+                style={{ marginLeft: "30px", width: "95%" }}
+                bordered
+                columns={columnChiTiet}
+                scroll={{ x: 800 }}
+                components={components}
+                className="gx-table-responsive th-F1D065-head"
+                dataSource={reDataForTable(record.list_HangMucKiemTraChiTiets)}
+                size="small"
+                rowClassName={"editable-row"}
+                pagination={false}
+              />
+            ),
+          }}
         />
       </Card>
       <ModalThemChiTiet
@@ -549,6 +808,12 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
         openModalFS={setActiveModalThemChiTiet}
         refesh={handleRefesh}
         itemData={ChiTiet}
+      />
+      <ModalThemHangMucTieuDe
+        openModal={ActiveModalThemHangMucTieuDe}
+        openModalFS={setActiveModalThemHangMucTieuDe}
+        refesh={handleRefesh}
+        itemData={HangMucTieuDe}
       />
     </div>
   );

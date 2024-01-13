@@ -270,13 +270,6 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
     );
   };
 
-  const handleTaoPhieuXuat = () => {
-    history.push({
-      pathname: `/quan-ly-kho-tpc/xuat-kho/vat-tu/them-moi`,
-      state: { phieuDNCVT: SelectedDNCVT },
-    });
-  };
-
   const handlePrint = () => {
     const params = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id,
@@ -349,21 +342,6 @@ function PhieuDeNghiCapVatTu({ match, history, permission }) {
         >
           In phiếu
         </Button>
-        {/* <Button
-          icon={<ExportOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleTaoPhieuXuat}
-          disabled={
-            (permission && !permission.print) ||
-            SelectedKeys.length === 0 ||
-            (SelectedDNCVT.length > 0 &&
-              (SelectedDNCVT[0].tinhTrang === "Chưa duyệt" ||
-                SelectedDNCVT[0].tinhTrang.startsWith("Đã từ chối")))
-          }
-        >
-          Xuất kho
-        </Button> */}
       </>
     );
   };

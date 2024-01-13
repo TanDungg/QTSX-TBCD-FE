@@ -1,7 +1,6 @@
 import {
   CheckCircleOutlined,
   CloseCircleOutlined,
-  DeleteOutlined,
   RollbackOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
@@ -16,7 +15,7 @@ import {
   Tag,
   Image,
 } from "antd";
-import { includes, isEmpty, map } from "lodash";
+import { includes, map } from "lodash";
 import Helper from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -26,7 +25,6 @@ import {
   FormSubmit,
   Select,
   Table,
-  ModalDeleteConfirm,
   EditableTableRow,
   Modal,
 } from "src/components/Common";
@@ -210,53 +208,6 @@ const OEMForm = ({ history, match, permission }) => {
           : `/${id}/xac-nhan`,
         ""
       )}`
-    );
-  };
-
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    const title = "vật tư";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
-  };
-
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    const newData = listVatTu.filter(
-      (d) =>
-        d.tits_qtsx_PhieuMuaHangChiTiet_Id !==
-        item.tits_qtsx_PhieuMuaHangChiTiet_Id
-    );
-    setListVatTu(newData);
-  };
-
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const deleteItemVal =
-      permission && permission.del && (type === "new" || type === "edit")
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        <React.Fragment>
-          <a {...deleteItemVal} title="Xóa">
-            <DeleteOutlined />
-          </a>
-        </React.Fragment>
-      </div>
     );
   };
 

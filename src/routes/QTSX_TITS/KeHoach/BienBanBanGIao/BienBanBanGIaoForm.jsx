@@ -1,10 +1,5 @@
-import {
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, Divider, Button, Tag } from "antd";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { Card, Form, Input, Row, Col, Button, Tag } from "antd";
 import { isEmpty, map } from "lodash";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
@@ -46,7 +41,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
   const [ListUser, setListUser] = useState([]);
 
   const [form] = Form.useForm();
-  const { validateFields, resetFields, setFieldsValue, getFieldValue } = form;
+  const { validateFields, resetFields, setFieldsValue } = form;
 
   useEffect(() => {
     const load = () => {

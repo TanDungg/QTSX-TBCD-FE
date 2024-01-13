@@ -7,7 +7,6 @@ import {
   Input,
   Switch,
 } from "antd";
-import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
@@ -37,7 +36,6 @@ function ModalCongDoan({ openModalFS, openModal, DataThemCongDoan, itemData }) {
 
   useEffect(() => {
     if (openModal) {
-      
       getListCongDoan();
       setFieldsValue({
         themcongdoan: {

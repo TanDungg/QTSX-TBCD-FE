@@ -1,4 +1,4 @@
-import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
+import { DeleteOutlined } from "@ant-design/icons";
 import {
   Modal as AntModal,
   Form,
@@ -8,8 +8,6 @@ import {
   Col,
   Card,
   Tag,
-  Upload,
-  Image,
 } from "antd";
 import { isEmpty, map } from "lodash";
 import React, { useEffect, useState } from "react";
@@ -21,14 +19,8 @@ import {
   Select,
   Table,
 } from "src/components/Common";
-import { BASE_URL_API, DEFAULT_FORM_THEMVATTU } from "src/constants/Config";
-import Helpers from "src/helpers";
-import {
-  convertObjectToUrlParams,
-  getLocalStorage,
-  getTokenInfo,
-  reDataForTable,
-} from "src/util/Common";
+import { DEFAULT_FORM_THEMVATTU } from "src/constants/Config";
+import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 
 const FormItem = Form.Item;
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -41,14 +33,9 @@ function ModalThemVatPham({
 }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
-  const INFO = {
-    ...getLocalStorage("menu"),
-    user_Id: getTokenInfo().id,
-    token: getTokenInfo().token,
-  };
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
-  const { resetFields, setFieldsValue } = form;
+  const { resetFields } = form;
   const [DataListVatPham, setDataListVatPham] = useState([]);
   const [ListVatPham, setListVatPham] = useState([]);
   const [VatPham, setVatPham] = useState([]);

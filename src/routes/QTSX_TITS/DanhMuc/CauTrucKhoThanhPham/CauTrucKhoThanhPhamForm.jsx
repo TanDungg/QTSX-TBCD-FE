@@ -16,12 +16,9 @@ function CauTrucKhoThanhPhamForm({ match, permission, history }) {
   const { setFieldsValue, validateFields, resetFields } = form;
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
-  const [listCauTrucKho, setListCauTrucKho] = useState([]);
-  const [disableViTri, setDisableViTri] = useState(true);
   const [fieldTouch, setFieldTouch] = useState(false);
 
   useEffect(() => {
-    getListCauTrucKho();
     if (includes(match.url, "them-moi")) {
       if (permission && !permission.add) {
         history.push("/home");
@@ -63,8 +60,6 @@ function CauTrucKhoThanhPhamForm({ match, permission, history }) {
         const newData = res.data;
         if (newData.tits_qtsx_CauTrucKho_Id === null) {
           newData.tits_qtsx_CauTrucKho_Id = "root";
-        } else {
-          setDisableViTri(false);
         }
         setFieldsValue({
           cautruckhothanhpham: {
@@ -73,28 +68,6 @@ function CauTrucKhoThanhPhamForm({ match, permission, history }) {
             viTri: newData.viTri,
           },
         });
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListCauTrucKho = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_CauTrucKho/cau-truc-kho-thanh-pham-tree`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        setListCauTrucKho([]);
-        const newList = { id: "root", tenCauTrucKho: "Root", children: [] };
-        setListCauTrucKho([newList, ...res.data]);
       })
       .catch((error) => console.error(error));
   };
@@ -115,9 +88,10 @@ function CauTrucKhoThanhPhamForm({ match, permission, history }) {
 
   const saveData = (cautruckhothanhpham, saveQuit = false) => {
     if (type === "new") {
-      cautruckhothanhpham.viTri === undefined
-        ? (cautruckhothanhpham.viTri = 0)
-        : (cautruckhothanhpham.viTri = cautruckhothanhpham.viTri);
+      cautruckhothanhpham.viTri =
+        cautruckhothanhpham.viTri === undefined
+          ? null
+          : cautruckhothanhpham.viTri;
       cautruckhothanhpham.tits_qtsx_CauTrucKho_Id =
         cautruckhothanhpham.tits_qtsx_CauTrucKho_Id === "root"
           ? null
@@ -142,7 +116,6 @@ function CauTrucKhoThanhPhamForm({ match, permission, history }) {
             } else {
               resetFields();
               setFieldTouch(false);
-              getListCauTrucKho();
             }
           }
         })

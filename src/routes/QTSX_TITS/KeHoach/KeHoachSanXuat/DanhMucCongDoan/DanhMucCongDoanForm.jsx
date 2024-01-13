@@ -13,7 +13,6 @@ const FormItem = Form.Item;
 const initialState = {
   maSP: "",
   tenSP: "",
-  loaicongDoan_Id: "",
 };
 
 function DanhMucCongDoanForm({ match, permission, history }) {
@@ -116,7 +115,7 @@ function DanhMucCongDoanForm({ match, permission, history }) {
       .catch((error) => console.error(error));
   };
 
-  const { maSP, tenSP, loaicongDoan_Id } = initialState;
+  const { maSP, tenSP } = initialState;
   /**
    * Khi submit
    *

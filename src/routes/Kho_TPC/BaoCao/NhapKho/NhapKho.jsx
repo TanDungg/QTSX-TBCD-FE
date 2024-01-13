@@ -264,20 +264,6 @@ function NhapKho({ permission, history, match }) {
     );
   };
 
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    getListData(
-      keyword,
-      Kho_Id,
-      Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
-      Xuong,
-      TuNgay,
-      DenNgay,
-      pagination,
-      Loai === "sanpham" ? true : false
-    );
-  };
-
   function removeDuplicates(arr) {
     const uniqueObjects = [];
     arr.forEach((obj) => {
@@ -290,12 +276,15 @@ function NhapKho({ permission, history, match }) {
     });
     return uniqueObjects;
   }
-  // const { totalRow, pageSize } = Data;
 
   let dataList = reDataForTable(Data);
   const renderDetail = (val) => {
     const detail = (
-      <a
+      <span
+        style={{
+          color: "#0469b9",
+          cursor: "pointer",
+        }}
         onClick={() => {
           let url = "";
           if (Loai !== "sanpham") {
@@ -315,7 +304,7 @@ function NhapKho({ permission, history, match }) {
         }}
       >
         {val.maPhieu}
-      </a>
+      </span>
     );
     return <div>{detail}</div>;
   };
@@ -672,35 +661,39 @@ function NhapKho({ permission, history, match }) {
   };
 
   const handleOnSelectLoai = (value) => {
-    setLoai(value);
-    getKho(value);
-    setKho_Id(null);
-    setLoaiSanPham(null);
-    setNhomVatTu(null);
-    getListData(
-      keyword,
-      Kho_Id,
-      null,
-      Xuong,
-      TuNgay,
-      DenNgay,
-      1,
-      value === "sanpham" ? true : false
-    );
+    if (Loai !== value) {
+      setLoai(value);
+      getKho(value);
+      setKho_Id(null);
+      setLoaiSanPham(null);
+      setNhomVatTu(null);
+      getListData(
+        keyword,
+        Kho_Id,
+        null,
+        Xuong,
+        TuNgay,
+        DenNgay,
+        1,
+        value === "sanpham" ? true : false
+      );
+    }
   };
 
   const handleOnSelectKho = (value) => {
-    setKho_Id(value);
-    getListData(
-      keyword,
-      value,
-      Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
-      Xuong,
-      TuNgay,
-      DenNgay,
-      1,
-      Loai === "sanpham" ? true : false
-    );
+    if (Kho_Id !== value) {
+      setKho_Id(value);
+      getListData(
+        keyword,
+        value,
+        Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
+        Xuong,
+        TuNgay,
+        DenNgay,
+        1,
+        Loai === "sanpham" ? true : false
+      );
+    }
   };
 
   const handleClearKho = () => {
@@ -719,8 +712,10 @@ function NhapKho({ permission, history, match }) {
   };
 
   const handleOnSelectLoaiSP = (value) => {
-    setLoaiSanPham(value);
-    getListData(keyword, Kho_Id, value, Xuong, TuNgay, DenNgay, 1, true);
+    if (LoaiSanPham !== value) {
+      setLoaiSanPham(value);
+      getListData(keyword, Kho_Id, value, Xuong, TuNgay, DenNgay, 1, true);
+    }
   };
 
   const handleClearLoaiSP = () => {
@@ -730,8 +725,10 @@ function NhapKho({ permission, history, match }) {
   };
 
   const handleOnSelectNhomVatTu = (value) => {
-    setNhomVatTu(value);
-    getListData(keyword, Kho_Id, value, Xuong, TuNgay, DenNgay, 1, false);
+    if (NhomVatTu !== value) {
+      setNhomVatTu(value);
+      getListData(keyword, Kho_Id, value, Xuong, TuNgay, DenNgay, 1, false);
+    }
   };
 
   const handleClearNhomVatTu = () => {
@@ -741,17 +738,19 @@ function NhapKho({ permission, history, match }) {
   };
 
   const handleOnSelectXuongSanXuat = (value) => {
-    setXuong(value);
-    getListData(
-      keyword,
-      Kho_Id,
-      Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
-      value,
-      TuNgay,
-      DenNgay,
-      1,
-      Loai === "sanpham" ? true : false
-    );
+    if (Xuong !== value) {
+      setXuong(value);
+      getListData(
+        keyword,
+        Kho_Id,
+        Loai === "sanpham" ? LoaiSanPham : NhomVatTu,
+        value,
+        TuNgay,
+        DenNgay,
+        1,
+        Loai === "sanpham" ? true : false
+      );
+    }
   };
 
   const handleClearXuongSanXuat = () => {

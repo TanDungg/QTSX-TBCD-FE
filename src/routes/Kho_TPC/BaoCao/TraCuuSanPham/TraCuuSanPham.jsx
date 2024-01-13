@@ -24,12 +24,11 @@ function TraCuuSanPham({ permission, history, match }) {
   const [ListUser, setListUser] = useState([]);
   const [user_Id, setUser_Id] = useState("");
   const [DinhMucVatTu, setDinhMucVatTu] = useState([]);
-  const [keyword, setKeyword] = useState("");
 
   useEffect(() => {
     if (permission && permission.view) {
       getListUser();
-      getDinhMucVatTu(keyword, user_Id, page);
+      getDinhMucVatTu(user_Id, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -37,9 +36,8 @@ function TraCuuSanPham({ permission, history, match }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getDinhMucVatTu = (keyword, userid, tungay, denngay, page) => {
+  const getDinhMucVatTu = (userid, tungay, denngay, page) => {
     let param = convertObjectToUrlParams({
-      keyword,
       page,
       userid,
       tungay,
@@ -97,7 +95,7 @@ function TraCuuSanPham({ permission, history, match }) {
               if (us.nguoiLap_Id === INFO.user_Id) {
                 setListUser([us]);
                 setUser_Id(us.nguoiLap_Id);
-                getDinhMucVatTu(keyword, us.nguoiLap_Id, page);
+                getDinhMucVatTu(us.nguoiLap_Id, page);
               }
             });
           }
@@ -115,7 +113,7 @@ function TraCuuSanPham({ permission, history, match }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getDinhMucVatTu(keyword, user_Id, pagination);
+    getDinhMucVatTu(user_Id, pagination);
   };
 
   //Lọc các tên giống nhau trong filter
@@ -336,13 +334,13 @@ function TraCuuSanPham({ permission, history, match }) {
   const handleOnSelectUser_Id = (value) => {
     setUser_Id(value);
     setPage(1);
-    getDinhMucVatTu(keyword, value, 1);
+    getDinhMucVatTu(value, 1);
   };
 
   const handleClearUser_Id = () => {
     setUser_Id(null);
 
-    getDinhMucVatTu(keyword, "", 1);
+    getDinhMucVatTu("", 1);
   };
 
   return (

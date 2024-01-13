@@ -12,12 +12,7 @@ import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import {
-  // getLocalStorage,
-  reDataForTable,
-  setLocalStorage,
-  treeToFlatlist,
-} from "src/util/Common";
+import { reDataForTable, setLocalStorage } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { removeDuplicates } from "src/util/Common";
 import {

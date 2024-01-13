@@ -365,7 +365,6 @@ function MaySanXuat({ history, permission }) {
           align: "center",
           width: 70,
         },
-        ,
         {
           title: "Rộng",
           dataIndex: "rong",
@@ -373,7 +372,6 @@ function MaySanXuat({ history, permission }) {
           align: "center",
           width: 70,
         },
-        ,
         {
           title: "Dày",
           dataIndex: "day",

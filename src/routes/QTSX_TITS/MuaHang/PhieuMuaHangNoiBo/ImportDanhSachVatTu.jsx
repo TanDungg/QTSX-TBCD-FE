@@ -12,7 +12,6 @@ import {
   Upload,
   Alert,
   Popover,
-  Image,
   Divider,
 } from "antd";
 import { messages } from "src/constants/Messages";
@@ -22,15 +21,9 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
 import { Modal } from "src/components/Common";
-import {
-  convertObjectToUrlParams,
-  createGuid,
-  exportExcel,
-} from "src/util/Common";
+import { createGuid, exportExcel } from "src/util/Common";
 import * as XLSX from "xlsx";
 import { EditableTableRow, Table } from "src/components/Common";
-import { getLocalStorage, getTokenInfo } from "src/util/Common";
-import { BASE_URL_API } from "src/constants/Config";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function ImportDanhSachVatTu({
@@ -40,11 +33,6 @@ function ImportDanhSachVatTu({
   itemData,
 }) {
   const dispatch = useDispatch();
-  const INFO = {
-    ...getLocalStorage("menu"),
-    user_Id: getTokenInfo().id,
-    token: getTokenInfo().token,
-  };
   const [DataListVatTu, setDataListVatTu] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
@@ -361,7 +349,7 @@ function ImportDanhSachVatTu({
         openModalFS(false);
       } else {
         const newData = DataListVatTu.map((vt) => {
-          const loi = res.data.find((dt) => dt.maVatTu == vt.maVatTu);
+          const loi = res.data.find((dt) => dt.maVatTu === vt.maVatTu);
           if (loi) {
             return { ...vt, ghiChuImport: loi.ghiChuImport };
           }

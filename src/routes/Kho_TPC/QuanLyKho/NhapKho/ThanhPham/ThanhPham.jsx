@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  CheckCircleOutlined,
-} from "@ant-design/icons";
+import { Card, Divider, Row, Col, DatePicker } from "antd";
+import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -255,16 +250,6 @@ function ThanhPham({ match, history, permission }) {
     loadData(keyword, Kho, FromDate, ToDate, pagination);
   };
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
-  };
   const addButtonRender = () => {
     return (
       <>
@@ -477,20 +462,19 @@ function ThanhPham({ match, history, permission }) {
   });
 
   const handleOnSelectKho = (val) => {
-    setKho(val);
-    setPage(1);
-    loadData(keyword, val, FromDate, ToDate, 1);
-  };
-  const handleClearKho = (val) => {
-    setKho("");
-    setPage(1);
-    loadData(keyword, "", FromDate, ToDate, 1);
+    if (Kho !== val) {
+      setKho(val);
+      setPage(1);
+      loadData(keyword, val, FromDate, ToDate, 1);
+    }
   };
   const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
-    setPage(1);
-    loadData(keyword, Kho, dateString[0], dateString[1], 1);
+    if (FromDate !== dateString[0] && ToDate !== dateString[1]) {
+      setFromDate(dateString[0]);
+      setToDate(dateString[1]);
+      setPage(1);
+      loadData(keyword, Kho, dateString[0], dateString[1], 1);
+    }
   };
   return (
     <div className="gx-main-content">

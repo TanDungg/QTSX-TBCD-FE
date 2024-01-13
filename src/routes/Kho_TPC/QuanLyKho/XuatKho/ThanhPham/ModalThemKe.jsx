@@ -1,4 +1,4 @@
-import { Modal as AntModal, Button, Row, Form, Input } from "antd";
+import { Modal as AntModal, Button, Row, Form } from "antd";
 import React, { useEffect, useState } from "react";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { Select } from "src/components/Common";
@@ -12,9 +12,8 @@ function ModalThemKe({ openModalFS, openModal, addKe, cauTrucKho_Id }) {
   const dispatch = useDispatch();
 
   const [form] = Form.useForm();
-  const { validateFields, resetFields, setFieldsValue } = form;
+  const { validateFields, resetFields } = form;
   const [listLot, setListLot] = useState([]);
-  const [listKe, setListKe] = useState([]);
 
   const [ListSanPham, setListSanPham] = useState([]);
 
@@ -71,42 +70,7 @@ function ModalThemKe({ openModalFS, openModal, addKe, cauTrucKho_Id }) {
       })
       .catch((error) => console.error(error));
   };
-  const getViTri = (cauTrucKho_Id, sanPham_Id) => {
-    const params = convertObjectToUrlParams({
-      cauTrucKho_Id,
-      sanPham_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_ViTriLuuKho/list-vi-tri-luu-kho-thanh-pham_da-nhap-ke-tang-ngan?${params}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const newData = res.data.map((vt) => {
-            return {
-              ...vt,
-              name:
-                vt.tenKe +
-                (vt.tenTang ? " - " + vt.tenTang : "") +
-                (vt.tenNgan ? " - " + vt.tenNgan : ""),
-            };
-          });
-          setListKe(newData);
-        } else {
-          setListKe([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
+
   const getLot = (id) => {
     new Promise((resolve, reject) => {
       dispatch(

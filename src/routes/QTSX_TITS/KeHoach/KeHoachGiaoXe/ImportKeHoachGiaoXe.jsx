@@ -23,14 +23,13 @@ import { Modal } from "src/components/Common";
 import {
   convertObjectToUrlParams,
   exportExcel,
-  getLocalStorage,
   getNamNow,
   getNumberDayOfMonth,
   getThangNow,
   reDataForTable,
 } from "src/util/Common";
 import * as XLSX from "xlsx";
-import { EditableTableRow, Table, Select } from "src/components/Common";
+import { EditableTableRow, Table } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
 
@@ -39,7 +38,6 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function ImportKeHoachGiaoXe({ match, permission, history }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
-  const INFO = getLocalStorage("menu");
   const [dataView, setDataView] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);

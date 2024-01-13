@@ -772,7 +772,7 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
                 <DatePicker
                   format={"DD/MM/YYYY HH:mm:ss"}
                   showTime
-                  disabled={type === "new" || type === "edit" ? false : true}
+                  disabled={true}
                   allowClear={false}
                 />
               </FormItem>

@@ -2,32 +2,19 @@ import { SaveOutlined } from "@ant-design/icons";
 import { Modal as AntModal, Form, Row, Input, Col, Button } from "antd";
 import { map } from "lodash";
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { Table, EditableTableRow, Modal } from "src/components/Common";
 import Helpers from "src/helpers";
-import {
-  convertObjectToUrlParams,
-  getLocalStorage,
-  getTokenInfo,
-  reDataForTable,
-} from "src/util/Common";
+import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function ModalKiemSoatVatTuLapRap({ openModalFS, openModal, info, refesh }) {
   const dispatch = useDispatch();
-  const { width } = useSelector(({ common }) => common).toJS();
-  const INFO = {
-    ...getLocalStorage("menu"),
-    user_Id: getTokenInfo().id,
-    token: getTokenInfo().token,
-  };
-  const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { resetFields } = form;
   const [ListVatTuKiemSoat, setListVatTuKiemSoat] = useState([]);
-  const [ListXuong, setListXuong] = useState([]);
 
   useEffect(() => {
     if (openModal) {

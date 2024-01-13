@@ -1,11 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Row, Col, DatePicker, Tag } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  DeleteOutlined,
-  CheckCircleOutlined,
-} from "@ant-design/icons";
+import { Card, Divider, Row, Col, DatePicker, Tag } from "antd";
+import { DeleteOutlined, CheckCircleOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { map, isEmpty } from "lodash";
@@ -46,7 +41,6 @@ function DieuChuyenVatTu({ match, history, permission }) {
     accessRole: JSON.parse(getTokenInfo().accessRole),
   };
   const [ListKho, setListKho] = useState([]);
-  const [ListKhoDen, setListKhoDen] = useState([]);
 
   const [Kho, setKho] = useState(null);
   const [KhoDen, setKhoDen] = useState(null);
@@ -201,22 +195,7 @@ function DieuChuyenVatTu({ match, history, permission }) {
           <CheckCircleOutlined />
         </span>
       );
-    const editItem =
-      permission && permission.edit && check ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
+
     const deleteVal =
       permission &&
       permission.del &&
@@ -282,32 +261,6 @@ function DieuChuyenVatTu({ match, history, permission }) {
     getListData(keyword, Kho, FromDate, ToDate, pagination, KhoDen);
   };
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
-  };
-
-  const addButtonRender = () => {
-    return (
-      <>
-        {/* <Button
-          icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleRedirect}
-          disabled={permission && !permission.add}
-        >
-          Tạo phiếu
-        </Button> */}
-      </>
-    );
-  };
   const { totalRow, pageSize } = data;
 
   let dataList = reDataForTable(data.datalist, page, pageSize);
@@ -499,9 +452,11 @@ function DieuChuyenVatTu({ match, history, permission }) {
   });
 
   const handleOnSelectKho = (val) => {
-    setKho(val);
-    setPage(1);
-    getListData(keyword, val, FromDate, ToDate, 1, KhoDen);
+    if (Kho !== val) {
+      setKho(val);
+      setPage(1);
+      getListData(keyword, val, FromDate, ToDate, 1, KhoDen);
+    }
   };
 
   const handleClearKho = (val) => {
@@ -510,9 +465,11 @@ function DieuChuyenVatTu({ match, history, permission }) {
     getListData(keyword, "", FromDate, ToDate, 1, KhoDen);
   };
   const handleOnSelectKhoDen = (val) => {
-    setKhoDen(val);
-    setPage(1);
-    getListData(keyword, Kho, FromDate, ToDate, 1, val);
+    if (KhoDen !== val) {
+      setKhoDen(val);
+      setPage(1);
+      getListData(keyword, Kho, FromDate, ToDate, 1, val);
+    }
   };
 
   const handleClearKhoDen = (val) => {
@@ -521,10 +478,12 @@ function DieuChuyenVatTu({ match, history, permission }) {
     getListData(keyword, Kho, FromDate, ToDate, 1, "");
   };
   const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
-    setPage(1);
-    getListData(keyword, Kho, dateString[0], dateString[1], 1, KhoDen);
+    if (FromDate !== dateString[0] && ToDate !== dateString[1]) {
+      setFromDate(dateString[0]);
+      setToDate(dateString[1]);
+      setPage(1);
+      getListData(keyword, Kho, dateString[0], dateString[1], 1, KhoDen);
+    }
   };
 
   return (
@@ -532,7 +491,6 @@ function DieuChuyenVatTu({ match, history, permission }) {
       <ContainerHeader
         title="Điều chuyển vật tư"
         description="Điều chuyển vật tư"
-        buttons={addButtonRender()}
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">

@@ -203,17 +203,6 @@ function NhapKhoVatTu({ match, history, permission }) {
     loadData(keyword, Kho, FromDate, ToDate, pagination);
   };
 
-  /**
-   * Chuyển tới trang thêm mới chức năng
-   *
-   * @memberof ChucNang
-   */
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
-  };
-
   const handleXuatExcel = () => {
     new Promise((resolve, reject) => {
       dispatch(

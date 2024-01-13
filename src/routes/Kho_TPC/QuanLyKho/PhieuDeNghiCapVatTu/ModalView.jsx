@@ -1,6 +1,6 @@
 import { Modal as AntModal } from "antd";
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { map } from "lodash";
 import { EditableTableRow, Table } from "src/components/Common";
@@ -14,7 +14,6 @@ import {
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function ModalView({ openModalFS, openModal, id, refesh }) {
-  const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [data, setData] = useState([]);

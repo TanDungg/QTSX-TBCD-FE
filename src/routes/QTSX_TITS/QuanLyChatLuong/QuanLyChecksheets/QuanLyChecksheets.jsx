@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Tag, Col, Row, Checkbox, Image } from "antd";
+import { Card, Button, Divider, Col, Row, Checkbox, Image } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  CheckCircleOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -29,7 +28,7 @@ import { BASE_URL_API } from "src/constants/Config";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function QuanLyChecksheets({ match, history, permission }) {
-  const { width, loading, data } = useSelector(({ common }) => common).toJS();
+  const { loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [page, setPage] = useState(1);
   const [ListSanPham, setListSanPham] = useState([]);
@@ -298,22 +297,7 @@ function QuanLyChecksheets({ match, history, permission }) {
     );
   };
   const { totalRow, pageSize } = data;
-  const renderDetail = (val) => {
-    const detail =
-      permission && permission.view ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${val.id}/chi-tiet`,
-            state: { itemData: val, permission },
-          }}
-        >
-          {val.maDinhMucVatTuThep}
-        </Link>
-      ) : (
-        <span disabled>{val.maDinhMucVatTuThep}</span>
-      );
-    return <div>{detail}</div>;
-  };
+
   let dataList = reDataForTable(data.datalist, page, pageSize);
   let renderHead = [
     {

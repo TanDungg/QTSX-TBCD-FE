@@ -21,9 +21,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function DieuChuyen({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
-  // const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
-  const [DataXuat, setDataXuat] = useState([]);
   const [Loai, setLoai] = useState("sanpham");
   const [ListKho, setListKho] = useState([]);
   const [ListKhoDi, setListKhoDi] = useState([]);
@@ -92,34 +90,6 @@ function DieuChuyen({ permission, history, match }) {
         }
       })
       .catch((error) => console.error(error));
-    // let params = convertObjectToUrlParams({
-    //   KhoDi_Id,
-    //   KhoDen_Id,
-    //   Keyword,
-    //   TuNgay,
-    //   DenNgay,
-    //   page: -1,
-    //   IsThanhPham,
-    // });
-    // new Promise((resolve, reject) => {
-    //   dispatch(
-    //     fetchStart(
-    //       `lkn_BaoCao/bao-cao-dieu-chuyen?${params}`,
-    //       "GET",
-    //       null,
-    //       "DETAIL",
-    //       "",
-    //       resolve,
-    //       reject
-    //     )
-    //   );
-    // })
-    //   .then((res) => {
-    //     if (res && res.data) {
-    //       setDataXuat(res.data);
-    //     }
-    //   })
-    //   .catch((error) => console.error(error));
   };
 
   const getKho = (Loai) => {
@@ -197,19 +167,6 @@ function DieuChuyen({ permission, history, match }) {
       TuNgay,
       DenNgay,
       1,
-      Loai === "sanpham" ? true : false
-    );
-  };
-
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    getListData(
-      KhoDi,
-      KhoDen,
-      keyword,
-      TuNgay,
-      DenNgay,
-      pagination,
       Loai === "sanpham" ? true : false
     );
   };

@@ -10,7 +10,7 @@ import {
 } from "antd";
 import { map } from "lodash";
 import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { Table, EditableTableRow, Modal } from "src/components/Common";
 import ImageDrawing from "src/routes/QTSX_TITS/SanXuat/TienDoSanXuat/ImageDrawing";
@@ -27,7 +27,6 @@ const { EditableRow, EditableCell } = EditableTableRow;
 
 function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
   const dispatch = useDispatch();
-  // const { width } = useSelector(({ common }) => common).toJS();
   const [form] = Form.useForm();
   const { resetFields } = form;
   const [ListHangMucKiemTra, setListHangMucKiemTra] = useState([]);

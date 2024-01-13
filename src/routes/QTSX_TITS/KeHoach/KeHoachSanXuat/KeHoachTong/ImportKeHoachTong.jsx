@@ -23,14 +23,13 @@ import { Modal } from "src/components/Common";
 import {
   convertObjectToUrlParams,
   exportExcel,
-  getLocalStorage,
   getNamNow,
   getNumberDayOfMonth,
   getThangNow,
   reDataForTable,
 } from "src/util/Common";
 import * as XLSX from "xlsx";
-import { EditableTableRow, Table, Select } from "src/components/Common";
+import { EditableTableRow, Table } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
 
@@ -39,21 +38,12 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function ImportKeHoachTong({ match, permission, history }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
-  const INFO = getLocalStorage("menu");
   const [dataView, setDataView] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
   const [HangTrung, setHangTrung] = useState([]);
   const [DataLoi, setDataLoi] = useState();
   const [message, setMessageError] = useState([]);
-  const [DisableTaiFile, setDisableTaiFile] = useState(false);
-  const [listKeHoach, setListKeHoach] = useState([]);
-  const [listXuong, setListXuong] = useState([]);
-  const [KeHoach, setKeHoach] = useState();
-  const [TenKeHoach, setTenKeHoach] = useState();
-  const [TenXuong, setTenXuong] = useState();
-
-  const [Xuong, setXuong] = useState();
   const [Thang, setThang] = useState(getThangNow());
   const [Nam, setNam] = useState(getNamNow());
 
@@ -62,7 +52,6 @@ function ImportKeHoachTong({ match, permission, history }) {
       if (permission && !permission.add) {
         history.push("/home");
       } else if (permission && permission.add) {
-        getData();
       }
     }
 
@@ -71,58 +60,6 @@ function ImportKeHoachTong({ match, permission, history }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const getData = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_LoaiKeHoach?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListKeHoach(res.data);
-          setKeHoach(res.data[1].id);
-          setTenKeHoach(res.data[1].tenLoaiKeHoach);
-        } else {
-          setListKeHoach([]);
-        }
-      })
-      .catch((error) => console.error(error));
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          const xuong = [];
-          res.data.forEach((x) => {
-            if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
-              xuong.push(x);
-            }
-          });
-          setListXuong(xuong);
-        } else {
-          setListXuong([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
 
   const render = (val) => {
     if (val === undefined) {

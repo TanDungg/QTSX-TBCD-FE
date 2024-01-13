@@ -1269,6 +1269,15 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
         openModalFS={setActiveModalTuChoi}
         saveTuChoi={saveTuChoi}
       />
+      <ModalChonViTri
+        openModal={ActiveModalChonViTri}
+        openModalFS={setActiveModalChonViTri}
+        itemData={{
+          tits_qtsx_CauTrucKho_Id: KhoVatTu,
+          ListVatTu: VatTu,
+        }}
+        ThemViTri={ThemViTri}
+      />
     </div>
   );
 };

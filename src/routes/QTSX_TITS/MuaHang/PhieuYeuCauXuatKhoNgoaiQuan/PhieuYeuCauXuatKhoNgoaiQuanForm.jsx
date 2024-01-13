@@ -1,6 +1,6 @@
 import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Row, Col, Button, Tag } from "antd";
-import { includes, isEmpty, map } from "lodash";
+import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState } from "react";

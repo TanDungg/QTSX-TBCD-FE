@@ -448,6 +448,7 @@ function Home({ permission, history }) {
       );
     }
   };
+
   let colTDXSB = [
     {
       title: "Bộ phận",

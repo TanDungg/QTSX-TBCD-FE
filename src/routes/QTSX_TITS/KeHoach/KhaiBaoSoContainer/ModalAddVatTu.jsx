@@ -5,10 +5,7 @@ import { fetchStart } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { Select } from "src/components/Common";
 import { FormSubmit } from "src/components/Common";
-import {
-  convertObjectToUrlParams,
-  xoaPhanTuTrungTheoId,
-} from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 const FormItem = Form.Item;
 
 function ModalAddVatTu({ openModalFS, openModal, addSanPham, listVT }) {

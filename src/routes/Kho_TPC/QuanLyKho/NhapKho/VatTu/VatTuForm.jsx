@@ -31,7 +31,7 @@ import {
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { DEFAULT_FORM } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -145,7 +145,6 @@ const VatTuForm = ({ history, match, permission }) => {
   const [ListNhaCungCap, setListNhaCungCap] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ListKho, setListKho] = useState([]);
-  const [ListMaPhieu, setListMaPhieu] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
   const [Kho, setKho] = useState("");
   const [InfoVatTu, setInfoVatTu] = useState();
@@ -165,7 +164,6 @@ const VatTuForm = ({ history, match, permission }) => {
           getNhaCungCap();
           getUserKy(INFO);
           getKho();
-          getMaPhieu();
           setFieldsValue({
             phieunhapkho: {
               ngayNhan: moment(
@@ -321,55 +319,6 @@ const VatTuForm = ({ history, match, permission }) => {
     }
   };
 
-  const getMaPhieu = (id) => {
-    if (!id) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `lkn_PhieuNhanHang/get-phieu-nhan-hang-chua-nhap `,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListMaPhieu(res.data);
-        } else {
-          setListMaPhieu([]);
-        }
-      });
-    } else {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `lkn_PhieuNhanHang/${id}?donVi_Id=${INFO.donVi_Id}`,
-            "GET",
-            null,
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.data) {
-          setListMaPhieu([
-            {
-              maPhieuNhanHang: res.data.maPhieuNhanHang,
-              id: res.data.id,
-            },
-          ]);
-        } else {
-          setListMaPhieu([]);
-        }
-      });
-    }
-  };
-
   const getKho = (id) => {
     if (id) {
       new Promise((resolve, reject) => {
@@ -454,7 +403,6 @@ const VatTuForm = ({ history, match, permission }) => {
           getUserKy(INFO);
           setInfo(res.data);
           getKho();
-          getMaPhieu(res.data.phieuNhanHang_Id);
           getNhaCungCap();
           setFieldsValue({
             phieunhapkho: {
@@ -979,19 +927,17 @@ const VatTuForm = ({ history, match, permission }) => {
     }
   };
   const saveAndCloseNew = (val) => {
-    {
-      validateFields()
-        .then((values) => {
-          if (listVatTu.length === 0) {
-            Helpers.alertError("Danh sách vật tư rỗng");
-          } else {
-            saveDataNew(values.phieunhapkho, val);
-          }
-        })
-        .catch((error) => {
-          console.log("error", error);
-        });
-    }
+    validateFields()
+      .then((values) => {
+        if (listVatTu.length === 0) {
+          Helpers.alertError("Danh sách vật tư rỗng");
+        } else {
+          saveDataNew(values.phieunhapkho, val);
+        }
+      })
+      .catch((error) => {
+        console.log("error", error);
+      });
   };
   const saveDataNew = (nhapkho, saveQuit = false) => {
     if (type === "new") {
@@ -1024,7 +970,6 @@ const VatTuForm = ({ history, match, permission }) => {
               getNhaCungCap();
               getUserKy(INFO);
               getKho();
-              getMaPhieu();
               setFieldsValue({
                 phieunhapkho: {
                   ngayNhan: moment(getDateNow(), "DD/MM/YYYY HH:mm:ss"),

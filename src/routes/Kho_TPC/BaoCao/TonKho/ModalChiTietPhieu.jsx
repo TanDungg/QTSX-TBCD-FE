@@ -1,23 +1,16 @@
 import { Modal as AntModal } from "antd";
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
+import React, { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { fetchReset } from "src/appRedux/actions/Common";
 import { map } from "lodash";
 import { EditableTableRow, Table } from "src/components/Common";
-import {
-  reDataForTable,
-  // getLocalStorage,
-  // getTokenInfo,
-  // convertObjectToUrlParams,
-} from "src/util/Common";
+import { reDataForTable } from "src/util/Common";
 import { BASE_URL_APP } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function ModalChiTietPhieu({ openModalFS, openModal, data, loai, info }) {
-  // const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  // const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   useEffect(() => {
     if (openModal) {
     }
@@ -28,7 +21,11 @@ function ModalChiTietPhieu({ openModalFS, openModal, data, loai, info }) {
   }, [openModal]);
   const renderDetail = (val) => {
     const detail = (
-      <a
+      <span
+        style={{
+          color: "#0469b9",
+          cursor: "pointer",
+        }}
         onClick={() => {
           let url = "";
           if (val.isNhap === undefined) {
@@ -62,7 +59,7 @@ function ModalChiTietPhieu({ openModalFS, openModal, data, loai, info }) {
         }}
       >
         {val.maPhieu}
-      </a>
+      </span>
     );
     return <div>{detail}</div>;
   };

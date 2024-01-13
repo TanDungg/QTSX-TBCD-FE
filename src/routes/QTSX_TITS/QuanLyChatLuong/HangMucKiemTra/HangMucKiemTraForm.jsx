@@ -19,11 +19,7 @@ import {
   BASE_URL_API,
   DEFAULT_FORM_XUATKHONGOAIQUAN,
 } from "src/constants/Config";
-import {
-  convertObjectToUrlParams,
-  getLocalStorage,
-  getTokenInfo,
-} from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { PlusCircleOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import Helpers from "src/helpers";
@@ -34,11 +30,6 @@ function HangMucKiemTraForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { setFieldsValue, validateFields, resetFields } = form;
-  const INFO = {
-    ...getLocalStorage("menu"),
-    user_Id: getTokenInfo().id,
-    token: getTokenInfo().token,
-  };
   const { loading } = useSelector(({ common }) => common).toJS();
   const [fieldTouch, setFieldTouch] = useState(false);
   const [type, setType] = useState("new");
@@ -50,10 +41,7 @@ function HangMucKiemTraForm({ match, permission, history }) {
   const [ListCongDoan, setListCongDoan] = useState([]);
   const [CongDoan, setCongDoan] = useState(null);
   const [ListHinhAnh, setListHinhAnh] = useState([]);
-  const [HinhAnhDaChon, setHinhAnhDaChon] = useState([]);
   const [ListHinhAnhDaChon, setListHinhAnhDaChon] = useState([]);
-  const [IsSuDungHinhAnh, setIsSuDungHinhAnh] = useState(false);
-  const [info, setInfo] = useState(null);
 
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
@@ -234,9 +222,6 @@ function HangMucKiemTraForm({ match, permission, history }) {
             res.data.list_HinhAnhs
           );
           setCongDoan(res.data.tits_qtsx_CongDoan_Id);
-          setHinhAnhDaChon(res.data.list_HinhAnhs);
-
-          setInfo(res.data);
           setFieldsValue({
             hangmuckiemtra: {
               ...res.data,
@@ -274,7 +259,7 @@ function HangMucKiemTraForm({ match, permission, history }) {
 
   const saveData = (hangmuckiemtra, saveQuit = false) => {
     if (type === "new") {
-      if (ListHinhAnhDaChon.length === 0 && IsSuDungHinhAnh === false) {
+      if (ListHinhAnhDaChon.length === 0) {
         setFieldTouch(false);
         Helpers.alertError("Vui lòng chọn hình ảnh");
       } else {

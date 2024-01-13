@@ -4,13 +4,7 @@ import { map, isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import {
-  exportExcel,
-  getDateNow,
-  getNamNow,
-  getThangNow,
-  reDataForTable,
-} from "src/util/Common";
+import { exportExcel, getDateNow, reDataForTable } from "src/util/Common";
 import {
   EditableTableRow,
   Table,
@@ -30,7 +24,6 @@ const { RangePicker } = DatePicker;
 function TonKho({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
-  // const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
   const [DataView, setDataView] = useState([]);
   const [ActiveModale, setActiveModale] = useState(false);
@@ -40,7 +33,6 @@ function TonKho({ permission, history, match }) {
   const [InfoTotal, setInfoTotal] = useState({
     tonDauKy: 0,
     soLuongNhap: 0,
-    soLuongXuat: 0,
     soLuongXuat: 0,
   });
 
@@ -116,31 +108,6 @@ function TonKho({ permission, history, match }) {
         }
       })
       .catch((error) => console.error(error));
-    // let params = convertObjectToUrlParams({
-    //   KeyWord,
-    //   TuNgay,
-    //   Nam,
-    //   page: -1,
-    // });
-    // new Promise((resolve, reject) => {
-    //   dispatch(
-    //     fetchStart(
-    //       `lkn_BaoCao/get-bao-cao-ton-kho?${params}`,
-    //       "GET",
-    //       null,
-    //       "DETAIL",
-    //       "",
-    //       resolve,
-    //       reject
-    //     )
-    //   );
-    // })
-    //   .then((res) => {
-    //     if (res && res.data) {
-    //       setDataXuat(res.data);
-    //     }
-    //   })
-    //   .catch((error) => console.error(error));
   };
   const getKho = () => {
     new Promise((resolve, reject) => {
@@ -283,7 +250,11 @@ function TonKho({ permission, history, match }) {
           width: 150,
           render: (val, record) => {
             return (
-              <a
+              <span
+                style={{
+                  color: "#0469b9",
+                  cursor: "pointer",
+                }}
                 onClick={() => {
                   setActiveModale(true);
                   setInfo({
@@ -299,7 +270,7 @@ function TonKho({ permission, history, match }) {
                 }}
               >
                 {val}
-              </a>
+              </span>
             );
           },
         },
@@ -317,7 +288,11 @@ function TonKho({ permission, history, match }) {
           width: 150,
           render: (val, record) => {
             return (
-              <a
+              <span
+                style={{
+                  color: "#0469b9",
+                  cursor: "pointer",
+                }}
                 onClick={() => {
                   setActiveModale(true);
                   setInfo({
@@ -333,7 +308,7 @@ function TonKho({ permission, history, match }) {
                 }}
               >
                 {val}
-              </a>
+              </span>
             );
           },
         },
@@ -351,7 +326,11 @@ function TonKho({ permission, history, match }) {
           width: 150,
           render: (val, record) => {
             return (
-              <a
+              <span
+                style={{
+                  color: "#0469b9",
+                  cursor: "pointer",
+                }}
                 onClick={() => {
                   setActiveModale(true);
                   setInfo({
@@ -367,7 +346,7 @@ function TonKho({ permission, history, match }) {
                 }}
               >
                 {val}
-              </a>
+              </span>
             );
           },
         },

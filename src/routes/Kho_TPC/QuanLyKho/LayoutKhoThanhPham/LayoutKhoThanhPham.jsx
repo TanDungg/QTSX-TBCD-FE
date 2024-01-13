@@ -169,12 +169,6 @@ function LayoutKhoThanhPham({ history, permission }) {
         return <span>{val.tenNgan ? val.tenNgan : val.tenKe}</span>;
       },
     },
-    // {
-    //   title: "Hạn sử dụng",
-    //   dataIndex: "thoiGianSuDung",
-    //   key: "thoiGianSuDung",
-    //   align: "center",
-    // },
   ];
   const components = {
     body: {
@@ -301,7 +295,6 @@ function LayoutKhoThanhPham({ history, permission }) {
                                     ></Row>
                                   )
                                 ),
-                                ,
                                 ...ke.children.map((tang, index) => {
                                   return (
                                     <Row

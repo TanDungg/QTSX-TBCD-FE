@@ -183,9 +183,8 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
 
   const saveData = (CauTrucKho, saveQuit = false) => {
     if (type === "new") {
-      CauTrucKho.viTri === undefined
-        ? (CauTrucKho.viTri = 0)
-        : (CauTrucKho.viTri = CauTrucKho.viTri);
+      CauTrucKho.viTri =
+        CauTrucKho.viTri === undefined ? null : CauTrucKho.viTri;
       CauTrucKho.isCoDinh = true;
       const newUser = CauTrucKho;
       newUser.cauTrucKho_Id =

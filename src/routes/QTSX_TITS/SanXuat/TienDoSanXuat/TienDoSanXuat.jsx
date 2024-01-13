@@ -152,62 +152,7 @@ function TienDoSanXuat({ match, history, permission }) {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * Xưởng Id
-   * Get list chuyền
-   * @param {*} chuyen_Id
-   */
-  const getChuyen = (xuong_Id) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_Chuyen?page=-1&&xuong_Id=${xuong_Id}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListChuyen(res.data);
-        } else {
-          setListChuyen([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-  /**
-   * Chuyền Id
-   * Get list trạm
-   * @param {*} chuyen_Id
-   */
-  const getTram = (chuyen_Id) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_Tram?page=-1&&chuyen_Id=${chuyen_Id}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListTram(res.data);
-        } else {
-          setListTram([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
+
   /**
    * Trạm Id
    * Get list số khung nội bộ

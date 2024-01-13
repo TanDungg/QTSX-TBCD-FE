@@ -295,7 +295,7 @@ function LayoutKhoVatTu({ history, permission }) {
                                     ></Row>
                                   )
                                 ),
-                                ,
+
                                 ...ke.children.map((tang, index) => {
                                   return (
                                     <Row

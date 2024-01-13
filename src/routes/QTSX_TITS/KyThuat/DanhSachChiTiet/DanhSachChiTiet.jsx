@@ -241,7 +241,15 @@ function DanhSachChiTiet({ match, history, permission }) {
   const renderDetail = (record) => {
     return (
       <div>
-        <a onClick={() => XemChiTiet(record)}>{record && record.maChiTiet}</a>
+        <span
+          style={{
+            color: "#0469b9",
+            cursor: "pointer",
+          }}
+          onClick={() => XemChiTiet(record)}
+        >
+          {record && record.maChiTiet}
+        </span>
       </div>
     );
   };

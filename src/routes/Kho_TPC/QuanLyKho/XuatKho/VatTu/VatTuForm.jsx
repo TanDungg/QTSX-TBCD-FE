@@ -476,10 +476,6 @@ const VatTuForm = ({ history, match, permission }) => {
       </div>
     );
   };
-
-  const renderListKho = (record) => {
-    return <span>{record.tenKho}</span>;
-  };
   const XacNhanEdit = (item) => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -1015,7 +1011,6 @@ const VatTuForm = ({ history, match, permission }) => {
                   format={"DD/MM/YYYY"}
                   allowClear={false}
                   onChange={(date, dateString) => {
-                    // setNgayYeuCau(moment(dateString, "DD/MM/YYYY"));
                     setListVatTu([]);
                     setFieldsValue({
                       phieuxuatkhovattu: {

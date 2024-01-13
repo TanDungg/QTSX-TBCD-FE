@@ -352,11 +352,14 @@ function HangMucKiemTra({ match, history, permission }) {
 
   const renderSoLuongHinhAnh = (record) => {
     return (
-      <div>
-        <a onClick={() => XemChiTiet(record)}>
-          {record && record.soLuongHinhAnh}
-        </a>
-      </div>
+      <span
+        style={{ color: "#0469b9", cursor: "pointer" }}
+        onClick={() => {
+          XemChiTiet(record);
+        }}
+      >
+        {record && record.soLuongHinhAnh}
+      </span>
     );
   };
 

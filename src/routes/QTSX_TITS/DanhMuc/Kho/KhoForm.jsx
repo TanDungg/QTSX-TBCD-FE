@@ -188,13 +188,6 @@ function KhoForm({ match, permission, history }) {
         .catch((error) => console.log(error));
     }
   };
-  const handleSelectPhongBan = (val) => {
-    setFieldsValue({
-      CauTrucKho: {
-        cauTrucKho_Id: null,
-      },
-    });
-  };
 
   /**
    * Quay lại trang cấu trúc kho

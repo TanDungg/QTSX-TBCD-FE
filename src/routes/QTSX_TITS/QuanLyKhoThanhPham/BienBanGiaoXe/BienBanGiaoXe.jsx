@@ -15,7 +15,6 @@ import {
   Table,
   EditableTableRow,
   Toolbar,
-  Select,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -35,7 +34,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
 function PhieuKiemKe({ match, history, permission }) {
-  const { loading, data } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
@@ -269,9 +268,9 @@ function PhieuKiemKe({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, pageSize } = data;
+  const { totalRow, pageSize } = Data;
 
-  let dataList = reDataForTable(data.datalist, page, pageSize);
+  let dataList = reDataForTable(Data.datalist, page, pageSize);
 
   const renderDetail = (val) => {
     const detail =

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Checkbox, Row } from "antd";
+import { Card, Button, Divider, Col, Checkbox } from "antd";
 import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -9,7 +9,6 @@ import {
   Table,
   EditableTableRow,
   Toolbar,
-  Select,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -20,23 +19,24 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function NhomLoi({ match, history, permission }) {
-  const { width, loading } = useSelector(({ common }) => common).toJS();
+function PhienBan({ match, history, permission }) {
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
+  const { width, loading, data } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
-  const [Data, setData] = useState([]);
-  const [ListCongDoan, setListCongDoan] = useState([]);
-  const [CongDoan, setCongDoan] = useState(null);
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (permission && permission.view) {
-      getCongDoan();
-      getListData(CongDoan, keyword, page);
+      loadData(keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -45,68 +45,35 @@ function NhomLoi({ match, history, permission }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListData = (tits_qtsx_CongDoan_Id, keyword, page) => {
+  /**
+   * Lấy dữ liệu về
+   *
+   */
+  const loadData = (keyword, page) => {
     const param = convertObjectToUrlParams({
-      tits_qtsx_CongDoan_Id,
       keyword,
+      phanMem_Id: INFO.phanMem_Id,
+      donVi_Id: INFO.donVi_Id,
       page,
     });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_NhomLoi?${param}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setData(res.data);
-        } else {
-          setData([]);
-        }
-      })
-      .catch((error) => console.error(error));
+    dispatch(fetchStart(`PhienBan?${param}`, "GET", null, "LIST"));
   };
-
-  const getCongDoan = () => {
-    let param = convertObjectToUrlParams({
-      donVi_Id: INFO.donVi_Id,
-      page: -1,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_CongDoan?${param}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListCongDoan(res.data);
-        } else {
-          setListCongDoan([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
+  /**
+   * handleTableChange
+   *
+   * Fetch dữ liệu dựa theo thay đổi trang
+   * @param {number} pagination
+   */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(CongDoan, keyword, pagination);
+    loadData(keyword, pagination);
   };
-
+  /**
+   * ActionContent: Hành động trên bảng
+   * @param {*} item
+   * @returns View
+   * @memberof ChucNang
+   */
   const actionContent = (item) => {
     const editItem =
       permission && permission.edit ? (
@@ -146,7 +113,7 @@ function NhomLoi({ match, history, permission }) {
    * @memberof VaiTro
    */
   const deleteItemFunc = (item) => {
-    ModalDeleteConfirm(deleteItemAction, item, item.maNhomLoi, "nhóm lỗi");
+    ModalDeleteConfirm(deleteItemAction, item, item.maPhienBan, "phiên bản");
   };
 
   /**
@@ -155,13 +122,13 @@ function NhomLoi({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `/api/tits_qtsx_NhomLoi/${item.id}`;
+    let url = `PhienBan/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
         // Reload lại danh sách
-        getListData(CongDoan, keyword, page);
+        loadData(keyword, page);
       })
       .catch((error) => console.error(error));
   };
@@ -190,11 +157,35 @@ function NhomLoi({ match, history, permission }) {
       </Button>
     );
   };
-  const { pageSize, totalRow } = Data;
-  const dataList = reDataForTable(Data.datalist, page, pageSize);
+  const { pageSize, totalRow } = data;
+  const dataList = reDataForTable(data.data, page, pageSize);
 
   const renderSuDung = (item) => {
     return <Checkbox checked={item.isSuDung} disabled={true} />;
+  };
+
+  const handleDownloadAPK = (item) => {
+    const link = document.createElement("a");
+    link.href = BASE_URL_API + item.fileUrl;
+    link.target = "_blank";
+    link.download = item.fileUrl;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const renderFileAPK = (item) => {
+    if (!isEmpty(item.fileUrl)) {
+      return (
+        <span
+          style={{ color: "#0469B9", cursor: "pointer" }}
+          onClick={() => handleDownloadAPK(item)}
+        >
+          {item.fileUrl.split("/")[6]}
+        </span>
+      );
+    }
+    return null;
   };
 
   let renderHead = [
@@ -206,64 +197,65 @@ function NhomLoi({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã nhóm lỗi",
-      dataIndex: "maNhomLoi",
-      key: "maNhomLoi",
+      title: "Mã phiên bản",
+      dataIndex: "maPhienBan",
+      key: "maPhienBan",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maNhomLoi,
-            value: d.maNhomLoi,
+            text: d.maPhienBan,
+            value: d.maPhienBan,
           };
         })
       ),
-      onFilter: (value, record) => record.maNhomLoi.includes(value),
+      onFilter: (value, record) => record.maPhienBan.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên nhóm lỗi",
-      dataIndex: "tenNhomLoi",
-      key: "tenNhomLoi",
+      title: "Mô tả",
+      dataIndex: "moTa",
+      key: "moTa",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenNhomLoi,
-            value: d.tenNhomLoi,
+            text: d.moTa,
+            value: d.moTa,
           };
         })
       ),
-      onFilter: (value, record) => record.tenNhomLoi.includes(value),
+      onFilter: (value, record) => record.moTa.includes(value),
       filterSearch: true,
     },
     {
-      title: "Công đoạn",
-      dataIndex: "tenCongDoan",
-      key: "tenCongDoan",
+      title: "Tên file",
+      dataIndex: "fileName",
+      key: "fileName",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenCongDoan,
-            value: d.tenCongDoan,
+            text: d.fileName,
+            value: d.fileName,
           };
         })
       ),
-      onFilter: (value, record) => record.tenCongDoan.includes(value),
+      onFilter: (value, record) => record.fileName.includes(value),
       filterSearch: true,
+    },
+
+    {
+      title: "Link file",
+      key: "fileUrl",
+      align: "center",
+      render: (record) => renderFileAPK(record),
     },
     {
       title: "Sử dụng",
       key: "isSuDung",
       align: "center",
       render: (val) => renderSuDung(val),
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
     },
     {
       title: "Chức năng",
@@ -274,15 +266,24 @@ function NhomLoi({ match, history, permission }) {
     },
   ];
 
+  /**
+   * Tìm kiếm người dùng
+   *
+   */
   const onSearchNhomLoi = () => {
     setPage(1);
-    getListData(CongDoan, keyword, 1);
+    loadData(keyword, 1);
   };
 
+  /**
+   * Thay đổi keyword
+   *
+   * @param {*} val
+   */
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(CongDoan, val.target.value, page);
+      loadData(val.target.value, page);
     }
   };
   const components = {
@@ -307,102 +308,55 @@ function NhomLoi({ match, history, permission }) {
     };
   });
 
-  const handleOnSelectCongDoan = (value) => {
-    setCongDoan(value);
-    setPage(1);
-    getListData(value, keyword, 1);
-  };
-
-  const handleClearCongDoan = () => {
-    setCongDoan(null);
-    setPage(1);
-    getListData(null, keyword, 1);
-  };
-
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Nhóm lỗi"
-        description="Danh sách nhóm lỗi"
+        title="Phiên bản APK"
+        description="Danh sách phiên bản apk"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row>
-          <Col
-            xxl={8}
-            xl={12}
-            lg={16}
-            md={16}
-            sm={20}
-            xs={24}
+        <Col
+          xxl={8}
+          xl={12}
+          lg={16}
+          md={16}
+          sm={20}
+          xs={24}
+          style={{
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <span
             style={{
-              display: "flex",
-              alignItems: "center",
+              width: "80px",
             }}
           >
-            <span
-              style={{
-                width: "100px",
+            Tìm kiếm:
+          </span>
+          <div
+            style={{
+              flex: 1,
+              alignItems: "center",
+              marginTop: width < 576 ? 10 : 0,
+            }}
+          >
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchNhomLoi,
+                onSearch: onSearchNhomLoi,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
               }}
-            >
-              Công đoạn:
-            </span>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListCongDoan ? ListCongDoan : []}
-              placeholder="Chọn công đoạn"
-              optionsvalue={["id", "tenCongDoan"]}
-              style={{ width: "calc(100% - 100px)" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleOnSelectCongDoan}
-              allowClear
-              onClear={handleClearCongDoan}
-              value={CongDoan}
             />
-          </Col>
-          <Col
-            xxl={8}
-            xl={12}
-            lg={16}
-            md={16}
-            sm={20}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            <span
-              style={{
-                width: "100px",
-              }}
-            >
-              Tìm kiếm:
-            </span>
-            <div
-              style={{
-                flex: 1,
-                alignItems: "center",
-                marginTop: width < 576 ? 10 : 0,
-              }}
-            >
-              <Toolbar
-                count={1}
-                search={{
-                  title: "Tìm kiếm",
-                  loading,
-                  value: keyword,
-                  onChange: onChangeKeyword,
-                  onPressEnter: onSearchNhomLoi,
-                  onSearch: onSearchNhomLoi,
-                  placeholder: "Nhập từ khóa",
-                  allowClear: true,
-                }}
-              />
-            </div>
-          </Col>
-        </Row>
+          </div>
+        </Col>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
@@ -428,4 +382,4 @@ function NhomLoi({ match, history, permission }) {
   );
 }
 
-export default NhomLoi;
+export default PhienBan;

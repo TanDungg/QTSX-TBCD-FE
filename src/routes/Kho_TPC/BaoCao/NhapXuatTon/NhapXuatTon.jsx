@@ -20,10 +20,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function NhapXuatTon({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
-  // const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [Data, setData] = useState([]);
-  const [DataXuat, setDataXuat] = useState([]);
-  const [Loai, setLoai] = useState("sanpham");
   const [TuNgay, setTuNgay] = useState(getDateNow(-14));
   const [DenNgay, setDenNgay] = useState(getDateNow());
   const [keyword, setKeyword] = useState("");

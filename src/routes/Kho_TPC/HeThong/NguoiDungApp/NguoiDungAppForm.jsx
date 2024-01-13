@@ -1,4 +1,4 @@
-import { Form, Card, Switch } from "antd";
+import { Form, Card } from "antd";
 import React, { useEffect, useState } from "react";
 import { FormSubmit } from "src/components/Common";
 import { useDispatch } from "react-redux";

@@ -15,7 +15,7 @@ import {
   getThangNow,
 } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { reDataForTable, getLocalStorage } from "src/util/Common";
+import { reDataForTable } from "src/util/Common";
 import {
   ModalDeleteConfirm,
   Table,

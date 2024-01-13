@@ -39,7 +39,6 @@ import {
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
-import { useLocation } from "react-router-dom";
 import ModalTuChoi from "./ModalTuChoi";
 import ModalThemThanhPham from "./ModalThemThanhPham";
 
@@ -48,7 +47,6 @@ const FormItem = Form.Item;
 
 const PhieuXuatKhoThanhPhamForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
-  const location = useLocation();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [type, setType] = useState("new");
   const [fieldTouch, setFieldTouch] = useState(false);
