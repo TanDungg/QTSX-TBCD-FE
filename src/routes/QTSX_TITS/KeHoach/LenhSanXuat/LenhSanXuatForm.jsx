@@ -445,7 +445,6 @@ function LenhSanXuatForm({ match, permission, history }) {
               rules={[
                 {
                   type: "string",
-                  required: true,
                 },
                 {
                   max: 250,
