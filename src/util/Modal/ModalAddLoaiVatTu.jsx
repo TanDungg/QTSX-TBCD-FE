@@ -78,14 +78,25 @@ function ModalAddLoaiVatTu(props) {
       cancelText={`Hủy`}
       closable={false}
       maskClosable={false}
-      okButtonProps={{disabled: fieldTouch}}
+      okButtonProps={{ disabled: fieldTouch }}
       footer={[
-        <Button key="back" onClick={handleCancel}>
+        <Button
+          className="th-margin-bottom-0"
+          key="back"
+          onClick={handleCancel}
+        >
           Thoát
         </Button>,
-        <Button key="submit" type="primary" loading={loading} htmlType="submit" onClick={handleOk}>
+        <Button
+          className="th-margin-bottom-0"
+          key="submit"
+          type="primary"
+          loading={loading}
+          htmlType="submit"
+          onClick={handleOk}
+        >
           Lưu
-        </Button>
+        </Button>,
       ]}
     >
       <Form
@@ -97,37 +108,33 @@ function ModalAddLoaiVatTu(props) {
       >
         <FormItem
           label="Mã loại vật tư"
-          name={['loaiVatTu', 'maLoaiVatTu']}
-          rules={
-            [{
-              type: 'string',
+          name={["loaiVatTu", "maLoaiVatTu"]}
+          rules={[
+            {
+              type: "string",
               required: true,
               whitespace: true,
               max: 250,
-            }]
-          }
+            },
+          ]}
           initialValue={maLoaiVatTu}
         >
-          <Input
-            className='input-item'
-            placeholder='Nhập Mã loại vật tư'
-          />
+          <Input className="input-item" placeholder="Nhập Mã loại vật tư" />
         </FormItem>
         <FormItem
           label="Tên loại vật tư"
-          name={['loaiVatTu', 'tenLoaiVatTu']}
-          rules={[{
-            type: 'string',
-            required: true,
-            whitespace: true,
-            max: 250
-          }]}
+          name={["loaiVatTu", "tenLoaiVatTu"]}
+          rules={[
+            {
+              type: "string",
+              required: true,
+              whitespace: true,
+              max: 250,
+            },
+          ]}
           initialValue={tenLoaiVatTu}
         >
-          <Input
-            className='input-item'
-            placeholder='Nhập Tên loại vật tư'
-          />
+          <Input className="input-item" placeholder="Nhập Tên loại vật tư" />
         </FormItem>
       </Form>
     </Modal>

@@ -446,7 +446,11 @@ function ImportDieuChuyenNhanVien({ history, permission }) {
           </Col>
           <Col xxl={4} xl={7} lg={8} md={9} xs={11}>
             <Upload {...props}>
-              <Button icon={<UploadOutlined />} danger={checkDanger}>
+              <Button
+                className="th-margin-bottom-0"
+                icon={<UploadOutlined />}
+                danger={checkDanger}
+              >
                 Tải dữ liệu lên
               </Button>
             </Upload>
@@ -485,7 +489,7 @@ function ImportDieuChuyenNhanVien({ history, permission }) {
             <Button
               icon={<DownloadOutlined />}
               onClick={TaiFileMau}
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               type="primary"
             >
               File mẫu
@@ -514,7 +518,7 @@ function ImportDieuChuyenNhanVien({ history, permission }) {
           }}
         />
         <Button
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           style={{ marginTop: 10, float: "right" }}
           type="primary"
           onClick={modalXK}

@@ -25,7 +25,7 @@ const listchuyen = [
   },
 ];
 
-function CauHinhKanBan({ match, history, permission }) {
+function CauHinhKanBan({ history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [Data, setData] = useState([]);

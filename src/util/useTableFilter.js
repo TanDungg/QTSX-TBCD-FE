@@ -20,8 +20,13 @@ const useTableFilter = (dataIndex, title) => {
     setSearchText('');
   };
 
-  return ({
-    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+  return {
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
       <div
         style={{
           padding: 8,
@@ -31,15 +36,18 @@ const useTableFilter = (dataIndex, title) => {
           ref={searchInput}
           placeholder={`Tìm ${title}`}
           value={selectedKeys[0]}
-          onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
           onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
           style={{
             marginBottom: 8,
-            display: 'block',
+            display: "block",
           }}
         />
         <Space>
           <Button
+            className="th-margin-bottom-0"
             type="primary"
             onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
             icon={<SearchOutlined />}
@@ -51,6 +59,7 @@ const useTableFilter = (dataIndex, title) => {
             Tìm
           </Button>
           <Button
+            className="th-margin-bottom-0"
             onClick={() => clearFilters && handleReset(clearFilters)}
             size="small"
             style={{
@@ -65,7 +74,7 @@ const useTableFilter = (dataIndex, title) => {
     filterIcon: (filtered) => (
       <SearchOutlined
         style={{
-          color: filtered ? '#1890ff' : undefined,
+          color: filtered ? "#1890ff" : undefined,
         }}
       />
     ),
@@ -80,17 +89,17 @@ const useTableFilter = (dataIndex, title) => {
       searchedColumn === dataIndex ? (
         <Highlighter
           highlightStyle={{
-            backgroundColor: '#ffc069',
+            backgroundColor: "#ffc069",
             padding: 0,
           }}
           searchWords={[searchText]}
           autoEscape
-          textToHighlight={text ? text.toString() : ''}
+          textToHighlight={text ? text.toString() : ""}
         />
       ) : (
         text
       ),
-  });
+  };
 }
 
 export default useTableFilter;

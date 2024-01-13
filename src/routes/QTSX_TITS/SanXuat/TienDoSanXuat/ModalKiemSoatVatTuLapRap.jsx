@@ -239,6 +239,7 @@ function ModalKiemSoatVatTuLapRap({ openModalFS, openModal, info, refesh }) {
       <Row style={{ marginTop: 10 }}>
         <Col span={24} align="center">
           <Button
+            className="th-margin-bottom-0"
             style={{ margin: 0 }}
             icon={<SaveOutlined />}
             onClick={() => modalXacNhan(onSave, "Lưu theo dõi vật tư lắp ráp")}

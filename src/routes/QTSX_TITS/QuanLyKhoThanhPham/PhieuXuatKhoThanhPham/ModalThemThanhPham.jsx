@@ -719,7 +719,12 @@ function ModalThemThanhPham({
               }}
             />
             <Row justify={"center"} style={{ marginTop: 15 }}>
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+              <Button
+                className="th-margin-bottom-0"
+                type="primary"
+                htmlType={"submit"}
+                disabled={!fieldTouch}
+              >
                 Thêm thành phẩm
               </Button>
             </Row>
@@ -740,6 +745,7 @@ function ModalThemThanhPham({
 
         <Row justify={"center"} style={{ marginTop: 15 }}>
           <Button
+            className="th-margin-bottom-0"
             type="primary"
             onClick={XacNhan}
             disabled={DataListThanhPham.length === 0}

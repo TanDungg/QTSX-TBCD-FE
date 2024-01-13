@@ -141,7 +141,12 @@ function ModalSaoChepQuyTrinh({ openModalFS, openModal, itemData, refesh }) {
               />
             </FormItem>
             <Row justify={"center"}>
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+              <Button
+                className="th-margin-bottom-0"
+                type="primary"
+                htmlType={"submit"}
+                disabled={!fieldTouch}
+              >
                 Sao chép
               </Button>
             </Row>

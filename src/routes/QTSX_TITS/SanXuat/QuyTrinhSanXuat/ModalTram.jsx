@@ -443,6 +443,7 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
             >
               <div align={"end"}>
                 <Button
+                  className="th-margin-bottom-0"
                   icon={<PlusCircleOutlined />}
                   onClick={() => setActiveModalThongTin(true)}
                   type="primary"
@@ -465,7 +466,12 @@ function ModalTram({ openModalFS, openModal, DataThemTram, itemData }) {
               />
             </Card>
             <Row justify={"center"}>
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+              <Button
+                className="th-margin-bottom-0"
+                type="primary"
+                htmlType={"submit"}
+                disabled={!fieldTouch}
+              >
                 {type === "add" ? "Thêm trạm" : "Cập nhật"}
               </Button>
             </Row>

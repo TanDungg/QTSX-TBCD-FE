@@ -307,7 +307,12 @@ function ModalThongTinKiemSoat({
               <Switch />
             </FormItem>
             <Row justify={"center"}>
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+              <Button
+                className="th-margin-bottom-0"
+                type="primary"
+                htmlType={"submit"}
+                disabled={!fieldTouch}
+              >
                 Thêm thông tin
               </Button>
             </Row>
@@ -326,6 +331,7 @@ function ModalThongTinKiemSoat({
           />
           <Row justify={"center"} style={{ marginTop: 15 }}>
             <Button
+              className="th-margin-bottom-0"
               type="primary"
               onClick={XacNhan}
               disabled={!ThongTinKiemSoat.length}

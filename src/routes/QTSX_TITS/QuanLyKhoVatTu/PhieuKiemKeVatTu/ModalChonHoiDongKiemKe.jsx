@@ -267,9 +267,15 @@ function ModalChonHoiDongKiemKe({
               justify={"center"}
               style={{
                 marginTop: 10,
+                marginBotom: 10,
               }}
             >
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+              <Button
+                className="th-margin-bottom-0"
+                type="primary"
+                htmlType={"submit"}
+                disabled={!fieldTouch}
+              >
                 Thêm
               </Button>
             </Row>
@@ -289,7 +295,7 @@ function ModalChonHoiDongKiemKe({
             style={{ display: "flex", justifyContent: "center", marginTop: 10 }}
           >
             <Button
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               type="primary"
               onClick={XacNhan}
               disabled={DataHoiDongKiemKe.length === 0}

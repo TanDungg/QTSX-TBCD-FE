@@ -78,14 +78,25 @@ function ModalAddDonViTinh(props) {
       cancelText={`Hủy`}
       closable={false}
       maskClosable={false}
-      okButtonProps={{disabled: fieldTouch}}
+      okButtonProps={{ disabled: fieldTouch }}
       footer={[
-        <Button key="back" onClick={handleCancel}>
+        <Button
+          className="th-margin-bottom-0"
+          key="back"
+          onClick={handleCancel}
+        >
           Thoát
         </Button>,
-        <Button key="submit" type="primary" loading={loading} htmlType="submit" onClick={handleOk}>
+        <Button
+          className="th-margin-bottom-0"
+          key="submit"
+          type="primary"
+          loading={loading}
+          htmlType="submit"
+          onClick={handleOk}
+        >
           Lưu
-        </Button>
+        </Button>,
       ]}
     >
       <Form
@@ -97,37 +108,33 @@ function ModalAddDonViTinh(props) {
       >
         <FormItem
           label="Mã đơn vị tính"
-          name={['donViTinh', 'maDonViTinh']}
-          rules={
-            [{
-              type: 'string',
+          name={["donViTinh", "maDonViTinh"]}
+          rules={[
+            {
+              type: "string",
               required: true,
               whitespace: true,
               max: 250,
-            }]
-          }
+            },
+          ]}
           initialValue={maDonViTinh}
         >
-          <Input
-            className='input-item'
-            placeholder='Nhập Mã đơn vị tính'
-          />
+          <Input className="input-item" placeholder="Nhập Mã đơn vị tính" />
         </FormItem>
         <FormItem
           label="Tên đơn vị tính"
-          name={['donViTinh', 'tenDonViTinh']}
-          rules={[{
-            type: 'string',
-            required: true,
-            whitespace: true,
-            max: 250
-          }]}
+          name={["donViTinh", "tenDonViTinh"]}
+          rules={[
+            {
+              type: "string",
+              required: true,
+              whitespace: true,
+              max: 250,
+            },
+          ]}
           initialValue={tenDonViTinh}
         >
-          <Input
-            className='input-item'
-            placeholder='Nhập Tên đơn vị tính'
-          />
+          <Input className="input-item" placeholder="Nhập Tên đơn vị tính" />
         </FormItem>
       </Form>
     </Modal>

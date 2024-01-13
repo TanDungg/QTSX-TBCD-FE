@@ -954,11 +954,17 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
       ) : null}
       {type === "xacnhan" && info.tinhTrang === "Chưa xác nhận" ? (
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button icon={<RollbackOutlined />} type="default" onClick={goBack}>
+          <Button
+            icon={<RollbackOutlined />}
+            className="th-margin-bottom-0"
+            type="default"
+            onClick={goBack}
+          >
             Quay lại
           </Button>
           <Button
             icon={<CheckCircleOutlined />}
+            className="th-margin-bottom-0"
             type="primary"
             onClick={modalXK}
           >
@@ -966,6 +972,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
           </Button>
           <Button
             icon={<CloseCircleOutlined />}
+            className="th-margin-bottom-0"
             type="danger"
             onClick={() => setActiveModalTuChoi(true)}
           >

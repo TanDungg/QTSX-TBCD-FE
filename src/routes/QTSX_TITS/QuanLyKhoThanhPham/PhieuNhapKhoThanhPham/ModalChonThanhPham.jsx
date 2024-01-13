@@ -347,9 +347,15 @@ function ModalChonThanhPham({
               style={{
                 display: "flex",
                 justifyContent: "center",
+                marginBotom: 10,
               }}
             >
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+              <Button
+                className="th-margin-bottom-0"
+                type="primary"
+                htmlType={"submit"}
+                disabled={!fieldTouch}
+              >
                 Thêm
               </Button>
             </div>
@@ -367,7 +373,7 @@ function ModalChonThanhPham({
             style={{ display: "flex", justifyContent: "center", marginTop: 10 }}
           >
             <Button
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               type="primary"
               onClick={XacNhan}
               disabled={ListDataThanhPham.length === 0}

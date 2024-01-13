@@ -729,6 +729,7 @@ function TienDoSanXuat({ match, history, permission }) {
               {InfoSanPham.thoiGianVaoTram === "" ||
               !InfoSanPham.thoiGianVaoTram ? (
                 <Button
+                  className="th-margin-bottom-0"
                   icon={<SelectOutlined />}
                   type="primary"
                   style={{ width: "80%" }}
@@ -740,6 +741,7 @@ function TienDoSanXuat({ match, history, permission }) {
               ) : (
                 <>
                   <Button
+                    className="th-margin-bottom-0"
                     icon={<PlusOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
@@ -749,7 +751,8 @@ function TienDoSanXuat({ match, history, permission }) {
                   >
                     Thêm số VIN
                   </Button>
-                  {/* <Button
+                  {/* <Button 
+                    className="th-margin-bottom-0"
                     icon={<SyncOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
@@ -758,6 +761,7 @@ function TienDoSanXuat({ match, history, permission }) {
                     Chuyển sửa chữa lại
                   </Button> */}
                   <Button
+                    className="th-margin-bottom-0"
                     icon={<QrcodeOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
@@ -770,6 +774,7 @@ function TienDoSanXuat({ match, history, permission }) {
                   </Button>
                   {InfoSanPham && InfoSanPham.isCheckVatTu ? (
                     <Button
+                      className="th-margin-bottom-0"
                       icon={<CheckSquareOutlined />}
                       type="primary"
                       style={{ width: "80%" }}
@@ -787,6 +792,7 @@ function TienDoSanXuat({ match, history, permission }) {
                     Xem hồ sơ chất lượng
                   </Button>
                   <Button
+                    className="th-margin-bottom-0"
                     icon={<ToolOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
@@ -802,6 +808,7 @@ function TienDoSanXuat({ match, history, permission }) {
                       : "Sửa chữa lại"}
                   </Button>
                   <Button
+                    className="th-margin-bottom-0"
                     icon={<CheckSquareOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
@@ -811,6 +818,7 @@ function TienDoSanXuat({ match, history, permission }) {
                     Kiểm soát chất lượng
                   </Button>
                   <Button
+                    className="th-margin-bottom-0"
                     icon={<SaveFilled />}
                     type="primary"
                     style={{ width: "50%", margin: 0 }}
@@ -866,6 +874,7 @@ function TienDoSanXuat({ match, history, permission }) {
 
           <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
             <Button
+              className="th-margin-bottom-0"
               disabled={
                 InfoSanPham.thoiGianVaoTram && (Message || FileHinhAnh)
                   ? false

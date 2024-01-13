@@ -308,7 +308,7 @@ function ModalAddViTri({ openModalFS, openModal, refesh, itemData }) {
           <Divider />
           <Row justify={"center"}>
             <Button
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               type="primary"
               htmlType="submit"
               disabled={!fieldTouch}

@@ -297,7 +297,7 @@ function NhapXuatTon({ permission, history, match }) {
       <>
         <Button
           icon={<DownloadOutlined />}
-          classDenNgaye="th-btn-margin-bottom-0"
+          classDenNgaye="th-margin-bottom-0"
           type="primary"
           onClick={XuatExcel}
           disabled={(permission && !permission.add) || Data.length === 0}

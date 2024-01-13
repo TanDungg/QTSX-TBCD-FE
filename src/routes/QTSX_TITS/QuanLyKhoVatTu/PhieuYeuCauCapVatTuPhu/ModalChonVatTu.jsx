@@ -559,6 +559,7 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                   {!DisableUpload ? (
                     <Upload {...props}>
                       <Button
+                        className="th-margin-bottom-0"
                         style={{
                           marginBottom: 0,
                         }}
@@ -611,7 +612,12 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
               </Col>
             </Row>
             <Row justify={"center"}>
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+              <Button
+                className="th-margin-bottom-0"
+                type="primary"
+                htmlType={"submit"}
+                disabled={!fieldTouch}
+              >
                 Thêm vật tư
               </Button>
             </Row>
@@ -632,6 +638,7 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
 
         <Row justify={"center"} style={{ marginTop: 15 }}>
           <Button
+            className="th-margin-bottom-0"
             type="primary"
             onClick={XacNhan}
             disabled={DataListVatTu.length === 0}

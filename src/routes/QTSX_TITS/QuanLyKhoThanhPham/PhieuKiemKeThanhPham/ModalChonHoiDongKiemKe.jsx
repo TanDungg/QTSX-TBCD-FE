@@ -261,7 +261,7 @@ function ModalChonHoiDongKiemKe({
             style={{ display: "flex", justifyContent: "center", marginTop: 10 }}
           >
             <Button
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               type="primary"
               onClick={XacNhan}
               disabled={DataHoiDongKiemKe.length === 0}

@@ -206,7 +206,12 @@ function ModalCongDoan({ openModalFS, openModal, DataThemCongDoan, itemData }) {
               <Switch />
             </FormItem>
             <Row justify={"center"}>
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+              <Button
+                className="th-margin-bottom-0"
+                type="primary"
+                htmlType={"submit"}
+                disabled={!fieldTouch}
+              >
                 Thêm công đoạn
               </Button>
             </Row>

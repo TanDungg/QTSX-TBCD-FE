@@ -78,14 +78,25 @@ function ModalAddXuong(props) {
       cancelText={`Hủy`}
       closable={false}
       maskClosable={false}
-      okButtonProps={{disabled: fieldTouch}}
+      okButtonProps={{ disabled: fieldTouch }}
       footer={[
-        <Button key="back" onClick={handleCancel}>
+        <Button
+          className="th-margin-bottom-0"
+          key="back"
+          onClick={handleCancel}
+        >
           Thoát
         </Button>,
-        <Button key="submit" type="primary" loading={loading} htmlType="submit" onClick={handleOk}>
+        <Button
+          className="th-margin-bottom-0"
+          key="submit"
+          type="primary"
+          loading={loading}
+          htmlType="submit"
+          onClick={handleOk}
+        >
           Lưu
-        </Button>
+        </Button>,
       ]}
     >
       <Form
@@ -97,37 +108,33 @@ function ModalAddXuong(props) {
       >
         <FormItem
           label="Mã xưởng"
-          name={['xuong', 'maXuong']}
-          rules={
-            [{
-              type: 'string',
+          name={["xuong", "maXuong"]}
+          rules={[
+            {
+              type: "string",
               required: true,
               whitespace: true,
               max: 250,
-            }]
-          }
+            },
+          ]}
           initialValue={maXuong}
         >
-          <Input
-            className='input-item'
-            placeholder='Nhập Mã xưởng'
-          />
+          <Input className="input-item" placeholder="Nhập Mã xưởng" />
         </FormItem>
         <FormItem
           label="Tên xưởng"
-          name={['xuong', 'tenXuong']}
-          rules={[{
-            type: 'string',
-            required: true,
-            whitespace: true,
-            max: 250
-          }]}
+          name={["xuong", "tenXuong"]}
+          rules={[
+            {
+              type: "string",
+              required: true,
+              whitespace: true,
+              max: 250,
+            },
+          ]}
           initialValue={tenXuong}
         >
-          <Input
-            className='input-item'
-            placeholder='Nhập Tên xưởng'
-          />
+          <Input className="input-item" placeholder="Nhập Tên xưởng" />
         </FormItem>
       </Form>
     </Modal>

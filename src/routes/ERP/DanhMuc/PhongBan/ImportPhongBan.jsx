@@ -384,7 +384,11 @@ function ImportPhongBan({ openModalFS, openModal, loading, refresh }) {
             </Col>
             <Col xxl={4} xl={5} lg={7} md={7} xs={17}>
               <Upload {...props}>
-                <Button icon={<UploadOutlined />} danger={checkDanger}>
+                <Button
+                  className="th-margin-bottom-0"
+                  icon={<UploadOutlined />}
+                  danger={checkDanger}
+                >
                   Tải dữ liệu lên
                 </Button>
               </Upload>
@@ -420,7 +424,7 @@ function ImportPhongBan({ openModalFS, openModal, loading, refresh }) {
               <Button
                 icon={<DownloadOutlined />}
                 onClick={TaiFileMau}
-                className="th-btn-margin-bottom-0"
+                className="th-margin-bottom-0"
                 type="primary"
               >
                 File mẫu
@@ -440,7 +444,7 @@ function ImportPhongBan({ openModalFS, openModal, loading, refresh }) {
             rowClassName={RowStyle}
           />
           <Button
-            className="th-btn-margin-bottom-0"
+            className="th-margin-bottom-0"
             style={{ marginTop: 10, float: "right" }}
             type="primary"
             onClick={modalXK}

@@ -346,7 +346,7 @@ function DanhMucThietBi({ permission, history }) {
       <>
         <Button
           icon={<UploadOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={handleImport}
           disabled={permission && !permission.add}
@@ -355,7 +355,7 @@ function DanhMucThietBi({ permission, history }) {
         </Button>
         <Button
           icon={<PlusOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={handleRedirect}
           disabled={permission && !permission.add}

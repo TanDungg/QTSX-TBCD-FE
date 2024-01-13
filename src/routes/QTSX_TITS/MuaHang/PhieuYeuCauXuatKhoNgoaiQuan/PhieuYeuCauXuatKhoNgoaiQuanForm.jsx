@@ -779,6 +779,7 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
         {(type === "new" || type === "edit") && (
           <div align={"end"}>
             <Button
+              className="th-margin-bottom-0"
               icon={<PlusCircleOutlined />}
               onClick={() => setActiveModalChonVatTu(true)}
               type="primary"

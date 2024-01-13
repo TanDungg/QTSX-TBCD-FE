@@ -634,6 +634,7 @@ function ModalThemVatPham({
                   {!DisableUpload ? (
                     <Upload {...props}>
                       <Button
+                        className="th-margin-bottom-0"
                         style={{
                           marginBottom: 0,
                         }}
@@ -755,7 +756,12 @@ function ModalThemVatPham({
               }}
             />
             <Row justify={"center"} style={{ marginTop: 15 }}>
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+              <Button
+                className="th-margin-bottom-0"
+                type="primary"
+                htmlType={"submit"}
+                disabled={!fieldTouch}
+              >
                 Thêm thành phẩm
               </Button>
             </Row>
@@ -776,6 +782,7 @@ function ModalThemVatPham({
 
         <Row justify={"center"} style={{ marginTop: 15 }}>
           <Button
+            className="th-margin-bottom-0"
             type="primary"
             onClick={XacNhan}
             disabled={DataListVatPham.length === 0}
