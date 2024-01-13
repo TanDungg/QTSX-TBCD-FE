@@ -14,16 +14,20 @@ function ModalUploadHinhVatTu(props) {
       visible={props.visible}
       onCancel={() => props.openModal(false)}
       footer={[
-        <Button key="back" onClick={() => props.openModal(false)}>
+        <Button
+          className="th-margin-bottom-0"
+          key="back"
+          onClick={() => props.openModal(false)}
+        >
           Thoát
-        </Button>
+        </Button>,
       ]}
     >
       <Upload
         name="file"
         accept="image/*"
         headers={{
-          authorization: `Bearer ${token}`
+          authorization: `Bearer ${token}`,
         }}
         action={`${BASE_URL_API}/api/Upload`}
         listType="picture-card"
@@ -32,15 +36,15 @@ function ModalUploadHinhVatTu(props) {
         onChange={props.onChange}
         onRemove={props.onRemove}
       >
-        {props.fileList.length === 0 &&
-        <div>
-          <PlusOutlined />
-          <div className="ant-upload-text">Upload</div>
-        </div>
-        }
+        {props.fileList.length === 0 && (
+          <div>
+            <PlusOutlined />
+            <div className="ant-upload-text">Upload</div>
+          </div>
+        )}
       </Upload>
     </Modal>
-  )
+  );
 }
 
 ModalUploadHinhVatTu.defaultProps = {

@@ -41,7 +41,7 @@ const listchuyen = [
   },
 ];
 
-function MaySanXuat({ match, history, permission }) {
+function MaySanXuat({ history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [DataMaySanXuat, setDataMaySanXuat] = useState([]);

@@ -519,8 +519,13 @@ function ModalThemThanhPham({
                 </FormItem>
               </Col>
             </Row>
-            <Row justify={"center"} style={{ marginTop: 15 }}>
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+            <Row justify={"center"} style={{ marginTop: 15, marginBotom: 10 }}>
+              <Button
+                className="th-margin-bottom-0"
+                type="primary"
+                htmlType={"submit"}
+                disabled={!fieldTouch}
+              >
                 Thêm thành phẩm
               </Button>
             </Row>
@@ -540,7 +545,12 @@ function ModalThemThanhPham({
         />
 
         <Row justify={"center"} style={{ marginTop: 15 }}>
-          <Button type="primary" onClick={XacNhan} disabled={DisabledSave}>
+          <Button
+            className="th-margin-bottom-0"
+            type="primary"
+            onClick={XacNhan}
+            disabled={DisabledSave}
+          >
             Xác nhận
           </Button>
         </Row>

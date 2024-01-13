@@ -974,6 +974,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 {!disableUpload ? (
                   <Upload {...props}>
                     <Button
+                      className="th-margin-bottom-0"
                       style={{
                         marginBottom: 0,
                       }}

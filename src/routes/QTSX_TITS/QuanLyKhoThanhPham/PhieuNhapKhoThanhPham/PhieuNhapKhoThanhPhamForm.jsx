@@ -1,4 +1,10 @@
-import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
+  DeleteOutlined,
+  PlusCircleOutlined,
+  RollbackOutlined,
+} from "@ant-design/icons";
 import { Card, Form, Input, Row, Col, DatePicker, Tag, Button } from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
@@ -902,27 +908,34 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
         />
       </Card>
       {type === "xacnhan" && info.tinhTrang === "Chưa duyệt" && (
-        <Row justify={"center"}>
-          <Col style={{ marginRight: 15 }}>
-            <Button type="default" onClick={goBack}>
-              Quay lại
-            </Button>
-          </Col>
-          <Col style={{ marginRight: 15 }}>
-            <Button type="primary" onClick={modalXK}>
-              Xác nhận
-            </Button>
-          </Col>
-          <Col style={{ marginRight: 15 }}>
-            <Button
-              type="danger"
-              onClick={() => setActiveModalTuChoi(true)}
-              disabled={info.tinhTrang !== "Chưa duyệt"}
-            >
-              Từ chối
-            </Button>
-          </Col>
-        </Row>
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <Button
+            icon={<RollbackOutlined />}
+            className="th-margin-bottom-0"
+            type="default"
+            onClick={goBack}
+          >
+            Quay lại
+          </Button>
+          <Button
+            icon={<CheckCircleOutlined />}
+            className="th-margin-bottom-0"
+            type="primary"
+            onClick={modalXK}
+            disabled={info.tinhTrang !== "Chưa duyệt"}
+          >
+            Xác nhận
+          </Button>
+          <Button
+            icon={<CloseCircleOutlined />}
+            className="th-margin-bottom-0"
+            type="danger"
+            onClick={() => setActiveModalTuChoi(true)}
+            disabled={info.tinhTrang !== "Chưa duyệt"}
+          >
+            Từ chối
+          </Button>
+        </div>
       )}
       {type === "new" || type === "edit" ? (
         <FormSubmit

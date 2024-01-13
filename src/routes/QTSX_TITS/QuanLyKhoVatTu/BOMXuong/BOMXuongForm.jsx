@@ -1232,7 +1232,7 @@ function BOMXuongForm({ match, permission, history }) {
                 <Button
                   icon={<DownloadOutlined />}
                   onClick={TaiFileMau}
-                  className="th-btn-margin-bottom-0"
+                  className="th-margin-bottom-0"
                   type="primary"
                   disabled={SanPham === ""}
                 >
@@ -1246,6 +1246,7 @@ function BOMXuongForm({ match, permission, history }) {
           <Row>
             <Col span={24} align="end">
               <Button
+                className="th-margin-bottom-0"
                 icon={<PlusOutlined />}
                 type="primary"
                 onClick={() => setActiveModal(true)}
@@ -1283,7 +1284,7 @@ function BOMXuongForm({ match, permission, history }) {
           <Row>
             <Col style={{ marginBottom: 8, textAlign: "center" }} span={24}>
               <Button
-                className="th-btn-margin-bottom-0"
+                className="th-margin-bottom-0"
                 icon={<RollbackOutlined />}
                 onClick={goBack}
                 style={{ marginTop: 10 }}
@@ -1291,7 +1292,7 @@ function BOMXuongForm({ match, permission, history }) {
                 Quay lại
               </Button>
               <Button
-                className="th-btn-margin-bottom-0"
+                className="th-margin-bottom-0"
                 type="primary"
                 onClick={() => modalDuyet()}
                 icon={<SaveOutlined />}
@@ -1300,7 +1301,7 @@ function BOMXuongForm({ match, permission, history }) {
                 Duyệt
               </Button>
               <Button
-                className="th-btn-margin-bottom-0"
+                className="th-margin-bottom-0"
                 icon={<CloseOutlined />}
                 style={{ marginTop: 10 }}
                 onClick={() => modalTuChoi()}

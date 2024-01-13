@@ -1039,11 +1039,17 @@ const PhieuKiemKeThanhPhamForm = ({ history, match, permission }) => {
       ) : null}
       {type === "duyet" && info.tinhTrang === "Chưa duyệt" ? (
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button icon={<RollbackOutlined />} type="default" onClick={goBack}>
+          <Button
+            icon={<RollbackOutlined />}
+            className="th-margin-bottom-0"
+            type="default"
+            onClick={goBack}
+          >
             Quay lại
           </Button>
           <Button
             icon={<CheckCircleOutlined />}
+            className="th-margin-bottom-0"
             type="primary"
             onClick={modalXK}
           >
@@ -1051,6 +1057,7 @@ const PhieuKiemKeThanhPhamForm = ({ history, match, permission }) => {
           </Button>
           <Button
             icon={<CloseCircleOutlined />}
+            className="th-margin-bottom-0"
             type="danger"
             onClick={() => setActiveModalTuChoi(true)}
           >

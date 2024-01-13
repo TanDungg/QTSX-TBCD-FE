@@ -56,7 +56,12 @@ function ModalTuChoi({ openModalFS, openModal, saveTuChoi }) {
             <Input className="input-item" placeholder="Lý do từ chối" />
           </FormItem>
           <Row justify={"center"}>
-            <Button type="danger" htmlType={"submit"} disabled={!fieldTouch}>
+            <Button
+              className="th-margin-bottom-0"
+              type="danger"
+              htmlType={"submit"}
+              disabled={!fieldTouch}
+            >
               Từ chối
             </Button>
           </Row>

@@ -347,7 +347,7 @@ function DieuChuyen({ permission, history, match }) {
       <>
         <Button
           icon={<DownloadOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={XuatExcel}
           disabled={(permission && !permission.add) || Data.length === 0}

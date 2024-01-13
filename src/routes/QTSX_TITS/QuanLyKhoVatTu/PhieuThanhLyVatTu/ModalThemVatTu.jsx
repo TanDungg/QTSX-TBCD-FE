@@ -636,6 +636,7 @@ function ModalThemVatTu({ openModalFS, openModal, DataThemVatPham, itemData }) {
                   {!DisableUpload ? (
                     <Upload {...props}>
                       <Button
+                        className="th-margin-bottom-0"
                         style={{
                           marginBottom: 0,
                         }}
@@ -756,8 +757,13 @@ function ModalThemVatTu({ openModalFS, openModal, DataThemVatPham, itemData }) {
                 selectedRowKeys: SelectedKeys,
               }}
             />
-            <Row justify={"center"} style={{ marginTop: 15 }}>
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+            <Row justify={"center"} style={{ marginTop: 15, marginBottom: 10 }}>
+              <Button
+                className="th-margin-bottom-0"
+                type="primary"
+                htmlType={"submit"}
+                disabled={!fieldTouch}
+              >
                 Thêm vật tư
               </Button>
             </Row>
@@ -778,6 +784,7 @@ function ModalThemVatTu({ openModalFS, openModal, DataThemVatPham, itemData }) {
 
         <Row justify={"center"} style={{ marginTop: 15 }}>
           <Button
+            className="th-margin-bottom-0"
             type="primary"
             onClick={XacNhan}
             disabled={DataListVatPham.length === 0}

@@ -196,6 +196,7 @@ function ModalAddCBNV({
         <Divider />
         <Row justify={"end"}>
           <Button
+            className="th-margin-bottom-0"
             type="primary"
             style={{ marginBottom: -5, marginRight: 15 }}
             onClick={handleAdd}

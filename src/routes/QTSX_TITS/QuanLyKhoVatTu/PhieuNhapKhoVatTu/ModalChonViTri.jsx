@@ -227,7 +227,7 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ViTriLuuKho }) {
             style={{ display: "flex", justifyContent: "center", marginTop: 20 }}
           >
             <Button
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               type="primary"
               onClick={XacNhanViTri}
               disabled={DisabledSave}

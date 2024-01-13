@@ -1508,6 +1508,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
           (type === "edit" && info.tinhTrang === "Chưa duyệt")) && (
           <div align={"end"}>
             <Button
+              className="th-margin-bottom-0"
               icon={<PlusCircleOutlined />}
               onClick={() => setActiveModalCongDoan(true)}
               type="primary"
@@ -1564,10 +1565,16 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       info.tinhTrang === "Chưa duyệt" &&
       info.nguoiDuyet_Id === INFO.user_Id ? (
         <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button icon={<RollbackOutlined />} type="default" onClick={goBack}>
+          <Button
+            icon={<RollbackOutlined />}
+            className="th-margin-bottom-0"
+            type="default"
+            onClick={goBack}
+          >
             Quay lại
           </Button>
           <Button
+            className="th-margin-bottom-0"
             icon={<CheckCircleOutlined />}
             type="primary"
             onClick={modalXK}
@@ -1575,6 +1582,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
             Xác nhận
           </Button>
           <Button
+            className="th-margin-bottom-0"
             icon={<CloseCircleOutlined />}
             type="danger"
             onClick={() => setActiveModalTuChoi(true)}

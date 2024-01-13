@@ -540,9 +540,15 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
               justify={"center"}
               style={{
                 marginTop: 10,
+                marginBottom: 10,
               }}
             >
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+              <Button
+                className="th-margin-bottom-0"
+                type="primary"
+                htmlType={"submit"}
+                disabled={!fieldTouch}
+              >
                 Thêm vật tư
               </Button>
             </Row>
@@ -562,7 +568,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, DataThemVatTu }) {
             style={{ display: "flex", justifyContent: "center", marginTop: 10 }}
           >
             <Button
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               type="primary"
               onClick={XacNhan}
               disabled={DataListVatTu.length === 0}

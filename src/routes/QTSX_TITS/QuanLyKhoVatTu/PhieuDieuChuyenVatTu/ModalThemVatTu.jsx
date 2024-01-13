@@ -567,8 +567,13 @@ function ModalThemVatPham({
                 selectedRowKeys: SelectedKeys,
               }}
             />
-            <Row justify={"center"} style={{ marginTop: 15 }}>
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
+            <Row justify={"center"} style={{ marginTop: 15, marginBotom: 10 }}>
+              <Button
+                className="th-margin-bottom-0"
+                type="primary"
+                htmlType={"submit"}
+                disabled={!fieldTouch}
+              >
                 Thêm vật tư
               </Button>
             </Row>
@@ -589,6 +594,7 @@ function ModalThemVatPham({
 
         <Row justify={"center"} style={{ marginTop: 15 }}>
           <Button
+            className="th-margin-bottom-0"
             type="primary"
             onClick={XacNhan}
             disabled={DataListVatPham.length === 0}
