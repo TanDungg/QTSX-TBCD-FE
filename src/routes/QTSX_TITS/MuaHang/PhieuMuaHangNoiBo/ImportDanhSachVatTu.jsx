@@ -449,7 +449,11 @@ function ImportDanhSachVatTu({
             </Col>
             <Col xxl={4} xl={5} lg={7} md={7} xs={17}>
               <Upload {...props}>
-                <Button icon={<UploadOutlined />} danger={checkDanger}>
+                <Button
+                  className="th-margin-bottom-0"
+                  icon={<UploadOutlined />}
+                  danger={checkDanger}
+                >
                   Tải dữ liệu lên
                 </Button>
               </Upload>
@@ -485,7 +489,7 @@ function ImportDanhSachVatTu({
               <Button
                 icon={<DownloadOutlined />}
                 onClick={() => TaiFileMau()}
-                className="th-btn-margin-bottom-0"
+                className="th-margin-bottom-0"
                 type="primary"
               >
                 File mẫu
@@ -511,7 +515,7 @@ function ImportDanhSachVatTu({
           />
           <div style={{ display: "flex", justifyContent: "center" }}>
             <Button
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               type="primary"
               onClick={modalXK}
               disabled={DataListVatTu.length > 0 && checkDanger}

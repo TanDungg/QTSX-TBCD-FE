@@ -1,6 +1,9 @@
 import {
+  CheckCircleOutlined,
+  CloseCircleOutlined,
   DeleteOutlined,
   PlusCircleOutlined,
+  RollbackOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
 import {
@@ -1313,24 +1316,36 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           // loading={loading}
         />
       </Card>
-      {type === "xacnhan" && info.tinhTrang === "Chưa xác nhận" && (
-        <Row justify={"end"} style={{ marginTop: 15 }}>
-          <Col style={{ marginRight: 15 }}>
-            <Button type="primary" onClick={modalXK} disabled={!fieldTouch}>
-              Xác nhận
-            </Button>
-          </Col>
-          <Col style={{ marginRight: 15 }}>
-            <Button
-              type="danger"
-              onClick={() => setActiveModalTuChoi(true)}
-              disabled={info.tinhTrang !== "Chưa xác nhận"}
-            >
-              Từ chối
-            </Button>
-          </Col>
-        </Row>
-      )}
+      {type === "xacnhan" && info.tinhTrang === "Chưa xác nhận" ? (
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <Button
+            icon={<RollbackOutlined />}
+            className="th-margin-bottom-0"
+            type="default"
+            onClick={goBack}
+          >
+            Quay lại
+          </Button>
+          <Button
+            icon={<CheckCircleOutlined />}
+            className="th-margin-bottom-0"
+            type="primary"
+            onClick={modalXK}
+            disabled={!fieldTouch}
+          >
+            Xác nhận
+          </Button>
+          <Button
+            icon={<CloseCircleOutlined />}
+            className="th-margin-bottom-0"
+            type="danger"
+            onClick={() => setActiveModalTuChoi(true)}
+            disabled={info.tinhTrang !== "Chưa xác nhận"}
+          >
+            Từ chối
+          </Button>
+        </div>
+      ) : null}
       {type === "new" || type === "edit" ? (
         <FormSubmit
           goBack={goBack}
