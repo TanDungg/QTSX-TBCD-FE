@@ -65,6 +65,7 @@ const VatTuForm = ({ history, match, permission }) => {
   const [KhoVatTu, setKhoVatTu] = useState(null);
   const [VatTu, setVatTu] = useState([]);
   const [ListSoLo, setListSoLo] = useState([]);
+  const [ListBOM, setListBOM] = useState([]);
   const [isLoaiThep, setIsLoaiThep] = useState(null);
   const [isThepTam, setIsThepTam] = useState(null);
   const [DisabledKhoXuat, setDisabledKhoXuat] = useState(false);
@@ -187,22 +188,16 @@ const VatTuForm = ({ history, match, permission }) => {
     });
   };
 
-  const getListSoLo = (
-    tits_qtsx_Xuong_Id,
-    tits_qtsx_DonHang_Id,
-    tits_qtsx_SanPham_Id
-  ) => {
+  const getListSoLo = (tits_qtsx_Xuong_Id, tits_qtsx_SanPham_Id) => {
     const params = convertObjectToUrlParams({
       tits_qtsx_Xuong_Id,
-      tits_qtsx_DonHang_Id,
       tits_qtsx_SanPham_Id,
-      isThepTam,
       isBOM: value === 0 ? false : true,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuSanXuat/lo-theo-don-hang-san-pham?${params}`,
+          `tits_qtsx_PhieuXuatKhoVatTuSanXuat/dinh-muc-vat-tu?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -214,9 +209,10 @@ const VatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListSoLo(res.data);
+          value === 0 ? setListSoLo(res.data) : setListBOM(res.data);
         } else {
           setListSoLo([]);
+          setListBOM([]);
         }
       })
       .catch((error) => console.error(error));
@@ -591,7 +587,7 @@ const VatTuForm = ({ history, match, permission }) => {
   const renderLstViTri = (record) => {
     return (
       <div>
-        {record.list_ChiTietLuuKhos.length > 0 ? (
+        {record.list_ChiTietLuuKhos.length ? (
           <div>
             <div>
               {record.list_ChiTietLuuKhos.map((vt, index) => {
@@ -1176,44 +1172,44 @@ const VatTuForm = ({ history, match, permission }) => {
     setIsThepTam(val);
   };
 
-  const handleSelectListSanPham = (val) => {
+  const handleSelectListSanPhamOEM = (val) => {
     setSanPham(val);
-    const newData = ListSanPham.filter((sp) => sp.tits_qtsx_SanPham_Id === val);
-    setFieldsValue(
-      value === 0
-        ? {
-            phieuxuatkhovattusanxuattheoOEM: {
-              tits_qtsx_SoLo_Id: null,
-              tits_qtsx_DonHang_Id: newData[0].tits_qtsx_DonHang_Id,
-            },
-          }
-        : {
-            phieuxuatkhovattusanxuattheoBOM: {
-              tits_qtsx_SoLo_Id: null,
-              tits_qtsx_DonHang_Id: newData[0].tits_qtsx_DonHang_Id,
-            },
-          }
-    );
-    setListVatTuTheoOEM([]);
-    getListSoLo(Xuong, newData[0].tits_qtsx_DonHang_Id, val);
+    const newData = ListSanPham.find((sp) => sp.tits_qtsx_SanPham_Id === val);
+    setFieldsValue({
+      phieuxuatkhovattusanxuattheoOEM: {
+        tits_qtsx_SoLo_Id: null,
+        tits_qtsx_DonHang_Id: newData.tits_qtsx_DonHang_Id,
+      },
+    });
+    getListSoLo(Xuong, newData.tits_qtsx_DonHang_Id, val);
+    if (value === 0) {
+      setListVatTuTheoOEM([]);
+    } else {
+      setListVatTuTheoBOM([]);
+    }
   };
 
+  /* Theo OEM */
   const handleSelectListSoLo = (val) => {
-    const newData = ListSoLo.filter((sp) => sp.tits_qtsx_SoLo_Id === val);
-    setFieldsValue(
-      value === 0
-        ? {
-            phieuxuatkhovattusanxuattheoOEM: {
-              soLuongLo: newData[0].soLuongLo,
-            },
-          }
-        : {
-            phieuxuatkhovattusanxuattheoBOM: {
-              soLuongLo: newData[0].soLuongLo,
-            },
-          }
-    );
-    getListVatTu(Xuong, SanPham, isThepTam, newData[0].soLuongLo);
+    const newData = ListSoLo.find((sp) => sp.tits_qtsx_SoLo_Id === val);
+    setFieldsValue({
+      phieuxuatkhovattusanxuattheoOEM: {
+        soLuongLo: newData.soLuongLo,
+      },
+    });
+    getListVatTu(Xuong, SanPham, isThepTam, newData.soLuongLo);
+  };
+
+  /* Theo BOM */
+  const handleSelectListSanPhamBOM = (val) => {
+    setSanPham(val);
+    setListVatTuTheoBOM([]);
+    getListSoLo(Xuong, val);
+  };
+
+  const handleSelectListBOM = (val) => {
+    const newData = ListBOM.find((bom) => bom.tits_qtsx_BOMXuong_Id === val);
+    setListVatTuTheoBOM(newData.list_ChiTiets);
   };
 
   const handleSelectKho = (val) => {
@@ -1566,7 +1562,7 @@ const VatTuForm = ({ history, match, permission }) => {
                           style={{ width: "100%" }}
                           showSearch
                           optionFilterProp="name"
-                          onSelect={handleSelectListSanPham}
+                          onSelect={handleSelectListSanPhamOEM}
                           disabled={type === "new" ? false : true}
                         />
                       </FormItem>
@@ -2222,7 +2218,7 @@ const VatTuForm = ({ history, match, permission }) => {
                           style={{ width: "100%" }}
                           showSearch
                           optionFilterProp="name"
-                          onSelect={handleSelectListSanPham}
+                          onSelect={handleSelectListSanPhamBOM}
                           disabled={type === "new" ? false : true}
                         />
                       </FormItem>
@@ -2252,10 +2248,10 @@ const VatTuForm = ({ history, match, permission }) => {
                   >
                     {type === "new" ? (
                       <FormItem
-                        label="Đơn đặt hàng"
+                        label="BOM xưởng"
                         name={[
                           "phieuxuatkhovattusanxuattheoBOM",
-                          "tits_qtsx_DonHang_Id",
+                          "tits_qtsx_BOMXuong_Id",
                         ]}
                         rules={[
                           {
@@ -2266,62 +2262,13 @@ const VatTuForm = ({ history, match, permission }) => {
                       >
                         <Select
                           className="heading-select slt-search th-select-heading"
-                          data={ListSanPham ? ListSanPham : []}
-                          placeholder="Chọn đơn đặt hàng"
-                          optionsvalue={["tits_qtsx_DonHang_Id", "maPhieu"]}
+                          data={ListBOM ? ListBOM : []}
+                          placeholder="Chọn BOM xưởng"
+                          optionsvalue={["tits_qtsx_BOMXuong_Id", "maBOMXuong"]}
                           style={{ width: "100%" }}
                           showSearch
                           optionFilterProp="name"
-                          disabled={type === "new" ? false : true}
-                        />
-                      </FormItem>
-                    ) : (
-                      <FormItem
-                        label="Đơn đặt hàng"
-                        name={["phieuxuatkhovattusanxuattheoBOM", "tenDonHang"]}
-                        rules={[
-                          {
-                            type: "string",
-                            required: true,
-                          },
-                        ]}
-                      >
-                        <Input className="input-item" disabled={true} />
-                      </FormItem>
-                    )}
-                  </Col>
-                  <Col
-                    xxl={12}
-                    xl={12}
-                    lg={24}
-                    md={24}
-                    sm={24}
-                    xs={24}
-                    style={{ marginBottom: 8 }}
-                  >
-                    {type === "new" ? (
-                      <FormItem
-                        label="Số lô"
-                        name={[
-                          "phieuxuatkhovattusanxuattheoBOM",
-                          "tits_qtsx_SoLo_Id",
-                        ]}
-                        rules={[
-                          {
-                            type: "string",
-                            required: true,
-                          },
-                        ]}
-                      >
-                        <Select
-                          className="heading-select slt-search th-select-heading"
-                          data={ListSoLo ? ListSoLo : []}
-                          placeholder="Chọn số lô"
-                          optionsvalue={["tits_qtsx_SoLo_Id", "tenSoLo"]}
-                          style={{ width: "100%" }}
-                          showSearch
-                          optionFilterProp="name"
-                          onSelect={handleSelectListSoLo}
+                          onSelect={handleSelectListBOM}
                           disabled={
                             type === "new" || type === "edit" ? false : true
                           }
@@ -2330,7 +2277,7 @@ const VatTuForm = ({ history, match, permission }) => {
                     ) : (
                       <FormItem
                         label="Số lô"
-                        name={["phieuxuatkhovattusanxuattheoBOM", "tenSoLo"]}
+                        name={["phieuxuatkhovattusanxuattheoBOM", "maBOMXuong"]}
                         rules={[
                           {
                             type: "string",
