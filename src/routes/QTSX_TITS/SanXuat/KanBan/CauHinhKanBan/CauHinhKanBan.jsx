@@ -3,7 +3,7 @@ import { Card, Row, Col, DatePicker, Button } from "antd";
 import { PrinterOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { find, map, remove } from "lodash";
-import { Table, EditableTableRow, Select } from "src/components/Common";
+import { Table, EditableTableRow } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
@@ -16,38 +16,18 @@ import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-const listchuyen = [
-  {
-    id: "e165873f-f701-4bfd-afdb-ee2ba34c3ea8",
-    maChuyen: "GCTP",
-    tenChuyen: "Chuyền gia công tạo phôi",
-    tenXuong: "Gia công linh kiện",
-  },
-];
 
 function CauHinhKanBan({ history, permission }) {
-  const { loading } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [Data, setData] = useState([]);
-  const [ListChuyen, setListChuyen] = useState([]);
-  const [Chuyen, setChuyen] = useState(null);
-  const [TenChuyen, setTenChuyen] = useState(null);
-  const [ListSanPham, setListSanPham] = useState([]);
-  const [SanPham, setSanPham] = useState(null);
-  const [TenSanPham, setTenSanPham] = useState(null);
-  const [ListDonHang, setListDonHang] = useState([]);
-  const [DonHang, setDonHang] = useState(null);
-  const [TenDonHang, setTenDonHang] = useState(null);
   const [Ngay, setNgay] = useState(getDateNow());
   const [SelectedKanBan, setSelectedKanBan] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
-      setListChuyen(listchuyen);
-      setChuyen(listchuyen[0].id);
-      setTenChuyen(listchuyen[0] && listchuyen[0].tenChuyen);
-      getListSanPham(listchuyen[0].id, Ngay);
+      getListData(Ngay);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -55,16 +35,8 @@ function CauHinhKanBan({ history, permission }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListData = (
-    tits_qtsx_Chuyen_Id,
-    tits_qtsx_SanPham_Id,
-    tits_qtsx_DonHang_Id,
-    ngay
-  ) => {
+  const getListData = (ngay) => {
     const param = convertObjectToUrlParams({
-      tits_qtsx_Chuyen_Id,
-      tits_qtsx_SanPham_Id,
-      tits_qtsx_DonHang_Id,
       ngay,
     });
     new Promise((resolve, reject) => {
@@ -85,80 +57,6 @@ function CauHinhKanBan({ history, permission }) {
           setData(res.data.list_ChiTiets);
         } else {
           setData([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListSanPham = (tits_qtsx_Chuyen_Id, ngay, page) => {
-    const param = convertObjectToUrlParams({
-      tits_qtsx_Chuyen_Id,
-      ngay,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_KanBan?${param}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListSanPham(res.data);
-          setSanPham(res.data[0].tits_qtsx_SanPham_Id);
-          setTenSanPham(res.data[0].tenSanPham);
-          getListDonHang(
-            tits_qtsx_Chuyen_Id,
-            res.data[0].tits_qtsx_SanPham_Id,
-            ngay
-          );
-        } else {
-          setListSanPham([]);
-          setSanPham([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListDonHang = (tits_qtsx_Chuyen_Id, tits_qtsx_SanPham_Id, ngay) => {
-    const param = convertObjectToUrlParams({
-      tits_qtsx_Chuyen_Id,
-      tits_qtsx_SanPham_Id,
-      ngay,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_KanBan?${param}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListDonHang(res.data);
-          setDonHang(res.data[0].tits_qtsx_DonHang_Id);
-          setTenDonHang(res.data[0].tenDonHang);
-          getListData(
-            tits_qtsx_Chuyen_Id,
-            tits_qtsx_SanPham_Id,
-            res.data[0].tits_qtsx_DonHang_Id,
-            ngay
-          );
-        } else {
-          setListDonHang([]);
-          setDonHang([]);
         }
       })
       .catch((error) => console.error(error));
@@ -208,13 +106,15 @@ function CauHinhKanBan({ history, permission }) {
       key: "key",
       align: "center",
       width: 50,
+      fixed: width >= 1600 && "left",
     },
     {
       title: "Mã chi tiết",
       dataIndex: "maChiTiet",
       key: "maChiTiet",
       align: "center",
-      width: 200,
+      width: 150,
+      fixed: width >= 1600 && "left",
       filters: removeDuplicates(
         map(Data, (d) => {
           return {
@@ -230,8 +130,9 @@ function CauHinhKanBan({ history, permission }) {
       title: "Tên chi tiết",
       dataIndex: "tenChiTiet",
       key: "tenChiTiet",
-      align: "center",
+      align: "left",
       width: 200,
+      fixed: width >= 1600 && "left",
       filters: removeDuplicates(
         map(Data, (d) => {
           return {
@@ -244,11 +145,45 @@ function CauHinhKanBan({ history, permission }) {
       filterSearch: true,
     },
     {
+      title: "Sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
+      align: "left",
+      width: 200,
+      filters: removeDuplicates(
+        map(Data, (d) => {
+          return {
+            text: d.tenSanPham,
+            value: d.tenSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenSanPham.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Đơn hàng",
+      dataIndex: "tenDonHang",
+      key: "tenDonHang",
+      align: "center",
+      width: 150,
+      filters: removeDuplicates(
+        map(Data, (d) => {
+          return {
+            text: d.tenDonHang,
+            value: d.tenDonHang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenDonHang.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Chi tiết cụm",
       dataIndex: "tenCum",
       key: "tenCum",
-      align: "center",
-      width: 200,
+      align: "left",
+      width: 150,
       filters: removeDuplicates(
         map(Data, (d) => {
           return {
@@ -265,10 +200,10 @@ function CauHinhKanBan({ history, permission }) {
       dataIndex: "soLuongChiTiet",
       key: "soLuongChiTiet",
       align: "center",
-      width: 90,
+      width: 80,
     },
     {
-      title: TenChuyen,
+      title: "Chuyền gia công linh kiện",
       dataIndex: "list_Trams",
       key: "list_Trams",
       align: "center",
@@ -310,8 +245,6 @@ function CauHinhKanBan({ history, permission }) {
       return {
         ...kanban,
         ngay: Ngay,
-        tenSanPham: TenSanPham,
-        tenDonHang: TenDonHang,
       };
     });
     new Promise((resolve, reject) => {
@@ -347,43 +280,9 @@ function CauHinhKanBan({ history, permission }) {
     );
   };
 
-  const handleOnSelectChuyen = (value) => {
-    const newChuyen = ListChuyen.find((chuyen) => chuyen.id === value);
-    setTenChuyen(newChuyen && newChuyen.tenChuyen);
-
-    setChuyen(value);
-    setSanPham(null);
-    setListSanPham([]);
-    getListSanPham(value, Ngay);
-    setDonHang(null);
-    setListDonHang([]);
-  };
-
-  const handleOnSelectSanPham = (value) => {
-    const newSanPham = ListSanPham.filter(
-      (sp) => sp.tits_qtsx_SanPham_Id === value
-    );
-    setTenSanPham(newSanPham[0].tenSanPham);
-
-    setSanPham(value);
-    setDonHang(null);
-    setListDonHang([]);
-    getListDonHang(Chuyen, value, Ngay);
-  };
-
-  const handleOnSelectDonHang = (value) => {
-    const newDonHang = ListDonHang.filter(
-      (sp) => sp.tits_qtsx_DonHang_Id === value
-    );
-    setTenDonHang(newDonHang[0].tenDonHang);
-
-    setDonHang(value);
-    getListData(Chuyen, SanPham, value, Ngay);
-  };
-
   const handleChangeNgay = (dateString) => {
     setNgay(dateString);
-    getListData(Chuyen, SanPham, DonHang, dateString);
+    getListData(dateString);
   };
 
   function hanldeRemoveSelected(device) {
@@ -418,87 +317,25 @@ function CauHinhKanBan({ history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
           <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
             sm={20}
             xs={24}
             style={{
-              marginBottom: 8,
+              display: "flex",
+              alignItems: "center",
             }}
           >
-            <h5>Chuyền:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListChuyen ? ListChuyen : []}
-              placeholder="Chọn chuyền"
-              optionsvalue={["id", "tenChuyen"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleOnSelectChuyen}
-              value={Chuyen}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={20}
-            xs={24}
-            style={{
-              marginBottom: 8,
-            }}
-          >
-            <h5>Sản phẩm:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListSanPham ? ListSanPham : []}
-              placeholder="Chọn sản phẩm"
-              optionsvalue={["tits_qtsx_SanPham_Id", "tenSanPham"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleOnSelectSanPham}
-              value={SanPham}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={20}
-            xs={24}
-            style={{
-              marginBottom: 8,
-            }}
-          >
-            <h5>Đơn hàng:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListDonHang ? ListDonHang : []}
-              placeholder="Chọn đơn hàng"
-              optionsvalue={["tits_qtsx_DonHang_Id", "tenDonHang"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleOnSelectDonHang}
-              value={DonHang}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <h5>Ngày:</h5>
+            <span
+              style={{
+                width: "80px",
+              }}
+            >
+              Ngày:
+            </span>
+
             <DatePicker
               format={"DD/MM/YYYY"}
               onChange={(date, dateString) => handleChangeNgay(dateString)}
@@ -511,10 +348,10 @@ function CauHinhKanBan({ history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 1500, y: "55vh" }}
+          scroll={{ x: 1500, y: "54vh" }}
           columns={columns}
           components={components}
-          className="gx-table-responsive"
+          className="gx-table-responsive th-table"
           dataSource={reDataForTable(Data)}
           size="small"
           rowClassName={"editable-row"}
