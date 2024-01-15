@@ -298,21 +298,21 @@ function KhaiBaoSoContainer({ match, history, permission }) {
       onFilter: (value, record) => record.dimensions.includes(value),
       filterSearch: true,
     },
-    // {
-    //   title: "List số VIN",
-    //   key: "list_ChiTiets",
-    //   align: "center",
-    //   render: (record) => (
-    //     <Button
-    //       type="primary"
-    //       onClick={() => {
-    //         XemChiTiet(record);
-    //       }}
-    //     >
-    //       Xem chi tiết
-    //     </Button>
-    //   ),
-    // },
+    {
+      title: "List số VIN",
+      key: "list_ChiTiets",
+      align: "center",
+      render: (record) => (
+        <Button
+          type="primary"
+          onClick={() => {
+            XemChiTiet(record);
+          }}
+        >
+          Xem chi tiết
+        </Button>
+      ),
+    },
     {
       title: "Ghi chú",
       dataIndex: "moTa",

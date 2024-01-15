@@ -890,19 +890,43 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                     header={hm.tenHangMucKiemTra}
                     key={hm.tits_qtsx_HangMucKiemTra_Id}
                   >
-                    {hm.list_HangMucKiemTraChiTiets.length > 0 && (
+                    {hm.list_HangMucKiemTraTieuDePhus.length > 0 && (
                       <Collapse
                         accordion
                         expandIcon={({ isActive }) => (
                           <CaretRightOutlined rotate={isActive ? 90 : 0} />
                         )}
                       >
-                        {hm.list_HangMucKiemTraChiTiets.map((cthm) => {
+                        {hm.list_HangMucKiemTraTieuDePhus.map((cthm) => {
                           return (
                             <Panel
-                              header={cthm.noiDungKiemTra}
-                              key={cthm.id}
-                            ></Panel>
+                              header={cthm.tieuDePhu}
+                              key={cthm.tits_qtsx_HangMucKiemTraTieuDePhu_Id}
+                            >
+                              {cthm.list_HangMucKiemTraChiTiets.length > 0 && (
+                                <Collapse
+                                  accordion
+                                  expandIcon={({ isActive }) => (
+                                    <CaretRightOutlined
+                                      rotate={isActive ? 90 : 0}
+                                    />
+                                  )}
+                                >
+                                  {cthm.list_HangMucKiemTraChiTiets.map(
+                                    (ct) => {
+                                      return (
+                                        <Panel
+                                          header={ct.noiDungKiemTra}
+                                          key={
+                                            ct.tits_qtsx_HangMucKiemTraChiTiet_Id
+                                          }
+                                        ></Panel>
+                                      );
+                                    }
+                                  )}
+                                </Collapse>
+                              )}
+                            </Panel>
                           );
                         })}
                       </Collapse>
