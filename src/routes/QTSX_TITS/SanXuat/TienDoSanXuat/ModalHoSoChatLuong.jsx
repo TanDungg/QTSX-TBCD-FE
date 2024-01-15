@@ -245,11 +245,11 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
         <Divider />
       </>
       {ListHangMucKiemTra.length > 0 &&
-        ListHangMucKiemTra.map((hmkt) => {
+        ListHangMucKiemTra.map((hmkt, i) => {
           return (
             hmkt.list_HoSoCongDoanTieuDePhus &&
             hmkt.list_HoSoCongDoanTieuDePhus.length > 0 && [
-              <Row>
+              <Row key={i}>
                 <Col span={24}>
                   <h3 style={{ color: "#0469b9", fontWeight: "bold" }}>
                     Công đoạn: {hmkt.tenCongDoan} - Trạm: {hmkt.tenTram}
@@ -278,7 +278,7 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
                           {hmkt.tenHangMucKiemTra}
                         </span>
                       </span>
-                      {hmkt.list_HoSoCongDoanTieuDePhus.map((ct) => {
+                      {hmkt.list_HoSoCongDoanTieuDePhus.map((ct, index) => {
                         return (
                           <>
                             {ct.tieuDePhu && (
@@ -292,6 +292,7 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
                               </span>
                             )}
                             <Table
+                              key={index}
                               bordered
                               scroll={{ x: 800, y: 301 }}
                               columns={
@@ -324,6 +325,7 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
                       hmkt.list_HinhAnhs.map((ha) => {
                         return (
                           <ImageDrawing
+                            key={ha.tits_qtsx_SanPhamHinhAnh_Id}
                             imageUrl={BASE_URL_API + ha.hinhAnh}
                             hinhAnhId={ha.tits_qtsx_SanPhamHinhAnh_Id}
                             dataNoiDung={hmkt}
