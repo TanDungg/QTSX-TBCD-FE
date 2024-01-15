@@ -20,7 +20,7 @@ function Home({ permission, history }) {
   const { donvi } = useSelector(({ donvi }) => donvi);
   const { data, width } = useSelector(({ common }) => common).toJS();
   const [DonVi, setDonVi] = useState("");
-  
+
   useEffect(() => {
     getInfo();
     setDonVi(

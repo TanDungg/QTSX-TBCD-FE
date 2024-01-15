@@ -93,6 +93,8 @@ const ImageDrawing = ({
                 tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id:
                   toaDo.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id,
                 tits_qtsx_HangMucKiemTra_HinhAnh_Id: hinhAnhId,
+                tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id:
+                  toaDo.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id,
               });
             } else if (SuaChuaLai && !toaDo.isHoanThanhSCL) {
               setActiveModalSuaChuaLai(true);
@@ -103,6 +105,8 @@ const ImageDrawing = ({
                 tits_qtsx_HangMucKiemTra_HinhAnh_Id: hinhAnhId,
                 tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id:
                   toaDo.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id,
+                tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id:
+                  toaDo.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id,
               });
             }
           }
@@ -157,7 +161,7 @@ const ImageDrawing = ({
         openModalFS={setActiveModal}
         ViTri={ViTri}
         ThemLoi={ThemLoi}
-        ListNoiDung={dataNoiDung.list_TDSXKiemSoatChatLuongChiTiets}
+        ListNoiDung={dataNoiDung}
         setCirclePosition={setCirclePosition}
       />
       <ModalDaSuaChuaLai

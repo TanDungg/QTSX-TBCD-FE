@@ -5,7 +5,17 @@ import {
   PlusCircleOutlined,
   RollbackOutlined,
 } from "@ant-design/icons";
-import { Card, Form, Input, Row, Col, DatePicker, Tag, Button } from "antd";
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Col,
+  DatePicker,
+  Tag,
+  Button,
+  Divider,
+} from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
@@ -908,34 +918,37 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
         />
       </Card>
       {type === "xacnhan" && info.tinhTrang === "Chưa duyệt" && (
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            icon={<RollbackOutlined />}
-            className="th-margin-bottom-0"
-            type="default"
-            onClick={goBack}
-          >
-            Quay lại
-          </Button>
-          <Button
-            icon={<CheckCircleOutlined />}
-            className="th-margin-bottom-0"
-            type="primary"
-            onClick={modalXK}
-            disabled={info.tinhTrang !== "Chưa duyệt"}
-          >
-            Xác nhận
-          </Button>
-          <Button
-            icon={<CloseCircleOutlined />}
-            className="th-margin-bottom-0"
-            type="danger"
-            onClick={() => setActiveModalTuChoi(true)}
-            disabled={info.tinhTrang !== "Chưa duyệt"}
-          >
-            Từ chối
-          </Button>
-        </div>
+        <>
+          <Divider />
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Button
+              icon={<RollbackOutlined />}
+              className="th-margin-bottom-0"
+              type="default"
+              onClick={goBack}
+            >
+              Quay lại
+            </Button>
+            <Button
+              icon={<CheckCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={modalXK}
+              disabled={info.tinhTrang !== "Chưa duyệt"}
+            >
+              Xác nhận
+            </Button>
+            <Button
+              icon={<CloseCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="danger"
+              onClick={() => setActiveModalTuChoi(true)}
+              disabled={info.tinhTrang !== "Chưa duyệt"}
+            >
+              Từ chối
+            </Button>
+          </div>
+        </>
       )}
       {type === "new" || type === "edit" ? (
         <FormSubmit

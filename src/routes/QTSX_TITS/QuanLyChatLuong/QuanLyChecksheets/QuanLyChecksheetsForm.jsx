@@ -611,6 +611,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                         checkSheets: { tits_qtsx_SanPham_Id: null },
                       });
                       setListHangMucKiemTra([]);
+                      setListHinhAnh([]);
                     }}
                   />
                 </FormItem>
@@ -654,6 +655,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                       });
                       setDataModal(newData);
                       setListHangMucKiemTra([]);
+                      setListHinhAnh([]);
                     }}
                   />
                 </FormItem>
@@ -696,6 +698,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                       });
                       setDataModal(newData);
                       setListHangMucKiemTra([]);
+                      setListHinhAnh([]);
                     }}
                   />
                 </FormItem>
@@ -850,11 +853,11 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
         <Col span={24}>
           <h4 style={{ fontWeight: "bold", margin: 0 }}>
             Hạng mục kiểm tra chất lượng{" "}
-            <span
-              style={{
-                color: "#0469b9",
-                cursor: "pointer",
-              }}
+            <a
+              // style={{
+              //   color: "#0469b9",
+              //   cursor: "pointer",
+              // }}
               onClick={() => setActiveModal(true)}
               disabled={
                 DataModal.tits_qtsx_LoaiSanPham_Id === "" ||
@@ -864,7 +867,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
               }
             >
               <PlusCircleOutlined />
-            </span>
+            </a>
           </h4>
         </Col>
       </Row>
@@ -890,7 +893,8 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                     header={hm.tenHangMucKiemTra}
                     key={hm.tits_qtsx_HangMucKiemTra_Id}
                   >
-                    {hm.list_HangMucKiemTraTieuDePhus.length > 0 && (
+                    {hm.list_HangMucKiemTraTieuDePhus.length > 0 &&
+                    hm.list_HangMucKiemTraTieuDePhus[0].tieuDePhu ? (
                       <Collapse
                         accordion
                         expandIcon={({ isActive }) => (
@@ -930,6 +934,27 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                           );
                         })}
                       </Collapse>
+                    ) : (
+                      hm.list_HangMucKiemTraTieuDePhus.length > 0 &&
+                      !hm.list_HangMucKiemTraTieuDePhus[0].tieuDePhu && (
+                        <Collapse
+                          accordion
+                          expandIcon={({ isActive }) => (
+                            <CaretRightOutlined rotate={isActive ? 90 : 0} />
+                          )}
+                        >
+                          {hm.list_HangMucKiemTraTieuDePhus[0].list_HangMucKiemTraChiTiets.map(
+                            (ct) => {
+                              return (
+                                <Panel
+                                  header={ct.noiDungKiemTra}
+                                  key={ct.tits_qtsx_HangMucKiemTraChiTiet_Id}
+                                ></Panel>
+                              );
+                            }
+                          )}
+                        </Collapse>
+                      )
                     )}
                   </Panel>
                 );

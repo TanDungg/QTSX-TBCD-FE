@@ -15,6 +15,7 @@ import {
   Button,
   Tag,
   Image,
+  Divider,
 } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
@@ -953,32 +954,35 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
         />
       ) : null}
       {type === "xacnhan" && info.tinhTrang === "Chưa xác nhận" ? (
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            icon={<RollbackOutlined />}
-            className="th-margin-bottom-0"
-            type="default"
-            onClick={goBack}
-          >
-            Quay lại
-          </Button>
-          <Button
-            icon={<CheckCircleOutlined />}
-            className="th-margin-bottom-0"
-            type="primary"
-            onClick={modalXK}
-          >
-            Xác nhận
-          </Button>
-          <Button
-            icon={<CloseCircleOutlined />}
-            className="th-margin-bottom-0"
-            type="danger"
-            onClick={() => setActiveModalTuChoi(true)}
-          >
-            Từ chối
-          </Button>
-        </div>
+        <>
+          <Divider />
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Button
+              icon={<RollbackOutlined />}
+              className="th-margin-bottom-0"
+              type="default"
+              onClick={goBack}
+            >
+              Quay lại
+            </Button>
+            <Button
+              icon={<CheckCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={modalXK}
+            >
+              Xác nhận
+            </Button>
+            <Button
+              icon={<CloseCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="danger"
+              onClick={() => setActiveModalTuChoi(true)}
+            >
+              Từ chối
+            </Button>
+          </div>
+        </>
       ) : null}
       <ModalThemVatPham
         openModal={ActiveModalThemVatPham}

@@ -81,7 +81,7 @@ function QuanLyChecksheets({ match, history, permission }) {
           "tits_qtsx_LoaiSanPham?page=-1",
           "GET",
           null,
-          "LIST",
+          "DETAIL",
           "",
           resolve,
           reject
@@ -109,7 +109,7 @@ function QuanLyChecksheets({ match, history, permission }) {
           `tits_qtsx_SanPham?${params}`,
           "GET",
           null,
-          "LIST",
+          "DETAIL",
           "",
           resolve,
           reject
@@ -132,7 +132,7 @@ function QuanLyChecksheets({ match, history, permission }) {
           `tits_qtsx_CongDoan?page=-1`,
           "GET",
           null,
-          "LIST",
+          "DETAIL",
           "",
           resolve,
           reject

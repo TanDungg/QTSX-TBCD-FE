@@ -1564,32 +1564,35 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       {type === "xacnhan" &&
       info.tinhTrang === "Chưa duyệt" &&
       info.nguoiDuyet_Id === INFO.user_Id ? (
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            icon={<RollbackOutlined />}
-            className="th-margin-bottom-0"
-            type="default"
-            onClick={goBack}
-          >
-            Quay lại
-          </Button>
-          <Button
-            className="th-margin-bottom-0"
-            icon={<CheckCircleOutlined />}
-            type="primary"
-            onClick={modalXK}
-          >
-            Xác nhận
-          </Button>
-          <Button
-            className="th-margin-bottom-0"
-            icon={<CloseCircleOutlined />}
-            type="danger"
-            onClick={() => setActiveModalTuChoi(true)}
-          >
-            Từ chối
-          </Button>
-        </div>
+        <>
+          <Divider />
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Button
+              icon={<RollbackOutlined />}
+              className="th-margin-bottom-0"
+              type="default"
+              onClick={goBack}
+            >
+              Quay lại
+            </Button>
+            <Button
+              className="th-margin-bottom-0"
+              icon={<CheckCircleOutlined />}
+              type="primary"
+              onClick={modalXK}
+            >
+              Xác nhận
+            </Button>
+            <Button
+              className="th-margin-bottom-0"
+              icon={<CloseCircleOutlined />}
+              type="danger"
+              onClick={() => setActiveModalTuChoi(true)}
+            >
+              Từ chối
+            </Button>
+          </div>
+        </>
       ) : null}
       <ModalCongDoan
         openModal={ActiveModalCongDoan}

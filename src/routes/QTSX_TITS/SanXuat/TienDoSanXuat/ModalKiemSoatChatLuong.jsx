@@ -56,10 +56,12 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info, refesh }) {
     }).then((res) => {
       if (res && res.data) {
         res.data.list_TDSXKiemSoatChatLuongs.forEach((ks) => {
-          if (ks.isNoiDung) {
-            ks.list_TDSXKiemSoatChatLuongChiTiets.forEach((ct) => {
-              if (ct.list_TDSXKiemSoatChatLuongChiTietLois.length === 0) {
-                ct.isDat = true;
+          ks.list_TDSXKiemSoatChatLuongTieuDePhus.forEach((tdp) => {
+            tdp.list_TDSXKiemSoatChatLuongChiTiets.forEach((ct) => {
+              if (ct.isNoiDung) {
+                if (ct.list_TDSXKiemSoatChatLuongChiTietLois.length === 0) {
+                  ct.isDat = true;
+                }
               }
               // else{
               //   ct.list_TDSXKiemSoatChatLuongChiTietLois.forEach(ctl =>{
@@ -69,7 +71,7 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info, refesh }) {
               //   })
               // }
             });
-          }
+          });
         });
         setListHangMucKiemTra(res.data.list_TDSXKiemSoatChatLuongs);
       } else {
@@ -127,18 +129,25 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info, refesh }) {
     const ketQua = val.target.value;
     const newData = [...ListHangMucKiemTra];
     newData.forEach((ct, index) => {
-      ct.list_TDSXKiemSoatChatLuongChiTiets.forEach((clct) => {
+      ct.list_TDSXKiemSoatChatLuongTieuDePhus.forEach((tdp) => {
         if (
-          clct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
-          item.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
+          tdp.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id ===
+          item.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id
         ) {
-          clct.ketQua = ketQua;
-          if (clct.list_TDSXKiemSoatChatLuongChiTietLois.length === 0) {
-            clct.isDat =
-              item.giaTriMin <= ketQua && ketQua <= item.giaTriMax
-                ? true
-                : false;
-          }
+          tdp.list_TDSXKiemSoatChatLuongChiTiets.forEach((clct) => {
+            if (
+              clct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
+              item.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
+            ) {
+              clct.ketQua = ketQua;
+              if (clct.list_TDSXKiemSoatChatLuongChiTietLois.length === 0) {
+                clct.isDat =
+                  item.giaTriMin <= ketQua && ketQua <= item.giaTriMax
+                    ? true
+                    : false;
+              }
+            }
+          });
         }
       });
     });
@@ -257,16 +266,23 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info, refesh }) {
   const AddLoi = (data) => {
     const newData = [...ListHangMucKiemTra];
     newData.forEach((hm) => {
-      hm.list_TDSXKiemSoatChatLuongChiTiets.forEach((ct) => {
+      hm.list_TDSXKiemSoatChatLuongTieuDePhus.forEach((tdp) => {
         if (
-          ct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
-          data.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
+          tdp.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id ===
+          data.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id
         ) {
-          ct.isDat = false;
-          ct.list_TDSXKiemSoatChatLuongChiTietLois = [
-            ...ct.list_TDSXKiemSoatChatLuongChiTietLois,
-            data,
-          ];
+          tdp.list_TDSXKiemSoatChatLuongChiTiets.forEach((ct) => {
+            if (
+              ct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
+              data.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
+            ) {
+              ct.isDat = false;
+              ct.list_TDSXKiemSoatChatLuongChiTietLois = [
+                ...ct.list_TDSXKiemSoatChatLuongChiTietLois,
+                data,
+              ];
+            }
+          });
         }
       });
       hm.list_HinhAnhs.forEach((ha) => {
@@ -287,21 +303,28 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info, refesh }) {
   const xoaToaDo = (data) => {
     const newData = [...ListHangMucKiemTra];
     newData.forEach((hm) => {
-      hm.list_TDSXKiemSoatChatLuongChiTiets.forEach((ct) => {
+      hm.list_TDSXKiemSoatChatLuongTieuDePhus.forEach((tdp) => {
         if (
-          ct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
-          data.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
+          tdp.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id ===
+          data.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id
         ) {
-          ct.list_TDSXKiemSoatChatLuongChiTietLois =
-            ct.list_TDSXKiemSoatChatLuongChiTietLois.filter(
-              (ctl) => ctl.viTri !== data.viTri
-            );
-          if (ct.list_TDSXKiemSoatChatLuongChiTietLois.length === 0) {
-            ct.isDat =
-              ct.giaTriMin <= ct.ketQua && ct.giaTriMax >= ct.ketQua
-                ? true
-                : false;
-          }
+          tdp.list_TDSXKiemSoatChatLuongChiTiets.forEach((ct) => {
+            if (
+              ct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
+              data.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
+            ) {
+              ct.list_TDSXKiemSoatChatLuongChiTietLois =
+                ct.list_TDSXKiemSoatChatLuongChiTietLois.filter(
+                  (ctl) => ctl.viTri !== data.viTri
+                );
+              if (ct.list_TDSXKiemSoatChatLuongChiTietLois.length === 0) {
+                ct.isDat =
+                  ct.giaTriMin <= ct.ketQua && ct.giaTriMax >= ct.ketQua
+                    ? true
+                    : false;
+              }
+            }
+          });
         }
       });
       hm.list_HinhAnhs.forEach((ha) => {
@@ -320,10 +343,12 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info, refesh }) {
   const onSave = () => {
     let check = false;
     ListHangMucKiemTra.forEach((hm) => {
-      hm.list_TDSXKiemSoatChatLuongChiTiets.forEach((lct) => {
-        if (lct.isDat === undefined) {
-          check = true;
-        }
+      hm.list_TDSXKiemSoatChatLuongTieuDePhus.forEach((tdp) => {
+        tdp.list_TDSXKiemSoatChatLuongChiTiets.forEach((lct) => {
+          if (lct.isDat === undefined) {
+            check = true;
+          }
+        });
       });
     });
     if (!check) {
@@ -401,27 +426,51 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info, refesh }) {
               <Row key={index}>
                 <Col xl={12} lg={24}>
                   <Row>
-                    <Col span={24} style={{ marginBottom: 10 }}>
+                    <Col
+                      span={24}
+                      style={{
+                        marginBottom: 10,
+                        position: "relative",
+                        height: 301,
+                        overflow: "auto",
+                      }}
+                    >
                       <span style={{ marginBottom: 10, display: "block" }}>
                         Hạng mục kiểm tra:{" "}
                         <span style={{ fontWeight: "bold" }}>
                           {hmkt.tenHangMucKiemTra}
                         </span>
                       </span>
-                      <Table
-                        bordered
-                        scroll={{ x: 800, y: "70vh" }}
-                        columns={
-                          hmkt.isNoiDung ? columnNoiDungs : columnThongSos
-                        }
-                        components={components}
-                        className="gx-table-responsive"
-                        dataSource={reDataForTable(
-                          hmkt.list_TDSXKiemSoatChatLuongChiTiets
-                        )}
-                        size="small"
-                        pagination={false}
-                      />
+                      {hmkt.list_TDSXKiemSoatChatLuongTieuDePhus.map((tdp) => {
+                        return (
+                          <>
+                            {tdp.tieuDePhu && (
+                              <span
+                                style={{ marginBottom: 10, display: "block" }}
+                              >
+                                Hạng mục:{" "}
+                                <span style={{ fontWeight: "bold" }}>
+                                  {tdp.tieuDePhu}
+                                </span>
+                              </span>
+                            )}
+                            <Table
+                              bordered
+                              scroll={{ x: 800, y: "70vh" }}
+                              columns={
+                                hmkt.isNoiDung ? columnNoiDungs : columnThongSos
+                              }
+                              components={components}
+                              className="gx-table-responsive"
+                              dataSource={reDataForTable(
+                                tdp.list_TDSXKiemSoatChatLuongChiTiets
+                              )}
+                              size="small"
+                              pagination={false}
+                            />
+                          </>
+                        );
+                      })}
                     </Col>
                   </Row>
                 </Col>

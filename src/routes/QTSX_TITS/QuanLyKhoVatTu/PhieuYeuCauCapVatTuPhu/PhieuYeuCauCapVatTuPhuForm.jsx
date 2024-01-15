@@ -15,6 +15,7 @@ import {
   Button,
   Tag,
   Image,
+  Divider,
 } from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helpers from "src/helpers";
@@ -959,32 +960,35 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
       (type === "xacnhan" &&
         info.tinhTrang === "Chờ người duyệt xác nhận" &&
         info.nguoiKeToanDuyet_Id === INFO.user_Id) ? (
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            icon={<RollbackOutlined />}
-            className="th-margin-bottom-0"
-            type="default"
-            onClick={goBack}
-          >
-            Quay lại
-          </Button>
-          <Button
-            icon={<CheckCircleOutlined />}
-            className="th-margin-bottom-0"
-            type="primary"
-            onClick={modalXK}
-          >
-            Xác nhận
-          </Button>
-          <Button
-            icon={<CloseCircleOutlined />}
-            className="th-margin-bottom-0"
-            type="danger"
-            onClick={() => setActiveModalTuChoi(true)}
-          >
-            Từ chối
-          </Button>
-        </div>
+        <>
+          <Divider />
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Button
+              icon={<RollbackOutlined />}
+              className="th-margin-bottom-0"
+              type="default"
+              onClick={goBack}
+            >
+              Quay lại
+            </Button>
+            <Button
+              icon={<CheckCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={modalXK}
+            >
+              Xác nhận
+            </Button>
+            <Button
+              icon={<CloseCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="danger"
+              onClick={() => setActiveModalTuChoi(true)}
+            >
+              Từ chối
+            </Button>
+          </div>
+        </>
       ) : null}
       <AddVatTuModal
         openModal={ActiveModalChonVatTu}

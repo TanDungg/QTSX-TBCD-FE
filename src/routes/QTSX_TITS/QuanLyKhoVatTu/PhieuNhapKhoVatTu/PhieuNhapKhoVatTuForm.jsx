@@ -16,6 +16,7 @@ import {
   Tag,
   Button,
   Upload,
+  Divider,
 } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
@@ -1349,38 +1350,47 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         />
       </Card>
       {type === "xacnhan" && info.tinhTrang === "Chưa xác nhận" && (
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            icon={<RollbackOutlined />}
-            className="th-margin-bottom-0"
-            type="default"
-            onClick={goBack}
+        <>
+          <Divider />
+          <div
+            style={{
+              marginTop: "5px",
+              display: "flex",
+              justifyContent: "center",
+            }}
           >
-            Quay lại
-          </Button>
-          <Button
-            icon={<CheckCircleOutlined />}
-            className="th-margin-bottom-0"
-            type="primary"
-            onClick={modalXK}
-            disabled={
-              info.tinhTrang !== "Chưa xác nhận" || DisabledXacNhan === true
-            }
-          >
-            Xác nhận
-          </Button>
-          <Button
-            icon={<CloseCircleOutlined />}
-            className="th-margin-bottom-0"
-            type="danger"
-            onClick={() => setActiveModalTuChoi(true)}
-            disabled={
-              info.tinhTrang !== "Chưa xác nhận" || DisabledXacNhan === true
-            }
-          >
-            Từ chối
-          </Button>
-        </div>
+            <Button
+              icon={<RollbackOutlined />}
+              className="th-margin-bottom-0"
+              type="default"
+              onClick={goBack}
+            >
+              Quay lại
+            </Button>
+            <Button
+              icon={<CheckCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={modalXK}
+              disabled={
+                info.tinhTrang !== "Chưa xác nhận" || DisabledXacNhan === true
+              }
+            >
+              Xác nhận
+            </Button>
+            <Button
+              icon={<CloseCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="danger"
+              onClick={() => setActiveModalTuChoi(true)}
+              disabled={
+                info.tinhTrang !== "Chưa xác nhận" || DisabledXacNhan === true
+              }
+            >
+              Từ chối
+            </Button>
+          </div>
+        </>
       )}
       {type === "edit" ? (
         <FormSubmit

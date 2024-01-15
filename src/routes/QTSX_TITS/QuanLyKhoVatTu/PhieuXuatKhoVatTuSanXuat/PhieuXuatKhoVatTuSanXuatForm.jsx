@@ -2562,32 +2562,35 @@ const VatTuForm = ({ history, match, permission }) => {
       (type === "xacnhan" &&
         info.tinhTrang === "Chờ kế toán duyệt" &&
         info.nguoiThongKeDuyet_Id === INFO.user_Id) ? (
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button
-            icon={<RollbackOutlined />}
-            className="th-margin-bottom-0"
-            type="default"
-            onClick={goBack}
-          >
-            Quay lại
-          </Button>
-          <Button
-            icon={<CheckCircleOutlined />}
-            className="th-margin-bottom-0"
-            type="primary"
-            onClick={modalXK}
-          >
-            Xác nhận
-          </Button>
-          <Button
-            icon={<CloseCircleOutlined />}
-            className="th-margin-bottom-0"
-            type="danger"
-            onClick={() => setActiveModalTuChoi(true)}
-          >
-            Từ chối
-          </Button>
-        </div>
+        <>
+          <Divider />
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Button
+              icon={<RollbackOutlined />}
+              className="th-margin-bottom-0"
+              type="default"
+              onClick={goBack}
+            >
+              Quay lại
+            </Button>
+            <Button
+              icon={<CheckCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={modalXK}
+            >
+              Xác nhận
+            </Button>
+            <Button
+              icon={<CloseCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="danger"
+              onClick={() => setActiveModalTuChoi(true)}
+            >
+              Từ chối
+            </Button>
+          </div>
+        </>
       ) : null}
       <ModalChonViTri
         openModal={ActiveModalChonViTri}

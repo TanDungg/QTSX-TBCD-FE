@@ -385,7 +385,9 @@ function KeHoachChiTiet({ match, history, permission }) {
   };
 
   const handleXuatExcel = () => {
+    const xuong = ListXuong.find((x) => x.id === Xuong);
     const newData = {
+      tenXuong: xuong && xuong.tenXuong,
       thang: Thang,
       nam: Nam,
       tits_qtsx_KeHoachSanXuatChiTiets: DataXuatExcel.map((dt) => {
