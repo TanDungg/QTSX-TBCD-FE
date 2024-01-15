@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { Card, Row, Col, DatePicker, Image, Input } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  DatePicker,
+  Image,
+  Input,
+  Modal as AntModal,
+  Button,
+} from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { isEmpty, map } from "lodash";
 import { Table, EditableTableRow, Select } from "src/components/Common";
@@ -13,40 +22,27 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
 import { BASE_URL_API } from "src/constants/Config";
+import { CheckCircleOutlined, LogoutOutlined } from "@ant-design/icons";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-const listchuyen = [
-  {
-    id: "e165873f-f701-4bfd-afdb-ee2ba34c3ea8",
-    maChuyen: "GCTP",
-    tenChuyen: "Chuyền gia công tạo phôi",
-    tenXuong: "Gia công linh kiện",
-  },
-];
 
-function ChiTietCauHinhKanBan({ match, history, permission }) {
-  const { loading } = useSelector(({ common }) => common).toJS();
+function ChiTietCauHinhKanBan({ history, permission }) {
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [Data, setData] = useState([]);
-  const [ListChuyen, setListChuyen] = useState([]);
-  const [Chuyen, setChuyen] = useState(null);
-  const [ListSanPham, setListSanPham] = useState([]);
-  const [SanPham, setSanPham] = useState(null);
-  const [ListDonHang, setListDonHang] = useState([]);
-  const [DonHang, setDonHang] = useState(null);
   const [ListTram, setListTram] = useState([]);
   const [Tram, setTram] = useState(null);
-  const [TenTram, setTenTram] = useState(null);
   const [Ngay, setNgay] = useState(getDateNow());
   const [ListThietBi, setListThietBi] = useState([]);
+  const [ThietBi, setThietBi] = useState(null);
   const [editingRecord, setEditingRecord] = useState([]);
+  const [SelectedKanBan, setSelectedKanBan] = useState([]);
+  const [SelectedKeys, setSelectedKeys] = useState([]);
+  const [ActiveModalChonThietBi, setActiveModalChonThietBi] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
-      setListChuyen(listchuyen);
-      setChuyen(listchuyen[0].id);
-      getListSanPham(listchuyen[0].id, Ngay);
-      getListThietBi();
+      getListTram(Ngay);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -54,17 +50,8 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListData = (
-    tits_qtsx_Chuyen_Id,
-    tits_qtsx_SanPham_Id,
-    tits_qtsx_DonHang_Id,
-    tits_qtsx_Tram_Id,
-    ngay
-  ) => {
+  const getListData = (tits_qtsx_Tram_Id, ngay) => {
     const param = convertObjectToUrlParams({
-      tits_qtsx_Chuyen_Id,
-      tits_qtsx_SanPham_Id,
-      tits_qtsx_DonHang_Id,
       tits_qtsx_Tram_Id,
       ngay,
     });
@@ -83,7 +70,7 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setData(res.data);
+          setData(res.data.list_ChiTiets);
         } else {
           setData([]);
         }
@@ -91,88 +78,8 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const getListSanPham = (tits_qtsx_Chuyen_Id, ngay) => {
+  const getListTram = (ngay) => {
     const param = convertObjectToUrlParams({
-      tits_qtsx_Chuyen_Id,
-      ngay,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_KanBan?${param}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListSanPham(res.data);
-          setSanPham(res.data[0].tits_qtsx_SanPham_Id);
-          getListDonHang(
-            tits_qtsx_Chuyen_Id,
-            res.data[0].tits_qtsx_SanPham_Id,
-            ngay
-          );
-        } else {
-          setListSanPham([]);
-          setSanPham([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListDonHang = (tits_qtsx_Chuyen_Id, tits_qtsx_SanPham_Id, ngay) => {
-    const param = convertObjectToUrlParams({
-      tits_qtsx_Chuyen_Id,
-      tits_qtsx_SanPham_Id,
-      ngay,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_KanBan?${param}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListDonHang(res.data);
-          setDonHang(res.data[0].tits_qtsx_DonHang_Id);
-          getListTram(
-            tits_qtsx_Chuyen_Id,
-            tits_qtsx_SanPham_Id,
-            res.data[0].tits_qtsx_DonHang_Id,
-            ngay
-          );
-        } else {
-          setListDonHang([]);
-          setDonHang([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListTram = (
-    tits_qtsx_Chuyen_Id,
-    tits_qtsx_SanPham_Id,
-    tits_qtsx_DonHang_Id,
-    ngay
-  ) => {
-    const param = convertObjectToUrlParams({
-      tits_qtsx_Chuyen_Id,
-      tits_qtsx_SanPham_Id,
-      tits_qtsx_DonHang_Id,
       ngay,
     });
     new Promise((resolve, reject) => {
@@ -191,29 +98,21 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           const listtram = res.data.list_Trams;
-          setListTram(listtram);
           setTram(listtram[0].tits_qtsx_Tram_Id);
-          setTenTram(listtram[0].tenTram);
-          getListData(
-            tits_qtsx_Chuyen_Id,
-            tits_qtsx_SanPham_Id,
-            tits_qtsx_DonHang_Id,
-            listtram[0].tits_qtsx_Tram_Id,
-            ngay
-          );
+          getListData(listtram[0].tits_qtsx_Tram_Id, ngay);
+          setListTram(listtram);
         } else {
           setListTram([]);
-          setTram(null);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  const getListThietBi = () => {
+  const getListThietBi = (tram) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_ThietBi?page=-1`,
+          `tits_qtsx_ThietBi?tits_qtsx_Tram_Id=${tram}&page=-1`,
           "GET",
           null,
           "LIST",
@@ -231,74 +130,6 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
         }
       })
       .catch((error) => console.error(error));
-  };
-
-  const handleThietBi = (value, record) => {
-    setData((prevData) => {
-      return prevData.map((item) => {
-        if (
-          record.tits_qtsx_KanBanChiTietTram_Id ===
-          item.tits_qtsx_KanBanChiTietTram_Id
-        ) {
-          return {
-            ...item,
-            tits_qtsx_ThietBi_Id: value && value,
-          };
-        }
-        return item;
-      });
-    });
-  };
-
-  const onChangeThietBi = (value, item) => {
-    if (value) {
-      const newData = {
-        tits_qtsx_KanBanChiTietTram_Id: item.tits_qtsx_KanBanChiTietTram_Id,
-        tits_qtsx_ThietBi_Id: value,
-      };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_KanBan/thiet-bi/${item.tits_qtsx_KanBanChiTietTram_Id}`,
-            "PUT",
-            newData,
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        getListData(Chuyen, SanPham, DonHang, Tram, Ngay);
-      });
-    }
-  };
-
-  const renderThietBi = (record) => {
-    if (record) {
-      return (
-        <div>
-          <Select
-            className="heading-select slt-search th-select-heading"
-            data={ListThietBi}
-            placeholder="Chọn thiết bị"
-            optionsvalue={["id", "tenThietBi"]}
-            style={{ width: "100%" }}
-            showSearch
-            optionFilterProp="name"
-            onSelect={(value) => handleThietBi(value, record)}
-            onBlur={(value) =>
-              onChangeThietBi(
-                record.tits_qtsx_ThietBi_Id && record.tits_qtsx_ThietBi_Id,
-                record
-              )
-            }
-            value={record.tits_qtsx_ThietBi_Id && record.tits_qtsx_ThietBi_Id}
-          />
-        </div>
-      );
-    }
-    return null;
   };
 
   const handleInputChange = (val, item) => {
@@ -347,7 +178,7 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
         )
       );
     }).then((res) => {
-      getListData(Chuyen, SanPham, DonHang, Tram, Ngay);
+      getListData(Tram, Ngay);
     });
   };
 
@@ -378,6 +209,7 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
           value={item.thuTuThietBi && item.thuTuThietBi}
           onChange={(val) => handleInputChange(val, item)}
           onBlur={(val) => onChangeThuTu(val, item)}
+          disabled={ActiveModalChonThietBi || !item.tits_qtsx_ThietBi_Id}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
       </>
@@ -397,6 +229,7 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
       dataIndex: "maChiTiet",
       key: "maChiTiet",
       align: "center",
+      width: 150,
       filters: removeDuplicates(
         map(Data, (d) => {
           return {
@@ -412,7 +245,8 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
       title: "Tên chi tiết",
       dataIndex: "tenChiTiet",
       key: "tenChiTiet",
-      align: "center",
+      align: "left",
+      width: 150,
       filters: removeDuplicates(
         map(Data, (d) => {
           return {
@@ -425,10 +259,45 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
       filterSearch: true,
     },
     {
+      title: "Sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
+      align: "left",
+      width: 150,
+      filters: removeDuplicates(
+        map(Data, (d) => {
+          return {
+            text: d.tenSanPham,
+            value: d.tenSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenSanPham.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Đơn hàng",
+      dataIndex: "tenDonHang",
+      key: "tenDonHang",
+      align: "center",
+      width: 120,
+      filters: removeDuplicates(
+        map(Data, (d) => {
+          return {
+            text: d.tenDonHang,
+            value: d.tenDonHang,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenDonHang.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Chi tiết cụm",
       dataIndex: "tenCum",
       key: "tenCum",
       align: "center",
+      width: 150,
       filters: removeDuplicates(
         map(Data, (d) => {
           return {
@@ -445,13 +314,14 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
       dataIndex: "soLuongChiTiet",
       key: "soLuongChiTiet",
       align: "center",
-      width: 90,
+      width: 80,
     },
     {
       title: "Bản vẽ",
       dataIndex: "hinhAnh",
       key: "hinhAnh",
       align: "center",
+      width: 120,
       render: (value) =>
         value && (
           <span>
@@ -464,10 +334,11 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
         ),
     },
     {
-      title: TenTram,
+      title: "Tên thiết bị",
+      dataIndex: "tenThietBi",
+      key: "tenThietBi",
       align: "left",
-      width: 230,
-      render: (record) => renderThietBi(record),
+      width: 200,
     },
     {
       title: "Thứ tự",
@@ -481,6 +352,7 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
       dataIndex: "moTa",
       key: "moTa",
       align: "center",
+      width: 150,
     },
   ];
 
@@ -506,43 +378,80 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
     };
   });
 
-  const handleOnSelectChuyen = (value) => {
-    setChuyen(value);
-    setSanPham(null);
-    setListSanPham([]);
-    getListSanPham(value, Ngay);
-    setDonHang(null);
-    setListDonHang([]);
-    setTram(null);
-    setListTram([]);
+  const handleOnSelectThietBi = (value) => {
+    setThietBi(value);
   };
 
-  const handleOnSelectSanPham = (value) => {
-    setSanPham(value);
-    setDonHang(null);
-    setListDonHang([]);
-    getListDonHang(Chuyen, value, Ngay);
-    setTram(null);
-    setListTram([]);
+  const onChangeThietBi = () => {
+    const newData = {
+      list_ChiTiets: SelectedKanBan,
+      tits_qtsx_ThietBi_Id: ThietBi,
+      tits_qtsx_Tram_Id: Tram,
+      ngay: Ngay,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_KanBan/thiet-bi`,
+          "PUT",
+          newData,
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.status !== 409) {
+        setActiveModalChonThietBi(false);
+        getListData(Tram, Ngay);
+        setSelectedKanBan([]);
+        setSelectedKeys([]);
+        setThietBi(null);
+      }
+    });
   };
 
-  const handleOnSelectDonHang = (value) => {
-    setDonHang(value);
-    setTram(null);
-    setListTram([]);
-    getListTram(Chuyen, SanPham, value, Ngay);
+  const addButtonRender = () => {
+    return (
+      <>
+        <Button
+          icon={<CheckCircleOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={() => setActiveModalChonThietBi(true)}
+          disabled={!SelectedKanBan.length || !Tram}
+        >
+          Chon thiết bị
+        </Button>
+      </>
+    );
   };
 
   const handleOnSelectTram = (value) => {
     setTram(value);
-    const tram = ListTram.filter((t) => t.tits_qtsx_Tram_Id === value);
-    setTenTram(tram[0].tenTram);
-    getListData(Chuyen, SanPham, DonHang, value, Ngay);
+    setListThietBi([]);
+    setThietBi(null);
+    setSelectedKanBan([]);
+    setSelectedKeys([]);
+    getListData(value, Ngay);
+    getListThietBi(value);
   };
 
   const handleChangeNgay = (dateString) => {
     setNgay(dateString);
-    getListData(Chuyen, SanPham, DonHang, Tram, dateString);
+    getListData(Tram, dateString);
+  };
+
+  const rowSelection = {
+    selectedRowKeys: SelectedKeys,
+    selectedRowKanBans: SelectedKanBan,
+    onChange: (selectedRowKeys, selectedRowKanBans) => {
+      const newSelectedKanBan = [...selectedRowKanBans];
+      const newSelectedKey = [...selectedRowKeys];
+      setSelectedKanBan(newSelectedKanBan);
+      setSelectedKeys(newSelectedKey);
+    },
   };
 
   return (
@@ -550,81 +459,10 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
       <ContainerHeader
         title="Chi tiết cấu hình KanBan cho sản phẩm"
         description="Chi tiết cấu hình KanBan cho sản phẩm"
+        buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={20}
-            xs={24}
-            style={{
-              marginBottom: 8,
-            }}
-          >
-            <h5>Chuyền:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListChuyen ? ListChuyen : []}
-              placeholder="Chọn chuyền"
-              optionsvalue={["id", "tenChuyen"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleOnSelectChuyen}
-              value={Chuyen}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={20}
-            xs={24}
-            style={{
-              marginBottom: 8,
-            }}
-          >
-            <h5>Sản phẩm:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListSanPham ? ListSanPham : []}
-              placeholder="Chọn sản phẩm"
-              optionsvalue={["tits_qtsx_SanPham_Id", "tenSanPham"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleOnSelectSanPham}
-              value={SanPham}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={20}
-            xs={24}
-            style={{
-              marginBottom: 8,
-            }}
-          >
-            <h5>Đơn hàng:</h5>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListDonHang ? ListDonHang : []}
-              placeholder="Chọn đơn hàng"
-              optionsvalue={["tits_qtsx_DonHang_Id", "tenDonHang"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp="name"
-              onSelect={handleOnSelectDonHang}
-              value={DonHang}
-            />
-          </Col>
           <Col
             xxl={6}
             xl={8}
@@ -671,17 +509,103 @@ function ChiTietCauHinhKanBan({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 1500, y: "55vh" }}
+          scroll={{ x: 1500, y: "53vh" }}
           columns={columns}
           components={components}
-          className="gx-table-responsive"
+          className="gx-table-responsive th-table"
           dataSource={reDataForTable(Data)}
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            preserveSelectedRowKeys: true,
+            selectedRowKeys: SelectedKeys,
+            getCheckboxProps: (record) => ({}),
+          }}
         />
       </Card>
+      <AntModal
+        title={"Chọn thiết bị cho chi tiết"}
+        className="th-card-reset-margin"
+        open={ActiveModalChonThietBi}
+        width={width > 1200 ? `80%` : "100%"}
+        closable={true}
+        onCancel={() => setActiveModalChonThietBi(false)}
+        footer={null}
+      >
+        <Card
+          className="th-card-margin-bottom th-card-reset-margin"
+          align={"center"}
+        >
+          <Col
+            lg={12}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              textAlign: "left",
+            }}
+          >
+            <span
+              style={{
+                width: "80px",
+              }}
+            >
+              Thiết bị:
+            </span>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListThietBi ? ListThietBi : []}
+              placeholder="Chọn thiết bị"
+              optionsvalue={["id", "tenThietBi"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+              onSelect={handleOnSelectThietBi}
+              value={ThietBi}
+            />
+          </Col>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "10px",
+            }}
+          >
+            <Button
+              icon={<LogoutOutlined />}
+              className="th-margin-bottom-0"
+              type="default"
+              onClick={() => setActiveModalChonThietBi(false)}
+            >
+              Thoát
+            </Button>
+            <Button
+              icon={<CheckCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={onChangeThietBi}
+            >
+              Lưu
+            </Button>
+          </div>
+        </Card>
+        <Table
+          bordered
+          scroll={{ x: 1000, y: "50vh" }}
+          columns={columns}
+          components={components}
+          className="gx-table-responsive th-table"
+          dataSource={reDataForTable(SelectedKanBan)}
+          size="small"
+          rowClassName={"editable-row"}
+          pagination={false}
+          loading={loading}
+        />
+      </AntModal>
     </div>
   );
 }
