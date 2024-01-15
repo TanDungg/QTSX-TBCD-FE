@@ -1,7 +1,16 @@
 import React, { useEffect, useState } from "react";
-import { Card, Row, Col, DatePicker, Image, Input } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  DatePicker,
+  Image,
+  Input,
+  Modal as AntModal,
+  Button,
+} from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { find, isEmpty, map, remove } from "lodash";
+import { isEmpty, map } from "lodash";
 import { Table, EditableTableRow, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -13,34 +22,27 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
 import { BASE_URL_API } from "src/constants/Config";
+import { CheckCircleOutlined, LogoutOutlined } from "@ant-design/icons";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-const listchuyen = [
-  {
-    id: "e165873f-f701-4bfd-afdb-ee2ba34c3ea8",
-    maChuyen: "GCTP",
-    tenChuyen: "Chuyền gia công tạo phôi",
-    tenXuong: "Gia công linh kiện",
-  },
-];
 
 function ChiTietCauHinhKanBan({ history, permission }) {
-  const { loading } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [Data, setData] = useState([]);
   const [ListTram, setListTram] = useState([]);
   const [Tram, setTram] = useState(null);
-  const [TenTram, setTenTram] = useState(null);
   const [Ngay, setNgay] = useState(getDateNow());
   const [ListThietBi, setListThietBi] = useState([]);
+  const [ThietBi, setThietBi] = useState(null);
   const [editingRecord, setEditingRecord] = useState([]);
   const [SelectedKanBan, setSelectedKanBan] = useState([]);
   const [SelectedKeys, setSelectedKeys] = useState([]);
+  const [ActiveModalChonThietBi, setActiveModalChonThietBi] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
       getListTram(Ngay);
-      getListThietBi();
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -96,6 +98,8 @@ function ChiTietCauHinhKanBan({ history, permission }) {
       .then((res) => {
         if (res && res.data) {
           const listtram = res.data.list_Trams;
+          setTram(listtram[0].tits_qtsx_Tram_Id);
+          getListData(listtram[0].tits_qtsx_Tram_Id, ngay);
           setListTram(listtram);
         } else {
           setListTram([]);
@@ -108,7 +112,7 @@ function ChiTietCauHinhKanBan({ history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_ThietBi?page=-1`,
+          `tits_qtsx_ThietBi?tits_qtsx_Tram_Id=${tram}&page=-1`,
           "GET",
           null,
           "LIST",
@@ -126,76 +130,6 @@ function ChiTietCauHinhKanBan({ history, permission }) {
         }
       })
       .catch((error) => console.error(error));
-  };
-
-  const handleThietBi = (value, record) => {
-    setData((prevData) => {
-      return prevData.map((item) => {
-        if (
-          record.tits_qtsx_KanBanChiTietTram_Id ===
-          item.tits_qtsx_KanBanChiTietTram_Id
-        ) {
-          return {
-            ...item,
-            tits_qtsx_ThietBi_Id: value && value,
-          };
-        }
-        return item;
-      });
-    });
-  };
-
-  const onChangeThietBi = (value, item) => {
-    if (value) {
-      const newData = {
-        list_ChiTiets: Data,
-        tits_qtsx_ThietBi_Id: value,
-        tits_qtsx_Tram_Id: Tram,
-        ngay: Ngay,
-      };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_KanBan/thiet-bi`,
-            "PUT",
-            newData,
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        getListData(Tram, Ngay);
-      });
-    }
-  };
-
-  const renderThietBi = (record) => {
-    if (record) {
-      return (
-        <div>
-          <Select
-            className="heading-select slt-search th-select-heading"
-            data={ListThietBi}
-            placeholder="Chọn thiết bị"
-            optionsvalue={["id", "tenThietBi"]}
-            style={{ width: "100%" }}
-            showSearch
-            optionFilterProp="name"
-            onSelect={(value) => handleThietBi(value, record)}
-            onBlur={(value) =>
-              onChangeThietBi(
-                record.tits_qtsx_ThietBi_Id && record.tits_qtsx_ThietBi_Id,
-                record
-              )
-            }
-            value={record.tits_qtsx_ThietBi_Id && record.tits_qtsx_ThietBi_Id}
-          />
-        </div>
-      );
-    }
-    return null;
   };
 
   const handleInputChange = (val, item) => {
@@ -275,6 +209,7 @@ function ChiTietCauHinhKanBan({ history, permission }) {
           value={item.thuTuThietBi && item.thuTuThietBi}
           onChange={(val) => handleInputChange(val, item)}
           onBlur={(val) => onChangeThuTu(val, item)}
+          disabled={ActiveModalChonThietBi || !item.tits_qtsx_ThietBi_Id}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
       </>
@@ -443,11 +378,64 @@ function ChiTietCauHinhKanBan({ history, permission }) {
     };
   });
 
+  const handleOnSelectThietBi = (value) => {
+    setThietBi(value);
+  };
+
+  const onChangeThietBi = () => {
+    const newData = {
+      list_ChiTiets: SelectedKanBan,
+      tits_qtsx_ThietBi_Id: ThietBi,
+      tits_qtsx_Tram_Id: Tram,
+      ngay: Ngay,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_KanBan/thiet-bi`,
+          "PUT",
+          newData,
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.status !== 409) {
+        setActiveModalChonThietBi(false);
+        getListData(Tram, Ngay);
+        setSelectedKanBan([]);
+        setSelectedKeys([]);
+        setThietBi(null);
+      }
+    });
+  };
+
+  const addButtonRender = () => {
+    return (
+      <>
+        <Button
+          icon={<CheckCircleOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={() => setActiveModalChonThietBi(true)}
+          disabled={!SelectedKanBan.length || !Tram}
+        >
+          Chon thiết bị
+        </Button>
+      </>
+    );
+  };
+
   const handleOnSelectTram = (value) => {
     setTram(value);
-    const tram = ListTram.find((t) => t.tits_qtsx_Tram_Id === value);
-    setTenTram(tram.tenTram);
+    setListThietBi([]);
+    setThietBi(null);
+    setSelectedKanBan([]);
+    setSelectedKeys([]);
     getListData(value, Ngay);
+    getListThietBi(value);
   };
 
   const handleChangeNgay = (dateString) => {
@@ -471,6 +459,7 @@ function ChiTietCauHinhKanBan({ history, permission }) {
       <ContainerHeader
         title="Chi tiết cấu hình KanBan cho sản phẩm"
         description="Chi tiết cấu hình KanBan cho sản phẩm"
+        buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
@@ -538,6 +527,85 @@ function ChiTietCauHinhKanBan({ history, permission }) {
           }}
         />
       </Card>
+      <AntModal
+        title={"Chọn thiết bị cho chi tiết"}
+        className="th-card-reset-margin"
+        open={ActiveModalChonThietBi}
+        width={width > 1200 ? `80%` : "100%"}
+        closable={true}
+        onCancel={() => setActiveModalChonThietBi(false)}
+        footer={null}
+      >
+        <Card
+          className="th-card-margin-bottom th-card-reset-margin"
+          align={"center"}
+        >
+          <Col
+            lg={12}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              textAlign: "left",
+            }}
+          >
+            <span
+              style={{
+                width: "80px",
+              }}
+            >
+              Thiết bị:
+            </span>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListThietBi ? ListThietBi : []}
+              placeholder="Chọn thiết bị"
+              optionsvalue={["id", "tenThietBi"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+              onSelect={handleOnSelectThietBi}
+              value={ThietBi}
+            />
+          </Col>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginTop: "10px",
+            }}
+          >
+            <Button
+              icon={<LogoutOutlined />}
+              className="th-margin-bottom-0"
+              type="default"
+              onClick={() => setActiveModalChonThietBi(false)}
+            >
+              Thoát
+            </Button>
+            <Button
+              icon={<CheckCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={onChangeThietBi}
+            >
+              Lưu
+            </Button>
+          </div>
+        </Card>
+        <Table
+          bordered
+          scroll={{ x: 1000, y: "50vh" }}
+          columns={columns}
+          components={components}
+          className="gx-table-responsive th-table"
+          dataSource={reDataForTable(SelectedKanBan)}
+          size="small"
+          rowClassName={"editable-row"}
+          pagination={false}
+          loading={loading}
+        />
+      </AntModal>
     </div>
   );
 }

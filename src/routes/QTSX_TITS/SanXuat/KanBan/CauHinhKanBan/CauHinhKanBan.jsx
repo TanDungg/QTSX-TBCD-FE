@@ -335,7 +335,6 @@ function CauHinhKanBan({ history, permission }) {
             >
               Ngày:
             </span>
-
             <DatePicker
               format={"DD/MM/YYYY"}
               onChange={(date, dateString) => handleChangeNgay(dateString)}

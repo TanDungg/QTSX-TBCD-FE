@@ -10,9 +10,11 @@ import {
   Checkbox,
   Tag,
   Input,
+  Modal as AntModal,
 } from "antd";
 import {
   CheckCircleOutlined,
+  LogoutOutlined,
   PauseCircleOutlined,
   PlayCircleOutlined,
 } from "@ant-design/icons";
@@ -29,29 +31,15 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
 import { BASE_URL_API } from "src/constants/Config";
-import ModalKetThuc from "./ModalKetThuc";
+import Helpers from "src/helpers";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-const listchuyen = [
-  {
-    id: "e165873f-f701-4bfd-afdb-ee2ba34c3ea8",
-    maChuyen: "GCTP",
-    tenChuyen: "Chuyền gia công tạo phôi",
-    tenXuong: "Gia công linh kiện",
-  },
-];
 
 function MaySanXuat({ history, permission }) {
-  const { loading } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [DataMaySanXuat, setDataMaySanXuat] = useState([]);
   const [DataKiemTra, setDataKiemTra] = useState([]);
-  const [ListChuyen, setListChuyen] = useState([]);
-  const [Chuyen, setChuyen] = useState(null);
-  const [ListSanPham, setListSanPham] = useState([]);
-  const [SanPham, setSanPham] = useState(null);
-  const [ListDonHang, setListDonHang] = useState([]);
-  const [DonHang, setDonHang] = useState(null);
   const [ListTram, setListTram] = useState([]);
   const [Tram, setTram] = useState(null);
   const [ListThietBi, setListThietBi] = useState([]);
@@ -63,12 +51,13 @@ function MaySanXuat({ history, permission }) {
   const [SelectedKeys, setSelectedKeys] = useState([]);
   const [keyTabs, setKeyTabs] = useState("1");
   const [ActiveModalKetThuc, setActiveModalKetThuc] = useState(false);
-  const [editingRecord, setEditingRecord] = useState([]);
   const [DisabledKiemTra, setDisabledKiemTra] = useState(true);
+  const [DisabledXacNhan, setDisabledXacNhan] = useState(false);
+  const [editingRecord, setEditingRecord] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
-      setListChuyen(listchuyen);
+      getListTram(Ngay, keyTabs);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -78,18 +67,12 @@ function MaySanXuat({ history, permission }) {
   }, []);
 
   const getListData = (
-    tits_qtsx_Chuyen_Id,
-    tits_qtsx_SanPham_Id,
-    tits_qtsx_DonHang_Id,
     tits_qtsx_Tram_Id,
     tits_qtsx_ThietBi_Id,
     ngay,
     keytabs
   ) => {
     const param = convertObjectToUrlParams({
-      tits_qtsx_Chuyen_Id,
-      tits_qtsx_SanPham_Id,
-      tits_qtsx_DonHang_Id,
       tits_qtsx_Tram_Id,
       tits_qtsx_ThietBi_Id,
       ngay,
@@ -119,9 +102,14 @@ function MaySanXuat({ history, permission }) {
               };
             });
 
-            const newKetThuc = newData.filter(
-              (kanban) => kanban.isBatDau === true
-            );
+            const newKetThuc = newData
+              .filter((kanban) => kanban.isBatDau === true)
+              .map((kt) => {
+                return {
+                  ...kt,
+                  soLuong: 0,
+                };
+              });
 
             setSelectedKetThuc(newKetThuc);
             setDataMaySanXuat(newData);
@@ -130,18 +118,10 @@ function MaySanXuat({ history, permission }) {
             const newData = res.data.map((data) => {
               return {
                 ...data,
-                soLuongKiemTra: data.soLuongDaSanXuat,
-                soLuongDat: data.soLuongDaSanXuat,
-                isDatNgoaiQuan: data.isDatNgoaiQuan
-                  ? data.isDatNgoaiQuan === true
-                    ? "true"
-                    : "false"
-                  : null,
+                isDatNgoaiQuan: data.isDatNgoaiQuan ? "true" : "false",
                 isDatThongSoKyThuat: data.isDatThongSoKyThuat
-                  ? data.isDatThongSoKyThuat === true
-                    ? "true"
-                    : "false"
-                  : null,
+                  ? "true"
+                  : "false",
               };
             });
             setDataKiemTra(newData);
@@ -153,9 +133,8 @@ function MaySanXuat({ history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const getListSanPham = (tits_qtsx_Chuyen_Id, ngay, keytabs) => {
+  const getListTram = (ngay, keytabs) => {
     const param = convertObjectToUrlParams({
-      tits_qtsx_Chuyen_Id,
       ngay,
     });
     new Promise((resolve, reject) => {
@@ -175,81 +154,7 @@ function MaySanXuat({ history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListSanPham(res.data);
-        } else {
-          setListSanPham([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListDonHang = (
-    tits_qtsx_Chuyen_Id,
-    tits_qtsx_SanPham_Id,
-    ngay,
-    keytabs
-  ) => {
-    const param = convertObjectToUrlParams({
-      tits_qtsx_Chuyen_Id,
-      tits_qtsx_SanPham_Id,
-      ngay,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          keytabs === "1"
-            ? `tits_qtsx_KanBan/may-san-xuat?${param}`
-            : `tits_qtsx_KanBan/kiem-tra-chat-luong?${param}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListDonHang(res.data);
-        } else {
-          setListDonHang([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListTram = (
-    tits_qtsx_Chuyen_Id,
-    tits_qtsx_SanPham_Id,
-    tits_qtsx_DonHang_Id,
-    ngay,
-    keytabs
-  ) => {
-    const param = convertObjectToUrlParams({
-      tits_qtsx_Chuyen_Id,
-      tits_qtsx_SanPham_Id,
-      tits_qtsx_DonHang_Id,
-      ngay,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          keytabs === "1"
-            ? `tits_qtsx_KanBan/may-san-xuat?${param}`
-            : `tits_qtsx_KanBan/kiem-tra-chat-luong?${param}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListTram(res.data);
+          setListTram(res.data.list_Trams);
         } else {
           setListTram([]);
         }
@@ -257,18 +162,8 @@ function MaySanXuat({ history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const getListThietBi = (
-    tits_qtsx_Chuyen_Id,
-    tits_qtsx_SanPham_Id,
-    tits_qtsx_DonHang_Id,
-    tits_qtsx_Tram_Id,
-    ngay,
-    keytabs
-  ) => {
+  const getListThietBi = (tits_qtsx_Tram_Id, ngay, keytabs) => {
     const param = convertObjectToUrlParams({
-      tits_qtsx_Chuyen_Id,
-      tits_qtsx_SanPham_Id,
-      tits_qtsx_DonHang_Id,
       tits_qtsx_Tram_Id,
       ngay,
     });
@@ -288,13 +183,76 @@ function MaySanXuat({ history, permission }) {
       );
     })
       .then((res) => {
-        if (res && res.data.length) {
-          setListThietBi(res.data);
+        if (res && res.data) {
+          setListThietBi(res.data.list_ThietBis);
         } else {
           setListThietBi([]);
         }
       })
       .catch((error) => console.error(error));
+  };
+
+  const handleInputChange = (val, item) => {
+    const slSanXuat = val.target.value;
+    if (isEmpty(slSanXuat) || Number(slSanXuat) < 0) {
+      setDisabledXacNhan(true);
+      setEditingRecord([...editingRecord, item]);
+      item.message = "Số lượng sản xuất phải lớn hơn hoặc bằng 0 và bắt buộc";
+    } else if (Number(slSanXuat) > Number(item.soLuongChuaSanXuat)) {
+      setDisabledXacNhan(true);
+      setEditingRecord([...editingRecord, item]);
+      item.message =
+        "Số lượng sản xuất không được lớn hơn số lượng chưa sản xuất";
+    } else {
+      const newData = editingRecord.filter(
+        (d) =>
+          d.tits_qtsx_KanBanChiTietTram_Id.toLowerCase() !==
+          item.tits_qtsx_KanBanChiTietTram_Id.toLowerCase()
+      );
+      setEditingRecord(newData);
+      newData.length === 0 && setDisabledXacNhan(false);
+    }
+    const newData = [...SelectedKetThuc];
+    newData.forEach((ct, index) => {
+      if (
+        ct.tits_qtsx_KanBanChiTietTram_Id.toLowerCase() ===
+        item.tits_qtsx_KanBanChiTietTram_Id.toLowerCase()
+      ) {
+        ct.soLuong = slSanXuat;
+      }
+    });
+    setSelectedKetThuc(newData);
+  };
+
+  const renderSoLuongSanXuat = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (
+        ct.tits_qtsx_KanBanChiTietTram_Id.toLowerCase() ===
+        item.tits_qtsx_KanBanChiTietTram_Id.toLowerCase()
+      ) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+            borderColor: isEditing ? "red" : "",
+          }}
+          className={`input-item`}
+          type="number"
+          value={ActiveModalKetThuc ? item.soLuong : item.soLuongDaSanXuat}
+          onChange={(val) => handleInputChange(val, item)}
+          disabled={!ActiveModalKetThuc}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
   };
 
   let renderColumnSanXuat = [
@@ -447,10 +405,10 @@ function MaySanXuat({ history, permission }) {
     },
     {
       title: "SL đã sản xuất",
-      dataIndex: "soLuongDaSanXuat",
-      key: "soLuongDaSanXuat",
+      key: ActiveModalKetThuc ? "soLuong" : "soLuongDaSanXuat",
       align: "center",
       width: 70,
+      render: (record) => renderSoLuongSanXuat(record),
     },
     {
       title: "Tình trạng",
@@ -531,31 +489,34 @@ function MaySanXuat({ history, permission }) {
       setDisabledKiemTra(true);
       record.editingKey = editingKey;
       setEditingRecord([...editingRecord, record]);
-      record.message = "Số lượng nhận phải là số lớn hơn 0 và bắt buộc";
+      Helpers.alertError("Số lượng nhận phải là số lớn hơn 0 và bắt buộc");
     } else if (
-      Number(ThongTinSoLuong) > record.soLuong &&
+      Number(ThongTinSoLuong) > record.soLuongDaSanXuat &&
       key === "soLuongKiemTra"
     ) {
       setDisabledKiemTra(true);
       record.editingKey = editingKey;
       setEditingRecord([...editingRecord, record]);
-      record.message = "Số lượng kiểm tra không được lớn hơn số lượng nhận";
+      Helpers.alertError("Số lượng kiểm tra không được lớn hơn số lượng nhận");
     } else if (
-      (Number(ThongTinSoLuong) + Number(record.soLuongLoi) > record.soLuong &&
+      (Number(ThongTinSoLuong) + Number(record.soLuongLoi) >
+        record.soLuongDaSanXuat &&
         key === "soLuongDat") ||
-      (Number(ThongTinSoLuong) + Number(record.soLuongDat) > record.soLuong &&
+      (Number(ThongTinSoLuong) + Number(record.soLuongDat) >
+        record.soLuongDaSanXuat &&
         key === "soLuongLoi")
     ) {
       setDisabledKiemTra(true);
       record.editingKey = editingKey;
       setEditingRecord([...editingRecord, record]);
-      record.message =
-        "Tổng số lượng nhập và số lượng lỗi không được lớn hơn số lượng nhận";
+      Helpers.alertError(
+        "Tổng số lượng nhập và số lượng lỗi không được lớn hơn số lượng nhận"
+      );
     } else {
       const newData = editingRecord.filter(
         (d) =>
-          d.tits_qtsx_ChiTiet_Id.toLowerCase() !==
-          record.tits_qtsx_ChiTiet_Id.toLowerCase()
+          d.tits_qtsx_KanBanChiTietTram_Id.toLowerCase() !==
+          record.tits_qtsx_KanBanChiTietTram_Id.toLowerCase()
       );
       setEditingRecord(newData);
       setDisabledKiemTra(false);
@@ -563,8 +524,8 @@ function MaySanXuat({ history, permission }) {
     const newData = [...DataKiemTra];
     newData.forEach((datakiemtra, index) => {
       if (
-        datakiemtra.tits_qtsx_ChiTiet_Id.toLowerCase() ===
-        record.tits_qtsx_ChiTiet_Id.toLowerCase()
+        datakiemtra.tits_qtsx_KanBanChiTietTram_Id.toLowerCase() ===
+        record.tits_qtsx_KanBanChiTietTram_Id.toLowerCase()
       ) {
         if (key === "soLuongKiemTra") {
           datakiemtra.editingKey = editingKey;
@@ -588,8 +549,8 @@ function MaySanXuat({ history, permission }) {
     let message = "";
     editingRecord.forEach((ct) => {
       if (
-        ct.tits_qtsx_ChiTiet_Id.toLowerCase() ===
-          record.tits_qtsx_ChiTiet_Id.toLowerCase() &&
+        ct.tits_qtsx_KanBanChiTietTram_Id.toLowerCase() ===
+          record.tits_qtsx_KanBanChiTietTram_Id.toLowerCase() &&
         key === ct.editingKey
       ) {
         isEditing = true;
@@ -606,12 +567,8 @@ function MaySanXuat({ history, permission }) {
           className={`input-item`}
           type="number"
           value={record[key]}
-          disabled={
-            record.soLuongChiTiet === record.soLuongDaSanXuat &&
-            record.soLuongDaSanXuat === record.soLuongKiemTra &&
-            Number(record.soLuongLoi) === 0
-          }
           onChange={(val) => handleThongTinSoLuong(val, record, key)}
+          disabled={record.isHoanThanh}
         />
         {isEditing && <div style={{ color: "red" }}>{message}</div>}
       </>
@@ -622,8 +579,8 @@ function MaySanXuat({ history, permission }) {
     setDataKiemTra((prevDataKiemTra) => {
       return prevDataKiemTra.map((item) => {
         if (
-          record.tits_qtsx_ChiTiet_Id.toLowerCase() ===
-          item.tits_qtsx_ChiTiet_Id.toLowerCase()
+          record.tits_qtsx_KanBanChiTietTram_Id.toLowerCase() ===
+          item.tits_qtsx_KanBanChiTietTram_Id.toLowerCase()
         ) {
           if (key === "isDatNgoaiQuan") {
             return {
@@ -656,11 +613,7 @@ function MaySanXuat({ history, permission }) {
         style={{ width: "100%" }}
         value={record[key]}
         onSelect={(value) => handleThongTinDatTinh(value, record, key)}
-        disabled={
-          record.soLuongChiTiet === record.soLuongDaSanXuat &&
-          record.soLuongDaSanXuat === record.soLuongKiemTra &&
-          Number(record.soLuongLoi) === 0
-        }
+        disabled={record.isHoanThanh}
       />
     );
   };
@@ -669,8 +622,8 @@ function MaySanXuat({ history, permission }) {
     const newData = [...DataKiemTra];
     newData.forEach((datakiemtra, index) => {
       if (
-        datakiemtra.tits_qtsx_ChiTiet_Id.toLowerCase() ===
-        record.tits_qtsx_ChiTiet_Id.toLowerCase()
+        datakiemtra.tits_qtsx_KanBanChiTietTram_Id.toLowerCase() ===
+        record.tits_qtsx_KanBanChiTietTram_Id.toLowerCase()
       ) {
         if (key === "noiDungLoi") {
           datakiemtra.noiDungLoi = val.target.value;
@@ -694,9 +647,14 @@ function MaySanXuat({ history, permission }) {
         className={`input-item`}
         value={record[key]}
         disabled={
-          record.soLuongChiTiet === record.soLuongDaSanXuat &&
-          record.soLuongDaSanXuat === record.soLuongKiemTra &&
-          Number(record.soLuongLoi) === 0
+          (Number(record.soLuongChiTiet) === Number(record.soLuongDaSanXuat) &&
+            Number(record.soLuongDaSanXuat) === Number(record.soLuongKiemTra) &&
+            Number(record.soLuongDat) === Number(record.soLuongKiemTra) &&
+            Number(record.soLuongLoi) === 0 &&
+            record.isDatNgoaiQuan === "true" &&
+            record.isDatThongSoKyThuat === "true" &&
+            key === "noiDungLoi") ||
+          record.isHoanThanh
         }
         onChange={(val) => handleMoTa(val, record, key)}
       />
@@ -715,7 +673,8 @@ function MaySanXuat({ history, permission }) {
       title: "Tên chi tiết",
       dataIndex: "tenChiTiet",
       key: "tenChiTiet",
-      align: "center",
+      align: "left",
+      width: 150,
       filters: removeDuplicates(
         map(DataKiemTra, (d) => {
           return {
@@ -726,6 +685,20 @@ function MaySanXuat({ history, permission }) {
       ),
       onFilter: (value, record) => record.tenChiTiet.includes(value),
       filterSearch: true,
+    },
+    {
+      title: "Sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
+      align: "left",
+      width: 150,
+    },
+    {
+      title: "Đơn hàng",
+      dataIndex: "tenDonHang",
+      key: "tenDonHang",
+      align: "left",
+      width: 150,
     },
     {
       title: "Lô SX",
@@ -739,7 +712,7 @@ function MaySanXuat({ history, permission }) {
       dataIndex: "ngayKiemTra",
       key: "ngayKiemTra",
       align: "center",
-      width: 120,
+      width: 100,
       render: (value) => {
         return (
           <span
@@ -770,8 +743,8 @@ function MaySanXuat({ history, permission }) {
     {
       title: "SL kiểm tra",
       key: "soLuongKiemTra",
-      align: "center",
-      width: 100,
+      align: "left",
+      width: 80,
       render: (record) => renderThongTinSoLuong(record, "soLuongKiemTra"),
     },
     {
@@ -780,15 +753,15 @@ function MaySanXuat({ history, permission }) {
         {
           title: "Ngoại quan",
           key: "isDatNgoaiQuan",
-          align: "center",
-          width: 150,
+          align: "left",
+          width: 100,
           render: (record) => renderThongTinDatTinh(record, "isDatNgoaiQuan"),
         },
         {
           title: "TS kỹ thuật",
           key: "isDatThongSoKyThuat",
-          align: "center",
-          width: 150,
+          align: "left",
+          width: 100,
           render: (record) =>
             renderThongTinDatTinh(record, "isDatThongSoKyThuat"),
         },
@@ -800,15 +773,15 @@ function MaySanXuat({ history, permission }) {
         {
           title: "SL lỗi",
           key: "soLuongLoi",
-          align: "center",
-          width: 100,
+          align: "left",
+          width: 80,
           render: (record) => renderThongTinSoLuong(record, "soLuongLoi"),
         },
         {
           title: "SL đạt",
           key: "soLuongDat",
-          align: "center",
-          width: 100,
+          align: "left",
+          width: 80,
           render: (record) => renderThongTinSoLuong(record, "soLuongDat"),
         },
       ],
@@ -816,15 +789,15 @@ function MaySanXuat({ history, permission }) {
     {
       title: "Nội dung lỗi (Nếu có)",
       key: "noiDungLoi",
-      align: "center",
-      width: 150,
+      align: "left",
+      width: 120,
       render: (record) => renderThongTinLoi(record, "noiDungLoi"),
     },
     {
       title: "Ghi chú",
       key: "moTa",
-      align: "center",
-      width: 150,
+      align: "left",
+      width: 120,
       render: (record) => renderThongTinLoi(record, "moTa"),
     },
   ];
@@ -846,14 +819,12 @@ function MaySanXuat({ history, permission }) {
   });
 
   const handleBatDau = () => {
-    const newData = SelectedKanBan.map((kanban) => {
-      return {
-        tits_qtsx_KanBanChiTietTram_Id: kanban.tits_qtsx_KanBanChiTietTram_Id,
-        tits_qtsx_KanBanChiTiet_Id: kanban.tits_qtsx_KanBanChiTiet_Id,
-        tits_qtsx_KanBan_Id: kanban.tits_qtsx_KanBan_Id,
-        tits_qtsx_ChiTiet_Id: kanban.tits_qtsx_ChiTiet_Id,
-      };
-    });
+    const newData = {
+      ngay: Ngay,
+      tits_qtsx_Tram_Id: Tram,
+      tits_qtsx_ThietBi_Id: ThietBi,
+      list_ChiTiets: SelectedKanBan,
+    };
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -869,9 +840,38 @@ function MaySanXuat({ history, permission }) {
     })
       .then((res) => {
         if (res.status !== 409) {
-          getListData(Chuyen, SanPham, DonHang, Tram, ThietBi, Ngay, keyTabs);
+          getListData(Tram, ThietBi, Ngay, keyTabs);
           setSelectedKanBan([]);
           setSelectedKeys([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const handleKetThuc = () => {
+    const newData = {
+      ngay: Ngay,
+      tits_qtsx_Tram_Id: Tram,
+      tits_qtsx_ThietBi_Id: ThietBi,
+      list_ChiTiets: SelectedKetThuc,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_KanBan/may-san-xuat-ket-thuc`,
+          "POST",
+          newData,
+          "KETTHUC",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          setActiveModalKetThuc(false);
+          getListData(Tram, ThietBi, Ngay, keyTabs);
         }
       })
       .catch((error) => console.error(error));
@@ -892,7 +892,7 @@ function MaySanXuat({ history, permission }) {
       );
     })
       .then((res) => {
-        getListData(Chuyen, SanPham, DonHang, Tram, ThietBi, Ngay, keyTabs);
+        getListData(Tram, ThietBi, Ngay, keyTabs);
       })
       .catch((error) => console.error(error));
   };
@@ -934,67 +934,28 @@ function MaySanXuat({ history, permission }) {
     );
   };
 
-  const handleOnSelectChuyen = (value) => {
-    if (value !== Chuyen) {
-      setChuyen(value);
-      setSanPham(null);
-      setListSanPham([]);
-      getListSanPham(value, Ngay, keyTabs);
-      setDonHang(null);
-      setListDonHang([]);
-      setThietBi(null);
-      setListThietBi([]);
-    }
-  };
-
-  const handleOnSelectSanPham = (value) => {
-    if (value !== SanPham) {
-      setSanPham(value);
-      setDonHang(null);
-      setListDonHang([]);
-      getListDonHang(Chuyen, value, Ngay);
-      setTram(null);
-      setListTram([]);
-      setThietBi(null);
-      setListThietBi([]);
-    }
-  };
-
-  const handleOnSelectDonHang = (value) => {
-    if (value !== DonHang) {
-      setDonHang(value);
-      setTram(null);
-      setListTram([]);
-      getListTram(Chuyen, SanPham, value, Ngay);
-      setThietBi(null);
-      setListThietBi([]);
-    }
-  };
-
   const handleOnSelectTram = (value) => {
     if (value !== Tram) {
       setTram(value);
       setThietBi(null);
       setListThietBi([]);
-      getListThietBi(Chuyen, SanPham, DonHang, value, Ngay);
+      setDataMaySanXuat([]);
+      setDataKiemTra([]);
+      getListThietBi(value, Ngay, keyTabs);
     }
   };
 
   const handleOnSelectThietBi = (value) => {
     if (value !== ThietBi) {
       setThietBi(value);
-      getListData(Chuyen, SanPham, DonHang, Tram, value, Ngay, keyTabs);
+      setDataMaySanXuat([]);
+      setDataKiemTra([]);
+      getListData(Tram, value, Ngay, keyTabs);
     }
   };
 
   const handleChangeTabs = (key) => {
     setKeyTabs(key);
-    setChuyen(null);
-    setListChuyen(listchuyen);
-    setSanPham(null);
-    setListSanPham([]);
-    setDonHang(null);
-    setListDonHang([]);
     setTram(null);
     setListTram([]);
     setThietBi(null);
@@ -1002,28 +963,24 @@ function MaySanXuat({ history, permission }) {
     setNgay(getDateNow());
     setDataMaySanXuat([]);
     setDataKiemTra([]);
+    getListTram(getDateNow(), key);
   };
 
   const handleChangeNgay = (dateString) => {
     setNgay(dateString);
-    getListData(Chuyen, SanPham, DonHang, Tram, ThietBi, dateString, keyTabs);
-  };
-
-  const handleRefesh = () => {
-    getListData(Chuyen, SanPham, DonHang, Tram, ThietBi, Ngay, keyTabs);
+    getListData(Tram, ThietBi, dateString, keyTabs);
   };
 
   const rowSelection = {
-    selectedRowKeys: SelectedKeys,
     selectedRowKanBans: SelectedKanBan,
+    selectedRowKeys: SelectedKeys,
     onChange: (selectedRowKeys, selectedRowKanBans) => {
       const newSelectedKanBan = [...selectedRowKanBans];
       const newSelectedKey = [...selectedRowKeys];
 
-      const newBatDau = newSelectedKanBan.filter(
-        (kanban) =>
-          kanban.isBatDau === true || kanban.tinhTrang === "Hoàn thành"
-      );
+      const newBatDau = newSelectedKanBan.filter((kanban) => {
+        return kanban.isBatDau === true || kanban.isHoanThanh === true;
+      });
       setSelectedBatDau(newBatDau);
 
       if (!newBatDau.length) {
@@ -1056,84 +1013,6 @@ function MaySanXuat({ history, permission }) {
                   <>
                     <Card className="th-card-margin-bottom th-card-reset-margin">
                       <Row>
-                        <Col
-                          xxl={6}
-                          xl={8}
-                          lg={12}
-                          md={12}
-                          sm={20}
-                          xs={24}
-                          style={{
-                            marginBottom: 8,
-                          }}
-                        >
-                          <h5>Chuyền:</h5>
-                          <Select
-                            className="heading-select slt-search th-select-heading"
-                            data={ListChuyen ? ListChuyen : []}
-                            placeholder="Chọn chuyền"
-                            optionsvalue={["id", "tenChuyen"]}
-                            style={{ width: "100%" }}
-                            showSearch
-                            optionFilterProp="name"
-                            onSelect={handleOnSelectChuyen}
-                            value={Chuyen}
-                          />
-                        </Col>
-                        <Col
-                          xxl={6}
-                          xl={8}
-                          lg={12}
-                          md={12}
-                          sm={20}
-                          xs={24}
-                          style={{
-                            marginBottom: 8,
-                          }}
-                        >
-                          <h5>Sản phẩm:</h5>
-                          <Select
-                            className="heading-select slt-search th-select-heading"
-                            data={ListSanPham ? ListSanPham : []}
-                            placeholder="Chọn sản phẩm"
-                            optionsvalue={[
-                              "tits_qtsx_SanPham_Id",
-                              "tenSanPham",
-                            ]}
-                            style={{ width: "100%" }}
-                            showSearch
-                            optionFilterProp="name"
-                            onSelect={handleOnSelectSanPham}
-                            value={SanPham}
-                          />
-                        </Col>
-                        <Col
-                          xxl={6}
-                          xl={8}
-                          lg={12}
-                          md={12}
-                          sm={20}
-                          xs={24}
-                          style={{
-                            marginBottom: 8,
-                          }}
-                        >
-                          <h5>Đơn hàng:</h5>
-                          <Select
-                            className="heading-select slt-search th-select-heading"
-                            data={ListDonHang ? ListDonHang : []}
-                            placeholder="Chọn đơn hàng"
-                            optionsvalue={[
-                              "tits_qtsx_DonHang_Id",
-                              "tenDonHang",
-                            ]}
-                            style={{ width: "100%" }}
-                            showSearch
-                            optionFilterProp="name"
-                            onSelect={handleOnSelectDonHang}
-                            value={DonHang}
-                          />
-                        </Col>
                         <Col
                           xxl={6}
                           xl={8}
@@ -1208,10 +1087,10 @@ function MaySanXuat({ history, permission }) {
                     </Card>
                     <Table
                       bordered
-                      scroll={{ x: 1500, y: "55vh" }}
+                      scroll={{ x: 1500, y: "45vh" }}
                       columns={columns}
                       components={components}
-                      className="gx-table-responsive"
+                      className="gx-table-responsive th-table"
                       dataSource={reDataForTable(DataMaySanXuat)}
                       size="small"
                       rowClassName={"editable-row"}
@@ -1220,6 +1099,7 @@ function MaySanXuat({ history, permission }) {
                       rowSelection={{
                         type: "checkbox",
                         ...rowSelection,
+                        hideSelectAll: true,
                         preserveSelectedRowKeys: true,
                         selectedRowKeys: SelectedKeys,
                       }}
@@ -1229,84 +1109,6 @@ function MaySanXuat({ history, permission }) {
                   <>
                     <Card className="th-card-margin-bottom th-card-reset-margin">
                       <Row>
-                        <Col
-                          xxl={6}
-                          xl={8}
-                          lg={12}
-                          md={12}
-                          sm={20}
-                          xs={24}
-                          style={{
-                            marginBottom: 8,
-                          }}
-                        >
-                          <h5>Chuyền:</h5>
-                          <Select
-                            className="heading-select slt-search th-select-heading"
-                            data={ListChuyen ? ListChuyen : []}
-                            placeholder="Chọn chuyền"
-                            optionsvalue={["id", "tenChuyen"]}
-                            style={{ width: "100%" }}
-                            showSearch
-                            optionFilterProp="name"
-                            onSelect={handleOnSelectChuyen}
-                            value={Chuyen}
-                          />
-                        </Col>
-                        <Col
-                          xxl={6}
-                          xl={8}
-                          lg={12}
-                          md={12}
-                          sm={20}
-                          xs={24}
-                          style={{
-                            marginBottom: 8,
-                          }}
-                        >
-                          <h5>Sản phẩm:</h5>
-                          <Select
-                            className="heading-select slt-search th-select-heading"
-                            data={ListSanPham ? ListSanPham : []}
-                            placeholder="Chọn sản phẩm"
-                            optionsvalue={[
-                              "tits_qtsx_SanPham_Id",
-                              "tenSanPham",
-                            ]}
-                            style={{ width: "100%" }}
-                            showSearch
-                            optionFilterProp="name"
-                            onSelect={handleOnSelectSanPham}
-                            value={SanPham}
-                          />
-                        </Col>
-                        <Col
-                          xxl={6}
-                          xl={8}
-                          lg={12}
-                          md={12}
-                          sm={20}
-                          xs={24}
-                          style={{
-                            marginBottom: 8,
-                          }}
-                        >
-                          <h5>Đơn hàng:</h5>
-                          <Select
-                            className="heading-select slt-search th-select-heading"
-                            data={ListDonHang ? ListDonHang : []}
-                            placeholder="Chọn đơn hàng"
-                            optionsvalue={[
-                              "tits_qtsx_DonHang_Id",
-                              "tenDonHang",
-                            ]}
-                            style={{ width: "100%" }}
-                            showSearch
-                            optionFilterProp="name"
-                            onSelect={handleOnSelectDonHang}
-                            value={DonHang}
-                          />
-                        </Col>
                         <Col
                           xxl={6}
                           xl={8}
@@ -1362,10 +1164,10 @@ function MaySanXuat({ history, permission }) {
                     </Card>
                     <Table
                       bordered
-                      scroll={{ x: 1500, y: "55vh" }}
+                      scroll={{ x: 1500, y: "45vh" }}
                       columns={columnkiemtras}
                       components={components}
-                      className="gx-table-responsive"
+                      className="gx-table-responsive th-table"
                       dataSource={reDataForTable(DataKiemTra)}
                       size="small"
                       rowClassName={"editable-row"}
@@ -1378,18 +1180,52 @@ function MaySanXuat({ history, permission }) {
           })}
         />
       </Card>
-      <ModalKetThuc
-        openModal={ActiveModalKetThuc}
-        openModalFS={setActiveModalKetThuc}
-        itemData={SelectedKetThuc.map((ketthuc) => {
-          return {
-            ...ketthuc,
-            tits_qtsx_Tram_Id: Tram,
-            tits_qtsx_ThietBi_Id: ThietBi,
-          };
-        })}
-        refesh={handleRefesh}
-      />
+      <AntModal
+        title={"Chọn thiết bị cho chi tiết"}
+        className="th-card-reset-margin"
+        open={ActiveModalKetThuc}
+        width={width > 1600 ? `90%` : "100%"}
+        closable={true}
+        onCancel={() => setActiveModalKetThuc(false)}
+        footer={null}
+      >
+        <Table
+          bordered
+          columns={columns}
+          scroll={{ x: 1500, y: "55vh" }}
+          components={components}
+          className="gx-table-responsive"
+          dataSource={reDataForTable(SelectedKetThuc)}
+          size="small"
+          rowClassName={"editable-row"}
+          pagination={false}
+        />
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "center",
+            marginTop: "10px",
+          }}
+        >
+          <Button
+            icon={<LogoutOutlined />}
+            className="th-margin-bottom-0"
+            type="default"
+            onClick={() => setActiveModalKetThuc(false)}
+          >
+            Thoát
+          </Button>
+          <Button
+            icon={<CheckCircleOutlined />}
+            className="th-margin-bottom-0"
+            type="primary"
+            onClick={handleKetThuc}
+            disabled={DisabledXacNhan}
+          >
+            Lưu
+          </Button>
+        </div>
+      </AntModal>
     </div>
   );
 }
