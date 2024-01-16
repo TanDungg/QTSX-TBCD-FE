@@ -20,7 +20,8 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function PhanMemDonVi({ history, permission }) {
   const dispatch = useDispatch();
   const { data, loading } = useSelector(({ common }) => common).toJS();
-  const [keyword, setKeyword] = useState("");
+  const keyword = "";
+  // const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const { totalRow, totalPages, pageSize } = data;
 
@@ -241,9 +242,9 @@ function PhanMemDonVi({ history, permission }) {
       pathname: "/he-thong/phan-mem-don-vi/them-moi",
     });
   };
-  const handleClearSearch = () => {
-    getListData(null, 1);
-  };
+  // const handleClearSearch = () => {
+  //   getListData(null, 1);
+  // };
   const addButtonRender = () => {
     return (
       <>

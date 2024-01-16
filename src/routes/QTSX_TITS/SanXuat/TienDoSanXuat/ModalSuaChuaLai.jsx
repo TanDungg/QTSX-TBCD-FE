@@ -65,74 +65,75 @@ function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
         const newData = [];
         const newListLoi = [];
         // const newListTongLoi = [];
-        res.data.list_TDSXKiemSoatChatLuongs.forEach((ks) => {
-          ks.list_TDSXKiemSoatChatLuongTieuDePhus.forEach((tdp) => {
-            tdp.list_TDSXKiemSoatChatLuongChiTiets =
-              tdp.list_TDSXKiemSoatChatLuongChiTiets.filter(
-                (ksclct) =>
-                  ksclct.list_TDSXKiemSoatChatLuongChiTietLois.length > 0
-              );
-            tdp.list_TDSXKiemSoatChatLuongChiTiets.forEach((ct) => {
-              if (ct.list_TDSXKiemSoatChatLuongChiTietLois.length > 0) {
-                ct.list_TDSXKiemSoatChatLuongChiTietLois =
-                  ct.list_TDSXKiemSoatChatLuongChiTietLois.filter(
-                    (ctl) => ctl.isHoanThanhSCL === false
-                  );
-                ct.list_TDSXKiemSoatChatLuongChiTietLois.forEach((Ctl) => {
-                  Ctl.tenHangMucKiemTra = tdp.tenHangMucKiemTra;
-                  if (Ctl.nguoiSuaChuaLai_Id) {
-                    Ctl.isHoanThanhSCL = true;
-                    ct.ketQua = undefined;
-                    ct.isDat = ct.isNoiDung ? true : ct.isDat;
-                    Ctl.nguoiXacNhanSuaChuaLai_Id = getTokenInfo().id;
-                    setActiveXacNhanSCL(true);
-                  }
-                  setThoiGianVaoTram(Ctl.thoiGianVao);
-                  ks.list_HinhAnhs.forEach((ha) => {
-                    if (
-                      Ctl.tits_qtsx_SanPhamHinhAnh_Id ===
-                      ha.tits_qtsx_SanPhamHinhAnh_Id
-                    ) {
-                      if (ha.listViTri) {
-                        const viTriLoi = JSON.parse(Ctl.viTri);
-                        viTriLoi.isHoanThanhSCL = Ctl.isHoanThanhSCL;
-                        viTriLoi.maLoi = Ctl.maLoi;
-                        viTriLoi.tenNhomLoi = Ctl.tenNhomLoi;
-                        viTriLoi.moTa = Ctl.moTa;
-                        viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id =
-                          Ctl.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id;
-                        viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id =
-                          ct.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id;
-                        ha.listViTri.push(JSON.stringify(viTriLoi));
-                      } else {
-                        const viTriLoi = JSON.parse(Ctl.viTri);
-                        viTriLoi.isHoanThanhSCL = Ctl.isHoanThanhSCL;
-                        viTriLoi.maLoi = Ctl.maLoi;
-                        viTriLoi.tenNhomLoi = Ctl.tenNhomLoi;
-                        viTriLoi.moTa = Ctl.moTa;
-                        viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id =
-                          Ctl.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id;
-                        viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id =
-                          ct.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id;
-                        ha.listViTri = [JSON.stringify(viTriLoi)];
-                      }
+        res.data.list_TDSXKiemSoatChatLuongs &&
+          res.data.list_TDSXKiemSoatChatLuongs.forEach((ks) => {
+            ks.list_TDSXKiemSoatChatLuongTieuDePhus.forEach((tdp) => {
+              tdp.list_TDSXKiemSoatChatLuongChiTiets =
+                tdp.list_TDSXKiemSoatChatLuongChiTiets.filter(
+                  (ksclct) =>
+                    ksclct.list_TDSXKiemSoatChatLuongChiTietLois.length > 0
+                );
+              tdp.list_TDSXKiemSoatChatLuongChiTiets.forEach((ct) => {
+                if (ct.list_TDSXKiemSoatChatLuongChiTietLois.length > 0) {
+                  ct.list_TDSXKiemSoatChatLuongChiTietLois =
+                    ct.list_TDSXKiemSoatChatLuongChiTietLois.filter(
+                      (ctl) => ctl.isHoanThanhSCL === false
+                    );
+                  ct.list_TDSXKiemSoatChatLuongChiTietLois.forEach((Ctl) => {
+                    Ctl.tenHangMucKiemTra = tdp.tenHangMucKiemTra;
+                    if (Ctl.nguoiSuaChuaLai_Id) {
+                      Ctl.isHoanThanhSCL = true;
+                      ct.ketQua = undefined;
+                      ct.isDat = ct.isNoiDung ? true : ct.isDat;
+                      Ctl.nguoiXacNhanSuaChuaLai_Id = getTokenInfo().id;
+                      setActiveXacNhanSCL(true);
                     }
+                    setThoiGianVaoTram(Ctl.thoiGianVao);
+                    ks.list_HinhAnhs.forEach((ha) => {
+                      if (
+                        Ctl.tits_qtsx_SanPhamHinhAnh_Id ===
+                        ha.tits_qtsx_SanPhamHinhAnh_Id
+                      ) {
+                        if (ha.listViTri) {
+                          const viTriLoi = JSON.parse(Ctl.viTri);
+                          viTriLoi.isHoanThanhSCL = Ctl.isHoanThanhSCL;
+                          viTriLoi.maLoi = Ctl.maLoi;
+                          viTriLoi.tenNhomLoi = Ctl.tenNhomLoi;
+                          viTriLoi.moTa = Ctl.moTa;
+                          viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id =
+                            Ctl.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id;
+                          viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id =
+                            ct.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id;
+                          ha.listViTri.push(JSON.stringify(viTriLoi));
+                        } else {
+                          const viTriLoi = JSON.parse(Ctl.viTri);
+                          viTriLoi.isHoanThanhSCL = Ctl.isHoanThanhSCL;
+                          viTriLoi.maLoi = Ctl.maLoi;
+                          viTriLoi.tenNhomLoi = Ctl.tenNhomLoi;
+                          viTriLoi.moTa = Ctl.moTa;
+                          viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id =
+                            Ctl.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id;
+                          viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id =
+                            ct.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id;
+                          ha.listViTri = [JSON.stringify(viTriLoi)];
+                        }
+                      }
+                    });
+                    ks.list_HinhAnhs = ks.list_HinhAnhs.filter(
+                      (ha) => ha.listViTri && ha.listViTri.length > 0
+                    );
                   });
-                  ks.list_HinhAnhs = ks.list_HinhAnhs.filter(
-                    (ha) => ha.listViTri && ha.listViTri.length > 0
-                  );
-                });
-                newListLoi.push(...ct.list_TDSXKiemSoatChatLuongChiTietLois);
-              }
-              if (
-                ct.list_TDSXKiemSoatChatLuongChiTietLois.length > 0 &&
-                !newData.some((item) => item === ks)
-              ) {
-                newData.push(ks);
-              }
+                  newListLoi.push(...ct.list_TDSXKiemSoatChatLuongChiTietLois);
+                }
+                if (
+                  ct.list_TDSXKiemSoatChatLuongChiTietLois.length > 0 &&
+                  !newData.some((item) => item === ks)
+                ) {
+                  newData.push(ks);
+                }
+              });
             });
           });
-        });
         setListLoi(newListLoi);
         setListHangMucKiemTra(newData);
       } else {

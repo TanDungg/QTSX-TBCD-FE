@@ -39,7 +39,6 @@ import { DEFAULT_FORM_TWO_COL } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getLocalStorage,
-  getThangNow,
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";

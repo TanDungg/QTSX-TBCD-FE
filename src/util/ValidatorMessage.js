@@ -29,7 +29,7 @@ export const defaultValidateMessages = {
     len: "${label} cần phải có chính xác ${len} ký tự",
     min: "${label} cần có ít nhất ${min} ký tự",
     max: "${label} không thể nhiều hơn ${max} ký tự",
-    range: "'${label}' cần phải nằm trong khoảng ${min} và ${max} ký tự",
+    range: "${label} cần phải nằm trong khoảng ${min} và ${max} ký tự",
   },
   number: {
     len: "${label} cần bằng ${len}",

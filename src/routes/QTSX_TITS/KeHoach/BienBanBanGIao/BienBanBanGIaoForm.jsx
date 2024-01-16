@@ -1,6 +1,6 @@
 import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Card, Form, Input, Row, Col, Button, Tag } from "antd";
-import { isEmpty, map } from "lodash";
+import { map } from "lodash";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -35,7 +35,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [ListKhachHang, setListKhachHang] = useState([]);
   const [ListVatTu, setListVatTu] = useState([]);
-  const [editingRecord, setEditingRecord] = useState([]);
+  // const [editingRecord, setEditingRecord] = useState([]);
   const [ListGiaoHang, setListGiaoHang] = useState([]);
   const [ActiveModal, setActiveModal] = useState(false);
   const [ListUser, setListUser] = useState([]);
@@ -209,56 +209,56 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
       </div>
     );
   };
-  const handleInputChange = (val, item) => {
-    const soLuongNhap = val.target.value;
-    if (isEmpty(soLuongNhap) || Number(soLuongNhap) <= 0) {
-      setFieldTouch(false);
-      setEditingRecord([...editingRecord, item]);
-      item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
-    } else {
-      const newData = editingRecord.filter(
-        (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
-      );
-      setEditingRecord(newData);
-      newData.length === 0 && setFieldTouch(true);
-    }
-    const newData = [...ListVatTu];
-    newData.forEach((ct, index) => {
-      if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
-        ct.soLuong = soLuongNhap;
-      }
-    });
-    setListVatTu(newData);
-  };
+  // const handleInputChange = (val, item) => {
+  //   const soLuongNhap = val.target.value;
+  //   if (isEmpty(soLuongNhap) || Number(soLuongNhap) <= 0) {
+  //     setFieldTouch(false);
+  //     setEditingRecord([...editingRecord, item]);
+  //     item.message = "Số lượng phải là số lớn hơn 0 và bắt buộc";
+  //   } else {
+  //     const newData = editingRecord.filter(
+  //       (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
+  //     );
+  //     setEditingRecord(newData);
+  //     newData.length === 0 && setFieldTouch(true);
+  //   }
+  //   const newData = [...ListVatTu];
+  //   newData.forEach((ct, index) => {
+  //     if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
+  //       ct.soLuong = soLuongNhap;
+  //     }
+  //   });
+  //   setListVatTu(newData);
+  // };
 
-  const rendersoLuong = (item) => {
-    let isEditing = false;
-    let message = "";
-    editingRecord.forEach((ct) => {
-      if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
-        isEditing = true;
-        message = ct.message;
-      }
-    });
-    return (
-      <>
-        <Input
-          style={{
-            textAlign: "center",
-            width: "100%",
-          }}
-          className={`input-item`}
-          type="number"
-          value={item.soLuong}
-          disabled={
-            type === "new" || type === "edit" || type === "duyet" ? false : true
-          }
-          onChange={(val) => handleInputChange(val, item)}
-        />
-        {isEditing && <div style={{ color: "red" }}>{message}</div>}
-      </>
-    );
-  };
+  // const rendersoLuong = (item) => {
+  //   let isEditing = false;
+  //   let message = "";
+  //   editingRecord.forEach((ct) => {
+  //     if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
+  //       isEditing = true;
+  //       message = ct.message;
+  //     }
+  //   });
+  //   return (
+  //     <>
+  //       <Input
+  //         style={{
+  //           textAlign: "center",
+  //           width: "100%",
+  //         }}
+  //         className={`input-item`}
+  //         type="number"
+  //         value={item.soLuong}
+  //         disabled={
+  //           type === "new" || type === "edit" || type === "duyet" ? false : true
+  //         }
+  //         onChange={(val) => handleInputChange(val, item)}
+  //       />
+  //       {isEditing && <div style={{ color: "red" }}>{message}</div>}
+  //     </>
+  //   );
+  // };
   let colValues = [
     {
       title: "STT",

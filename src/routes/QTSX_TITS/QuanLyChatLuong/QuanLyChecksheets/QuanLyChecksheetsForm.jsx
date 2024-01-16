@@ -853,21 +853,37 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
         <Col span={24}>
           <h4 style={{ fontWeight: "bold", margin: 0 }}>
             Hạng mục kiểm tra chất lượng{" "}
-            <a
-              // style={{
-              //   color: "#0469b9",
-              //   cursor: "pointer",
-              // }}
-              onClick={() => setActiveModal(true)}
-              disabled={
-                DataModal.tits_qtsx_LoaiSanPham_Id === "" ||
-                DataModal.tits_qtsx_SanPham_Id === "" ||
-                DataModal.tits_qtsx_CongDoan_Id === "" ||
-                type === "detail"
-              }
+            <span
+              style={{
+                color:
+                  DataModal.tits_qtsx_LoaiSanPham_Id === "" ||
+                  DataModal.tits_qtsx_SanPham_Id === "" ||
+                  DataModal.tits_qtsx_CongDoan_Id === "" ||
+                  type === "detail"
+                    ? "#333"
+                    : "#0469b9",
+                cursor:
+                  DataModal.tits_qtsx_LoaiSanPham_Id === "" ||
+                  DataModal.tits_qtsx_SanPham_Id === "" ||
+                  DataModal.tits_qtsx_CongDoan_Id === "" ||
+                  type === "detail"
+                    ? ""
+                    : "pointer",
+              }}
+              onClick={() => {
+                if (
+                  DataModal.tits_qtsx_LoaiSanPham_Id === "" ||
+                  DataModal.tits_qtsx_SanPham_Id === "" ||
+                  DataModal.tits_qtsx_CongDoan_Id === "" ||
+                  type === "detail"
+                ) {
+                } else {
+                  setActiveModal(true);
+                }
+              }}
             >
               <PlusCircleOutlined />
-            </a>
+            </span>
           </h4>
         </Col>
       </Row>

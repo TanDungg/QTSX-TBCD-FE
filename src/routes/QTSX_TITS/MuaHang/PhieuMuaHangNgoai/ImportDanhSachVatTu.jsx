@@ -36,7 +36,7 @@ function ImportDanhSachVatTu({
   const [DataListVatTu, setDataListVatTu] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
-  const [HangTrung, setHangTrung] = useState([]);
+  // const [HangTrung, setHangTrung] = useState([]);
   const [message, setMessageError] = useState([]);
 
   let colValues = [
@@ -421,15 +421,16 @@ function ImportDanhSachVatTu({
   };
 
   const RowStyle = (current, index) => {
-    if (HangTrung.length > 0) {
-      const trunglap = HangTrung.find(
-        (item) => item.maVatTu === current.maVatTu
-      );
-      if (trunglap) {
-        setCheckDanger(true);
-        return "red-row";
-      }
-    } else if (current.ghiChuImport !== null) {
+    // if (HangTrung.length > 0) {
+    //   const trunglap = HangTrung.find(
+    //     (item) => item.maVatTu === current.maVatTu
+    //   );
+    //   if (trunglap) {
+    //     setCheckDanger(true);
+    //     return "red-row";
+    //   }
+    // } else
+    if (current.ghiChuImport !== null) {
       setCheckDanger(true);
       return "red-row";
     } else if (current.STT === null) {

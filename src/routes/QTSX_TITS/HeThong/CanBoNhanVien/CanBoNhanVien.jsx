@@ -37,7 +37,7 @@ function CanBoNhanVien({ match, history, permission }) {
   const [donViSelect, setDonViSelect] = useState([]);
   const [donVi, setDonVi] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [NhanSuNghi, setNhanSuNghi] = useState();
+  // const [NhanSuNghi, setNhanSuNghi] = useState();
   const [data, setData] = useState([]);
   const { totalRow, pageSize } = data;
   const dataList = reDataForTable(data.datalist, page, pageSize);
@@ -378,9 +378,9 @@ function CanBoNhanVien({ match, history, permission }) {
     return renderHead;
   };
 
-  const handleImport = () => {
-    setActiveModal(true);
-  };
+  // const handleImport = () => {
+  //   setActiveModal(true);
+  // };
 
   //Xuất phiếu bàn giao
   const XuatExcel = () => {
@@ -560,7 +560,7 @@ function CanBoNhanVien({ match, history, permission }) {
         <ModalNghiViec
           openModal={isModalOpen}
           openModalFS={setIsModalOpen}
-          data={NhanSuNghi}
+          // data={NhanSuNghi}
           refesh={refeshData}
         />
       </Card>
