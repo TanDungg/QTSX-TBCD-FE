@@ -709,7 +709,7 @@ function TraCuuThongTinXe({ history, permission }) {
                   cursor: "pointer",
                   fontWeight: "bold",
                 }}
-                onClick={() => setDisabledModalHoSoChatLuong(true)}
+                // onClick={() => setDisabledModalHoSoChatLuong(true)}
               >
                 Xem thông tin hồ sơ chi tiết
               </span>
@@ -726,17 +726,19 @@ function TraCuuThongTinXe({ history, permission }) {
         onCancel={() => setDisabledModalHoSoChatLuong(false)}
         footer={null}
       >
-        <Table
-          bordered
-          columns={columnschitiet}
-          components={componentschitiet}
-          scroll={{ x: 1200, y: "40vh" }}
-          className="gx-table-responsive"
-          dataSource={reDataForTable(DataHoSoChatLuong)}
-          size="small"
-          loading={loading}
-          pagination={false}
-        />
+        <Card className="th-card-margin-bottom th-card-reset-margin">
+          <Table
+            bordered
+            columns={columnschitiet}
+            components={componentschitiet}
+            scroll={{ x: 1200, y: "55vh" }}
+            className="gx-table-responsive"
+            dataSource={reDataForTable(DataHoSoChatLuong)}
+            size="small"
+            loading={loading}
+            pagination={false}
+          />
+        </Card>
       </AntModal>
     </div>
   );

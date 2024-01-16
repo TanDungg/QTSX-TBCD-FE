@@ -58,13 +58,14 @@ const VatTuForm = ({ history, match, permission }) => {
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
   const [ListKhoVatTu, setListKhoVatTu] = useState([]);
+  const [NgayKHSX, setNgayKHSX] = useState(getDateNow(), "DD/MM/YYYY");
   const [Xuong, setXuong] = useState(null);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
-  const [NgayKHSX, setNgayKHSX] = useState(getDateNow(), "DD/MM/YYYY");
   const [KhoVatTu, setKhoVatTu] = useState(null);
   const [VatTu, setVatTu] = useState([]);
   const [ListSoLo, setListSoLo] = useState([]);
+  const [SoLuongLo, setSoLuongLo] = useState(null);
   const [ListBOM, setListBOM] = useState([]);
   const [isLoaiThep, setIsLoaiThep] = useState(null);
   const [isThepTam, setIsThepTam] = useState(null);
@@ -279,32 +280,16 @@ const VatTuForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          if (value === 0) {
-            const newData = res.data.map((data) => {
-              return {
-                ...data,
-                viTri: null,
-                soLuongThucXuat: 0,
-                soLuongYeuCau: data.dinhMuc * soLuongLo,
-                list_ChiTietLuuKhos: [],
-              };
-            });
-            setListVatTuTheoOEM(newData);
-          } else {
-            const newData = res.data.map((data) => {
-              const quycach =
-                data.thongSoKyThuat && JSON.parse(data.thongSoKyThuat);
-              return {
-                ...data,
-                viTri: null,
-                soLuongThucXuat: 0,
-                soLuongYeuCau: data.dinhMuc * soLuongLo,
-                ...(quycach && quycach),
-                list_ChiTietLuuKhos: [],
-              };
-            });
-            setListVatTuTheoBOM(newData);
-          }
+          const newData = res.data.map((data) => {
+            return {
+              ...data,
+              viTri: null,
+              soLuongThucXuat: 0,
+              soLuongYeuCau: data.dinhMuc * soLuongLo,
+              list_ChiTietLuuKhos: [],
+            };
+          });
+          setListVatTuTheoOEM(newData);
         } else {
           setListVatTuTheoOEM([]);
         }
@@ -520,10 +505,17 @@ const VatTuForm = ({ history, match, permission }) => {
   };
 
   const deleteItemAction = (item) => {
-    const newData = ListVatTuTheoOEM.filter(
-      (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
-    );
-    setListVatTuTheoOEM(newData);
+    if (value === 0) {
+      const newData = ListVatTuTheoOEM.filter(
+        (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
+      );
+      setListVatTuTheoOEM(newData);
+    } else {
+      const newData = ListVatTuTheoOEM.filter(
+        (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
+      );
+      setListVatTuTheoBOM(newData);
+    }
     setFieldTouch(true);
   };
 
@@ -552,20 +544,37 @@ const VatTuForm = ({ history, match, permission }) => {
   };
 
   const DeleteViTri = (record) => {
-    setListVatTuTheoOEM((prevListVatTuTheoOEM) => {
-      return prevListVatTuTheoOEM.map((item) => {
-        if (
-          record.tits_qtsx_VatTu_Id.toLowerCase() ===
-          item.tits_qtsx_VatTu_Id.toLowerCase()
-        ) {
-          return {
-            ...item,
-            list_ChiTietLuuKhos: [],
-          };
-        }
-        return item;
+    if (value === 0) {
+      setListVatTuTheoOEM((prevListVatTuTheoOEM) => {
+        return prevListVatTuTheoOEM.map((item) => {
+          if (
+            record.tits_qtsx_VatTu_Id.toLowerCase() ===
+            item.tits_qtsx_VatTu_Id.toLowerCase()
+          ) {
+            return {
+              ...item,
+              list_ChiTietLuuKhos: [],
+            };
+          }
+          return item;
+        });
       });
-    });
+    } else {
+      setListVatTuTheoBOM((prevListVatTuTheoBOM) => {
+        return prevListVatTuTheoBOM.map((item) => {
+          if (
+            record.tits_qtsx_VatTu_Id.toLowerCase() ===
+            item.tits_qtsx_VatTu_Id.toLowerCase()
+          ) {
+            return {
+              ...item,
+              list_ChiTietLuuKhos: [],
+            };
+          }
+          return item;
+        });
+      });
+    }
   };
 
   const ThemViTri = (data) => {
@@ -1182,18 +1191,28 @@ const VatTuForm = ({ history, match, permission }) => {
       setIsLoaiThep(false);
       setIsThepTam(null);
     }
-
     setXuong(val);
+    setListSanPham([]);
+    setListSoLo([]);
+    setSoLuongLo(null);
+    setListBOM([]);
     setFieldsValue(
       value === 0
         ? {
             phieuxuatkhovattusanxuattheoOEM: {
               tits_qtsx_SanPham_Id: null,
+              tits_qtsx_SoLo_Id: null,
+              tits_qtsx_DonHang_Id: null,
+              soLuongLo: null,
             },
           }
         : {
             phieuxuatkhovattusanxuattheoBOM: {
               tits_qtsx_SanPham_Id: null,
+              tits_qtsx_SoLo_Id: null,
+              tits_qtsx_DonHang_Id: null,
+              soLuongLo: null,
+              tits_qtsx_BOMXuong_Id: null,
             },
           }
     );
@@ -1207,26 +1226,34 @@ const VatTuForm = ({ history, match, permission }) => {
 
   const handleSelectListSanPham = (val) => {
     setSanPham(val);
-    const newData = ListSanPham.find((sp) => sp.tits_qtsx_SanPham_Id === val);
+    const newSanPham = ListSanPham.find(
+      (sp) => sp.tits_qtsx_SanPham_Id === val
+    );
     setFieldsValue(
-      value === 1
+      value === 0
         ? {
             phieuxuatkhovattusanxuattheoOEM: {
               tits_qtsx_SoLo_Id: null,
-              tits_qtsx_DonHang_Id: newData.tits_qtsx_DonHang_Id,
+              tits_qtsx_DonHang_Id: newSanPham.tits_qtsx_DonHang_Id,
+              soLuongLo: null,
             },
           }
         : {
             phieuxuatkhovattusanxuattheoBOM: {
               tits_qtsx_SoLo_Id: null,
-              tits_qtsx_DonHang_Id: newData.tits_qtsx_DonHang_Id,
+              tits_qtsx_DonHang_Id: newSanPham.tits_qtsx_DonHang_Id,
+              soLuongLo: null,
+              tits_qtsx_BOMXuong_Id: null,
             },
           }
     );
-    getListSoLo(Xuong, newData.tits_qtsx_DonHang_Id, val);
+    setListSoLo([]);
+    setSoLuongLo(null);
+    getListSoLo(Xuong, newSanPham.tits_qtsx_DonHang_Id, val);
     if (value === 0) {
       setListVatTuTheoOEM([]);
     } else {
+      setListBOM([]);
       setListVatTuTheoBOM([]);
       getListDinhMucVatTu(Xuong, val);
     }
@@ -1235,24 +1262,44 @@ const VatTuForm = ({ history, match, permission }) => {
   /* Theo OEM */
   const handleSelectListSoLo = (val) => {
     const newData = ListSoLo.find((sp) => sp.tits_qtsx_SoLo_Id === val);
-    setFieldsValue({
-      phieuxuatkhovattusanxuattheoOEM: {
-        soLuongLo: newData.soLuongLo,
-      },
-    });
-    getListVatTu(Xuong, SanPham, isThepTam, newData.soLuongLo);
+    setSoLuongLo(newData.soLuongLo);
+    setFieldsValue(
+      value === 0
+        ? {
+            phieuxuatkhovattusanxuattheoOEM: {
+              soLuongLo: newData.soLuongLo,
+            },
+          }
+        : {
+            phieuxuatkhovattusanxuattheoBOM: {
+              soLuongLo: newData.soLuongLo,
+            },
+          }
+    );
+    if (value === 0) {
+      getListVatTu(Xuong, SanPham, isThepTam, newData.soLuongLo);
+    }
   };
 
   /* Theo BOM */
-  const handleSelectListSanPhamBOM = (val) => {
-    setSanPham(val);
-    setListVatTuTheoBOM([]);
-    getListSoLo(Xuong, val);
-  };
-
   const handleSelectListBOM = (val) => {
-    const newData = ListBOM.find((bom) => bom.tits_qtsx_BOMXuong_Id === val);
-    setListVatTuTheoBOM(newData.list_ChiTiets);
+    const newListData = ListBOM.find(
+      (bom) => bom.tits_qtsx_BOMXuong_Id === val
+    );
+
+    const newData =
+      newListData.list_ChiTiets &&
+      newListData.list_ChiTiets.map((data) => {
+        return {
+          ...data,
+          ...(data.thongSoKyThuat && JSON.parse(data.thongSoKyThuat)),
+          viTri: null,
+          soLuongThucXuat: 0,
+          soLuongYeuCau: data.dinhMuc * SoLuongLo,
+          list_ChiTietLuuKhos: [],
+        };
+      });
+    setListVatTuTheoBOM(newData);
   };
 
   const handleSelectKho = (val) => {
@@ -2439,13 +2486,15 @@ const VatTuForm = ({ history, match, permission }) => {
                           optionFilterProp="name"
                           onSelect={handleSelectListBOM}
                           disabled={
-                            type === "new" || type === "edit" ? false : true
+                            type === "detail" ||
+                            type === "xacnhan" ||
+                            !SoLuongLo
                           }
                         />
                       </FormItem>
                     ) : (
                       <FormItem
-                        label="Số lô"
+                        label="BOM xưởng"
                         name={["phieuxuatkhovattusanxuattheoBOM", "maBOMXuong"]}
                         rules={[
                           {
@@ -2457,31 +2506,6 @@ const VatTuForm = ({ history, match, permission }) => {
                         <Input className="input-item" disabled={true} />
                       </FormItem>
                     )}
-                  </Col>
-                  <Col
-                    xxl={12}
-                    xl={12}
-                    lg={24}
-                    md={24}
-                    sm={24}
-                    xs={24}
-                    style={{ marginBottom: 8 }}
-                  >
-                    <FormItem
-                      label="Lô xe"
-                      name={["phieuxuatkhovattusanxuattheoBOM", "soLuongLo"]}
-                      rules={[
-                        {
-                          required: true,
-                        },
-                      ]}
-                    >
-                      <Input
-                        className="input-item"
-                        placeholder="Số lượng lô xe"
-                        disabled={true}
-                      />
-                    </FormItem>
                   </Col>
                   <Col
                     xxl={12}

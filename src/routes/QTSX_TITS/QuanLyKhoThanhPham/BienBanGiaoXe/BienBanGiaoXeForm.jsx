@@ -437,6 +437,7 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
         thongTinVatTuPhuKiens: PhuKienVatTu,
         thongTinVatTuPhuKienKhac: VatTuKhac,
       };
+      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -459,7 +460,6 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
               getListDonHang();
               getListKhachHang();
               getListDaiDien();
-              getListSoLo();
               setPhuKienVatTu(PhuKienVatTuGoc);
               setVatTuKhac([]);
               setFieldsValue({
@@ -526,7 +526,7 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
   };
 
   const handleSelectSoLo = (value) => {
-    const solo = ListSoLo.find((sl) => sl.tits_qtsx_SoLo_Id === value);
+    const solo = ListSoLo.find((sl) => sl.tits_qtsx_SoLoChiTiet_Id === value);
     setSoLo(solo);
   };
 
