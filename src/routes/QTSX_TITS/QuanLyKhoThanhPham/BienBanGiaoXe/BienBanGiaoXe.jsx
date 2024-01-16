@@ -164,7 +164,7 @@ function PhieuKiemKe({ match, history, permission }) {
     ModalDeleteConfirm(
       deleteItemAction,
       item,
-      item.maPhieu,
+      item.maBBBGX,
       "biên bản bàn giao xe"
     );
   };
@@ -281,10 +281,10 @@ function PhieuKiemKe({ match, history, permission }) {
             state: { itemData: val, permission },
           }}
         >
-          {val.maPhieu}
+          {val.maBBBGX}
         </Link>
       ) : (
-        <span disabled>{val.maPhieu}</span>
+        <span disabled>{val.maBBBGX}</span>
       );
     return <div>{detail}</div>;
   };
@@ -304,88 +304,84 @@ function PhieuKiemKe({ match, history, permission }) {
       width: 45,
     },
     {
-      title: "Mã phiếu kiểm kê",
-      key: "maPhieu",
+      title: "Mã biên bản",
+      key: "maBBBGX",
       align: "center",
       render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieu,
-            value: d.maPhieu,
+            text: d.maBBBGX,
+            value: d.maBBBGX,
           };
         })
       ),
-      onFilter: (value, record) => record.maPhieu.includes(value),
+      onFilter: (value, record) => record.maBBBGX.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Yêu cầu giao xe số",
+      dataIndex: "canCuYeuCauGiaoXe",
+      key: "canCuYeuCauGiaoXe",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.canCuYeuCauGiaoXe,
+            value: d.canCuYeuCauGiaoXe,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.canCuYeuCauGiaoXe.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Số",
+      dataIndex: "so",
+      key: "so",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.so,
+            value: d.so,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.so.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Ngày lập phiếu",
+      dataIndex: "ngayTao",
+      key: "ngayTao",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayTao,
+            value: d.ngayTao,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngayTao.includes(value),
       filterSearch: true,
     },
     {
       title: "Người tạo phiếu",
-      dataIndex: "tenNguoiLapPhieu",
-      key: "tenNguoiLapPhieu",
+      dataIndex: "tenNguoiTao",
+      key: "tenNguoiTao",
       align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenNguoiLapPhieu,
-            value: d.tenNguoiLapPhieu,
+            text: d.tenNguoiTao,
+            value: d.tenNguoiTao,
           };
         })
       ),
-      onFilter: (value, record) => record.tenNguoiLapPhieu.includes(value),
+      onFilter: (value, record) => record.tenNguoiTao.includes(value),
       filterSearch: true,
-    },
-    {
-      title: "Ngày kiểm kê",
-      dataIndex: "ngay",
-      key: "ngay",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.ngay,
-            value: d.ngay,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.ngay.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Tình trạng",
-      dataIndex: "tinhTrang",
-      key: "tinhTrang",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tinhTrang,
-            value: d.tinhTrang,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tinhTrang.includes(value),
-      filterSearch: true,
-      render: (value) => (
-        <div>
-          {value && (
-            <Tag
-              color={
-                value === "Chưa duyệt"
-                  ? "orange"
-                  : value === "Đã duyệt"
-                  ? "blue"
-                  : "red"
-              }
-              style={{
-                fontSize: 13,
-              }}
-            >
-              {value}
-            </Tag>
-          )}
-        </div>
-      ),
     },
   ];
 

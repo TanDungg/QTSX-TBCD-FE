@@ -248,6 +248,11 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(BienBanGiaoXeForm, menus, pathname, permission)}
       />
+      <Route
+        path={`${match.url}/bien-ban-giao-xe/:id/chi-tiet`}
+        exact
+        component={Auth(BienBanGiaoXeForm, menus, pathname, permission)}
+      />
     </Switch>
   );
 };
