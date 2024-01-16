@@ -65,6 +65,7 @@ const VatTuForm = ({ history, match, permission }) => {
   const [KhoVatTu, setKhoVatTu] = useState(null);
   const [VatTu, setVatTu] = useState([]);
   const [ListSoLo, setListSoLo] = useState([]);
+  const [ListBOM, setListBOM] = useState([]);
   const [isLoaiThep, setIsLoaiThep] = useState(null);
   const [isThepTam, setIsThepTam] = useState(null);
   const [DisabledKhoXuat, setDisabledKhoXuat] = useState(false);
@@ -196,7 +197,6 @@ const VatTuForm = ({ history, match, permission }) => {
       tits_qtsx_Xuong_Id,
       tits_qtsx_DonHang_Id,
       tits_qtsx_SanPham_Id,
-      isThepTam,
       isBOM: value === 0 ? false : true,
     });
     new Promise((resolve, reject) => {
@@ -217,6 +217,35 @@ const VatTuForm = ({ history, match, permission }) => {
           setListSoLo(res.data);
         } else {
           setListSoLo([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListDinhMucVatTu = (tits_qtsx_Xuong_Id, tits_qtsx_SanPham_Id) => {
+    const params = convertObjectToUrlParams({
+      tits_qtsx_Xuong_Id,
+      tits_qtsx_SanPham_Id,
+      isBOM: true,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuXuatKhoVatTuSanXuat/dinh-muc-vat-tu?${params}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListBOM(res.data);
+        } else {
+          setListBOM([]);
         }
       })
       .catch((error) => console.error(error));
@@ -591,7 +620,7 @@ const VatTuForm = ({ history, match, permission }) => {
   const renderLstViTri = (record) => {
     return (
       <div>
-        {record.list_ChiTietLuuKhos.length > 0 ? (
+        {record.list_ChiTietLuuKhos.length ? (
           <div>
             <div>
               {record.list_ChiTietLuuKhos.map((vt, index) => {
@@ -1178,42 +1207,52 @@ const VatTuForm = ({ history, match, permission }) => {
 
   const handleSelectListSanPham = (val) => {
     setSanPham(val);
-    const newData = ListSanPham.filter((sp) => sp.tits_qtsx_SanPham_Id === val);
+    const newData = ListSanPham.find((sp) => sp.tits_qtsx_SanPham_Id === val);
     setFieldsValue(
-      value === 0
+      value === 1
         ? {
             phieuxuatkhovattusanxuattheoOEM: {
               tits_qtsx_SoLo_Id: null,
-              tits_qtsx_DonHang_Id: newData[0].tits_qtsx_DonHang_Id,
+              tits_qtsx_DonHang_Id: newData.tits_qtsx_DonHang_Id,
             },
           }
         : {
             phieuxuatkhovattusanxuattheoBOM: {
               tits_qtsx_SoLo_Id: null,
-              tits_qtsx_DonHang_Id: newData[0].tits_qtsx_DonHang_Id,
+              tits_qtsx_DonHang_Id: newData.tits_qtsx_DonHang_Id,
             },
           }
     );
-    setListVatTuTheoOEM([]);
-    getListSoLo(Xuong, newData[0].tits_qtsx_DonHang_Id, val);
+    getListSoLo(Xuong, newData.tits_qtsx_DonHang_Id, val);
+    if (value === 0) {
+      setListVatTuTheoOEM([]);
+    } else {
+      setListVatTuTheoBOM([]);
+      getListDinhMucVatTu(Xuong, val);
+    }
   };
 
+  /* Theo OEM */
   const handleSelectListSoLo = (val) => {
-    const newData = ListSoLo.filter((sp) => sp.tits_qtsx_SoLo_Id === val);
-    setFieldsValue(
-      value === 0
-        ? {
-            phieuxuatkhovattusanxuattheoOEM: {
-              soLuongLo: newData[0].soLuongLo,
-            },
-          }
-        : {
-            phieuxuatkhovattusanxuattheoBOM: {
-              soLuongLo: newData[0].soLuongLo,
-            },
-          }
-    );
-    getListVatTu(Xuong, SanPham, isThepTam, newData[0].soLuongLo);
+    const newData = ListSoLo.find((sp) => sp.tits_qtsx_SoLo_Id === val);
+    setFieldsValue({
+      phieuxuatkhovattusanxuattheoOEM: {
+        soLuongLo: newData.soLuongLo,
+      },
+    });
+    getListVatTu(Xuong, SanPham, isThepTam, newData.soLuongLo);
+  };
+
+  /* Theo BOM */
+  const handleSelectListSanPhamBOM = (val) => {
+    setSanPham(val);
+    setListVatTuTheoBOM([]);
+    getListSoLo(Xuong, val);
+  };
+
+  const handleSelectListBOM = (val) => {
+    const newData = ListBOM.find((bom) => bom.tits_qtsx_BOMXuong_Id === val);
+    setListVatTuTheoBOM(newData.list_ChiTiets);
   };
 
   const handleSelectKho = (val) => {
@@ -2272,7 +2311,7 @@ const VatTuForm = ({ history, match, permission }) => {
                           style={{ width: "100%" }}
                           showSearch
                           optionFilterProp="name"
-                          disabled={type === "new" ? false : true}
+                          disabled={true}
                         />
                       </FormItem>
                     ) : (
@@ -2331,6 +2370,83 @@ const VatTuForm = ({ history, match, permission }) => {
                       <FormItem
                         label="Số lô"
                         name={["phieuxuatkhovattusanxuattheoBOM", "tenSoLo"]}
+                        rules={[
+                          {
+                            type: "string",
+                            required: true,
+                          },
+                        ]}
+                      >
+                        <Input className="input-item" disabled={true} />
+                      </FormItem>
+                    )}
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Lô xe"
+                      name={["phieuxuatkhovattusanxuattheoBOM", "soLuongLo"]}
+                      rules={[
+                        {
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Số lượng lô xe"
+                        disabled={true}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    {type === "new" ? (
+                      <FormItem
+                        label="BOM xưởng"
+                        name={[
+                          "phieuxuatkhovattusanxuattheoBOM",
+                          "tits_qtsx_BOMXuong_Id",
+                        ]}
+                        rules={[
+                          {
+                            type: "string",
+                            required: true,
+                          },
+                        ]}
+                      >
+                        <Select
+                          className="heading-select slt-search th-select-heading"
+                          data={ListBOM ? ListBOM : []}
+                          placeholder="Chọn BOM xưởng"
+                          optionsvalue={["tits_qtsx_BOMXuong_Id", "maBOMXuong"]}
+                          style={{ width: "100%" }}
+                          showSearch
+                          optionFilterProp="name"
+                          onSelect={handleSelectListBOM}
+                          disabled={
+                            type === "new" || type === "edit" ? false : true
+                          }
+                        />
+                      </FormItem>
+                    ) : (
+                      <FormItem
+                        label="Số lô"
+                        name={["phieuxuatkhovattusanxuattheoBOM", "maBOMXuong"]}
                         rules={[
                           {
                             type: "string",
