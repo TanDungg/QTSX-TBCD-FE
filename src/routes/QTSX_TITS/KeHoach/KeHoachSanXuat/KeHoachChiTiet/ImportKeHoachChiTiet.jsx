@@ -184,6 +184,13 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
       width: 100,
     },
     {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      align: "center",
+      key: "moTa",
+      width: 100,
+    },
+    {
       title: `Tháng ${Thang} năm ${Nam}`,
       children: new Array(getNumberDayOfMonth(Thang, Nam))
         .fill(null)
@@ -321,23 +328,34 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
             range: { s: { c: 4, r: 3 }, e: { c: 4, r: 3 } },
           })[0]
           .toString()
-          .trim() === "Định mức nhân công";
+          .trim() === "Định mức nhân công" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 5, r: 3 }, e: { c: 5, r: 3 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 5, r: 3 }, e: { c: 5, r: 3 } },
+          })[0]
+          .toString()
+          .trim() === "Ghi chú";
       if (checkMau) {
         for (let index = 1; index <= getNumberDayOfMonth(Thang, Nam); index++) {
           if (
             XLSX.utils.sheet_to_json(worksheet, {
               header: 1,
               range: {
-                s: { c: 4 + index, r: 3 },
-                e: { c: 4 + index, r: 3 },
+                s: { c: 5 + index, r: 3 },
+                e: { c: 5 + index, r: 3 },
               },
             })[0] &&
             XLSX.utils
               .sheet_to_json(worksheet, {
                 header: 1,
                 range: {
-                  s: { c: 4 + index, r: 3 },
-                  e: { c: 4 + index, r: 3 },
+                  s: { c: 5 + index, r: 3 },
+                  e: { c: 5 + index, r: 3 },
                 },
               })[0]
               .toString()
@@ -388,14 +406,14 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
             XLSX.utils
               .sheet_to_json(worksheet, {
                 header: 1,
-                range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
+                range: { s: { c: 6, r: 1 }, e: { c: 6, r: 1 } },
               })[0]
               .toString()
               .trim() === "Tháng:" &&
             XLSX.utils
               .sheet_to_json(worksheet, {
                 header: 1,
-                range: { s: { c: 7, r: 1 }, e: { c: 7, r: 1 } },
+                range: { s: { c: 8, r: 1 }, e: { c: 8, r: 1 } },
               })[0]
               .toString()
               .trim().length === 1
@@ -403,28 +421,28 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
                 XLSX.utils
                   .sheet_to_json(worksheet, {
                     header: 1,
-                    range: { s: { c: 7, r: 1 }, e: { c: 7, r: 1 } },
+                    range: { s: { c: 8, r: 1 }, e: { c: 8, r: 1 } },
                   })[0]
                   .toString()
                   .trim()
               : XLSX.utils
                   .sheet_to_json(worksheet, {
                     header: 1,
-                    range: { s: { c: 7, r: 1 }, e: { c: 7, r: 1 } },
+                    range: { s: { c: 8, r: 1 }, e: { c: 8, r: 1 } },
                   })[0]
                   .toString()
                   .trim() === Thang.toString() &&
                 XLSX.utils
                   .sheet_to_json(worksheet, {
                     header: 1,
-                    range: { s: { c: 9, r: 1 }, e: { c: 9, r: 1 } },
+                    range: { s: { c: 10, r: 1 }, e: { c: 10, r: 1 } },
                   })[0]
                   .toString()
                   .trim() === "Năm:" &&
                 XLSX.utils
                   .sheet_to_json(worksheet, {
                     header: 1,
-                    range: { s: { c: 11, r: 1 }, e: { c: 11, r: 1 } },
+                    range: { s: { c: 12, r: 1 }, e: { c: 12, r: 1 } },
                   })[0]
                   .toString()
                   .trim() === Nam.toString();
@@ -442,6 +460,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
             const TSP = "Tên sản phẩm";
             const DH = "Mã đơn hàng";
             const DMNC = "Định mức nhân công";
+            const GC = "Ghi chú";
             const NewData = [];
             data.forEach((d, index) => {
               if (
@@ -486,6 +505,11 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
                   dinhMucNhanCong: d[DMNC]
                     ? d[DMNC].toString().trim() !== ""
                       ? d[DMNC].toString().trim()
+                      : undefined
+                    : undefined,
+                  moTa: d[GC]
+                    ? d[GC].toString().trim() !== ""
+                      ? d[GC].toString().trim()
                       : undefined
                     : undefined,
                   tong: t,
@@ -572,7 +596,7 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
           maSanPham: dt.maSanPham,
           maPhieu: dt.maPhieu,
           dinhMucNhanCong: dt.dinhMucNhanCong,
-
+          moTa: dt.moTa,
           list_ChiTiets: Array.from(
             { length: getNumberDayOfMonth(Thang, Nam) },
             (_, i) => {

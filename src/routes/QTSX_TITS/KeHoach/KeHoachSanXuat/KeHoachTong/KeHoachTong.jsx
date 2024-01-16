@@ -358,7 +358,7 @@ function KeHoachTong({ match, history, permission }) {
       <>
         <Button
           icon={<UploadOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={handleImport}
           disabled={permission && !permission.add}

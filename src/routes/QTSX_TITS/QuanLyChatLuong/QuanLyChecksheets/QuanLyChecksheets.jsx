@@ -44,7 +44,6 @@ function QuanLyChecksheets({ match, history, permission }) {
       getLoaiSanPham();
       getSanPham();
       getListCongDoan();
-      getListData(LoaiSanPham, SanPham, CongDoan, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -149,6 +148,8 @@ function QuanLyChecksheets({ match, history, permission }) {
               };
             })
           );
+          setCongDoan(res.data[0].id);
+          getListData(LoaiSanPham, SanPham, res.data[0].id, keyword, page);
         } else {
           setListCongDoan([]);
         }

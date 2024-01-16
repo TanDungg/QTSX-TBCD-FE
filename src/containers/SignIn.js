@@ -74,19 +74,12 @@ const SignIn = ({ history }) => {
     if ((authUser && authUser.token) || (userInfo && userInfo.token)) {
       const url = sessionStorage.getItem("currentURL");
       const session = sessionStorage.getItem("tokenInfo");
-      console.log("HOme");
-
       if (session) {
-        console.log("1");
-
         if (url) {
           const hashPart = url.replace(BASE_URL_APP, "");
           history.push(hashPart);
           sessionStorage.removeItem("currentURL");
-          console.log("3");
         } else {
-          console.log("2");
-
           getPhanMem(userInfo.id);
         }
       }
