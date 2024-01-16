@@ -496,6 +496,7 @@ function ModalKiemSoatChatLuong({ openModalFS, openModal, info, refesh }) {
                           AddLoi={AddLoi}
                           listViTri={ha.listViTri}
                           xoaToaDo={xoaToaDo}
+                          chamLoi={true}
                         />
                       );
                     })}

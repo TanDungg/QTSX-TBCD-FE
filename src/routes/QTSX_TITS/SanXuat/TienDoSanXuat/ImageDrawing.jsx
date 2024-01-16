@@ -11,6 +11,7 @@ const ImageDrawing = ({
   xoaToaDo,
   sanPhamhinhAnhId,
   SuaChuaLai,
+  chamLoi,
 }) => {
   const canvasRef = useRef(null);
   const [ViTri, setViTri] = useState();
@@ -47,12 +48,12 @@ const ImageDrawing = ({
   }, [imageUrl, listViTri, SuaChuaLai]);
 
   useEffect(() => {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
-    // Load hình ảnh
-    const image = new Image();
-    image.src = imageUrl; // Thay thế đường dẫn hình ảnh thực tế
-    if (listViTri.length === 0) {
+    if (chamLoi) {
+      const canvas = canvasRef.current;
+      const context = canvas.getContext("2d");
+      // Load hình ảnh
+      const image = new Image();
+      image.src = imageUrl; // Thay thế đường dẫn hình ảnh thực tế
       image.onload = () => {
         if (circlePosition.x) {
           setActiveModal(true);

@@ -101,6 +101,8 @@ function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
                         viTriLoi.moTa = Ctl.moTa;
                         viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id =
                           Ctl.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id;
+                        viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id =
+                          ct.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id;
                         ha.listViTri.push(JSON.stringify(viTriLoi));
                       } else {
                         const viTriLoi = JSON.parse(Ctl.viTri);
@@ -110,6 +112,8 @@ function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
                         viTriLoi.moTa = Ctl.moTa;
                         viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id =
                           Ctl.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id;
+                        viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id =
+                          ct.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id;
                         ha.listViTri = [JSON.stringify(viTriLoi)];
                       }
                     }
@@ -247,46 +251,55 @@ function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
     const ketQua = val.target.value;
     const newData = [...ListHangMucKiemTra];
     newData.forEach((ct, index) => {
-      ct.list_TDSXKiemSoatChatLuongChiTiets.forEach((clct) => {
+      ct.list_TDSXKiemSoatChatLuongTieuDePhus.forEach((tdp) => {
         if (
-          clct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
-          item.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
+          tdp.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id ===
+          item.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id
         ) {
-          clct.ketQua = ketQua;
-          clct.isDat =
-            item.giaTriMin <= ketQua && ketQua <= item.giaTriMax ? true : false;
-          clct.list_TDSXKiemSoatChatLuongChiTietLois.forEach((Ctl) => {
-            if (!clct.isDat) {
-              Ctl.isHoanThanhSCL = false;
-            } else {
-              Ctl.isHoanThanhSCL = true;
-            }
-            ct.list_HinhAnhs.forEach((ha) => {
-              if (
-                Ctl.tits_qtsx_SanPhamHinhAnh_Id ===
-                ha.tits_qtsx_SanPhamHinhAnh_Id
-              ) {
-                if (ha.listViTri) {
-                  const viTriLoi = JSON.parse(Ctl.viTri);
-                  viTriLoi.isHoanThanhSCL = Ctl.isHoanThanhSCL;
-                  viTriLoi.maLoi = Ctl.maLoi;
-                  viTriLoi.tenNhomLoi = Ctl.tenNhomLoi;
-                  viTriLoi.moTa = Ctl.moTa;
-                  viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id =
-                    Ctl.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id;
-                  ha.listViTri.push(JSON.stringify(viTriLoi));
+          tdp.list_TDSXKiemSoatChatLuongChiTiets.forEach((clct) => {
+            if (
+              clct.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
+              item.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
+            ) {
+              clct.ketQua = ketQua;
+              clct.isDat =
+                item.giaTriMin <= ketQua && ketQua <= item.giaTriMax
+                  ? true
+                  : false;
+              clct.list_TDSXKiemSoatChatLuongChiTietLois.forEach((Ctl) => {
+                if (!clct.isDat) {
+                  Ctl.isHoanThanhSCL = false;
                 } else {
-                  const viTriLoi = JSON.parse(Ctl.viTri);
-                  viTriLoi.isHoanThanhSCL = Ctl.isHoanThanhSCL;
-                  viTriLoi.maLoi = Ctl.maLoi;
-                  viTriLoi.tenNhomLoi = Ctl.tenNhomLoi;
-                  viTriLoi.moTa = Ctl.moTa;
-                  viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id =
-                    Ctl.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id;
-                  ha.listViTri = [JSON.stringify(viTriLoi)];
+                  Ctl.isHoanThanhSCL = true;
                 }
-              }
-            });
+                ct.list_HinhAnhs.forEach((ha) => {
+                  if (
+                    Ctl.tits_qtsx_SanPhamHinhAnh_Id ===
+                    ha.tits_qtsx_SanPhamHinhAnh_Id
+                  ) {
+                    if (ha.listViTri) {
+                      const viTriLoi = JSON.parse(Ctl.viTri);
+                      viTriLoi.isHoanThanhSCL = Ctl.isHoanThanhSCL;
+                      viTriLoi.maLoi = Ctl.maLoi;
+                      viTriLoi.tenNhomLoi = Ctl.tenNhomLoi;
+                      viTriLoi.moTa = Ctl.moTa;
+                      viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id =
+                        Ctl.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id;
+                      ha.listViTri.push(JSON.stringify(viTriLoi));
+                    } else {
+                      const viTriLoi = JSON.parse(Ctl.viTri);
+                      viTriLoi.isHoanThanhSCL = Ctl.isHoanThanhSCL;
+                      viTriLoi.maLoi = Ctl.maLoi;
+                      viTriLoi.tenNhomLoi = Ctl.tenNhomLoi;
+                      viTriLoi.moTa = Ctl.moTa;
+                      viTriLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id =
+                        Ctl.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id;
+                      ha.listViTri = [JSON.stringify(viTriLoi)];
+                    }
+                  }
+                });
+              });
+            }
           });
         }
       });
@@ -453,7 +466,7 @@ function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
   };
   const suaChuaLai = (data) => {
     const newData = [...ListHangMucKiemTra];
-
+    console.log(data);
     newData.forEach((hm) => {
       hm.list_TDSXKiemSoatChatLuongTieuDePhus.forEach((tdp) => {
         if (
@@ -593,7 +606,7 @@ function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
   };
   return (
     <AntModal
-      title="Sửa chữa lại"
+      title={ActiveXacNhanSCL ? "Xác nhận sửa chữa lại" : "Sửa chữa lại"}
       open={openModal}
       width={`95%`}
       closable={true}

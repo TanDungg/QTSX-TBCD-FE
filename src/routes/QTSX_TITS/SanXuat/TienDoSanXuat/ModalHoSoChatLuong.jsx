@@ -85,6 +85,12 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
       width: 50,
     },
     {
+      title: "Trạm",
+      dataIndex: "tenTram",
+      key: "tenTram",
+      align: "center",
+    },
+    {
       title: "Nội dung",
       dataIndex: "noiDungKiemTra",
       key: "noiDungKiemTra",
@@ -129,6 +135,12 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
       key: "key",
       align: "center",
       width: 50,
+    },
+    {
+      title: "Trạm",
+      dataIndex: "tenTram",
+      key: "tenTram",
+      align: "center",
     },
     {
       title: "Nội dung",
@@ -252,7 +264,7 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
               <Row key={i}>
                 <Col span={24}>
                   <h3 style={{ color: "#0469b9", fontWeight: "bold" }}>
-                    Công đoạn: {hmkt.tenCongDoan} - Trạm: {hmkt.tenTram}
+                    Công đoạn: {hmkt.tenCongDoan}
                   </h3>
                 </Col>
               </Row>,
