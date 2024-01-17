@@ -18,9 +18,10 @@ function Home({ permission, history }) {
   const TOKENINFO = getTokenInfo();
   const MENUINFO = getLocalStorage("menu");
   const { donvi } = useSelector(({ donvi }) => donvi);
-  const { data, width } = useSelector(({ common }) => common).toJS();
+  const { width } = useSelector(({ common }) => common).toJS();
   const [DonVi, setDonVi] = useState("");
-  
+  const [data, setData] = useState([]);
+
   useEffect(() => {
     getInfo();
     setDonVi(
@@ -33,16 +34,27 @@ function Home({ permission, history }) {
     return () => dispatch(fetchReset());
   }, [donvi]);
   const getInfo = () => {
-    dispatch(
-      fetchStart(
-        `PhanMem/phan-mem-by-user?user_Id=${TOKENINFO.id}&&donVi_Id=${
-          MENUINFO ? MENUINFO.donVi_Id : ""
-        }`,
-        "GET",
-        null,
-        "LIST"
-      )
-    );
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `PhanMem/phan-mem-by-user?user_Id=${TOKENINFO.id}&&donVi_Id=${
+            MENUINFO ? MENUINFO.donVi_Id : ""
+          }`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setData(res.data);
+      } else {
+        setData([]);
+      }
+    });
   };
 
   const handleClick = (dt) => {

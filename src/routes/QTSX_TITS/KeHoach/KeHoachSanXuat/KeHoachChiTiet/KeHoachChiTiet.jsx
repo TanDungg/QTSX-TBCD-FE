@@ -121,6 +121,7 @@ function KeHoachChiTiet({ match, history, permission }) {
               tits_qtsx_KeHoach_Id: sp.tits_qtsx_KeHoach_Id,
               tits_qtsx_DonHang_Id: sp.tits_qtsx_DonHang_Id,
               maPhieu: sp.maPhieu,
+              moTa: sp.moTa,
               dinhMucNhanCong: sp.dinhMucNhanCong,
               tong: t,
               ...ctkh,
@@ -301,6 +302,13 @@ function KeHoachChiTiet({ match, history, permission }) {
       dataIndex: "dinhMucNhanCong",
       align: "center",
       key: "dinhMucNhanCong",
+      width: 80,
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      align: "center",
+      key: "moTa",
       width: 80,
     },
     {

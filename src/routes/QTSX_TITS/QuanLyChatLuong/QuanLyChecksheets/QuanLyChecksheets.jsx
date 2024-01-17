@@ -44,7 +44,6 @@ function QuanLyChecksheets({ match, history, permission }) {
       getLoaiSanPham();
       getSanPham();
       getListCongDoan();
-      getListData(LoaiSanPham, SanPham, CongDoan, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -81,7 +80,7 @@ function QuanLyChecksheets({ match, history, permission }) {
           "tits_qtsx_LoaiSanPham?page=-1",
           "GET",
           null,
-          "LIST",
+          "DETAIL",
           "",
           resolve,
           reject
@@ -109,7 +108,7 @@ function QuanLyChecksheets({ match, history, permission }) {
           `tits_qtsx_SanPham?${params}`,
           "GET",
           null,
-          "LIST",
+          "DETAIL",
           "",
           resolve,
           reject
@@ -132,7 +131,7 @@ function QuanLyChecksheets({ match, history, permission }) {
           `tits_qtsx_CongDoan?page=-1`,
           "GET",
           null,
-          "LIST",
+          "DETAIL",
           "",
           resolve,
           reject
@@ -149,6 +148,8 @@ function QuanLyChecksheets({ match, history, permission }) {
               };
             })
           );
+          setCongDoan(res.data[0].id);
+          getListData(LoaiSanPham, SanPham, res.data[0].id, keyword, page);
         } else {
           setListCongDoan([]);
         }

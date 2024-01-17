@@ -28,9 +28,15 @@ function ModalChamLoi({
   const [form] = Form.useForm();
   const { resetFields, setFieldsValue } = form;
   const [ListLoi, setListLoi] = useState([]);
+  const [ListNoiDungLoi, setListNoiDungLoi] = useState([]);
 
   useEffect(() => {
     if (openModal) {
+      const newData = [];
+      ListNoiDung.list_TDSXKiemSoatChatLuongTieuDePhus.forEach((tdp) =>
+        newData.push(...tdp.list_TDSXKiemSoatChatLuongChiTiets)
+      );
+      setListNoiDungLoi(newData);
       setCirclePosition({});
       resetFields();
       getLoi();
@@ -76,6 +82,15 @@ function ModalChamLoi({
         values.chiTietLoi.maLoi = l.maLoi;
       }
     });
+    ListNoiDungLoi.forEach((ndl) => {
+      if (
+        ndl.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id ===
+        values.chiTietLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id
+      ) {
+        values.chiTietLoi.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id =
+          ndl.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id;
+      }
+    });
     ThemLoi({
       tits_qtsx_Loi_Id: values.chiTietLoi.tits_qtsx_Loi_Id,
       moTa: values.chiTietLoi.moTa,
@@ -85,6 +100,8 @@ function ModalChamLoi({
         maLoi: values.chiTietLoi.maLoi,
         tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id:
           values.chiTietLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id,
+        tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id:
+          values.chiTietLoi.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id,
       }),
       maLoi: values.chiTietLoi.maLoi,
       isBoQua: values.chiTietLoi.isBoQua ? values.chiTietLoi.isBoQua : false,
@@ -93,6 +110,8 @@ function ModalChamLoi({
       tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id:
         values.chiTietLoi.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id,
       tits_qtsx_SanPhamHinhAnh_Id: ViTri.tits_qtsx_SanPhamHinhAnh_Id,
+      tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id:
+        values.chiTietLoi.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id,
     });
     openModalFS(false);
   };
@@ -161,7 +180,7 @@ function ModalChamLoi({
           >
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListNoiDung ? ListNoiDung : []}
+              data={ListNoiDungLoi ? ListNoiDungLoi : []}
               placeholder="Chọn nội dung lỗi"
               optionsvalue={[
                 "tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id",

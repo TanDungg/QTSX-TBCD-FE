@@ -390,11 +390,7 @@ function TheoDoiTienDoSanXuat({ match, history, permission }) {
             style={{ overflow: "auto" }}
             size="small"
             current={InfoSanPham.thuTuCongDoan && InfoSanPham.thuTuCongDoan - 1}
-            status={
-              InfoSanPham.thuTuCongDoan &&
-              InfoSanPham.thuTuCongDoan === InfoSanPham.list_CongDoans.length &&
-              "finish"
-            }
+            status={InfoSanPham.phanTram === 100 && "finish"}
             items={
               InfoSanPham.list_CongDoans
                 ? InfoSanPham.list_CongDoans.map((cd) => {

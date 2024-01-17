@@ -44,12 +44,12 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        res.data.list_Trams.forEach((t) => {
-          t.list_TDSXKiemSoatChatLuongs.forEach((kscl) => {
-            kscl.list_TDSXKiemSoatChatLuongChiTiets.forEach((ctcl) => {
-              if (ctcl.list_TDSXKiemSoatChatLuongChiTietLois.length > 0) {
-                ctcl.list_TDSXKiemSoatChatLuongChiTietLois.forEach((Ctl) => {
-                  kscl.list_HinhAnhs.forEach((ha) => {
+        res.data.list_HoSoCongDoans.forEach((t) => {
+          t.list_HoSoCongDoanTieuDePhus.forEach((kscl) => {
+            kscl.list_HoSoCongDoanChiTiets.forEach((ctcl) => {
+              if (ctcl.list_HoSoCongDoanChiTietLois.length > 0) {
+                ctcl.list_HoSoCongDoanChiTietLois.forEach((Ctl) => {
+                  t.list_HinhAnhs.forEach((ha) => {
                     if (
                       Ctl.tits_qtsx_SanPhamHinhAnh_Id ===
                       ha.tits_qtsx_SanPhamHinhAnh_Id
@@ -70,7 +70,7 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
             });
           });
         });
-        setListHangMucKiemTra(res.data.list_Trams);
+        setListHangMucKiemTra(res.data.list_HoSoCongDoans);
       } else {
         setListHangMucKiemTra([]);
       }
@@ -83,6 +83,12 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
       key: "key",
       align: "center",
       width: 50,
+    },
+    {
+      title: "Trạm",
+      dataIndex: "tenTram",
+      key: "tenTram",
+      align: "center",
     },
     {
       title: "Nội dung",
@@ -113,8 +119,8 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
     },
     {
       title: "Lỗi",
-      dataIndex: "list_TDSXKiemSoatChatLuongChiTietLois",
-      key: "list_TDSXKiemSoatChatLuongChiTietLois",
+      dataIndex: "list_HoSoCongDoanChiTietLois",
+      key: "list_HoSoCongDoanChiTietLois",
       align: "center",
       render: (val) =>
         val.map((l) => {
@@ -129,6 +135,12 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
       key: "key",
       align: "center",
       width: 50,
+    },
+    {
+      title: "Trạm",
+      dataIndex: "tenTram",
+      key: "tenTram",
+      align: "center",
     },
     {
       title: "Nội dung",
@@ -165,8 +177,8 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
     },
     {
       title: "Lỗi",
-      dataIndex: "list_TDSXKiemSoatChatLuongChiTietLois",
-      key: "list_TDSXKiemSoatChatLuongChiTietLois",
+      dataIndex: "list_HoSoCongDoanChiTietLois",
+      key: "list_HoSoCongDoanChiTietLois",
       align: "center",
       render: (val) =>
         val.map((l) => {
@@ -245,73 +257,99 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
         <Divider />
       </>
       {ListHangMucKiemTra.length > 0 &&
-        ListHangMucKiemTra.map((hmkt) => {
+        ListHangMucKiemTra.map((hmkt, i) => {
           return (
-            hmkt.list_TDSXKiemSoatChatLuongs &&
-            hmkt.list_TDSXKiemSoatChatLuongs.length > 0 && [
-              <Row>
+            hmkt.list_HoSoCongDoanTieuDePhus &&
+            hmkt.list_HoSoCongDoanTieuDePhus.length > 0 && [
+              <Row key={i}>
                 <Col span={24}>
                   <h3 style={{ color: "#0469b9", fontWeight: "bold" }}>
-                    Công đoạn: {hmkt.tenCongDoan} - Trạm: {hmkt.tenTram}
+                    Công đoạn: {hmkt.tenCongDoan}
                   </h3>
                 </Col>
               </Row>,
-              ...hmkt.list_TDSXKiemSoatChatLuongs.map((ct) => {
-                return (
-                  <>
-                    <Row>
-                      <Col span={12}>
-                        <Col span={24} style={{ marginBottom: 10 }}>
-                          <span style={{ marginBottom: 10, display: "block" }}>
-                            Hạng mục kiểm tra:{" "}
-                            <span style={{ fontWeight: "bold" }}>
-                              {ct.tenHangMucKiemTra}
-                            </span>
-                          </span>
-                          <Table
-                            bordered
-                            scroll={{ x: 800, y: 301 }}
-                            columns={
-                              ct.isNoiDung ? columnNoiDungs : columnThongSos
-                            }
-                            components={components}
-                            className="gx-table-responsive"
-                            dataSource={reDataForTable(
-                              ct.list_TDSXKiemSoatChatLuongChiTiets
+              <>
+                <Row>
+                  <Col
+                    span={12}
+                    style={{
+                      position: "relative",
+                      height: 301,
+                      overflow: "auto",
+                    }}
+                  >
+                    <Col
+                      span={24}
+                      style={{
+                        marginBottom: 10,
+                      }}
+                    >
+                      <span style={{ marginBottom: 10, display: "block" }}>
+                        Hạng mục kiểm tra:{" "}
+                        <span style={{ fontWeight: "bold" }}>
+                          {hmkt.tenHangMucKiemTra}
+                        </span>
+                      </span>
+                      {hmkt.list_HoSoCongDoanTieuDePhus.map((ct, index) => {
+                        return (
+                          <>
+                            {ct.tieuDePhu && (
+                              <span
+                                style={{ marginBottom: 10, display: "block" }}
+                              >
+                                Hạng mục:{" "}
+                                <span style={{ fontWeight: "bold" }}>
+                                  {ct.tieuDePhu}
+                                </span>
+                              </span>
                             )}
-                            size="small"
-                            pagination={false}
+                            <Table
+                              key={index}
+                              bordered
+                              scroll={{ x: 800, y: 301 }}
+                              columns={
+                                hmkt.isNoiDung ? columnNoiDungs : columnThongSos
+                              }
+                              components={components}
+                              className="gx-table-responsive"
+                              dataSource={reDataForTable(
+                                ct.list_HoSoCongDoanChiTiets
+                              )}
+                              size="small"
+                              pagination={false}
+                            />
+                          </>
+                        );
+                      })}
+                    </Col>
+                  </Col>
+                  <Col
+                    span={12}
+                    align="center"
+                    style={{
+                      position: "relative",
+                      height: 301,
+                      overflow: "auto",
+                    }}
+                  >
+                    {hmkt.list_HinhAnhs &&
+                      hmkt.list_HinhAnhs.length > 0 &&
+                      hmkt.list_HinhAnhs.map((ha) => {
+                        return (
+                          <ImageDrawing
+                            key={ha.tits_qtsx_SanPhamHinhAnh_Id}
+                            imageUrl={BASE_URL_API + ha.hinhAnh}
+                            hinhAnhId={ha.tits_qtsx_SanPhamHinhAnh_Id}
+                            dataNoiDung={hmkt}
+                            setListHangMucKiemTra={setListHangMucKiemTra}
+                            listViTri={ha.listViTri}
                           />
-                        </Col>
-                      </Col>
-                      <Col
-                        span={12}
-                        align="center"
-                        style={{
-                          position: "relative",
-                          height: 301,
-                          overflow: "auto",
-                        }}
-                      >
-                        {ct.list_HinhAnhs &&
-                          ct.list_HinhAnhs.length > 0 &&
-                          ct.list_HinhAnhs.map((ha) => {
-                            return (
-                              <ImageDrawing
-                                imageUrl={BASE_URL_API + ha.hinhAnh}
-                                hinhAnhId={ha.tits_qtsx_SanPhamHinhAnh_Id}
-                                dataNoiDung={ct}
-                                setListHangMucKiemTra={setListHangMucKiemTra}
-                                listViTri={ha.listViTri}
-                              />
-                            );
-                          })}
-                      </Col>
-                    </Row>
-                    <Divider />
-                  </>
-                );
-              }),
+                        );
+                      })}
+                  </Col>
+                </Row>
+                <Divider />
+              </>,
             ]
           );
         })}

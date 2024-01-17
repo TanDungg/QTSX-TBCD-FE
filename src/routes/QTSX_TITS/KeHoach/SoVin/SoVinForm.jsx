@@ -9,7 +9,7 @@ import { fetchReset, fetchStart } from "src/appRedux/actions";
 import {
   EditableTableRow,
   FormSubmit,
-  ModalDeleteConfirm,
+  // ModalDeleteConfirm,
   Select,
   Table,
 } from "src/components/Common";
@@ -26,11 +26,11 @@ const { EditableRow, EditableCell } = EditableTableRow;
 const SoVinForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
-  const [id, setId] = useState(undefined);
+  // const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [ListDonHang, setListDonHang] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
-  const [SoLuongSanPhamToiDa, setSoLuongSanPhamToiDa] = useState([]);
+  // const [SoLuongSanPhamToiDa, setSoLuongSanPhamToiDa] = useState([]);
   const [soLo, setSoLo] = useState("");
 
   const [ListSanPhamSelect, setListSanPhamSelect] = useState([]);
@@ -57,8 +57,8 @@ const SoVinForm = ({ history, match, permission }) => {
         if (permission && permission.edit) {
           setType("edit");
           // Get info
-          const { id } = match.params;
-          setId(id);
+          // const { id } = match.params;
+          // setId(id);
           getDonHang("", 1);
           getInfo();
         } else if (permission && !permission.edit) {
@@ -113,9 +113,9 @@ const SoVinForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setSoLuongSanPhamToiDa(
-            JSON.parse(res.data.tits_qtsx_SoLoChiTiets).length
-          );
+          // setSoLuongSanPhamToiDa(
+          //   JSON.parse(res.data.tits_qtsx_SoLoChiTiets).length
+          // );
           setListSanPham(
             reDataForTable(JSON.parse(res.data.tits_qtsx_SoLoChiTiets))
           );
@@ -131,7 +131,7 @@ const SoVinForm = ({ history, match, permission }) => {
    */
   const getInfo = () => {
     const { id } = match.params;
-    setId(id);
+    // setId(id);
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -161,26 +161,26 @@ const SoVinForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    const title = "sản phẩm";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenSanPham, title);
-  };
+  // /**
+  //  * deleteItemFunc: Remove item from list
+  //  * @param {object} item
+  //  * @returns
+  //  * @memberof VaiTro
+  //  */
+  // const deleteItemFunc = (item) => {
+  //   const title = "sản phẩm";
+  //   ModalDeleteConfirm(deleteItemAction, item, item.tenSanPham, title);
+  // };
 
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    const newData = ListSanPham.filter((d) => d.key !== item.key);
-    setListSanPham(newData);
-  };
+  // /**
+  //  * Remove item
+  //  *
+  //  * @param {*} item
+  //  */
+  // const deleteItemAction = (item) => {
+  //   const newData = ListSanPham.filter((d) => d.key !== item.key);
+  //   setListSanPham(newData);
+  // };
   /**
    * ActionContent: Action in table
    * @param {*} item
@@ -198,10 +198,10 @@ const SoVinForm = ({ history, match, permission }) => {
             },
           }
         : { disabled: true };
-    const deleteItemVal =
-      type === "new" || type === "edit"
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
+    // const deleteItemVal =
+    //   type === "new" || type === "edit"
+    //     ? { onClick: () => deleteItemFunc(item) }
+    //     : { disabled: true };
     return (
       <div>
         <React.Fragment>
@@ -382,28 +382,28 @@ const SoVinForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
   };
-  const validateSoLuong = (_, value) => {
-    if (value && value > SoLuongSanPhamToiDa) {
-      setDisableAdd(true);
-      return Promise.reject(
-        new Error(
-          `Số lượng lô phải nhỏ hơn hoặc bằng số lượng đơn hàng ${SoLuongSanPhamToiDa}!`
-        )
-      );
-    } else if (value && Number(value) === 0) {
-      setDisableAdd(true);
-      return Promise.reject(new Error(`Số lượng phải lớn hơn 0!`));
-    } else if (!value) {
-      setDisableAdd(true);
-      return Promise
-        .reject
-        // new Error(`Số lượng là bắt buộc!`)
-        ();
-    } else {
-      setDisableAdd(false);
-      return Promise.resolve();
-    }
-  };
+  // const validateSoLuong = (_, value) => {
+  //   if (value && value > SoLuongSanPhamToiDa) {
+  //     setDisableAdd(true);
+  //     return Promise.reject(
+  //       new Error(
+  //         `Số lượng lô phải nhỏ hơn hoặc bằng số lượng đơn hàng ${SoLuongSanPhamToiDa}!`
+  //       )
+  //     );
+  //   } else if (value && Number(value) === 0) {
+  //     setDisableAdd(true);
+  //     return Promise.reject(new Error(`Số lượng phải lớn hơn 0!`));
+  //   } else if (!value) {
+  //     setDisableAdd(true);
+  //     return Promise
+  //       .reject
+  //       // new Error(`Số lượng là bắt buộc!`)
+  //       ();
+  //   } else {
+  //     setDisableAdd(false);
+  //     return Promise.resolve();
+  //   }
+  // };
   const formTitle = type === "new" ? "Thêm mới số VIN" : "Chỉnh sửa số VIN";
   const onClickAddTable = () => {
     getSoLo(soLo);

@@ -21,7 +21,7 @@ function QuanTriVienForm({ match, permission, history }) {
   const { maNhanVien, isActive, roleNames } = initialState;
   const [roleSelect, setRoleSelect] = useState([]);
   const [UserSelect, setUserSelect] = useState();
-  const { resetFields, setFieldsValue, validateFields } = form;
+  const { resetFields, setFieldsValue } = form;
   const [PhanMemSelect, setPhanMemSelect] = useState([]);
   const [DonViSelect, setDonViSelect] = useState([]);
 
@@ -224,15 +224,15 @@ function QuanTriVienForm({ match, permission, history }) {
   const onFinish = (values) => {
     saveData(values.user, true);
   };
-  const saveAndClose = () => {
-    validateFields()
-      .then((values) => {
-        saveData(values.user, true);
-      })
-      .catch((error) => {
-        console.log("error", error);
-      });
-  };
+  // const saveAndClose = () => {
+  //   validateFields()
+  //     .then((values) => {
+  //       saveData(values.user, true);
+  //     })
+  //     .catch((error) => {
+  //       console.log("error", error);
+  //     });
+  // };
   const saveData = (user, saveQuit = false) => {
     const newData = {
       id: user.id,

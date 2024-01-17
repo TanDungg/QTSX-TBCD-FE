@@ -26,6 +26,7 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [ListChiTiet, setListChiTiet] = useState([]);
+  const [ListHangMuc, setListHangMuc] = useState([]);
   const [id, setId] = useState(undefined);
   const [ActiveModalThemChiTiet, setActiveModalThemChiTiet] = useState(false);
   const [ActiveModalThemHangMucTieuDe, setActiveModalThemHangMucTieuDe] =
@@ -65,7 +66,12 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
           setInfo(res.data);
           if (res.data.list_HangMucKiemTraTieuDePhus.length > 0) {
             if (res.data.list_HangMucKiemTraTieuDePhus[0].tieuDePhu) {
-              setListChiTiet(res.data.list_HangMucKiemTraTieuDePhus);
+              setListHangMuc(res.data.list_HangMucKiemTraTieuDePhus);
+            } else {
+              setListChiTiet(
+                res.data.list_HangMucKiemTraTieuDePhus[0]
+                  .list_HangMucKiemTraChiTiets
+              );
             }
           }
         }
@@ -84,6 +90,8 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
               tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
               tits_qtsx_HangMucKiemTraTieuDePhu_Id:
                 item.tits_qtsx_HangMucKiemTraTieuDePhu_Id,
+              tits_qtsx_HangMucKiemTra_Id:
+                info && info.tits_qtsx_HangMucKiemTra_Id,
               isNoiDung: info && info.isNoiDung,
               type: "add",
             });
@@ -106,6 +114,8 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
               ...item,
               tits_qtsx_SanPham_Id: info && info.tits_qtsx_SanPham_Id,
               tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
+              tits_qtsx_HangMucKiemTra_Id:
+                info && info.tits_qtsx_HangMucKiemTra_Id,
               isNoiDung: info && info.isNoiDung,
               type: "edit",
             });
@@ -146,6 +156,8 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
               ...item,
               tits_qtsx_SanPham_Id: info && info.tits_qtsx_SanPham_Id,
               tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
+              tits_qtsx_HangMucKiemTra_Id:
+                info && info.tits_qtsx_HangMucKiemTra_Id,
               isNoiDung: info && info.isNoiDung,
               type: "edit",
             });
@@ -244,7 +256,12 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
     setChiTiet({
       tits_qtsx_SanPham_Id: info && info.tits_qtsx_SanPham_Id,
       tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
+      tits_qtsx_HangMucKiemTra_Id: info && info.tits_qtsx_HangMucKiemTra_Id,
       isNoiDung: info && info.isNoiDung,
+      tits_qtsx_HangMucKiemTraTieuDePhu_Id:
+        ListChiTiet.length > 0
+          ? ListChiTiet[0].tits_qtsx_HangMucKiemTraTieuDePhu_Id
+          : undefined,
       type: "add",
     });
     setActiveModalThemChiTiet(true);
@@ -262,28 +279,40 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
     setActiveModalThemHangMucTieuDe(true);
   };
   const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleThemTieuDe}
-          disabled={permission && !permission.add}
-        >
-          Thêm mới hạng mục
-        </Button>
-        <Button
-          icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleThemChiTiet}
-          disabled={permission && !permission.add}
-        >
-          Thêm mới hạng mục chi tiết
-        </Button>
-      </>
+    const btnTHM = (
+      <Button
+        icon={<PlusOutlined />}
+        className="th-margin-bottom-0"
+        type="primary"
+        onClick={handleThemTieuDe}
+        disabled={permission && !permission.add}
+      >
+        Thêm mới hạng mục
+      </Button>
     );
+    const btnTCT = (
+      <Button
+        icon={<PlusOutlined />}
+        className="th-margin-bottom-0"
+        type="primary"
+        onClick={handleThemChiTiet}
+        disabled={permission && !permission.add}
+      >
+        Thêm mới hạng mục chi tiết
+      </Button>
+    );
+    if (ListChiTiet.length === 0 && ListHangMuc.length === 0) {
+      return (
+        <>
+          {btnTHM}
+          {btnTCT}
+        </>
+      );
+    } else if (ListChiTiet.length > 0) {
+      return btnTCT;
+    } else if (ListHangMuc.length > 0) {
+      return btnTHM;
+    }
   };
 
   const handleInputChangeThuTu = (val, item, key) => {
@@ -774,34 +803,51 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
         className="th-card-margin-bottom th-card-reset-margin"
         title={"Danh sách chi tiết hạng mục kiểm tra"}
       >
-        <Table
-          bordered
-          scroll={{ x: 1200, y: "55vh" }}
-          columns={columns}
-          components={components}
-          className="gx-table-responsive"
-          dataSource={reDataForTable(ListChiTiet)}
-          size="small"
-          rowClassName="editable-row"
-          pagination={false}
-          loading={loading}
-          expandable={{
-            expandedRowRender: (record) => (
-              <Table
-                style={{ marginLeft: "30px", width: "95%" }}
-                bordered
-                columns={columnChiTiet}
-                scroll={{ x: 800 }}
-                components={components}
-                className="gx-table-responsive th-F1D065-head"
-                dataSource={reDataForTable(record.list_HangMucKiemTraChiTiets)}
-                size="small"
-                rowClassName={"editable-row"}
-                pagination={false}
-              />
-            ),
-          }}
-        />
+        {ListHangMuc.length > 0 ? (
+          <Table
+            bordered
+            scroll={{ x: 1200, y: "55vh" }}
+            columns={columns}
+            components={components}
+            className="gx-table-responsive"
+            dataSource={reDataForTable(ListHangMuc)}
+            size="small"
+            rowClassName="editable-row"
+            pagination={false}
+            loading={loading}
+            expandable={{
+              expandedRowRender: (record) => (
+                <Table
+                  style={{ marginLeft: "30px", width: "95%" }}
+                  bordered
+                  columns={columnChiTiet}
+                  scroll={{ x: 800 }}
+                  components={components}
+                  className="gx-table-responsive th-F1D065-head"
+                  dataSource={reDataForTable(
+                    record.list_HangMucKiemTraChiTiets
+                  )}
+                  size="small"
+                  rowClassName={"editable-row"}
+                  pagination={false}
+                />
+              ),
+            }}
+          />
+        ) : (
+          <Table
+            style={{ marginLeft: "30px", width: "95%" }}
+            bordered
+            columns={columnChiTiet}
+            scroll={{ x: 800 }}
+            components={components}
+            className="gx-table-responsive th-F1D065-head"
+            dataSource={reDataForTable(ListChiTiet)}
+            size="small"
+            rowClassName={"editable-row"}
+            pagination={false}
+          />
+        )}
       </Card>
       <ModalThemChiTiet
         openModal={ActiveModalThemChiTiet}

@@ -31,7 +31,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
     if (openModal) {
       if (itemData.type === "add") {
         getListDonVi();
-        getListXuong();
+        getListXuong(itemData && itemData.tits_qtsx_CongDoan_Id);
         setFieldsValue({
           themchitiet: {
             donVi_Id: INFO.donVi_Id.toLowerCase(),
@@ -39,7 +39,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
         });
       } else if (itemData.type === "edit") {
         getListDonVi();
-        getListXuong();
+        getListXuong(itemData && itemData.tits_qtsx_CongDoan_Id);
         getListTram(itemData.tits_qtsx_Xuong_Id);
         setFieldsValue({
           themchitiet: {
@@ -65,11 +65,11 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
     });
   };
 
-  const getListXuong = () => {
+  const getListXuong = (congDoan_Id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_Xuong?page=-1`,
+          `tits_qtsx_Xuong?page=-1&&congDoan_Id=${congDoan_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -139,6 +139,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
         tits_qtsx_HangMucKiemTraTieuDePhu_Id:
           itemData.tits_qtsx_HangMucKiemTraTieuDePhu_Id &&
           itemData.tits_qtsx_HangMucKiemTraTieuDePhu_Id,
+        tits_qtsx_HangMucKiemTra_Id: itemData.tits_qtsx_HangMucKiemTra_Id,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -160,7 +161,8 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
             } else {
               setFieldTouch(false);
               getListDonVi();
-              getListXuong();
+              getListXuong(itemData && itemData.tits_qtsx_CongDoan_Id);
+
               setFieldsValue({
                 themchitiet: {
                   maSo: null,
@@ -202,7 +204,7 @@ function ModalThemChiTiet({ openModalFS, openModal, itemData, refesh }) {
             } else {
               setFieldTouch(false);
               getListDonVi();
-              getListXuong();
+              getListXuong(itemData && itemData.tits_qtsx_CongDoan_Id);
             }
           }
         })

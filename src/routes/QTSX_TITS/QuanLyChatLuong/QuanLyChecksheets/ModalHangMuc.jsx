@@ -50,6 +50,7 @@ function ModalHangMuc({
       tits_qtsx_CongDoan_Id: DataModal.tits_qtsx_CongDoan_Id,
       tits_qtsx_LoaiSanPham_Id: DataModal.tits_qtsx_LoaiSanPham_Id,
       tits_qtsx_SanPham_Id: DataModal.tits_qtsx_SanPham_Id,
+      isSuDung: true,
       page: -1,
     });
     new Promise((resolve, reject) => {

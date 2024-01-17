@@ -20,10 +20,13 @@ import ChiTietSoLo from "./ChiTietSoLo";
 const { EditableRow, EditableCell } = EditableTableRow;
 function SoLo({ match, permission, history }) {
   const dispatch = useDispatch();
-  const { data, loading } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const [DonHang, setDonHang] = useState("");
+  const [ListDonHang, setListDonHang] = useState([]);
+  const [data, setData] = useState([]);
+
   const [infoChiTietMaNoiBo, setInfoChiTietMaNoiBo] = useState([]);
 
   const [ActiveModal, setActiveModal] = useState(false);
@@ -38,6 +41,7 @@ function SoLo({ match, permission, history }) {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
   /**
    * Get menu list
    *
@@ -54,7 +58,41 @@ function SoLo({ match, permission, history }) {
       page,
       keyword,
     });
-    dispatch(fetchStart(`tits_qtsx_SoLo?${param}`, "GET", null, "LIST"));
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_SoLo?${param}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setData(res.data);
+        const NewData = [];
+        res.data.datalist.forEach((dt) => {
+          let check = false;
+          NewData.forEach((ndt) => {
+            if (ndt.tits_qtsx_DonHang_Id === dt.tits_qtsx_DonHang_Id) {
+              check = true;
+            }
+          });
+          if (!check) {
+            NewData.push({
+              tits_qtsx_DonHang_Id: dt.tits_qtsx_DonHang_Id,
+              tenDonHang: dt.tenDonHang,
+            });
+          }
+        });
+        setListDonHang(NewData);
+      } else {
+        setData([]);
+      }
+    });
   };
 
   /**
@@ -308,7 +346,7 @@ function SoLo({ match, permission, history }) {
             <h5>Đơn hàng:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={data.datalist ? data.datalist : []}
+              data={ListDonHang ? ListDonHang : []}
               placeholder={"Chọn đơn hàng"}
               optionsvalue={["tits_qtsx_DonHang_Id", "tenDonHang"]}
               style={{ width: "100%" }}

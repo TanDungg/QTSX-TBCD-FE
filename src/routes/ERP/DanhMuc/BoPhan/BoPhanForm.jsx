@@ -23,7 +23,7 @@ const BoPhanForm = ({ history, match, permission }) => {
   const { maBoPhan, tenBoPhan, phongBan_Id } = initialState;
   const [phongBanSelect, setPhongBanSelect] = useState([]);
   const [BoPhanSelect, setBoPhanSelect] = useState([]);
-  const [listDonVi, setListDonVi] = useState([]);
+  // const [listDonVi, setListDonVi] = useState([]);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
   useEffect(() => {
@@ -259,7 +259,7 @@ const BoPhanForm = ({ history, match, permission }) => {
           >
             <Input className="input-item" placeholder="Nhập tên bộ phận" />
           </FormItem>
-          <FormItem
+          {/* <FormItem
             label="Đơn vị"
             name={["bophan", "donVi_Id"]}
             rules={[
@@ -278,7 +278,7 @@ const BoPhanForm = ({ history, match, permission }) => {
               showSearch
               optionFilterProp="name"
             />
-          </FormItem>
+          </FormItem> */}
           <FormItem
             label="Phòng ban"
             name={["bophan", "phongBan_Id"]}

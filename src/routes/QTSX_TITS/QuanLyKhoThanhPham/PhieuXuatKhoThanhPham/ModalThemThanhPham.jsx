@@ -39,7 +39,7 @@ function ModalThemThanhPham({
   const [ListKhoThanhPham, setListKhoThanhPham] = useState([]);
   const [DataListThanhPham, setDataListThanhPham] = useState([]);
   const [ListThanhPham, setListThanhPham] = useState([]);
-  const [ThanhPham, setThanhPham] = useState(null);
+  // const [ThanhPham, setThanhPham] = useState(null);
   const [ListDonHang, setListDonHang] = useState([]);
   const [ListViTriKho, setListViTriKho] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
@@ -547,7 +547,7 @@ function ModalThemThanhPham({
       thanhpham ? thanhpham.tits_qtsx_MauSac_Id : null
     );
 
-    setThanhPham(thanhpham);
+    // setThanhPham(thanhpham);
     setSelectedViTri([]);
     setSelectedKeys([]);
   };

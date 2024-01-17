@@ -41,7 +41,7 @@ function QuyTrinhSanXuat({ match, history, permission }) {
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
   const [keyword, setKeyword] = useState("");
-  const [QuyTrinh, setQuyTrinh] = useState(null);
+  // const [QuyTrinh, setQuyTrinh] = useState(null);
   const [ActiveModalSaoChep, setActiveModalSaoChep] = useState(false);
 
   useEffect(() => {
@@ -641,7 +641,7 @@ function QuyTrinhSanXuat({ match, history, permission }) {
       <ModalSaoChepQuyTrinh
         openModal={ActiveModalSaoChep}
         openModalFS={setActiveModalSaoChep}
-        itemData={QuyTrinh}
+        // itemData={QuyTrinh}
         refesh={handleRefesh}
       />
     </div>

@@ -11,6 +11,7 @@ const ImageDrawing = ({
   xoaToaDo,
   sanPhamhinhAnhId,
   SuaChuaLai,
+  chamLoi,
 }) => {
   const canvasRef = useRef(null);
   const [ViTri, setViTri] = useState();
@@ -23,7 +24,6 @@ const ImageDrawing = ({
     // Load hình ảnh
     const image = new Image();
     image.src = imageUrl; // Thay thế đường dẫn hình ảnh thực tế
-
     image.onload = () => {
       context.drawImage(image, 0, 0, canvas.width, canvas.height);
       if (listViTri && listViTri.length > 0) {
@@ -31,7 +31,6 @@ const ImageDrawing = ({
           const toaDo = JSON.parse(circle);
           const x = (toaDo.x * canvas.width) / 100;
           const y = (toaDo.y * canvas.height) / 100;
-
           context.beginPath();
           context.arc(x, y, 20, 0, 2 * Math.PI);
           context.fillStyle = toaDo.isHoanThanhSCL ? "#0E42FA" : "#FF0101";
@@ -44,28 +43,29 @@ const ImageDrawing = ({
           context.fillText(toaDo.maLoi, x, y);
         });
       }
-
       // Vẽ các hình tròn đã lưu
     };
   }, [imageUrl, listViTri, SuaChuaLai]);
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
-    // Load hình ảnh
-    const image = new Image();
-    image.src = imageUrl; // Thay thế đường dẫn hình ảnh thực tế
 
-    image.onload = () => {
-      if (circlePosition.x) {
-        setActiveModal(true);
-      }
-      context.drawImage(image, 0, 0, canvas.width, canvas.height);
-      context.beginPath();
-      context.arc(circlePosition.x, circlePosition.y, 20, 0, 2 * Math.PI);
-      context.fillStyle = "#FF0101";
-      context.fill();
+  useEffect(() => {
+    if (chamLoi) {
+      const canvas = canvasRef.current;
+      const context = canvas.getContext("2d");
+      // Load hình ảnh
+      const image = new Image();
+      image.src = imageUrl; // Thay thế đường dẫn hình ảnh thực tế
+      image.onload = () => {
+        if (circlePosition.x) {
+          setActiveModal(true);
+        }
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        context.beginPath();
+        context.arc(circlePosition.x, circlePosition.y, 20, 0, 2 * Math.PI);
+        context.fillStyle = "#FF0101";
+        context.fill();
+      };
       // Vẽ các hình tròn đã lưu
-    };
+    }
   }, [circlePosition]);
 
   const handleCanvasClick = (e) => {
@@ -93,6 +93,8 @@ const ImageDrawing = ({
                 tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id:
                   toaDo.tits_qtsx_TDSXKiemSoatChatLuongChiTiet_Id,
                 tits_qtsx_HangMucKiemTra_HinhAnh_Id: hinhAnhId,
+                tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id:
+                  toaDo.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id,
               });
             } else if (SuaChuaLai && !toaDo.isHoanThanhSCL) {
               setActiveModalSuaChuaLai(true);
@@ -103,6 +105,8 @@ const ImageDrawing = ({
                 tits_qtsx_HangMucKiemTra_HinhAnh_Id: hinhAnhId,
                 tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id:
                   toaDo.tits_qtsx_TDSXKiemSoatChatLuongChiTietLoi_Id,
+                tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id:
+                  toaDo.tits_qtsx_TDSXKiemSoatChatLuongTieuDePhu_Id,
               });
             }
           }
@@ -157,7 +161,7 @@ const ImageDrawing = ({
         openModalFS={setActiveModal}
         ViTri={ViTri}
         ThemLoi={ThemLoi}
-        ListNoiDung={dataNoiDung.list_TDSXKiemSoatChatLuongChiTiets}
+        ListNoiDung={dataNoiDung}
         setCirclePosition={setCirclePosition}
       />
       <ModalDaSuaChuaLai

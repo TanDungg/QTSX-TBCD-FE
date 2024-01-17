@@ -39,7 +39,6 @@ import { DEFAULT_FORM_TWO_COL } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getLocalStorage,
-  getThangNow,
   getTokenInfo,
   reDataForTable,
 } from "src/util/Common";
@@ -674,11 +673,11 @@ const PhieuKiemKeThanhPhamForm = ({ history, match, permission }) => {
     setFieldTouch(true);
   };
 
-  const disabledDate = (current) => {
-    const currentMonth = getThangNow();
-    const selectedMonth = moment(current).format("MM");
-    return currentMonth !== selectedMonth;
-  };
+  // const disabledDate = (current) => {
+  //   const currentMonth = getThangNow();
+  //   const selectedMonth = moment(current).format("MM");
+  //   return currentMonth !== selectedMonth;
+  // };
 
   const formTitle =
     type === "new" ? (
@@ -707,7 +706,13 @@ const PhieuKiemKeThanhPhamForm = ({ history, match, permission }) => {
         </Tag>
       </span>
     );
+  const disabledDate = (current) => {
+    // Lấy ngày hiện tại
+    const today = moment();
 
+    // Kiểm tra xem ngày được chọn có thuộc tháng hiện tại không
+    return !current.isSame(today, "month");
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />

@@ -611,6 +611,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                         checkSheets: { tits_qtsx_SanPham_Id: null },
                       });
                       setListHangMucKiemTra([]);
+                      setListHinhAnh([]);
                     }}
                   />
                 </FormItem>
@@ -654,6 +655,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                       });
                       setDataModal(newData);
                       setListHangMucKiemTra([]);
+                      setListHinhAnh([]);
                     }}
                   />
                 </FormItem>
@@ -696,6 +698,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                       });
                       setDataModal(newData);
                       setListHangMucKiemTra([]);
+                      setListHinhAnh([]);
                     }}
                   />
                 </FormItem>
@@ -852,16 +855,32 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
             Hạng mục kiểm tra chất lượng{" "}
             <span
               style={{
-                color: "#0469b9",
-                cursor: "pointer",
+                color:
+                  DataModal.tits_qtsx_LoaiSanPham_Id === "" ||
+                  DataModal.tits_qtsx_SanPham_Id === "" ||
+                  DataModal.tits_qtsx_CongDoan_Id === "" ||
+                  type === "detail"
+                    ? "#333"
+                    : "#0469b9",
+                cursor:
+                  DataModal.tits_qtsx_LoaiSanPham_Id === "" ||
+                  DataModal.tits_qtsx_SanPham_Id === "" ||
+                  DataModal.tits_qtsx_CongDoan_Id === "" ||
+                  type === "detail"
+                    ? ""
+                    : "pointer",
               }}
-              onClick={() => setActiveModal(true)}
-              disabled={
-                DataModal.tits_qtsx_LoaiSanPham_Id === "" ||
-                DataModal.tits_qtsx_SanPham_Id === "" ||
-                DataModal.tits_qtsx_CongDoan_Id === "" ||
-                type === "detail"
-              }
+              onClick={() => {
+                if (
+                  DataModal.tits_qtsx_LoaiSanPham_Id === "" ||
+                  DataModal.tits_qtsx_SanPham_Id === "" ||
+                  DataModal.tits_qtsx_CongDoan_Id === "" ||
+                  type === "detail"
+                ) {
+                } else {
+                  setActiveModal(true);
+                }
+              }}
             >
               <PlusCircleOutlined />
             </span>
@@ -890,22 +909,68 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                     header={hm.tenHangMucKiemTra}
                     key={hm.tits_qtsx_HangMucKiemTra_Id}
                   >
-                    {hm.list_HangMucKiemTraChiTiets.length > 0 && (
+                    {hm.list_HangMucKiemTraTieuDePhus.length > 0 &&
+                    hm.list_HangMucKiemTraTieuDePhus[0].tieuDePhu ? (
                       <Collapse
                         accordion
                         expandIcon={({ isActive }) => (
                           <CaretRightOutlined rotate={isActive ? 90 : 0} />
                         )}
                       >
-                        {hm.list_HangMucKiemTraChiTiets.map((cthm) => {
+                        {hm.list_HangMucKiemTraTieuDePhus.map((cthm) => {
                           return (
                             <Panel
-                              header={cthm.noiDungKiemTra}
-                              key={cthm.id}
-                            ></Panel>
+                              header={cthm.tieuDePhu}
+                              key={cthm.tits_qtsx_HangMucKiemTraTieuDePhu_Id}
+                            >
+                              {cthm.list_HangMucKiemTraChiTiets.length > 0 && (
+                                <Collapse
+                                  accordion
+                                  expandIcon={({ isActive }) => (
+                                    <CaretRightOutlined
+                                      rotate={isActive ? 90 : 0}
+                                    />
+                                  )}
+                                >
+                                  {cthm.list_HangMucKiemTraChiTiets.map(
+                                    (ct) => {
+                                      return (
+                                        <Panel
+                                          header={ct.noiDungKiemTra}
+                                          key={
+                                            ct.tits_qtsx_HangMucKiemTraChiTiet_Id
+                                          }
+                                        ></Panel>
+                                      );
+                                    }
+                                  )}
+                                </Collapse>
+                              )}
+                            </Panel>
                           );
                         })}
                       </Collapse>
+                    ) : (
+                      hm.list_HangMucKiemTraTieuDePhus.length > 0 &&
+                      !hm.list_HangMucKiemTraTieuDePhus[0].tieuDePhu && (
+                        <Collapse
+                          accordion
+                          expandIcon={({ isActive }) => (
+                            <CaretRightOutlined rotate={isActive ? 90 : 0} />
+                          )}
+                        >
+                          {hm.list_HangMucKiemTraTieuDePhus[0].list_HangMucKiemTraChiTiets.map(
+                            (ct) => {
+                              return (
+                                <Panel
+                                  header={ct.noiDungKiemTra}
+                                  key={ct.tits_qtsx_HangMucKiemTraChiTiet_Id}
+                                ></Panel>
+                              );
+                            }
+                          )}
+                        </Collapse>
+                      )
                     )}
                   </Panel>
                 );

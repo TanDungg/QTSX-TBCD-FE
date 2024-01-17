@@ -22,6 +22,7 @@ import {
   ToolOutlined,
   PlusOutlined,
   CloseOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Modal, Select, Toolbar } from "src/components/Common";
@@ -439,7 +440,7 @@ function TienDoSanXuat({ match, history, permission }) {
         title={
           <>
             <p style={{ display: "inline" }}>Nhập tiến độ sản xuất</p>
-            <a
+            <span
               style={{
                 cursor: "none",
                 display: "inline",
@@ -447,10 +448,11 @@ function TienDoSanXuat({ match, history, permission }) {
                 right: 0,
                 bottom: 0,
                 fontSize: 15,
+                color: "#0469b9",
               }}
             >
               {formattedDateTime},{"  "} {formattedTime}
-            </a>
+            </span>
           </>
         }
         description="Nhập tiến độ sản xuất"
@@ -566,9 +568,14 @@ function TienDoSanXuat({ match, history, permission }) {
             >
               <h5 style={{ fontWeight: "bold", color: "#0469b9" }}>
                 Xe chuẩn bị vào trạm:&nbsp;&nbsp;&nbsp;
-                <a disabled={!Tram}>
-                  <ReloadOutlined />
-                </a>
+                <span disabled={!Tram}>
+                  <ReloadOutlined
+                    style={{
+                      color: "#0469b9",
+                      cursor: "pointer",
+                    }}
+                  />
+                </span>
               </h5>
               <Toolbar
                 count={1}
@@ -605,7 +612,14 @@ function TienDoSanXuat({ match, history, permission }) {
                       }
                     }}
                   >
-                    <a>{item.maNoiBo}</a>
+                    <span
+                      style={{
+                        color: "#0469b9",
+                        cursor: "pointer",
+                      }}
+                    >
+                      {item.maNoiBo}
+                    </span>
                   </List.Item>
                 )}
               />
@@ -638,6 +652,14 @@ function TienDoSanXuat({ match, history, permission }) {
                     {InfoSanPham.maNoiBo ? InfoSanPham.maNoiBo : ""}
                   </h5>
                 </Col>
+                {InfoSanPham.maSoVin ? (
+                  <Col span={24} style={{ display: "flex", marginBottom: 8 }}>
+                    <h5>Số VIN:</h5>
+                    <h5 style={{ fontWeight: "bold", marginLeft: 20 }}>
+                      {InfoSanPham.maSoVin}
+                    </h5>
+                  </Col>
+                ) : null}
                 <Col span={24} style={{ display: "flex", marginBottom: 8 }}>
                   <h5>Màu sơn:</h5>
                   <h5 style={{ fontWeight: "bold", marginLeft: 20 }}>
@@ -696,7 +718,7 @@ function TienDoSanXuat({ match, history, permission }) {
                   >
                     Thêm số VIN
                   </Button>
-                  {/* <Button 
+                  <Button
                     className="th-margin-bottom-0"
                     icon={<SyncOutlined />}
                     type="primary"
@@ -704,7 +726,7 @@ function TienDoSanXuat({ match, history, permission }) {
                     // disabled={DisableVaoTram}
                   >
                     Chuyển sửa chữa lại
-                  </Button> */}
+                  </Button>
                   <Button
                     className="th-margin-bottom-0"
                     icon={<QrcodeOutlined />}

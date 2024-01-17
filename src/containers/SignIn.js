@@ -54,12 +54,12 @@ const SignIn = ({ history }) => {
               donVi_Id: res.data[0].donVi_Id.toUpperCase(),
               tenPhanMem: res.data[0].tenPhanMem,
               tapDoan_Id: res.data[0].tapDoan_Id,
-              Url: res.data[0].Url,
+              Url: res.data[0].url,
             };
             setLocalStorage("menu", menu);
             dispatch(donViLoad());
             dispatch(loadMenu());
-            history.push(res.data[0].Url);
+            history.push(res.data[0].url);
           } else {
             setLocalStorage("menu", {});
             history.push("/home");

@@ -14,7 +14,7 @@ function ModalAddViTriCauTruc({ openModalFS, openModal, refesh, sanPham }) {
   const [ListKe, setListKe] = useState([]);
   const [ListTang, setListTang] = useState([]);
   const [ListNgan, setListNgan] = useState([]);
-  const [require, setRequire] = useState(true);
+  // const [require, setRequire] = useState(true);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { resetFields, setFieldsValue } = form;
@@ -218,7 +218,7 @@ function ModalAddViTriCauTruc({ openModalFS, openModal, refesh, sanPham }) {
             rules={[
               {
                 type: "string",
-                required: require,
+                required: true,
               },
             ]}
           >
@@ -239,7 +239,7 @@ function ModalAddViTriCauTruc({ openModalFS, openModal, refesh, sanPham }) {
             rules={[
               {
                 type: "string",
-                required: require,
+                required: true,
               },
             ]}
           >
