@@ -42,6 +42,7 @@ import ModalHoSoChatLuong from "./ModalHoSoChatLuong";
 import Helpers from "src/helpers";
 import ModalSuaChuaLai from "./ModalSuaChuaLai";
 import ModalAddSoVIN from "./ModalAddSoVIN";
+import ModalChuyenSuaLai from "./ModalChuyenSuaLai";
 const optionsDate = {
   weekday: "long", // Thứ
   year: "numeric", // Năm
@@ -78,6 +79,7 @@ function TienDoSanXuat({ match, history, permission }) {
   const [ActiveModalKiemSoatVatTu, setActiveModalKiemSoatVatTu] =
     useState(false);
   const [ActiveSuaChuaLai, setActiveSuaChuaLai] = useState(false);
+  const [ActiveChuyenSuaChuaLai, setActiveChuyenSuaChuaLai] = useState(false);
   const [ActiveAddSoVIN, setActiveAddSoVIN] = useState(false);
 
   const [ActiveModalHoSoChatLuong, setActiveModalHoSoChatLuong] =
@@ -723,6 +725,9 @@ function TienDoSanXuat({ match, history, permission }) {
                     icon={<SyncOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
+                    onClick={() => {
+                      setActiveChuyenSuaChuaLai(true);
+                    }}
                     // disabled={DisableVaoTram}
                   >
                     Chuyển sửa chữa lại
@@ -936,6 +941,12 @@ function TienDoSanXuat({ match, history, permission }) {
       <ModalSuaChuaLai
         openModal={ActiveSuaChuaLai}
         openModalFS={setActiveSuaChuaLai}
+        info={InfoSanPham}
+        refesh={() => getInfoSanPham(SoLo, Tram)}
+      />
+      <ModalChuyenSuaLai
+        openModal={ActiveChuyenSuaChuaLai}
+        openModalFS={setActiveChuyenSuaChuaLai}
         info={InfoSanPham}
         refesh={() => getInfoSanPham(SoLo, Tram)}
       />
