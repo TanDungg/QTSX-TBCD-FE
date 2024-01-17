@@ -720,18 +720,20 @@ function TienDoSanXuat({ match, history, permission }) {
                   >
                     Thêm số VIN
                   </Button>
-                  <Button
-                    className="th-margin-bottom-0"
-                    icon={<SyncOutlined />}
-                    type="primary"
-                    style={{ width: "80%" }}
-                    onClick={() => {
-                      setActiveChuyenSuaChuaLai(true);
-                    }}
-                    // disabled={DisableVaoTram}
-                  >
-                    Chuyển sửa chữa lại
-                  </Button>
+                  {InfoSanPham.isChuyenSCL && (
+                    <Button
+                      className="th-margin-bottom-0"
+                      icon={<SyncOutlined />}
+                      type="primary"
+                      style={{ width: "80%" }}
+                      onClick={() => {
+                        setActiveChuyenSuaChuaLai(true);
+                      }}
+                      disabled={!InfoSanPham.isChuyenSCL}
+                    >
+                      Chuyển sửa chữa lại
+                    </Button>
+                  )}
                   <Button
                     className="th-margin-bottom-0"
                     icon={<QrcodeOutlined />}
@@ -948,7 +950,11 @@ function TienDoSanXuat({ match, history, permission }) {
         openModal={ActiveChuyenSuaChuaLai}
         openModalFS={setActiveChuyenSuaChuaLai}
         info={InfoSanPham}
-        refesh={() => getInfoSanPham(SoLo, Tram)}
+        refesh={() => {
+          getSoKhunNoiBo(Tram);
+          setInfoSanPham({});
+          setSoLo(null);
+        }}
       />
       <ModalAddSoVIN
         openModal={ActiveAddSoVIN}

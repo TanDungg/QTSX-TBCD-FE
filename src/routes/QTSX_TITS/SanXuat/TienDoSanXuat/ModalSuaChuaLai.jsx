@@ -668,34 +668,40 @@ function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
                         </span>
                       </span>
                       {hmkt.list_TDSXKiemSoatChatLuongTieuDePhus.map((tdp) => {
-                        return (
-                          <>
-                            {tdp.tieuDePhu && (
-                              <span
-                                style={{ marginBottom: 10, display: "block" }}
-                              >
-                                Hạng mục:{" "}
-                                <span style={{ fontWeight: "bold" }}>
-                                  {tdp.tieuDePhu}
+                        if (tdp.list_TDSXKiemSoatChatLuongChiTiets.length > 0) {
+                          return (
+                            <>
+                              {tdp.tieuDePhu && (
+                                <span
+                                  style={{ marginBottom: 10, display: "block" }}
+                                >
+                                  Hạng mục:{" "}
+                                  <span style={{ fontWeight: "bold" }}>
+                                    {tdp.tieuDePhu}
+                                  </span>
                                 </span>
-                              </span>
-                            )}
-                            <Table
-                              bordered
-                              scroll={{ x: 800, y: "70vh" }}
-                              columns={
-                                hmkt.isNoiDung ? columnNoiDungs : columnThongSos
-                              }
-                              components={components}
-                              className="gx-table-responsive"
-                              dataSource={reDataForTable(
-                                tdp.list_TDSXKiemSoatChatLuongChiTiets
                               )}
-                              size="small"
-                              pagination={false}
-                            />
-                          </>
-                        );
+                              <Table
+                                bordered
+                                scroll={{ x: 800, y: "70vh" }}
+                                columns={
+                                  hmkt.isNoiDung
+                                    ? columnNoiDungs
+                                    : columnThongSos
+                                }
+                                components={components}
+                                className="gx-table-responsive"
+                                dataSource={reDataForTable(
+                                  tdp.list_TDSXKiemSoatChatLuongChiTiets
+                                )}
+                                size="small"
+                                pagination={false}
+                              />
+                            </>
+                          );
+                        } else {
+                          return null;
+                        }
                       })}
                     </Col>
                   </Row>

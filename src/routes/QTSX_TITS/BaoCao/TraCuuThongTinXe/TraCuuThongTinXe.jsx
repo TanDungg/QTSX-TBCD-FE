@@ -197,6 +197,7 @@ function TraCuuThongTinXe({ history, permission }) {
           <Button
             className="th-margin-bottom-0"
             type="primary"
+            style={{ marginTop: 8 }}
             onClick={onSearchThongTinXe}
           >
             Tìm kiếm

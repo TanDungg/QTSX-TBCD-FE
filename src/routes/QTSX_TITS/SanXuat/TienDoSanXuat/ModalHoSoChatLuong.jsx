@@ -295,7 +295,11 @@ function ModalHoSoChatLuong({ openModalFS, openModal, info }) {
                           <>
                             {ct.tieuDePhu && (
                               <span
-                                style={{ marginBottom: 10, display: "block" }}
+                                style={{
+                                  marginTop: 10,
+                                  marginBottom: 10,
+                                  display: "block",
+                                }}
                               >
                                 Hạng mục:{" "}
                                 <span style={{ fontWeight: "bold" }}>

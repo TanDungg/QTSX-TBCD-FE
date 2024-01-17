@@ -31,7 +31,6 @@ export const DEFAULT_FORM_STYLE = {
 };
 
 export const DEFAULT_FORM_CUSTOM = {
-  
   labelCol: {
     span: 7,
     style: { fontWeight: "bold" },

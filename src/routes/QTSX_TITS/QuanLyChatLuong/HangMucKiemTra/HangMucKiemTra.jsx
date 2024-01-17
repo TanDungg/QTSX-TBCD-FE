@@ -17,6 +17,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   SearchOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -38,6 +39,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
+import ModalCopyHangMuc from "./ModalCopyHangMuc";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -58,6 +60,8 @@ function HangMucKiemTra({ match, history, permission }) {
   const [HangMuc, setHangMuc] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
   const [Data, setData] = useState([]);
+  const [InfoCopy, setInfoCopy] = useState({});
+  const [ActiveModalCopy, setActiveModalCopy] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -250,7 +254,15 @@ function HangMucKiemTra({ match, history, permission }) {
           <EditOutlined />
         </span>
       );
-
+    const copyVal =
+      permission && permission.add
+        ? {
+            onClick: () => {
+              setActiveModalCopy(true);
+              setInfoCopy(item);
+            },
+          }
+        : { disabled: true };
     const deleteVal =
       permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
@@ -258,6 +270,10 @@ function HangMucKiemTra({ match, history, permission }) {
     return (
       <div>
         {detail}
+        <Divider type="vertical" />
+        <a {...copyVal} title="copy">
+          <CopyOutlined />
+        </a>
         <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
@@ -440,7 +456,7 @@ function HangMucKiemTra({ match, history, permission }) {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 110,
+      width: 120,
       render: (value) => actionContent(value),
       fixed: "left",
     },
@@ -820,6 +836,14 @@ function HangMucKiemTra({ match, history, permission }) {
           </div>
         )}
       </AntModal>
+      <ModalCopyHangMuc
+        openModal={ActiveModalCopy}
+        openModalFS={setActiveModalCopy}
+        itemData={InfoCopy}
+        refesh={() =>
+          getListData(LoaiSanPham, SanPham, CongDoan, keyword, page)
+        }
+      />
     </div>
   );
 }

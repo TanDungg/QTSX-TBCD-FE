@@ -8,7 +8,7 @@ import {
   Popover,
   Modal as AntModal,
   Image,
-  Tag,
+  // Tag,
 } from "antd";
 import {
   PlusOutlined,
@@ -46,8 +46,8 @@ function KhaiBaoSoContainer({ match, history, permission }) {
   const [selectedSoContainer, setSelectedSoContainer] = useState([]);
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [DisabledModal, setDisabledModal] = useState(false);
-  const [DataChiTiet, setDataChiTiet] = useState([]);
-  const [ChiTiet, setChiTiet] = useState([]);
+  // const [DataChiTiet, setDataChiTiet] = useState([]);
+  // const [ChiTiet, setChiTiet] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -216,13 +216,13 @@ function KhaiBaoSoContainer({ match, history, permission }) {
     window.open(`${match.url}/in-ma-Qrcode-SoContainer`, "_blank");
   };
 
-  const XemChiTiet = (record) => {
-    setChiTiet(record);
-    setDataChiTiet(
-      reDataForTable(record.list_ChiTiets && JSON.parse(record.list_ChiTiets))
-    );
-    setDisabledModal(true);
-  };
+  // const XemChiTiet = (record) => {
+  //   setChiTiet(record);
+  //   setDataChiTiet(
+  //     reDataForTable(record.list_ChiTiets && JSON.parse(record.list_ChiTiets))
+  //   );
+  //   setDisabledModal(true);
+  // };
 
   let renderHead = [
     {
@@ -298,21 +298,21 @@ function KhaiBaoSoContainer({ match, history, permission }) {
       onFilter: (value, record) => record.dimensions.includes(value),
       filterSearch: true,
     },
-    {
-      title: "List số VIN",
-      key: "list_ChiTiets",
-      align: "center",
-      render: (record) => (
-        <Button
-          type="primary"
-          onClick={() => {
-            XemChiTiet(record);
-          }}
-        >
-          Xem chi tiết
-        </Button>
-      ),
-    },
+    // {
+    //   title: "List số VIN",
+    //   key: "list_ChiTiets",
+    //   align: "center",
+    //   render: (record) => (
+    //     <Button
+    //       type="primary"
+    //       onClick={() => {
+    //         XemChiTiet(record);
+    //       }}
+    //     >
+    //       Xem chi tiết
+    //     </Button>
+    //   ),
+    // },
     {
       title: "Ghi chú",
       dataIndex: "moTa",
@@ -453,9 +453,9 @@ function KhaiBaoSoContainer({ match, history, permission }) {
   const title = (
     <span>
       Danh sách số VIN của{" "}
-      <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
+      {/* <Tag color={"darkcyan"} style={{ fontSize: "14px" }}>
         {ChiTiet && ChiTiet.tenChiTiet}
-      </Tag>
+      </Tag> */}
     </span>
   );
 
@@ -555,7 +555,8 @@ function KhaiBaoSoContainer({ match, history, permission }) {
           components={componentschitiet}
           scroll={{ x: 1200, y: "55vh" }}
           className="gx-table-responsive"
-          dataSource={DataChiTiet}
+          dataSource={[]}
+          // dataSource={DataChiTiet}
           size="small"
           loading={loading}
           pagination={false}

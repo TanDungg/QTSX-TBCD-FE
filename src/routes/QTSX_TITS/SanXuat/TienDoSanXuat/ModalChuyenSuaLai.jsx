@@ -1,5 +1,5 @@
 import { SaveOutlined } from "@ant-design/icons";
-import { Modal as AntModal, Form, Row, Input, Col, Button } from "antd";
+import { Modal as AntModal, Form, Row, Col, Button, Tag } from "antd";
 import { map } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -14,11 +14,14 @@ function ModalChuyenSuaLai({ openModalFS, openModal, info, refesh }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { resetFields } = form;
-  const [ListVatTuKiemSoat, setListVatTuKiemSoat] = useState([]);
-
+  const [ListLoiChuyenSuaChuaLai, setListLoiChuyenSuaChuaLai] = useState([]);
+  const [selectedLoi, setSelectedLoi] = useState([]);
+  const [selectedKey, setSelectedKey] = useState([]);
   useEffect(() => {
     if (openModal) {
-      getListVatTuKiemSoat(info);
+      setSelectedKey([]);
+      setSelectedLoi([]);
+      getListLoiChuyenSuaChuaLai(info);
     }
     return () => {
       dispatch(fetchReset());
@@ -26,14 +29,14 @@ function ModalChuyenSuaLai({ openModalFS, openModal, info, refesh }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
-  const getListVatTuKiemSoat = (info) => {
+  const getListLoiChuyenSuaChuaLai = (info) => {
     const param = convertObjectToUrlParams({
       tits_qtsx_TienDoSanXuat_Id: info.tits_qtsx_TienDoSanXuat_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_TienDoSanXuat/theo-doi-vat-tu-lap-rap?${param}`,
+          `tits_qtsx_TienDoSanXuat/chuyen-sua-chua-lai?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -44,51 +47,34 @@ function ModalChuyenSuaLai({ openModalFS, openModal, info, refesh }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListVatTuKiemSoat(
-          res.data.list_VatTus &&
-            reDataForTable(JSON.parse(res.data.list_VatTus))
-        );
-        info.tenTram = res.data.tenTram;
+        setListLoiChuyenSuaChuaLai(res.data);
       } else {
-        setListVatTuKiemSoat([]);
+        setListLoiChuyenSuaChuaLai([]);
       }
     });
   };
 
   const onSave = () => {
-    let check = false;
-    ListVatTuKiemSoat.forEach((vt) => {
-      if (!vt.soSerial) {
-        check = true;
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_TienDoSanXuat/put-chuyen-sua-chua-lai?tits_qtsx_TienDoSanXuat_Id=${selectedLoi[0].tits_qtsx_TienDoSanXuat_Id}`,
+          "PUT",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.status === 200) {
+        Helpers.alertSuccessMessage("Đã chuyển sửa chữa lại thành công!!");
+        resetFields();
+        openModalFS(false);
+        refesh();
       }
     });
-    if (!check) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `tits_qtsx_TienDoSanXuat/theo-doi-vat-tu-lap-rap/${info.tits_qtsx_TienDoSanXuat_Id}`,
-            "PUT",
-            {
-              tits_qtsx_TienDoSanXuat_Id: info.tits_qtsx_TienDoSanXuat_Id,
-              list_VatTus: ListVatTuKiemSoat,
-            },
-            "DETAIL",
-            "",
-            resolve,
-            reject
-          )
-        );
-      }).then((res) => {
-        if (res && res.status === 200) {
-          Helpers.alertSuccessMessage("Đã lưu thành công!!");
-          resetFields();
-          openModalFS(false);
-          refesh();
-        }
-      });
-    } else {
-      Helpers.alertWarning("Chưa nhập đủ số Serial cho vật tư");
-    }
   };
   const modalXacNhan = (ham, title) => {
     Modal({
@@ -99,32 +85,7 @@ function ModalChuyenSuaLai({ openModalFS, openModal, info, refesh }) {
       onOk: ham,
     });
   };
-  const changeGhiChu = (val, item, key) => {
-    const ghiChu = val.target.value;
-    const newData = [...ListVatTuKiemSoat];
-    newData.forEach((sp, index) => {
-      if (sp.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
-        sp[key] = ghiChu;
-      }
-    });
-    setListVatTuKiemSoat(newData);
-  };
 
-  const renderGhiChu = (item, key) => {
-    return (
-      <>
-        <Input
-          style={{
-            textAlign: "center",
-            width: "100%",
-          }}
-          className={`input-item`}
-          value={item[key]}
-          onChange={(val) => changeGhiChu(val, item, key)}
-        />
-      </>
-    );
-  };
   let renderHead = [
     {
       title: "STT",
@@ -134,28 +95,29 @@ function ModalChuyenSuaLai({ openModalFS, openModal, info, refesh }) {
       width: 50,
     },
     {
-      title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
+      title: "Công đoạn",
+      dataIndex: "tenCongDoan",
+      key: "tenCongDoan",
       align: "center",
     },
     {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      title: "Xưởng",
+      dataIndex: "tenXuong",
+      key: "tenXuong",
       align: "center",
     },
     {
-      title: "Số Serial",
-      render: (record) => renderGhiChu(record, "soSerial"),
-      key: "soSerial",
+      title: "Trạm",
+      dataIndex: "tenTram",
+      key: "tenTram",
       align: "center",
     },
     {
-      title: "Ghi chú",
-      key: "moTa",
+      title: "Lỗi",
+      dataIndex: "list_Lois",
+      key: "list_Lois",
       align: "center",
-      render: (record) => renderGhiChu(record, "moTa"),
+      render: (val) => val.map((l) => <Tag color={"red"}>{l.maLoi}</Tag>),
     },
   ];
 
@@ -185,9 +147,26 @@ function ModalChuyenSuaLai({ openModalFS, openModal, info, refesh }) {
     openModalFS(false);
   };
 
+  const rowSelection = {
+    selectedRowKeys: selectedKey,
+    selectedRows: selectedLoi,
+    onChange: (selectedRowKeys, selectedRows) => {
+      const row =
+        selectedLoi.length > 0
+          ? selectedRows.filter((d) => d.key !== selectedLoi[0].key)
+          : [...selectedRows];
+
+      const key =
+        selectedKey.length > 0
+          ? selectedRowKeys.filter((d) => d !== selectedKey[0])
+          : [...selectedRowKeys];
+      setSelectedLoi(row);
+      setSelectedKey(key);
+    },
+  };
   return (
     <AntModal
-      title="Theo dõi vật tư lắp ráp"
+      title="Chuyển sửa chữa lại"
       open={openModal}
       width={`80%`}
       closable={true}
@@ -195,14 +174,6 @@ function ModalChuyenSuaLai({ openModalFS, openModal, info, refesh }) {
       footer={null}
     >
       <Row justify={"center"} style={{ marginBottom: 10 }}>
-        <Col span={1}></Col>
-        <Col span={13} style={{ marginBottom: 10 }}>
-          Trạm: <span style={{ fontWeight: "bold" }}>{info.tenTram}</span>
-        </Col>
-        <Col span={10} style={{ marginBottom: 10 }}>
-          Thời gian vào trạm:{" "}
-          <span style={{ fontWeight: "bold" }}>{info.thoiGianVaoTram}</span>
-        </Col>
         <Col span={1}></Col>
         <Col span={13}>
           Sản phẩm:{" "}
@@ -219,9 +190,16 @@ function ModalChuyenSuaLai({ openModalFS, openModal, info, refesh }) {
         columns={columns}
         components={components}
         className="gx-table-responsive"
-        dataSource={ListVatTuKiemSoat}
+        dataSource={reDataForTable(ListLoiChuyenSuaChuaLai)}
         size="small"
         pagination={false}
+        rowSelection={{
+          type: "checkbox",
+          ...rowSelection,
+          hideSelectAll: true,
+          preserveSelectedRowKeys: false,
+          selectedRowKeys: selectedKey,
+        }}
       />
       <Row style={{ marginTop: 10 }}>
         <Col span={24} align="center">
@@ -229,8 +207,9 @@ function ModalChuyenSuaLai({ openModalFS, openModal, info, refesh }) {
             className="th-margin-bottom-0"
             style={{ margin: 0 }}
             icon={<SaveOutlined />}
-            onClick={() => modalXacNhan(onSave, "Lưu theo dõi vật tư lắp ráp")}
+            onClick={() => modalXacNhan(onSave, "Chuyển sửa chữa lại")}
             type="primary"
+            disabled={selectedKey.length === 0}
           >
             Lưu
           </Button>

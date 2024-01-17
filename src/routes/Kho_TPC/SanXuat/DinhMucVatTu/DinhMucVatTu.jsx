@@ -31,6 +31,8 @@ function DinhMucVatTu({ permission, history, match }) {
   const [page, setPage] = useState(1);
   const [ListUser, setListUser] = useState([]);
   const [user_Id, setUser_Id] = useState("");
+  const [ListPhongBan, setListPhongBan] = useState([]);
+  const [PhongBan, setPhongBan] = useState("");
   const [DinhMucVatTu, setDinhMucVatTu] = useState([]);
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
@@ -39,7 +41,8 @@ function DinhMucVatTu({ permission, history, match }) {
   useEffect(() => {
     if (permission && permission.view) {
       getListUser();
-      getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, page);
+      getXuong();
+      getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, page, PhongBan);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -47,7 +50,14 @@ function DinhMucVatTu({ permission, history, match }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getDinhMucVatTu = (keyword, userid, tungay, denngay, page) => {
+  const getDinhMucVatTu = (
+    keyword,
+    userid,
+    tungay,
+    denngay,
+    page,
+    phongBan_Id
+  ) => {
     let param = convertObjectToUrlParams({
       keyword,
       page,
@@ -55,6 +65,7 @@ function DinhMucVatTu({ permission, history, match }) {
       tungay,
       denngay,
       checkQL: INFO.user_Id,
+      phongBan_Id,
     });
 
     new Promise((resolve, reject) => {
@@ -112,7 +123,8 @@ function DinhMucVatTu({ permission, history, match }) {
                   us.nguoiLap_Id,
                   FromDate,
                   ToDate,
-                  page
+                  page,
+                  PhongBan
                 );
               }
             });
@@ -123,7 +135,33 @@ function DinhMucVatTu({ permission, history, match }) {
       })
       .catch((error) => console.error(error));
   };
-
+  const getXuong = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `PhongBan?page=-1&&donviid=${INFO.donVi_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        const xuong = [];
+        res.data.forEach((x) => {
+          if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+            xuong.push(x);
+          }
+        });
+        setListPhongBan(xuong);
+      } else {
+        setListPhongBan([]);
+      }
+    });
+  };
   /**
    * Thay đổi keyword
    *
@@ -133,7 +171,14 @@ function DinhMucVatTu({ permission, history, match }) {
     setPage(1);
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getDinhMucVatTu(val.target.value, user_Id, FromDate, ToDate, page);
+      getDinhMucVatTu(
+        val.target.value,
+        user_Id,
+        FromDate,
+        ToDate,
+        page,
+        PhongBan
+      );
     }
   };
 
@@ -142,7 +187,7 @@ function DinhMucVatTu({ permission, history, match }) {
    *
    */
   const onSearchPhieu = () => {
-    getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, page);
+    getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, page, PhongBan);
   };
   /**
    * handleTableChange
@@ -152,7 +197,7 @@ function DinhMucVatTu({ permission, history, match }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, pagination);
+    getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, pagination, PhongBan);
   };
 
   //Lọc các tên giống nhau trong filter
@@ -194,7 +239,7 @@ function DinhMucVatTu({ permission, history, match }) {
     })
       .then((res) => {
         if (res.status !== 409)
-          getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, page);
+          getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, page, PhongBan);
       })
       .catch((error) => console.error(error));
   };
@@ -280,7 +325,7 @@ function DinhMucVatTu({ permission, history, match }) {
       title: "STT",
       dataIndex: "key",
       key: "key",
-      width: 40,
+      width: 50,
       align: "center",
     },
     {
@@ -462,23 +507,41 @@ function DinhMucVatTu({ permission, history, match }) {
   };
 
   const handleOnSelectUser_Id = (value) => {
-    setUser_Id(value);
-    setPage(1);
-    getDinhMucVatTu(keyword, value, FromDate, ToDate, 1);
+    if (user_Id !== value) {
+      setUser_Id(value);
+      setPage(1);
+      getDinhMucVatTu(keyword, value, FromDate, ToDate, 1, PhongBan);
+    }
   };
 
   const handleClearUser_Id = () => {
     setUser_Id(null);
-    // setSelectedDinhMucVatTu(null);
-    // setSelectedKeys(null);
-    getDinhMucVatTu(keyword, "", FromDate, ToDate, 1);
+    getDinhMucVatTu(keyword, "", FromDate, ToDate, 1, PhongBan);
+  };
+  const handleOnSelectPhongBan = (value) => {
+    if (PhongBan !== value) {
+      setPhongBan(value);
+      setPage(1);
+      getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, 1, value);
+    }
   };
 
+  const handleClearPhongBan = () => {
+    setPhongBan(null);
+    getDinhMucVatTu(keyword, user_Id, FromDate, ToDate, 1, null);
+  };
   const handleChangeNgay = (dateString) => {
     setFromDate(dateString[0]);
     setToDate(dateString[1]);
     setPage(1);
-    getDinhMucVatTu(keyword, user_Id, dateString[0], dateString[1], 1);
+    getDinhMucVatTu(
+      keyword,
+      user_Id,
+      dateString[0],
+      dateString[1],
+      1,
+      PhongBan
+    );
   };
 
   return (
@@ -510,9 +573,32 @@ function DinhMucVatTu({ permission, history, match }) {
               optionFilterProp={"name"}
               onSelect={handleOnSelectUser_Id}
               value={user_Id}
-              onChange={(value) => setUser_Id(value)}
               allowClear
               onClear={handleClearUser_Id}
+            />
+          </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Xưởng:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListPhongBan ? ListPhongBan : []}
+              placeholder="Chọn xưởng"
+              optionsvalue={["id", "tenPhongBan"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp={"name"}
+              onSelect={handleOnSelectPhongBan}
+              value={PhongBan}
+              allowClear
+              onClear={handleClearPhongBan}
             />
           </Col>
           <Col
