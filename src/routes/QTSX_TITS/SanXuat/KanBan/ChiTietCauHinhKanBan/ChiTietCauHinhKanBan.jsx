@@ -99,6 +99,7 @@ function ChiTietCauHinhKanBan({ history, permission }) {
         if (res && res.data) {
           const listtram = res.data.list_Trams;
           setTram(listtram[0].tits_qtsx_Tram_Id);
+          getListThietBi(listtram[0].tits_qtsx_Tram_Id);
           getListData(listtram[0].tits_qtsx_Tram_Id, ngay);
           setListTram(listtram);
         } else {
