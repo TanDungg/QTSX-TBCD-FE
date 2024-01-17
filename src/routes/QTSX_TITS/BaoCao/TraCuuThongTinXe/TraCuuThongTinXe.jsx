@@ -8,13 +8,22 @@ import {
   Image,
   Modal as AntModal,
   Divider,
+  Tag,
 } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  exportPDF,
+  reDataForTable,
+} from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
-import { LeftCircleOutlined, RightCircleOutlined } from "@ant-design/icons";
+import {
+  DownloadOutlined,
+  LeftCircleOutlined,
+  RightCircleOutlined,
+} from "@ant-design/icons";
 import { EditableTableRow, Table } from "src/components/Common";
 import { map } from "lodash";
 
@@ -100,13 +109,59 @@ function TraCuuThongTinXe({ history, permission }) {
             list_VatTuLapRaps: DataVatTu,
           };
           setData(newData);
-          newData.list_HoSoKiemTraChatLuongs &&
-            setDataHoSoChatLuong(newData.list_HoSoKiemTraChatLuongs);
+          XemHoSoChatLuong(
+            newData.tits_qtsx_SoLoChiTiet_Id && newData.tits_qtsx_SoLoChiTiet_Id
+          );
         } else {
           setData(null);
         }
       })
       .catch((error) => console.error(error));
+  };
+
+  const TaiHoSoChatLuong = (item) => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_CongDoan_Id: item.tits_qtsx_CongDoan_Id,
+      tits_qtsx_SoLoChiTiet_Id: Data.tits_qtsx_SoLoChiTiet_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_TienDoSanXuat/export-pdf-ho-so-kiem-soat-chat-luong?${param}`,
+          "GET",
+          null,
+          "POST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          exportPDF(res.data.datapdf);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const actionContent = (item) => {
+    const xemhoso = item.isHoanThanh
+      ? { onClick: () => TaiHoSoChatLuong(item) }
+      : { disabled: true };
+    return (
+      <div>
+        <React.Fragment>
+          <a
+            {...xemhoso}
+            title="Xem hồ sơ chất lượng"
+            style={{ fontSize: "18px" }}
+          >
+            <DownloadOutlined />
+          </a>
+        </React.Fragment>
+      </div>
+    );
   };
 
   let colChiTiet = [
@@ -115,18 +170,12 @@ function TraCuuThongTinXe({ history, permission }) {
       dataIndex: "key",
       key: "key",
       align: "center",
-      width: 45,
+      width: 50,
     },
     {
       title: "Công đoạn",
       dataIndex: "tenCongDoan",
       key: "tenCongDoan",
-      align: "center",
-    },
-    {
-      title: "Trạm kiểm tra",
-      dataIndex: "tenTram",
-      key: "tenTram",
       align: "center",
     },
     {
@@ -136,10 +185,23 @@ function TraCuuThongTinXe({ history, permission }) {
       align: "center",
     },
     {
-      title: "Hồ sơ",
-      dataIndex: "hoSo",
-      key: "hoSo",
+      title: "Tình trạng",
+      dataIndex: "isHoanThanh",
+      key: "isHoanThanh",
       align: "center",
+      render: (value, record) => {
+        return (
+          <Tag color={value === true ? "blue" : "red"}>
+            {value === true ? "Đã hoàn thành" : "Chưa hoàn thành"}
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Hồ sơ",
+      align: "center",
+      width: 150,
+      render: (record) => actionContent(record),
     },
   ];
 
@@ -169,6 +231,33 @@ function TraCuuThongTinXe({ history, permission }) {
     getListData(keyword);
   };
 
+  const XemHoSoChatLuong = (tits_qtsx_SoLoChiTiet_Id) => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_SoLoChiTiet_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_TienDoSanXuat/cong-doan-trong-ho-so-kiem-soat-chat-luong?${param}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setDataHoSoChatLuong(res.data);
+        } else {
+          setDataHoSoChatLuong([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
   };
@@ -191,7 +280,11 @@ function TraCuuThongTinXe({ history, permission }) {
           <Input
             placeholder="Nhập số khung xe"
             value={keyword}
-            style={{ marginRight: "20px", width: "350px" }}
+            style={{
+              marginRight: "20px",
+              marginBottom: "10px",
+              width: "350px",
+            }}
             onChange={(value) => onChangeKeyword(value)}
           />
           <Button
@@ -501,7 +594,7 @@ function TraCuuThongTinXe({ history, permission }) {
                           style={{
                             color: "#0469B9",
                           }}
-                        />{" "}
+                        />
                         {congdoan.thoiGianRaCongDoan}
                       </span>
                     </div>
@@ -722,7 +815,7 @@ function TraCuuThongTinXe({ history, permission }) {
         title={"Hồ sơ kiểm tra chất lượng"}
         className="th-card-reset-margin"
         open={DisabledModalHoSoChatLuong}
-        width={"80%"}
+        width={"70%"}
         closable={true}
         onCancel={() => setDisabledModalHoSoChatLuong(false)}
         footer={null}
@@ -732,7 +825,7 @@ function TraCuuThongTinXe({ history, permission }) {
             bordered
             columns={columnschitiet}
             components={componentschitiet}
-            scroll={{ x: 1200, y: "55vh" }}
+            scroll={{ x: 1000, y: "55vh" }}
             className="gx-table-responsive"
             dataSource={reDataForTable(DataHoSoChatLuong)}
             size="small"
