@@ -1238,7 +1238,7 @@ const VatTuForm = ({ history, match, permission }) => {
               soLuongLo: null,
             },
           }
-        : {
+        : { 
             phieuxuatkhovattusanxuattheoBOM: {
               tits_qtsx_SoLo_Id: null,
               tits_qtsx_DonHang_Id: newSanPham.tits_qtsx_DonHang_Id,
@@ -1273,6 +1273,7 @@ const VatTuForm = ({ history, match, permission }) => {
         : {
             phieuxuatkhovattusanxuattheoBOM: {
               soLuongLo: newData.soLuongLo,
+              tits_qtsx_BOMXuong_Id: null,
             },
           }
     );
