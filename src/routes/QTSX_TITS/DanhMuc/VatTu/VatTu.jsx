@@ -244,7 +244,7 @@ function VatTu({ match, history, permission }) {
         </Button>
         <Button
           icon={<QrcodeOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
           disabled={permission && !permission.add}

@@ -401,10 +401,12 @@ function PhieuYeuCauXuatKhoNgoaiQuan({ match, history, permission }) {
   });
 
   const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
-    setPage(1);
-    getListData(keyword, dateString[0], dateString[1], 1);
+    if (FromDate !== dateString[0] || ToDate !== dateString[1]) {
+      setFromDate(dateString[0]);
+      setToDate(dateString[1]);
+      setPage(1);
+      getListData(keyword, dateString[0], dateString[1], 1);
+    }
   };
 
   const rowSelection = {

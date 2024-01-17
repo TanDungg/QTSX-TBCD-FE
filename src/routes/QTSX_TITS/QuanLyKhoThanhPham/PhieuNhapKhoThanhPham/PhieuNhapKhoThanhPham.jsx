@@ -491,9 +491,11 @@ function NhapKhoThanhPham({ match, history, permission }) {
   };
 
   const handleOnSelectKhoTP = (val) => {
-    setKhoTP(val);
-    setPage(1);
-    getListData(keyword, val, FromDate, ToDate, 1);
+    if (KhoTP !== val) {
+      setKhoTP(val);
+      setPage(1);
+      getListData(keyword, val, FromDate, ToDate, 1);
+    }
   };
   const handleClearKhoTP = (val) => {
     setKhoTP("");
@@ -501,10 +503,12 @@ function NhapKhoThanhPham({ match, history, permission }) {
     getListData(keyword, "", FromDate, ToDate, 1);
   };
   const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
-    setPage(1);
-    getListData(keyword, KhoTP, dateString[0], dateString[1], 1);
+    if (FromDate !== dateString[0] || ToDate !== dateString[1]) {
+      setFromDate(dateString[0]);
+      setToDate(dateString[1]);
+      setPage(1);
+      getListData(keyword, KhoTP, dateString[0], dateString[1], 1);
+    }
   };
   return (
     <div className="gx-main-content">

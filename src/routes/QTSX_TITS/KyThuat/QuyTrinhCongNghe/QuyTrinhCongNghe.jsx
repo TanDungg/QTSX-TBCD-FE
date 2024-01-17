@@ -378,9 +378,11 @@ function QuyTrinhCongNghe({ match, history, permission }) {
   };
 
   const handleOnSelectLoaiSanPham = (value) => {
-    setLoaiSanPham(value);
-    setPage(1);
-    getListData(value, keyword, 1);
+    if (LoaiSanPham !== value) {
+      setLoaiSanPham(value);
+      setPage(1);
+      getListData(value, keyword, 1);
+    }
   };
 
   const handleClearLoaiSanPham = (value) => {

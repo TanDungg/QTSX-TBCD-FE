@@ -87,11 +87,13 @@ function LayoutKhoThanhPham({ history, permission }) {
   };
 
   const handleOnSelectKho = (val) => {
-    setListChiTiet([]);
-    setFocusNgan(null);
-    setFocusKe(null);
-    setKho(val);
-    getChiTietKho(val);
+    if (Kho !== val) {
+      setListChiTiet([]);
+      setFocusNgan(null);
+      setFocusKe(null);
+      setKho(val);
+      getChiTietKho(val);
+    }
   };
 
   const handleViewThongTin = (tt) => {

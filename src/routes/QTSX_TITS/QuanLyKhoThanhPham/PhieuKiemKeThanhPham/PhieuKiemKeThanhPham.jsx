@@ -465,16 +465,20 @@ function PhieuKiemKe({ match, history, permission }) {
   });
 
   const handleSelectKho = (value) => {
-    setKho(value);
-    setPage(1);
-    getListData(keyword, value, TuNgay, DenNgay, 1);
+    if (Kho !== value) {
+      setKho(value);
+      setPage(1);
+      getListData(keyword, value, TuNgay, DenNgay, 1);
+    }
   };
 
   const handleChangeNgay = (dateString) => {
-    setTuNgay(dateString[0]);
-    setDenNgay(dateString[1]);
-    setPage(1);
-    getListData(keyword, Kho, dateString[0], dateString[1], 1);
+    if (TuNgay !== dateString[0] || DenNgay !== dateString[1]) {
+      setTuNgay(dateString[0]);
+      setDenNgay(dateString[1]);
+      setPage(1);
+      getListData(keyword, Kho, dateString[0], dateString[1], 1);
+    }
   };
 
   const rowSelection = {

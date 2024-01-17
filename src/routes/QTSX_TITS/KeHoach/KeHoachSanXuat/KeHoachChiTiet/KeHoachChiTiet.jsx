@@ -368,16 +368,20 @@ function KeHoachChiTiet({ match, history, permission }) {
   });
 
   const handleOnSelectVersion = (value) => {
-    getListData(Xuong, Thang, Nam, value);
-    setVersion(value);
+    if (Version !== value) {
+      getListData(Xuong, Thang, Nam, value);
+      setVersion(value);
+    }
   };
 
   const handleOnChangeDate = (dateString) => {
-    const Thang = dateString.slice(0, 2);
-    const Nam = dateString.slice(-4);
-    setThang(Thang);
-    setNam(Nam);
-    getVersion(Xuong, Thang, Nam);
+    if (Thang !== dateString.slice(0, 2) || Nam !== dateString.slice(-4)) {
+      const Thang = dateString.slice(0, 2);
+      const Nam = dateString.slice(-4);
+      setThang(Thang);
+      setNam(Nam);
+      getVersion(Xuong, Thang, Nam);
+    }
   };
 
   const { totalRow } = data;

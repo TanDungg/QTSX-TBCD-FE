@@ -323,11 +323,13 @@ function KhoThanhPham({ history, permission }) {
   });
 
   const handleOnSelectKho = (val) => {
-    setKho(val);
-    setPage(1);
-    loadData(keyword, val, 1);
-    setSelectedViTri([]);
-    setSelectedKeys([]);
+    if (Kho !== val) {
+      setKho(val);
+      setPage(1);
+      loadData(keyword, val, 1);
+      setSelectedViTri([]);
+      setSelectedKeys([]);
+    }
   };
 
   const rowSelection = {

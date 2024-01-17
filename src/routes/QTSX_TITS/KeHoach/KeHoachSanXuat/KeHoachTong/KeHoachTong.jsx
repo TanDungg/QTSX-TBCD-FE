@@ -309,14 +309,18 @@ function KeHoachTong({ match, history, permission }) {
   });
 
   const handleOnSelectVersion = (value) => {
-    getListData(Thang, Nam, value);
-    setVersion(value);
+    if (Version !== value) {
+      getListData(Thang, Nam, value);
+      setVersion(value);
+    }
   };
 
   const handleOnChangeDate = (dateString) => {
-    setThang(dateString.slice(0, 2));
-    setNam(dateString.slice(3));
-    getVersion(dateString.slice(0, 2), dateString.slice(3));
+    if (Thang !== dateString.slice(0, 2) || Nam !== dateString.slice(3)) {
+      setThang(dateString.slice(0, 2));
+      setNam(dateString.slice(3));
+      getVersion(dateString.slice(0, 2), dateString.slice(3));
+    }
   };
 
   const { totalRow } = data;

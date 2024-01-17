@@ -17,7 +17,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
 import { Input, Select, FormSubmit, Modal } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import { BASE_URL_API, DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { BASE_URL_API, DEFAULT_FORM_TWO_COL } from "src/constants/Config";
 import { getLocalStorage, getTokenInfo } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import {
@@ -505,7 +505,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
       <Card className="th-card-margin-bottom">
         <Spin spinning={loading}>
           <Form
-            {...DEFAULT_FORM_CUSTOM}
+            {...DEFAULT_FORM_TWO_COL}
             form={form}
             name="nguoi-dung-control"
             onFinish={onFinish}
@@ -522,7 +522,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Mã hồ sơ chất lượng"
+                  label="Mã hồ sơ "
                   name={["checkSheets", "maCheckSheet"]}
                   rules={[
                     {
@@ -552,7 +552,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Tên hồ sơ chất lượng"
+                  label="Tên hồ sơ"
                   name={["checkSheets", "tenCheckSheet"]}
                   rules={[
                     {

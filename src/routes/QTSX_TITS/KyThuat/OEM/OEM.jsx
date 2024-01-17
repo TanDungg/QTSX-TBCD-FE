@@ -454,9 +454,11 @@ function OEM({ match, history, permission }) {
   };
 
   const handleOnSelectSanPham = (value) => {
-    setSanPham(value);
-    setPage(1);
-    getListData(value, TuNgay, DenNgay, keyword, 1);
+    if (SanPham !== value) {
+      setSanPham(value);
+      setPage(1);
+      getListData(value, TuNgay, DenNgay, keyword, 1);
+    }
   };
 
   const handleClearSanPham = () => {
@@ -466,10 +468,12 @@ function OEM({ match, history, permission }) {
   };
 
   const handleChangeNgay = (dateString) => {
-    setTuNgay(dateString[0]);
-    setDenNgay(dateString[1]);
-    setPage(1);
-    getListData(SanPham, dateString[0], dateString[1], keyword, 1);
+    if (TuNgay !== dateString[0] && DenNgay !== dateString[1]) {
+      setTuNgay(dateString[0]);
+      setDenNgay(dateString[1]);
+      setPage(1);
+      getListData(SanPham, dateString[0], dateString[1], keyword, 1);
+    }
   };
 
   return (

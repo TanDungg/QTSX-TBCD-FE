@@ -306,8 +306,10 @@ function Loi({ match, permission, history }) {
   };
 
   const handleSelectNhomLoi = (value) => {
-    setNhomLoi(value);
-    getListData(value, null, 1);
+    if (NhomLoi !== value) {
+      setNhomLoi(value);
+      getListData(value, null, 1);
+    }
   };
 
   const clearSelectNhomLoi = (value) => {

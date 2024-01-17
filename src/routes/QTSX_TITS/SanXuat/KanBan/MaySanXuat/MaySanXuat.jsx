@@ -967,8 +967,10 @@ function MaySanXuat({ history, permission }) {
   };
 
   const handleChangeNgay = (dateString) => {
-    setNgay(dateString);
-    getListData(Tram, ThietBi, dateString, keyTabs);
+    if (Ngay !== dateString) {
+      setNgay(dateString);
+      getListData(Tram, ThietBi, dateString, keyTabs);
+    }
   };
 
   const rowSelection = {

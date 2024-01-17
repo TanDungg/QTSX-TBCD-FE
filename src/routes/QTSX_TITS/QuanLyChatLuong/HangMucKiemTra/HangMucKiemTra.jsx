@@ -40,11 +40,14 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
 import ModalCopyHangMuc from "./ModalCopyHangMuc";
+import { setHistory } from "src/appRedux/actions";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function HangMucKiemTra({ match, history, permission }) {
   const { loading, width } = useSelector(({ common }) => common).toJS();
+  const { option, path } = useSelector(({ History }) => History);
+
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
@@ -65,10 +68,25 @@ function HangMucKiemTra({ match, history, permission }) {
 
   useEffect(() => {
     if (permission && permission.view) {
+      if (path === match.url) {
+        setLoaiSanPham(option.LoaiSanPham);
+        setSanPham(option.SanPham);
+        setCongDoan(option.CongDoan);
+        setPage(option.page);
+        setKeyword(option.keyword);
+        getListData(
+          option.LoaiSanPham,
+          option.SanPham,
+          option.CongDoan,
+          option.keyword,
+          option.page
+        );
+      } else {
+        getListData(LoaiSanPham, SanPham, CongDoan, keyword, page);
+      }
       getLoaiSanPham();
       getSanPham();
       getCongDoan();
-      getListData(LoaiSanPham, SanPham, CongDoan, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -229,6 +247,20 @@ function HangMucKiemTra({ match, history, permission }) {
             state: { itemData: item },
           }}
           title="Chi tiết"
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  LoaiSanPham,
+                  SanPham,
+                  CongDoan,
+                  page,
+                  keyword,
+                },
+              })
+            );
+          }}
         >
           <SearchOutlined />
         </Link>
@@ -246,6 +278,20 @@ function HangMucKiemTra({ match, history, permission }) {
             state: { itemData: item },
           }}
           title="Sửa"
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  LoaiSanPham,
+                  SanPham,
+                  CongDoan,
+                  page,
+                  keyword,
+                },
+              })
+            );
+          }}
         >
           <EditOutlined />
         </Link>
@@ -338,6 +384,19 @@ function HangMucKiemTra({ match, history, permission }) {
     history.push({
       pathname: `${match.url}/them-moi`,
     });
+
+    dispatch(
+      setHistory({
+        path: match.path,
+        option: {
+          LoaiSanPham,
+          SanPham,
+          CongDoan,
+          page,
+          keyword,
+        },
+      })
+    );
   };
   const addButtonRender = () => {
     return (
@@ -606,11 +665,13 @@ function HangMucKiemTra({ match, history, permission }) {
   });
 
   const handleOnSelectLoaiSanPham = (value) => {
-    setLoaiSanPham(value);
-    setSanPham(null);
-    setCongDoan(null);
-    getSanPham(value);
-    getListData(value, null, null, keyword, 1);
+    if (LoaiSanPham !== value) {
+      setLoaiSanPham(value);
+      setSanPham(null);
+      setCongDoan(null);
+      getSanPham(value);
+      getListData(value, null, null, keyword, 1);
+    }
   };
 
   const handleClearLoaiSanPham = () => {
@@ -621,9 +682,11 @@ function HangMucKiemTra({ match, history, permission }) {
   };
 
   const handleOnSelectSanPham = (value) => {
-    setSanPham(value);
-    setCongDoan(null);
-    getListData(LoaiSanPham, value, CongDoan, keyword, 1);
+    if (SanPham !== value) {
+      setSanPham(value);
+      setCongDoan(null);
+      getListData(LoaiSanPham, value, CongDoan, keyword, 1);
+    }
   };
 
   const handleClearSanPham = () => {
@@ -633,8 +696,10 @@ function HangMucKiemTra({ match, history, permission }) {
   };
 
   const handleOnSelectCongDoan = (value) => {
-    setCongDoan(value);
-    getListData(LoaiSanPham, SanPham, value, keyword, 1);
+    if (CongDoan !== value) {
+      setCongDoan(value);
+      getListData(LoaiSanPham, SanPham, value, keyword, 1);
+    }
   };
 
   const handleClearCongDoan = () => {
