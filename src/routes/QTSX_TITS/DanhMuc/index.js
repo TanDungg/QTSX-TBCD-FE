@@ -115,6 +115,10 @@ const LoiVatTu = asyncComponent(() => import("./LoiVatTu/LoiVatTu"));
 const LoiVatTuForm = asyncComponent(() => import("./LoiVatTu/LoiVatTuForm"));
 const PhienBan = asyncComponent(() => import("./PhienBan/PhienBan"));
 const PhienBanForm = asyncComponent(() => import("./PhienBan/PhienBanForm"));
+
+const ConDau = asyncComponent(() => import("./ConDau/ConDau"));
+const ConDauForm = asyncComponent(() => import("./ConDau/ConDauForm"));
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -553,7 +557,7 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/loi-vat-tu/:id/chinh-sua`}
         exact
         component={Auth(LoiVatTuForm, menus, pathname, permission)}
-      />{" "}
+      />
       <Route
         path={`${match.url}/phien-ban`}
         exact
@@ -569,6 +573,22 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(PhienBanForm, menus, pathname, permission)}
       />
+      <Route
+        path={`${match.url}/con-dau`}
+        exact
+        component={Auth(ConDau, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/con-dau/them-moi`}
+        exact
+        component={Auth(ConDauForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/con-dau/:id/chinh-sua`}
+        exact
+        component={Auth(ConDauForm, menus, pathname, permission)}
+      />
+
       {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
     </Switch>
   );
