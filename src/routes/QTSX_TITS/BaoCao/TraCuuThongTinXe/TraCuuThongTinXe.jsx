@@ -167,12 +167,18 @@ function TraCuuThongTinXe({ history, permission }) {
       dataIndex: "tenCongDoan",
       key: "tenCongDoan",
       align: "center",
+      onCell: (record) => ({
+        colSpan: record.tenCongDoan === "Tổng" ? 2 : 1,
+      }),
     },
     {
       title: "Thời gian kiểm tra",
       dataIndex: "thoiGianKiemTra",
       key: "thoiGianKiemTra",
       align: "center",
+      onCell: (record) => ({
+        colSpan: record.tenSanPham === "Tổng" ? 0 : 1,
+      }),
     },
     {
       title: "Tình trạng",
@@ -186,6 +192,9 @@ function TraCuuThongTinXe({ history, permission }) {
           </Tag>
         );
       },
+      onCell: (record) => ({
+        colSpan: record.tenSanPham === "Tổng" ? 0 : 1,
+      }),
     },
     {
       title: "Hồ sơ",
@@ -242,7 +251,11 @@ function TraCuuThongTinXe({ history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setDataHoSoChatLuong(res.data);
+          const newData = {
+            tits_qtsx_CongDoan_Id: null,
+            tenCongDoan: "Tổng",
+          };
+          setDataHoSoChatLuong([...res.data, newData]);
         } else {
           setDataHoSoChatLuong([]);
         }
