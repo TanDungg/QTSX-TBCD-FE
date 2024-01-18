@@ -24,9 +24,11 @@ function TraCuuThongTinXe({ history, permission }) {
   const dispatch = useDispatch();
   const [keyword, setKeyword] = useState("");
   const [Data, setData] = useState(null);
-  const [DataHoSoChatLuong, setDataHoSoChatLuong] = useState(null);
-  const [DisabledModalHoSoChatLuong, setDisabledModalHoSoChatLuong] =
+  const [DataHoSoChatLuong, setDataHoSoChatLuong] = useState([]);
+  const [ActiveModalHoSoChatLuong, setActiveModalHoSoChatLuong] =
     useState(false);
+  const [ListFileChungTu, setListFileChungTu] = useState([]);
+  const [ActiveModalFileChungTu, setActiveModalFileChungTu] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -85,6 +87,7 @@ function TraCuuThongTinXe({ history, permission }) {
                       maHopDong: item.maHopDong,
                       ngayNhapKho: item.ngayNhapKho,
                       tenNguoiNhap: item.tenNguoiNhap,
+                      list_ChungTu: item.list_ChungTu,
                     },
                   ],
                 });
@@ -136,9 +139,10 @@ function TraCuuThongTinXe({ history, permission }) {
   };
 
   const actionContent = (item) => {
-    const xemhoso = item.isHoanThanh
-      ? { onClick: () => TaiHoSoChatLuong(item) }
-      : { disabled: true };
+    const xemhoso =
+      item.tenCongDoan === "Tất cả" || item.isHoanThanh
+        ? { onClick: () => TaiHoSoChatLuong(item) }
+        : { disabled: true };
     return (
       <div>
         <React.Fragment>
@@ -161,18 +165,48 @@ function TraCuuThongTinXe({ history, permission }) {
       key: "key",
       align: "center",
       width: 50,
+      render: (value, record) => {
+        return (
+          <span
+            style={{
+              color: record.tenCongDoan === "Tất cả" && "#000",
+              fontWeight: record.tenCongDoan === "Tất cả" && "bold",
+            }}
+          >
+            {value}
+          </span>
+        );
+      },
     },
     {
       title: "Công đoạn",
       dataIndex: "tenCongDoan",
       key: "tenCongDoan",
       align: "center",
+      onCell: (record) => ({
+        colSpan: record.tenCongDoan === "Tất cả" ? 3 : 1,
+      }),
+      render: (value, record) => {
+        return (
+          <span
+            style={{
+              color: record.tenCongDoan === "Tất cả" && "#000",
+              fontWeight: record.tenCongDoan === "Tất cả" && "bold",
+            }}
+          >
+            {value}
+          </span>
+        );
+      },
     },
     {
       title: "Thời gian kiểm tra",
       dataIndex: "thoiGianKiemTra",
       key: "thoiGianKiemTra",
       align: "center",
+      onCell: (record) => ({
+        colSpan: record.tenCongDoan === "Tất cả" ? 0 : 1,
+      }),
     },
     {
       title: "Tình trạng",
@@ -186,6 +220,9 @@ function TraCuuThongTinXe({ history, permission }) {
           </Tag>
         );
       },
+      onCell: (record) => ({
+        colSpan: record.tenCongDoan === "Tất cả" ? 0 : 1,
+      }),
     },
     {
       title: "Hồ sơ",
@@ -195,12 +232,13 @@ function TraCuuThongTinXe({ history, permission }) {
     },
   ];
 
-  const componentschitiet = {
+  const components = {
     body: {
       row: EditableRow,
       cell: EditableCell,
     },
   };
+
   const columnschitiet = map(colChiTiet, (col) => {
     if (!col.editable) {
       return col;
@@ -216,6 +254,47 @@ function TraCuuThongTinXe({ history, permission }) {
       }),
     };
   });
+
+  let columnFileChungTu = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 50,
+    },
+    {
+      title: "Mã chứng từ",
+      dataIndex: "maChungTu",
+      key: "maChungTu",
+      align: "center",
+    },
+    {
+      title: "Tên chứng từ",
+      dataIndex: "tenChungTu",
+      key: "tenChungTu",
+      align: "center",
+    },
+    {
+      title: "File chứng từ",
+      dataIndex: "fileChungTu",
+      key: "fileChungTu",
+      align: "left",
+      render: (value) => (
+        <a
+          target="_blank"
+          href={BASE_URL_API + value}
+          rel="noopener noreferrer"
+          style={{
+            whiteSpace: "break-spaces",
+            wordBreak: "break-all",
+          }}
+        >
+          {value && value.split("/")[5]}{" "}
+        </a>
+      ),
+    },
+  ];
 
   const onSearchThongTinXe = (val) => {
     if (!isEmpty(val)) {
@@ -242,7 +321,11 @@ function TraCuuThongTinXe({ history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setDataHoSoChatLuong(res.data);
+          const newData = {
+            tits_qtsx_CongDoan_Id: null,
+            tenCongDoan: "Tất cả",
+          };
+          setDataHoSoChatLuong([...res.data, newData]);
         } else {
           setDataHoSoChatLuong([]);
         }
@@ -577,13 +660,14 @@ function TraCuuThongTinXe({ history, permission }) {
                           display: "block",
                           boxSizing: "border-box",
                           padding: "5px",
+                          width: "180px",
+                          fontSize: "14px",
                         }}
                       >
                         <RightCircleOutlined
                           style={{
                             color: "#0469B9",
                             marginRight: "10px",
-                            fontSize: "15px",
                           }}
                         />
                         {congdoan.thoiGianVaoCongDoan}
@@ -594,13 +678,14 @@ function TraCuuThongTinXe({ history, permission }) {
                           display: "block",
                           boxSizing: "border-box",
                           padding: "5px",
+                          width: "180px",
+                          fontSize: "14px",
                         }}
                       >
                         <LeftCircleOutlined
                           style={{
                             color: "#0469B9",
                             marginRight: "10px",
-                            fontSize: "15px",
                           }}
                         />
                         {congdoan.thoiGianRaCongDoan}
@@ -618,7 +703,7 @@ function TraCuuThongTinXe({ history, permission }) {
             }}
           >
             <span
-              onClick={() => setDisabledModalHoSoChatLuong(true)}
+              onClick={() => setActiveModalHoSoChatLuong(true)}
               style={{
                 fontWeight: "bold",
                 color: "#0469b9",
@@ -695,7 +780,7 @@ function TraCuuThongTinXe({ history, permission }) {
                                 <div
                                   style={{
                                     display: "flex",
-                                    marginBottom: "15px",
+                                    marginBottom: "20px",
                                   }}
                                 >
                                   <span
@@ -706,18 +791,23 @@ function TraCuuThongTinXe({ history, permission }) {
                                   >
                                     {index + 1}.
                                   </span>
-                                  <Row>
+                                  <Row
+                                    gutter={[0, 8]}
+                                    style={{
+                                      justifyContent: "space-between",
+                                      alignItems: "center",
+                                    }}
+                                  >
                                     <Col
                                       span={24}
                                       style={{
                                         display: "flex",
-                                        alignItems: "center",
-                                        marginBottom: 5,
+                                        alignItems: "flex-start",
                                       }}
                                     >
                                       <span
                                         style={{
-                                          width: "130px",
+                                          width: "100px",
                                           fontWeight: "bold",
                                         }}
                                       >
@@ -725,7 +815,7 @@ function TraCuuThongTinXe({ history, permission }) {
                                       </span>
                                       <span
                                         style={{
-                                          width: "calc(100% - 130px)",
+                                          width: "calc(100% - 100px)",
                                         }}
                                       >
                                         {vattu.tenVatTu}
@@ -735,8 +825,7 @@ function TraCuuThongTinXe({ history, permission }) {
                                       span={24}
                                       style={{
                                         display: "flex",
-                                        alignItems: "center",
-                                        marginBottom: 5,
+                                        alignItems: "flex-start",
                                       }}
                                     >
                                       <span
@@ -759,8 +848,7 @@ function TraCuuThongTinXe({ history, permission }) {
                                       span={24}
                                       style={{
                                         display: "flex",
-                                        alignItems: "center",
-                                        marginBottom: 5,
+                                        alignItems: "flex-start",
                                       }}
                                     >
                                       <span
@@ -783,8 +871,7 @@ function TraCuuThongTinXe({ history, permission }) {
                                       span={24}
                                       style={{
                                         display: "flex",
-                                        alignItems: "center",
-                                        marginBottom: 5,
+                                        alignItems: "flex-start",
                                       }}
                                     >
                                       <span
@@ -804,6 +891,47 @@ function TraCuuThongTinXe({ history, permission }) {
                                           vattu.tenNguoiNhap}
                                       </span>
                                     </Col>
+                                    <Col
+                                      span={24}
+                                      style={{
+                                        display: "flex",
+                                        alignItems: "flex-start",
+                                      }}
+                                    >
+                                      <span
+                                        style={{
+                                          width: "130px",
+                                          fontWeight: "bold",
+                                        }}
+                                      >
+                                        File chứng từ:
+                                      </span>
+                                      <span
+                                        style={{
+                                          width: "calc(100% - 130px)",
+                                        }}
+                                      >
+                                        {vattu.list_ChungTu && (
+                                          <span
+                                            onClick={() => {
+                                              setListFileChungTu(
+                                                JSON.parse(vattu.list_ChungTu)
+                                              );
+                                              setActiveModalFileChungTu(true);
+                                            }}
+                                            title="Xem file chứng từ"
+                                            style={{
+                                              color: "#0469b9",
+                                              fontWeight: "bold",
+                                              textDecoration: "underline",
+                                              cursor: "pointer",
+                                            }}
+                                          >
+                                            Xem file chứng từ
+                                          </span>
+                                        )}
+                                      </span>
+                                    </Col>
                                   </Row>
                                 </div>
                               );
@@ -821,7 +949,7 @@ function TraCuuThongTinXe({ history, permission }) {
                   cursor: "pointer",
                   fontWeight: "bold",
                 }}
-                // onClick={() => setDisabledModalHoSoChatLuong(true)}
+                // onClick={() => setActiveModalHoSoChatLuong(true)}
               >
                 Xem thông tin hồ sơ chi tiết
               </span>
@@ -832,20 +960,43 @@ function TraCuuThongTinXe({ history, permission }) {
       <AntModal
         title={"Hồ sơ kiểm tra chất lượng"}
         className="th-card-reset-margin"
-        open={DisabledModalHoSoChatLuong}
+        open={ActiveModalHoSoChatLuong}
         width={"70%"}
         closable={true}
-        onCancel={() => setDisabledModalHoSoChatLuong(false)}
+        onCancel={() => setActiveModalHoSoChatLuong(false)}
         footer={null}
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Table
             bordered
             columns={columnschitiet}
-            components={componentschitiet}
+            components={components}
             scroll={{ x: 1000, y: "55vh" }}
             className="gx-table-responsive"
             dataSource={reDataForTable(DataHoSoChatLuong)}
+            size="small"
+            loading={loading}
+            pagination={false}
+          />
+        </Card>
+      </AntModal>
+      <AntModal
+        title={"Danh sách file chứng từ"}
+        className="th-card-reset-margin"
+        open={ActiveModalFileChungTu}
+        width={"70%"}
+        closable={true}
+        onCancel={() => setActiveModalFileChungTu(false)}
+        footer={null}
+      >
+        <Card className="th-card-margin-bottom th-card-reset-margin">
+          <Table
+            bordered
+            columns={columnFileChungTu}
+            components={components}
+            scroll={{ x: 1000, y: "55vh" }}
+            className="gx-table-responsive th-table"
+            dataSource={reDataForTable(ListFileChungTu)}
             size="small"
             loading={loading}
             pagination={false}
