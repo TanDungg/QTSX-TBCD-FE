@@ -83,7 +83,7 @@ function ChiTietManHinh({ match }) {
       title: "SẢN PHẨM",
       dataIndex: "tenSanPham",
       key: "tenSanPham",
-      width: "40%",
+      width: "30%",
       render: (value, record) => {
         return (
           <span
@@ -99,7 +99,30 @@ function ChiTietManHinh({ match }) {
         );
       },
       onCell: (record) => ({
-        colSpan: record.tenSanPham === "Tổng" ? 2 : 1,
+        colSpan: record.tenSanPham === "Tổng" ? 3 : 1,
+      }),
+    },
+    {
+      title: "ĐƠN HÀNG",
+      dataIndex: "maDonHang",
+      key: "maDonHang",
+      width: "10%",
+      render: (value, record) => {
+        return (
+          <span
+            style={{
+              fontSize: "30px",
+              color: record.isTong === true ? "red" : "blue",
+              fontWeight: record.isTong === true && "bold",
+              backgroundColor: record.isTong === true && "bold",
+            }}
+          >
+            {value}
+          </span>
+        );
+      },
+      onCell: (record) => ({
+        colSpan: record.tenSanPham === "Tổng" ? 0 : 1,
       }),
     },
     {
