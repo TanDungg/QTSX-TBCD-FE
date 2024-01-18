@@ -26,10 +26,14 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import ModalSaoChepQuyTrinh from "./ModalSaoChepQuyTrinh";
+import { setHistory } from "src/appRedux/actions";
+
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function QuyTrinhSanXuat({ match, history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
+  const { option, path } = useSelector(({ History }) => History);
+
   const dispatch = useDispatch();
   const INFO = {
     ...getLocalStorage("menu"),
@@ -46,8 +50,16 @@ function QuyTrinhSanXuat({ match, history, permission }) {
 
   useEffect(() => {
     if (permission && permission.view) {
-      getSanPham();
-      getListData(keyword, SanPham, page);
+      if (path === match.url) {
+        setSanPham(option.SanPham);
+        setPage(option.page);
+        setKeyword(option.keyword);
+        getSanPham();
+        getListData(option.keyword, option.SanPham, option.page);
+      } else {
+        getSanPham();
+        getListData(keyword, SanPham, page);
+      }
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -138,6 +150,18 @@ function QuyTrinhSanXuat({ match, history, permission }) {
             state: { itemData: item, permission },
           }}
           title="Xác nhận"
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  SanPham,
+                  page,
+                  keyword,
+                },
+              })
+            );
+          }}
         >
           <CheckCircleOutlined />
         </Link>
@@ -155,6 +179,18 @@ function QuyTrinhSanXuat({ match, history, permission }) {
             state: { itemData: item },
           }}
           title="Sửa quy trình sản xuất"
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  SanPham,
+                  page,
+                  keyword,
+                },
+              })
+            );
+          }}
         >
           <EditOutlined />
         </Link>
@@ -233,6 +269,17 @@ function QuyTrinhSanXuat({ match, history, permission }) {
     history.push({
       pathname: `${match.url}/them-moi`,
     });
+
+    dispatch(
+      setHistory({
+        path: match.path,
+        option: {
+          SanPham,
+          page,
+          keyword,
+        },
+      })
+    );
   };
 
   const addButtonRender = () => {
@@ -261,6 +308,18 @@ function QuyTrinhSanXuat({ match, history, permission }) {
           to={{
             pathname: `${match.url}/${val.tits_qtsx_QuyTrinhSanXuat_Id}/chi-tiet`,
             state: { itemData: val, permission },
+          }}
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  SanPham,
+                  page,
+                  keyword,
+                },
+              })
+            );
           }}
         >
           {val.maQuyTrinhSanXuat}
@@ -542,9 +601,11 @@ function QuyTrinhSanXuat({ match, history, permission }) {
   };
 
   const handleOnSelectSanPham = (value) => {
-    setSanPham(value);
-    setPage(1);
-    getListData(keyword, value, 1);
+    if (SanPham !== value) {
+      setSanPham(value);
+      setPage(1);
+      getListData(keyword, value, 1);
+    }
   };
 
   const handleClearSanPham = () => {

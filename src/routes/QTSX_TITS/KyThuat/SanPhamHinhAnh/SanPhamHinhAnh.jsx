@@ -17,7 +17,7 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { useDispatch } from "react-redux";
-import { Modal, ModalDeleteConfirm, Select } from "src/components/Common";
+import { ModalDeleteConfirm, Select } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
@@ -135,8 +135,10 @@ function SanPhamHinhAnh({ history, permission }) {
   };
 
   const handleOnSelectSanPham = (value) => {
-    setSanPham(value);
-    getListData(value);
+    if (SanPham !== value) {
+      setSanPham(value);
+      getListData(value);
+    }
   };
 
   const handleRefeshModal = () => {
@@ -366,7 +368,7 @@ function SanPhamHinhAnh({ history, permission }) {
                               >
                                 {khuvuc.tenKhuVuc}
                               </span>
-                              <a
+                              <span
                                 onClick={() =>
                                   deleteKhuVuc({
                                     ...khuvuc,
@@ -379,10 +381,11 @@ function SanPhamHinhAnh({ history, permission }) {
                                 style={{
                                   fontSize: 15,
                                   color: "red",
+                                  cursor: "pointer",
                                 }}
                               >
                                 <DeleteOutlined />
-                              </a>
+                              </span>
                             </span>
                             <span style={{}}>Mô tả: {khuvuc.moTa}</span>
                             <div

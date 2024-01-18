@@ -504,12 +504,14 @@ function PhieuDieuChuyenThanhPham({ match, history, permission }) {
   });
 
   const handleOnSelectKhoDi = (val) => {
-    setKhoDi(val);
-    setKhoDen(null);
-    setPage(1);
-    getListData(keyword, val, null, FromDate, ToDate, 1);
-    const newData = ListKhoDi.filter((d) => d.id !== val);
-    setListKhoDen(newData);
+    if (KhoDi !== val) {
+      setKhoDi(val);
+      setKhoDen(null);
+      setPage(1);
+      getListData(keyword, val, null, FromDate, ToDate, 1);
+      const newData = ListKhoDi.filter((d) => d.id !== val);
+      setListKhoDen(newData);
+    }
   };
 
   const handleClearKhoDi = () => {
@@ -523,9 +525,11 @@ function PhieuDieuChuyenThanhPham({ match, history, permission }) {
   };
 
   const handleOnSelectKhoDen = (val) => {
-    setKhoDen(val);
-    setPage(1);
-    getListData(keyword, KhoDi, val, FromDate, ToDate, 1);
+    if (KhoDen !== val) {
+      setKhoDen(val);
+      setPage(1);
+      getListData(keyword, KhoDi, val, FromDate, ToDate, 1);
+    }
   };
 
   const handleClearKhoDen = () => {
@@ -538,10 +542,12 @@ function PhieuDieuChuyenThanhPham({ match, history, permission }) {
   };
 
   const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
-    setPage(1);
-    getListData(keyword, KhoDi, KhoDen, dateString[0], dateString[1], 1);
+    if (FromDate !== dateString[0] || ToDate !== dateString[1]) {
+      setFromDate(dateString[0]);
+      setToDate(dateString[1]);
+      setPage(1);
+      getListData(keyword, KhoDi, KhoDen, dateString[0], dateString[1], 1);
+    }
   };
 
   const rowSelection = {

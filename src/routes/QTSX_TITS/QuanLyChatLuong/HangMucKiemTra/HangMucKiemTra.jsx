@@ -17,6 +17,7 @@ import {
   EditOutlined,
   DeleteOutlined,
   SearchOutlined,
+  CopyOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -38,11 +39,15 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
+import ModalCopyHangMuc from "./ModalCopyHangMuc";
+import { setHistory } from "src/appRedux/actions";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function HangMucKiemTra({ match, history, permission }) {
   const { loading, width } = useSelector(({ common }) => common).toJS();
+  const { option, path } = useSelector(({ History }) => History);
+
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
@@ -58,13 +63,30 @@ function HangMucKiemTra({ match, history, permission }) {
   const [HangMuc, setHangMuc] = useState([]);
   const [editingRecord, setEditingRecord] = useState([]);
   const [Data, setData] = useState([]);
+  const [InfoCopy, setInfoCopy] = useState({});
+  const [ActiveModalCopy, setActiveModalCopy] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
+      if (path === match.url) {
+        setLoaiSanPham(option.LoaiSanPham);
+        setSanPham(option.SanPham);
+        setCongDoan(option.CongDoan);
+        setPage(option.page);
+        setKeyword(option.keyword);
+        getListData(
+          option.LoaiSanPham,
+          option.SanPham,
+          option.CongDoan,
+          option.keyword,
+          option.page
+        );
+      } else {
+        getListData(LoaiSanPham, SanPham, CongDoan, keyword, page);
+      }
       getLoaiSanPham();
       getSanPham();
       getCongDoan();
-      getListData(LoaiSanPham, SanPham, CongDoan, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -225,6 +247,20 @@ function HangMucKiemTra({ match, history, permission }) {
             state: { itemData: item },
           }}
           title="Chi tiết"
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  LoaiSanPham,
+                  SanPham,
+                  CongDoan,
+                  page,
+                  keyword,
+                },
+              })
+            );
+          }}
         >
           <SearchOutlined />
         </Link>
@@ -242,6 +278,20 @@ function HangMucKiemTra({ match, history, permission }) {
             state: { itemData: item },
           }}
           title="Sửa"
+          onClick={() => {
+            dispatch(
+              setHistory({
+                path: match.path,
+                option: {
+                  LoaiSanPham,
+                  SanPham,
+                  CongDoan,
+                  page,
+                  keyword,
+                },
+              })
+            );
+          }}
         >
           <EditOutlined />
         </Link>
@@ -250,7 +300,15 @@ function HangMucKiemTra({ match, history, permission }) {
           <EditOutlined />
         </span>
       );
-
+    const copyVal =
+      permission && permission.add
+        ? {
+            onClick: () => {
+              setActiveModalCopy(true);
+              setInfoCopy(item);
+            },
+          }
+        : { disabled: true };
     const deleteVal =
       permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
@@ -258,6 +316,10 @@ function HangMucKiemTra({ match, history, permission }) {
     return (
       <div>
         {detail}
+        <Divider type="vertical" />
+        <a {...copyVal} title="copy">
+          <CopyOutlined />
+        </a>
         <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
@@ -322,6 +384,19 @@ function HangMucKiemTra({ match, history, permission }) {
     history.push({
       pathname: `${match.url}/them-moi`,
     });
+
+    dispatch(
+      setHistory({
+        path: match.path,
+        option: {
+          LoaiSanPham,
+          SanPham,
+          CongDoan,
+          page,
+          keyword,
+        },
+      })
+    );
   };
   const addButtonRender = () => {
     return (
@@ -440,7 +515,7 @@ function HangMucKiemTra({ match, history, permission }) {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 110,
+      width: 120,
       render: (value) => actionContent(value),
       fixed: "left",
     },
@@ -590,11 +665,13 @@ function HangMucKiemTra({ match, history, permission }) {
   });
 
   const handleOnSelectLoaiSanPham = (value) => {
-    setLoaiSanPham(value);
-    setSanPham(null);
-    setCongDoan(null);
-    getSanPham(value);
-    getListData(value, null, null, keyword, 1);
+    if (LoaiSanPham !== value) {
+      setLoaiSanPham(value);
+      setSanPham(null);
+      setCongDoan(null);
+      getSanPham(value);
+      getListData(value, null, null, keyword, 1);
+    }
   };
 
   const handleClearLoaiSanPham = () => {
@@ -605,9 +682,11 @@ function HangMucKiemTra({ match, history, permission }) {
   };
 
   const handleOnSelectSanPham = (value) => {
-    setSanPham(value);
-    setCongDoan(null);
-    getListData(LoaiSanPham, value, CongDoan, keyword, 1);
+    if (SanPham !== value) {
+      setSanPham(value);
+      setCongDoan(null);
+      getListData(LoaiSanPham, value, CongDoan, keyword, 1);
+    }
   };
 
   const handleClearSanPham = () => {
@@ -617,8 +696,10 @@ function HangMucKiemTra({ match, history, permission }) {
   };
 
   const handleOnSelectCongDoan = (value) => {
-    setCongDoan(value);
-    getListData(LoaiSanPham, SanPham, value, keyword, 1);
+    if (CongDoan !== value) {
+      setCongDoan(value);
+      getListData(LoaiSanPham, SanPham, value, keyword, 1);
+    }
   };
 
   const handleClearCongDoan = () => {
@@ -820,6 +901,14 @@ function HangMucKiemTra({ match, history, permission }) {
           </div>
         )}
       </AntModal>
+      <ModalCopyHangMuc
+        openModal={ActiveModalCopy}
+        openModalFS={setActiveModalCopy}
+        itemData={InfoCopy}
+        refesh={() =>
+          getListData(LoaiSanPham, SanPham, CongDoan, keyword, page)
+        }
+      />
     </div>
   );
 }

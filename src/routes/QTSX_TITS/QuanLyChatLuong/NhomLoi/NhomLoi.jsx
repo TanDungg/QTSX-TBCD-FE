@@ -308,9 +308,11 @@ function NhomLoi({ match, history, permission }) {
   });
 
   const handleOnSelectCongDoan = (value) => {
-    setCongDoan(value);
-    setPage(1);
-    getListData(value, keyword, 1);
+    if (CongDoan !== value) {
+      setCongDoan(value);
+      setPage(1);
+      getListData(value, keyword, 1);
+    }
   };
 
   const handleClearCongDoan = () => {

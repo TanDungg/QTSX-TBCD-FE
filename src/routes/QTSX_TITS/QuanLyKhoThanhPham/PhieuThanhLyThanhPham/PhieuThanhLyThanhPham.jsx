@@ -424,9 +424,11 @@ function ThanhLySanPham({ match, history, permission }) {
   });
 
   const handleOnSelectKho = (val) => {
-    setKho(val);
-    setPage(1);
-    getListData(keyword, val, FromDate, ToDate, 1);
+    if (Kho) {
+      setKho(val);
+      setPage(1);
+      getListData(keyword, val, FromDate, ToDate, 1);
+    }
   };
 
   const handleClearKho = (val) => {
@@ -436,10 +438,12 @@ function ThanhLySanPham({ match, history, permission }) {
   };
 
   const handleChangeNgay = (dateString) => {
-    setFromDate(dateString[0]);
-    setToDate(dateString[1]);
-    setPage(1);
-    getListData(keyword, Kho, dateString[0], dateString[1], 1);
+    if (FromDate !== dateString[0] || ToDate !== dateString[1]) {
+      setFromDate(dateString[0]);
+      setToDate(dateString[1]);
+      setPage(1);
+      getListData(keyword, Kho, dateString[0], dateString[1], 1);
+    }
   };
 
   const rowSelection = {

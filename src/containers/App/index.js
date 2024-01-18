@@ -28,7 +28,7 @@ import {
   onNavStyleChange,
   setThemeType,
 } from "src/appRedux/actions/Setting";
-import { defaultValidateMessages } from "src/util/ValidatorMessage";
+// import { defaultValidateMessages } from "src/util/ValidatorMessage";
 import {
   LAYOUT_TYPE_BOXED,
   LAYOUT_TYPE_FRAMED,
@@ -278,7 +278,7 @@ const App = () => {
   return (
     <ConfigProvider
       locale={newLocal}
-      form={{ validateMessages: defaultValidateMessages }}
+      // form={{ validateMessages: defaultValidateMessages }}
     >
       <IntlProvider
         locale={currentAppLocale.locale}

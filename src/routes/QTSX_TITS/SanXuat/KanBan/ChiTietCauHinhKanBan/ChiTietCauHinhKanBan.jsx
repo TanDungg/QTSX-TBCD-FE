@@ -430,18 +430,22 @@ function ChiTietCauHinhKanBan({ history, permission }) {
   };
 
   const handleOnSelectTram = (value) => {
-    setTram(value);
-    setListThietBi([]);
-    setThietBi(null);
-    setSelectedKanBan([]);
-    setSelectedKeys([]);
-    getListData(value, Ngay);
-    getListThietBi(value);
+    if (Tram !== value) {
+      setTram(value);
+      setListThietBi([]);
+      setThietBi(null);
+      setSelectedKanBan([]);
+      setSelectedKeys([]);
+      getListData(value, Ngay);
+      getListThietBi(value);
+    }
   };
 
   const handleChangeNgay = (dateString) => {
-    setNgay(dateString);
-    getListData(Tram, dateString);
+    if (Ngay !== dateString) {
+      setNgay(dateString);
+      getListData(Tram, dateString);
+    }
   };
 
   const rowSelection = {

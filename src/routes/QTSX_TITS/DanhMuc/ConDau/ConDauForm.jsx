@@ -33,7 +33,6 @@ const ConDauForm = ({ history, match, permission }) => {
   const [ActiveModalChiTiet, setActiveModalChiTiet] = useState(false);
   const [ActiveModalChonUser, setActiveModalChonUser] = useState(false);
   const [id, setId] = useState(undefined);
-  const [info, setInfo] = useState({});
 
   useEffect(() => {
     const load = () => {
@@ -83,7 +82,6 @@ const ConDauForm = ({ history, match, permission }) => {
             formcondau: res.data,
           });
         }
-        setInfo(res.data);
       })
       .catch((error) => console.error(error));
   };

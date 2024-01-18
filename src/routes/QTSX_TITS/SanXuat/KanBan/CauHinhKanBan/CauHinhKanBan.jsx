@@ -281,8 +281,10 @@ function CauHinhKanBan({ history, permission }) {
   };
 
   const handleChangeNgay = (dateString) => {
-    setNgay(dateString);
-    getListData(dateString);
+    if (Ngay !== dateString) {
+      setNgay(dateString);
+      getListData(dateString);
+    }
   };
 
   function hanldeRemoveSelected(device) {

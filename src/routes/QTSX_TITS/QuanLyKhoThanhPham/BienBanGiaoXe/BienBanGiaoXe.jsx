@@ -409,10 +409,12 @@ function PhieuKiemKe({ match, history, permission }) {
   });
 
   const handleChangeNgay = (dateString) => {
-    setTuNgay(dateString[0]);
-    setDenNgay(dateString[1]);
-    setPage(1);
-    getListData(keyword, dateString[0], dateString[1], 1);
+    if (TuNgay !== dateString[0] || DenNgay !== dateString[1]) {
+      setTuNgay(dateString[0]);
+      setDenNgay(dateString[1]);
+      setPage(1);
+      getListData(keyword, dateString[0], dateString[1], 1);
+    }
   };
 
   const rowSelection = {

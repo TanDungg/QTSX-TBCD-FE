@@ -95,7 +95,8 @@ function XuatKhoThanhPham({ match, history, permission }) {
           reject
         )
       );
-    }).then((res) => {
+    })
+      .then((res) => {
         if (res && res.data) {
           setListXuongSanXuat(res.data);
         } else {
@@ -456,9 +457,11 @@ function XuatKhoThanhPham({ match, history, permission }) {
   };
 
   const handleOnSelectKhoThanhPham = (value) => {
-    setKhoThanhPham(value);
-    setPage(1);
-    getListData(keyword, value, TuNgay, DenNgay, 1);
+    if (KhoThanhPham !== value) {
+      setKhoThanhPham(value);
+      setPage(1);
+      getListData(keyword, value, TuNgay, DenNgay, 1);
+    }
   };
 
   const handleClearKhoThanhPham = () => {
@@ -468,10 +471,12 @@ function XuatKhoThanhPham({ match, history, permission }) {
   };
 
   const handleChangeNgay = (dateString) => {
-    setTuNgay(dateString[0]);
-    setDenNgay(dateString[1]);
-    setPage(1);
-    getListData(keyword, KhoThanhPham, dateString[0], dateString[1], 1);
+    if (TuNgay !== dateString[0] || DenNgay !== dateString[1]) {
+      setTuNgay(dateString[0]);
+      setDenNgay(dateString[1]);
+      setPage(1);
+      getListData(keyword, KhoThanhPham, dateString[0], dateString[1], 1);
+    }
   };
 
   const rowSelection = {

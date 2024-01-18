@@ -1,15 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Card,
-  Row,
-  Col,
-  Input,
-  Button,
-  Image,
-  Modal as AntModal,
-  Divider,
-  Tag,
-} from "antd";
+import { Card, Row, Col, Image, Modal as AntModal, Divider, Tag } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -24,8 +14,8 @@ import {
   LeftCircleOutlined,
   RightCircleOutlined,
 } from "@ant-design/icons";
-import { EditableTableRow, Table } from "src/components/Common";
-import { map } from "lodash";
+import { EditableTableRow, Table, Toolbar } from "src/components/Common";
+import { isEmpty, map } from "lodash";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -128,9 +118,9 @@ function TraCuuThongTinXe({ history, permission }) {
       dispatch(
         fetchStart(
           `tits_qtsx_TienDoSanXuat/export-pdf-ho-so-kiem-soat-chat-luong?${param}`,
-          "GET",
-          null,
           "POST",
+          null,
+          "DOWLOAD",
           "",
           resolve,
           reject
@@ -139,7 +129,7 @@ function TraCuuThongTinXe({ history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          exportPDF(res.data.datapdf);
+          exportPDF("HoSoChatLuong", res.data.datapdf);
         }
       })
       .catch((error) => console.error(error));
@@ -227,8 +217,10 @@ function TraCuuThongTinXe({ history, permission }) {
     };
   });
 
-  const onSearchThongTinXe = () => {
-    getListData(keyword);
+  const onSearchThongTinXe = (val) => {
+    if (!isEmpty(val)) {
+      getListData(keyword);
+    }
   };
 
   const XemHoSoChatLuong = (tits_qtsx_SoLoChiTiet_Id) => {
@@ -260,6 +252,9 @@ function TraCuuThongTinXe({ history, permission }) {
 
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
+    if (isEmpty(val.target.value)) {
+      getListData(val.target.value);
+    }
   };
 
   return (
@@ -270,14 +265,23 @@ function TraCuuThongTinXe({ history, permission }) {
       />
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row
-          align="center"
-          style={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <Input
+        <Row align="center">
+          <Col align="center" xxl={8} xl={10} lg={10} md={12} sm={24}>
+            <Toolbar
+              count={1}
+              search={{
+                title: "Nhập số khung xe",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchThongTinXe,
+                onSearch: onSearchThongTinXe,
+                placeholder: "Nhập số khung xe",
+                allowClear: true,
+              }}
+            />
+          </Col>
+          {/* <Input
             placeholder="Nhập số khung xe"
             value={keyword}
             style={{
@@ -290,10 +294,11 @@ function TraCuuThongTinXe({ history, permission }) {
           <Button
             className="th-margin-bottom-0"
             type="primary"
+            style={{ marginTop: 8 }}
             onClick={onSearchThongTinXe}
           >
             Tìm kiếm
-          </Button>
+          </Button> */}
         </Row>
       </Card>
       {Data && (

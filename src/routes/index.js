@@ -19,6 +19,7 @@ const QuanLyKho_KHO_TPC = asyncComponent(() => import("./Kho_TPC/QuanLyKho"));
 const InBarcode = asyncComponent(() => import("./Kho_TPC/InBarcode"));
 const HOME_KHO_TPC = asyncComponent(() => import("./Kho_TPC/Home"));
 //QTSX_TITS
+const Home_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/Home"));
 const DanhMuc_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/DanhMuc"));
 const HeThong_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/HeThong"));
 const KeHoach_QTSX_TITS = asyncComponent(() => import("./QTSX_TITS/KeHoach"));
@@ -96,6 +97,10 @@ const App = ({ match, menus, location }) => {
           component={Auth(HOME_KHO_TPC, menus, pathname)}
         />
         {/* QTSX-TITS */}
+        <Route
+          path={`${match.url}home-qtsx-tits`}
+          component={Auth(Home_QTSX_TITS, menus, pathname)}
+        />
         <Route
           path={`${match.url}danh-muc-qtsx-tits`}
           component={Auth(DanhMuc_QTSX_TITS, menus, pathname)}

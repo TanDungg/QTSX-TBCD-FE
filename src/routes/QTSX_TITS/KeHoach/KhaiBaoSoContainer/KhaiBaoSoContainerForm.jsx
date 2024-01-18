@@ -14,7 +14,7 @@ import {
   Table,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { DEFAULT_FORM } from "src/constants/Config";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
 import ModalAddVatTu from "./ModalAddVatTu";
 
@@ -81,7 +81,14 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListSanPham(JSON.parse(res.data.chiTiet_DonHangs));
+          setListSanPham(
+            JSON.parse(res.data.chiTiet_DonHangs).map((ctdh) => {
+              return {
+                ...ctdh,
+                name: ctdh.tenSanPham + " - " + ctdh.tenMauSac,
+              };
+            })
+          );
         } else {
           setListSanPham([]);
         }
@@ -474,7 +481,7 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
         }}
       >
         <Form
-          {...DEFAULT_FORM_CUSTOM}
+          {...DEFAULT_FORM}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
@@ -608,7 +615,7 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListSanPham ? ListSanPham : []}
                   placeholder="Chọn sản phẩm"
-                  optionsvalue={["tits_qtsx_SanPham_Id", "tenSanPham"]}
+                  optionsvalue={["tits_qtsx_SanPham_Id", "name"]}
                   style={{ width: "100%" }}
                   onSelect={(val) =>
                     getListSoVIN(
