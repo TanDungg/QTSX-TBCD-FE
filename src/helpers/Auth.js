@@ -5,14 +5,14 @@ import {
   treeToFlatlist,
 } from "src/util/Common";
 
-const defaultPermission = {
-  add: true,
-  del: true,
-  edit: true,
-  view: true,
-  print: true,
-  cof: true,
-};
+// const defaultPermission = {
+//   add: true,
+//   del: true,
+//   edit: true,
+//   view: true,
+//   print: true,
+//   cof: true,
+// };
 
 /**
  * Xử lý vai trò có thể vào Component hay không
@@ -25,7 +25,8 @@ export default (
   WrappedComponent,
   selectData,
   pathName = "",
-  permission = defaultPermission
+  permission
+  //  = defaultPermission
 ) => {
   // Xử lý dữ liệu
   if (!isEmpty(selectData)) {
