@@ -301,7 +301,7 @@ function TraCuuThongTinXe({ history, permission }) {
           </Button> */}
         </Row>
       </Card>
-      {Data && (
+      {Data ? (
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row
             style={{
@@ -411,8 +411,8 @@ function TraCuuThongTinXe({ history, permission }) {
             </Col>
           </Row>
         </Card>
-      )}
-      {Data && (
+      ) : null}
+      {Data ? (
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row
             style={{
@@ -556,7 +556,7 @@ function TraCuuThongTinXe({ history, permission }) {
                   >
                     <span
                       style={{
-                        width: "150px",
+                        width: "140px",
                         fontWeight: "bold",
                       }}
                     >
@@ -564,7 +564,7 @@ function TraCuuThongTinXe({ history, permission }) {
                     </span>
                     <div
                       style={{
-                        width: "calc(100% - 150px)",
+                        width: "calc(100% - 140px)",
                         alignItems: "start",
                         display: "flex",
                         flexDirection: "column",
@@ -582,8 +582,10 @@ function TraCuuThongTinXe({ history, permission }) {
                         <RightCircleOutlined
                           style={{
                             color: "#0469B9",
+                            marginRight: "10px",
+                            fontSize: "15px",
                           }}
-                        />{" "}
+                        />
                         {congdoan.thoiGianVaoCongDoan}
                       </span>
                       <span
@@ -597,6 +599,8 @@ function TraCuuThongTinXe({ history, permission }) {
                         <LeftCircleOutlined
                           style={{
                             color: "#0469B9",
+                            marginRight: "10px",
+                            fontSize: "15px",
                           }}
                         />
                         {congdoan.thoiGianRaCongDoan}
@@ -625,8 +629,8 @@ function TraCuuThongTinXe({ history, permission }) {
             </span>
           </div>
         </Card>
-      )}
-      {Data && (
+      ) : null}
+      {Data ? (
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <div
             style={{
@@ -671,130 +675,140 @@ function TraCuuThongTinXe({ history, permission }) {
                             style={{
                               color: "#0469B9",
                               fontWeight: "bold",
+                              fontSize: "15px",
                             }}
                           >
                             {chitiet.tenLoaiVatTu}
                           </span>
                         </div>
                         <Divider style={{ marginBottom: "10px" }} />
-                        {chitiet.list_VatTu &&
-                          chitiet.list_VatTu.map((vattu, index) => {
-                            return (
-                              <div
-                                style={{
-                                  display: "flex",
-                                  marginBottom: "15px",
-                                }}
-                              >
-                                <span
+                        <div
+                          style={{
+                            height: "400px",
+                            overflowY: "auto",
+                            overflowX: "hidden",
+                          }}
+                        >
+                          {chitiet.list_VatTu &&
+                            chitiet.list_VatTu.map((vattu, index) => {
+                              return (
+                                <div
                                   style={{
-                                    fontWeight: "bold",
-                                    marginRight: "5px",
+                                    display: "flex",
+                                    marginBottom: "15px",
                                   }}
                                 >
-                                  {index + 1}.
-                                </span>
-                                <Row>
-                                  <Col
-                                    span={24}
+                                  <span
                                     style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      marginBottom: 10,
+                                      fontWeight: "bold",
+                                      marginRight: "5px",
                                     }}
                                   >
-                                    <span
+                                    {index + 1}.
+                                  </span>
+                                  <Row>
+                                    <Col
+                                      span={24}
                                       style={{
-                                        width: "140px",
-                                        fontWeight: "bold",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        marginBottom: 5,
                                       }}
                                     >
-                                      Tên vật tư:
-                                    </span>
-                                    <span
+                                      <span
+                                        style={{
+                                          width: "130px",
+                                          fontWeight: "bold",
+                                        }}
+                                      >
+                                        Tên vật tư:
+                                      </span>
+                                      <span
+                                        style={{
+                                          width: "calc(100% - 130px)",
+                                        }}
+                                      >
+                                        {vattu.tenVatTu}
+                                      </span>
+                                    </Col>
+                                    <Col
+                                      span={24}
                                       style={{
-                                        width: "calc(100% - 140px)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        marginBottom: 5,
                                       }}
                                     >
-                                      {vattu.tenVatTu}
-                                    </span>
-                                  </Col>
-                                  <Col
-                                    span={24}
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      marginBottom: 10,
-                                    }}
-                                  >
-                                    <span
+                                      <span
+                                        style={{
+                                          width: "130px",
+                                          fontWeight: "bold",
+                                        }}
+                                      >
+                                        Mã hợp đồng:
+                                      </span>
+                                      <span
+                                        style={{
+                                          width: "calc(100% - 130px)",
+                                        }}
+                                      >
+                                        {vattu.maHopDong && vattu.maHopDong}
+                                      </span>
+                                    </Col>
+                                    <Col
+                                      span={24}
                                       style={{
-                                        width: "140px",
-                                        fontWeight: "bold",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        marginBottom: 5,
                                       }}
                                     >
-                                      Mã hợp đồng:
-                                    </span>
-                                    <span
+                                      <span
+                                        style={{
+                                          width: "130px",
+                                          fontWeight: "bold",
+                                        }}
+                                      >
+                                        Nhập kho:
+                                      </span>
+                                      <span
+                                        style={{
+                                          width: "calc(100% - 130px)",
+                                        }}
+                                      >
+                                        {vattu.ngayNhapKho && vattu.ngayNhapKho}
+                                      </span>
+                                    </Col>
+                                    <Col
+                                      span={24}
                                       style={{
-                                        width: "calc(100% - 140px)",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        marginBottom: 5,
                                       }}
                                     >
-                                      {vattu.maHopDong && vattu.maHopDong}
-                                    </span>
-                                  </Col>
-                                  <Col
-                                    span={24}
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      marginBottom: 10,
-                                    }}
-                                  >
-                                    <span
-                                      style={{
-                                        width: "140px",
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      Nhập kho:
-                                    </span>
-                                    <span
-                                      style={{
-                                        width: "calc(100% - 140px)",
-                                      }}
-                                    >
-                                      {vattu.ngayNhapKho && vattu.ngayNhapKho}
-                                    </span>
-                                  </Col>
-                                  <Col
-                                    span={24}
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "center",
-                                      marginBottom: 10,
-                                    }}
-                                  >
-                                    <span
-                                      style={{
-                                        width: "140px",
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      Người nhập kho:
-                                    </span>
-                                    <span
-                                      style={{
-                                        width: "calc(100% - 140px)",
-                                      }}
-                                    >
-                                      {vattu.tenNguoiNhap && vattu.tenNguoiNhap}
-                                    </span>
-                                  </Col>
-                                </Row>
-                              </div>
-                            );
-                          })}
+                                      <span
+                                        style={{
+                                          width: "130px",
+                                          fontWeight: "bold",
+                                        }}
+                                      >
+                                        Người nhập kho:
+                                      </span>
+                                      <span
+                                        style={{
+                                          width: "calc(100% - 130px)",
+                                        }}
+                                      >
+                                        {vattu.tenNguoiNhap &&
+                                          vattu.tenNguoiNhap}
+                                      </span>
+                                    </Col>
+                                  </Row>
+                                </div>
+                              );
+                            })}
+                        </div>
                       </Col>
                     </>
                   );
@@ -814,7 +828,7 @@ function TraCuuThongTinXe({ history, permission }) {
             </div>
           </div>
         </Card>
-      )}
+      ) : null}
       <AntModal
         title={"Hồ sơ kiểm tra chất lượng"}
         className="th-card-reset-margin"
