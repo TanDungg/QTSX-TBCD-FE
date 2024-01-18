@@ -83,7 +83,7 @@ function ChiTietManHinh({ match }) {
       title: "SẢN PHẨM",
       dataIndex: "tenSanPham",
       key: "tenSanPham",
-      width: "30%",
+      width: "35%",
       render: (value, record) => {
         return (
           <span
@@ -104,9 +104,9 @@ function ChiTietManHinh({ match }) {
     },
     {
       title: "ĐƠN HÀNG",
-      dataIndex: "maDonHang",
-      key: "maDonHang",
-      width: "10%",
+      dataIndex: "tenDonHang",
+      key: "tenDonHang",
+      width: "13%",
       render: (value, record) => {
         return (
           <span
@@ -130,7 +130,7 @@ function ChiTietManHinh({ match }) {
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
       align: "center",
-      width: "10%",
+      width: "12%",
       render: (value, record) => {
         return (
           <span
