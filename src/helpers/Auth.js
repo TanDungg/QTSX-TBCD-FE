@@ -43,7 +43,8 @@ export default (
     if (
       includes(pathNameReChange, "chinh-sua") ||
       includes(pathNameReChange, "phan-quyen") ||
-      includes(pathNameReChange, "chi-tiet")
+      includes(pathNameReChange, "chi-tiet") ||
+      includes(pathNameReChange, "xac-nhan")
     ) {
       let pathArrTmp = split(pathNameReChange, "/");
       pathArrTmp.pop();

@@ -888,12 +888,16 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
 
     for (let i = 0; i < (ListChungTu && ListChungTu.length); i++) {
       const props = {
-        accept: ".pdf",
+        accept: ".pdf, .xlsx, .xls",
         beforeUpload: (file) => {
-          const isPDF = file.type === "application/pdf";
-
+          const isPDF =
+            file.type === "application/pdf" ||
+            file.type ===
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
           if (!isPDF) {
-            Helpers.alertError(`${file.name} không phải là file PDF`);
+            Helpers.alertError(
+              `${file.name} không phải là file PDF hoặc file EXCEL`
+            );
           } else {
             handleFileChange(i, file, true);
             return false;
