@@ -32,10 +32,10 @@ function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
   const [ListHangMucKiemTra, setListHangMucKiemTra] = useState([]);
   const [ListLoi, setListLoi] = useState([]);
   const [ActiveXacNhanSCL, setActiveXacNhanSCL] = useState(false);
-
   const [ThoiGianVaoTram, setThoiGianVaoTram] = useState("");
   useEffect(() => {
     if (openModal) {
+      setActiveXacNhanSCL(false);
       getHoSoChatLuong(info);
     }
     return () => {

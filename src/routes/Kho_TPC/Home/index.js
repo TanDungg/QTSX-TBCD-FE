@@ -4,7 +4,7 @@ import asyncComponent from "util/asyncComponent";
 import Auth from "helpers/Auth";
 
 const Home = asyncComponent(() => import("./Home"));
-<Route path="*" component={Auth(NotFound, menus, pathname)} />;
+const NotFound = asyncComponent(() => import("../../NotFound/NotFound"));
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;

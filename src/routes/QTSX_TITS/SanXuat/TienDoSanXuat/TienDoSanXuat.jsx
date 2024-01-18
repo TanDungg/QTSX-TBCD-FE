@@ -183,8 +183,10 @@ function TienDoSanXuat({ match, history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListSoKhungNoiBo(res.data);
+          setInfoSanPham({});
         } else {
           setListSoKhungNoiBo([]);
+          setInfoSanPham({});
         }
       })
       .catch((error) => console.error(error));
@@ -714,6 +716,7 @@ function TienDoSanXuat({ match, history, permission }) {
                     icon={<PlusOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
+                    disabled={InfoSanPham.isDaHoanThanhTram}
                     onClick={() => {
                       setActiveAddSoVIN(true);
                     }}
@@ -796,7 +799,7 @@ function TienDoSanXuat({ match, history, permission }) {
                     icon={<SaveFilled />}
                     type="primary"
                     style={{ width: "50%", margin: 0 }}
-                    // disabled={DisableVaoTram}
+                    disabled={InfoSanPham.isDaHoanThanhTram}
                     onClick={() => modalXacNhan(ClickRaTram, "ra trạm")}
                   >
                     Hoàn tất
@@ -811,7 +814,11 @@ function TienDoSanXuat({ match, history, permission }) {
         <Row align="middle">
           <Col xxl={14} xl={14} lg={14} md={12} sm={24} xs={24}>
             <Input
-              disabled={InfoSanPham.thoiGianVaoTram ? false : true}
+              disabled={
+                InfoSanPham.thoiGianVaoTram && !InfoSanPham.isDaHoanThanhTram
+                  ? false
+                  : true
+              }
               placeholder="Ghi chú"
               onChange={onChangeMessage}
               value={Message}
@@ -819,7 +826,11 @@ function TienDoSanXuat({ match, history, permission }) {
           </Col>
           <Col xxl={2} xl={2} lg={2} md={2} sm={2} xs={2}>
             <Upload
-              disabled={InfoSanPham.thoiGianVaoTram ? false : true}
+              disabled={
+                InfoSanPham.thoiGianVaoTram && !InfoSanPham.isDaHoanThanhTram
+                  ? false
+                  : true
+              }
               listType="picture-circle"
               {...props}
             >
@@ -850,7 +861,9 @@ function TienDoSanXuat({ match, history, permission }) {
             <Button
               className="th-margin-bottom-0"
               disabled={
-                InfoSanPham.thoiGianVaoTram && (Message || FileHinhAnh)
+                (InfoSanPham.thoiGianVaoTram ||
+                  !InfoSanPham.isDaHoanThanhTram) &&
+                (Message || FileHinhAnh)
                   ? false
                   : true
               }

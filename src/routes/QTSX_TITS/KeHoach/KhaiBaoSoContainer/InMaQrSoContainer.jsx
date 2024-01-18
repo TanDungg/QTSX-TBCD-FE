@@ -13,7 +13,7 @@ function InMaQrSoContainer() {
       setListSoContainer(data);
     } else {
       setListSoContainer([]);
-      history.push("/home");
+      history.push("/home-qtsx-tits");
     }
   }, []);
 

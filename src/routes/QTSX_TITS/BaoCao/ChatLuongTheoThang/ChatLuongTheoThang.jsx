@@ -464,6 +464,8 @@ function ChatLuongTheoThang({ history, permission }) {
     setNam(nam);
     getListData(LoaiSanPham, SanPham, CongDoan, NhomLoi, nam, keyword);
   };
+  console.log(newDataPieThang);
+  console.log(NemGheKiaPie);
 
   return (
     <div className="gx-main-content">

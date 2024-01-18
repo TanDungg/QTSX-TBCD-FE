@@ -12,17 +12,26 @@ function Home({ permission, history }) {
   const [DataGiaoHang, setDataGiaoHang] = useState([]);
   const [DataTDSXThang, setDataTDSXThang] = useState([]);
   const [DataTDGHThang, setDataTDGHThang] = useState([]);
+  const [activeTab, setActiveTab] = useState("1");
 
   useEffect(() => {
     if (permission && permission.view) {
-      getSanXuat();
-      getGiaoHang();
+      loadData(Number(activeTab));
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [activeTab]);
+  const loadData = (key) => {
+    if (key === 1) {
+      getSanXuat();
+      getTDSXTHANG();
+    } else {
+      getGiaoHang();
+      getTDGHTHANG();
+    }
+  };
 
   const getSanXuat = () => {
     new Promise((resolve, reject) => {
@@ -104,7 +113,7 @@ function Home({ permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `DashboardSX/san-xuat-nem-ao?IsNem=true`,
+          `tits_qtsx_BaoCao/dashboard-san-xuat-thang`,
           "GET",
           null,
           "DETAIL",
@@ -116,7 +125,32 @@ function Home({ permission, history }) {
     })
       .then((res) => {
         if (res && res.status === 200) {
+          setDataTDSXThang(res.data);
         } else {
+          setDataTDSXThang([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const getTDGHTHANG = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_BaoCao/dashboard-giao-xe-thang`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status === 200) {
+          setDataTDGHThang(res.data);
+        } else {
+          setDataTDGHThang([]);
         }
       })
       .catch((error) => console.error(error));
@@ -229,25 +263,35 @@ function Home({ permission, history }) {
           </h3>
         </Row>
         <Row style={{ height: "100%", marginTop: 15 }} justify="center">
-          {DataTDSXThang.length > 1 ? (
-            <Col
-              xxl={8}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ display: "grid", placeItems: "center" }}
-            >
-              <Chart
-                chartType="PieChart"
-                data={DataTDSXThang}
-                options={DataTDSXThang}
-                width={"100%"}
-                height={"300px"}
-              />
-            </Col>
-          ) : null}
+          {DataTDSXThang.length > 0 &&
+            DataTDSXThang.map((tdsx) => {
+              const newData = [
+                ["tenSanPham", "tong"],
+                ...tdsx.list_ChiTiets.map((ct) => {
+                  return [ct.tenSanPham, ct.soLuong];
+                }),
+              ];
+              return (
+                <Col
+                  xxl={8}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ display: "grid", placeItems: "center" }}
+                >
+                  <h5 style={{ fontWeight: "bold" }}>{tdsx.tenLoaiSanPham}</h5>
+                  <Chart
+                    chartType="PieChart"
+                    data={newData}
+                    options={{ is3D: true }}
+                    width={"100%"}
+                    height={"300px"}
+                  />
+                </Col>
+              );
+            })}
         </Row>
       </Card>
     );
@@ -275,25 +319,34 @@ function Home({ permission, history }) {
           </h3>
         </Row>
         <Row style={{ height: "100%", marginTop: 15 }} justify="center">
-          {DataTDGHThang.length > 1 ? (
-            <Col
-              xxl={8}
-              xl={12}
-              lg={24}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{ display: "grid", placeItems: "center" }}
-            >
-              <Chart
-                chartType="PieChart"
-                data={DataTDGHThang}
-                options={DataTDGHThang}
-                width={"100%"}
-                height={"300px"}
-              />
-            </Col>
-          ) : null}
+          {DataTDGHThang.length > 0 &&
+            DataTDGHThang.map((tdsx) => {
+              const newData = [
+                ["tenSanPham", "tong"],
+                ...tdsx.list_ChiTiets.map((ct) => {
+                  return [ct.tenSanPham, ct.soLuong];
+                }),
+              ];
+              return (
+                <Col
+                  xxl={8}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ display: "grid", placeItems: "center" }}
+                >
+                  <Chart
+                    chartType="PieChart"
+                    data={newData}
+                    options={{ is3D: true }}
+                    width={"100%"}
+                    height={"300px"}
+                  />
+                </Col>
+              );
+            })}
         </Row>
       </Card>
     );
@@ -310,12 +363,17 @@ function Home({ permission, history }) {
       children: GiaoHang(),
     },
   ];
-  const onChange = (k) => {};
 
   return (
     <div className="gx-main-content ">
       <Card className="th-card-margin-bottom th-card-reset-margin th-card-border-radius">
-        <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+        <Tabs
+          defaultActiveKey="1"
+          items={items}
+          onTabClick={(key) => {
+            setActiveTab(key);
+          }}
+        />
       </Card>
     </div>
   );

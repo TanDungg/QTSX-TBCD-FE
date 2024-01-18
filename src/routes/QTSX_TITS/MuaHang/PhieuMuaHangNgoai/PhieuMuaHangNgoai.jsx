@@ -15,6 +15,7 @@ import {
   Table,
   EditableTableRow,
   Toolbar,
+  Select,
 } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
@@ -39,6 +40,7 @@ function DeNghiMuaHang({ match, history, permission }) {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
+  const [LoaiDeNghi, setLoaiDeNghi] = useState(0);
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [SelectedMuaHangNgoai, setSelectedMuaHangNgoai] = useState([]);
@@ -46,7 +48,7 @@ function DeNghiMuaHang({ match, history, permission }) {
 
   useEffect(() => {
     if (permission && permission.view) {
-      loadData(keyword, FromDate, ToDate, page);
+      loadData(keyword, FromDate, ToDate, page, LoaiDeNghi);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -76,7 +78,7 @@ function DeNghiMuaHang({ match, history, permission }) {
    *
    */
   const onSearchDeNghiMuaHang = () => {
-    loadData(keyword, FromDate, ToDate, page);
+    loadData(keyword, FromDate, ToDate, page, LoaiDeNghi);
   };
 
   /**
@@ -87,7 +89,7 @@ function DeNghiMuaHang({ match, history, permission }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      loadData(val.target.value, FromDate, ToDate, page);
+      loadData(val.target.value, FromDate, ToDate, page, LoaiDeNghi);
     }
   };
   /**
@@ -180,7 +182,7 @@ function DeNghiMuaHang({ match, history, permission }) {
       .then((res) => {
         // Reload lại danh sách
         if (res.status !== 409) {
-          loadData(keyword, FromDate, ToDate, page);
+          loadData(keyword, FromDate, ToDate, page, LoaiDeNghi);
         }
       })
       .catch((error) => console.error(error));
@@ -194,7 +196,7 @@ function DeNghiMuaHang({ match, history, permission }) {
    */
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    loadData(keyword, FromDate, ToDate, pagination);
+    loadData(keyword, FromDate, ToDate, pagination, LoaiDeNghi);
   };
 
   /**
@@ -502,13 +504,19 @@ function DeNghiMuaHang({ match, history, permission }) {
       }),
     };
   });
-
+  const handleSelectLoaiDeNghi = (val) => {
+    if (LoaiDeNghi !== val) {
+      setPage(1);
+      setLoaiDeNghi(val);
+      loadData(keyword, FromDate, ToDate, 1, val);
+    }
+  };
   const handleChangeNgay = (dateString) => {
     if (FromDate !== dateString[0] || ToDate !== dateString[1]) {
       setFromDate(dateString[0]);
       setToDate(dateString[1]);
       setPage(1);
-      loadData(keyword, dateString[0], dateString[1], 1);
+      loadData(keyword, dateString[0], dateString[1], 1, LoaiDeNghi);
     }
   };
 
@@ -542,6 +550,35 @@ function DeNghiMuaHang({ match, history, permission }) {
 
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Loại đề nghị:</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={[
+                {
+                  id: 0,
+                  name: "Mua hàng trong nước",
+                },
+                {
+                  id: 1,
+                  name: "Mua hàng nước ngoài",
+                },
+              ]}
+              placeholder="Chọn người duyệt"
+              optionsvalue={["id", "name"]}
+              style={{ width: "100%" }}
+              value={LoaiDeNghi}
+              onSelect={handleSelectLoaiDeNghi}
+            />
+          </Col>
           <Col
             xxl={6}
             xl={8}
