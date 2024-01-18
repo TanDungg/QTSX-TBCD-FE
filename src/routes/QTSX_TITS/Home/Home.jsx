@@ -14,8 +14,12 @@ function Home({ permission, history }) {
   const [DataTDGHThang, setDataTDGHThang] = useState([]);
 
   useEffect(() => {
-    getSanXuat();
-    getGiaoHang();
+    if (permission && permission.view) {
+      getSanXuat();
+      getGiaoHang();
+    } else if ((permission && !permission.view) || permission === undefined) {
+      history.push("/home");
+    }
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

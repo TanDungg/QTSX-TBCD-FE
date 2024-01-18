@@ -48,6 +48,7 @@ import {
 } from "src/util/Common";
 import InMaQrSoVIN from "src/routes/QTSX_TITS/KeHoach/SoVin/InMaQrSoVIN";
 import InMaQrCauTrucKho_TITS_QTSX from "src/routes/QTSX_TITS/InBarcode/CauTrucKho/InMaQrCauTrucKho_TITS_QTSX";
+const NotFound = asyncComponent(() => import("../../routes/NotFound/NotFound"));
 
 // import { messaging } from "src/constants/firebase";
 // import { onMessage } from "firebase/messaging";
@@ -341,6 +342,8 @@ const App = () => {
             path="/quan-ly-man-hinh-qtsx-tits/danh-sach-man-hinh/:id/chi-tiet-man-hinh"
             component={ChiTietManHinh}
           />
+          <Route path="*" component={NotFound} />
+
           <RestrictedRoute
             path={`${match.url}`}
             token={info ? info.token : null}

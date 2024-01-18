@@ -3,6 +3,8 @@ import { Route, Switch } from "react-router-dom";
 import asyncComponent from "util/asyncComponent";
 import Auth from "helpers/Auth";
 
+const NotFound = asyncComponent(() => import("../../NotFound/NotFound"));
+
 /* Kho thành phẩm */
 const KhoThanhPham = asyncComponent(() =>
   import("./KhoThanhPham/KhoThanhPham")
@@ -253,6 +255,7 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(BienBanGiaoXeForm, menus, pathname, permission)}
       />
+      <Route path="*" component={Auth(NotFound, menus, pathname)} />
     </Switch>
   );
 };

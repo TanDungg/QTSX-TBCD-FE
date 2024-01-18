@@ -54,6 +54,7 @@ const MenuAppForm = asyncComponent(() => import("./MenuApp/MenuAppForm"));
 // const PhanMemDonViForm = asyncComponent(() =>
 //   import("./PhanMemDonVi/PhanMemDonViForm")
 // );
+const NotFound = asyncComponent(() => import("../../NotFound/NotFound"));
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -219,7 +220,7 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(PhanQuyenDonVi, menus, pathname, permission)}
       />{" "} */}
-      {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
+      <Route path="*" component={Auth(NotFound, menus, pathname)} />
     </Switch>
   );
 };

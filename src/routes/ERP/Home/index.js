@@ -4,6 +4,7 @@ import asyncComponent from "util/asyncComponent";
 import Auth from "src/helpers/Auth";
 
 const Home = asyncComponent(() => import("./Home"));
+const NotFound = asyncComponent(() => import("../../NotFound/NotFound"));
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -14,6 +15,7 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(Home, menus, pathname, permission)}
       />
+      <Route path="*" component={Auth(NotFound, menus, pathname)} />
     </Switch>
   );
 };

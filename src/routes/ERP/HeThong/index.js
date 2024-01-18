@@ -3,6 +3,8 @@ import { Route, Switch } from "react-router-dom";
 import asyncComponent from "util/asyncComponent";
 import Auth from "src/helpers/Auth";
 
+const NotFound = asyncComponent(() => import("../../NotFound/NotFound"));
+
 const QuanTriVien = asyncComponent(() => import("./QuanTriVien/QuanTriVien"));
 const QuanTriVienForm = asyncComponent(() =>
   import("./QuanTriVien/QuanTriVienForm")
@@ -168,8 +170,8 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/quyen-don-vi`}
         exact
         component={Auth(PhanQuyenDonVi, menus, pathname, permission)}
-      />
-      {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
+      />{" "}
+      <Route path="*" component={Auth(NotFound, menus, pathname)} />
     </Switch>
   );
 };

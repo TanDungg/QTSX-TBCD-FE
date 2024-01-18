@@ -3,6 +3,8 @@ import { Route, Switch } from "react-router-dom";
 import asyncComponent from "util/asyncComponent";
 import Auth from "helpers/Auth";
 
+const NotFound = asyncComponent(() => import("../../NotFound/NotFound"));
+
 const TapDoan = asyncComponent(() => import("./TapDoan/TapDoan"));
 const TapDoanForm = asyncComponent(() => import("./TapDoan/TapDoanForm"));
 
@@ -477,7 +479,7 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(PhienBanForm, menus, pathname, permission)}
       />
 
-      {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
+      <Route path="*" component={Auth(NotFound, menus, pathname)} />
     </Switch>
   );
 };

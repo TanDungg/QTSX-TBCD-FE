@@ -2,6 +2,7 @@ import React from "react";
 import { Route, Switch } from "react-router-dom";
 import asyncComponent from "util/asyncComponent";
 import Auth from "helpers/Auth";
+const NotFound = asyncComponent(() => import("../../NotFound/NotFound"));
 
 const CauTrucKho = asyncComponent(() => import("./CauTrucKho/CauTrucKho"));
 const CauTrucKhoThanhPham = asyncComponent(() =>
@@ -45,6 +46,7 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(SanPham, menus, pathname, permission)}
       />
+      <Route path="*" component={Auth(NotFound, menus, pathname)} />
     </Switch>
   );
 };

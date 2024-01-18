@@ -5,6 +5,7 @@ import Auth from "src/helpers/Auth";
 import asyncComponent from "util/asyncComponent";
 
 const TaiKhoan = asyncComponent(() => import("./TaiKhoan"));
+const NotFound = asyncComponent(() => import("./NotFound/NotFound"));
 //ERP
 const Home_ERP = asyncComponent(() => import("./ERP/Home"));
 const HeThong_ERP = asyncComponent(() => import("./ERP/HeThong"));
@@ -149,7 +150,7 @@ const App = ({ match, menus, location }) => {
           path={`${match.url}quan-ly-man-hinh-qtsx-tits`}
           component={Auth(ManHinh, menus, pathname)}
         />
-        <Route path="*" component={Auth(Home_ERP, menus, pathname)} />
+        <Route path="*" component={Auth(NotFound, menus, pathname)} />
       </Switch>
     </div>
   );

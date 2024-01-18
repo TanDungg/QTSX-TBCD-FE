@@ -2,7 +2,10 @@ import React from "react";
 import { Route, Switch } from "react-router-dom";
 import asyncComponent from "util/asyncComponent";
 import Auth from "helpers/Auth";
+
+const NotFound = asyncComponent(() => import("../../NotFound/NotFound"));
 /* BOM xưởng */
+
 const BOMXuong = asyncComponent(() => import("./BOMXuong/BOMXuong"));
 const BOMXuongForm = asyncComponent(() => import("./BOMXuong/BOMXuongForm"));
 
@@ -373,6 +376,7 @@ const App = ({ match, location, menus, permission }) => {
           permission
         )}
       />
+      <Route path="*" component={Auth(NotFound, menus, pathname)} />
     </Switch>
   );
 };

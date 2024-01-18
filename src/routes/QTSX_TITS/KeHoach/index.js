@@ -3,6 +3,8 @@ import { Route, Switch } from "react-router-dom";
 import asyncComponent from "util/asyncComponent";
 import Auth from "helpers/Auth";
 
+const NotFound = asyncComponent(() => import("../../NotFound/NotFound"));
+
 // const Home = asyncComponent(() => import("../Home"));
 const CongDoan = asyncComponent(() =>
   import("./KeHoachSanXuat/DanhMucCongDoan/DanhMucCongDoan")
@@ -200,7 +202,7 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(BienBanBanGIaoForm, menus, pathname, permission)}
       />
-      {/* <Route path="*" component={Auth(Home, menus, pathname, permission)} /> */}
+      <Route path="*" component={Auth(NotFound, menus, pathname)} />
     </Switch>
   );
 };
