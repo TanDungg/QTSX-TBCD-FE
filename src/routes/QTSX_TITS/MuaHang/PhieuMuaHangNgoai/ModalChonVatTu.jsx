@@ -1,4 +1,4 @@
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
 import {
   Modal as AntModal,
   Form,
@@ -8,33 +8,39 @@ import {
   Col,
   Card,
   DatePicker,
+  Upload,
+  Image,
 } from "antd";
-import { map } from "lodash";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import {
-  EditableTableRow,
-  ModalDeleteConfirm,
-  Select,
-  Table,
-} from "src/components/Common";
+import { Select } from "src/components/Common";
 import { DEFAULT_FORM_THEMVATTU } from "src/constants/Config";
-import { getDateNow, reDataForTable } from "src/util/Common";
+import Helpers from "src/helpers";
+import { getDateNow, renderPDF } from "src/util/Common";
 
 const FormItem = Form.Item;
-const { EditableRow, EditableCell } = EditableTableRow;
 
-function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
+function ModalChonVatTu({
+  openModalFS,
+  openModal,
+  DataThemVatTu,
+  itemVatTu,
+  ListUserThuMua = [],
+  isMuaHangTrongNuoc,
+}) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
-  const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { resetFields, setFieldsValue } = form;
-  const [DataListVatTu, setDataListVatTu] = useState([]);
   const [ListVatTu, setListVatTu] = useState([]);
   const [ListDonHang, setListDonHang] = useState([]);
+  const [fieldTouch, setFieldTouch] = useState(false);
+  const [openImage, setOpenImage] = useState(false);
+
+  const [file, setFile] = useState();
+  const [fileChat, setFileChat] = useState();
 
   useEffect(() => {
     if (openModal) {
@@ -75,8 +81,8 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
         });
 
         const newData = newListVatTu.filter((data) => {
-          if (itemData.length > 0) {
-            return !itemData.some(
+          if (itemVatTu.length > 0) {
+            return !itemVatTu.some(
               (item) => item.tits_qtsx_VatTu_Id.toLowerCase() === data.id
             );
           } else {
@@ -113,173 +119,59 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
     });
   };
 
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    const title = "vật tư";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
-  };
-
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    const newData = DataListVatTu.filter(
-      (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
-    );
-    setDataListVatTu(newData);
-
-    const vattu = DataListVatTu.filter(
-      (d) => d.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id
-    );
-    setListVatTu([...ListVatTu, vattu[0]]);
-  };
-
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const deleteItemVal = { onClick: () => deleteItemFunc(item) };
-
-    return (
-      <div>
-        <React.Fragment>
-          <a {...deleteItemVal} title="Xóa">
-            <DeleteOutlined />
-          </a>
-        </React.Fragment>
-      </div>
-    );
-  };
-
-  let colValues = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      width: 45,
-      align: "center",
-    },
-    {
-      title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
-      align: "center",
-    },
-    {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
-      align: "center",
-    },
-    {
-      title: "Mã đơn hàng",
-      dataIndex: "maPhieu",
-      key: "maPhieu",
-      align: "center",
-    },
-    {
-      title: "Ngày yêu cầu giao",
-      dataIndex: "ngay",
-      key: "ngay",
-      align: "center",
-    },
-    {
-      title: "Định mức",
-      dataIndex: "dinhMuc",
-      key: "dinhMuc",
-      align: "center",
-    },
-    {
-      title: "Số lượng dự phòng",
-      dataIndex: "soLuongDuPhong",
-      key: "soLuongDuPhong",
-      align: "center",
-    },
-    {
-      title: "Số lượng đặt mua",
-      dataIndex: "soLuongDatMua",
-      key: "soLuongDatMua",
-      align: "center",
-    },
-    {
-      title: "Hạng mục sử dụng",
-      dataIndex: "hangMucSuDung",
-      key: "hangMucSuDung",
-      align: "center",
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-    },
-  ];
-
-  const components = {
-    body: {
-      row: EditableRow,
-      cell: EditableCell,
-    },
-  };
-
-  const columns = map(colValues, (col) => {
-    if (!col.editable) {
-      return col;
-    }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-      }),
-    };
-  });
-
   const onFinish = (values) => {
     const data = values.themvattu;
-    const listvattu = ListVatTu.filter((d) => d.id === data.tits_qtsx_VatTu_Id);
-    const donhang =
-      data.tits_qtsx_DonHang_Id &&
-      ListDonHang.filter((d) => d.id === data.tits_qtsx_DonHang_Id);
-    const DataList = {
-      ...data,
-      ...listvattu[0],
-      tenDonHang: donhang && donhang[0].tenDonHang,
-      maPhieu: donhang && donhang[0].maPhieu,
-      ngay: data.ngay.format("DD/MM/YYYY"),
-    };
-    setDataListVatTu([...DataListVatTu, DataList]);
 
-    const VatTu = ListVatTu.filter((d) => d.id !== data.tits_qtsx_VatTu_Id);
-    setListVatTu(VatTu);
-    resetFields();
-    setFieldTouch(false);
-    setFieldsValue({
-      themvattu: {
-        ngay: moment(getDateNow(), "DD/MM/YYYY"),
-      },
+    data.ngay = data.ngay && data.ngay._i;
+    data.hinhAnh = fileChat && fileChat;
+
+    ListVatTu.forEach((vt) => {
+      if (vt.id === data.tits_qtsx_VatTu_Id) {
+        data.tenVatTu = vt.tenVatTu;
+        data.maVatTu = vt.maVatTu;
+        data.tenDonViTinh = vt.tenDonViTinh;
+        data.tenLoaiVatTu = vt.tenLoaiVatTu;
+      }
     });
-  };
-
-  const XacNhan = () => {
-    DataThemVatTu(DataListVatTu);
+    ListDonHang.forEach((dh) => {
+      if (dh.id === data.tits_qtsx_DonHang_Id) {
+        data.maPhieu = dh.maPhieu;
+      }
+    });
+    ListUserThuMua.forEach((us) => {
+      if (us.id === data.nguoiThuMua_Id) {
+        data.tenNguoiThuMua = us.fullName;
+      }
+    });
+    DataThemVatTu(data);
+    setFile();
+    setFileChat();
     openModalFS(false);
-    setListVatTu([]);
-    setDataListVatTu([]);
+    resetFields();
+  };
+  const props = {
+    accept: ".pdf, .png, .jpeg, .jpg",
+    beforeUpload: (file) => {
+      const isPDF =
+        file.type === "application/pdf" ||
+        file.type ===
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+        file.type.startsWith("image/");
+
+      if (!isPDF) {
+        Helpers.alertError(`Chỉ chấp nhận file pdf và hình ảnh`);
+      } else {
+        setFile(file);
+        if (file.type.startsWith("image/")) {
+          const reader = new FileReader();
+          reader.onload = (e) => setFileChat(e.target.result);
+          reader.readAsDataURL(file);
+        }
+        return false;
+      }
+    },
+    showUploadList: false,
+    maxCount: 1,
   };
 
   const handleCancel = () => {
@@ -407,13 +299,15 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                 <FormItem
                   label="Ngày yêu cầu giao"
                   name={["themvattu", "ngay"]}
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
                 >
-                  <DatePicker format={"DD/MM/YYYY"} allowClear={false} />
+                  <DatePicker
+                    format={"DD/MM/YYYY"}
+                    onChange={(date, dateString) => {
+                      if (dateString === "") {
+                        setFieldsValue({ themvattu: { ngay: null } });
+                      }
+                    }}
+                  />
                 </FormItem>
               </Col>
               <Col
@@ -453,7 +347,9 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="SL dự phòng"
+                  label={
+                    isMuaHangTrongNuoc === "0" ? "SL dự phòng" : "SL cần dùng"
+                  }
                   name={["themvattu", "soLuongDuPhong"]}
                   rules={[
                     {
@@ -470,6 +366,30 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                   />
                 </FormItem>
               </Col>
+              {isMuaHangTrongNuoc === "0" && (
+                <Col
+                  xxl={12}
+                  xl={12}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{ marginBottom: 8 }}
+                >
+                  <FormItem
+                    label={"SL tồn kho"}
+                    name={["themvattu", "soLuongTrongKho"]}
+                  >
+                    <Input
+                      type="number"
+                      min={0}
+                      step="0.01"
+                      className="input-item"
+                      placeholder="Nhập số lượng"
+                    />
+                  </FormItem>
+                </Col>
+              )}
               <Col
                 xxl={12}
                 xl={12}
@@ -507,7 +427,37 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Hạng mục sử dụng"
+                  label="CV thu mua"
+                  name={["phieumuahangngoai", "nguoiThuMua_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListUserThuMua}
+                    placeholder="Chọn CV thu mua"
+                    optionsvalue={["user_Id", "fullName"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    optionFilterProp="name"
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Hạng mục"
                   name={["themvattu", "hangMucSuDung"]}
                   rules={[
                     {
@@ -515,42 +465,172 @@ function ModalChonVatTu({ openModalFS, openModal, DataThemVatTu, itemData }) {
                     },
                   ]}
                 >
-                  <Input
-                    className="input-item"
-                    placeholder="Nhập hạn mục sử dụng"
-                  />
+                  <Input className="input-item" placeholder="Nhập hạn mục" />
                 </FormItem>
               </Col>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem label="Ghi chú" name={["themvattu", "moTa"]}>
+                  {isMuaHangTrongNuoc === "0" ? (
+                    !file ? (
+                      <Upload {...props}>
+                        <Button
+                          style={{
+                            marginBottom: 0,
+                          }}
+                          icon={<UploadOutlined />}
+                        >
+                          Đính kèm
+                        </Button>
+                      </Upload>
+                    ) : (
+                      <span>
+                        <span
+                          style={{ color: "#0469B9", cursor: "pointer" }}
+                          onClick={() => {
+                            if (file.name.includes(".pdf")) {
+                              renderPDF(file);
+                            } else {
+                              setOpenImage(true);
+                            }
+                          }}
+                        >
+                          {file.name.length > 20
+                            ? file.name.substring(0, 20) + "..."
+                            : file.name}{" "}
+                        </span>
+                        <DeleteOutlined
+                          style={{ cursor: "pointer", color: "red" }}
+                          onClick={() => {
+                            setFile();
+                            setFileChat();
+                            setFieldsValue({
+                              themvattu: {
+                                moTa: undefined,
+                              },
+                            });
+                          }}
+                        />
+                        <Image
+                          width={100}
+                          src={fileChat}
+                          alt="preview"
+                          style={{
+                            display: "none",
+                          }}
+                          preview={{
+                            visible: openImage,
+                            scaleStep: 0.5,
+                            src: fileChat,
+                            onVisibleChange: (value) => {
+                              setOpenImage(value);
+                            },
+                          }}
+                        />
+                      </span>
+                    )
+                  ) : (
+                    <Input className="input-item" placeholder="Nhập ghi chú" />
+                  )}
+                </FormItem>
+              </Col>
+              {isMuaHangTrongNuoc === "0" && (
+                <>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Chứng nhận"
+                      name={["themvattu", "chungNhan"]}
+                      rules={[
+                        {
+                          type: "string",
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Nhập chứng nhận"
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Xuất xứ"
+                      name={["themvattu", "xuatXu"]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Nhập xuất xứ"
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Bảo hành"
+                      name={["themvattu", "baoHanh"]}
+                      rules={[
+                        {
+                          type: "string",
+                        },
+                      ]}
+                    >
+                      <Input
+                        className="input-item"
+                        placeholder="Nhập bảo hành"
+                      />
+                    </FormItem>
+                  </Col>
+                </>
+              )}
             </Row>
             <Row justify={"center"}>
-              <Button type="primary" htmlType={"submit"} disabled={!fieldTouch}>
-                Thêm vật tư
+              <Button
+                style={{ margin: 0 }}
+                type="primary"
+                htmlType="submit"
+                disabled={!fieldTouch}
+              >
+                Thêm
               </Button>
             </Row>
           </Form>
         </div>
-
-        <Table
-          bordered
-          columns={columns}
-          scroll={{ x: 1300, y: "55vh" }}
-          components={components}
-          className="gx-table-responsive"
-          dataSource={reDataForTable(DataListVatTu)}
-          size="small"
-          rowClassName={"editable-row"}
-          pagination={false}
-        />
-
-        <Row justify={"center"} style={{ marginTop: 15 }}>
-          <Button
-            type="primary"
-            onClick={XacNhan}
-            disabled={DataListVatTu.length === 0}
-          >
-            Xác nhận
-          </Button>
-        </Row>
       </Card>
     </AntModal>
   );

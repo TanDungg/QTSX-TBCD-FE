@@ -40,7 +40,7 @@ function DeNghiMuaHang({ match, history, permission }) {
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
   const [keyword, setKeyword] = useState("");
-  const [LoaiDeNghi, setLoaiDeNghi] = useState(0);
+  const [LoaiDeNghi, setLoaiDeNghi] = useState("1");
   const [FromDate, setFromDate] = useState(getDateNow(-7));
   const [ToDate, setToDate] = useState(getDateNow());
   const [SelectedMuaHangNgoai, setSelectedMuaHangNgoai] = useState([]);
@@ -49,7 +49,7 @@ function DeNghiMuaHang({ match, history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       loadData(keyword, FromDate, ToDate, page, LoaiDeNghi);
-    } else if ((permission && !permission.view) || permission === undefined) {
+    } else if (permission && !permission.view) {
       history.push("/home");
     }
 
@@ -61,12 +61,19 @@ function DeNghiMuaHang({ match, history, permission }) {
    * Lấy dữ liệu về
    *
    */
-  const loadData = (keyword, ngayBatDau, ngayKetThuc, page) => {
+  const loadData = (
+    keyword,
+    ngayBatDau,
+    ngayKetThuc,
+    page,
+    isMuaHangTrongNuoc
+  ) => {
     const param = convertObjectToUrlParams({
       keyword,
       ngayBatDau,
       ngayKetThuc,
       page,
+      isMuaHangTrongNuoc: isMuaHangTrongNuoc === "1",
     });
     dispatch(
       fetchStart(`tits_qtsx_PhieuMuaHangNgoai?${param}`, "GET", null, "LIST")
@@ -564,11 +571,11 @@ function DeNghiMuaHang({ match, history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={[
                 {
-                  id: 0,
+                  id: "1",
                   name: "Mua hàng trong nước",
                 },
                 {
-                  id: 1,
+                  id: "0",
                   name: "Mua hàng nước ngoài",
                 },
               ]}

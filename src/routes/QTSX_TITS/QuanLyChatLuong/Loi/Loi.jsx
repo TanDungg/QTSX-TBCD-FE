@@ -32,13 +32,13 @@ function Loi({ match, permission, history }) {
     if (permission && permission.view) {
       getListData(NhomLoi, keyword, page);
       getListNhomLoi();
-    } else if ((permission && !permission.view) || permission === undefined) {
+    } else if (permission && !permission.view) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [permission]);
   /**
    * Get menu list
    *

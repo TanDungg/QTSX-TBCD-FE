@@ -57,17 +57,17 @@ const App = ({ match, location, menus, permission }) => {
       />
       {/* Danh sách chi tiết */}
       <Route
-        path={`${match.url}/danh-sach-chi-tiet`}
+        path={`${match.url}/danh-sach-chitiet`}
         exact
         component={Auth(DanhSachChiTiet, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/danh-sach-chi-tiet/them-moi`}
+        path={`${match.url}/danh-sach-chitiet/them-moi`}
         exact
         component={Auth(DanhSachChiTietForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/danh-sach-chi-tiet/:id/chinh-sua`}
+        path={`${match.url}/danh-sach-chitiet/:id/chinh-sua`}
         exact
         component={Auth(DanhSachChiTietForm, menus, pathname, permission)}
       />

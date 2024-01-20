@@ -45,10 +45,9 @@ function DanhSachChiTiet({ match, history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       loadData(keyword, page);
-    } else if ((permission && !permission.view) || permission === undefined) {
+    } else if (permission && !permission.view) {
       history.push("/home");
     }
-
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);

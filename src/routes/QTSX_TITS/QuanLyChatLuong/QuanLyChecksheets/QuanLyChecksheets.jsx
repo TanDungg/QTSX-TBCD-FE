@@ -44,13 +44,14 @@ function QuanLyChecksheets({ match, history, permission }) {
       getLoaiSanPham();
       getSanPham();
       getListCongDoan();
-    } else if ((permission && !permission.view) || permission === undefined) {
+      getListData(LoaiSanPham, SanPham, CongDoan, keyword, page);
+    } else if (permission && !permission.view) {
       history.push("/home");
     }
 
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [permission]);
 
   /**
    * Lấy dữ liệu về
@@ -148,8 +149,6 @@ function QuanLyChecksheets({ match, history, permission }) {
               };
             })
           );
-          setCongDoan(res.data[0].id);
-          getListData(LoaiSanPham, SanPham, res.data[0].id, keyword, page);
         } else {
           setListCongDoan([]);
         }

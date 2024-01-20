@@ -24,7 +24,7 @@ function MenuApp({ match, history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       loadData(INFO);
-    } else if ((permission && !permission.view) || permission === undefined) {
+    } else if (permission && !permission.view) {
       history.push("/home");
     }
 

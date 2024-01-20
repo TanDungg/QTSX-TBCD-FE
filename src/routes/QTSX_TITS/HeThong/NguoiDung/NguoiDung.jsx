@@ -29,14 +29,14 @@ function NguoiDung({ match, history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       getListData(keyword, INFO);
-    } else if ((permission && !permission.view) || permission === undefined) {
+    } else if (permission && !permission.view) {
       history.push("/home");
     }
     return () => {
       dispatch(fetchReset());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [permission]);
+  }, []);
 
   /**
    * Load danh sách người dùng

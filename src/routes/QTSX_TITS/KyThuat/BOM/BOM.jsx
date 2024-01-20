@@ -486,7 +486,7 @@ function BOM({ match, history, permission }) {
     getListData("", TuNgay, DenNgay, keyword, 1);
   };
   const handleChangeNgay = (dateString) => {
-    if (TuNgay !== dateString[0] && DenNgay !== dateString[1]) {
+    if (TuNgay !== dateString[0] || DenNgay !== dateString[1]) {
       setTuNgay(dateString[0]);
       setDenNgay(dateString[1]);
       setPage(1);

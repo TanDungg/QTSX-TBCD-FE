@@ -44,7 +44,7 @@ function CanBoNhanVien({ match, history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       getDonVi();
-    } else if ((permission && !permission.view) || permission === undefined) {
+    } else if (permission && !permission.view) {
       history.push("/home");
     }
     return () => {

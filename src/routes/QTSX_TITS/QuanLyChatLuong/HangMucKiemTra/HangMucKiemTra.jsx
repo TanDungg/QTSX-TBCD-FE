@@ -87,13 +87,13 @@ function HangMucKiemTra({ match, history, permission }) {
       getLoaiSanPham();
       getSanPham();
       getCongDoan();
-    } else if ((permission && !permission.view) || permission === undefined) {
+    } else if (permission && !permission.view) {
       history.push("/home");
     }
 
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [permission]);
 
   const getListData = (
     tits_qtsx_LoaiSanPham_Id,

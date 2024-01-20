@@ -16,8 +16,9 @@ import {
   Tag,
   Upload,
   DatePicker,
+  Image,
 } from "antd";
-import { includes, isEmpty, map } from "lodash";
+import { includes, map } from "lodash";
 import Helpers from "src/helpers";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -66,16 +67,14 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
   const [ListDonVi, setListDonVi] = useState([]);
   const [ListPhongBan, setListPhongBan] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
-  const [disableUpload, setDisableUpload] = useState(false);
   const [File, setFile] = useState(null);
   const [FileXacNhan, setFileXacNhan] = useState(null);
   const [disableUploadXacNhan, setDisableUploadXacNhan] = useState(false);
-  const [editingRecord, setEditingRecord] = useState([]);
-  const [errors, setErrors] = useState({});
   const [info, setInfo] = useState({});
   const [ActiveModalImportVatTu, setActiveModalImportVatTu] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(false);
+  const [isMuaHangTrongNuoc, setIsMuaHangTrongNuoc] = useState("1");
 
   useEffect(() => {
     const load = () => {
@@ -228,7 +227,6 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
 
           if (newData.fileDinhKem) {
             setFile(newData.fileDinhKem);
-            setDisableUpload(true);
           }
           if (newData.fileXacNhan) {
             setFileXacNhan(newData.fileXacNhan);
@@ -316,136 +314,208 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
     );
   };
 
-  const handleInputChange = (val, item, key) => {
-    const soLuong = val.target.value;
-    const newErrors = { ...errors };
-
-    if (isEmpty(soLuong) || Number(soLuong) <= 0) {
-      setFieldTouch(false);
-
-      newErrors[item.tits_qtsx_VatTu_Id] = {
-        ...newErrors[item.tits_qtsx_VatTu_Id],
-        [key]: "Số lượng phải là số lớn hơn 0 và bắt buộc",
-      };
-    } else {
-      const newData = editingRecord.filter(
-        (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
-      );
-      setEditingRecord(newData);
-      newData.length === 0 && setFieldTouch(true);
-
-      if (newErrors[item.tits_qtsx_VatTu_Id]) {
-        delete newErrors[item.tits_qtsx_VatTu_Id][key];
-        if (Object.keys(newErrors[item.tits_qtsx_VatTu_Id]).length === 0) {
-          delete newErrors[item.tits_qtsx_VatTu_Id];
-        }
-      }
+  let colValues = () => {
+    const colStart = [
+      {
+        title: "STT",
+        dataIndex: "key",
+        key: "key",
+        width: 45,
+        align: "center",
+      },
+      {
+        title: "Mã vật tư",
+        dataIndex: "maVatTu",
+        key: "maVatTu",
+        align: "center",
+      },
+      {
+        title: "Tên vật tư",
+        dataIndex: "tenVatTu",
+        key: "tenVatTu",
+        align: "center",
+      },
+      {
+        title: "Loại vật tư",
+        dataIndex: "tenLoaiVatTu",
+        key: "tenLoaiVatTu",
+        align: "center",
+      },
+    ];
+    const colIsNoi = [
+      {
+        title: "Đơn vị tính",
+        dataIndex: "tenDonViTinh",
+        key: "tenDonViTinh",
+        align: "center",
+      },
+      {
+        title: "Định mức",
+        dataIndex: "dinhMuc",
+        key: "dinhMuc",
+        align: "center",
+      },
+      {
+        title: "SL dự phòng",
+        key: "soLuongDuPhong",
+        dataIndex: "soLuongDuPhong",
+        align: "center",
+      },
+      {
+        title: "SL đặt mua",
+        key: "soLuongDatMua",
+        dataIndex: "soLuongDatMua",
+        align: "center",
+      },
+      {
+        title: "Ngày yêu cầu giao",
+        dataIndex: "ngay",
+        key: "ngay",
+        align: "center",
+      },
+      {
+        title: "Mã đơn hàng",
+        dataIndex: "maPhieu",
+        key: "maPhieu",
+        align: "center",
+      },
+      {
+        title: "CV thu mua",
+        dataIndex: "maPhieu",
+        key: "maPhieu",
+        align: "center",
+      },
+      {
+        title: "Hạng mục",
+        dataIndex: "hangMucSuDung",
+        key: "hangMucSuDung",
+        align: "center",
+      },
+      {
+        title: "Ghi chú",
+        dataIndex: "moTa",
+        key: "moTa",
+        align: "center",
+        render: (val, record) => {
+          if (val) {
+            if (val.file && val.file.type === "application/pdf") {
+              return (
+                val && (
+                  <span
+                    style={{ color: "#0469B9", cursor: "pointer" }}
+                    onClick={() => {
+                      renderPDF(val.file);
+                    }}
+                  >
+                    {val.file.name.length > 15
+                      ? val.file.name.substring(0, 15) + "..."
+                      : val.file.name}
+                  </span>
+                )
+              );
+            } else {
+              return <Image width={100} src={record.hinhAnh} alt="preview" />;
+            }
+          } else {
+            return null;
+          }
+        },
+      },
+      {
+        title: "Chức năng",
+        key: "action",
+        align: "center",
+        width: 80,
+        render: (value) => actionContent(value),
+      },
+    ];
+    const colIsNgoai = [
+      {
+        title: "Xuất xứ",
+        dataIndex: "xuatXu",
+        key: "xuatXu",
+        align: "center",
+      },
+      {
+        title: "Đơn vị tính",
+        dataIndex: "tenDonViTinh",
+        key: "tenDonViTinh",
+        align: "center",
+      },
+      {
+        title: "Định mức",
+        dataIndex: "dinhMuc",
+        key: "dinhMuc",
+        align: "center",
+      },
+      {
+        title: "SL cần dùng",
+        key: "soLuongDuPhong",
+        dataIndex: "soLuongDuPhong",
+        align: "center",
+      },
+      {
+        title: "SL tồn kho",
+        key: "soLuongTrongKho",
+        dataIndex: "soLuongTrongKho",
+        align: "center",
+      },
+      {
+        title: "SL đặt mua",
+        key: "soLuongDatMua",
+        dataIndex: "soLuongDatMua",
+        align: "center",
+      },
+      {
+        title: "Mã đơn hàng",
+        dataIndex: "maPhieu",
+        key: "maPhieu",
+        align: "center",
+      },
+      {
+        title: "CV thu mua",
+        dataIndex: "tenNguoiThuMua",
+        key: "tenNguoiThuMua",
+        align: "center",
+      },
+      {
+        title: "Ngày yêu cầu giao",
+        dataIndex: "ngay",
+        key: "ngay",
+        align: "center",
+      },
+      {
+        title: "Hạng mục",
+        dataIndex: "hangMucSuDung",
+        key: "hangMucSuDung",
+        align: "center",
+      },
+      {
+        title: "Chứng nhận",
+        dataIndex: "chungNhan",
+        key: "chungNhan",
+        align: "center",
+      },
+      {
+        title: "Bảo hành",
+        dataIndex: "baoHanh",
+        key: "baoHanh",
+        align: "center",
+      },
+      {
+        title: "Chức năng",
+        key: "action",
+        align: "center",
+        width: 80,
+        render: (value) => actionContent(value),
+      },
+    ];
+    if (isMuaHangTrongNuoc === "0") {
+      return [...colStart, ...colIsNoi];
+    } else if (isMuaHangTrongNuoc === "1") {
+      return [...colStart, ...colIsNgoai];
     }
-
-    const newData = [...ListVatTu];
-    newData.forEach((ct, index) => {
-      if (ct.tits_qtsx_VatTu_Id === item.tits_qtsx_VatTu_Id) {
-        ct[key] = soLuong;
-      }
-    });
-    setListVatTu(newData);
-    setErrors(newErrors);
   };
-
-  const rendersoLuong = (item, key) => {
-    let isEditing = false;
-    let message = "";
-
-    if (
-      errors[item.tits_qtsx_VatTu_Id] &&
-      errors[item.tits_qtsx_VatTu_Id][key]
-    ) {
-      isEditing = true;
-      message = errors[item.tits_qtsx_VatTu_Id][key];
-    }
-
-    return (
-      <>
-        <Input
-          style={{
-            textAlign: "center",
-            width: "100%",
-          }}
-          className={`input-item`}
-          type="number"
-          value={item[key]}
-          disabled={type === "new" || type === "edit" ? false : true}
-          onChange={(val) => handleInputChange(val, item, key)}
-        />
-        {isEditing && <div style={{ color: "red" }}>{message}</div>}
-      </>
-    );
-  };
-
-  let colValues = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      width: 45,
-      align: "center",
-    },
-    {
-      title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
-      align: "center",
-    },
-    {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
-      align: "center",
-    },
-    {
-      title: "Mã đơn hàng",
-      dataIndex: "maPhieu",
-      key: "maPhieu",
-      align: "center",
-    },
-    {
-      title: "Ngày yêu cầu giao",
-      dataIndex: "ngay",
-      key: "ngay",
-      align: "center",
-    },
-    {
-      title: "Định mức",
-      dataIndex: "dinhMuc",
-      key: "dinhMuc",
-      align: "center",
-    },
-    {
-      title: "Số lượng dự phòng",
-      key: "soLuongDuPhong",
-      align: "center",
-      render: (record) => rendersoLuong(record, "soLuongDuPhong"),
-    },
-    {
-      title: "Số lượng đặt mua",
-      key: "soLuongDatMua",
-      align: "center",
-      render: (record) => rendersoLuong(record, "soLuongDatMua"),
-    },
-    {
-      title: "Hạng mục sử dụng",
-      dataIndex: "hangMucSuDung",
-      key: "hangMucSuDung",
-      align: "center",
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-    },
-  ];
 
   const components = {
     body: {
@@ -454,7 +524,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
     },
   };
 
-  const columns = map(colValues, (col) => {
+  const columns = map(colValues(), (col) => {
     if (!col.editable) {
       return col;
     }
@@ -475,16 +545,44 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
    * @param {*} values
    */
   const onFinish = (values) => {
-    uploadFile(values.phieumuahangngoai);
+    if (ListVatTu.length > 0) {
+      if (isMuaHangTrongNuoc === "1") {
+        if (values.phieumuahangngoai.fileDinhKem) {
+          uploadFile(values.phieumuahangngoai);
+        } else {
+          saveData(values.phieumuahangngoai);
+        }
+      } else if (isMuaHangTrongNuoc === "0") {
+        let check = false;
+        ListVatTu.forEach((vt) => {
+          if (vt.moTa) {
+            check = true;
+          }
+        });
+        console.log(ListVatTu);
+        if (values.phieumuahangngoai.fileDinhKem && check) {
+          console.log("object");
+          uploadFile(values.phieumuahangngoai, ListVatTu);
+        } else if (values.phieumuahangngoai.fileDinhKem && !check) {
+          uploadFile(values.phieumuahangngoai);
+        } else if (!values.phieumuahangngoai.fileDinhKem && check) {
+          uploadFile(null, ListVatTu);
+        } else {
+          saveData(values.phieumuahangngoai);
+        }
+      }
+    } else {
+      Helpers.alertError("Danh sách vật tư rỗng");
+    }
   };
 
   const saveAndClose = (val) => {
     validateFields()
       .then((values) => {
-        if (ListVatTu.length === 0) {
-          Helpers.alertError("Danh sách vật tư rỗng");
+        if (ListVatTu.length > 0) {
+          uploadFile(values.phieumuahangngoai, ListVatTu, val);
         } else {
-          uploadFile(values.phieumuahangngoai, val);
+          Helpers.alertError("Danh sách vật tư rỗng");
         }
       })
       .catch((error) => {
@@ -492,72 +590,102 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       });
   };
 
-  const uploadFile = (phieumuahangngoai, saveQuit) => {
-    if (type === "new" && phieumuahangngoai.fileDinhKem) {
+  const uploadFile = (phieumuahangngoai, listFile, saveQuit = false) => {
+    if (type === "new") {
       const formData = new FormData();
-      formData.append("file", phieumuahangngoai.fileDinhKem.file);
-      fetch(`${BASE_URL_API}/api/Upload`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: "Bearer ".concat(INFO.token),
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          phieumuahangngoai.fileDinhKem = data.path;
-          saveData(phieumuahangngoai, saveQuit);
-        })
-        .catch(() => {
-          console.log("upload failed.");
+      let check = false;
+      if (phieumuahangngoai.fileDinhKem) {
+        check = true;
+        formData.append("lstFiles", phieumuahangngoai.fileDinhKem.file);
+      }
+      if (listFile) {
+        listFile.forEach((vt) => {
+          if (vt.moTa && vt.moTa.file) {
+            check = true;
+            formData.append("lstFiles", vt.moTa.file);
+          }
         });
-    } else if (
-      type === "edit" &&
-      phieumuahangngoai.fileDinhKem &&
-      phieumuahangngoai.fileDinhKem.file
-    ) {
-      const formData = new FormData();
-      formData.append("file", phieumuahangngoai.fileDinhKem.file);
-      fetch(
-        info.fileDinhKem
-          ? `${BASE_URL_API}/api/Upload?stringPath=${info.fileDinhKem}`
-          : `${BASE_URL_API}/api/Upload`,
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(INFO.token),
-          },
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          phieumuahangngoai.fileDinhKem = data.path;
-          saveData(phieumuahangngoai, saveQuit);
-        })
-        .catch(() => {
-          console.log("upload failed.");
+      }
+      if (!check) {
+        saveData(phieumuahangngoai, listFile, saveQuit);
+      } else {
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `Upload/Multi`,
+              "POST",
+              formData,
+              "",
+              "",
+              resolve,
+              reject,
+              true
+            )
+          );
+        }).then((res) => {
+          if (res && res.status === 200) {
+            res.data.forEach((dt) => {
+              if (
+                phieumuahangngoai.fileDinhKem &&
+                phieumuahangngoai.fileDinhKem.file &&
+                dt.fileName === phieumuahangngoai.fileDinhKem.file.name
+              ) {
+                phieumuahangngoai.fileDinhKem = dt.path;
+              } else if (listFile) {
+                listFile.forEach((vt) => {
+                  if (
+                    vt.moTa &&
+                    vt.moTa.file &&
+                    vt.moTa.file.name === dt.fileName
+                  ) {
+                    vt.moTa = dt.path;
+                  }
+                });
+              }
+            });
+            saveData(phieumuahangngoai, listFile, saveQuit);
+          }
         });
-    } else {
-      saveData(phieumuahangngoai, saveQuit);
+      }
     }
+    // else if (
+    //   type === "edit" &&
+    //   phieumuahangngoai.fileDinhKem &&
+    //   phieumuahangngoai.fileDinhKem.file
+    // ) {
+    //   const formData = new FormData();
+    //   formData.append("file", phieumuahangngoai.fileDinhKem.file);
+    //   fetch(
+    //     info.fileDinhKem
+    //       ? `${BASE_URL_API}/api/Upload?stringPath=${info.fileDinhKem}`
+    //       : `${BASE_URL_API}/api/Upload`,
+    //     {
+    //       method: "POST",
+    //       body: formData,
+    //       headers: {
+    //         Authorization: "Bearer ".concat(INFO.token),
+    //       },
+    //     }
+    //   )
+    //     .then((res) => res.json())
+    //     .then((data) => {
+    //       phieumuahangngoai.fileDinhKem = data.path;
+    //       saveData(phieumuahangngoai, saveQuit);
+    //     })
+    //     .catch(() => {
+    //       console.log("upload failed.");
+    //     });
+    // }
   };
 
-  const saveData = (phieumuahangngoai, saveQuit = false) => {
+  const saveData = (phieumuahangngoai, listFile, saveQuit = false) => {
     if (type === "new") {
       const newData = {
         ...phieumuahangngoai,
+        isMuaHangTrongNuoc: phieumuahangngoai.isMuaHangTrongNuoc === "1",
         donViYeuCau_Id: INFO.donVi_Id,
-        tits_qtsx_PhieuMuaHangNgoaiChiTiets: ListVatTu.map((dt) => {
-          return {
-            ...dt,
-            dinhMuc: parseFloat(dt.dinhMuc),
-            soLuongDuPhong: parseFloat(dt.soLuongDuPhong),
-            soLuongDatMua: parseFloat(dt.soLuongDatMua),
-          };
-        }),
+        tits_qtsx_PhieuMuaHangNgoaiChiTiets: listFile,
       };
-      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -572,23 +700,21 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (res.status !== 409) {
+          if (res.status === 200) {
             if (saveQuit) {
               goBack();
             } else {
               resetFields();
               setFieldTouch(false);
               setListVatTu([]);
+              setFile();
               setFieldsValue({
                 phieumuahangngoai: {
                   donViYeuCau_Id: INFO.donVi_Id.toLowerCase(),
                   donViNhanYeuCau_Id: "2a2a811f-ba5e-4fef-9389-9f74bd6a0d93",
                 },
               });
-              setDisableUpload(false);
             }
-          } else {
-            setFieldTouch(false);
           }
         })
         .catch((error) => console.error(error));
@@ -735,7 +861,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
   };
 
   const DataThemVatTu = (data) => {
-    setListVatTu([...ListVatTu, ...data]);
+    setListVatTu([...ListVatTu, data]);
     setFieldTouch(true);
   };
 
@@ -753,7 +879,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         );
       } else {
         setFile(file);
-        setDisableUpload(true);
+
         return false;
       }
     },
@@ -884,6 +1010,45 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                   showSearch
                   optionFilterProp="name"
                   disabled={true}
+                />
+              </FormItem>
+            </Col>
+
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <FormItem
+                label="Loại đề nghị"
+                name={["phieumuahangngoai", "isMuaHangTrongNuoc"]}
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+                initialValue={"1"}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={[
+                    {
+                      id: "1",
+                      name: "Mua hàng trong nước",
+                    },
+                    {
+                      id: "0",
+                      name: "Mua hàng nước ngoài",
+                    },
+                  ]}
+                  optionsvalue={["id", "name"]}
+                  style={{ width: "100%" }}
+                  disabled={type === "new" || type === "edit" ? false : true}
+                  onChange={(val) => setIsMuaHangTrongNuoc(val)}
                 />
               </FormItem>
             </Col>
@@ -1048,7 +1213,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                 label="File đính kèm"
                 name={["phieumuahangngoai", "fileDinhKem"]}
               >
-                {!disableUpload ? (
+                {!File ? (
                   <Upload {...props}>
                     <Button
                       style={{
@@ -1079,7 +1244,6 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                       }
                       onClick={() => {
                         setFile(null);
-                        setDisableUpload(false);
                         setFieldTouch(true);
                         setFieldsValue({
                           phieumuahangngoai: {
@@ -1107,7 +1271,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                         style={{ cursor: "pointer", color: "red" }}
                         onClick={() => {
                           setFile(null);
-                          setDisableUpload(false);
+
                           setFieldTouch(true);
                           setFieldsValue({
                             phieumuahangngoai: {
@@ -1357,8 +1521,10 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       <ModalChonVatTu
         openModal={ActiveModalChonVatTu}
         openModalFS={setActiveModalChonVatTu}
-        itemData={ListVatTu && ListVatTu}
+        itemVatTu={ListVatTu && ListVatTu}
         DataThemVatTu={DataThemVatTu}
+        ListUserThuMua={ListUserKy}
+        isMuaHangTrongNuoc={isMuaHangTrongNuoc}
       />
       <ImportDanhSachVatTu
         openModal={ActiveModalImportVatTu}

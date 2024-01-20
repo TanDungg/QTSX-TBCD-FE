@@ -34,7 +34,7 @@ function ChucNang({ match, history, permission }) {
     if (permission && permission.view) {
       getPhanMem(INFO.phanMem_Id);
       loadData(INFO);
-    } else if ((permission && !permission.view) || permission === undefined) {
+    } else if (permission && !permission.view) {
       history.push("/home");
     }
 

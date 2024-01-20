@@ -23,7 +23,7 @@ function PhanQuyenTram({ permission, history }) {
   useEffect(() => {
     if (permission && permission.view) {
       getUser(INFO);
-    } else if ((permission && !permission.view) || permission === undefined) {
+    } else if (permission && !permission.view) {
       history.push("/home");
     }
     return () => {
