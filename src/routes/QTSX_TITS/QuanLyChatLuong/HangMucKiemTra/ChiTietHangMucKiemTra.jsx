@@ -110,7 +110,7 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       permission && permission.edit ? (
         <Link
           onClick={() => {
-            setChiTiet({
+            setHangMucTieuDe({
               ...item,
               tits_qtsx_SanPham_Id: info && info.tits_qtsx_SanPham_Id,
               tits_qtsx_CongDoan_Id: info && info.tits_qtsx_CongDoan_Id,
@@ -119,7 +119,7 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
               isNoiDung: info && info.isNoiDung,
               type: "edit",
             });
-            setActiveModalThemChiTiet(true);
+            setActiveModalThemHangMucTieuDe(true);
           }}
           title="Sửa"
         >
@@ -301,16 +301,21 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
         Thêm mới hạng mục chi tiết
       </Button>
     );
-    if (ListChiTiet.length === 0 && ListHangMuc.length === 0) {
+    if (
+      ListChiTiet &&
+      ListChiTiet.length === 0 &&
+      ListHangMuc &&
+      ListHangMuc.length === 0
+    ) {
       return (
         <>
           {btnTHM}
           {btnTCT}
         </>
       );
-    } else if (ListChiTiet.length > 0) {
+    } else if (ListChiTiet && ListChiTiet.length > 0) {
       return btnTCT;
-    } else if (ListHangMuc.length > 0) {
+    } else if (ListHangMuc && ListHangMuc.length > 0) {
       return btnTHM;
     }
   };
@@ -331,23 +336,36 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       );
       setEditingRecord(newData);
     }
-    ListChiTiet.forEach((list) => {
-      if (
-        list.tits_qtsx_HangMucKiemTraTieuDePhu_Id.toLowerCase() ===
-        item.tits_qtsx_HangMucKiemTraTieuDePhu_Id.toLowerCase()
-      ) {
-        list.list_HangMucKiemTraChiTiets.forEach((ct) => {
-          if (
-            ct.tits_qtsx_HangMucKiemTraChiTiet_Id.toLowerCase() ===
-            item.tits_qtsx_HangMucKiemTraChiTiet_Id.toLowerCase()
-          ) {
-            ct.thuTu = ThuTu;
-          }
-        });
-      }
-    });
+    if (ListChiTiet.length > 0) {
+      ListChiTiet.forEach((list) => {
+        if (
+          list.tits_qtsx_HangMucKiemTraChiTiet_Id.toLowerCase() ===
+          item.tits_qtsx_HangMucKiemTraChiTiet_Id.toLowerCase()
+        ) {
+          list.thuTu = ThuTu;
+        }
+      });
 
-    setListChiTiet([...ListChiTiet]);
+      setListChiTiet([...ListChiTiet]);
+    } else {
+      ListHangMuc.forEach((list) => {
+        if (
+          list.tits_qtsx_HangMucKiemTraTieuDePhu_Id ===
+          item.tits_qtsx_HangMucKiemTraTieuDePhu_Id
+        ) {
+          list.list_HangMucKiemTraChiTiets.forEach((ct) => {
+            if (
+              ct.tits_qtsx_HangMucKiemTraChiTiet_Id ===
+              item.tits_qtsx_HangMucKiemTraChiTiet_Id
+            ) {
+              ct.thuTu = ThuTu;
+            }
+          });
+        }
+      });
+
+      setListHangMuc([...ListHangMuc]);
+    }
   };
 
   const onChangeValueThuTu = (val, item) => {
@@ -425,7 +443,7 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       }
     });
   };
-  const onChangeValueTieuDe = (val, item, key) => {
+  const onChangeValueTieuDe = (val, item) => {
     const ThuTu = val.target.value;
 
     if (!ThuTu || Number(ThuTu) <= 0) {
@@ -434,12 +452,18 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
         { ...item, message: "Thứ tự phải là số lớn hơn 0 và bắt buộc" },
       ]);
     } else {
-      const newData = editingRecord.filter((d) => d.id !== item.id);
+      const newData = editingRecord.filter(
+        (d) =>
+          d.tits_qtsx_HangMucKiemTraTieuDePhu_Id !==
+          item.tits_qtsx_HangMucKiemTraTieuDePhu_Id
+      );
       setEditingRecord(newData);
     }
-
-    const newListChiTiet = ListChiTiet.map((list) => {
-      if (list.id === item.id) {
+    const newListChiTiet = ListHangMuc.map((list) => {
+      if (
+        list.tits_qtsx_HangMucKiemTraTieuDePhu_Id ===
+        item.tits_qtsx_HangMucKiemTraTieuDePhu_Id
+      ) {
         return {
           ...list,
           thuTu: ThuTu,
@@ -448,7 +472,7 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
       return list;
     });
 
-    setListChiTiet(newListChiTiet);
+    setListHangMuc(newListChiTiet);
   };
   const renderThuTuTieuDe = (item, key) => {
     let isEditing = false;
@@ -803,7 +827,7 @@ function ChiTietHangMucKiemTra({ match, history, permission }) {
         className="th-card-margin-bottom th-card-reset-margin"
         title={"Danh sách chi tiết hạng mục kiểm tra"}
       >
-        {ListHangMuc.length > 0 ? (
+        {ListHangMuc && ListHangMuc.length > 0 ? (
           <Table
             bordered
             scroll={{ x: 1200, y: "55vh" }}

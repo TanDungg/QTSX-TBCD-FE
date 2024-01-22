@@ -419,22 +419,22 @@ function DeNghiMuaHang({ match, history, permission }) {
       onFilter: (value, record) => record.ngayYeuCau.includes(value),
       filterSearch: true,
     },
-    {
-      title: "Ngày dự kiến giao",
-      dataIndex: "ngayGiaoDuKien",
-      key: "ngayGiaoDuKien",
-      align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.ngayGiaoDuKien,
-            value: d.ngayGiaoDuKien,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.ngayGiaoDuKien.includes(value),
-      filterSearch: true,
-    },
+    // {
+    //   title: "Ngày dự kiến giao",
+    //   dataIndex: "ngayGiaoDuKien",
+    //   key: "ngayGiaoDuKien",
+    //   align: "center",
+    //   filters: removeDuplicates(
+    //     map(dataList, (d) => {
+    //       return {
+    //         text: d.ngayGiaoDuKien,
+    //         value: d.ngayGiaoDuKien,
+    //       };
+    //     })
+    //   ),
+    //   onFilter: (value, record) => record.ngayGiaoDuKien.includes(value),
+    //   filterSearch: true,
+    // },
     {
       title: "File đính kèm",
       key: "fileDinhKem",

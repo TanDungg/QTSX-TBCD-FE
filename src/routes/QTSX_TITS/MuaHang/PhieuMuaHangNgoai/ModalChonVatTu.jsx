@@ -16,7 +16,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { Select } from "src/components/Common";
-import { DEFAULT_FORM_THEMVATTU } from "src/constants/Config";
+import { BASE_URL_API, DEFAULT_FORM_THEMVATTU } from "src/constants/Config";
 import Helpers from "src/helpers";
 import { getDateNow, renderPDF } from "src/util/Common";
 
@@ -29,6 +29,7 @@ function ModalChonVatTu({
   itemVatTu,
   ListUserThuMua = [],
   isMuaHangTrongNuoc,
+  dataEdit,
 }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
@@ -38,19 +39,42 @@ function ModalChonVatTu({
   const [ListDonHang, setListDonHang] = useState([]);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [openImage, setOpenImage] = useState(false);
-
   const [file, setFile] = useState();
   const [fileChat, setFileChat] = useState();
 
   useEffect(() => {
     if (openModal) {
-      getListVatTu();
       getListDonHang();
-      setFieldsValue({
-        themvattu: {
-          ngay: moment(getDateNow(), "DD/MM/YYYY"),
-        },
-      });
+      if (dataEdit) {
+        const newListVatTu = itemVatTu.filter(
+          (item) =>
+            item.tits_qtsx_VatTu_Id.toLowerCase() !==
+            dataEdit.tits_qtsx_VatTu_Id.toLowerCase()
+        );
+        getListVatTu(newListVatTu);
+        if (isMuaHangTrongNuoc === "1") {
+          if (dataEdit.moTa) {
+            setFile(dataEdit.moTa);
+            setFileChat(BASE_URL_API + dataEdit.moTa);
+          }
+        }
+        setFieldsValue({
+          themvattu: {
+            ...dataEdit,
+            ngay: moment(dataEdit.ngay, "DD/MM/YYYY"),
+            nguoiThuMua_Id: dataEdit.nguoiThuMua_Id.toLowerCase(),
+            tits_qtsx_DonHang_Id: dataEdit.tits_qtsx_DonHang_Id.toLowerCase(),
+            tits_qtsx_VatTu_Id: dataEdit.tits_qtsx_VatTu_Id.toLowerCase(),
+          },
+        });
+      } else {
+        getListVatTu(itemVatTu);
+        setFieldsValue({
+          themvattu: {
+            ngay: moment(getDateNow(), "DD/MM/YYYY"),
+          },
+        });
+      }
     }
     return () => {
       dispatch(fetchReset());
@@ -58,7 +82,7 @@ function ModalChonVatTu({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
-  const getListVatTu = () => {
+  const getListVatTu = (vatTus) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -79,10 +103,9 @@ function ModalChonVatTu({
             vatTu: `${data.maVatTu} - ${data.tenVatTu}`,
           };
         });
-
         const newData = newListVatTu.filter((data) => {
-          if (itemVatTu.length > 0) {
-            return !itemVatTu.some(
+          if (vatTus.length > 0) {
+            return !vatTus.some(
               (item) => item.tits_qtsx_VatTu_Id.toLowerCase() === data.id
             );
           } else {
@@ -121,10 +144,8 @@ function ModalChonVatTu({
 
   const onFinish = (values) => {
     const data = values.themvattu;
-
     data.ngay = data.ngay && data.ngay._i;
     data.hinhAnh = fileChat && fileChat;
-
     ListVatTu.forEach((vt) => {
       if (vt.id === data.tits_qtsx_VatTu_Id) {
         data.tenVatTu = vt.tenVatTu;
@@ -133,6 +154,7 @@ function ModalChonVatTu({
         data.tenLoaiVatTu = vt.tenLoaiVatTu;
       }
     });
+    data.render = true;
     ListDonHang.forEach((dh) => {
       if (dh.id === data.tits_qtsx_DonHang_Id) {
         data.maPhieu = dh.maPhieu;
@@ -143,6 +165,13 @@ function ModalChonVatTu({
         data.tenNguoiThuMua = us.fullName;
       }
     });
+    if (dataEdit) {
+      data.type = "edit";
+      data.tits_qtsx_PhieuMuaHangNgoaiChiTiet_Id =
+        dataEdit.tits_qtsx_PhieuMuaHangNgoaiChiTiet_Id;
+    } else {
+      data.type = "new";
+    }
     DataThemVatTu(data);
     setFile();
     setFileChat();
@@ -162,6 +191,7 @@ function ModalChonVatTu({
         Helpers.alertError(`Chỉ chấp nhận file pdf và hình ảnh`);
       } else {
         setFile(file);
+        setFieldTouch(true);
         if (file.type.startsWith("image/")) {
           const reader = new FileReader();
           reader.onload = (e) => setFileChat(e.target.result);
@@ -180,7 +210,7 @@ function ModalChonVatTu({
 
   return (
     <AntModal
-      title="Thêm thông tin vật tư"
+      title={dataEdit ? "Chỉnh sửa thông tin vật tư" : "Thêm thông tin vật tư"}
       open={openModal}
       width={width > 1200 ? `85%` : `90%`}
       closable={true}
@@ -428,7 +458,7 @@ function ModalChonVatTu({
               >
                 <FormItem
                   label="CV thu mua"
-                  name={["phieumuahangngoai", "nguoiThuMua_Id"]}
+                  name={["themvattu", "nguoiThuMua_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -440,7 +470,7 @@ function ModalChonVatTu({
                     className="heading-select slt-search th-select-heading"
                     data={ListUserThuMua}
                     placeholder="Chọn CV thu mua"
-                    optionsvalue={["user_Id", "fullName"]}
+                    optionsvalue={["id", "fullName"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
@@ -478,7 +508,7 @@ function ModalChonVatTu({
                 style={{ marginBottom: 8 }}
               >
                 <FormItem label="Ghi chú" name={["themvattu", "moTa"]}>
-                  {isMuaHangTrongNuoc === "0" ? (
+                  {isMuaHangTrongNuoc === "1" ? (
                     !file ? (
                       <Upload {...props}>
                         <Button
@@ -495,22 +525,29 @@ function ModalChonVatTu({
                         <span
                           style={{ color: "#0469B9", cursor: "pointer" }}
                           onClick={() => {
-                            if (file.name.includes(".pdf")) {
+                            if (
+                              file && file.name
+                                ? file.name.includes(".pdf")
+                                : file.includes(".pdf")
+                            ) {
                               renderPDF(file);
                             } else {
                               setOpenImage(true);
                             }
                           }}
                         >
-                          {file.name.length > 20
-                            ? file.name.substring(0, 20) + "..."
-                            : file.name}{" "}
+                          {file.name
+                            ? file.name.length > 20
+                              ? file.name.substring(0, 20) + "..."
+                              : file.name
+                            : dataEdit && file.split("/")[5]}{" "}
                         </span>
                         <DeleteOutlined
                           style={{ cursor: "pointer", color: "red" }}
                           onClick={() => {
                             setFile();
                             setFileChat();
+                            setFieldTouch(true);
                             setFieldsValue({
                               themvattu: {
                                 moTa: undefined,
@@ -626,7 +663,7 @@ function ModalChonVatTu({
                 htmlType="submit"
                 disabled={!fieldTouch}
               >
-                Thêm
+                {dataEdit ? "Lưu" : "Thêm"}
               </Button>
             </Row>
           </Form>

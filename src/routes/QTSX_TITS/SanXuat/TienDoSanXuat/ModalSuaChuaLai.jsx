@@ -80,7 +80,7 @@ function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
                       (ctl) => ctl.isHoanThanhSCL === false
                     );
                   ct.list_TDSXKiemSoatChatLuongChiTietLois.forEach((Ctl) => {
-                    Ctl.tenHangMucKiemTra = tdp.tenHangMucKiemTra;
+                    Ctl.tenHangMucKiemTra = ks.tenHangMucKiemTra;
                     if (Ctl.nguoiSuaChuaLai_Id) {
                       Ctl.isHoanThanhSCL = true;
                       ct.ketQua = undefined;
@@ -135,6 +135,7 @@ function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
             });
           });
         setListLoi(newListLoi);
+        console.log(newData);
         setListHangMucKiemTra(newData);
       } else {
         setListHangMucKiemTra([]);
@@ -467,7 +468,6 @@ function ModalSuaChuaLai({ openModalFS, openModal, info, refesh }) {
   };
   const suaChuaLai = (data) => {
     const newData = [...ListHangMucKiemTra];
-    console.log(data);
     newData.forEach((hm) => {
       hm.list_TDSXKiemSoatChatLuongTieuDePhus.forEach((tdp) => {
         if (

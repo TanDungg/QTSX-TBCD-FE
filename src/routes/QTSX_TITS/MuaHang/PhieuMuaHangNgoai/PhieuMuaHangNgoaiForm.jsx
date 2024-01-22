@@ -2,6 +2,7 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   DeleteOutlined,
+  EditOutlined,
   PlusCircleOutlined,
   RollbackOutlined,
   UploadOutlined,
@@ -17,6 +18,7 @@ import {
   Upload,
   DatePicker,
   Image,
+  Divider,
 } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
@@ -71,6 +73,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
   const [FileXacNhan, setFileXacNhan] = useState(null);
   const [disableUploadXacNhan, setDisableUploadXacNhan] = useState(false);
   const [info, setInfo] = useState({});
+  const [daTaEdit, setDaTaEdit] = useState();
   const [ActiveModalImportVatTu, setActiveModalImportVatTu] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(false);
@@ -222,9 +225,20 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
 
           const vattu =
             newData.tits_qtsx_PhieuMuaHangNgoaiChiTiets &&
-            JSON.parse(newData.tits_qtsx_PhieuMuaHangNgoaiChiTiets);
-          setListVatTu(vattu);
-
+            JSON.parse(newData.tits_qtsx_PhieuMuaHangNgoaiChiTiets).map(
+              (ct) => {
+                return {
+                  ...ct,
+                  ngayGiaoDuKien: getDateNow(),
+                };
+              }
+            );
+          setListVatTu(reDataForTable(vattu));
+          if (newData.isMuaHangTrongNuoc) {
+            setIsMuaHangTrongNuoc("1");
+          } else {
+            setIsMuaHangTrongNuoc("0");
+          }
           if (newData.fileDinhKem) {
             setFile(newData.fileDinhKem);
           }
@@ -236,10 +250,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           setFieldsValue({
             phieumuahangngoai: {
               ...newData,
-              ngayGiaoDuKien:
-                newData.tinhTrang === "Chưa xác nhận"
-                  ? moment(getDateNow(), "DD/MM/YYYY")
-                  : moment(newData.ngayGiaoDuKien, "DD/MM/YYYY"),
+              isMuaHangTrongNuoc: newData.isMuaHangTrongNuoc ? "1" : "0",
             },
           });
         }
@@ -283,13 +294,11 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = ListVatTu.filter(
-      (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
-    );
+    const newData = ListVatTu.filter((d) => d.key !== item.key);
     if (newData.length !== 0) {
       setFieldTouch(true);
     }
-    setListVatTu(newData);
+    setListVatTu(reDataForTable(newData));
   };
 
   /**
@@ -299,6 +308,15 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
    * @memberof ChucNang
    */
   const actionContent = (item) => {
+    const editItemVal =
+      permission && permission.edit && (type === "new" || type === "edit")
+        ? {
+            onClick: () => {
+              setDaTaEdit(item);
+              setActiveModalChonVatTu(true);
+            },
+          }
+        : { disabled: true };
     const deleteItemVal =
       permission && permission.del && (type === "new" || type === "edit")
         ? { onClick: () => deleteItemFunc(item) }
@@ -306,6 +324,10 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
     return (
       <div>
         <React.Fragment>
+          <a {...editItemVal} title="Sửa">
+            <EditOutlined />
+          </a>
+          <Divider type="vertical" />
           <a {...deleteItemVal} title="Xóa">
             <DeleteOutlined />
           </a>
@@ -313,7 +335,26 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       </div>
     );
   };
-
+  const renderDatePicker = (val, record) => {
+    return (
+      <DatePicker
+        format={"DD/MM/YYYY"}
+        value={val ? moment(val, "DD/MM/YYYY") : null}
+        onChange={(date, dateString) => {
+          ListVatTu.forEach((vt) => {
+            if (
+              vt.tits_qtsx_PhieuMuaHangNgoaiChiTiet_Id ===
+              record.tits_qtsx_PhieuMuaHangNgoaiChiTiet_Id
+            ) {
+              vt.ngayGiaoDuKien = dateString;
+            }
+          });
+          setListVatTu([...ListVatTu]);
+        }}
+        allowClear={false}
+      />
+    );
+  };
   let colValues = () => {
     const colStart = [
       {
@@ -381,8 +422,8 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       },
       {
         title: "CV thu mua",
-        dataIndex: "maPhieu",
-        key: "maPhieu",
+        dataIndex: "tenNguoiThuMua",
+        key: "tenNguoiThuMua",
         align: "center",
       },
       {
@@ -397,10 +438,10 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         key: "moTa",
         align: "center",
         render: (val, record) => {
-          if (val) {
-            if (val.file && val.file.type === "application/pdf") {
-              return (
-                val && (
+          if (record.render) {
+            if (val) {
+              if (val.file && val.file.type === "application/pdf") {
+                return (
                   <span
                     style={{ color: "#0469B9", cursor: "pointer" }}
                     onClick={() => {
@@ -411,13 +452,33 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                       ? val.file.name.substring(0, 15) + "..."
                       : val.file.name}
                   </span>
-                )
-              );
-            } else {
-              return <Image width={100} src={record.hinhAnh} alt="preview" />;
+                );
+              } else {
+                return <Image width={100} src={record.hinhAnh} alt="preview" />;
+              }
             }
           } else {
-            return null;
+            if (val) {
+              if (val.includes(".pdf")) {
+                return (
+                  <a
+                    target="_blank"
+                    href={BASE_URL_API + val}
+                    rel="noopener noreferrer"
+                    style={{
+                      whiteSpace: "break-spaces",
+                      wordBreak: "break-all",
+                    }}
+                  >
+                    {val.split("/")[5]}{" "}
+                  </a>
+                );
+              } else {
+                return (
+                  <Image width={100} src={BASE_URL_API + val} alt="preview" />
+                );
+              }
+            }
           }
         },
       },
@@ -503,6 +564,12 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         align: "center",
       },
       {
+        title: "Ghi chú",
+        dataIndex: "moTa",
+        key: "moTa",
+        align: "center",
+      },
+      {
         title: "Chức năng",
         key: "action",
         align: "center",
@@ -510,9 +577,27 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         render: (value) => actionContent(value),
       },
     ];
-    if (isMuaHangTrongNuoc === "0") {
+    if (isMuaHangTrongNuoc === "1") {
+      if (type === "xacnhan") {
+        colIsNoi.splice(5, 0, {
+          title: "Ngày dự kiến giao",
+          dataIndex: "ngayGiaoDuKien",
+          key: "ngayGiaoDuKien",
+          align: "center",
+          render: (val, record) => renderDatePicker(val, record),
+        });
+      }
       return [...colStart, ...colIsNoi];
-    } else if (isMuaHangTrongNuoc === "1") {
+    } else if (isMuaHangTrongNuoc === "0") {
+      if (type === "xacnhan") {
+        colIsNgoai.splice(9, 0, {
+          title: "Ngày dự kiến giao",
+          dataIndex: "ngayGiaoDuKien",
+          key: "ngayGiaoDuKien",
+          align: "center",
+          render: (val, record) => renderDatePicker(val, record),
+        });
+      }
       return [...colStart, ...colIsNgoai];
     }
   };
@@ -589,93 +674,114 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         console.log("error", error);
       });
   };
+  const removeFile = (removePath) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Upload/RemoveMulti`,
+          "POST",
+          removePath,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.status === 200) {
+      }
+    });
+  };
 
   const uploadFile = (phieumuahangngoai, listFile, saveQuit = false) => {
-    if (type === "new") {
-      const formData = new FormData();
-      let check = false;
-      if (phieumuahangngoai.fileDinhKem) {
+    // if (type === "new") {
+    const formData = new FormData();
+    const removePath = [];
+    let check = false;
+    if (phieumuahangngoai.fileDinhKem) {
+      if (type === "new") {
         check = true;
         formData.append("lstFiles", phieumuahangngoai.fileDinhKem.file);
-      }
-      if (listFile) {
-        listFile.forEach((vt) => {
-          if (vt.moTa && vt.moTa.file) {
-            check = true;
-            formData.append("lstFiles", vt.moTa.file);
-          }
-        });
-      }
-      if (!check) {
-        saveData(phieumuahangngoai, listFile, saveQuit);
       } else {
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `Upload/Multi`,
-              "POST",
-              formData,
-              "",
-              "",
-              resolve,
-              reject,
-              true
-            )
-          );
-        }).then((res) => {
-          if (res && res.status === 200) {
-            res.data.forEach((dt) => {
-              if (
-                phieumuahangngoai.fileDinhKem &&
-                phieumuahangngoai.fileDinhKem.file &&
-                dt.fileName === phieumuahangngoai.fileDinhKem.file.name
-              ) {
-                phieumuahangngoai.fileDinhKem = dt.path;
-              } else if (listFile) {
-                listFile.forEach((vt) => {
-                  if (
-                    vt.moTa &&
-                    vt.moTa.file &&
-                    vt.moTa.file.name === dt.fileName
-                  ) {
-                    vt.moTa = dt.path;
-                  }
-                });
-              }
-            });
-            saveData(phieumuahangngoai, listFile, saveQuit);
-          }
+        if (phieumuahangngoai.fileDinhKem !== info.fileDinhKem) {
+          formData.append("lstFiles", phieumuahangngoai.fileDinhKem.file);
+          removePath.push({
+            stringPath: info.fileDinhKem,
+          });
+        }
+      }
+    } else {
+      if (info.fileDinhKem) {
+        removePath.push({
+          stringPath: info.fileDinhKem,
         });
       }
     }
-    // else if (
-    //   type === "edit" &&
-    //   phieumuahangngoai.fileDinhKem &&
-    //   phieumuahangngoai.fileDinhKem.file
-    // ) {
-    //   const formData = new FormData();
-    //   formData.append("file", phieumuahangngoai.fileDinhKem.file);
-    //   fetch(
-    //     info.fileDinhKem
-    //       ? `${BASE_URL_API}/api/Upload?stringPath=${info.fileDinhKem}`
-    //       : `${BASE_URL_API}/api/Upload`,
-    //     {
-    //       method: "POST",
-    //       body: formData,
-    //       headers: {
-    //         Authorization: "Bearer ".concat(INFO.token),
-    //       },
-    //     }
-    //   )
-    //     .then((res) => res.json())
-    //     .then((data) => {
-    //       phieumuahangngoai.fileDinhKem = data.path;
-    //       saveData(phieumuahangngoai, saveQuit);
-    //     })
-    //     .catch(() => {
-    //       console.log("upload failed.");
-    //     });
-    // }
+    if (listFile) {
+      listFile.forEach((vt) => {
+        if (vt.moTa && vt.moTa.file) {
+          check = true;
+          formData.append("lstFiles", vt.moTa.file);
+        }
+        if (info && info.tits_qtsx_PhieuMuaHangNgoaiChiTiets) {
+          JSON.parse(info.tits_qtsx_PhieuMuaHangNgoaiChiTiets).forEach((ct) => {
+            if (
+              ct.tits_qtsx_PhieuMuaHangNgoaiChiTiet_Id ===
+                vt.tits_qtsx_PhieuMuaHangNgoaiChiTiet_Id &&
+              ct.moTa !== vt.moTa
+            ) {
+              removePath.push({
+                stringPath: ct.moTa,
+              });
+            }
+          });
+        }
+      });
+    }
+    if (removePath.length > 0) {
+      removeFile(removePath);
+    }
+    if (!check) {
+      saveData(phieumuahangngoai, listFile, saveQuit);
+    } else {
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `Upload/Multi`,
+            "POST",
+            formData,
+            "",
+            "",
+            resolve,
+            reject,
+            true
+          )
+        );
+      }).then((res) => {
+        if (res && res.status === 200) {
+          res.data.forEach((dt) => {
+            if (
+              phieumuahangngoai.fileDinhKem &&
+              phieumuahangngoai.fileDinhKem.file &&
+              dt.fileName === phieumuahangngoai.fileDinhKem.file.name
+            ) {
+              phieumuahangngoai.fileDinhKem = dt.path;
+            } else if (listFile) {
+              listFile.forEach((vt) => {
+                if (
+                  vt.moTa &&
+                  vt.moTa.file &&
+                  vt.moTa.file.name === dt.fileName
+                ) {
+                  vt.moTa = dt.path;
+                }
+              });
+            }
+          });
+          saveData(phieumuahangngoai, listFile, saveQuit);
+        }
+      });
+    }
   };
 
   const saveData = (phieumuahangngoai, listFile, saveQuit = false) => {
@@ -718,19 +824,13 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           }
         })
         .catch((error) => console.error(error));
-    }
-    if (type === "edit") {
+    } else if (type === "edit") {
       const newData = {
         id: id,
         ...phieumuahangngoai,
-        tits_qtsx_PhieuMuaHangNgoaiChiTiets: ListVatTu.map((dt) => {
-          return {
-            ...dt,
-            dinhMuc: parseFloat(dt.dinhMuc),
-            soLuongDuPhong: parseFloat(dt.soLuongDuPhong),
-            soLuongDatMua: parseFloat(dt.soLuongDatMua),
-          };
-        }),
+        isMuaHangTrongNuoc: phieumuahangngoai.isMuaHangTrongNuoc === "1",
+        donViYeuCau_Id: INFO.donVi_Id,
+        tits_qtsx_PhieuMuaHangNgoaiChiTiets: listFile,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -747,7 +847,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       })
         .then((res) => {
           if (saveQuit) {
-            if (res.status !== 409) goBack();
+            if (res.status === 200) goBack();
           } else {
             getInfo(id);
             setFieldTouch(false);
@@ -758,68 +858,37 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
   };
 
   const hanldeXacNhan = () => {
-    validateFields()
-      .then((values) => {
-        const datalist = values.phieumuahangngoai;
-        if (!datalist.fileXacNhan) {
-          Helpers.alertError("File xác nhận không được để trống");
-        } else if (!datalist.nguoiThuMua_Id) {
-          Helpers.alertError("Chuyên viên thu mua không được để trống");
-        } else if (datalist.fileXacNhan && datalist.fileXacNhan.file) {
-          const formData = new FormData();
-          formData.append("file", datalist.fileXacNhan.file);
-          fetch(
-            info.fileXacNhan
-              ? `${BASE_URL_API}/api/Upload?stringPath=${info.fileXacNhan}`
-              : `${BASE_URL_API}/api/Upload`,
-            {
-              method: "POST",
-              body: formData,
-              headers: {
-                Authorization: "Bearer ".concat(INFO.token),
-              },
-            }
-          )
-            .then((res) => res.json())
-            .then((data) => {
-              const newData = {
-                ...datalist,
-                ngayGiaoDuKien: datalist.ngayGiaoDuKien.format("DD/MM/YYYY"),
-                fileXacNhan: data.path,
-                id: id,
-                isDuyet: true,
-              };
-              new Promise((resolve, reject) => {
-                dispatch(
-                  fetchStart(
-                    `tits_qtsx_PhieuMuaHangNgoai/xac-nhan/${id}`,
-                    "PUT",
-                    newData,
-                    "XACNHAN",
-                    "",
-                    resolve,
-                    reject
-                  )
-                );
-              })
-                .then((res) => {
-                  if (res.status !== 409) {
-                    setFileXacNhan(null);
-                    setDisableUploadXacNhan(false);
-                    setFieldTouch(false);
-                    getInfo(id);
-                  }
-                })
-                .catch((error) => console.error(error));
-            })
-            .catch(() => {
-              console.log("upload failed.");
-            });
+    const datalist = {
+      id: id,
+      isDuyet: true,
+      list_ngayDuKienGiaoHangs: ListVatTu.map((vt) => {
+        return {
+          tits_qtsx_PhieuMuaHangNgoaiChiTiet_Id:
+            vt.tits_qtsx_PhieuMuaHangNgoaiChiTiet_Id,
+          ngayGiaoDuKien: vt.ngayGiaoDuKien,
+        };
+      }),
+    };
+
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_PhieuMuaHangNgoai/xac-nhan/${id}`,
+          "PUT",
+          datalist,
+          "XACNHAN",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status === 200) {
+          getInfo(id);
         }
       })
-      .catch((error) => {
-        console.log("error", error);
-      });
+      .catch((error) => console.error(error));
   };
 
   const prop = {
@@ -861,7 +930,25 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
   };
 
   const DataThemVatTu = (data) => {
-    setListVatTu([...ListVatTu, data]);
+    if (data.type === "new") {
+      setListVatTu(reDataForTable([...ListVatTu, data]));
+    } else if (data.type === "edit") {
+      const newData = [];
+      ListVatTu.forEach((vt) => {
+        if (
+          vt.tits_qtsx_VatTu_Id.toLowerCase() ===
+          data.tits_qtsx_VatTu_Id.toLowerCase()
+        ) {
+          newData.push({
+            ...vt,
+            ...data,
+          });
+        } else {
+          newData.push(vt);
+        }
+      });
+      setListVatTu(reDataForTable(newData));
+    }
     setFieldTouch(true);
   };
 
@@ -880,24 +967,6 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       } else {
         setFile(file);
 
-        return false;
-      }
-    },
-    showUploadList: false,
-    maxCount: 1,
-  };
-
-  const propsxacnhan = {
-    accept: ".pdf",
-    beforeUpload: (file) => {
-      const isPDF = file.type === "application/pdf";
-
-      if (!isPDF) {
-        Helper.alertError(`${file.name} không phải là file PDF`);
-      } else {
-        setFileXacNhan(file);
-        setDisableUploadXacNhan(true);
-        setFieldTouch(true);
         return false;
       }
     },
@@ -1271,7 +1340,6 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                         style={{ cursor: "pointer", color: "red" }}
                         onClick={() => {
                           setFile(null);
-
                           setFieldTouch(true);
                           setFieldsValue({
                             phieumuahangngoai: {
@@ -1285,7 +1353,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                 )}
               </FormItem>
             </Col>
-            {(info.isDuyet === true ||
+            {/* {(info.isDuyet === true ||
               (type === "xacnhan" && info.tinhTrang === "Chưa xác nhận")) && (
               <>
                 <Col
@@ -1416,7 +1484,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                   </FormItem>
                 </Col>
               </>
-            )}
+            )} */}
             {info.tinhTrang === "Đã từ chối" && (
               <Col
                 xxl={12}
@@ -1449,19 +1517,24 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       >
         {(type === "new" || type === "edit") && (
           <div align={"end"} style={{ marginBottom: 10 }}>
-            <Button
-              icon={<UploadOutlined />}
-              className="th-margin-bottom-0"
-              type="primary"
-              onClick={() => setActiveModalImportVatTu(true)}
-            >
-              Import vật tư
-            </Button>
+            {type === "new" && (
+              <Button
+                icon={<UploadOutlined />}
+                className="th-margin-bottom-0"
+                type="primary"
+                onClick={() => setActiveModalImportVatTu(true)}
+              >
+                Import vật tư
+              </Button>
+            )}
             <Button
               icon={<PlusCircleOutlined />}
               className="th-margin-bottom-0"
               type="primary"
-              onClick={() => setActiveModalChonVatTu(true)}
+              onClick={() => {
+                setDaTaEdit();
+                setActiveModalChonVatTu(true);
+              }}
             >
               Thêm vật tư
             </Button>
@@ -1473,7 +1546,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           scroll={{ x: 1300, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
-          dataSource={reDataForTable(ListVatTu)}
+          dataSource={ListVatTu}
           size="small"
           rowClassName={"editable-row"}
           pagination={false}
@@ -1495,7 +1568,6 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
             className="th-margin-bottom-0"
             type="primary"
             onClick={modalXK}
-            disabled={!fieldTouch}
           >
             Xác nhận
           </Button>
@@ -1525,12 +1597,14 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         DataThemVatTu={DataThemVatTu}
         ListUserThuMua={ListUserKy}
         isMuaHangTrongNuoc={isMuaHangTrongNuoc}
+        dataEdit={daTaEdit && daTaEdit}
       />
       <ImportDanhSachVatTu
         openModal={ActiveModalImportVatTu}
         openModalFS={setActiveModalImportVatTu}
         itemData={ListVatTu && ListVatTu}
         DataThemVatTu={DataThemVatTu}
+        isMuaHangTrongNuoc={isMuaHangTrongNuoc}
       />
       <ModalTuChoi
         openModal={ActiveModalTuChoi}

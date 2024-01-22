@@ -86,12 +86,12 @@ function ModalThemHangMucTieuDe({
     if (itemData.type === "edit") {
       const newData = {
         ...hangMucTieuDePhu,
-        id: itemData.id,
+        id: itemData.tits_qtsx_HangMucKiemTraTieuDePhu_Id,
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_HangMucKiemTra/hang-muc-kiem-tra-tieu-de-phu/${itemData.id}`,
+            `tits_qtsx_HangMucKiemTra/hang-muc-kiem-tra-tieu-de-phu/${itemData.tits_qtsx_HangMucKiemTraTieuDePhu_Id}`,
             "PUT",
             newData,
             "EDIT",

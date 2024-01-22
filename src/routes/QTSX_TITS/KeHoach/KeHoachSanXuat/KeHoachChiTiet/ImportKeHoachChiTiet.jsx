@@ -80,9 +80,8 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
       );
     })
       .then((res) => {
-        if (res && res.data) {
-          const xuong = res.data;
-          setListXuong(xuong);
+        if (res && res.status === 200) {
+          setListXuong(res.data);
         } else {
           setListXuong([]);
         }

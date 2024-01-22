@@ -5,11 +5,12 @@ import { fetchStart } from "src/appRedux/actions/Common";
 import { SaveOutlined } from "@ant-design/icons";
 import TreeTransfer from "src/components/Common/TreeTransfer";
 import { treeToFlatlist } from "src/util/Common";
-
+import { getLocalStorage, getTokenInfo } from "src/util/Common";
 function ModalThietLap({ openModalFS, openModal, saveThietLap, dataTL }) {
   const dispatch = useDispatch();
   const [treeData, settreeData] = useState([]);
   const [targetKeys, setTargetKeys] = useState([]);
+  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
 
   useEffect(() => {
     if (openModal) {
@@ -23,7 +24,7 @@ function ModalThietLap({ openModalFS, openModal, saveThietLap, dataTL }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_BOM/get-list-xuong-tram-bom-tree`,
+          `tits_qtsx_BOM/get-list-xuong-tram-bom-tree?donVi_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "LIST",

@@ -44,7 +44,8 @@ export default (
       includes(pathNameReChange, "chinh-sua") ||
       includes(pathNameReChange, "phan-quyen") ||
       includes(pathNameReChange, "chi-tiet") ||
-      includes(pathNameReChange, "xac-nhan")
+      includes(pathNameReChange, "xac-nhan") ||
+      includes(pathNameReChange, "import")
     ) {
       let pathArrTmp = split(pathNameReChange, "/");
       pathArrTmp.pop();

@@ -117,7 +117,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_NhaCungCap?page=-1`,
+          `DonVi?page=-1&tapdoanid=${INFO.tapDoan_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -724,7 +724,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListNhaCungCap}
                   placeholder="Chọn đơn vị cung cấp"
-                  optionsvalue={["id", "tenNhaCungCap"]}
+                  optionsvalue={["id", "tenDonVi"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -732,7 +732,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            <Col
+            {/* <Col
               xxl={12}
               xl={12}
               lg={24}
@@ -761,7 +761,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                   disabled={true}
                 />
               </FormItem>
-            </Col>
+            </Col> */}
             <Col
               xxl={12}
               xl={12}
@@ -922,7 +922,6 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                 rules={[
                   {
                     type: "string",
-                    required: true,
                   },
                 ]}
               >

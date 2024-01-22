@@ -618,7 +618,7 @@ function TienDoSanXuat({ match, history, permission }) {
                   >
                     <span
                       style={{
-                        color: "#0469b9",
+                        color: item.isLoi ? "red" : "#0469b9",
                         cursor: "pointer",
                       }}
                     >

@@ -21,7 +21,13 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
 import { Modal } from "src/components/Common";
-import { createGuid, exportExcel } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  createGuid,
+  exportExcel,
+  getLocalStorage,
+  getTokenInfo,
+} from "src/util/Common";
 import * as XLSX from "xlsx";
 import { EditableTableRow, Table } from "src/components/Common";
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -31,8 +37,14 @@ function ImportDanhSachVatTu({
   openModal,
   DataThemVatTu,
   itemData,
+  isMuaHangTrongNuoc,
 }) {
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [DataListVatTu, setDataListVatTu] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
@@ -128,10 +140,14 @@ function ImportDanhSachVatTu({
 
   //File mẫu
   const TaiFileMau = () => {
+    const params = convertObjectToUrlParams({
+      isMuaHangTrongNuoc: isMuaHangTrongNuoc === "1",
+      donVi_Id: INFO.donVi_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuMuaHangNgoai/export-file-mau-vat-tu`,
+          `tits_qtsx_PhieuMuaHangNgoai/export-file-mau-vat-tu?${params}`,
           "POST",
           null,
           "DOWLOAD",
