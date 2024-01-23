@@ -120,12 +120,6 @@ function ImportSanPham({
       ),
     },
     {
-      title: "Mã màu sắc",
-      dataIndex: "maMauSac",
-      key: "maMauSac",
-      align: "center",
-    },
-    {
       title: "Ngày bàn giao",
       dataIndex: "ngay",
       key: "ngay",

@@ -74,6 +74,7 @@ function TraCuuThongTinXe({ history, permission }) {
                   maHopDong: item.maHopDong,
                   ngayNhapKho: item.ngayNhapKho,
                   tenNguoiNhap: item.tenNguoiNhap,
+                  list_ChungTu: item.list_ChungTu,
                 });
               } else {
                 result.push({
