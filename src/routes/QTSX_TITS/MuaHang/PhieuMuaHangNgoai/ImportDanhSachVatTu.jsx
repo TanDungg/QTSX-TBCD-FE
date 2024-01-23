@@ -27,16 +27,17 @@ import {
   exportExcel,
   getLocalStorage,
   getTokenInfo,
+  reDataForTable,
 } from "src/util/Common";
 import * as XLSX from "xlsx";
 import { EditableTableRow, Table } from "src/components/Common";
+import Helpers from "src/helpers";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function ImportDanhSachVatTu({
   openModalFS,
   openModal,
   DataThemVatTu,
-  itemData,
   isMuaHangTrongNuoc,
 }) {
   const dispatch = useDispatch();
@@ -48,73 +49,173 @@ function ImportDanhSachVatTu({
   const [DataListVatTu, setDataListVatTu] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
-  // const [HangTrung, setHangTrung] = useState([]);
+  const [Loi, setLoi] = useState(false);
+
+  const [HangTrung, setHangTrung] = useState([]);
   const [message, setMessageError] = useState([]);
 
-  let colValues = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      width: 45,
-      align: "center",
-    },
-    {
-      title: "Mã vật tư",
-      dataIndex: "maVatTu",
-      key: "maVatTu",
-      align: "center",
-    },
-    {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
-      align: "center",
-    },
-    {
-      title: "Mã đơn hàng",
-      dataIndex: "maPhieu",
-      key: "maPhieu",
-      align: "center",
-    },
-    {
-      title: "Ngày yêu cầu giao",
-      dataIndex: "ngay",
-      key: "ngay",
-      align: "center",
-    },
-    {
-      title: "Định mức",
-      dataIndex: "dinhMuc",
-      key: "dinhMuc",
-      align: "center",
-    },
-    {
-      title: "Số lượng dự phòng",
-      dataIndex: "soLuongDuPhong",
-      key: "soLuongDuPhong",
-      align: "center",
-    },
-    {
-      title: "Số lượng đặt mua",
-      dataIndex: "soLuongDatMua",
-      key: "soLuongDatMua",
-      align: "center",
-    },
-    {
-      title: "Hạng mục sử dụng",
-      dataIndex: "hangMucSuDung",
-      key: "hangMucSuDung",
-      align: "center",
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "ghiChuImport",
-      key: "ghiChuImport",
-      align: "center",
-    },
-  ];
-
+  let colValues = () => {
+    const colStart = [
+      {
+        title: "STT",
+        dataIndex: "key",
+        key: "key",
+        width: 45,
+        align: "center",
+      },
+      {
+        title: "Mã vật tư",
+        dataIndex: "maVatTu",
+        key: "maVatTu",
+        align: "center",
+        width: 150,
+      },
+      {
+        title: "Tên vật tư",
+        dataIndex: "tenVatTu",
+        key: "tenVatTu",
+        align: "center",
+        width: 150,
+      },
+    ];
+    const colIsNoi = [
+      {
+        title: "Định mức",
+        dataIndex: "dinhMuc",
+        key: "dinhMuc",
+        align: "center",
+        width: 100,
+      },
+      {
+        title: "SL dự phòng",
+        key: "soLuongDuPhong",
+        dataIndex: "soLuongDuPhong",
+        align: "center",
+        width: 100,
+      },
+      {
+        title: "SL đặt mua",
+        key: "soLuongDatMua",
+        dataIndex: "soLuongDatMua",
+        align: "center",
+        width: 100,
+      },
+      {
+        title: "Ngày yêu cầu giao",
+        dataIndex: "ngay",
+        key: "ngay",
+        align: "center",
+        width: 100,
+      },
+      {
+        title: "Mã đơn hàng",
+        dataIndex: "maPhieu",
+        key: "maPhieu",
+        align: "center",
+        width: 100,
+      },
+      {
+        title: "Mã CV thu mua",
+        dataIndex: "maNhanVien",
+        key: "maNhanVien",
+        width: 100,
+        align: "center",
+      },
+      {
+        title: "Hạng mục",
+        dataIndex: "hangMucSuDung",
+        key: "hangMucSuDung",
+        align: "center",
+        width: 100,
+      },
+    ];
+    const colIsNgoai = [
+      {
+        title: "Xuất xứ",
+        dataIndex: "xuatXu",
+        key: "xuatXu",
+        align: "center",
+        width: 100,
+      },
+      {
+        title: "Định mức",
+        dataIndex: "dinhMuc",
+        key: "dinhMuc",
+        align: "center",
+        width: 100,
+      },
+      {
+        title: "SL cần dùng",
+        key: "soLuongDuPhong",
+        dataIndex: "soLuongDuPhong",
+        align: "center",
+        width: 100,
+      },
+      {
+        title: "SL đặt mua",
+        key: "soLuongDatMua",
+        dataIndex: "soLuongDatMua",
+        width: 100,
+        align: "center",
+      },
+      {
+        title: "Mã đơn hàng",
+        dataIndex: "maPhieu",
+        key: "maPhieu",
+        width: 100,
+        align: "center",
+      },
+      {
+        title: "Mã CV thu mua",
+        dataIndex: "maNhanVien",
+        key: "maNhanVien",
+        width: 100,
+        align: "center",
+      },
+      {
+        title: "Ngày yêu cầu giao",
+        dataIndex: "ngay",
+        key: "ngay",
+        align: "center",
+        width: 100,
+      },
+      {
+        title: "Hạng mục",
+        dataIndex: "hangMucSuDung",
+        key: "hangMucSuDung",
+        align: "center",
+        width: 100,
+      },
+      {
+        title: "Chứng nhận",
+        dataIndex: "chungNhan",
+        key: "chungNhan",
+        align: "center",
+        width: 100,
+      },
+      {
+        title: "Bảo hành",
+        dataIndex: "baoHanh",
+        key: "baoHanh",
+        align: "center",
+        width: 100,
+      },
+    ];
+    if (Loi) {
+      colStart.splice(0, 0, {
+        title: "Lỗi",
+        dataIndex: "ghiChuImport",
+        key: "ghiChuImport",
+        width: 100,
+        align: "center",
+      });
+    }
+    if (isMuaHangTrongNuoc === "1") {
+      return [...colStart, ...colIsNoi];
+    } else if (isMuaHangTrongNuoc === "0") {
+      return [...colStart, ...colIsNgoai];
+    }
+  };
   const components = {
     body: {
       row: EditableRow,
@@ -122,7 +223,7 @@ function ImportDanhSachVatTu({
     },
   };
 
-  const columns = map(colValues, (col) => {
+  const columns = map(colValues(), (col) => {
     if (!col.editable) {
       return col;
     }
@@ -168,183 +269,142 @@ function ImportDanhSachVatTu({
         type: "binary",
       });
       const worksheet = workbook.Sheets["Import"];
+      const dataCheck =
+        isMuaHangTrongNuoc === "1"
+          ? [
+              {
+                name: "STT",
+                key: "key",
+              },
+              {
+                name: "Mã vật tư",
+                key: "maVatTu",
+              },
+              {
+                name: "Tên vật tư",
+                key: "tenVatTu",
+              },
+              {
+                name: "Mã nhân viên thu mua",
+                key: "maNhanVien",
+              },
+              {
+                name: "Ngày yêu cầu giao",
+                key: "ngay",
+              },
+              {
+                name: "Định mức",
+                key: "dinhMuc",
+              },
+              {
+                name: "Số lượng dự phòng",
+                key: "soLuongDuPhong",
+              },
+              {
+                name: "Số lượng đặt mua",
+                key: "soLuongDatMua",
+              },
+              {
+                name: "Mã đơn hàng",
+                key: "maPhieu",
+              },
+              {
+                name: "Hạng mục sử dụng",
+                key: "hangMucSuDung",
+              },
+            ]
+          : [
+              {
+                name: "STT",
+                key: "key",
+              },
+              {
+                name: "Mã vật tư",
+                key: "maVatTu",
+              },
+              {
+                name: "Tên vật tư",
+                key: "tenVatTu",
+              },
+              {
+                name: "Xuất xứ",
+                key: "xuatXu",
+              },
+              {
+                name: "Mã nhân viên thu mua",
+                key: "maNhanVien",
+              },
+              {
+                name: "Ngày yêu cầu giao",
+                key: "ngay",
+              },
+              {
+                name: "Định mức",
+                key: "dinhMuc",
+              },
+              {
+                name: "Số lượng dự phòng",
+                key: "soLuongDuPhong",
+              },
+              {
+                name: "Số lượng đặt mua",
+                key: "soLuongDatMua",
+              },
+              {
+                name: "Mã đơn hàng",
+                key: "maPhieu",
+              },
+              {
+                name: "Chứng nhận",
+                key: "chungNhan",
+              },
+              {
+                name: "Bảo hành",
+                key: "baoHanh",
+              },
+              {
+                name: "Hạng mục sử dụng",
+                key: "hangMucSuDung",
+              },
+            ];
 
-      const checkMau =
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
+      let checkMau = true;
+      for (let index = 0; index < dataCheck.length; index++) {
+        if (
+          XLSX.utils.sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "STT" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Mã vật tư" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Tên vật tư" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Mã đơn hàng" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Ngày yêu cầu giao" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Định mức" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Số lượng dự phòng" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 7, r: 2 }, e: { c: 7, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 7, r: 2 }, e: { c: 7, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Số lượng đặt mua" &&
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 8, r: 2 }, e: { c: 8, r: 2 } },
-        })[0] &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 8, r: 2 }, e: { c: 8, r: 2 } },
-          })[0]
-          .toString()
-          .trim() === "Hạng mục sử dụng";
+            range: { s: { c: index, r: 2 }, e: { c: index, r: 2 } },
+          })[0] &&
+          XLSX.utils
+            .sheet_to_json(worksheet, {
+              header: 1,
+              range: { s: { c: index, r: 2 }, e: { c: index, r: 2 } },
+            })[0]
+            .toString()
+            .trim() === dataCheck[index].name
+        ) {
+          checkMau = true;
+        } else {
+          checkMau = false;
+        }
+      }
 
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
           range: 2,
         });
-        const KEY = "STT";
-        const MVT = "Mã vật tư";
-        const TVT = "Tên vật tư";
-        const MDH = "Mã đơn hàng";
-        const NYCG = "Ngày yêu cầu giao";
-        const DM = "Định mức";
-        const SLDP = "Số lượng dự phòng";
-        const SLDM = "Số lượng đặt mua";
-        const HMSD = "Hạng mục sử dụng";
-
         const DataVatTu = [];
         data.forEach((d, index) => {
-          if (
-            data[index][KEY] &&
-            data[index][KEY].toString().trim() === "" &&
-            data[index][MVT] &&
-            data[index][MVT].toString().trim() === "" &&
-            data[index][TVT] &&
-            data[index][TVT].toString().trim() === ""
-          ) {
-          } else {
-            DataVatTu.push({
-              id: createGuid(),
-              key: data[index][KEY]
-                ? data[index][KEY].toString().trim() !== ""
-                  ? data[index][KEY].toString().trim()
+          const newData = {};
+          dataCheck.forEach((dt) => {
+            newData[dt.key] =
+              d[dt.name] || d[dt.name] === 0
+                ? data[index][dt.name].toString().trim() !== ""
+                  ? data[index][dt.name].toString().trim()
                   : null
-                : null,
-              maVatTu: data[index][MVT]
-                ? data[index][MVT].toString().trim() !== ""
-                  ? data[index][MVT].toString().trim()
-                  : null
-                : null,
-              tenVatTu: data[index][TVT]
-                ? data[index][TVT].toString().trim() !== ""
-                  ? data[index][TVT].toString().trim()
-                  : null
-                : null,
-              maPhieu: data[index][MDH]
-                ? data[index][MDH].toString().trim() !== ""
-                  ? data[index][MDH].toString().trim()
-                  : null
-                : null,
-              ngay: data[index][NYCG]
-                ? data[index][NYCG].toString().trim() !== ""
-                  ? data[index][NYCG].toString().trim()
-                  : null
-                : null,
-              dinhMuc: data[index][DM]
-                ? data[index][DM].toString().trim() !== ""
-                  ? data[index][DM].toString().trim()
-                  : null
-                : null,
-              soLuongDuPhong: data[index][SLDP]
-                ? data[index][SLDP].toString().trim() !== ""
-                  ? data[index][SLDP].toString().trim()
-                  : null
-                : null,
-              soLuongDatMua: data[index][SLDM]
-                ? data[index][SLDM].toString().trim() !== ""
-                  ? data[index][SLDM].toString().trim()
-                  : null
-                : null,
-              hangMucSuDung: data[index][HMSD]
-                ? data[index][HMSD].toString().trim() !== ""
-                  ? data[index][HMSD].toString().trim()
-                  : null
-                : null,
-              ghiChuImport: null,
-            });
-          }
+                : null;
+          });
+          DataVatTu.push(newData);
         });
 
         if (DataVatTu.length === 0) {
@@ -354,6 +414,30 @@ function ImportDanhSachVatTu({
           setMessageError("Dữ liệu import không được rỗng");
           Helper.alertError("Dữ liệu import không được rỗng");
         } else {
+          const indices = [];
+          const row = [];
+          for (let i = 0; i < DataVatTu.length; i++) {
+            for (let j = i + 1; j < DataVatTu.length; j++) {
+              if (
+                DataVatTu[i].maVatTu === DataVatTu[j].maVatTu &&
+                DataVatTu[j].maVatTu !== undefined &&
+                DataVatTu[i].maVatTu !== undefined
+              ) {
+                indices.push(DataVatTu[i].maVatTu);
+                row.push(i + 1);
+                row.push(j + 1);
+              }
+            }
+          }
+          if (indices.length > 0) {
+            setMessageError(`Hàng ${row.join(", ")} có vật tư trùng nhau`);
+            Helper.alertError(`Hàng ${row.join(", ")} có vật tư trùng nhau`);
+            setHangTrung(indices);
+            setCheckDanger(true);
+          } else {
+            setHangTrung([]);
+            setCheckDanger(false);
+          }
           setFileName(file.name);
           setDataListVatTu(DataVatTu);
           setCheckDanger(false);
@@ -404,21 +488,25 @@ function ImportDanhSachVatTu({
         )
       );
     }).then((res) => {
-      if (res.status !== 409) {
+      if (res.status === 200) {
         DataThemVatTu(res.data);
         setFileName(null);
         setDataListVatTu([]);
         openModalFS(false);
-      } else {
-        const newData = DataListVatTu.map((vt) => {
-          const loi = res.data.find((dt) => dt.maVatTu === vt.maVatTu);
-          if (loi) {
-            return { ...vt, ghiChuImport: loi.ghiChuImport };
-          }
-          return vt;
-        });
+      } else if (res.status === 409) {
         setMessageError("Mẫu import không hợp lệ");
-        setDataListVatTu(newData);
+        res.data.forEach((dtl) => {
+          DataListVatTu.forEach((dt) => {
+            if (dtl.maVatTu === dt.maVatTu) {
+              dt.ghiChuImport = dtl.ghiChuImport;
+            }
+          });
+        });
+        setDataListVatTu(reDataForTable([...DataListVatTu]));
+        setLoi(true);
+        setCheckDanger(true);
+      } else {
+        Helpers.alertError("Lỗi server");
         setCheckDanger(true);
       }
     });
@@ -437,29 +525,35 @@ function ImportDanhSachVatTu({
   };
 
   const RowStyle = (current, index) => {
-    // if (HangTrung.length > 0) {
-    //   const trunglap = HangTrung.find(
-    //     (item) => item.maVatTu === current.maVatTu
-    //   );
-    //   if (trunglap) {
-    //     setCheckDanger(true);
-    //     return "red-row";
-    //   }
-    // } else
-    if (current.ghiChuImport !== null) {
-      setCheckDanger(true);
-      return "red-row";
-    } else if (current.STT === null) {
-      setCheckDanger(true);
-      setMessageError("STT không được rỗng");
-      return "red-row";
-    } else if (current.STT === "*" && current.tenVatTu === null) {
+    if (HangTrung.length > 0) {
+      const trunglap = HangTrung.find(
+        (item) => item.maVatTu === current.maVatTu
+      );
+      if (trunglap) {
+        setCheckDanger(true);
+        return "red-row";
+      }
+    } else if (current.tenVatTu === null) {
       setCheckDanger(true);
       setMessageError("Tên chi tiết không được rỗng");
       return "red-row";
-    } else if (current.STT !== "*" && current.maVatTu === null) {
+    } else if (current.maVatTu === null) {
       setCheckDanger(true);
       setMessageError("Mã vật tư không được rỗng");
+      return "red-row";
+    } else if (current.maNhanVien === null) {
+      setCheckDanger(true);
+      setMessageError("Mã CV thu mua không được rỗng");
+      return "red-row";
+    } else if (current.soLuongDuPhong === null) {
+      setCheckDanger(true);
+      setMessageError("Số lượng dự phòng không được rỗng");
+      return "red-row";
+    } else if (current.soLuongDatMua === null) {
+      setCheckDanger(true);
+      setMessageError("Số lượng đặt mua không được rỗng");
+      return "red-row";
+    } else if (current.ghiChuImport) {
       return "red-row";
     }
   };

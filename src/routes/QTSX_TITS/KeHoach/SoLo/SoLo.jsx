@@ -33,7 +33,7 @@ function SoLo({ match, permission, history }) {
   const { totalRow, pageSize } = data;
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(keyword, page, DonHang);
+      getListData(keyword, page, DonHang, true);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -52,7 +52,7 @@ function SoLo({ match, permission, history }) {
    * @param page Trang
    * @param pageSize
    */
-  const getListData = (keyword, page, tits_qtsx_DonHang_Id) => {
+  const getListData = (keyword, page, tits_qtsx_DonHang_Id, resfeshDonHang) => {
     let param = convertObjectToUrlParams({
       tits_qtsx_DonHang_Id,
       page,
@@ -73,22 +73,24 @@ function SoLo({ match, permission, history }) {
     }).then((res) => {
       if (res && res.data) {
         setData(res.data);
-        const NewData = [];
-        res.data.datalist.forEach((dt) => {
-          let check = false;
-          NewData.forEach((ndt) => {
-            if (ndt.tits_qtsx_DonHang_Id === dt.tits_qtsx_DonHang_Id) {
-              check = true;
+        if (resfeshDonHang) {
+          const NewData = [];
+          res.data.datalist.forEach((dt) => {
+            let check = false;
+            NewData.forEach((ndt) => {
+              if (ndt.tits_qtsx_DonHang_Id === dt.tits_qtsx_DonHang_Id) {
+                check = true;
+              }
+            });
+            if (!check) {
+              NewData.push({
+                tits_qtsx_DonHang_Id: dt.tits_qtsx_DonHang_Id,
+                tenDonHang: dt.tenDonHang,
+              });
             }
           });
-          if (!check) {
-            NewData.push({
-              tits_qtsx_DonHang_Id: dt.tits_qtsx_DonHang_Id,
-              tenDonHang: dt.tenDonHang,
-            });
-          }
-        });
-        setListDonHang(NewData);
+          setListDonHang(NewData);
+        }
       } else {
         setData([]);
       }

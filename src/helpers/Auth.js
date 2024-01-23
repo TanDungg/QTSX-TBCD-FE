@@ -5,14 +5,14 @@ import {
   treeToFlatlist,
 } from "src/util/Common";
 
-// const defaultPermission = {
-//   add: true,
-//   del: true,
-//   edit: true,
-//   view: true,
-//   print: true,
-//   cof: true,
-// };
+const defaultPermission = {
+  add: true,
+  del: true,
+  edit: true,
+  view: true,
+  print: true,
+  cof: true,
+};
 
 /**
  * Xử lý vai trò có thể vào Component hay không
@@ -25,8 +25,7 @@ export default (
   WrappedComponent,
   selectData,
   pathName = "",
-  permission
-  //  = defaultPermission
+  permission = defaultPermission
 ) => {
   // Xử lý dữ liệu
   if (!isEmpty(selectData)) {
@@ -44,8 +43,7 @@ export default (
       includes(pathNameReChange, "chinh-sua") ||
       includes(pathNameReChange, "phan-quyen") ||
       includes(pathNameReChange, "chi-tiet") ||
-      includes(pathNameReChange, "xac-nhan") ||
-      includes(pathNameReChange, "import")
+      includes(pathNameReChange, "xac-nhan")
     ) {
       let pathArrTmp = split(pathNameReChange, "/");
       pathArrTmp.pop();

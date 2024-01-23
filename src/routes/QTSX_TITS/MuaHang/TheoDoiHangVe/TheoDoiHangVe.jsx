@@ -27,7 +27,7 @@ function TheoDoiHangVe({ history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       loadData(keyword, FromDate, ToDate, page);
-    } else if ((permission && !permission.view) || permission === undefined) {
+    } else if (permission && !permission.view) {
       history.push("/home");
     }
 
@@ -240,6 +240,23 @@ function TheoDoiHangVe({ history, permission }) {
       filterSearch: true,
     },
     {
+      title: "Ngày yêu cầu giao",
+      dataIndex: "ngay",
+      key: "ngay",
+      align: "center",
+      width: 140,
+      filters: removeDuplicates(
+        map(data, (d) => {
+          return {
+            text: d.ngay,
+            value: d.ngay,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.ngay && record.ngay.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Ngày dự kiến giao",
       dataIndex: "ngayGiaoDuKien",
       key: "ngayGiaoDuKien",
@@ -253,7 +270,8 @@ function TheoDoiHangVe({ history, permission }) {
           };
         })
       ),
-      onFilter: (value, record) => record.ngayGiaoDuKien.includes(value),
+      onFilter: (value, record) =>
+        record.ngayGiaoDuKien && record.ngayGiaoDuKien.includes(value),
       filterSearch: true,
     },
     {

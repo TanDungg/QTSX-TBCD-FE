@@ -960,15 +960,15 @@ function MaySanXuat({ history, permission }) {
     setListTram([]);
     setThietBi(null);
     setListThietBi([]);
-    setNgay(getDateNow());
     setDataMaySanXuat([]);
     setDataKiemTra([]);
-    getListTram(getDateNow(), key);
+    getListTram(Ngay, key);
   };
 
   const handleChangeNgay = (dateString) => {
     if (Ngay !== dateString) {
       setNgay(dateString);
+      getListTram(dateString, keyTabs);
       getListData(Tram, ThietBi, dateString, keyTabs);
     }
   };

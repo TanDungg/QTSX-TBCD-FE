@@ -43,7 +43,7 @@ function ChiTietCauHinhKanBan({ history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       getListTram(Ngay);
-    } else if ((permission && !permission.view) || permission === undefined) {
+    } else if (permission && !permission.view) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
@@ -444,6 +444,7 @@ function ChiTietCauHinhKanBan({ history, permission }) {
   const handleChangeNgay = (dateString) => {
     if (Ngay !== dateString) {
       setNgay(dateString);
+      getListTram(dateString);
       getListData(Tram, dateString);
     }
   };

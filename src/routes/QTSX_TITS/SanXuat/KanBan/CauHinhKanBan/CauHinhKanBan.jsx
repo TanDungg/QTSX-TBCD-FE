@@ -28,7 +28,7 @@ function CauHinhKanBan({ history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       getListData(Ngay);
-    } else if ((permission && !permission.view) || permission === undefined) {
+    } else if (permission && !permission.view) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());

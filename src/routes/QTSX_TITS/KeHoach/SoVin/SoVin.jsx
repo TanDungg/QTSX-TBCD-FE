@@ -20,19 +20,21 @@ import ChiTietSoVIN from "./ChiTietSoVIN";
 const { EditableRow, EditableCell } = EditableTableRow;
 function SoVin({ match, permission, history }) {
   const dispatch = useDispatch();
-  const { data, loading } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const [DonHang, setDonHang] = useState("");
   const [SoLo, setSoLo] = useState("");
-
+  const [ListDonHang, setListDonHang] = useState([]);
+  const [ListSoLo, setListSoLo] = useState([]);
+  const [data, setData] = useState([]);
   const [infoChiTietMaNoiBo, setInfoChiTietMaNoiBo] = useState([]);
 
   const [ActiveModal, setActiveModal] = useState(false);
   const { totalRow, pageSize } = data;
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(keyword, page, DonHang);
+      getListData(keyword, page, DonHang, SoLo, true);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -54,7 +56,8 @@ function SoVin({ match, permission, history }) {
     keyword,
     page,
     tits_qtsx_DonHang_Id,
-    tits_qtsx_SoLo_Id
+    tits_qtsx_SoLo_Id,
+    resfeshDonHang
   ) => {
     let param = convertObjectToUrlParams({
       tits_qtsx_DonHang_Id,
@@ -62,7 +65,59 @@ function SoVin({ match, permission, history }) {
       page,
       keyword,
     });
-    dispatch(fetchStart(`tits_qtsx_SoVin?${param}`, "GET", null, "LIST"));
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_SoVin?${param}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setData(res.data);
+        if (resfeshDonHang) {
+          const NewDataDonHang = [];
+          const NewDataSoLo = [];
+
+          res.data.datalist.forEach((dt) => {
+            let checkDonHang = false;
+            let checkSoLo = false;
+
+            NewDataDonHang.forEach((ndt) => {
+              if (ndt.tits_qtsx_DonHang_Id === dt.tits_qtsx_DonHang_Id) {
+                checkDonHang = true;
+              }
+            });
+            NewDataSoLo.forEach((ndt) => {
+              if (ndt.tits_qtsx_SoLo_Id === dt.tits_qtsx_SoLo_Id) {
+                checkSoLo = true;
+              }
+            });
+            if (!checkDonHang) {
+              NewDataDonHang.push({
+                tits_qtsx_DonHang_Id: dt.tits_qtsx_DonHang_Id,
+                tenDonHang: dt.tenDonHang,
+              });
+            }
+            if (!checkSoLo) {
+              NewDataSoLo.push({
+                tits_qtsx_SoLo_Id: dt.tits_qtsx_SoLo_Id,
+                tenSoLo: dt.tenSoLo,
+              });
+            }
+          });
+          setListDonHang(NewDataDonHang);
+          setListSoLo(NewDataSoLo);
+        }
+      } else {
+        setData([]);
+      }
+    });
   };
 
   /**
@@ -322,9 +377,9 @@ function SoVin({ match, permission, history }) {
             <h5>Đơn hàng:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={data.datalist ? data.datalist : []}
+              data={ListDonHang ? ListDonHang : []}
               placeholder={"Chọn đơn hàng"}
-              optionsvalue={["tits_qtsx_DonHang_Id", "maPhieu"]}
+              optionsvalue={["tits_qtsx_DonHang_Id", "tenDonHang"]}
               style={{ width: "100%" }}
               onSelect={handleOnSelectDonHang}
               value={DonHang}
@@ -349,7 +404,7 @@ function SoVin({ match, permission, history }) {
             <h5>Số lô:</h5>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={data.datalist ? data.datalist : []}
+              data={ListSoLo ? ListSoLo : []}
               placeholder={"Chọn số lô"}
               optionsvalue={["tits_qtsx_SoLo_Id", "tenSoLo"]}
               style={{ width: "100%" }}

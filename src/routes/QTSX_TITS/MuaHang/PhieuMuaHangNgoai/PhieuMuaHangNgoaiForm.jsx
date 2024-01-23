@@ -229,7 +229,9 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
               (ct) => {
                 return {
                   ...ct,
-                  ngayGiaoDuKien: getDateNow(),
+                  ngayGiaoDuKien: ct.ngayGiaoDuKien
+                    ? ct.ngayGiaoDuKien
+                    : getDateNow(),
                 };
               }
             );
@@ -336,7 +338,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
     );
   };
   const renderDatePicker = (val, record) => {
-    return (
+    return info.tinhTrang === "Chưa xử lý" ? (
       <DatePicker
         format={"DD/MM/YYYY"}
         value={val ? moment(val, "DD/MM/YYYY") : null}
@@ -353,10 +355,19 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         }}
         allowClear={false}
       />
+    ) : (
+      <span>{val}</span>
     );
   };
   let colValues = () => {
     const colStart = [
+      {
+        title: "Chức năng",
+        key: "action",
+        align: "center",
+        width: 80,
+        render: (value) => actionContent(value),
+      },
       {
         title: "STT",
         dataIndex: "key",
@@ -369,18 +380,21 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         dataIndex: "maVatTu",
         key: "maVatTu",
         align: "center",
+        width: 150,
       },
       {
         title: "Tên vật tư",
         dataIndex: "tenVatTu",
         key: "tenVatTu",
         align: "center",
+        width: 150,
       },
       {
         title: "Loại vật tư",
         dataIndex: "tenLoaiVatTu",
         key: "tenLoaiVatTu",
         align: "center",
+        width: 150,
       },
     ];
     const colIsNoi = [
@@ -389,52 +403,61 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         dataIndex: "tenDonViTinh",
         key: "tenDonViTinh",
         align: "center",
+        width: 100,
       },
       {
         title: "Định mức",
         dataIndex: "dinhMuc",
         key: "dinhMuc",
         align: "center",
+        width: 100,
       },
       {
         title: "SL dự phòng",
         key: "soLuongDuPhong",
         dataIndex: "soLuongDuPhong",
         align: "center",
+        width: 100,
       },
       {
         title: "SL đặt mua",
         key: "soLuongDatMua",
         dataIndex: "soLuongDatMua",
         align: "center",
+        width: 100,
       },
       {
         title: "Ngày yêu cầu giao",
         dataIndex: "ngay",
         key: "ngay",
         align: "center",
+        width: 100,
       },
       {
         title: "Mã đơn hàng",
         dataIndex: "maPhieu",
         key: "maPhieu",
         align: "center",
+        width: 100,
       },
       {
         title: "CV thu mua",
         dataIndex: "tenNguoiThuMua",
         key: "tenNguoiThuMua",
         align: "center",
+        width: 100,
       },
       {
         title: "Hạng mục",
         dataIndex: "hangMucSuDung",
         key: "hangMucSuDung",
         align: "center",
+        width: 100,
       },
       {
         title: "Ghi chú",
         dataIndex: "moTa",
+        width: 100,
         key: "moTa",
         align: "center",
         render: (val, record) => {
@@ -482,13 +505,6 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           }
         },
       },
-      {
-        title: "Chức năng",
-        key: "action",
-        align: "center",
-        width: 80,
-        render: (value) => actionContent(value),
-      },
     ];
     const colIsNgoai = [
       {
@@ -496,47 +512,55 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         dataIndex: "xuatXu",
         key: "xuatXu",
         align: "center",
+        width: 100,
       },
       {
         title: "Đơn vị tính",
         dataIndex: "tenDonViTinh",
         key: "tenDonViTinh",
         align: "center",
+        width: 100,
       },
       {
         title: "Định mức",
         dataIndex: "dinhMuc",
         key: "dinhMuc",
         align: "center",
+        width: 100,
       },
       {
         title: "SL cần dùng",
         key: "soLuongDuPhong",
         dataIndex: "soLuongDuPhong",
         align: "center",
+        width: 100,
       },
       {
         title: "SL tồn kho",
         key: "soLuongTrongKho",
         dataIndex: "soLuongTrongKho",
+        width: 100,
         align: "center",
       },
       {
         title: "SL đặt mua",
         key: "soLuongDatMua",
         dataIndex: "soLuongDatMua",
+        width: 100,
         align: "center",
       },
       {
         title: "Mã đơn hàng",
         dataIndex: "maPhieu",
         key: "maPhieu",
+        width: 100,
         align: "center",
       },
       {
         title: "CV thu mua",
         dataIndex: "tenNguoiThuMua",
         key: "tenNguoiThuMua",
+        width: 100,
         align: "center",
       },
       {
@@ -544,37 +568,35 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         dataIndex: "ngay",
         key: "ngay",
         align: "center",
+        width: 100,
       },
       {
         title: "Hạng mục",
         dataIndex: "hangMucSuDung",
         key: "hangMucSuDung",
         align: "center",
+        width: 100,
       },
       {
         title: "Chứng nhận",
         dataIndex: "chungNhan",
         key: "chungNhan",
         align: "center",
+        width: 100,
       },
       {
         title: "Bảo hành",
         dataIndex: "baoHanh",
         key: "baoHanh",
         align: "center",
+        width: 100,
       },
       {
         title: "Ghi chú",
         dataIndex: "moTa",
         key: "moTa",
         align: "center",
-      },
-      {
-        title: "Chức năng",
-        key: "action",
-        align: "center",
-        width: 80,
-        render: (value) => actionContent(value),
+        width: 100,
       },
     ];
     if (isMuaHangTrongNuoc === "1") {
@@ -583,6 +605,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           title: "Ngày dự kiến giao",
           dataIndex: "ngayGiaoDuKien",
           key: "ngayGiaoDuKien",
+          width: 100,
           align: "center",
           render: (val, record) => renderDatePicker(val, record),
         });
@@ -594,6 +617,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           title: "Ngày dự kiến giao",
           dataIndex: "ngayGiaoDuKien",
           key: "ngayGiaoDuKien",
+          width: 100,
           align: "center",
           render: (val, record) => renderDatePicker(val, record),
         });
@@ -644,7 +668,6 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
             check = true;
           }
         });
-        console.log(ListVatTu);
         if (values.phieumuahangngoai.fileDinhKem && check) {
           console.log("object");
           uploadFile(values.phieumuahangngoai, ListVatTu);
@@ -884,7 +907,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       );
     })
       .then((res) => {
-        if (res.status === 200) {
+        if (res.status === 204) {
           getInfo(id);
         }
       })
@@ -924,7 +947,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       );
     })
       .then((res) => {
-        if (res.status !== 409) getInfo(id);
+        if (res.status === 204) getInfo(id);
       })
       .catch((error) => console.error(error));
   };
@@ -948,6 +971,8 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         }
       });
       setListVatTu(reDataForTable(newData));
+    } else {
+      setListVatTu(reDataForTable(data));
     }
     setFieldTouch(true);
   };
@@ -1543,7 +1568,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1300, y: "55vh" }}
+          scroll={{ x: 1600, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={ListVatTu}

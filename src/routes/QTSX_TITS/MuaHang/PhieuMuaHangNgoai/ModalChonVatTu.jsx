@@ -361,7 +361,6 @@ function ModalChonVatTu({
                   <Input
                     type="number"
                     min={0}
-                    step="0.01"
                     className="input-item"
                     placeholder="Nhập định mức"
                   />
@@ -390,7 +389,6 @@ function ModalChonVatTu({
                   <Input
                     type="number"
                     min={0}
-                    step="0.01"
                     className="input-item"
                     placeholder="Nhập số lượng"
                   />
@@ -413,7 +411,6 @@ function ModalChonVatTu({
                     <Input
                       type="number"
                       min={0}
-                      step="0.01"
                       className="input-item"
                       placeholder="Nhập số lượng"
                     />
@@ -441,7 +438,6 @@ function ModalChonVatTu({
                   <Input
                     type="number"
                     min={0}
-                    step="0.01"
                     className="input-item"
                     placeholder="Nhập số lượng đặt mua"
                   />
