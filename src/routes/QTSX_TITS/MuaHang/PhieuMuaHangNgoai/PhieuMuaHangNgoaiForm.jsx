@@ -70,8 +70,8 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
   const [ListPhongBan, setListPhongBan] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [File, setFile] = useState(null);
-  const [FileXacNhan, setFileXacNhan] = useState(null);
-  const [disableUploadXacNhan, setDisableUploadXacNhan] = useState(false);
+  // const [FileXacNhan, setFileXacNhan] = useState(null);
+  // const [disableUploadXacNhan, setDisableUploadXacNhan] = useState(false);
   const [info, setInfo] = useState({});
   const [daTaEdit, setDaTaEdit] = useState();
   const [ActiveModalImportVatTu, setActiveModalImportVatTu] = useState(false);
@@ -244,10 +244,10 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           if (newData.fileDinhKem) {
             setFile(newData.fileDinhKem);
           }
-          if (newData.fileXacNhan) {
-            setFileXacNhan(newData.fileXacNhan);
-            setDisableUploadXacNhan(true);
-          }
+          // if (newData.fileXacNhan) {
+          //   setFileXacNhan(newData.fileXacNhan);
+          //   setDisableUploadXacNhan(true);
+          // }
 
           setFieldsValue({
             phieumuahangngoai: {

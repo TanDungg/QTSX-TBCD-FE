@@ -6,12 +6,7 @@ import Auth from "helpers/Auth";
 const NotFound = asyncComponent(() => import("../../NotFound/NotFound"));
 
 // const Home = asyncComponent(() => import("../Home"));
-const CongDoan = asyncComponent(() =>
-  import("./KeHoachSanXuat/DanhMucCongDoan/DanhMucCongDoan")
-);
-const CongDoanForm = asyncComponent(() =>
-  import("./KeHoachSanXuat/DanhMucCongDoan/DanhMucCongDoanForm")
-);
+
 const DonHangSanXuat = asyncComponent(() =>
   import("./DonHangSanXuat/DonHangSanXuat")
 );
@@ -62,21 +57,6 @@ const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
     <Switch>
-      <Route
-        path={`${match.url}/ke-hoach-san-xuat/cong-doan`}
-        exact
-        component={Auth(CongDoan, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/ke-hoach-san-xuat/cong-doan/them-moi`}
-        exact
-        component={Auth(CongDoanForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/ke-hoach-san-xuat/cong-doan/:id/chinh-sua`}
-        exact
-        component={Auth(CongDoanForm, menus, pathname, permission)}
-      />
       <Route
         path={`${match.url}/don-hang`}
         exact

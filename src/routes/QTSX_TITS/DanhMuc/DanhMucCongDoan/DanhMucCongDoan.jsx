@@ -4,7 +4,6 @@ import {
   PlusOutlined,
   EditOutlined,
   DeleteOutlined,
-  ImportOutlined,
   PlusCircleOutlined,
 } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
@@ -266,21 +265,10 @@ function DanhMucCongDoan({ match, history, permission }) {
       pathname: `${match.url}/them-moi`,
     });
   };
-  const handleImport = () => {
-    setActiveModal(true);
-  };
+
   const addButtonRender = () => {
     return (
       <>
-        <Button
-          icon={<ImportOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleImport}
-          disabled={permission && !permission.add}
-        >
-          Import
-        </Button>
         <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0"

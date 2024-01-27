@@ -120,7 +120,12 @@ const PhienBanForm = asyncComponent(() => import("./PhienBan/PhienBanForm"));
 
 const ConDau = asyncComponent(() => import("./ConDau/ConDau"));
 const ConDauForm = asyncComponent(() => import("./ConDau/ConDauForm"));
-
+const CongDoan = asyncComponent(() =>
+  import("./DanhMucCongDoan/DanhMucCongDoan")
+);
+const CongDoanForm = asyncComponent(() =>
+  import("./DanhMucCongDoan/DanhMucCongDoanForm")
+);
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -589,6 +594,21 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/con-dau/:id/chinh-sua`}
         exact
         component={Auth(ConDauForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/cong-doan`}
+        exact
+        component={Auth(CongDoan, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/cong-doan/them-moi`}
+        exact
+        component={Auth(CongDoanForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/cong-doan/:id/chinh-sua`}
+        exact
+        component={Auth(CongDoanForm, menus, pathname, permission)}
       />
       <Route path="*" component={Auth(NotFound, menus, pathname)} />
     </Switch>

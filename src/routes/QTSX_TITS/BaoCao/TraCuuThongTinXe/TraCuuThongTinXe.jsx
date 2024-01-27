@@ -27,6 +27,9 @@ function TraCuuThongTinXe({ history, permission }) {
   const [DataHoSoChatLuong, setDataHoSoChatLuong] = useState([]);
   const [ActiveModalHoSoChatLuong, setActiveModalHoSoChatLuong] =
     useState(false);
+  const [ListThongTinVatTu, setListThongTinVatTu] = useState([]);
+  const [ActiveModalThongTinVatTu, setActiveModalThongTinVatTu] =
+    useState(false);
   const [ListFileChungTu, setListFileChungTu] = useState([]);
   const [ActiveModalFileChungTu, setActiveModalFileChungTu] = useState(false);
 
@@ -60,52 +63,52 @@ function TraCuuThongTinXe({ history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const DataVatTu = res.data.list_VatTuLapRaps.reduce(
-            (result, item) => {
-              const vattu = result.find(
-                (group) => group.tenLoaiVatTu === item.tenLoaiVatTu
-              );
+          setData(res.data);
+          XemHoSoChatLuong(
+            res.data.tits_qtsx_SoLoChiTiet_Id &&
+              res.data.tits_qtsx_SoLoChiTiet_Id
+          );
 
-              if (vattu) {
-                vattu.list_VatTu.push({
-                  tits_qtsx_TienDoSanXuat_Id: item.tits_qtsx_TienDoSanXuat_Id,
-                  maVatTu: item.maVatTu,
-                  tenVatTu: item.tenVatTu,
-                  maHopDong: item.maHopDong,
-                  ngayNhapKho: item.ngayNhapKho,
-                  tenNguoiNhap: item.tenNguoiNhap,
-                  list_ChungTu: item.list_ChungTu,
-                });
-              } else {
-                result.push({
-                  tenLoaiVatTu: item.tenLoaiVatTu,
-                  list_VatTu: [
-                    {
-                      tits_qtsx_TienDoSanXuat_Id:
-                        item.tits_qtsx_TienDoSanXuat_Id,
-                      maVatTu: item.maVatTu,
-                      tenVatTu: item.tenVatTu,
-                      maHopDong: item.maHopDong,
-                      ngayNhapKho: item.ngayNhapKho,
-                      tenNguoiNhap: item.tenNguoiNhap,
-                      list_ChungTu: item.list_ChungTu,
-                    },
-                  ],
+          const listchungtu = [];
+          const newListVatTuLinhKien =
+            res.data.list_VatTuLapRaps &&
+            res.data.list_VatTuLapRaps.map((vattu) => {
+              const chungtu =
+                vattu.list_ChungTu && JSON.parse(vattu.list_ChungTu);
+
+              if (chungtu) {
+                chungtu.forEach((ct) => {
+                  if (!listchungtu.includes(ct.maChungTu)) {
+                    listchungtu.push(ct.maChungTu);
+                  }
                 });
               }
+              return {
+                ...vattu,
+                list_ChungTu: chungtu,
+              };
+            });
 
-              return result;
-            },
-            []
-          );
-          const newData = {
-            ...res.data,
-            list_VatTuLapRaps: DataVatTu,
-          };
-          setData(newData);
-          XemHoSoChatLuong(
-            newData.tits_qtsx_SoLoChiTiet_Id && newData.tits_qtsx_SoLoChiTiet_Id
-          );
+          const newListVatTuThep =
+            res.data.list_VatTuTheps &&
+            res.data.list_VatTuTheps.map((vattu) => {
+              const chungtu =
+                vattu.list_ChungTu && JSON.parse(vattu.list_ChungTu);
+              chungtu && console.log(chungtu);
+
+              if (chungtu) {
+                chungtu.forEach((ct) => {
+                  if (!listchungtu.includes(ct.maChungTu)) {
+                    listchungtu.push(ct.maChungTu);
+                  }
+                });
+              }
+              return {
+                ...vattu,
+                list_ChungTu: chungtu,
+              };
+            });
+          setListThongTinVatTu([...newListVatTuLinhKien, ...newListVatTuThep]);
         } else {
           setData(null);
         }
@@ -294,6 +297,30 @@ function TraCuuThongTinXe({ history, permission }) {
           {value && value.split("/")[5]}{" "}
         </a>
       ),
+    },
+  ];
+
+  let columnThongTinVatTu = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 50,
+    },
+    {
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
+      align: "center",
+      width: 200,
+    },
+    {
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
+      align: "left",
+      width: 350,
     },
   ];
 
@@ -738,210 +765,388 @@ function TraCuuThongTinXe({ history, permission }) {
               </h4>
             </Row>
             <Row span={24}>
-              {Data.list_VatTuLapRaps &&
-                Data.list_VatTuLapRaps.map((chitiet, index) => {
-                  return (
-                    <>
-                      <Col
-                        lg={12}
-                        xs={24}
-                        key={index}
-                        style={{
-                          borderRight:
-                            index % 2 === 0 ? "2px solid #c8c8c8" : "",
-                        }}
-                      >
+              <Col
+                lg={12}
+                xs={24}
+                style={{
+                  borderRight: "2px solid #c8c8c8",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      color: "#0469B9",
+                      fontWeight: "bold",
+                      fontSize: "15px",
+                    }}
+                  >
+                    Vật tư linh kiện
+                  </span>
+                </div>
+                <Divider style={{ marginBottom: "10px" }} />
+                <div
+                  style={{
+                    height: "450px",
+                    overflowY: "auto",
+                    overflowX: "hidden",
+                  }}
+                >
+                  {Data.list_VatTuLapRaps &&
+                    Data.list_VatTuLapRaps.map((vattu, index) => {
+                      return (
                         <div
                           style={{
                             display: "flex",
-                            justifyContent: "center",
+                            marginBottom: "20px",
                           }}
                         >
                           <span
                             style={{
-                              color: "#0469B9",
                               fontWeight: "bold",
-                              fontSize: "15px",
+                              marginRight: "5px",
                             }}
                           >
-                            {chitiet.tenLoaiVatTu}
+                            {index + 1}.
                           </span>
+                          <Row
+                            gutter={[0, 8]}
+                            style={{
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Col
+                              span={24}
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  width: "100px",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                Tên vật tư:
+                              </span>
+                              <span
+                                style={{
+                                  width: "calc(100% - 100px)",
+                                }}
+                              >
+                                {vattu.tenVatTu}
+                              </span>
+                            </Col>
+                            <Col
+                              span={24}
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  width: "130px",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                Mã hợp đồng:
+                              </span>
+                              <span
+                                style={{
+                                  width: "calc(100% - 130px)",
+                                }}
+                              >
+                                {vattu.maHopDong && vattu.maHopDong}
+                              </span>
+                            </Col>
+                            <Col
+                              span={24}
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  width: "130px",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                Nhập kho:
+                              </span>
+                              <span
+                                style={{
+                                  width: "calc(100% - 130px)",
+                                }}
+                              >
+                                {vattu.ngayNhapKho && vattu.ngayNhapKho}
+                              </span>
+                            </Col>
+                            <Col
+                              span={24}
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  width: "130px",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                Người nhập kho:
+                              </span>
+                              <span
+                                style={{
+                                  width: "calc(100% - 130px)",
+                                }}
+                              >
+                                {vattu.tenNguoiNhap && vattu.tenNguoiNhap}
+                              </span>
+                            </Col>
+                            <Col
+                              span={24}
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  width: "130px",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                File chứng từ:
+                              </span>
+                              <span
+                                style={{
+                                  width: "calc(100% - 130px)",
+                                }}
+                              >
+                                {vattu.list_ChungTu && (
+                                  <span
+                                    onClick={() => {
+                                      setListFileChungTu(
+                                        JSON.parse(vattu.list_ChungTu)
+                                      );
+                                      setActiveModalFileChungTu(true);
+                                    }}
+                                    title="Xem file chứng từ"
+                                    style={{
+                                      color: "#0469b9",
+                                      fontWeight: "bold",
+                                      textDecoration: "underline",
+                                      cursor: "pointer",
+                                    }}
+                                  >
+                                    Xem file chứng từ
+                                  </span>
+                                )}
+                              </span>
+                            </Col>
+                          </Row>
                         </div>
-                        <Divider style={{ marginBottom: "10px" }} />
+                      );
+                    })}
+                </div>
+              </Col>
+              <Col lg={12} xs={24}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                  }}
+                >
+                  <span
+                    style={{
+                      color: "#0469B9",
+                      fontWeight: "bold",
+                      fontSize: "15px",
+                    }}
+                  >
+                    Vật tư thép
+                  </span>
+                </div>
+                <Divider style={{ marginBottom: "10px" }} />
+                <div
+                  style={{
+                    height: "450px",
+                    overflowY: "auto",
+                    overflowX: "hidden",
+                  }}
+                >
+                  {Data.list_VatTuTheps &&
+                    Data.list_VatTuTheps.map((vattu, index) => {
+                      return (
                         <div
                           style={{
-                            height: "400px",
-                            overflowY: "auto",
-                            overflowX: "hidden",
+                            display: "flex",
+                            marginBottom: "20px",
                           }}
                         >
-                          {chitiet.list_VatTu &&
-                            chitiet.list_VatTu.map((vattu, index) => {
-                              return (
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    marginBottom: "20px",
-                                  }}
-                                >
+                          <span
+                            style={{
+                              fontWeight: "bold",
+                              marginRight: "5px",
+                            }}
+                          >
+                            {index + 1}.
+                          </span>
+                          <Row
+                            gutter={[0, 8]}
+                            style={{
+                              justifyContent: "space-between",
+                              alignItems: "center",
+                            }}
+                          >
+                            <Col
+                              span={24}
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  width: "100px",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                Tên vật tư:
+                              </span>
+                              <span
+                                style={{
+                                  width: "calc(100% - 100px)",
+                                }}
+                              >
+                                {vattu.tenVatTu}
+                              </span>
+                            </Col>
+                            <Col
+                              span={24}
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  width: "130px",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                Mã hợp đồng:
+                              </span>
+                              <span
+                                style={{
+                                  width: "calc(100% - 130px)",
+                                }}
+                              >
+                                {vattu.maHopDong && vattu.maHopDong}
+                              </span>
+                            </Col>
+                            <Col
+                              span={24}
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  width: "130px",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                Nhập kho:
+                              </span>
+                              <span
+                                style={{
+                                  width: "calc(100% - 130px)",
+                                }}
+                              >
+                                {vattu.ngayNhapKho && vattu.ngayNhapKho}
+                              </span>
+                            </Col>
+                            <Col
+                              span={24}
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  width: "130px",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                Người nhập kho:
+                              </span>
+                              <span
+                                style={{
+                                  width: "calc(100% - 130px)",
+                                }}
+                              >
+                                {vattu.tenNguoiNhap && vattu.tenNguoiNhap}
+                              </span>
+                            </Col>
+                            <Col
+                              span={24}
+                              style={{
+                                display: "flex",
+                                alignItems: "flex-start",
+                              }}
+                            >
+                              <span
+                                style={{
+                                  width: "130px",
+                                  fontWeight: "bold",
+                                }}
+                              >
+                                File chứng từ:
+                              </span>
+                              <span
+                                style={{
+                                  width: "calc(100% - 130px)",
+                                }}
+                              >
+                                {vattu.list_ChungTu && (
                                   <span
+                                    onClick={() => {
+                                      setListFileChungTu(
+                                        JSON.parse(vattu.list_ChungTu)
+                                      );
+                                      setActiveModalFileChungTu(true);
+                                    }}
+                                    title="Xem file chứng từ"
                                     style={{
+                                      color: "#0469b9",
                                       fontWeight: "bold",
-                                      marginRight: "5px",
+                                      textDecoration: "underline",
+                                      cursor: "pointer",
                                     }}
                                   >
-                                    {index + 1}.
+                                    Xem file chứng từ
                                   </span>
-                                  <Row
-                                    gutter={[0, 8]}
-                                    style={{
-                                      justifyContent: "space-between",
-                                      alignItems: "center",
-                                    }}
-                                  >
-                                    <Col
-                                      span={24}
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "flex-start",
-                                      }}
-                                    >
-                                      <span
-                                        style={{
-                                          width: "100px",
-                                          fontWeight: "bold",
-                                        }}
-                                      >
-                                        Tên vật tư:
-                                      </span>
-                                      <span
-                                        style={{
-                                          width: "calc(100% - 100px)",
-                                        }}
-                                      >
-                                        {vattu.tenVatTu}
-                                      </span>
-                                    </Col>
-                                    <Col
-                                      span={24}
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "flex-start",
-                                      }}
-                                    >
-                                      <span
-                                        style={{
-                                          width: "130px",
-                                          fontWeight: "bold",
-                                        }}
-                                      >
-                                        Mã hợp đồng:
-                                      </span>
-                                      <span
-                                        style={{
-                                          width: "calc(100% - 130px)",
-                                        }}
-                                      >
-                                        {vattu.maHopDong && vattu.maHopDong}
-                                      </span>
-                                    </Col>
-                                    <Col
-                                      span={24}
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "flex-start",
-                                      }}
-                                    >
-                                      <span
-                                        style={{
-                                          width: "130px",
-                                          fontWeight: "bold",
-                                        }}
-                                      >
-                                        Nhập kho:
-                                      </span>
-                                      <span
-                                        style={{
-                                          width: "calc(100% - 130px)",
-                                        }}
-                                      >
-                                        {vattu.ngayNhapKho && vattu.ngayNhapKho}
-                                      </span>
-                                    </Col>
-                                    <Col
-                                      span={24}
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "flex-start",
-                                      }}
-                                    >
-                                      <span
-                                        style={{
-                                          width: "130px",
-                                          fontWeight: "bold",
-                                        }}
-                                      >
-                                        Người nhập kho:
-                                      </span>
-                                      <span
-                                        style={{
-                                          width: "calc(100% - 130px)",
-                                        }}
-                                      >
-                                        {vattu.tenNguoiNhap &&
-                                          vattu.tenNguoiNhap}
-                                      </span>
-                                    </Col>
-                                    <Col
-                                      span={24}
-                                      style={{
-                                        display: "flex",
-                                        alignItems: "flex-start",
-                                      }}
-                                    >
-                                      <span
-                                        style={{
-                                          width: "130px",
-                                          fontWeight: "bold",
-                                        }}
-                                      >
-                                        File chứng từ:
-                                      </span>
-                                      <span
-                                        style={{
-                                          width: "calc(100% - 130px)",
-                                        }}
-                                      >
-                                        {vattu.list_ChungTu && (
-                                          <span
-                                            onClick={() => {
-                                              setListFileChungTu(
-                                                JSON.parse(vattu.list_ChungTu)
-                                              );
-                                              setActiveModalFileChungTu(true);
-                                            }}
-                                            title="Xem file chứng từ"
-                                            style={{
-                                              color: "#0469b9",
-                                              fontWeight: "bold",
-                                              textDecoration: "underline",
-                                              cursor: "pointer",
-                                            }}
-                                          >
-                                            Xem file chứng từ
-                                          </span>
-                                        )}
-                                      </span>
-                                    </Col>
-                                  </Row>
-                                </div>
-                              );
-                            })}
+                                )}
+                              </span>
+                            </Col>
+                          </Row>
                         </div>
-                      </Col>
-                    </>
-                  );
-                })}
+                      );
+                    })}
+                </div>
+              </Col>
             </Row>
             <div style={{ display: "flex", justifyContent: "flex-end" }}>
               <span
@@ -950,7 +1155,7 @@ function TraCuuThongTinXe({ history, permission }) {
                   cursor: "pointer",
                   fontWeight: "bold",
                 }}
-                // onClick={() => setActiveModalHoSoChatLuong(true)}
+                onClick={() => setActiveModalThongTinVatTu(true)}
               >
                 Xem thông tin hồ sơ chi tiết
               </span>
@@ -975,6 +1180,29 @@ function TraCuuThongTinXe({ history, permission }) {
             scroll={{ x: 1000, y: "55vh" }}
             className="gx-table-responsive"
             dataSource={reDataForTable(DataHoSoChatLuong)}
+            size="small"
+            loading={loading}
+            pagination={false}
+          />
+        </Card>
+      </AntModal>
+      <AntModal
+        title={"HỒ SƠ THÔNG TIN VẬT TƯ"}
+        className="th-card-reset-margin"
+        open={ActiveModalThongTinVatTu}
+        width={"70%"}
+        closable={true}
+        onCancel={() => setActiveModalThongTinVatTu(false)}
+        footer={null}
+      >
+        <Card className="th-card-margin-bottom th-card-reset-margin">
+          <Table
+            bordered
+            columns={columnThongTinVatTu}
+            components={components}
+            scroll={{ x: 1000, y: "55vh" }}
+            className="gx-table-responsive th-table"
+            dataSource={reDataForTable(ListThongTinVatTu)}
             size="small"
             loading={loading}
             pagination={false}

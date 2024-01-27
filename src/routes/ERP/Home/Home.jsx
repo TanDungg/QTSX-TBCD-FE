@@ -23,17 +23,19 @@ function Home({ permission, history }) {
   const [data, setData] = useState([]);
 
   useEffect(() => {
-    getInfo();
-    setDonVi(
-      MENUINFO && MENUINFO.donVi_Id
-        ? MENUINFO.donVi_Id
-        : donvi.length > 0
-        ? donvi[0].DonVi_Id
-        : ""
-    );
+    if (donvi.length > 0) {
+      getInfo(getLocalStorage("menu"));
+      setDonVi(
+        MENUINFO && MENUINFO.donVi_Id
+          ? MENUINFO.donVi_Id
+          : donvi.length > 0
+          ? donvi[0].DonVi_Id
+          : ""
+      );
+    }
     return () => dispatch(fetchReset());
   }, [donvi]);
-  const getInfo = () => {
+  const getInfo = (MENUINFO) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(

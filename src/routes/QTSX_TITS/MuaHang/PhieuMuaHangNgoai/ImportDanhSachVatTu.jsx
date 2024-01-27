@@ -23,7 +23,6 @@ import { fetchStart } from "src/appRedux/actions/Common";
 import { Modal } from "src/components/Common";
 import {
   convertObjectToUrlParams,
-  createGuid,
   exportExcel,
   getLocalStorage,
   getTokenInfo,
