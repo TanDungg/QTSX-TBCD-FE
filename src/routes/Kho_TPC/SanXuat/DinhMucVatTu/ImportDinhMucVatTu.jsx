@@ -369,7 +369,8 @@ function ImportDinhMucVatTu({
     const newData = dataView.map((dt) => {
       return {
         ...dt,
-        isBatBuoc: dt.isBatBuoc.toLowerCase() === "x",
+        isBatBuoc:
+          dt.isBatBuoc && dt.isBatBuoc.toLowerCase() === "x" ? true : false,
       };
     });
     new Promise((resolve, reject) => {

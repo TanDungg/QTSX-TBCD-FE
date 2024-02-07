@@ -4,7 +4,7 @@ import {
   PlusOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
-import { Button, Card, Col, Divider } from "antd";
+import { Button, Card, Col, Divider, Tag } from "antd";
 import find from "lodash/find";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
@@ -233,20 +233,17 @@ function Lot({ match, permission, history }) {
     },
     {
       title: "Phiên bản định mức",
-      dataIndex: "phienBan",
-      key: "phienBan",
+      dataIndex: "list_DinhMucVatTus",
+      key: "list_DinhMucVatTus",
       align: "center",
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.phienBan,
-            value: d.phienBan,
-          };
-        })
-      ),
-      onFilter: (value, record) =>
-        record.phienBan && record.phienBan.includes(value),
-      filterSearch: true,
+      render: (val) => {
+        return (
+          val &&
+          JSON.parse(val).map((dm) => {
+            return <Tag color="blue">{dm.phienBan}</Tag>;
+          })
+        );
+      },
     },
     {
       title: "Số lượng",

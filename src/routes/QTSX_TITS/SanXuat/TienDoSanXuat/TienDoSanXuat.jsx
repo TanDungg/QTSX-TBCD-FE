@@ -704,7 +704,9 @@ function TienDoSanXuat({ match, history, permission }) {
                   icon={<SelectOutlined />}
                   type="primary"
                   style={{ width: "80%" }}
-                  disabled={!InfoSanPham.maNoiBo}
+                  disabled={
+                    !InfoSanPham.maNoiBo || (permission && !permission.add)
+                  }
                   onClick={() => modalXacNhan(ClickVaoTram, "vào trạm")}
                 >
                   Vào trạm
@@ -716,7 +718,10 @@ function TienDoSanXuat({ match, history, permission }) {
                     icon={<PlusOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
-                    disabled={InfoSanPham.isDaHoanThanhTram}
+                    disabled={
+                      InfoSanPham.isDaHoanThanhTram ||
+                      (permission && !permission.add)
+                    }
                     onClick={() => {
                       setActiveAddSoVIN(true);
                     }}
@@ -774,7 +779,13 @@ function TienDoSanXuat({ match, history, permission }) {
                     type="primary"
                     style={{ width: "80%" }}
                     disabled={
-                      InfoSanPham.isSCL === null || InfoSanPham.isDaSCL
+                      InfoSanPham.isSCL === null ||
+                      InfoSanPham.isDaSCL ||
+                      (!InfoSanPham.isDaSCL &&
+                        InfoSanPham.isSCL &&
+                        permission &&
+                        !permission.cof) ||
+                      (!InfoSanPham.isSCL && permission && !permission.print)
                         ? true
                         : false
                     }
@@ -789,7 +800,10 @@ function TienDoSanXuat({ match, history, permission }) {
                     icon={<CheckSquareOutlined />}
                     type="primary"
                     style={{ width: "80%" }}
-                    disabled={InfoSanPham.isKiemSoatChatLuong}
+                    disabled={
+                      InfoSanPham.isKiemSoatChatLuong ||
+                      (permission && !permission.add)
+                    }
                     onClick={() => setActiveKiemSoatChatLuong(true)}
                   >
                     Kiểm soát chất lượng
@@ -799,7 +813,10 @@ function TienDoSanXuat({ match, history, permission }) {
                     icon={<SaveFilled />}
                     type="primary"
                     style={{ width: "50%", margin: 0 }}
-                    disabled={InfoSanPham.isDaHoanThanhTram}
+                    disabled={
+                      InfoSanPham.isDaHoanThanhTram ||
+                      (permission && !permission.add)
+                    }
                     onClick={() => modalXacNhan(ClickRaTram, "ra trạm")}
                   >
                     Hoàn tất

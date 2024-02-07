@@ -12,6 +12,7 @@ import {
   Upload,
   Alert,
   Popover,
+  Tag,
 } from "antd";
 import { messages } from "src/constants/Messages";
 import Helper from "src/helpers";
@@ -82,9 +83,11 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
     },
     {
       title: "Phiên bản BOM",
-      dataIndex: "phienBan",
-      key: "phienBan",
+      dataIndex: "list_DinhMucVatTus",
+      key: "list_DinhMucVatTus",
       align: "center",
+      render: (val) =>
+        val && val.map((pb) => <Tag color="blue">{pb.phienBan} </Tag>),
     },
   ];
   const components = {
@@ -225,9 +228,18 @@ function ImportSoLot({ openModalFS, openModal, loading, refesh }) {
                   ? data[index][SLuong].toString().trim()
                   : undefined
                 : undefined,
-              phienBan: data[index]["Phiên bản BOM"]
+              list_DinhMucVatTus: data[index]["Phiên bản BOM"]
                 ? data[index]["Phiên bản BOM"].toString().trim() !== ""
-                  ? data[index]["Phiên bản BOM"].toString().trim()
+                  ? data[index]["Phiên bản BOM"]
+                      .toString()
+                      .trim()
+                      .replace(" ", "")
+                      .split(",")
+                      .map((pb) => {
+                        return {
+                          phienBan: pb,
+                        };
+                      })
                   : undefined
                 : undefined,
             });

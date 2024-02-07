@@ -15,7 +15,7 @@ import {
   Modal,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
+import { DEFAULT_FORM_STYLE } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getDateNow,
@@ -119,7 +119,7 @@ const CKDForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `lkn_PhieuNhapKhoVatTu/get-list-dinh-muc-vat-tu-theo-lot-ckd?Lot_Id=${id}`,
+          `lkn_PhieuNhapKhoVatTu/get-list-dinh-muc-vat-tu-theo-lot-ckd?Lot_DinhMucVatTu_Id=${id}`,
           "GET",
           null,
           "LIST",
@@ -131,7 +131,14 @@ const CKDForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListSanPham(res.data);
+          setListSanPham(
+            res.data.map((sp) => {
+              return {
+                ...sp,
+                lot_DinhMucVatTu_Id: id,
+              };
+            })
+          );
         } else {
           setListSanPham([]);
         }
@@ -154,9 +161,23 @@ const CKDForm = ({ history, match, permission }) => {
     }).then((res) => {
       if (res && res.data) {
         if (data) {
-          setListSoLot([...res.data, data]);
+          setListSoLot(
+            [...res.data, data].map((dt) => {
+              return {
+                ...dt,
+                name: dt.soLot + " - " + dt.phienBan,
+              };
+            })
+          );
         } else {
-          setListSoLot(res.data);
+          setListSoLot(
+            res.data.map((dt) => {
+              return {
+                ...dt,
+                name: dt.soLot + " - " + dt.phienBan,
+              };
+            })
+          );
         }
       } else {
         setListSoLot([]);
@@ -524,6 +545,14 @@ const CKDForm = ({ history, match, permission }) => {
         chiTiet_PhieuNhapKhoCKDs: ListSanPham,
         ngayNhan: nhapkho.ngayNhan._i,
       };
+      ListSoLot.forEach((l) => {
+        if (
+          l.lot_DinhMucVatTu_Id.toLowerCase() ===
+          nhapkho.lot_DinhMucVatTu_Id.toLowerCase()
+        ) {
+          newData.lot_Id = l.lot_Id;
+        }
+      });
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -632,7 +661,7 @@ const CKDForm = ({ history, match, permission }) => {
       <ContainerHeader title={formTitle} back={goBack} />
       <Card className="th-card-margin-bottom">
         <Form
-          {...DEFAULT_FORM_CUSTOM}
+          {...DEFAULT_FORM_STYLE}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
@@ -770,7 +799,7 @@ const CKDForm = ({ history, match, permission }) => {
             <Col span={12}>
               <FormItem
                 label="Số Lot"
-                name={["phieunhapkho", "lot_Id"]}
+                name={["phieunhapkho", "lot_DinhMucVatTu_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -782,7 +811,7 @@ const CKDForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListSoLot}
                   placeholder="Chọn số Lot"
-                  optionsvalue={["lot_Id", "soLot"]}
+                  optionsvalue={["lot_DinhMucVatTu_Id", "name"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

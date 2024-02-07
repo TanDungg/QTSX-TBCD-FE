@@ -9,8 +9,8 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
-  getLocalStorage,
-  getTokenInfo,
+  // getLocalStorage,
+  // getTokenInfo,
 } from "src/util/Common";
 
 const FormItem = Form.Item;
@@ -23,9 +23,9 @@ const LotForm = ({ history, match, permission }) => {
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
-  const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
+  // const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [ListSanPham, setListSanPham] = useState([]);
-  const [ListXuong, setListXuong] = useState([]);
+  // const [ListXuong, setListXuong] = useState([]);
   const [ListPhienBanDinhMuc, setListPhienBanDinhMuc] = useState([]);
   const [form] = Form.useForm();
   const { tenLot } = initialState;
@@ -38,7 +38,7 @@ const LotForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           setType("new");
           getSanPham();
-          getXuong();
+          // getXuong();
         } else if (permission && !permission.add) {
           history.push("/home");
         }
@@ -46,7 +46,7 @@ const LotForm = ({ history, match, permission }) => {
         if (permission && permission.edit) {
           setType("edit");
           getSanPham();
-          getXuong();
+          // getXuong();
           getInfo();
         } else if (permission && !permission.edit) {
           history.push("/home");
@@ -79,41 +79,40 @@ const LotForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
-  const getXuong = () => {
-    const params = convertObjectToUrlParams({
-      page: -1,
-      donviid: INFO.donVi_Id,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `PhongBan?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        const xuong = [];
-        res.data.forEach((x) => {
-          if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
-            xuong.push(x);
-          }
-        });
-        setListXuong(xuong);
-      } else {
-        setListXuong([]);
-      }
-    });
-  };
-  const getPhienBan = (SanPham_Id, phongBan_Id) => {
+  // const getXuong = () => {
+  //   const params = convertObjectToUrlParams({
+  //     page: -1,
+  //     donviid: INFO.donVi_Id,
+  //   });
+  //   new Promise((resolve, reject) => {
+  //     dispatch(
+  //       fetchStart(
+  //         `PhongBan?${params}`,
+  //         "GET",
+  //         null,
+  //         "DETAIL",
+  //         "",
+  //         resolve,
+  //         reject
+  //       )
+  //     );
+  //   }).then((res) => {
+  //     if (res && res.data) {
+  //       const xuong = [];
+  //       res.data.forEach((x) => {
+  //         if (x.tenPhongBan.toLowerCase().includes("xưởng")) {
+  //           xuong.push(x);
+  //         }
+  //       });
+  //       setListXuong(xuong);
+  //     } else {
+  //       setListXuong([]);
+  //     }
+  //   });
+  // };
+  const getPhienBan = (SanPham_Id) => {
     const params = convertObjectToUrlParams({
       SanPham_Id,
-      phongBan_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -129,7 +128,16 @@ const LotForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.status === 200) {
-        setListPhienBanDinhMuc(res.data.filter((d) => d.phienBan));
+        setListPhienBanDinhMuc(
+          res.data
+            .filter((d) => d.phienBan)
+            .map((pb) => {
+              return {
+                ...pb,
+                name: pb.phienBan + " - " + pb.tenPhongBan,
+              };
+            })
+        );
       } else {
         setListPhienBanDinhMuc([]);
       }
@@ -150,7 +158,14 @@ const LotForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            Lot: res.data,
+            Lot: {
+              ...res.data,
+              list_DinhMucVatTus:
+                res.data.list_DinhMucVatTus &&
+                JSON.parse(res.data.list_DinhMucVatTus).map((dm) =>
+                  dm.lkn_DinhMucVatTu_Id.toLowerCase()
+                ),
+            },
           });
         }
         setInfo(res.data);
@@ -194,6 +209,11 @@ const LotForm = ({ history, match, permission }) => {
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
       const newData = user;
+      newData.list_DinhMucVatTus = newData.list_DinhMucVatTus.map((dm) => {
+        return {
+          lkn_DinhMucVatTu_Id: dm,
+        };
+      });
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(`Lot`, "POST", newData, "ADD", "", resolve, reject)
@@ -218,7 +238,15 @@ const LotForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const newData = { ...info, ...user };
+      const newData = {
+        ...info,
+        ...user,
+        list_DinhMucVatTus: user.list_DinhMucVatTus.map((dm) => {
+          return {
+            lkn_DinhMucVatTu_Id: dm,
+          };
+        }),
+      };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(`Lot/${id}`, "PUT", newData, "EDIT", "", resolve, reject)
@@ -284,10 +312,7 @@ const LotForm = ({ history, match, permission }) => {
               showSearch
               optionFilterProp="name"
               onSelect={(val) => {
-                const pb = form.getFieldValue("Lot").phongBan_Id;
-                if (pb) {
-                  getPhienBan(val, pb);
-                }
+                getPhienBan(val);
               }}
             />
           </FormItem>
@@ -309,7 +334,7 @@ const LotForm = ({ history, match, permission }) => {
               placeholder="Nhập số lượng"
             />
           </FormItem>
-          <FormItem
+          {/* <FormItem
             label="Xưởng"
             name={["Lot", "phongBan_Id"]}
             rules={[
@@ -333,13 +358,13 @@ const LotForm = ({ history, match, permission }) => {
                 }
               }}
             />
-          </FormItem>
+          </FormItem> */}
           <FormItem
             label="Phiên bản định mức"
-            name={["Lot", "lkn_DinhMucVatTu_Id"]}
+            name={["Lot", "list_DinhMucVatTus"]}
             rules={[
               {
-                type: "string",
+                type: "array",
               },
             ]}
           >
@@ -347,9 +372,10 @@ const LotForm = ({ history, match, permission }) => {
               className="heading-select slt-search th-select-heading"
               data={ListPhienBanDinhMuc ? ListPhienBanDinhMuc : []}
               placeholder="Chọn phiên bản định mức"
-              optionsvalue={["id", "phienBan"]}
+              optionsvalue={["id", "name"]}
               style={{ width: "100%" }}
               showSearch
+              mode={"multiple"}
               optionFilterProp="name"
             />
           </FormItem>

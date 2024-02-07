@@ -232,8 +232,10 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
         if (res && res.data) {
           setInfo(res.data);
           getListLoaiSanPham();
-          setFile(res.data.file);
-          setDisableUpload(true);
+          if (res.data.file) {
+            setFile(res.data.file);
+            setDisableUpload(true);
+          }
           getListSanPham(res.data.tits_qtsx_LoaiSanPham_Id);
           setDataModal({
             tits_qtsx_LoaiSanPham_Id: res.data.tits_qtsx_LoaiSanPham_Id,
@@ -314,9 +316,7 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
         if (ListHangMucKiemTra.length === 0) {
           Helpers.alertError("Danh sách sản phẩm rỗng");
         } else {
-          if (type === "new") {
-            hanldeXacNhanTaiFile(values.checkSheets, val);
-          } else if (type === "edit" && File.name) {
+          if (File.name) {
             hanldeXacNhanTaiFile(values.checkSheets, val);
           } else {
             values.checkSheets.file = info.file;
@@ -738,11 +738,6 @@ function QuanLyChecksheetsForm({ match, permission, history }) {
                 <FormItem
                   label="Bảng vẽ kỹ thuật"
                   name={["checkSheets", "file"]}
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
                 >
                   {!disableUpload ? (
                     <Upload {...props}>
