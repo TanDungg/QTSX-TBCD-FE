@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Form, Spin } from "antd";
+import { Card, Form, Spin, Switch } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
 
@@ -390,6 +390,14 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
                 placeholder="Nhập vị trí"
                 disabled={disableViTri}
               />
+            </FormItem>
+            <FormItem
+              label="Vị trí lỗi"
+              name={["CauTrucKho", "isLoi"]}
+              valuePropName="checked"
+              initialValue={false}
+            >
+              <Switch />
             </FormItem>
             {/* <FormItem
               label="Kho thành phẩm"

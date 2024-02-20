@@ -203,7 +203,9 @@ function KhoVatTu({ match, history, permission }) {
       key: "soLuong",
       align: "center",
       render: (val) => (
-        <span>{val.toString().includes(".") ? val.toFixed(4) : val}</span>
+        <span>
+          {val && val.toString().includes(".") ? val.toFixed(4) : val}
+        </span>
       ),
     },
     {
@@ -245,7 +247,9 @@ function KhoVatTu({ match, history, permission }) {
       align: "center",
       render: (val) => {
         return (
-          <span>{val.tenNgan ? val.tenNgan : val.tenKe && val.tenKe}</span>
+          <span style={{ border: val.isLoi && "1px solid red", padding: 2 }}>
+            {val.tenNgan ? val.tenNgan : val.tenKe && val.tenKe}
+          </span>
         );
       },
       filters: removeDuplicates(

@@ -29,10 +29,36 @@ const ChuyenQuyTrinh = asyncComponent(() =>
 const ChuyenQuyTrinhForm = asyncComponent(() =>
   import("./ChuyenQuyTrinh/ChuyenQuyTrinhForm")
 );
+const TienDoSanXuat = asyncComponent(() =>
+  import("./TienDoSanXuat/TienDoSanXuat")
+);
+const TienDoSanXuatForm = asyncComponent(() =>
+  import("./TienDoSanXuat/TienDoSanXuatForm")
+);
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
     <Switch>
+      <Route
+        path={`${match.url}/nhap-tien-do-san-xuat`}
+        exact
+        component={Auth(TienDoSanXuat, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nhap-tien-do-san-xuat/them-moi`}
+        exact
+        component={Auth(TienDoSanXuatForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nhap-tien-do-san-xuat/:id/chinh-sua`}
+        exact
+        component={Auth(TienDoSanXuatForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nhap-tien-do-san-xuat/:id/chi-tiet`}
+        exact
+        component={Auth(TienDoSanXuatForm, menus, pathname, permission)}
+      />
       <Route
         path={`${match.url}/dinh-muc-vat-tu`}
         exact

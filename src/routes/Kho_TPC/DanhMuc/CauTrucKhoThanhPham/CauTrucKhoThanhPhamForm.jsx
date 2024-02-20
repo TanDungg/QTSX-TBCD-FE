@@ -408,6 +408,14 @@ function CauTrucKhoThanhPhamForm({ match, permission, history }) {
             >
               <Switch />
             </FormItem>
+            <FormItem
+              label="Vị trí lỗi"
+              name={["CauTrucKho", "isLoi"]}
+              valuePropName="checked"
+              initialValue={false}
+            >
+              <Switch />
+            </FormItem>
             <FormSubmit
               goBack={goBack}
               saveAndClose={saveAndClose}

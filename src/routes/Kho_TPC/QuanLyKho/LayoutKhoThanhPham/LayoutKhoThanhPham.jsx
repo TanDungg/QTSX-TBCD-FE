@@ -238,7 +238,7 @@ function LayoutKhoThanhPham({ history, permission }) {
         </Row>
         <Row>
           <Col xxl={12} xl={12} xs={24}>
-            <Card style={{ width: "95%" }}>
+            <Card style={{ width: "95%", overflow: "auto", height: "67vh" }}>
               {ListChiTietKho.length > 0 ? (
                 <Row>
                   {ListChiTietKho.map((ke) => {
@@ -248,22 +248,25 @@ function LayoutKhoThanhPham({ history, permission }) {
                         xl={12}
                         lg={12}
                         style={{
-                          height:
-                            // ke.children.length === 0
-                            // ?
-                            soTangMax * 40,
-                          // :
-                          // ke.children.length * 40,
+                          height: soTangMax * 40,
+                          boxSizing: "border-box",
                           marginBottom: 50,
                         }}
                       >
-                        <h5>{ke.tenCauTrucKho}</h5>
+                        <h5
+                          style={{
+                            height: "20%",
+                            color: ke.isLoi && "red",
+                          }}
+                        >
+                          {ke.tenCauTrucKho}
+                        </h5>
                         <div
                           style={{
                             border:
                               ke.children.length === 0 && "1px solid #333",
                             width: "90%",
-                            height: "100%",
+                            height: "80%",
                             padding: "0 14px",
                             cursor: "pointer",
                             backgroundColor:

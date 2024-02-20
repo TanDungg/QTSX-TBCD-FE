@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Popover } from "antd";
+import { Card, Button, Divider, Col, Popover, Checkbox } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -279,6 +279,14 @@ function CauTrucKhoThanhPham({ match, history, permission }) {
           </Popover>
         </div>
       ),
+    },
+    {
+      title: "Vị trí lỗi",
+      dataIndex: "isLoi",
+      key: "isLoi",
+      align: "center",
+      width: 80,
+      render: (val) => <Checkbox checked={val} disabled={true} />,
     },
     {
       title: "Vị trí",

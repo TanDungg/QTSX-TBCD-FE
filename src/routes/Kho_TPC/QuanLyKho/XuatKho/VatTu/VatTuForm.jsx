@@ -654,7 +654,17 @@ const VatTuForm = ({ history, match, permission }) => {
           console.log("error", error);
         });
     } else {
-      saveData(form.getFieldValue("phieuxuatkhovattu"), value, isDuyet);
+      validateFields()
+        .then((values) => {
+          if (listVatTu.length === 0) {
+            Helpers.alertError("Danh sách vật tư rỗng");
+          } else {
+            saveData(values.phieuxuatkhovattu, value, isDuyet);
+          }
+        })
+        .catch((error) => {
+          console.log("error", error);
+        });
     }
   };
 
@@ -709,12 +719,14 @@ const VatTuForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) goBack();
-          } else {
-            setListVatTu([]);
-            resetFields();
-            setFieldTouch(false);
+          if (res.status === 200) {
+            if (saveQuit) {
+              goBack();
+            } else {
+              setListVatTu([]);
+              resetFields();
+              setFieldTouch(false);
+            }
           }
         })
         .catch((error) => console.error(error));

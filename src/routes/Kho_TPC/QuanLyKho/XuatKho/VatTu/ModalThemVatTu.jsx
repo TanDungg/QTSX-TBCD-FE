@@ -117,55 +117,57 @@ function ModalThemVatTu({
             const newDataViTri = [];
             const newDataKey = [];
             res.data.forEach((sp, index) => {
-              let check = false;
-              infoVatTu.list_ChiTietLuuKhos.forEach((info) => {
+              if (!sp.isLoi) {
+                let check = false;
+                infoVatTu.list_ChiTietLuuKhos.forEach((info) => {
+                  if (
+                    info.lkn_ChiTietKhoVatTu_Id.toLowerCase() ===
+                    sp.lkn_ChiTietKhoVatTu_Id.toLowerCase()
+                  ) {
+                    check = true;
+                    newDataKey.push(index + 1);
+                    newDataViTri.push({
+                      ...sp,
+                      ...info,
+                      soLuong: sp.soLuong,
+                      viTri: sp.tenNgan
+                        ? sp.tenNgan
+                        : sp.tenKe
+                        ? sp.tenKe
+                        : sp.tenKho,
+                      soLuongThucXuat: info.SoLuong,
+                    });
+                    newData.push({
+                      ...sp,
+                      ...info,
+                      soLuong: sp.soLuong,
+                      viTri: sp.tenNgan
+                        ? sp.tenNgan
+                        : sp.tenKe
+                        ? sp.tenKe
+                        : sp.tenKho,
+                      soLuongThucXuat: info.SoLuong,
+                    });
+                  }
+                });
                 if (
-                  info.lkn_ChiTietKhoVatTu_Id.toLowerCase() ===
-                  sp.lkn_ChiTietKhoVatTu_Id.toLowerCase()
+                  !check &&
+                  !newData.some(
+                    (n) =>
+                      n.lkn_ChiTietKhoVatTu_Id.toLowerCase() ===
+                      sp.lkn_ChiTietKhoVatTu_Id.toLowerCase()
+                  )
                 ) {
-                  check = true;
-                  newDataKey.push(index + 1);
-                  newDataViTri.push({
-                    ...sp,
-                    ...info,
-                    soLuong: sp.soLuong,
-                    viTri: sp.tenNgan
-                      ? sp.tenNgan
-                      : sp.tenKe
-                      ? sp.tenKe
-                      : sp.tenKho,
-                    soLuongThucXuat: info.SoLuong,
-                  });
                   newData.push({
                     ...sp,
-                    ...info,
-                    soLuong: sp.soLuong,
                     viTri: sp.tenNgan
                       ? sp.tenNgan
                       : sp.tenKe
                       ? sp.tenKe
                       : sp.tenKho,
-                    soLuongThucXuat: info.SoLuong,
+                    soLuongThucXuat: sp.soLuong,
                   });
                 }
-              });
-              if (
-                !check &&
-                !newData.some(
-                  (n) =>
-                    n.lkn_ChiTietKhoVatTu_Id.toLowerCase() ===
-                    sp.lkn_ChiTietKhoVatTu_Id.toLowerCase()
-                )
-              ) {
-                newData.push({
-                  ...sp,
-                  viTri: sp.tenNgan
-                    ? sp.tenNgan
-                    : sp.tenKe
-                    ? sp.tenKe
-                    : sp.tenKho,
-                  soLuongThucXuat: sp.soLuong,
-                });
               }
             });
             if (type === "edit") {
@@ -211,16 +213,19 @@ function ModalThemVatTu({
               setListViTri(newData);
             }
           } else {
-            const newData = res.data.map((sp) => {
-              return {
-                ...sp,
-                viTri: sp.tenNgan
-                  ? sp.tenNgan
-                  : sp.tenKe
-                  ? sp.tenKe
-                  : sp.tenKho,
-                soLuongThucXuat: sp.soLuong,
-              };
+            const newData = [];
+            res.data.forEach((sp) => {
+              if (!sp.isLoi) {
+                newData.push({
+                  ...sp,
+                  viTri: sp.tenNgan
+                    ? sp.tenNgan
+                    : sp.tenKe
+                    ? sp.tenKe
+                    : sp.tenKho,
+                  soLuongThucXuat: sp.soLuong,
+                });
+              }
             });
             setListViTri(newData);
           }

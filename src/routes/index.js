@@ -41,7 +41,19 @@ const InBarcode_QTSX_TITS = asyncComponent(() =>
   import("./QTSX_TITS/InBarcode")
 );
 const ManHinh = asyncComponent(() => import("./QTSX_TITS/QuanLyManHinh"));
-
+/* LMS_VPTQ */
+const Home_LMS_VPTQ = asyncComponent(() => import("./LMS_VPTQ/Home"));
+const HeThong_LMS_VPTQ = asyncComponent(() => import("./LMS_VPTQ/HeThong"));
+const DanhMuc_LMS_VPTQ = asyncComponent(() => import("./LMS_VPTQ/DanhMuc"));
+const ThietLapChuyenDe = asyncComponent(() =>
+  import("./LMS_VPTQ/ThietLapChuyenDe")
+);
+const DangKyVaTheoDoi = asyncComponent(() =>
+  import("./LMS_VPTQ/DangKyVaTheoDoi")
+);
+const DaoTao = asyncComponent(() => import("./LMS_VPTQ/DaoTao"));
+const KiemTra = asyncComponent(() => import("./LMS_VPTQ/KiemTra"));
+const BaoCao = asyncComponent(() => import("./LMS_VPTQ/BaoCao"));
 const App = ({ match, menus, location }) => {
   const { pathname } = location;
   return (
@@ -149,6 +161,39 @@ const App = ({ match, menus, location }) => {
         <Route
           path={`${match.url}quan-ly-man-hinh-qtsx-tits`}
           component={Auth(ManHinh, menus, pathname)}
+        />
+        {/* LMS-VPTQ */}
+        <Route
+          path={`${match.url}home-lms-vptq`}
+          component={Auth(Home_LMS_VPTQ, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}he-thong-lms-vptq`}
+          component={Auth(HeThong_LMS_VPTQ, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}danh-muc-lms-vptq`}
+          component={Auth(DanhMuc_LMS_VPTQ, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}dao-tao-lms-vptq`}
+          component={Auth(DaoTao, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}dang-ky-va-theo-doi-lms-vptq`}
+          component={Auth(DangKyVaTheoDoi, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}thiet-lap-chuyen-de-lms-vptq`}
+          component={Auth(ThietLapChuyenDe, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}kiem-tra-lms-vptq`}
+          component={Auth(KiemTra, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}bao-cao-lms-vptq`}
+          component={Auth(BaoCao, menus, pathname)}
         />
         <Route path="*" component={Auth(NotFound, menus, pathname)} />
       </Switch>

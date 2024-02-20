@@ -41,27 +41,30 @@ function ModalThemKe({ openModalFS, openModal, addKe, cauTrucKho_Id }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const newData = res.data.map((sp) => {
-            return {
-              ...sp,
-              name:
-                sp.maSanPham +
-                " - " +
-                sp.tenSanPham +
-                " - (" +
-                (sp.tenKe
+          const newData = [];
+          res.data.forEach((sp) => {
+            if (!sp.isLoi) {
+              newData.push({
+                ...sp,
+                name:
+                  sp.maSanPham +
+                  " - " +
+                  sp.tenSanPham +
+                  " - (" +
+                  (sp.tenKe
+                    ? sp.tenKe +
+                      (sp.tenTang
+                        ? " - " + sp.tenTang + " - " + sp.tenNgan + ")"
+                        : ")")
+                    : sp.tenKho + ")"),
+                viTri: sp.tenKe
                   ? sp.tenKe +
                     (sp.tenTang
-                      ? " - " + sp.tenTang + " - " + sp.tenNgan + ")"
-                      : ")")
-                  : sp.tenKho + ")"),
-              viTri: sp.tenKe
-                ? sp.tenKe +
-                  (sp.tenTang
-                    ? " - " + sp.tenTang + " - " + sp.tenNgan + ""
-                    : "")
-                : sp.tenKho + "",
-            };
+                      ? " - " + sp.tenTang + " - " + sp.tenNgan + ""
+                      : "")
+                  : sp.tenKho + "",
+              });
+            }
           });
           setListSanPham(newData);
         } else {

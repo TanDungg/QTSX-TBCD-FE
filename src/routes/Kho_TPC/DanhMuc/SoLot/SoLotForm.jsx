@@ -313,6 +313,11 @@ const LotForm = ({ history, match, permission }) => {
               optionFilterProp="name"
               onSelect={(val) => {
                 getPhienBan(val);
+                setFieldsValue({
+                  Lot: {
+                    list_DinhMucVatTus: null,
+                  },
+                });
               }}
             />
           </FormItem>

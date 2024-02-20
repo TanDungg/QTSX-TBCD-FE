@@ -790,6 +790,7 @@ const CKDForm = ({ history, match, permission }) => {
                   placeholder="Chọn kho"
                   optionsvalue={["id", "tenCTKho"]}
                   style={{ width: "100%" }}
+                  allowClear
                   showSearch
                   optionFilterProp="name"
                   disabled={type === "new" ? false : true}

@@ -1058,3 +1058,60 @@ export const exportAPK = (fileName, fileContent) => {
 
   return FileSaver.saveAs(dataBlob, fileName);
 };
+
+/**
+ * * lấy ngày tháng năm giờ phút hiện tại DD/MM/YYYY HH:mm
+ */
+export const getDateTimeNow = () => {
+  const date = new Date();
+  date.setMinutes(date.getMinutes());
+
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear().toString();
+  const hours = date.getHours().toString().padStart(2, "0");
+  const minutes = date.getMinutes().toString().padStart(2, "0");
+
+  return `${day}/${month}/${year} ${hours}:${minutes}`;
+};
+/* Lấy ngày đầu tháng */
+export const getNgayDauThang = () => {
+  const date = new Date();
+  date.setDate(1);
+
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear().toString();
+
+  return `${day}/${month}/${year}`;
+};
+
+/* Lấy ngày cuối tháng */
+export const getNgayCuoiThang = () => {
+  const date = new Date();
+  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+  const day = lastDay.getDate().toString().padStart(2, "0");
+  const month = (lastDay.getMonth() + 1).toString().padStart(2, "0");
+  const year = lastDay.getFullYear().toString();
+
+  return `${day}/${month}/${year}`;
+};
+//Đếm ngược thời gian
+export const DemNguocThoiGian = (time) => {
+  const current = new Date().getTime();
+  const thoiGianDemNguoc = time - current;
+
+  if (thoiGianDemNguoc <= 0) {
+    return { hours: 0, minutes: 0, seconds: 0 };
+  }
+  const hours = Math.floor(
+    (thoiGianDemNguoc % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+  );
+  const minutes = Math.floor(
+    (thoiGianDemNguoc % (1000 * 60 * 60)) / (1000 * 60)
+  );
+  const seconds = Math.floor((thoiGianDemNguoc % (1000 * 60)) / 1000);
+
+  return { hours, minutes, seconds };
+};

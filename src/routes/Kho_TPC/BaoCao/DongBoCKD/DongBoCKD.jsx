@@ -172,6 +172,23 @@ function DongBoCKD({ permission, history }) {
       onCell: renderRow,
     },
     {
+      title: "Mã sản phẩm",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maSanPham,
+            value: d.maSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maSanPham.includes(value),
+      filterSearch: true,
+      onCell: renderRow,
+    },
+    {
       title: "Tên sản phẩm",
       dataIndex: "tenSanPham",
       key: "tenSanPham",
@@ -202,6 +219,23 @@ function DongBoCKD({ permission, history }) {
         })
       ),
       onFilter: (value, record) => record.soLot.includes(value),
+      filterSearch: true,
+      onCell: renderRow,
+    },
+    {
+      title: "Phiên bản",
+      dataIndex: "phienBan",
+      key: "phienBan",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.phienBan,
+            value: d.phienBan,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.phienBan.includes(value),
       filterSearch: true,
       onCell: renderRow,
     },
@@ -332,8 +366,9 @@ function DongBoCKD({ permission, history }) {
   const handleOnSelectLoaiSanPham = (val) => {
     if (val !== LoaiSanPham) {
       setLoaiSanPham(val);
+      setSanPham("");
       getSanPham(val);
-      getListData(val, SanPham, Lot, TuNgay, DenNgay);
+      getListData(val, "", Lot, TuNgay, DenNgay);
     }
   };
   const handleOnClearLoaiSanPham = () => {
@@ -349,7 +384,7 @@ function DongBoCKD({ permission, history }) {
     if (TuNgay !== dateString[0] || DenNgay !== dateString[1]) {
       setTuNgay(dateString[0]);
       setDenNgay(dateString[1]);
-      getListData(LoaiSanPham, SanPham, dateString[0], dateString[1]);
+      getListData(LoaiSanPham, SanPham, Lot, dateString[0], dateString[1]);
     }
   };
 

@@ -4,7 +4,7 @@ import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import { getNumberDayOfMonth } from "src/util/Common";
+import { getNumberDayOfMonth, removeDuplicates } from "src/util/Common";
 
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { reDataForTable } from "src/util/Common";
@@ -20,6 +20,9 @@ function Home({ permission, history }) {
   const [dataTDSXB, setDataTDSXB] = useState([]);
   const [dataTDSXCT, setDataTDSXCT] = useState([]);
   const [dataTDGHB, setDataTDGHB] = useState([]);
+  const [dataVTHH, setDataVTHH] = useState([]);
+  const [dataTKTT, setDataTKTT] = useState([]);
+
   const [mixRowTDSX, setMixRowTDSX] = useState([]);
   const [mixRowTDNK, setMixRowTDNK] = useState([]);
   const [mixRowTDGH, setMixRowTDGH] = useState([]);
@@ -303,6 +306,46 @@ function Home({ permission, history }) {
               });
             });
             setMixRowTDGH(result);
+          }
+        })
+        .catch((error) => console.error(error));
+    } else if (number === 5) {
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `CauTrucKho/vat-tu-sap-het-han`,
+            "GET",
+            null,
+            "DETAIL",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (res && res.status === 200) {
+            setDataVTHH(res.data);
+          }
+        })
+        .catch((error) => console.error(error));
+    } else if (number === 6) {
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `CauTrucKho/vat-tu-dinh-muc`,
+            "GET",
+            null,
+            "DETAIL",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (res && res.status === 200) {
+            setDataTKTT(res.data);
           }
         })
         .catch((error) => console.error(error));
@@ -667,7 +710,184 @@ function Home({ permission, history }) {
       width: 65,
     },
   ];
-
+  let colVTSHH = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 50,
+    },
+    {
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataVTHH, (d) => {
+          return {
+            text: d.maVatTu,
+            value: d.maVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maVatTu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataVTHH, (d) => {
+          return {
+            text: d.tenVatTu,
+            value: d.tenVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenVatTu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "soLuong",
+      key: "soLuong",
+      align: "center",
+    },
+    {
+      title: "Hạn sử dụng",
+      dataIndex: "thoiGianSuDung",
+      key: "thoiGianSuDung",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataVTHH, (d) => {
+          return {
+            text: d.thoiGianSuDung,
+            value: d.thoiGianSuDung,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.thoiGianSuDung.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Kho",
+      dataIndex: "tenKho",
+      key: "tenKho",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataVTHH, (d) => {
+          return {
+            text: d.tenKho,
+            value: d.tenKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenKho.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Vị trí",
+      key: "viTri",
+      align: "center",
+      render: (val) => {
+        return (
+          <span>{val.tenNgan ? val.tenNgan : val.tenKe && val.tenKe}</span>
+        );
+      },
+      filters: removeDuplicates(
+        map(dataVTHH, (d) => {
+          return {
+            text: d.tenNgan ? d.tenNgan : d.tenKe && d.tenKe,
+            value: d.tenNgan ? d.tenNgan : d.tenKe && d.tenKe,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenNgan
+          ? record.tenNgan.includes(value)
+          : record.tenKe.includes(value),
+      filterSearch: true,
+    },
+  ];
+  let colTKTT = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      align: "center",
+      width: 50,
+    },
+    {
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataTKTT, (d) => {
+          return {
+            text: d.maVatTu,
+            value: d.maVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maVatTu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataTKTT, (d) => {
+          return {
+            text: d.tenVatTu,
+            value: d.tenVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenVatTu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Số lượng tồn",
+      dataIndex: "soLuongTon",
+      key: "soLuongTon",
+      align: "center",
+      render: (val) => <span>{val.toFixed(4)}</span>,
+    },
+    {
+      title: "Số lượng tồn tối thiểu",
+      dataIndex: "sLTonKhoToiThieu",
+      key: "sLTonKhoToiThieu",
+      align: "center",
+    },
+    {
+      title: "Số lượng tồn tối đa",
+      dataIndex: "sLTonKhoToiDa",
+      key: "sLTonKhoToiDa",
+      align: "center",
+    },
+    {
+      title: "Kho",
+      dataIndex: "tenKho",
+      key: "tenKho",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataTKTT, (d) => {
+          return {
+            text: d.tenKho,
+            value: d.tenKho,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenKho.includes(value),
+      filterSearch: true,
+    },
+  ];
   const components = {
     body: {
       row: EditableRow,
@@ -720,7 +940,36 @@ function Home({ permission, history }) {
       }),
     };
   });
-
+  const columsVTSHH = map(colVTSHH, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
+  const columsTKTT = map(colTKTT, (col) => {
+    if (!col.editable) {
+      return col;
+    }
+    return {
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        info: col.info,
+      }),
+    };
+  });
   const config = {
     data,
     isGroup: true,
@@ -874,6 +1123,40 @@ function Home({ permission, history }) {
                   bordered
                   dataSource={dataTDGHB}
                   columns={columsTDHGB}
+                  loading={loading}
+                  components={components}
+                  pagination={false}
+                />
+              ),
+            },
+            {
+              label: `Vật tư sắp hết hạn`,
+              key: "5",
+              children: (
+                <Table
+                  size="small"
+                  className="gx-table-responsive gx-table-font-size"
+                  scroll={{ y: "67vh", x: 700 }}
+                  bordered
+                  dataSource={reDataForTable(dataVTHH)}
+                  columns={columsVTSHH}
+                  loading={loading}
+                  components={components}
+                  pagination={false}
+                />
+              ),
+            },
+            {
+              label: `Tồn kho tối thiểu`,
+              key: "6",
+              children: (
+                <Table
+                  size="small"
+                  className="gx-table-responsive gx-table-font-size"
+                  scroll={{ y: "67vh", x: 800 }}
+                  bordered
+                  dataSource={reDataForTable(dataTKTT)}
+                  columns={columsTKTT}
                   loading={loading}
                   components={components}
                   pagination={false}
