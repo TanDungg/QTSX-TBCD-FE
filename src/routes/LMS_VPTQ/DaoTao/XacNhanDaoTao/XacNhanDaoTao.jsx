@@ -751,11 +751,16 @@ function XacNhanDaoTao({ match, permission, history }) {
             md={12}
             sm={24}
             xs={24}
-            style={{ marginBottom: 8 }}
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              marginBottom: 8,
+            }}
           >
-            <span>Ngày đào tạo:</span>
+            <span>Ngày:</span>
             <RangePicker
               format={"DD/MM/YYYY"}
+              style={{ width: "85%" }}
               onChange={(date, dateString) => handleChangeNgay(dateString)}
               defaultValue={[
                 moment(TuNgay, "DD/MM/YYYY"),

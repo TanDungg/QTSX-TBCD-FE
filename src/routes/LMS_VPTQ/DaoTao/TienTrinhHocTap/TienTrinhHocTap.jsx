@@ -1,4 +1,4 @@
-import { Card, Col, Image, Row, Tag } from "antd";
+import { Card, Col, DatePicker, Image, Row, Tag } from "antd";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -15,6 +15,7 @@ import { convertObjectToUrlParams } from "src/util/Common";
 import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
+const { RangePicker } = DatePicker;
 
 function TienTrinhHocTap({ permission, history }) {
   const dispatch = useDispatch();
@@ -30,6 +31,8 @@ function TienTrinhHocTap({ permission, history }) {
   const [DonVi, setDonVi] = useState(null);
   const [ListHocVien, setListHocVien] = useState([]);
   const [HocVien, setHocVien] = useState(null);
+  const [TuNgay, setTuNgay] = useState();
+  const [DenNgay, setDenNgay] = useState();
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -65,10 +68,12 @@ function TienTrinhHocTap({ permission, history }) {
     });
   };
 
-  const getListData = (donVi_Id, user_Id) => {
+  const getListData = (donVi_Id, user_Id, tuNgay, denNgay) => {
     let param = convertObjectToUrlParams({
       donVi_Id,
       user_Id,
+      tuNgay,
+      denNgay,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -136,10 +141,10 @@ function TienTrinhHocTap({ permission, history }) {
         if (res && res.data) {
           if (donviId) {
             setHocVien(res.data[0].user_Id);
-            getListData(donviId, res.data[0].user_Id);
+            getListData(donviId, res.data[0].user_Id, TuNgay, DenNgay);
           } else {
             setHocVien(INFO.user_Id.toLowerCase());
-            getListData(INFO.donVi_Id, INFO.user_Id);
+            getListData(INFO.donVi_Id, INFO.user_Id, TuNgay, DenNgay);
           }
           setListHocVien(res.data);
         } else {
@@ -432,7 +437,13 @@ function TienTrinhHocTap({ permission, history }) {
 
   const handleOnSelectHocVien = (value) => {
     setHocVien(value);
-    getListData(DonVi, value);
+    getListData(DonVi, value, TuNgay, DenNgay);
+  };
+
+  const handleChangeNgay = (dateString) => {
+    setTuNgay(dateString[0]);
+    setDenNgay(dateString[1]);
+    getListData(DonVi, HocVien, dateString[0], dateString[1]);
   };
 
   return (
@@ -467,7 +478,7 @@ function TienTrinhHocTap({ permission, history }) {
               />
             </Col>
             <Col
-              xxl={5}
+              xxl={6}
               xl={8}
               lg={12}
               md={12}
@@ -486,6 +497,27 @@ function TienTrinhHocTap({ permission, history }) {
                 showSearch
                 optionFilterProp={"name"}
                 onSelect={handleOnSelectHocVien}
+              />
+            </Col>
+            <Col
+              xxl={6}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                marginBottom: 8,
+              }}
+            >
+              <span>Ngày:</span>
+              <RangePicker
+                format={"DD/MM/YYYY"}
+                style={{ width: "85%" }}
+                onChange={(date, dateString) => handleChangeNgay(dateString)}
+                allowClear={false}
               />
             </Col>
           </Row>

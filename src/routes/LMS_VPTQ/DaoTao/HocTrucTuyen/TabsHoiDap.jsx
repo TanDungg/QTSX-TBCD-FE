@@ -1,4 +1,5 @@
 import {
+  CloseCircleOutlined,
   DeleteOutlined,
   DislikeFilled,
   DislikeOutlined,
@@ -6,6 +7,7 @@ import {
   ExclamationCircleOutlined,
   LikeFilled,
   LikeOutlined,
+  SaveOutlined,
   SendOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
@@ -31,7 +33,6 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 import { BASE_URL_API } from "src/constants/Config";
-import ModalEditHoiDap from "./ModalEditHoiDap";
 import ModalEditPhanHoi from "./ModalEditPhanHoi";
 
 const FormItem = Form.Item;
@@ -60,10 +61,19 @@ const TabsHoiDap = ({ dataHoiDap }) => {
   const [IndexPhanHoi, setIndexPhanHoi] = useState(null);
   const [IndexXemPhanHoi, setIndexXemPhanHoi] = useState(null);
   const [NoiDungPhanHoi, setNoiDungPhanHoi] = useState(null);
-  const [CauHoi, setCauHoi] = useState(null);
-  const [ActiveModalEditHoiDap, setActiveModalEditHoiDap] = useState(false);
   const [PhanHoi, setPhanHoi] = useState(null);
   const [ActiveModalEditPhanHoi, setActiveModalEditPhanHoi] = useState(false);
+  const [CauHoi, setCauHoi] = useState(false);
+  const [IsEditCauHoi, setIsEditCauHoi] = useState(false);
+  const [IndexChinhSuaCauHoi, setIndexChinhSuaCauHoi] = useState(null);
+  const [FileHinhAnhEditHoiDap, setFileHinhAnhEditHoiDap] = useState(null);
+  const [DisableUploadHinhAnhEditHoiDap, setDisableUploadHinhAnhEditHoiDap] =
+    useState(false);
+  const [FileDinhKemEditHoiDap, setFileDinhKemEditHoiDap] = useState(null);
+  const [
+    DisableUploadFileDinhKemEditHoiDap,
+    setDisableUploadFileDinhKemEditHoiDap,
+  ] = useState(false);
 
   useEffect(() => {
     getInfo(dataHoiDap && dataHoiDap.vptq_lms_ChuyenDeDaoTao_Id);
@@ -93,88 +103,186 @@ const TabsHoiDap = ({ dataHoiDap }) => {
   };
 
   const onFinish = (values) => {
-    const newHoiDap = values.modalhoidap;
-    if (FileHinhAnh && FileDinhKem) {
-      const formData = new FormData();
-      formData.append("lstFiles", FileHinhAnh);
-      formData.append("lstFiles", FileDinhKem);
-      fetch(`${BASE_URL_API}/api/Upload/Multi`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: "Bearer ".concat(INFO.token),
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          newHoiDap.hinhAnh = data[0].path;
-          newHoiDap.FileDinhKem = data[1].path;
-          saveData(newHoiDap);
+    if (IsEditCauHoi) {
+      const edithoidap = values.modaledithoidap;
+      if (
+        FileHinhAnhEditHoiDap &&
+        FileHinhAnhEditHoiDap.name &&
+        FileDinhKemEditHoiDap &&
+        FileDinhKemEditHoiDap.name
+      ) {
+        const formData = new FormData();
+        formData.append("lstFiles", FileHinhAnhEditHoiDap);
+        formData.append("lstFiles", FileDinhKemEditHoiDap);
+        fetch(`${BASE_URL_API}/api/Upload/Multi`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: "Bearer ".concat(INFO.token),
+          },
         })
-        .catch(() => {
-          Helpers.alertError("Tải file không thành công.");
-        });
-    } else if (FileHinhAnh || FileDinhKem) {
-      const formData = new FormData();
-      FileHinhAnh
-        ? formData.append("file", FileHinhAnh)
-        : formData.append("file", FileDinhKem);
-      fetch(`${BASE_URL_API}/api/Upload`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: "Bearer ".concat(INFO.token),
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          FileHinhAnh
-            ? (newHoiDap.hinhAnh = data.path)
-            : (newHoiDap.FileDinhKem = data.path);
-          saveData(newHoiDap);
+          .then((res) => res.json())
+          .then((data) => {
+            edithoidap.hinhAnh = data[0].path;
+            edithoidap.fileDinhKem = data[1].path;
+            saveData(edithoidap);
+          })
+          .catch(() => {
+            Helpers.alertError("Tải file không thành công.");
+          });
+      } else if (
+        (FileHinhAnhEditHoiDap && FileHinhAnhEditHoiDap.name) ||
+        (FileDinhKemEditHoiDap && FileDinhKemEditHoiDap.name)
+      ) {
+        const formData = new FormData();
+        FileHinhAnhEditHoiDap && FileHinhAnhEditHoiDap.name
+          ? formData.append("file", FileHinhAnhEditHoiDap)
+          : formData.append("file", FileDinhKemEditHoiDap);
+        fetch(`${BASE_URL_API}/api/Upload`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: "Bearer ".concat(INFO.token),
+          },
         })
-        .catch(() => {
-          Helpers.alertError(
-            `Tải file ${
-              FileHinhAnh ? "hình ảnh" : "đính kèm"
-            } không thành công.`
-          );
-        });
+          .then((res) => res.json())
+          .then((data) => {
+            FileHinhAnhEditHoiDap && FileHinhAnhEditHoiDap.name
+              ? (edithoidap.hinhAnh = data.path)
+              : (edithoidap.fileDinhKem = data.path);
+            saveData(edithoidap);
+          })
+          .catch(() => {
+            Helpers.alertError(
+              `Tải file ${
+                FileHinhAnhEditHoiDap && FileHinhAnhEditHoiDap.name
+                  ? "hình ảnh"
+                  : "đính kèm"
+              } không thành công.`
+            );
+          });
+      } else {
+        saveData(edithoidap);
+      }
     } else {
-      saveData(newHoiDap);
+      const newHoiDap = values.modalhoidap;
+      if (FileHinhAnh && FileDinhKem) {
+        const formData = new FormData();
+        formData.append("lstFiles", FileHinhAnh);
+        formData.append("lstFiles", FileDinhKem);
+        fetch(`${BASE_URL_API}/api/Upload/Multi`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: "Bearer ".concat(INFO.token),
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            newHoiDap.hinhAnh = data[0].path;
+            newHoiDap.FileDinhKem = data[1].path;
+            saveData(newHoiDap);
+          })
+          .catch(() => {
+            Helpers.alertError("Tải file không thành công.");
+          });
+      } else if (FileHinhAnh || FileDinhKem) {
+        const formData = new FormData();
+        FileHinhAnh
+          ? formData.append("file", FileHinhAnh)
+          : formData.append("file", FileDinhKem);
+        fetch(`${BASE_URL_API}/api/Upload`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: "Bearer ".concat(INFO.token),
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            FileHinhAnh
+              ? (newHoiDap.hinhAnh = data.path)
+              : (newHoiDap.FileDinhKem = data.path);
+            saveData(newHoiDap);
+          })
+          .catch(() => {
+            Helpers.alertError(
+              `Tải file ${
+                FileHinhAnh ? "hình ảnh" : "đính kèm"
+              } không thành công.`
+            );
+          });
+      } else {
+        saveData(newHoiDap);
+      }
     }
   };
 
-  const saveData = (modalhoidap) => {
-    const newData = {
-      ...modalhoidap,
-      vptq_lms_ChuyenDeDaoTao_Id: dataHoiDap.vptq_lms_ChuyenDeDaoTao_Id,
-    };
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `vptq_lms_HocTrucTuyen/hoi-dap`,
-          "POST",
-          newData,
-          "CAUHOI",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) {
-          resetFields();
-          setFieldTouch(false);
-          setDisableUploadHinhAnh(false);
-          setFileHinhAnh(null);
-          setDisableUploadFileDinhKem(false);
-          setFileDinhKem(null);
-          getInfo(dataHoiDap.vptq_lms_ChuyenDeDaoTao_Id);
-        }
+  const saveData = (data) => {
+    if (IsEditCauHoi) {
+      const newData = {
+        ...data,
+        vptq_lms_HoiDap_Id: CauHoi && CauHoi.vptq_lms_HoiDap_Id,
+      };
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `vptq_lms_HocTrucTuyen/hoi-dap/${CauHoi.vptq_lms_HoiDap_Id}`,
+            "PUT",
+            newData,
+            "EDIT",
+            "",
+            resolve,
+            reject
+          )
+        );
       })
-      .catch((error) => console.error(error));
+        .then((res) => {
+          if (res.status !== 409) {
+            resetFields();
+            setFieldTouch(false);
+            setCauHoi(null);
+            setIsEditCauHoi(false);
+            setIndexChinhSuaCauHoi(null);
+            setDisableUploadHinhAnhEditHoiDap(false);
+            setFileHinhAnhEditHoiDap(null);
+            setDisableUploadFileDinhKemEditHoiDap(false);
+            setFileDinhKemEditHoiDap(null);
+            getInfo(dataHoiDap.vptq_lms_ChuyenDeDaoTao_Id);
+          }
+        })
+        .catch((error) => console.error(error));
+    } else {
+      const newData = {
+        ...data,
+        vptq_lms_ChuyenDeDaoTao_Id: dataHoiDap.vptq_lms_ChuyenDeDaoTao_Id,
+      };
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `vptq_lms_HocTrucTuyen/hoi-dap`,
+            "POST",
+            newData,
+            "CAUHOI",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (res.status !== 409) {
+            resetFields();
+            setFieldTouch(false);
+            setDisableUploadHinhAnh(false);
+            setFileHinhAnh(null);
+            setDisableUploadFileDinhKem(false);
+            setFileDinhKem(null);
+            getInfo(dataHoiDap.vptq_lms_ChuyenDeDaoTao_Id);
+          }
+        })
+        .catch((error) => console.error(error));
+    }
   };
 
   const handleChangePhanHoi = (val) => {
@@ -415,6 +523,64 @@ const TabsHoiDap = ({ dataHoiDap }) => {
     maxCount: 1,
   };
 
+  const propshinhanhedit = {
+    accept: "image/png, image/jpeg",
+    beforeUpload: (file) => {
+      const isPNG = file.type === "image/png" || file.type === "image/jpeg";
+      if (!isPNG) {
+        Helpers.alertError(`${file.name} không phải hình ảnh`);
+      } else {
+        setFileHinhAnhEditHoiDap(file);
+        setDisableUploadHinhAnhEditHoiDap(true);
+        return false;
+      }
+    },
+    showUploadList: false,
+    maxCount: 1,
+  };
+
+  const propfiledinhkemedit = {
+    accept: ".pdf, .doc, .docx, .ppt, .pptx",
+    beforeUpload: (file) => {
+      const allowedFileTypes = [
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "application/vnd.ms-powerpoint",
+        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      ];
+
+      if (!allowedFileTypes.includes(file.type)) {
+        Helpers.alertError(
+          `${file.name} không phải là tệp PDF, Word, hoặc PowerPoint`
+        );
+        return false;
+      } else {
+        setFileDinhKemEditHoiDap(file);
+        setDisableUploadFileDinhKemEditHoiDap(true);
+        return false;
+      }
+    },
+    showUploadList: false,
+    maxCount: 1,
+  };
+
+  const propshinhanhphanhoiedit = {
+    accept: "image/png, image/jpeg",
+    beforeUpload: (file) => {
+      const isPNG = file.type === "image/png" || file.type === "image/jpeg";
+      if (!isPNG) {
+        Helpers.alertError(`${file.name} không phải hình ảnh`);
+      } else {
+        setFileHinhAnhPhanHoi(file);
+        setDisableUploadHinhAnhPhanHoi(true);
+        return false;
+      }
+    },
+    showUploadList: false,
+    maxCount: 1,
+  };
+
   const handleViewFile = (file) => {
     if (file) {
       window.open(URL.createObjectURL(file), "_blank");
@@ -444,7 +610,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
             rules={[
               {
                 type: "string",
-                required: true,
+                required: IsEditCauHoi === true ? false : true,
               },
             ]}
           >
@@ -456,7 +622,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
             rules={[
               {
                 type: "string",
-                required: true,
+                required: IsEditCauHoi === true ? false : true,
               },
             ]}
           >
@@ -602,7 +768,247 @@ const TabsHoiDap = ({ dataHoiDap }) => {
         {HoiDap &&
           HoiDap.results.length !== 0 &&
           HoiDap.results.map((hd, index) => {
-            return (
+            return IndexChinhSuaCauHoi === index ? (
+              <div className="rate-edit">
+                <div className="avatar">
+                  <Image src={hd.hinhAnhUrl} className="avatar" />
+                </div>
+                <div className="title-edit">
+                  <div className="user-info">
+                    <span className="name">{hd.fullName}</span>
+                  </div>
+                  <Card className="th-card-margin-bottom th-card-reset-margin">
+                    <Form
+                      form={form}
+                      layout="vertical"
+                      name="nguoi-dung-control"
+                      onFinish={onFinish}
+                      onFieldsChange={() => setFieldTouch(true)}
+                    >
+                      <FormItem
+                        label="Tiêu đề câu hỏi"
+                        name={["modaledithoidap", "tieuDe"]}
+                        rules={[
+                          {
+                            type: "string",
+                            required: true,
+                          },
+                        ]}
+                      >
+                        <Input
+                          className="input-item"
+                          placeholder="Nhập tiêu đề câu hỏi"
+                        />
+                      </FormItem>
+                      <FormItem
+                        label="Mô tả tình huống bạn gặp phải (tùy chọn)"
+                        name={["modaledithoidap", "noiDung"]}
+                        rules={[
+                          {
+                            type: "string",
+                            required: true,
+                          },
+                        ]}
+                      >
+                        <TextArea
+                          status="warning"
+                          rows={5}
+                          className="input-item"
+                          placeholder="Hãy mô tả tình huống bạn gặp phải..."
+                        />
+                      </FormItem>
+                      <Row
+                        style={{
+                          width: "100%",
+                          display: "flex",
+                          flexDirection: "row",
+                        }}
+                      >
+                        <Col
+                          lg={12}
+                          xs={24}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span
+                            style={{
+                              width: "130px",
+                            }}
+                          >
+                            Tải file hình ảnh:
+                          </span>
+                          {!DisableUploadHinhAnhEditHoiDap ? (
+                            <Upload {...propshinhanhedit}>
+                              <Button
+                                className="th-margin-bottom-0"
+                                style={{
+                                  marginBottom: 0,
+                                }}
+                                icon={<UploadOutlined />}
+                              >
+                                Tải file hình ảnh
+                              </Button>
+                            </Upload>
+                          ) : FileHinhAnhEditHoiDap &&
+                            FileHinhAnhEditHoiDap.name ? (
+                            <span>
+                              <span
+                                style={{
+                                  color: "#0469B9",
+                                  cursor: "pointer",
+                                  whiteSpace: "break-spaces",
+                                }}
+                                onClick={() =>
+                                  handleViewFile(FileHinhAnhEditHoiDap)
+                                }
+                              >
+                                {FileHinhAnhEditHoiDap.name}{" "}
+                              </span>
+                              <DeleteOutlined
+                                style={{ cursor: "pointer", color: "red" }}
+                                onClick={() => {
+                                  setFileHinhAnhEditHoiDap(null);
+                                  setDisableUploadHinhAnhEditHoiDap(false);
+                                  setFieldTouch(true);
+                                }}
+                              />
+                            </span>
+                          ) : (
+                            <span>
+                              <a
+                                target="_blank"
+                                href={BASE_URL_API + FileHinhAnhEditHoiDap}
+                                rel="noopener noreferrer"
+                                style={{
+                                  whiteSpace: "break-spaces",
+                                  wordBreak: "break-all",
+                                }}
+                              >
+                                {FileHinhAnhEditHoiDap &&
+                                  FileHinhAnhEditHoiDap.split("/")[5]}{" "}
+                              </a>
+                              <DeleteOutlined
+                                style={{ cursor: "pointer", color: "red" }}
+                                onClick={() => {
+                                  setFileHinhAnhEditHoiDap(null);
+                                  setDisableUploadHinhAnhEditHoiDap(false);
+                                  setFieldTouch(true);
+                                }}
+                              />
+                            </span>
+                          )}
+                        </Col>
+                        <Col
+                          lg={12}
+                          xs={24}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                          }}
+                        >
+                          <span
+                            style={{
+                              width: "130px",
+                            }}
+                          >
+                            Tải file đính kèm:
+                          </span>
+                          {!DisableUploadFileDinhKemEditHoiDap ? (
+                            <Upload {...propfiledinhkemedit}>
+                              <Button
+                                className="th-margin-bottom-0"
+                                style={{
+                                  marginBottom: 0,
+                                }}
+                                icon={<UploadOutlined />}
+                              >
+                                Tải file đính kèm
+                              </Button>
+                            </Upload>
+                          ) : FileDinhKemEditHoiDap &&
+                            FileDinhKemEditHoiDap.name ? (
+                            <span>
+                              <span
+                                style={{
+                                  color: "#0469B9",
+                                  cursor: "pointer",
+                                  whiteSpace: "break-spaces",
+                                }}
+                                onClick={() =>
+                                  handleViewFile(FileDinhKemEditHoiDap)
+                                }
+                              >
+                                {FileDinhKemEditHoiDap.name}{" "}
+                              </span>
+                              <DeleteOutlined
+                                style={{ cursor: "pointer", color: "red" }}
+                                onClick={() => {
+                                  setFileDinhKemEditHoiDap(null);
+                                  setDisableUploadFileDinhKemEditHoiDap(false);
+                                  setFieldTouch(true);
+                                }}
+                              />
+                            </span>
+                          ) : (
+                            <span>
+                              <a
+                                target="_blank"
+                                href={BASE_URL_API + FileDinhKemEditHoiDap}
+                                rel="noopener noreferrer"
+                                style={{
+                                  whiteSpace: "break-spaces",
+                                  wordBreak: "break-all",
+                                }}
+                              >
+                                {FileDinhKemEditHoiDap &&
+                                  FileDinhKemEditHoiDap.split("/")[5]}{" "}
+                              </a>
+                              <DeleteOutlined
+                                style={{ cursor: "pointer", color: "red" }}
+                                onClick={() => {
+                                  setFileDinhKemEditHoiDap(null);
+                                  setDisableUploadFileDinhKemEditHoiDap(false);
+                                  setFieldTouch(true);
+                                }}
+                              />
+                            </span>
+                          )}
+                        </Col>
+                      </Row>
+                      <div className="col-button">
+                        <Divider />
+                        <div style={{ display: "flex" }}>
+                          <Button
+                            icon={<CloseCircleOutlined />}
+                            className="th-margin-bottom-0"
+                            onClick={() => {
+                              setIndexChinhSuaCauHoi(null);
+                              setFileHinhAnhEditHoiDap(null);
+                              setDisableUploadHinhAnhEditHoiDap(false);
+                              setFileDinhKemEditHoiDap(null);
+                              setDisableUploadFileDinhKemEditHoiDap(false);
+                            }}
+                          >
+                            Hủy
+                          </Button>
+                          <Button
+                            icon={<SaveOutlined />}
+                            className="th-margin-bottom-0"
+                            type="primary"
+                            htmlType={"submit"}
+                            disabled={!fieldTouch}
+                          >
+                            Cập nhật
+                          </Button>
+                        </div>
+                      </div>
+                    </Form>
+                  </Card>
+                </div>
+              </div>
+            ) : (
               <div className="question-container" key={index}>
                 <div className="question-container">
                   <div className="user-info">
@@ -691,8 +1097,20 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                         className={`span-click liked`}
                         title="Chỉnh sửa câu hỏi"
                         onClick={() => {
+                          setFieldsValue({
+                            modaledithoidap: hd,
+                          });
                           setCauHoi(hd);
-                          setActiveModalEditHoiDap(true);
+                          setIsEditCauHoi(true);
+                          if (hd.hinhAnh) {
+                            setFileHinhAnhEditHoiDap(hd && hd.hinhAnh);
+                            setDisableUploadHinhAnhEditHoiDap(true);
+                          }
+                          if (hd.fileDinhKem) {
+                            setFileDinhKemEditHoiDap(hd && hd.fileDinhKem);
+                            setDisableUploadFileDinhKemEditHoiDap(true);
+                          }
+                          setIndexChinhSuaCauHoi(index);
                         }}
                       >
                         <EditOutlined /> Chỉnh sửa
@@ -958,12 +1376,6 @@ const TabsHoiDap = ({ dataHoiDap }) => {
             );
           })}
       </Card>
-      <ModalEditHoiDap
-        openModal={ActiveModalEditHoiDap}
-        openModalFS={setActiveModalEditHoiDap}
-        cauhoi={CauHoi}
-        refesh={handleRefesh}
-      />
       <ModalEditPhanHoi
         openModal={ActiveModalEditPhanHoi}
         openModalFS={setActiveModalEditPhanHoi}
