@@ -1,5 +1,5 @@
 import {
-  ChromeOutlined,
+  TrademarkCircleOutlined,
   CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
@@ -195,9 +195,12 @@ const TabsDanhGia = ({ dataDanhGia }) => {
           {DanhGia && DanhGia.diemTrungBinh}
         </span>
         <Rate value={DanhGia && DanhGia.diemTrungBinh} disabled allowHalf />
-        <span className="rate-number">
-          <ChromeOutlined />
-          {DanhGia && DanhGia.soLuongDanhGia} đánh giá
+        <span
+          className="rate-number"
+          style={{ fontSize: "13px", alignItems: "center" }}
+        >
+          <TrademarkCircleOutlined /> {DanhGia && DanhGia.soLuongDanhGia} đánh
+          giá
         </span>
       </div>
       {DanhGia && DanhGia.isDuocPhepDanhGia && (
