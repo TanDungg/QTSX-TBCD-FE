@@ -49155,12 +49155,14 @@ textarea.gx-chat-textarea {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  width: 100%;
+    padding-bottom: 10px;
 }
 
 .feedback-title {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 5px;
 }
 
 .feedback-user {

@@ -81,60 +81,10 @@ function ModalEditPhanHoi({ openModalFS, openModal, phanhoi, refesh }) {
   };
 
   const UploadFile = (modaleditphanhoi) => {
-    if (FileHinhAnh && FileHinhAnh.name) {
-      const formData = new FormData();
-      formData.append("file", FileHinhAnh);
-      fetch(`${BASE_URL_API}/api/Upload`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: "Bearer ".concat(INFO.token),
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          const newData = {
-            ...modaleditphanhoi,
-            hinhAnh: data.path,
-            vptq_lms_PhanHoi_Id: phanhoi.vptq_lms_PhanHoi_Id,
-          };
-          saveData(newData);
-        })
-        .catch(() => {
-          Helpers.alertError(`Tải file hình ảnh không thành công.`);
-        });
-    } else {
-      const newData = {
-        ...modaleditphanhoi,
-        hinhAnh: FileHinhAnh && FileHinhAnh,
-        vptq_lms_PhanHoi_Id: phanhoi.vptq_lms_PhanHoi_Id,
-      };
-      saveData(newData);
-    }
+   
   };
 
-  const saveData = (modaleditphanhoi) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `vptq_lms_HocTrucTuyen/phan-hoi/${phanhoi.vptq_lms_PhanHoi_Id}`,
-          "PUT",
-          modaleditphanhoi,
-          "EDIT",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res.status !== 409) {
-          handleCancel();
-          refesh();
-        }
-      })
-      .catch((error) => console.error(error));
-  };
+  const saveData = (modaleditphanhoi) => {};
 
   const handleCancel = () => {
     resetFields();
@@ -152,110 +102,7 @@ function ModalEditPhanHoi({ openModalFS, openModal, phanhoi, refesh }) {
       closable={true}
       onCancel={handleCancel}
       footer={null}
-    >
-      <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Form
-          form={form}
-          layout="vertical"
-          name="nguoi-dung-control"
-          onFinish={onFinish}
-          onFieldsChange={() => setFieldTouch(true)}
-        >
-          <FormItem
-            label="Phản hồi"
-            name={["modaleditphanhoi", "noiDung"]}
-            rules={[
-              {
-                type: "string",
-                required: true,
-              },
-            ]}
-          >
-            <TextArea
-              rows={3}
-              className="input-item"
-              placeholder="Hãy nhập nội dung phản hồi của bạn..."
-            />
-          </FormItem>
-          <Row style={{ width: "100%", display: "flex", flexDirection: "row" }}>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <span
-                style={{
-                  width: "130px",
-                }}
-              >
-                Tải file hình ảnh:
-              </span>
-              {!DisableUploadHinhAnh ? (
-                <Upload {...propshinhanh}>
-                  <Button
-                    className="th-margin-bottom-0"
-                    style={{
-                      marginBottom: 0,
-                    }}
-                    icon={<UploadOutlined />}
-                  >
-                    Tải file hình ảnh
-                  </Button>
-                </Upload>
-              ) : (
-                <span>
-                  <span
-                    style={{
-                      color: "#0469B9",
-                      cursor: "pointer",
-                      whiteSpace: "break-spaces",
-                    }}
-                    onClick={() => handleViewFile(FileHinhAnh)}
-                  >
-                    {FileHinhAnh.name}{" "}
-                  </span>
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    onClick={() => {
-                      setFileHinhAnh(null);
-                      setDisableUploadHinhAnh(false);
-                      setFieldsValue({
-                        modaleditphanhoi: {
-                          hinhAnh: null,
-                        },
-                      });
-                    }}
-                  />
-                </span>
-              )}
-            </Col>
-          </Row>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              marginTop: "10px",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <Divider />
-            <Button
-              icon={<SaveOutlined />}
-              className="th-margin-bottom-0"
-              type="primary"
-              htmlType={"submit"}
-              disabled={!fieldTouch}
-            >
-              Cập nhật
-            </Button>
-          </div>
-        </Form>
-      </Card>
-    </AntModal>
+    ></AntModal>
   );
 }
 

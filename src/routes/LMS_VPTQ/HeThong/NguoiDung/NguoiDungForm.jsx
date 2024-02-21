@@ -213,7 +213,13 @@ function NguoiDungForm({ match, permission, history }) {
       })
         .then((res) => {
           if (res.status !== 409) {
-            resetFields();
+            if (saveQuit) {
+              goBack();
+            } else {
+              resetFields();
+              setFieldTouch(false);
+            }
+          } else {
             setFieldTouch(false);
           }
         })
@@ -246,7 +252,9 @@ function NguoiDungForm({ match, permission, history }) {
       })
         .then((res) => {
           if (saveQuit) {
-            if (res.status !== 409) goBack();
+            if (res.status !== 409){
+              goBack();
+            }
           } else {
             if (res.status !== 409) {
               getInfo(id, INFO);
