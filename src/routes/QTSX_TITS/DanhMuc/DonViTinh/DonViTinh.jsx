@@ -247,7 +247,7 @@ function DonViTinh({ permission, history }) {
     return (
       <Button
         icon={<PlusOutlined />}
-        className="th-btn-margin-bottom-0"
+        className="th-margin-bottom-0"
         type="primary"
         onClick={handleRedirect}
         disabled={permission && !permission.add}

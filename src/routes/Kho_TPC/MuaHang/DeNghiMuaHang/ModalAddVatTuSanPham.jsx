@@ -238,7 +238,7 @@ function ModalAddVatTuSanPham({ openModalFS, openModal, refesh, hanldeThem }) {
           </FormItem>
           <Row justify={"center"}>
             <Button
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               style={{ marginTop: 10, marginRight: 15 }}
               type="primary"
               htmlType="submit"

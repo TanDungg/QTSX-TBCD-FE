@@ -283,7 +283,7 @@ function MauSac({ permission, history }) {
       <>
         <Button
           icon={<UploadOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={() => setActiveModal(true)}
           disabled={permission && !permission.add}
@@ -292,7 +292,7 @@ function MauSac({ permission, history }) {
         </Button>
         <Button
           icon={<PlusOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={handleRedirect}
           disabled={permission && !permission.add}

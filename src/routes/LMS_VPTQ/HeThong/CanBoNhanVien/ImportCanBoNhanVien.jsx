@@ -629,10 +629,6 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
       setCheckDanger(true);
       setMessageError("Mã đơn vị trả lương không được rỗng");
       return "red-row";
-    } else if (current.maBoPhan === null) {
-      setCheckDanger(true);
-      setMessageError("Mã bộ phận không được rỗng");
-      return "red-row";
     } else if (current.maPhongBan === null) {
       setCheckDanger(true);
       setMessageError("Mã phòng ban không được rỗng");

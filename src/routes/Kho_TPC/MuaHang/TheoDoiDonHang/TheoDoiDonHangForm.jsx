@@ -187,7 +187,7 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
       >
         <Space className="site-button-ghost-wrapper" wrap>
           <Button
-            className="th-btn-margin-bottom-0"
+            className="th-margin-bottom-0"
             style={{
               height: 30,
               lineHeight: 0,

@@ -391,7 +391,7 @@ function NangLucSanXuat({ permission, history, match }) {
       <>
         <Button
           icon={<PlusOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={handleTaoPhieu}
           disabled={permission && !permission.add}

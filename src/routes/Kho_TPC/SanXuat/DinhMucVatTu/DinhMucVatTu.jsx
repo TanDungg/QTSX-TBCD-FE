@@ -485,7 +485,7 @@ function DinhMucVatTu({ permission, history, match }) {
       <>
         <Button
           icon={<PlusOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={handleTaoPhieu}
           // disabled={(permission && !permission.add) || selectedKeys !== null}
@@ -495,7 +495,7 @@ function DinhMucVatTu({ permission, history, match }) {
         </Button>
         {/* <Button
           icon={<PrinterOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={handleInPhieu}
           disabled={(permission && !permission.print) || selectedKeys === null}

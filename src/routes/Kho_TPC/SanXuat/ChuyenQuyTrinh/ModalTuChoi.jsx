@@ -120,7 +120,7 @@ function ModalTuChoi({ openModalFS, openModal, itemData, refesh }) {
           </Form>
           <div style={{ display: "flex", justifyContent: "center" }}>
             <Button
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               type="primary"
               onClick={XacNhanLyDo}
               disabled={!fieldTouch}

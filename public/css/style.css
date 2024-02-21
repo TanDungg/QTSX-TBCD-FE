@@ -40456,7 +40456,7 @@ textarea.gx-chat-textarea {
   }
 }
 .th-margin-bottom-0 {
-  margin-bottom: 10px !important;
+  margin-bottom: 0px !important;
   height: 30px !important;
   line-height: 30px !important;
 }

@@ -33,6 +33,7 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
     if (includes(match.url, "them-moi")) {
       if (permission && permission.add) {
         setType("new");
+        getListDonVi();
         getListChucVu();
         getListChuyenMon();
         getListTruong();
@@ -55,12 +56,11 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListDonVi = (donviid) => {
-    const param = convertObjectToUrlParams(donviid);
+  const getListDonVi = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `DonVi/don-vi-tree?${param}`,
+          `DonVi/don-vi-by-user`,
           "GET",
           null,
           "DETAIL",

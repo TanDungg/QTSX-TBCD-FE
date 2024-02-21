@@ -620,7 +620,7 @@ function CanBoNhanVien({ match, history, permission }) {
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListBoPhan ? ListBoPhan : []}
-              placeholder="Chọn đơn vị"
+              placeholder="Chọn bộ phận"
               optionsvalue={["id", "tenBoPhan"]}
               style={{ width: "100%" }}
               showSearch

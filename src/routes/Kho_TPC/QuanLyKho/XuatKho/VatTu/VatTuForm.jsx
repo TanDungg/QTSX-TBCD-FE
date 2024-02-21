@@ -1263,7 +1263,7 @@ const VatTuForm = ({ history, match, permission }) => {
             <Row style={{ marginTop: 20 }}>
               <Col style={{ marginBottom: 8, textAlign: "center" }} span={24}>
                 <Button
-                  className="th-btn-margin-bottom-0"
+                  className="th-margin-bottom-0"
                   icon={<RollbackOutlined />}
                   onClick={goBack}
                   style={{ marginTop: 10 }}
@@ -1271,7 +1271,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   Quay lại
                 </Button>
                 <Button
-                  className="th-btn-margin-bottom-0"
+                  className="th-margin-bottom-0"
                   type="primary"
                   onClick={() => modalDuyet()}
                   icon={<SaveOutlined />}
@@ -1280,7 +1280,7 @@ const VatTuForm = ({ history, match, permission }) => {
                   Duyệt
                 </Button>
                 <Button
-                  className="th-btn-margin-bottom-0"
+                  className="th-margin-bottom-0"
                   icon={<CloseOutlined />}
                   style={{ marginTop: 10 }}
                   onClick={() => modalTuChoi()}

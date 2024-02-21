@@ -533,7 +533,7 @@ function ImportSoVIN({
               <Button
                 icon={<DownloadOutlined />}
                 onClick={TaiFileMau}
-                className="th-btn-margin-bottom-0"
+                className="th-margin-bottom-0"
                 type="primary"
               >
                 File mẫu
@@ -553,7 +553,7 @@ function ImportSoVIN({
             rowClassName={RowStyle}
           />
           <Button
-            className="th-btn-margin-bottom-0"
+            className="th-margin-bottom-0"
             style={{ marginTop: 10, float: "right" }}
             type="primary"
             onClick={modalXK}

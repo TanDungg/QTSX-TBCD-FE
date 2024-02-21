@@ -348,7 +348,7 @@ const Topbar = () => {
         onClose={onClose}
         open={ShowThongBao}
         extra={
-          <Space>
+          <Space style={{ margin: 0 }}>
             <Button
               className="th-margin-bottom-0"
               type="primary"

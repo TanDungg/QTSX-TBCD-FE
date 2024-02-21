@@ -172,7 +172,7 @@ function PhanQuyenKho({ permission, history }) {
       <>
         <Button
           icon={<SaveOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={handleSave}
           disabled={

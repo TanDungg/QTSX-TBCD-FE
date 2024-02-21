@@ -802,7 +802,7 @@ function ImportKeHoach({ match, permission, history }) {
             <Button
               icon={<DownloadOutlined />}
               onClick={TaiFileMau}
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               type="primary"
               disabled={!DisableTaiFile}
             >
@@ -823,7 +823,7 @@ function ImportKeHoach({ match, permission, history }) {
           rowClassName={RowStyle}
         />
         <Button
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           style={{ marginTop: 10, float: "right" }}
           type="primary"
           onClick={modalXK}

@@ -555,7 +555,7 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
               <Button
                 icon={<DownloadOutlined />}
                 onClick={TaiFileMau}
-                className="th-btn-margin-bottom-0"
+                className="th-margin-bottom-0"
                 type="primary"
               >
                 File mẫu
@@ -584,7 +584,7 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
             }}
           />
           <Button
-            className="th-btn-margin-bottom-0"
+            className="th-margin-bottom-0"
             style={{ marginTop: 10, float: "right" }}
             type="primary"
             onClick={modalXK}

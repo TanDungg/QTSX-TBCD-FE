@@ -459,7 +459,7 @@ function ModalChonVatTu({ openModalFS, openModal, itemData, ThemVatTu }) {
             style={{ display: "flex", justifyContent: "center", marginTop: 10 }}
           >
             <Button
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               type="primary"
               onClick={XacNhanListDieuChuyen}
               disabled={ListVatTu.length === 0}

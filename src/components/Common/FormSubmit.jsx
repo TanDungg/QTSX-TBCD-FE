@@ -17,7 +17,7 @@ const FormSubmit = ({
         <Col style={{ marginBottom: 8, textAlign: "center" }} span={24}>
           {goBack && (
             <Button
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               icon={<RollbackOutlined />}
               onClick={goBack}
               style={{ marginTop: 10 }}
@@ -28,7 +28,7 @@ const FormSubmit = ({
           {handleSave ? (
             <Button
               disabled={!disabled}
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               type="primary"
               onClick={() => saveAndClose(false)}
               icon={<SaveOutlined />}
@@ -40,7 +40,7 @@ const FormSubmit = ({
           ) : (
             <Button
               disabled={!disabled}
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
               type="primary"
               htmlType={"submit"}
               icon={<SaveOutlined />}
@@ -53,7 +53,8 @@ const FormSubmit = ({
           {saveAndClose && (
             <Button
               disabled={!disabled}
-              className="th-btn-margin-bottom-0"
+              className="th-margin-bottom-0"
+              type="primary"
               icon={<SaveOutlined />}
               style={{ marginTop: 10 }}
               onClick={() => saveAndClose(true)}

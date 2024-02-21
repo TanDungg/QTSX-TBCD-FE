@@ -293,7 +293,7 @@ function VatTu({ match, permission, history }) {
       <>
         <Button
           icon={<UpCircleOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={() => setActiveModal(true)}
           disabled={permission && !permission.add}
@@ -302,7 +302,7 @@ function VatTu({ match, permission, history }) {
         </Button>
         <Button
           icon={<QrcodeOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={handlePrint}
           disabled={permission && !permission.add}
@@ -311,7 +311,7 @@ function VatTu({ match, permission, history }) {
         </Button>
         <Button
           icon={<PlusOutlined />}
-          className="th-btn-margin-bottom-0"
+          className="th-margin-bottom-0"
           type="primary"
           onClick={handleRedirect}
           disabled={permission && !permission.add}

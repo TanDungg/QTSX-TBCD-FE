@@ -7424,12 +7424,8 @@ textarea.ant-picker-input > input {
   border: 0;
 }
 .ant-drawer-close {
-  position: absolute;
-  top: 0;
-  right: 0;
   z-index: 10;
   display: block;
-  padding: 20px;
   color: #595959;
   font-weight: 700;
   font-size: 16px;
@@ -7457,7 +7453,7 @@ textarea.ant-picker-input > input {
 }
 .ant-drawer-header {
   position: relative;
-  padding: 16px 24px;
+  padding: 16px 0px;
   color: #545454;
   background: #fff;
   border-bottom: 1px solid #e8e8e8;
@@ -34739,7 +34735,7 @@ h6,
   }
 }
 .ant-drawer-right .ant-drawer-content-wrapper {
-  width: 370px !important;
+  width: 500px !important;
   padding: 15px;
   background: #ffffff;
 }
