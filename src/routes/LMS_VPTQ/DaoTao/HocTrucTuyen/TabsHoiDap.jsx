@@ -33,7 +33,6 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 import { BASE_URL_API } from "src/constants/Config";
-import ModalEditPhanHoi from "./ModalEditPhanHoi";
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -61,10 +60,10 @@ const TabsHoiDap = ({ dataHoiDap }) => {
   const [IndexPhanHoi, setIndexPhanHoi] = useState(null);
   const [IndexXemPhanHoi, setIndexXemPhanHoi] = useState(null);
   const [NoiDungPhanHoi, setNoiDungPhanHoi] = useState(null);
-  const [PhanHoi, setPhanHoi] = useState(null);
-  const [ActiveModalEditPhanHoi, setActiveModalEditPhanHoi] = useState(false);
+  /* Chỉnh sửa câu hỏi */
   const [CauHoi, setCauHoi] = useState(false);
   const [IsEditCauHoi, setIsEditCauHoi] = useState(false);
+  const [FieldTouchEditCauHoi, setFieldTouchEditCauHoi] = useState(false);
   const [IndexChinhSuaCauHoi, setIndexChinhSuaCauHoi] = useState(null);
   const [FileHinhAnhEditHoiDap, setFileHinhAnhEditHoiDap] = useState(null);
   const [DisableUploadHinhAnhEditHoiDap, setDisableUploadHinhAnhEditHoiDap] =
@@ -74,6 +73,14 @@ const TabsHoiDap = ({ dataHoiDap }) => {
     DisableUploadFileDinhKemEditHoiDap,
     setDisableUploadFileDinhKemEditHoiDap,
   ] = useState(false);
+  /* Chỉnh sửa phản hồi */
+  const [PhanHoi, setPhanHoi] = useState(false);
+  const [IsEditPhanHoi, setIsEditPhanHoi] = useState(false);
+  const [FieldTouchEditPhanHoi, setFieldTouchEditPhanHoi] = useState(false);
+  const [IndexChinhSuaPhanHoi, setIndexChinhSuaPhanHoi] = useState(null);
+  const [FileHinhAnhEditPhanHoi, setFileHinhAnhEditPhanHoi] = useState(null);
+  const [DisableUploadHinhAnhEditPhanHoi, setDisableUploadHinhAnhEditPhanHoi] =
+    useState(false);
 
   useEffect(() => {
     getInfo(dataHoiDap && dataHoiDap.vptq_lms_ChuyenDeDaoTao_Id);
@@ -164,6 +171,29 @@ const TabsHoiDap = ({ dataHoiDap }) => {
       } else {
         saveData(edithoidap);
       }
+    } else if (IsEditPhanHoi) {
+      const editphanhoi = values.modaleditphanhoi;
+      if (FileHinhAnhEditPhanHoi && FileHinhAnhEditPhanHoi.name) {
+        const formData = new FormData();
+        formData.append("file", FileHinhAnhEditPhanHoi);
+        fetch(`${BASE_URL_API}/api/Upload`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: "Bearer ".concat(INFO.token),
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            editphanhoi.hinhAnh = data.path;
+            saveData(editphanhoi);
+          })
+          .catch(() => {
+            Helpers.alertError(`Tải file hình ảnh không thành công.`);
+          });
+      } else {
+        saveData(editphanhoi);
+      }
     } else {
       const newHoiDap = values.modalhoidap;
       if (FileHinhAnh && FileDinhKem) {
@@ -240,7 +270,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
         .then((res) => {
           if (res.status !== 409) {
             resetFields();
-            setFieldTouch(false);
+            setFieldTouchEditCauHoi(false);
             setCauHoi(null);
             setIsEditCauHoi(false);
             setIndexChinhSuaCauHoi(null);
@@ -248,6 +278,37 @@ const TabsHoiDap = ({ dataHoiDap }) => {
             setFileHinhAnhEditHoiDap(null);
             setDisableUploadFileDinhKemEditHoiDap(false);
             setFileDinhKemEditHoiDap(null);
+            getInfo(dataHoiDap.vptq_lms_ChuyenDeDaoTao_Id);
+          }
+        })
+        .catch((error) => console.error(error));
+    } else if (IsEditPhanHoi) {
+      const newData = {
+        ...data,
+        vptq_lms_PhanHoi_Id: PhanHoi && PhanHoi.vptq_lms_PhanHoi_Id,
+      };
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `vptq_lms_HocTrucTuyen/phan-hoi/${PhanHoi.vptq_lms_PhanHoi_Id}`,
+            "PUT",
+            newData,
+            "EDIT",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (res.status !== 409) {
+            resetFields();
+            setFieldTouchEditPhanHoi(false);
+            setPhanHoi(null);
+            setIsEditPhanHoi(false);
+            setIndexChinhSuaPhanHoi(null);
+            setDisableUploadHinhAnhEditPhanHoi(false);
+            setFileHinhAnhEditPhanHoi(null);
             getInfo(dataHoiDap.vptq_lms_ChuyenDeDaoTao_Id);
           }
         })
@@ -532,6 +593,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
       } else {
         setFileHinhAnhEditHoiDap(file);
         setDisableUploadHinhAnhEditHoiDap(true);
+        setFieldTouchEditCauHoi(true);
         return false;
       }
     },
@@ -558,6 +620,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
       } else {
         setFileDinhKemEditHoiDap(file);
         setDisableUploadFileDinhKemEditHoiDap(true);
+        setFieldTouchEditCauHoi(true);
         return false;
       }
     },
@@ -572,8 +635,9 @@ const TabsHoiDap = ({ dataHoiDap }) => {
       if (!isPNG) {
         Helpers.alertError(`${file.name} không phải hình ảnh`);
       } else {
-        setFileHinhAnhPhanHoi(file);
-        setDisableUploadHinhAnhPhanHoi(true);
+        setFileHinhAnhEditPhanHoi(file);
+        setDisableUploadHinhAnhEditPhanHoi(true);
+        setFieldTouchEditPhanHoi(true);
         return false;
       }
     },
@@ -585,10 +649,6 @@ const TabsHoiDap = ({ dataHoiDap }) => {
     if (file) {
       window.open(URL.createObjectURL(file), "_blank");
     }
-  };
-
-  const handleRefesh = () => {
-    getInfo(dataHoiDap.vptq_lms_ChuyenDeDaoTao_Id);
   };
 
   return (
@@ -610,7 +670,10 @@ const TabsHoiDap = ({ dataHoiDap }) => {
             rules={[
               {
                 type: "string",
-                required: IsEditCauHoi === true ? false : true,
+                required:
+                  IsEditCauHoi === true || IsEditPhanHoi === true
+                    ? false
+                    : true,
               },
             ]}
           >
@@ -622,7 +685,10 @@ const TabsHoiDap = ({ dataHoiDap }) => {
             rules={[
               {
                 type: "string",
-                required: IsEditCauHoi === true ? false : true,
+                required:
+                  IsEditCauHoi === true || IsEditPhanHoi === true
+                    ? false
+                    : true,
               },
             ]}
           >
@@ -783,7 +849,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                       layout="vertical"
                       name="nguoi-dung-control"
                       onFinish={onFinish}
-                      onFieldsChange={() => setFieldTouch(true)}
+                      onFieldsChange={() => setFieldTouchEditCauHoi(true)}
                     >
                       <FormItem
                         label="Tiêu đề câu hỏi"
@@ -871,7 +937,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                                 onClick={() => {
                                   setFileHinhAnhEditHoiDap(null);
                                   setDisableUploadHinhAnhEditHoiDap(false);
-                                  setFieldTouch(true);
+                                  setFieldTouchEditCauHoi(true);
                                 }}
                               />
                             </span>
@@ -894,7 +960,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                                 onClick={() => {
                                   setFileHinhAnhEditHoiDap(null);
                                   setDisableUploadHinhAnhEditHoiDap(false);
-                                  setFieldTouch(true);
+                                  setFieldTouchEditCauHoi(true);
                                 }}
                               />
                             </span>
@@ -947,7 +1013,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                                 onClick={() => {
                                   setFileDinhKemEditHoiDap(null);
                                   setDisableUploadFileDinhKemEditHoiDap(false);
-                                  setFieldTouch(true);
+                                  setFieldTouchEditCauHoi(true);
                                 }}
                               />
                             </span>
@@ -970,7 +1036,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                                 onClick={() => {
                                   setFileDinhKemEditHoiDap(null);
                                   setDisableUploadFileDinhKemEditHoiDap(false);
-                                  setFieldTouch(true);
+                                  setFieldTouchEditCauHoi(true);
                                 }}
                               />
                             </span>
@@ -984,6 +1050,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                             icon={<CloseCircleOutlined />}
                             className="th-margin-bottom-0"
                             onClick={() => {
+                              setIsEditCauHoi(false);
                               setIndexChinhSuaCauHoi(null);
                               setFileHinhAnhEditHoiDap(null);
                               setDisableUploadHinhAnhEditHoiDap(false);
@@ -998,7 +1065,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                             className="th-margin-bottom-0"
                             type="primary"
                             htmlType={"submit"}
-                            disabled={!fieldTouch}
+                            disabled={!FieldTouchEditCauHoi}
                           >
                             Cập nhật
                           </Button>
@@ -1044,7 +1111,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                       <Image
                         src={BASE_URL_API + hd.hinhAnh}
                         alt="Hình ảnh"
-                        style={{ width: "100%", height: "100%" }}
+                        style={{ height: "150px" }}
                       />
                     </div>
                   )}
@@ -1183,132 +1250,326 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                   </span>
                 )}
                 {IndexXemPhanHoi === index && hd.phanHois
-                  ? hd.phanHois.map((ph, index) => (
-                      <div className="feedback-container" key={index}>
-                        <div className="avatar">
-                          <Image src={ph.hinhAnhUrl} className="avatar" />
-                        </div>
-                        <div className="feedback" key={index}>
-                          <div className="feedback-title">
-                            <div className="feedback-user">
-                              <span className="name">{ph.fullName}</span>
-                              <span className="date">{ph.ngayTao}</span>
-                            </div>
-                            <div className="title">
-                              <span>{ph.noiDung}</span>
-                            </div>
-                            {ph.hinhAnh && (
-                              <div className="question-image">
-                                <Image
-                                  src={BASE_URL_API + ph.hinhAnh}
-                                  alt="Hình ảnh"
-                                />
-                              </div>
-                            )}
+                  ? hd.phanHois.map((ph, index) =>
+                      IndexChinhSuaPhanHoi === index ? (
+                        <div className="feedback-container" key={index}>
+                          <div className="avatar">
+                            <Image src={ph.hinhAnhUrl} className="avatar" />
                           </div>
-                          <div className="button-container">
-                            <div className="button-container">
-                              <span
-                                className={`${
-                                  ph.soLuongLike === 0 ? "like" : "liked"
-                                }`}
-                              >
-                                {ph.soLuongLike}
-                              </span>
-                              <span
-                                className={`span-click ${
-                                  ph.isLike === true ? "liked" : "like"
-                                }`}
-                                title="Thích phản hồi"
-                                onClick={() =>
-                                  handleIsLikePhanHoi(
-                                    ph.vptq_lms_PhanHoi_Id,
-                                    true
-                                  )
+                          <div className="feedback" key={index}>
+                            <span className="name">{ph.fullName}</span>
+                            <Card className="th-card-margin-bottom th-card-reset-margin">
+                              <Form
+                                form={form}
+                                layout="vertical"
+                                name="nguoi-dung-control"
+                                onFinish={onFinish}
+                                onFieldsChange={() =>
+                                  setFieldTouchEditPhanHoi(true)
                                 }
                               >
-                                {ph.isLike ? <LikeFilled /> : <LikeOutlined />}{" "}
-                                Like
-                              </span>
-                            </div>
-                            <Divider type="vertical" />
-                            <div className="button-container">
-                              <span
-                                className={`${
-                                  ph.soLuongDislike === 0
-                                    ? "dislike"
-                                    : "disliked"
-                                }`}
-                              >
-                                {ph.soLuongDislike}
-                              </span>
-                              <span
-                                className={`span-click ${
-                                  ph.isLike === false ? "disliked" : "dislike"
-                                }`}
-                                title="Không thích phản hồi"
-                                onClick={() =>
-                                  handleIsLikePhanHoi(
-                                    ph.vptq_lms_PhanHoi_Id,
-                                    false
-                                  )
-                                }
-                              >
-                                {ph.isDisLike ? (
-                                  <DislikeFilled />
-                                ) : (
-                                  <DislikeOutlined />
-                                )}{" "}
-                                Dislike
-                              </span>
-                            </div>
-                            <Divider type="vertical" />
-                            <div className="button-container">
-                              {ph.isSua ? (
-                                <span
-                                  className={`span-click liked`}
-                                  title="Chỉnh sửa phản hồi"
-                                  onClick={() => {
-                                    setPhanHoi(ph);
-                                    setActiveModalEditPhanHoi(true);
+                                <FormItem
+                                  label="Phản hồi"
+                                  name={["modaleditphanhoi", "noiDung"]}
+                                  rules={[
+                                    {
+                                      type: "string",
+                                      required: true,
+                                    },
+                                  ]}
+                                >
+                                  <TextArea
+                                    rows={3}
+                                    className="input-item"
+                                    placeholder="Hãy nhập nội dung phản hồi của bạn..."
+                                  />
+                                </FormItem>
+                                <Row
+                                  style={{
+                                    width: "100%",
+                                    display: "flex",
+                                    flexDirection: "row",
                                   }}
                                 >
-                                  <EditOutlined /> Chỉnh sửa
-                                </span>
-                              ) : (
-                                <span
-                                  className={`span-click like`}
-                                  title="Chỉnh sửa phản hồi"
-                                >
-                                  <EditOutlined /> Chỉnh sửa
-                                </span>
+                                  <Col
+                                    span={24}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        width: "130px",
+                                      }}
+                                    >
+                                      Tải file hình ảnh:
+                                    </span>
+                                    {!DisableUploadHinhAnhEditPhanHoi ? (
+                                      <Upload {...propshinhanhphanhoiedit}>
+                                        <Button
+                                          className="th-margin-bottom-0"
+                                          style={{
+                                            marginBottom: 0,
+                                          }}
+                                          icon={<UploadOutlined />}
+                                        >
+                                          Tải file hình ảnh
+                                        </Button>
+                                      </Upload>
+                                    ) : FileHinhAnhEditPhanHoi &&
+                                      FileHinhAnhEditPhanHoi.name ? (
+                                      <span>
+                                        <span
+                                          style={{
+                                            color: "#0469B9",
+                                            cursor: "pointer",
+                                            whiteSpace: "break-spaces",
+                                          }}
+                                          onClick={() =>
+                                            handleViewFile(
+                                              FileHinhAnhEditPhanHoi
+                                            )
+                                          }
+                                        >
+                                          {FileHinhAnhEditPhanHoi.name}{" "}
+                                        </span>
+                                        <DeleteOutlined
+                                          style={{
+                                            cursor: "pointer",
+                                            color: "red",
+                                          }}
+                                          onClick={() => {
+                                            setFileHinhAnhEditPhanHoi(null);
+                                            setDisableUploadHinhAnhEditPhanHoi(
+                                              false
+                                            );
+                                            setFieldTouchEditPhanHoi(true);
+                                            setFieldsValue({
+                                              modaleditphanhoi: {
+                                                hinhAnh: null,
+                                              },
+                                            });
+                                          }}
+                                        />
+                                      </span>
+                                    ) : (
+                                      <span>
+                                        <a
+                                          target="_blank"
+                                          href={
+                                            BASE_URL_API +
+                                            FileHinhAnhEditPhanHoi
+                                          }
+                                          rel="noopener noreferrer"
+                                          style={{
+                                            whiteSpace: "break-spaces",
+                                            wordBreak: "break-all",
+                                          }}
+                                        >
+                                          {FileHinhAnhEditPhanHoi &&
+                                            FileHinhAnhEditPhanHoi.split(
+                                              "/"
+                                            )[5]}{" "}
+                                        </a>
+                                        <DeleteOutlined
+                                          style={{
+                                            cursor: "pointer",
+                                            color: "red",
+                                          }}
+                                          onClick={() => {
+                                            setFileHinhAnhEditPhanHoi(null);
+                                            setDisableUploadHinhAnhEditPhanHoi(
+                                              false
+                                            );
+                                            setFieldTouchEditPhanHoi(true);
+                                            setFieldsValue({
+                                              modaleditphanhoi: {
+                                                hinhAnh: null,
+                                              },
+                                            });
+                                          }}
+                                        />
+                                      </span>
+                                    )}
+                                  </Col>
+                                </Row>
+                                <div className="col-button">
+                                  <Divider />
+                                  <div style={{ display: "flex" }}>
+                                    <Button
+                                      icon={<CloseCircleOutlined />}
+                                      className="th-margin-bottom-0"
+                                      onClick={() => {
+                                        setIsEditPhanHoi(false);
+                                        setIndexChinhSuaPhanHoi(null);
+                                        setFileHinhAnhEditPhanHoi(null);
+                                        setDisableUploadHinhAnhEditPhanHoi(
+                                          false
+                                        );
+                                      }}
+                                    >
+                                      Hủy
+                                    </Button>
+                                    <Button
+                                      icon={<SaveOutlined />}
+                                      className="th-margin-bottom-0"
+                                      type="primary"
+                                      htmlType={"submit"}
+                                      disabled={!FieldTouchEditPhanHoi}
+                                    >
+                                      Cập nhật
+                                    </Button>
+                                  </div>
+                                </div>
+                              </Form>
+                            </Card>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="feedback-container" key={index}>
+                          <div className="avatar">
+                            <Image src={ph.hinhAnhUrl} className="avatar" />
+                          </div>
+                          <div className="feedback" key={index}>
+                            <div className="feedback-title">
+                              <div className="feedback-user">
+                                <span className="name">{ph.fullName}</span>
+                                <span className="date">{ph.ngayTao}</span>
+                              </div>
+                              <div className="title">
+                                <span>{ph.noiDung}</span>
+                              </div>
+                              {ph.hinhAnh && (
+                                <div className="question-image">
+                                  <Image
+                                    src={BASE_URL_API + ph.hinhAnh}
+                                    style={{ width: "130px" }}
+                                    alt="Hình ảnh"
+                                  />
+                                </div>
                               )}
                             </div>
-                            <Divider type="vertical" />
                             <div className="button-container">
-                              {ph.isXoa ? (
+                              <div className="button-container">
                                 <span
-                                  className={`span-click disliked`}
-                                  title="Xóa phản hồi"
+                                  className={`${
+                                    ph.soLuongLike === 0 ? "like" : "liked"
+                                  }`}
+                                >
+                                  {ph.soLuongLike}
+                                </span>
+                                <span
+                                  className={`span-click ${
+                                    ph.isLike === true ? "liked" : "like"
+                                  }`}
+                                  title="Thích phản hồi"
                                   onClick={() =>
-                                    ModalXoaPhanHoi(ph.vptq_lms_PhanHoi_Id)
+                                    handleIsLikePhanHoi(
+                                      ph.vptq_lms_PhanHoi_Id,
+                                      true
+                                    )
                                   }
                                 >
-                                  <DeleteOutlined /> Xóa
+                                  {ph.isLike ? (
+                                    <LikeFilled />
+                                  ) : (
+                                    <LikeOutlined />
+                                  )}{" "}
+                                  Like
                                 </span>
-                              ) : (
+                              </div>
+                              <Divider type="vertical" />
+                              <div className="button-container">
                                 <span
-                                  className={`span-click dislike`}
-                                  title="Xóa phản hồi"
+                                  className={`${
+                                    ph.soLuongDislike === 0
+                                      ? "dislike"
+                                      : "disliked"
+                                  }`}
                                 >
-                                  <DeleteOutlined /> Xóa
+                                  {ph.soLuongDislike}
                                 </span>
-                              )}
+                                <span
+                                  className={`span-click ${
+                                    ph.isLike === false ? "disliked" : "dislike"
+                                  }`}
+                                  title="Không thích phản hồi"
+                                  onClick={() =>
+                                    handleIsLikePhanHoi(
+                                      ph.vptq_lms_PhanHoi_Id,
+                                      false
+                                    )
+                                  }
+                                >
+                                  {ph.isDisLike ? (
+                                    <DislikeFilled />
+                                  ) : (
+                                    <DislikeOutlined />
+                                  )}{" "}
+                                  Dislike
+                                </span>
+                              </div>
+                              <Divider type="vertical" />
+                              <div className="button-container">
+                                {ph.isSua ? (
+                                  <span
+                                    className={`span-click liked`}
+                                    title="Chỉnh sửa phản hồi"
+                                    onClick={() => {
+                                      setFieldsValue({
+                                        modaleditphanhoi: ph,
+                                      });
+                                      setPhanHoi(ph);
+                                      setIsEditPhanHoi(true);
+                                      if (ph.hinhAnh) {
+                                        setFileHinhAnhEditPhanHoi(
+                                          ph && ph.hinhAnh
+                                        );
+                                        setDisableUploadHinhAnhEditPhanHoi(
+                                          true
+                                        );
+                                      }
+                                      setIndexChinhSuaPhanHoi(index);
+                                    }}
+                                  >
+                                    <EditOutlined /> Chỉnh sửa
+                                  </span>
+                                ) : (
+                                  <span
+                                    className={`span-click like`}
+                                    title="Chỉnh sửa phản hồi"
+                                  >
+                                    <EditOutlined /> Chỉnh sửa
+                                  </span>
+                                )}
+                              </div>
+                              <Divider type="vertical" />
+                              <div className="button-container">
+                                {ph.isXoa ? (
+                                  <span
+                                    className={`span-click disliked`}
+                                    title="Xóa phản hồi"
+                                    onClick={() =>
+                                      ModalXoaPhanHoi(ph.vptq_lms_PhanHoi_Id)
+                                    }
+                                  >
+                                    <DeleteOutlined /> Xóa
+                                  </span>
+                                ) : (
+                                  <span
+                                    className={`span-click dislike`}
+                                    title="Xóa phản hồi"
+                                  >
+                                    <DeleteOutlined /> Xóa
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    ))
+                      )
+                    )
                   : null}
                 {IndexPhanHoi === index && (
                   <Card className="th-card-margin-bottom th-card-reset-margin">
@@ -1376,12 +1637,6 @@ const TabsHoiDap = ({ dataHoiDap }) => {
             );
           })}
       </Card>
-      <ModalEditPhanHoi
-        openModal={ActiveModalEditPhanHoi}
-        openModalFS={setActiveModalEditPhanHoi}
-        phanhoi={PhanHoi}
-        refesh={handleRefesh}
-      />
     </div>
   );
 };
