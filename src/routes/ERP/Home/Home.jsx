@@ -140,7 +140,7 @@ function Home({ permission, history }) {
                         <img
                           alt="example"
                           style={{
-                            width: 100,
+                            width: 135,
                             height: 100,
                             marginBottom: 10,
                           }}
