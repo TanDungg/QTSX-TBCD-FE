@@ -1,10 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { Layout } from "antd";
+import { Empty, Layout, Modal as AntModal, Drawer, Space, Button } from "antd";
 import { Link, useHistory } from "react-router-dom";
-
 import { toggleCollapsedSideNav } from "src/appRedux/actions/Setting";
 import UserInfo from "src/components/UserInfo";
-
 import {
   NAV_STYLE_DRAWER,
   NAV_STYLE_FIXED,
@@ -12,19 +10,42 @@ import {
   TAB_SIZE,
 } from "src/constants/ThemeSetting";
 import { useDispatch, useSelector } from "react-redux";
-import { loadMenu, donViLoad } from "src/appRedux/actions";
-import { Select } from "src/components/Common";
-import { getLocalStorage, setLocalStorage } from "src/util/Common";
+import {
+  loadMenu,
+  donViLoad,
+  fetchStart,
+  fetchReset,
+} from "src/appRedux/actions";
+import { Modal, Select } from "src/components/Common";
+import {
+  convertObjectToUrlParams,
+  getLocalStorage,
+  getTokenInfo,
+  setLocalStorage,
+} from "src/util/Common";
+import {
+  BellOutlined,
+  DeleteOutlined,
+  ExclamationCircleOutlined,
+} from "@ant-design/icons";
+
 const { Header } = Layout;
+const { confirm } = AntModal;
+
 const Topbar = () => {
+  const history = useHistory();
   const { navStyle } = useSelector(({ settings }) => settings);
   const { navCollapsed, width } = useSelector(({ common }) => common).toJS();
-  // const { thongbao } = useSelector(({ thongbao }) => thongbao);
   const { donvi } = useSelector(({ donvi }) => donvi);
   const [DonVi, setDonVi] = useState("");
-  const MENUINFO = getLocalStorage("menu");
-  // const INFO = getTokenInfo();
-  const history = useHistory();
+  const [ListThongBao, setListThongBao] = useState([]);
+  const [ThongBaoChuaXem, setThongBaoChuaXem] = useState(0);
+  const [ShowThongBao, setShowThongBao] = useState(false);
+  const MENUINFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
 
   useEffect(() => {
     setDonVi(
@@ -34,46 +55,58 @@ const Topbar = () => {
         ? donvi[0].DonVi_Id
         : ""
     );
+
     const menuInfo = getLocalStorage("menu");
+
     if (menuInfo && !menuInfo.donVi_Id) {
       menuInfo.donVi_Id = donvi.length > 0 ? donvi[0].DonVi_Id : "";
       setLocalStorage("menu", menuInfo);
     }
   }, [donvi]);
-  // const setDefaut = (user_Id, role_Id) => {
-  //   const param = convertObjectToUrlParams({
-  //     user_Id,
-  //     role_Id,
-  //   });
-  //   dispatch(
-  //     fetchStart(
-  //       `PhanMem/default-phan-mem-for-user?${param}`,
-  //       "POST",
-  //       null,
-  //       "DETAIL",
-  //       ""
-  //     )
-  //   );
-  // };
-  // const renderThongBao = (
-  //   thongbao.length > 0 ? (
-  //     thongbao.map((tb) => {
-  //       return (a
-  //         <Link
-  //           to={{
-  //             pathname: tb.url,
-  //           }}
-  //           className="gx-notification"
-  //           onClick={() => handleClick(tb.id)}
-  //         >
-  //           {tb.body}
-  //         </Link>
-  //       );
-  //     })
-  //   ) : (
-  //   <Empty />
-  // );
-  // );
+
+  useEffect(() => {
+    const fetchData = () => {
+      if (MENUINFO.phanMem_Id) {
+        getListThongBao();
+      }
+    };
+    fetchData();
+    const interval = setInterval(fetchData, 60000);
+
+    return () => {
+      clearInterval(interval);
+      dispatch(fetchReset());
+    };
+  }, []);
+
+  const getListThongBao = () => {
+    let param = convertObjectToUrlParams({
+      phanMem_Id: MENUINFO && MENUINFO.phanMem_Id,
+      donVi_Id: MENUINFO && MENUINFO.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `ThongBaoHeThong?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListThongBao(res.data.list_ChiTiets);
+        setThongBaoChuaXem(res.data.soLuongChuaXem);
+      } else {
+        setListThongBao([]);
+        setThongBaoChuaXem(0);
+      }
+    });
+  };
+
   const handleOnSelectDonVi = (val) => {
     setDonVi(val);
     const menu = getLocalStorage("menu");
@@ -86,19 +119,139 @@ const Topbar = () => {
     dispatch(donViLoad());
     history.push("/home");
   };
+
   const dispatch = useDispatch();
-  // const content = (
-  //   <div
-  //     style={{
-  //       width: "100%",
-  //       display: "flex",
-  //       flexDirection: "column",
-  //       fontSize: 12,
-  //     }}
-  //   >
-  //     {renderThongBao}
-  //   </div>
-  // );
+
+  const handleXemThongBao = (id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `ThongBaoHeThong/danh-dau-da-xem/${id}`,
+          "PUT",
+          null,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.status !== 409) {
+        getListThongBao();
+      }
+    });
+  };
+
+  const XemThongBao = (thongbao) => {
+    handleXemThongBao(thongbao.id);
+    history.push({
+      pathname: thongbao.duongDan,
+    });
+  };
+
+  const handleDaXemTatCaThongBao = () => {
+    const param = convertObjectToUrlParams({
+      phanMem_Id: MENUINFO && MENUINFO.phanMem_Id,
+      donVi_Id: MENUINFO && MENUINFO.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `ThongBaoHeThong/danh-dau-da-xem-tat-ca?${param}`,
+          "PUT",
+          null,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.status !== 409) {
+        getListThongBao();
+      }
+    });
+  };
+
+  const handleXoaTatCaThongBao = () => {
+    const param = convertObjectToUrlParams({
+      phanMem_Id: MENUINFO && MENUINFO.phanMem_Id,
+      donVi_Id: MENUINFO && MENUINFO.donVi_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `ThongBaoHeThong/xoa-tat-ca?${param}`,
+          "DELETE",
+          null,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.status !== 409) {
+        getListThongBao();
+      }
+    });
+  };
+
+  const propXoaThongBao = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận xóa tất cả thông báo",
+    onOk: handleXoaTatCaThongBao,
+  };
+
+  const modalXoaThongBao = () => {
+    Modal(propXoaThongBao);
+  };
+
+  const handleXoaThongBao = (thongbao) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `ThongBaoHeThong/${thongbao.id}`,
+          "DELETE",
+          null,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          getListThongBao();
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const ModalXoaThongBao = (thongbao) => {
+    confirm({
+      title: "Xóa thông báo!",
+      icon: <ExclamationCircleOutlined />,
+      content: `${thongbao.body}`,
+      onOk() {
+        handleXoaThongBao(thongbao);
+      },
+    });
+  };
+
+  const onClose = () => {
+    setShowThongBao(false);
+  };
+
+  const title = (
+    <span style={{ color: ThongBaoChuaXem !== 0 ? "#0469b9" : "" }}>
+      Thông báo mới ({ThongBaoChuaXem})
+    </span>
+  );
+
   return (
     <Header>
       {navStyle === NAV_STYLE_DRAWER ||
@@ -141,7 +294,7 @@ const Topbar = () => {
               data={donvi}
               placeholder="Chọn đơn vị"
               optionsvalue={["DonVi_Id", "tenDonVi"]}
-              style={{ width: 300 }}
+              style={{ width: 350 }}
               onSelect={handleOnSelectDonVi}
               value={DonVi}
               defaultValue={donvi.length > 0 && donvi[0].DonVi_Id}
@@ -150,11 +303,137 @@ const Topbar = () => {
             />
           </li>
         ) : null}
-
+        {MENUINFO.phanMem_Id && (
+          <li>
+            <span
+              style={{ cursor: "pointer", position: "relative" }}
+              title="Xem thông báo"
+            >
+              <BellOutlined
+                style={{
+                  fontSize: 25,
+                  color: !ThongBaoChuaXem ? "#c8c8c8" : "#0469b9",
+                }}
+                onClick={() => setShowThongBao(true)}
+              />
+              {ThongBaoChuaXem !== 0 && (
+                <span
+                  style={{
+                    position: "absolute",
+                    top: -17,
+                    left: 17,
+                    width: 25,
+                    height: 25,
+                    borderRadius: 20,
+                    backgroundColor: "#ff4d4f",
+                    color: "white",
+                    fontSize: 12,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {ThongBaoChuaXem}
+                </span>
+              )}
+            </span>
+          </li>
+        )}
         <li className="gx-user-nav">
           <UserInfo isDesktop={width >= TAB_SIZE} />
         </li>
       </ul>
+      <Drawer
+        title={title}
+        onClose={onClose}
+        open={ShowThongBao}
+        extra={
+          <Space>
+            <Button
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={() => handleDaXemTatCaThongBao()}
+              disabled={ThongBaoChuaXem === 0}
+            >
+              Đánh dấu đã đọc
+            </Button>
+            <Button
+              className="th-margin-bottom-0"
+              type="danger"
+              onClick={() => modalXoaThongBao()}
+              disabled={ListThongBao.length === 0}
+            >
+              Xóa tất cả
+            </Button>
+          </Space>
+        }
+      >
+        {ListThongBao.length > 0 ? (
+          ListThongBao.map((tb) => {
+            const xoathongbao = {
+              onClick: (e) => {
+                e.stopPropagation();
+                ModalXoaThongBao(tb);
+              },
+            };
+
+            return (
+              <div
+                className="notification-title"
+                onClick={() => XemThongBao(tb)}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                    alignItems: "end",
+                    gap: "5px",
+                    color: "gray",
+                  }}
+                >
+                  <span
+                    className="name"
+                    style={{ color: tb.isDaXem === false && "#0469b9" }}
+                  >
+                    {tb.title}
+                  </span>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "row",
+                  }}
+                >
+                  <span
+                    className="date"
+                    style={{ color: tb.isDaXem === false && "#0469b9" }}
+                  >
+                    {tb.body}
+                  </span>
+                  <a
+                    {...xoathongbao}
+                    className="xoa-title"
+                    title="Xóa thông báo"
+                    style={{ fontSize: "14px" }}
+                  >
+                    <DeleteOutlined />
+                  </a>
+                </div>
+                <span
+                  style={{
+                    textAlign: "right",
+                    fontSize: "13px",
+                  }}
+                >
+                  {tb.thoiGian}
+                </span>
+              </div>
+            );
+          })
+        ) : (
+          <Empty description={false} />
+        )}
+      </Drawer>
     </Header>
   );
 };
