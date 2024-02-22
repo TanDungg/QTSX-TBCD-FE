@@ -684,7 +684,18 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
             </Row>
           </Card>
         </Card>
-      ) : null}
+      ) : (
+        <Card
+          className="th-card-margin-bottom th-card-reset-margin"
+          title={"Hướng dẫn thi trắc nghiệm"}
+        >
+          <Image
+            src={require("public/HuongDanhThiTracNghiem.jpg")}
+            alt="Hình ảnh"
+            style={{ width: "100%" }}
+          />
+        </Card>
+      )}
       {KetQuaThi && (
         <Card
           className="th-card-margin-bottom th-card-reset-margin"

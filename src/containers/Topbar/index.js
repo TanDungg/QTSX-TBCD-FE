@@ -33,6 +33,7 @@ const { Header } = Layout;
 const { confirm } = AntModal;
 
 const Topbar = () => {
+  const dispatch = useDispatch();
   const history = useHistory();
   const { navStyle } = useSelector(({ settings }) => settings);
   const { navCollapsed, width } = useSelector(({ common }) => common).toJS();
@@ -122,7 +123,6 @@ const Topbar = () => {
     history.push("/home");
   };
 
-  const dispatch = useDispatch();
 
   const handleXemThongBao = (id) => {
     new Promise((resolve, reject) => {
@@ -352,16 +352,14 @@ const Topbar = () => {
         extra={
           <Space style={{ margin: 0 }}>
             <Button
-              className="th-margin-bottom-0"
-              type="primary"
+              className="th-margin-bottom-0 btn-xem"
               onClick={() => handleDaXemTatCaThongBao()}
               disabled={ThongBaoChuaXem === 0}
             >
               Đánh dấu đã đọc
             </Button>
             <Button
-              className="th-margin-bottom-0"
-              type="danger"
+              className="th-margin-bottom-0 btn-xoathongbao"
               onClick={() => modalXoaThongBao()}
               disabled={ListThongBao.length === 0}
             >
@@ -390,12 +388,13 @@ const Topbar = () => {
                     flexDirection: "row",
                     alignItems: "end",
                     gap: "5px",
-                    color: "gray",
                   }}
                 >
                   <span
                     className="name"
-                    style={{ color: tb.isDaXem === false && "#0469b9" }}
+                    style={{
+                      color: tb.isDaXem === false ? "#0469b9" : "#545454",
+                    }}
                   >
                     {tb.title}
                   </span>
@@ -408,7 +407,9 @@ const Topbar = () => {
                 >
                   <span
                     className="date"
-                    style={{ color: tb.isDaXem === false && "#0469b9" }}
+                    style={{
+                      color: tb.isDaXem === false ? "#0469b9" : "#545454",
+                    }}
                   >
                     {tb.body}
                   </span>
@@ -416,7 +417,7 @@ const Topbar = () => {
                     {...xoathongbao}
                     className="xoa-title"
                     title="Xóa thông báo"
-                    style={{ fontSize: "14px" }}
+                    style={{ fontSize: "15px" }}
                   >
                     <DeleteOutlined />
                   </a>
