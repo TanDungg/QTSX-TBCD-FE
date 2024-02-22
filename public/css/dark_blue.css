@@ -8546,6 +8546,11 @@ textarea.ant-picker-input>input {
   border-radius: 6px 6px 0 0;
 }
 
+@media screen and (max-width: 480px) {
+  .ant-drawer-header {
+    display: block !important;
+  }
+}
 .ant-drawer-header-no-title {
   color: #545454;
   background: #fff;
@@ -39203,13 +39208,13 @@ h6,
 
 @media screen and (max-width: 991px) {
   .ant-drawer-right .ant-drawer-content-wrapper {
-    width: 300px !important;
+    width: 500px !important;
   }
 }
 
-@media screen and (max-width: 575px) {
+@media screen and (max-width: 425px) {
   .ant-drawer-right .ant-drawer-content-wrapper {
-    width: 280px !important;
+    width: 350px !important;
   }
 }
 

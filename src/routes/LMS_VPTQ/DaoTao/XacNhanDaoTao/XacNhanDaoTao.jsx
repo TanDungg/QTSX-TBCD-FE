@@ -22,6 +22,7 @@ import {
   getNgayDauThang,
   getNgayCuoiThang,
   getDateTimeNow,
+  getDateNow,
 } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { EditableTableRow, Select, Table } from "src/components/Common";
@@ -193,7 +194,7 @@ function XacNhanDaoTao({ match, permission, history }) {
       );
 
     const chinhsua =
-      item.thoiGianKetThuc >= getDateTimeNow() &&
+      item.thoiGianKetThuc >= getDateNow() &&
       item.thoiGianDaoTao <= getDateTimeNow() ? (
         <Link
           to={{
