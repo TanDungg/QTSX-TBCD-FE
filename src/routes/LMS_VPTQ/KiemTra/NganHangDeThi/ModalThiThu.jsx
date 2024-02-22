@@ -491,13 +491,15 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
             style={{
               display: "flex",
               alignItems: "center",
-              justifyContent: "space-between",
+              gap: "10px",
               marginBottom: "10px",
             }}
           >
             <Button
               className="th-margin-bottom-0"
-              style={{ width: "45px", margin: "0px" }}
+              style={{
+                margin: "0px",
+              }}
               icon={<StepBackwardOutlined />}
               type="primary"
               onClick={handlePrev}
@@ -523,9 +525,9 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
                     value={item.vptq_lms_ThiThuChiTiet_Id}
                     style={{
                       backgroundColor: isSelected
-                        ? "darkcyan"
+                        ? "green"
                         : isChon
-                        ? "#0469b9"
+                        ? "DarkGray"
                         : "",
                       color: isSelected || isChon ? "#fff" : "#000",
                     }}
@@ -536,7 +538,9 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
               })}
             </Radio.Group>
             <Button
-              style={{ width: "45px", margin: "0px" }}
+              style={{
+                margin: "0px",
+              }}
               icon={<StepForwardOutlined />}
               className="th-margin-bottom-0"
               type="primary"

@@ -30,6 +30,7 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [fieldTouch, setFieldTouch] = useState(false);
+  const [IsQuanLyDaoTao, setIsQuanLyDaoTao] = useState(false);
   const [ListDonVi, setListDonVi] = useState([]);
   const [ListUser, setListUser] = useState([]);
   const [ListChuyenDeDaoTao, setListChuyenDeDaoTao] = useState([]);
@@ -40,6 +41,7 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
 
   useEffect(() => {
     if (permission && permission.add) {
+      getIsQuanLyDaoTao();
       getListDonVi();
       getListDonViDaoTao();
       getListChuyenDeDaoTao();
@@ -50,6 +52,30 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const getIsQuanLyDaoTao = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `vptq_lms_ThiTrucTuyen/isQLHocTrucTuyen`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res) {
+          setIsQuanLyDaoTao(res.data);
+        } else {
+          setIsQuanLyDaoTao(false);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
 
   const getListDonVi = () => {
     new Promise((resolve, reject) => {
@@ -210,6 +236,8 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
   const saveData = (formthemmoiketqua, saveQuit) => {
     const newData = {
       ...formthemmoiketqua,
+      donVi_Id: IsQuanLyDaoTao ? formthemmoiketqua.donVi_Id : INFO.donVi_Id,
+      user_Id: IsQuanLyDaoTao ? formthemmoiketqua.user_Id : INFO.user_Id,
       thoiGianDaoTao:
         formthemmoiketqua.thoiGianDaoTao.format("DD/MM/YYYY HH:mm"),
     };
@@ -279,51 +307,55 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row align={"center"} style={{ width: "100%" }}>
-            <Col xxl={14} xl={16} lg={18} md={20} sm={22} xs={24}>
-              <FormItem
-                label="Đơn vị"
-                name={["formthemmoiketqua", "donVi_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListDonVi ? ListDonVi : []}
-                  placeholder="Chọn đơn vị"
-                  optionsvalue={["id", "tenDonVi"]}
-                  style={{ width: "100%" }}
-                  optionFilterProp="name"
-                  showSearch
-                  onSelect={handleSelectDonVi}
-                />
-              </FormItem>
-            </Col>
-            <Col xxl={14} xl={16} lg={18} md={20} sm={22} xs={24}>
-              <FormItem
-                label="Học viên"
-                name={["formthemmoiketqua", "user_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListUser ? ListUser : []}
-                  placeholder="Chọn học viên"
-                  optionsvalue={["user_Id", "fullName"]}
-                  style={{ width: "100%" }}
-                  optionFilterProp="name"
-                  showSearch
-                />
-              </FormItem>
-            </Col>
+            {IsQuanLyDaoTao ? (
+              <Col xxl={14} xl={16} lg={18} md={20} sm={22} xs={24}>
+                <FormItem
+                  label="Đơn vị"
+                  name={["formthemmoiketqua", "donVi_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListDonVi ? ListDonVi : []}
+                    placeholder="Chọn đơn vị"
+                    optionsvalue={["id", "tenDonVi"]}
+                    style={{ width: "100%" }}
+                    optionFilterProp="name"
+                    showSearch
+                    onSelect={handleSelectDonVi}
+                  />
+                </FormItem>
+              </Col>
+            ) : null}
+            {IsQuanLyDaoTao ? (
+              <Col xxl={14} xl={16} lg={18} md={20} sm={22} xs={24}>
+                <FormItem
+                  label="Học viên"
+                  name={["formthemmoiketqua", "user_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListUser ? ListUser : []}
+                    placeholder="Chọn học viên"
+                    optionsvalue={["user_Id", "fullName"]}
+                    style={{ width: "100%" }}
+                    optionFilterProp="name"
+                    showSearch
+                  />
+                </FormItem>
+              </Col>
+            ) : null}
             <Col xxl={14} xl={16} lg={18} md={20} sm={22} xs={24}>
               <FormItem
                 label="Chuyên đề đào tạo"
