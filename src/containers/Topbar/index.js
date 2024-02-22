@@ -33,6 +33,7 @@ const { Header } = Layout;
 const { confirm } = AntModal;
 
 const Topbar = () => {
+  const dispatch = useDispatch();
   const history = useHistory();
   const { navStyle } = useSelector(({ settings }) => settings);
   const { navCollapsed, width } = useSelector(({ common }) => common).toJS();
@@ -122,7 +123,6 @@ const Topbar = () => {
     history.push("/home");
   };
 
-  const dispatch = useDispatch();
 
   const handleXemThongBao = (id) => {
     new Promise((resolve, reject) => {
