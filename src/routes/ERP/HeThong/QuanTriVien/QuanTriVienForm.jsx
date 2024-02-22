@@ -197,6 +197,7 @@ function QuanTriVienForm({ match, permission, history }) {
           null,
           "DETAIL",
           "",
+
           resolve,
           reject
         )

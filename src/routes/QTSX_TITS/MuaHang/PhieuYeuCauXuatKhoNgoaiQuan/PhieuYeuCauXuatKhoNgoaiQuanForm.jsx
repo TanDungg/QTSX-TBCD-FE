@@ -1,4 +1,8 @@
-import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  PlusCircleOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
 import { Card, Form, Input, Row, Col, Button, Tag } from "antd";
 import { includes, map } from "lodash";
 import Helpers from "src/helpers";
@@ -23,6 +27,7 @@ import {
   reDataForTable,
 } from "src/util/Common";
 import ModalChonVatTu from "./ModalChonVatTu";
+import ImportVatTu from "./ImportVatTu";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -44,6 +49,8 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
   const [ListKhachHang, setListKhachHang] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [ActiveModalChonVatTu, setActiveModalChonVatTu] = useState(false);
+  const [ActiveImport, setActiveImport] = useState(false);
+
   const [info, setInfo] = useState({});
 
   useEffect(() => {
@@ -780,6 +787,14 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
           <div align={"end"}>
             <Button
               className="th-margin-bottom-0"
+              icon={<UploadOutlined />}
+              onClick={() => setActiveImport(true)}
+              type="primary"
+            >
+              Import
+            </Button>
+            <Button
+              className="th-margin-bottom-0"
               icon={<PlusCircleOutlined />}
               onClick={() => setActiveModalChonVatTu(true)}
               type="primary"
@@ -815,6 +830,12 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
         openModalFS={setActiveModalChonVatTu}
         itemData={ListVatTu && ListVatTu}
         DataThemVatTu={DataThemVatTu}
+      />
+      <ImportVatTu
+        openModal={ActiveImport}
+        openModalFS={setActiveImport}
+        addVatTu={DataThemVatTu}
+        listVatTu={ListVatTu}
       />
     </div>
   );
