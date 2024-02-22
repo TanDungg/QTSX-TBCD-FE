@@ -826,7 +826,10 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               name={["formchuyendedaotao", "thoiLuongDaoTao"]}
               rules={[
                 {
-                  required: true,
+                  required:
+                    HinhThucDaoTao && HinhThucDaoTao === HINHTHUCDAOTAO_TUHOC
+                      ? false
+                      : true,
                 },
               ]}
             >
