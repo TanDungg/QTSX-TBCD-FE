@@ -533,7 +533,7 @@ function ModalThiKhaoSat({
           )}
         </div>
       </Card>
-      {ListCauHoi.length !== 0 && (
+      {ListCauHoi.length !== 0 ? (
         <Card
           className="th-card-margin-bottom th-card-reset-margin"
           title={"Danh sách câu hỏi"}
@@ -737,6 +737,17 @@ function ModalThiKhaoSat({
               </Card>
             </Col>
           </Row>
+        </Card>
+      ) : (
+        <Card
+          className="th-card-margin-bottom th-card-reset-margin"
+          title={"Hướng dẫn thi trắc nghiệm"}
+        >
+          <Image
+            src={require("public/HuongDanhThiTracNghiem.jpg")}
+            alt="Hình ảnh"
+            style={{ width: "100%" }}
+          />
         </Card>
       )}
       {KetQuaThi && (
