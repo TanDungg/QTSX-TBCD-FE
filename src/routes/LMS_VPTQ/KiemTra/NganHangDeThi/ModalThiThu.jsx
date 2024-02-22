@@ -491,17 +491,18 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
             style={{
               display: "flex",
               alignItems: "center",
+              justifyContent: "space-between",
               marginBottom: "10px",
             }}
           >
             <Button
               className="th-margin-bottom-0"
+              style={{ width: "45px" }}
               icon={<StepBackwardOutlined />}
               type="primary"
               onClick={handlePrev}
               disabled={selectedIndex === 0}
             />
-
             <Radio.Group
               value={CauHoi}
               onChange={handleChangeCauHoi}
@@ -535,7 +536,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
               })}
             </Radio.Group>
             <Button
-              style={{ marginLeft: "15px" }}
+              style={{ marginLeft: "15px", width: "45px" }}
               icon={<StepForwardOutlined />}
               className="th-margin-bottom-0"
               type="primary"
