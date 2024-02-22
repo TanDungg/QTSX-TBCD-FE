@@ -16,28 +16,32 @@ import {
   Divider,
 } from "antd";
 import { messages } from "src/constants/Messages";
-import Helper from "src/helpers";
+import Helpers from "src/helpers";
 import map from "lodash/map";
 import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
 import { Modal } from "src/components/Common";
-import { exportExcel, reDataForTable } from "src/util/Common";
+import {
+  exportExcel,
+  getTokenInfo,
+  getLocalStorage,
+  reDataForTable,
+  convertObjectToUrlParams,
+} from "src/util/Common";
 import * as XLSX from "xlsx";
 import { EditableTableRow, Table } from "src/components/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ImportDanhSachCBNV({
-  openModalFS,
-  openModal,
-  loading,
-  donVi,
-  list_cbnv,
-  themDanhSachCBNV,
-}) {
+function ImportNguoiDung({ openModalFS, openModal }) {
   const dispatch = useDispatch();
-  const [DataDanhSachCNBV, setDataDanhSachCNBV] = useState([]);
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
+  const [DataListNguoiDung, setDataListNguoiDung] = useState([]);
   const [FileImport, setFileImport] = useState(null);
   const [checkDanger, setCheckDanger] = useState(false);
   const [messageError, setMessageError] = useState(null);
@@ -116,10 +120,14 @@ function ImportDanhSachCBNV({
   };
 
   const TaiFileMau = () => {
+    const param = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+      phanMem_Id: INFO.phanMem_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_PhieuDangKyDaoTao/export-file-mau?donVi_Id=${donVi}`,
+          `PhanMem/export-file-mau-phan-quyen?${param}`,
           "POST",
           null,
           "DOWLOAD",
@@ -129,7 +137,7 @@ function ImportDanhSachCBNV({
         )
       );
     }).then((res) => {
-      exportExcel("FileMauImportDanhSachCBNV", res.data.dataexcel);
+      exportExcel("FileMauImportNguoiDung", res.data.dataexcel);
     });
   };
 
@@ -221,10 +229,10 @@ function ImportDanhSachCBNV({
         });
         if (data.length === 0) {
           setFileImport(file.name);
-          setDataDanhSachCNBV([]);
+          setDataListNguoiDung([]);
           setCheckDanger(true);
           setMessageError("Dữ liệu import không được rỗng");
-          Helper.alertError("Dữ liệu import không được rỗng");
+          Helpers.alertError("Dữ liệu import không được rỗng");
         } else {
           const MSNV = "Mã số nhân viên";
           const HT = "Họ & tên";
@@ -279,10 +287,10 @@ function ImportDanhSachCBNV({
           });
           if (ListCNBV.length === 0) {
             setFileImport(file.name);
-            setDataDanhSachCNBV([]);
+            setDataListNguoiDung([]);
             setCheckDanger(true);
             setMessageError("Dữ liệu import không được rỗng");
-            Helper.alertError("Dữ liệu import không được rỗng");
+            Helpers.alertError("Dữ liệu import không được rỗng");
           } else {
             let indices = [];
             let row = [];
@@ -311,20 +319,10 @@ function ImportDanhSachCBNV({
                   ghiChuImport: "Mã CBNV không được trống",
                 };
               } else {
-                const findCBNV = list_cbnv.find(
-                  (list) => list.maNhanVien === cbnv.maNhanVien
-                );
-                if (findCBNV) {
-                  return {
-                    ...cbnv,
-                    ghiChuImport: "CBNV đã được thêm",
-                  };
-                } else {
-                  return cbnv;
-                }
+                return cbnv;
               }
             });
-            setDataDanhSachCNBV(newData);
+            setDataListNguoiDung(newData);
             setFileImport(file.name);
             if (indices.length > 0) {
               setHangTrung(indices);
@@ -340,10 +338,10 @@ function ImportDanhSachCBNV({
         }
       } else {
         setFileImport(file.name);
-        setDataDanhSachCNBV([]);
+        setDataListNguoiDung([]);
         setCheckDanger(true);
         setMessageError("Mẫu import không hợp lệ");
-        Helper.alertError("Mẫu file import không hợp lệ");
+        Helpers.alertError("Mẫu file import không hợp lệ");
       }
     };
     reader.readAsBinaryString(file);
@@ -355,7 +353,7 @@ function ImportDanhSachCBNV({
         file.type ===
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
       if (!isPNG) {
-        Helper.alertError(messages.UPLOAD_ERROR);
+        Helpers.alertError(messages.UPLOAD_ERROR);
         return isPNG || Upload.LIST_IGNORE;
       } else {
         xuLyExcel(file);
@@ -368,13 +366,14 @@ function ImportDanhSachCBNV({
 
   const handleSubmit = () => {
     const newData = {
-      donVi_Id: donVi,
-      list_ChiTiets: DataDanhSachCNBV,
+      donVi_Id: INFO.donVi_Id,
+      phanMem_Id: INFO.phanMem_Id,
+      list_ChiTiets: DataListNguoiDung,
     };
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_PhieuDangKyDaoTao/import`,
+          `PhanMem/import`,
           "POST",
           newData,
           "IMPORT",
@@ -386,7 +385,7 @@ function ImportDanhSachCBNV({
     })
       .then((res) => {
         if (res.status === 409) {
-          const newData = DataDanhSachCNBV.map((dt) => {
+          const newData = DataListNguoiDung.map((dt) => {
             const loi = res.data.find((l) => l.maNhanVien === dt.maNhanVien);
             if (loi) {
               return {
@@ -397,11 +396,10 @@ function ImportDanhSachCBNV({
               return dt;
             }
           });
-          setDataDanhSachCNBV(newData);
+          setDataListNguoiDung(newData);
         } else {
-          themDanhSachCBNV(res.data);
           setFileImport(null);
-          setDataDanhSachCNBV([]);
+          setDataListNguoiDung([]);
           openModalFS(false);
         }
       })
@@ -444,7 +442,7 @@ function ImportDanhSachCBNV({
       openModalFS(false);
       setCheckDanger(false);
       setFileImport(null);
-      setDataDanhSachCNBV([]);
+      setDataListNguoiDung([]);
       setHangTrung([]);
     } else {
       openModalFS(false);
@@ -519,7 +517,7 @@ function ImportDanhSachCBNV({
                       setFileImport(null);
                       setCheckDanger(false);
                       setMessageError(null);
-                      setDataDanhSachCNBV([]);
+                      setDataListNguoiDung([]);
                     }}
                   />
                 </Popover>
@@ -546,9 +544,8 @@ function ImportDanhSachCBNV({
             columns={columns}
             components={components}
             className="gx-table-responsive th-table"
-            dataSource={reDataForTable(DataDanhSachCNBV)}
+            dataSource={reDataForTable(DataListNguoiDung)}
             size="small"
-            loading={loading}
             rowClassName={(current, index) => RowStyle(current, index)}
             pagination={false}
           />
@@ -568,7 +565,7 @@ function ImportDanhSachCBNV({
               type="primary"
               onClick={modalXK}
               disabled={
-                DataDanhSachCNBV.length > 0 && !checkDanger ? false : true
+                DataListNguoiDung.length > 0 && !checkDanger ? false : true
               }
             >
               Lưu
@@ -580,4 +577,4 @@ function ImportDanhSachCBNV({
   );
 }
 
-export default ImportDanhSachCBNV;
+export default ImportNguoiDung;

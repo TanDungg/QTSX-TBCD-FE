@@ -6,6 +6,7 @@ import {
   UnlockOutlined,
   LockOutlined,
   DeleteOutlined,
+  ImportOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -262,17 +263,32 @@ function NguoiDung({ match, history, permission }) {
     return renderHead;
   };
 
+  const handleImportNguoiDung = () => {
+    history.push(`${match.path}/import`);
+  };
+
   const addButtonRender = () => {
     return (
-      <Button
-        icon={<PlusOutlined />}
-        className="th-margin-bottom-0"
-        type="primary"
-        onClick={handleRedirect}
-        disabled={permission && !permission.add}
-      >
-        Thêm người dùng
-      </Button>
+      <>
+        <Button
+          icon={<PlusOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleRedirect}
+          disabled={permission && !permission.add}
+        >
+          Thêm người dùng
+        </Button>
+        <Button
+          icon={<ImportOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleImportNguoiDung}
+          disabled={permission && !permission.add}
+        >
+          Import người dùng
+        </Button>
+      </>
     );
   };
 

@@ -18,6 +18,9 @@ const CanBoNhanVienForm = asyncComponent(() =>
 /* Người dùng */
 const NguoiDung = asyncComponent(() => import("./NguoiDung/NguoiDung"));
 const NguoiDungForm = asyncComponent(() => import("./NguoiDung/NguoiDungForm"));
+const ImportNguoiDung = asyncComponent(() =>
+  import("./NguoiDung/ImportNguoiDung")
+);
 
 /* Vai trò */
 const VaiTro = asyncComponent(() => import("./VaiTro/VaiTro"));
@@ -27,7 +30,9 @@ const VaiTroForm = asyncComponent(() => import("./VaiTro/VaiTroForm"));
 const Quyen = asyncComponent(() => import("./Quyen/Quyen"));
 
 /* Email phòng đào tạo */
-const EmailPhongDaoTao = asyncComponent(() => import("./EmailPhongDaoTao/EmailPhongDaoTao"));
+const EmailPhongDaoTao = asyncComponent(() =>
+  import("./EmailPhongDaoTao/EmailPhongDaoTao")
+);
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -82,6 +87,11 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/nguoi-dung/:id/chinh-sua`}
         exact
         component={Auth(NguoiDungForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nguoi-dung/import`}
+        exact
+        component={Auth(ImportNguoiDung, menus, pathname, permission)}
       />
 
       {/* Vai trò */}
