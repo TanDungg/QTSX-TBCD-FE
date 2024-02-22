@@ -192,17 +192,23 @@ function XacNhanDaoTao({ match, permission, history }) {
         </span>
       );
 
-    const chinhsua = (
-      <Link
-        to={{
-          pathname: `${match.url}/${item.id}/chinh-sua-danh-sach`,
-          state: { itemData: item, permission },
-        }}
-        title="Chỉnh sửa xác nhận đào tạo"
-      >
-        <EditOutlined />
-      </Link>
-    );
+    const chinhsua =
+      item.thoiGianKetThuc >= getDateTimeNow() &&
+      item.thoiGianDaoTao <= getDateTimeNow() ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/chinh-sua-danh-sach`,
+            state: { itemData: item, permission },
+          }}
+          title="Chỉnh sửa xác nhận đào tạo"
+        >
+          <EditOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Chỉnh sửa xác nhận đào tạo">
+          <EditOutlined />
+        </span>
+      );
 
     const chitiet = { onClick: () => handleXemChiTiet(item) };
 

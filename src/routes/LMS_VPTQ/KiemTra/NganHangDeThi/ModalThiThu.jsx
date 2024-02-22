@@ -482,211 +482,204 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
           )}
         </div>
       </Card>
-      {ListCauHoi.length !== 0 && (
+      {ListCauHoi.length !== 0 ? (
         <Card
           className="th-card-margin-bottom th-card-reset-margin"
           title={"Danh sách câu hỏi"}
         >
-          <Row gutter={[0, 10]}>
-            <Col
-              span={24}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              marginBottom: "10px",
+            }}
+          >
+            <Button
+              className="th-margin-bottom-0"
+              icon={<StepBackwardOutlined />}
+              type="primary"
+              onClick={handlePrev}
+              disabled={selectedIndex === 0}
+            />
+
+            <Radio.Group
+              value={CauHoi}
+              onChange={handleChangeCauHoi}
+              buttonStyle="solid"
               style={{
                 display: "flex",
-                alignItems: "center",
+                flexWrap: "wrap",
+                maxWidth: "100%",
               }}
             >
-              <Button
-                className="th-margin-bottom-0"
-                icon={<StepBackwardOutlined />}
-                type="primary"
-                onClick={handlePrev}
-                disabled={selectedIndex === 0}
-              />
+              {ListCauHoi.map((item, index) => {
+                const isSelected = CauHoi === item.vptq_lms_ThiThuChiTiet_Id;
+                const isChon = item.list_DapAns.some((ans) => ans.isChon);
 
-              <Radio.Group
-                value={CauHoi}
-                onChange={handleChangeCauHoi}
-                buttonStyle="solid"
-                style={{ display: "flex", justifyContent: "center" }}
-              >
-                {ListCauHoi.map((item, index) => {
-                  const isSelected = CauHoi === item.vptq_lms_ThiThuChiTiet_Id;
-                  const isChon = item.list_DapAns.some((ans) => ans.isChon);
-
-                  return (
-                    <Radio.Button
-                      key={item.vptq_lms_ThiThuChiTiet_Id}
-                      value={item.vptq_lms_ThiThuChiTiet_Id}
-                      style={{
-                        backgroundColor: isSelected
-                          ? "#0469b9"
-                          : isChon
-                          ? "green"
-                          : "",
-                        height: "33px",
-                        width: "45px",
-                        marginBottom: "0px",
-                        color: isSelected || isChon ? "#fff" : "#000",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {index + 1}
-                    </Radio.Button>
-                  );
-                })}
-              </Radio.Group>
-              <Button
-                style={{ marginLeft: "15px" }}
-                icon={<StepForwardOutlined />}
-                className="th-margin-bottom-0"
-                type="primary"
-                onClick={handleNext}
-                disabled={selectedIndex === ListCauHoi.length - 1}
-              />
-            </Col>
-            <Col>
-              <Card
-                className="th-card-margin-bottom th-card-reset-margin"
-                style={{
-                  height: "35vh",
-                  width: "100%",
-                  overflowY: "auto",
-                }}
-              >
-                <Row
-                  gutter={[0, 10]}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                  }}
-                >
-                  {SelectedCauHoi ? (
+                return (
+                  <Radio.Button
+                    key={item.vptq_lms_ThiThuChiTiet_Id}
+                    value={item.vptq_lms_ThiThuChiTiet_Id}
+                    style={{
+                      backgroundColor: isSelected
+                        ? "darkcyan"
+                        : isChon
+                        ? "#0469b9"
+                        : "",
+                      color: isSelected || isChon ? "#fff" : "#000",
+                    }}
+                  >
+                    {index + 1}
+                  </Radio.Button>
+                );
+              })}
+            </Radio.Group>
+            <Button
+              style={{ marginLeft: "15px" }}
+              icon={<StepForwardOutlined />}
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={handleNext}
+              disabled={selectedIndex === ListCauHoi.length - 1}
+            />
+          </div>
+          <Card
+            className="th-card-margin-bottom th-card-reset-margin"
+            style={{
+              height: "35vh",
+              width: "100%",
+              overflowY: "auto",
+            }}
+          >
+            <Row
+              gutter={[0, 10]}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              {SelectedCauHoi ? (
+                <Col span={24}>
+                  <Row gutter={[0, 5]}>
                     <Col span={24}>
-                      <Row gutter={[0, 5]}>
-                        <Col span={24}>
-                          <span
-                            style={{
-                              fontWeight: "bold",
-                            }}
-                          >
-                            Câu {selectedIndex + 1}. ({dethi.soDiemMoiCau}{" "}
-                            điểm): {SelectedCauHoi.noiDung}
-                          </span>
-                        </Col>
-                        {SelectedCauHoi.hinhAnh || SelectedCauHoi.video ? (
-                          <Col
-                            span={24}
-                            style={{
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                            }}
-                          >
-                            {SelectedCauHoi.hinhAnh && (
-                              <div
-                                style={{
-                                  flex: "1",
-                                  textAlign: "center",
-                                  padding: "0 10px",
-                                }}
-                              >
-                                <Image
-                                  src={BASE_URL_API + SelectedCauHoi.hinhAnh}
-                                  alt="Hình ảnh"
-                                  style={{ height: "150px" }}
-                                />
-                              </div>
-                            )}
-                            {SelectedCauHoi.video && (
-                              <div
-                                style={{
-                                  flex: "1",
-                                  textAlign: "center",
-                                  padding: "0 10px",
-                                }}
-                              >
-                                {SelectedCauHoi.video.endsWith(".mp4") ? (
-                                  <ReactPlayer
-                                    style={{ cursor: "pointer" }}
-                                    url={BASE_URL_API + SelectedCauHoi.video}
-                                    width="240px"
-                                    height="150px"
-                                    playing={true}
-                                    muted={true}
-                                    controls={false}
-                                    onClick={() => {
-                                      window.open(
-                                        BASE_URL_API + SelectedCauHoi.video,
-                                        "_blank"
-                                      );
-                                    }}
-                                  />
-                                ) : (
-                                  <a
-                                    target="_blank"
-                                    href={BASE_URL_API + SelectedCauHoi.video}
-                                    rel="noopener noreferrer"
-                                  >
-                                    {SelectedCauHoi.video.split("/")[5]}
-                                  </a>
-                                )}
-                              </div>
-                            )}
-                          </Col>
-                        ) : null}
-                        <Col span={24}>
-                          <Radio.Group
-                            onChange={onChangeDapAn}
-                            value={
-                              DapAn ||
-                              getDefaultDapAn(SelectedCauHoi.list_DapAns)
-                            }
-                          >
-                            <Row gutter={[0, 10]}>
-                              {SelectedCauHoi.list_DapAns &&
-                                SelectedCauHoi.list_DapAns.map((ans, index) => {
-                                  return (
-                                    <Col span={24}>
-                                      <Radio
-                                        value={
-                                          ans.vptq_lms_ThiThuChiTietDapAn_Id
-                                        }
-                                        style={{
-                                          display: "flex",
-                                          alignItems: "flex-start",
-                                        }}
-                                      >
-                                        <span
-                                          style={{
-                                            fontWeight: "bold",
-                                          }}
-                                        >
-                                          {String.fromCharCode(65 + index)}.
-                                        </span>
-                                        {"  "}
-                                        <span
-                                          style={{
-                                            whiteSpace: "break-spaces",
-                                          }}
-                                        >
-                                          {ans.dapAn}
-                                        </span>
-                                      </Radio>
-                                    </Col>
-                                  );
-                                })}
-                            </Row>
-                          </Radio.Group>
-                        </Col>
-                      </Row>
+                      <span
+                        style={{
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Câu {selectedIndex + 1}. ({dethi.soDiemMoiCau} điểm):{" "}
+                        {SelectedCauHoi.noiDung}
+                      </span>
                     </Col>
-                  ) : null}
-                </Row>
-              </Card>
-            </Col>
-          </Row>
+                    {SelectedCauHoi.hinhAnh || SelectedCauHoi.video ? (
+                      <Col
+                        span={24}
+                        style={{
+                          display: "flex",
+                          justifyContent: "center",
+                          alignItems: "center",
+                        }}
+                      >
+                        {SelectedCauHoi.hinhAnh && (
+                          <div
+                            style={{
+                              flex: "1",
+                              textAlign: "center",
+                              padding: "0 10px",
+                            }}
+                          >
+                            <Image
+                              src={BASE_URL_API + SelectedCauHoi.hinhAnh}
+                              alt="Hình ảnh"
+                              style={{ height: "150px" }}
+                            />
+                          </div>
+                        )}
+                        {SelectedCauHoi.video && (
+                          <div
+                            style={{
+                              flex: "1",
+                              textAlign: "center",
+                              padding: "0 10px",
+                            }}
+                          >
+                            {SelectedCauHoi.video.endsWith(".mp4") ? (
+                              <ReactPlayer
+                                style={{ cursor: "pointer" }}
+                                url={BASE_URL_API + SelectedCauHoi.video}
+                                width="240px"
+                                height="150px"
+                                playing={true}
+                                muted={true}
+                                controls={false}
+                                onClick={() => {
+                                  window.open(
+                                    BASE_URL_API + SelectedCauHoi.video,
+                                    "_blank"
+                                  );
+                                }}
+                              />
+                            ) : (
+                              <a
+                                target="_blank"
+                                href={BASE_URL_API + SelectedCauHoi.video}
+                                rel="noopener noreferrer"
+                              >
+                                {SelectedCauHoi.video.split("/")[5]}
+                              </a>
+                            )}
+                          </div>
+                        )}
+                      </Col>
+                    ) : null}
+                    <Col span={24}>
+                      <Radio.Group
+                        onChange={onChangeDapAn}
+                        value={
+                          DapAn || getDefaultDapAn(SelectedCauHoi.list_DapAns)
+                        }
+                      >
+                        <Row gutter={[0, 10]}>
+                          {SelectedCauHoi.list_DapAns &&
+                            SelectedCauHoi.list_DapAns.map((ans, index) => {
+                              return (
+                                <Col span={24}>
+                                  <Radio
+                                    value={ans.vptq_lms_ThiThuChiTietDapAn_Id}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "flex-start",
+                                    }}
+                                  >
+                                    <span
+                                      style={{
+                                        fontWeight: "bold",
+                                      }}
+                                    >
+                                      {String.fromCharCode(65 + index)}.
+                                    </span>
+                                    {"  "}
+                                    <span
+                                      style={{
+                                        whiteSpace: "break-spaces",
+                                      }}
+                                    >
+                                      {ans.dapAn}
+                                    </span>
+                                  </Radio>
+                                </Col>
+                              );
+                            })}
+                        </Row>
+                      </Radio.Group>
+                    </Col>
+                  </Row>
+                </Col>
+              ) : null}
+            </Row>
+          </Card>
         </Card>
-      )}
+      ) : null}
       {KetQuaThi && (
         <Card
           className="th-card-margin-bottom th-card-reset-margin"

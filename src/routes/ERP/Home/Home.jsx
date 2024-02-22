@@ -68,6 +68,7 @@ function Home({ permission, history }) {
     history.push(dt.Url);
     setLocalStorage("menu", menuInfo);
     dispatch(loadMenu());
+    window.location.reload();
   };
   const handleOnSelectDonVi = (val) => {
     setDonVi(val);
