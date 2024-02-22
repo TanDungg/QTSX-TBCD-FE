@@ -490,9 +490,8 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
           <div
             style={{
               display: "flex",
-              flexDirection: "row",
               alignItems: "center",
-              gap: "10px",
+              justifyContent: "space-between",
               marginBottom: "10px",
             }}
           >
