@@ -49269,7 +49269,7 @@ textarea.gx-chat-textarea {
 .notification-title {
   display: flex;
   flex-direction: column;
-  padding: 10px 0;
+  padding: 10px 10px;
   cursor: pointer;
   transition: background-color 0.3s ease;
 }
@@ -49290,10 +49290,29 @@ textarea.gx-chat-textarea {
 
 .xoa-title {
   cursor: pointer;
+  color: #545454;
+    transition: color 0.3s ease;
+  }
+  
+  .xoa-title:hover {
   color: red;
+}
+
+.btn-xem {
   transition: color 0.3s ease;
 }
 
-.xoa-title:hover {
-  color: #0e8a8a;
+.btn-xem:hover {
+  background-color: #0469b9;
+  color: #fff;
+}
+
+.btn-xoathongbao {
+  transition: color 0.3s ease;
+}
+
+.btn-xoathongbao:hover {
+  background-color: red;
+  border: 1px solid red;
+  color: #fff;
 }
