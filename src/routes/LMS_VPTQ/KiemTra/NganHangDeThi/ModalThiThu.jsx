@@ -497,7 +497,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
           >
             <Button
               className="th-margin-bottom-0"
-              style={{ width: "45px" }}
+              style={{ width: "45px", margin: "0px" }}
               icon={<StepBackwardOutlined />}
               type="primary"
               onClick={handlePrev}
@@ -536,7 +536,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
               })}
             </Radio.Group>
             <Button
-              style={{ marginLeft: "15px", width: "45px" }}
+              style={{ width: "45px", margin: "0px" }}
               icon={<StepForwardOutlined />}
               className="th-margin-bottom-0"
               type="primary"
@@ -687,338 +687,326 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
           title={"Kết quả thi thử"}
           style={{ height: "100%", overflowY: "auto" }}
         >
-          <Row gutter={[0, 15]}>
-            <Col span={24}>
-              <Row gutter={[0, 10]}>
-                <Col
-                  xxl={8}
-                  xl={8}
-                  lg={12}
-                  md={12}
-                  sm={24}
-                  xs={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <span
-                    style={{
-                      width: "70px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Lần thi:
-                  </span>
-                  <span
-                    style={{
-                      width: "calc(100% - 70px)",
-                    }}
-                  >
-                    Lần thứ {KetQuaThi.lanThiThu}
-                  </span>
-                </Col>
-                <Col
-                  xxl={8}
-                  xl={8}
-                  lg={12}
-                  md={12}
-                  sm={24}
-                  xs={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <span
-                    style={{
-                      width: "140px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Thời gian bắt đầu:
-                  </span>
-                  <span
-                    style={{
-                      width: "calc(100% - 140px)",
-                    }}
-                  >
-                    {KetQuaThi.thoiGianBatDau}
-                  </span>
-                </Col>
-                <Col
-                  xxl={8}
-                  xl={8}
-                  lg={12}
-                  md={12}
-                  sm={24}
-                  xs={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <span
-                    style={{
-                      width: "145px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Thời gian kết thúc:
-                  </span>
-                  <span
-                    style={{
-                      width: "calc(100% - 145px)",
-                    }}
-                  >
-                    {KetQuaThi.thoiGianKetThuc}
-                  </span>
-                </Col>
-                <Col
-                  xxl={8}
-                  xl={8}
-                  lg={12}
-                  md={12}
-                  sm={24}
-                  xs={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <span
-                    style={{
-                      width: "100px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Số câu đúng:
-                  </span>
-                  <span
-                    style={{
-                      width: "calc(100% - 100px)",
-                    }}
-                  >
-                    {KetQuaThi.soCauTraLoiDung} câu
-                  </span>
-                </Col>
-                <Col
-                  xxl={8}
-                  xl={8}
-                  lg={12}
-                  md={12}
-                  sm={24}
-                  xs={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <span
-                    style={{
-                      width: "80px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Số điểm:
-                  </span>
-                  <span
-                    style={{
-                      width: "calc(100% - 80px)",
-                    }}
-                  >
-                    {KetQuaThi.soDiem} điểm
-                  </span>
-                </Col>
-                <Col
-                  xxl={8}
-                  xl={8}
-                  lg={12}
-                  md={12}
-                  sm={24}
-                  xs={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <span
-                    style={{
-                      width: "80px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Kết quả:
-                  </span>
-                  <span
-                    style={{
-                      width: "calc(100% - 80px)",
-                      color:
-                        KetQuaThi.ketQua === "Không đạt" ? "red" : "#0469b9",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {KetQuaThi.ketQua}
-                  </span>
-                </Col>
-              </Row>
-            </Col>
-            <Col>
-              <Card
-                className="th-card-margin-bottom th-card-reset-margin"
+          <Row gutter={[0, 10]} style={{ marginBottom: "10px" }}>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+              }}
+            >
+              <span
                 style={{
-                  maxHeight: "30vh",
-                  overflowY: "auto",
+                  width: "70px",
+                  fontWeight: "bold",
                 }}
               >
-                <Row gutter={[0, 10]}>
-                  {ChiTietKetQua
-                    ? ChiTietKetQua.map((ketqua, index) => {
-                        return (
-                          <Col span={24}>
-                            <Row gutter={[0, 10]}>
-                              <Col span={24}>
-                                <span
-                                  style={{
-                                    fontWeight: "bold",
-                                  }}
-                                >
-                                  Câu {index + 1}. ({KetQuaThi.soDiemMoiCau}{" "}
-                                  điểm): {ketqua.noiDung}
-                                </span>
-                              </Col>
-                              {ketqua.hinhAnh || ketqua.video ? (
-                                <Col
-                                  span={24}
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "center",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  {ketqua.hinhAnh && (
-                                    <div
-                                      style={{
-                                        flex: "1",
-                                        textAlign: "center",
-                                        padding: "0 10px",
-                                      }}
-                                    >
-                                      <Image
-                                        src={BASE_URL_API + ketqua.hinhAnh}
-                                        alt="Hình ảnh"
-                                        style={{ height: "150px" }}
-                                      />
-                                    </div>
-                                  )}
-                                  {ketqua.video && (
-                                    <div
-                                      style={{
-                                        flex: "1",
-                                        textAlign: "center",
-                                        padding: "0 10px",
-                                      }}
-                                    >
-                                      {ketqua.video.endsWith(".mp4") ? (
-                                        <ReactPlayer
-                                          style={{ cursor: "pointer" }}
-                                          url={BASE_URL_API + ketqua.video}
-                                          width="240px"
-                                          height="150px"
-                                          playing={true}
-                                          muted={true}
-                                          controls={false}
-                                          onClick={() => {
-                                            window.open(
-                                              BASE_URL_API + ketqua.video,
-                                              "_blank"
-                                            );
-                                          }}
-                                        />
-                                      ) : (
-                                        <a
-                                          target="_blank"
-                                          href={BASE_URL_API + ketqua.video}
-                                          rel="noopener noreferrer"
-                                        >
-                                          {ketqua.video.split("/")[5]}
-                                        </a>
-                                      )}
-                                    </div>
-                                  )}
-                                </Col>
-                              ) : null}
-                              <Col span={24}>
-                                <Radio.Group
-                                  value={getDefaultDapAn(ketqua.list_DapAns)}
-                                >
-                                  <Row gutter={[0, 5]}>
-                                    {ketqua.list_DapAns &&
-                                      ketqua.list_DapAns.map((ans, index) => {
-                                        return (
-                                          <Col span={24}>
-                                            <Radio
-                                              value={
-                                                ans.vptq_lms_ThiThuChiTietDapAn_Id
-                                              }
-                                              disabled
-                                              style={{
-                                                display: "flex",
-                                                alignItems: "flex-start",
-                                              }}
-                                            >
-                                              <span
-                                                style={{
-                                                  fontWeight: "bold",
-                                                  color:
-                                                    ans.isChon &&
-                                                    ketqua.isCorrect
-                                                      ? "#0469b9"
-                                                      : ans.isChon &&
-                                                        !ketqua.isCorrect
-                                                      ? "red"
-                                                      : "",
-                                                }}
-                                              >
-                                                {String.fromCharCode(
-                                                  65 + index
-                                                )}
-                                                .
-                                              </span>
-                                              {"  "}
-                                              <span
-                                                style={{
-                                                  whiteSpace: "break-spaces",
-                                                  fontWeight:
-                                                    ans.isChon && "bold",
-                                                  color:
-                                                    ans.isChon &&
-                                                    ketqua.isCorrect
-                                                      ? "#0469b9"
-                                                      : ans.isChon &&
-                                                        !ketqua.isCorrect
-                                                      ? "red"
-                                                      : "",
-                                                }}
-                                              >
-                                                {ans.dapAn}
-                                              </span>
-                                            </Radio>
-                                          </Col>
-                                        );
-                                      })}
-                                  </Row>
-                                </Radio.Group>
-                              </Col>
-                            </Row>
-                          </Col>
-                        );
-                      })
-                    : null}
-                </Row>
-              </Card>
+                Lần thi:
+              </span>
+              <span
+                style={{
+                  width: "calc(100% - 70px)",
+                }}
+              >
+                Lần thứ {KetQuaThi.lanThiThu}
+              </span>
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+              }}
+            >
+              <span
+                style={{
+                  width: "140px",
+                  fontWeight: "bold",
+                }}
+              >
+                Thời gian bắt đầu:
+              </span>
+              <span
+                style={{
+                  width: "calc(100% - 140px)",
+                }}
+              >
+                {KetQuaThi.thoiGianBatDau}
+              </span>
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+              }}
+            >
+              <span
+                style={{
+                  width: "145px",
+                  fontWeight: "bold",
+                }}
+              >
+                Thời gian kết thúc:
+              </span>
+              <span
+                style={{
+                  width: "calc(100% - 145px)",
+                }}
+              >
+                {KetQuaThi.thoiGianKetThuc}
+              </span>
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+              }}
+            >
+              <span
+                style={{
+                  width: "100px",
+                  fontWeight: "bold",
+                }}
+              >
+                Số câu đúng:
+              </span>
+              <span
+                style={{
+                  width: "calc(100% - 100px)",
+                }}
+              >
+                {KetQuaThi.soCauTraLoiDung} câu
+              </span>
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+              }}
+            >
+              <span
+                style={{
+                  width: "80px",
+                  fontWeight: "bold",
+                }}
+              >
+                Số điểm:
+              </span>
+              <span
+                style={{
+                  width: "calc(100% - 80px)",
+                }}
+              >
+                {KetQuaThi.soDiem} điểm
+              </span>
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+              }}
+            >
+              <span
+                style={{
+                  width: "80px",
+                  fontWeight: "bold",
+                }}
+              >
+                Kết quả:
+              </span>
+              <span
+                style={{
+                  width: "calc(100% - 80px)",
+                  color: KetQuaThi.ketQua === "Không đạt" ? "red" : "#0469b9",
+                  fontWeight: "bold",
+                }}
+              >
+                {KetQuaThi.ketQua}
+              </span>
             </Col>
           </Row>
+          <Card
+            className="th-card-margin-bottom th-card-reset-margin"
+            style={{
+              maxHeight: "30vh",
+              overflowY: "auto",
+              width: "100%",
+            }}
+          >
+            <Row gutter={[0, 10]}>
+              {ChiTietKetQua
+                ? ChiTietKetQua.map((ketqua, index) => {
+                    return (
+                      <Col span={24}>
+                        <Row gutter={[0, 10]}>
+                          <Col span={24}>
+                            <span
+                              style={{
+                                fontWeight: "bold",
+                              }}
+                            >
+                              Câu {index + 1}. ({KetQuaThi.soDiemMoiCau} điểm):{" "}
+                              {ketqua.noiDung}
+                            </span>
+                          </Col>
+                          {ketqua.hinhAnh || ketqua.video ? (
+                            <Col
+                              span={24}
+                              style={{
+                                display: "flex",
+                                justifyContent: "center",
+                                alignItems: "center",
+                              }}
+                            >
+                              {ketqua.hinhAnh && (
+                                <div
+                                  style={{
+                                    flex: "1",
+                                    textAlign: "center",
+                                    padding: "0 10px",
+                                  }}
+                                >
+                                  <Image
+                                    src={BASE_URL_API + ketqua.hinhAnh}
+                                    alt="Hình ảnh"
+                                    style={{ height: "150px" }}
+                                  />
+                                </div>
+                              )}
+                              {ketqua.video && (
+                                <div
+                                  style={{
+                                    flex: "1",
+                                    textAlign: "center",
+                                    padding: "0 10px",
+                                  }}
+                                >
+                                  {ketqua.video.endsWith(".mp4") ? (
+                                    <ReactPlayer
+                                      style={{ cursor: "pointer" }}
+                                      url={BASE_URL_API + ketqua.video}
+                                      width="240px"
+                                      height="150px"
+                                      playing={true}
+                                      muted={true}
+                                      controls={false}
+                                      onClick={() => {
+                                        window.open(
+                                          BASE_URL_API + ketqua.video,
+                                          "_blank"
+                                        );
+                                      }}
+                                    />
+                                  ) : (
+                                    <a
+                                      target="_blank"
+                                      href={BASE_URL_API + ketqua.video}
+                                      rel="noopener noreferrer"
+                                    >
+                                      {ketqua.video.split("/")[5]}
+                                    </a>
+                                  )}
+                                </div>
+                              )}
+                            </Col>
+                          ) : null}
+                          <Col span={24}>
+                            <Radio.Group
+                              value={getDefaultDapAn(ketqua.list_DapAns)}
+                            >
+                              <Row gutter={[0, 5]}>
+                                {ketqua.list_DapAns &&
+                                  ketqua.list_DapAns.map((ans, index) => {
+                                    return (
+                                      <Col span={24}>
+                                        <Radio
+                                          value={
+                                            ans.vptq_lms_ThiThuChiTietDapAn_Id
+                                          }
+                                          disabled
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "flex-start",
+                                          }}
+                                        >
+                                          <span
+                                            style={{
+                                              fontWeight: "bold",
+                                              color:
+                                                ans.isChon && ketqua.isCorrect
+                                                  ? "#0469b9"
+                                                  : ans.isChon &&
+                                                    !ketqua.isCorrect
+                                                  ? "red"
+                                                  : "",
+                                            }}
+                                          >
+                                            {String.fromCharCode(65 + index)}.
+                                          </span>
+                                          {"  "}
+                                          <span
+                                            style={{
+                                              whiteSpace: "break-spaces",
+                                              fontWeight: ans.isChon && "bold",
+                                              color:
+                                                ans.isChon && ketqua.isCorrect
+                                                  ? "#0469b9"
+                                                  : ans.isChon &&
+                                                    !ketqua.isCorrect
+                                                  ? "red"
+                                                  : "",
+                                            }}
+                                          >
+                                            {ans.dapAn}
+                                          </span>
+                                        </Radio>
+                                      </Col>
+                                    );
+                                  })}
+                              </Row>
+                            </Radio.Group>
+                          </Col>
+                        </Row>
+                      </Col>
+                    );
+                  })
+                : null}
+            </Row>
+          </Card>
         </Card>
       )}
     </AntModal>

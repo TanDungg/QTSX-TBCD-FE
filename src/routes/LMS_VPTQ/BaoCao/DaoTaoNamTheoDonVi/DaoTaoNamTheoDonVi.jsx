@@ -230,8 +230,11 @@ function BaoCaoDaoTaoNamTheoDonVi({ history, permission }) {
           align: "center",
           width: 100,
           render: (record) => {
-            return !record[dataSoLuongHoanThanh] &&
-              !record[dataSoLuongHoanThanh] ? (
+            return (record.key === "Tổng" &&
+              record[dataSoLuongHoanThanh] === 0 &&
+              record[dataSoLuongHoanThanh] === 0) ||
+              (record[dataSoLuongHoanThanh] === undefined &&
+                record[dataSoLuongHoanThanh] === undefined) ? (
               "-"
             ) : (
               <span

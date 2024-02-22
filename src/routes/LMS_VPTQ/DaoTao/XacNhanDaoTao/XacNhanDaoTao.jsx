@@ -177,7 +177,9 @@ function XacNhanDaoTao({ match, permission, history }) {
 
   const actionContent = (item) => {
     const xacnhan =
-      item.isXacNhanDaoTao && item.thoiGianDaoTao <= getDateTimeNow() ? (
+      item.isXacNhanDaoTao &&
+      moment(item.thoiGianDaoTao, "DD/MM/YYYY HH:mm") <=
+        moment(getDateTimeNow(), "DD/MM/YYYY HH:mm") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/xac-nhan-danh-sach`,
@@ -194,8 +196,10 @@ function XacNhanDaoTao({ match, permission, history }) {
       );
 
     const chinhsua =
-      item.thoiGianKetThuc >= getDateNow() &&
-      item.thoiGianDaoTao <= getDateTimeNow() ? (
+      moment(item.thoiGianKetThuc, "DD/MM/YYYY") >=
+        moment(getDateNow(), "DD/MM/YYYY") &&
+      moment(item.thoiGianDaoTao, "DD/MM/YYYY HH:mm") <=
+        moment(getDateTimeNow(), "DD/MM/YYYY HH:mm") ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua-danh-sach`,

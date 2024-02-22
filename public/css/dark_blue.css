@@ -8551,6 +8551,7 @@ textarea.ant-picker-input>input {
     display: block !important;
   }
 }
+
 .ant-drawer-header-no-title {
   color: #545454;
   background: #fff;
@@ -40118,7 +40119,7 @@ fieldset[disabled] a.gx-btn {
   }
 
   .th-card-reset-margin .ant-card-body {
-    padding: 24px 5px 0 5px !important;
+    padding: 24px 5px 15px 5px !important;
   }
 
   .ant-modal-body {
