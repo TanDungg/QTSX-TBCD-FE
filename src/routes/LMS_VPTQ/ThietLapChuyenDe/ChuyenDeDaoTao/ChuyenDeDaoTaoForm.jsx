@@ -202,7 +202,10 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
 
   const uploadFile = (formchuyendedaotao, saveQuit) => {
     if (type === "new") {
-      if (!formchuyendedaotao.fileTaiLieu) {
+      if (
+        !formchuyendedaotao.fileTaiLieu &&
+        HinhThucDaoTao !== HINHTHUCDAOTAO_TUHOC
+      ) {
         Helpers.alertError("Vui lòng tải file tài liệu lên!");
       } else if (
         !formchuyendedaotao.fileVideo &&
@@ -254,7 +257,10 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           });
       }
     } else {
-      if (!formchuyendedaotao.fileTaiLieu) {
+      if (
+        !formchuyendedaotao.fileTaiLieu &&
+        HinhThucDaoTao !== HINHTHUCDAOTAO_TUHOC
+      ) {
         Helpers.alertError("Vui lòng tải file tài liệu lên!");
       } else if (
         !formchuyendedaotao.fileVideo &&
