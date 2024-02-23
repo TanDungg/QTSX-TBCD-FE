@@ -1,4 +1,4 @@
-import { Card, Col, Row } from "antd";
+import { Button, Card, Col, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import React, { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
@@ -12,6 +12,7 @@ import {
   getTokenInfo,
 } from "src/util/Common";
 import { BASE_URL_API } from "src/constants/Config";
+import { PlusOutlined } from "@ant-design/icons";
 
 function TaiLieuThamKhao({ match, history, permission }) {
   const dispatch = useDispatch();
@@ -103,11 +104,32 @@ function TaiLieuThamKhao({ match, history, permission }) {
     });
   };
 
+  const handleRedirect = () => {
+    history.push(`${match.path}/them-moi`);
+  };
+
+  const addButtonRender = () => {
+    return (
+      <>
+        <Button
+          icon={<PlusOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={handleRedirect}
+          disabled={permission && !permission.add}
+        >
+          Thêm tài liệu
+        </Button>
+      </>
+    );
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
         title={"Tài liệu tham khảo"}
         description="Danh sách tài liệu tham khảo"
+        buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
