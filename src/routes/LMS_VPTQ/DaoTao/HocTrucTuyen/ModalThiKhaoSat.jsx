@@ -112,6 +112,7 @@ function ModalThiKhaoSat({
       .then((res) => {
         if (res && res.data) {
           if (res.data.isDaThi === false) {
+            setThongTinDeThi(res.data);
             setDeThi(res.data);
             setListCauHoi(res.data.list_ChiTiets);
             setCauHoi(
@@ -121,6 +122,7 @@ function ModalThiKhaoSat({
             setKetQuaThi(null);
             setChiTietKetQua([]);
           } else {
+            setThongTinDeThi(res.data);
             setKetQuaThi(res.data);
             res.data.ketQua === "Đạt" ? ModalThiDat() : ModalThiKhongDat();
             const chitiet =
@@ -160,6 +162,7 @@ function ModalThiKhaoSat({
     });
   };
 
+  console.log(ThongTinDeThi);
   const handleKetThucThi = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -541,11 +544,15 @@ function ModalThiKhaoSat({
             style={{
               display: "flex",
               alignItems: "center",
+              gap: "10px",
               marginBottom: "10px",
             }}
           >
             <Button
               className="th-margin-bottom-0"
+              style={{
+                margin: "0px",
+              }}
               icon={<StepBackwardOutlined />}
               type="primary"
               onClick={handlePrev}
@@ -563,18 +570,19 @@ function ModalThiKhaoSat({
               }}
             >
               {ListCauHoi.map((item, index) => {
-                const isSelected = CauHoi === item.vptq_lms_ThiThuChiTiet_Id;
+                const isSelected =
+                  CauHoi === item.vptq_lms_ThiTrucTuyenChiTiet_Id;
                 const isChon = item.list_DapAns.some((ans) => ans.isChon);
 
                 return (
                   <Radio.Button
-                    key={item.vptq_lms_ThiThuChiTiet_Id}
-                    value={item.vptq_lms_ThiThuChiTiet_Id}
+                    key={item.vptq_lms_ThiTrucTuyenChiTiet_Id}
+                    value={item.vptq_lms_ThiTrucTuyenChiTiet_Id}
                     style={{
                       backgroundColor: isSelected
-                        ? "darkcyan"
+                        ? "green"
                         : isChon
-                        ? "#0469b9"
+                        ? "DarkGray"
                         : "",
                       color: isSelected || isChon ? "#fff" : "#000",
                     }}
@@ -585,7 +593,9 @@ function ModalThiKhaoSat({
               })}
             </Radio.Group>
             <Button
-              style={{ marginLeft: "15px" }}
+              style={{
+                margin: "0px",
+              }}
               icon={<StepForwardOutlined />}
               className="th-margin-bottom-0"
               type="primary"
@@ -696,7 +706,9 @@ function ModalThiKhaoSat({
                               return (
                                 <Col span={24}>
                                   <Radio
-                                    value={ans.vptq_lms_ThiThuChiTietDapAn_Id}
+                                    value={
+                                      ans.vptq_lms_ThiTrucTuyenChiTietDapAn_Id
+                                    }
                                     style={{
                                       display: "flex",
                                       alignItems: "flex-start",
@@ -729,6 +741,17 @@ function ModalThiKhaoSat({
               ) : null}
             </Row>
           </Card>
+        </Card>
+      ) : !KetQuaThi ? (
+        <Card
+          className="th-card-margin-bottom th-card-reset-margin"
+          title={"Hướng dẫn thi trắc nghiệm"}
+        >
+          <Image
+            src={require("public/HuongDanhThiTracNghiem.jpg")}
+            alt="Hình ảnh"
+            style={{ width: "100%" }}
+          />
         </Card>
       ) : null}
       {KetQuaThi && (
@@ -922,7 +945,7 @@ function ModalThiKhaoSat({
               <Card
                 className="th-card-margin-bottom th-card-reset-margin"
                 style={{
-                  maxHeight: "30vh",
+                  maxHeight: "35vh",
                   overflowY: "auto",
                 }}
               >
