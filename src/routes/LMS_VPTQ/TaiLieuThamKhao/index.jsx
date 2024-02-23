@@ -25,27 +25,20 @@ function TaiLieuThamKhao({ match, history, permission }) {
   const [Data, setData] = useState([]);
   const [ListKienThuc, setListKienThuc] = useState([]);
   const [KienThuc, setKienThuc] = useState(null);
-  const [ListChuyenDe, setListChuyenDe] = useState([]);
-  const [ChuyenDe, setChuyenDe] = useState(null);
   const [keyword, setKeyword] = useState("");
 
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(KienThuc, ChuyenDe, keyword);
+      getListData(KienThuc, keyword);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
   }, []);
 
-  const getListData = (
-    vptq_lms_KienThuc_Id,
-    vptq_lms_ChuyenDeDaoTao_Id,
-    keyword
-  ) => {
+  const getListData = (vptq_lms_KienThuc_Id, keyword) => {
     let param = convertObjectToUrlParams({
       vptq_lms_KienThuc_Id,
-      vptq_lms_ChuyenDeDaoTao_Id,
       keyword,
     });
     new Promise((resolve, reject) => {
@@ -63,47 +56,33 @@ function TaiLieuThamKhao({ match, history, permission }) {
     }).then((res) => {
       if (res && res.data) {
         setListKienThuc(res.data.list_KienThucFilters);
-        setListChuyenDe(res.data.list_ChuyenDeDaoTaoFilters);
         setData(res.data.list_ChuyenDeDaoTaos);
       } else {
         setListKienThuc([]);
-        setListChuyenDe([]);
         setData([]);
       }
     });
   };
 
   const onSearchNguoiDung = () => {
-    getListData(KienThuc, ChuyenDe, keyword);
+    getListData(KienThuc, keyword);
   };
 
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(KienThuc, ChuyenDe, val.target.value);
+      getListData(KienThuc, val.target.value);
     }
   };
 
   const handleOnSelectKienThuc = (value) => {
     setKienThuc(value);
-    setChuyenDe(null);
     getListData(value, null, keyword);
   };
 
   const handleClearKienThuc = () => {
     setKienThuc(null);
-    setChuyenDe(null);
     getListData(null, null, keyword);
-  };
-
-  const handleOnSelectChuyenDe = (value) => {
-    setChuyenDe(value);
-    getListData(KienThuc, value, keyword);
-  };
-
-  const handleClearChuyenDe = () => {
-    setChuyenDe(null);
-    getListData(KienThuc, null, keyword);
   };
 
   const handleXemChiTiet = (item) => {
@@ -119,7 +98,6 @@ function TaiLieuThamKhao({ match, history, permission }) {
       }
     });
     setData(newData);
-
     history.push({
       pathname: `${match.url}/${item.vptq_lms_ChuyenDeDaoTao_Id}/chi-tiet`,
     });
@@ -128,8 +106,8 @@ function TaiLieuThamKhao({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Học trực tuyến"}
-        description="Danh sách video học trực tuyến"
+        title={"Tài liệu tham khảo"}
+        description="Danh sách tài liệu tham khảo"
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
@@ -166,30 +144,6 @@ function TaiLieuThamKhao({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <span>Chuyên đề đào tạo:</span>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListChuyenDe ? ListChuyenDe : []}
-              placeholder="Chọn chuyên đề đào tạo"
-              optionsvalue={["vptq_lms_ChuyenDeDaoTao_Id", "tenChuyenDeDaoTao"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectChuyenDe}
-              allowClear
-              onClear={handleClearChuyenDe}
-              value={ChuyenDe}
-            />
-          </Col>
-          <Col
-            xxl={6}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
             <span>Tìm kiếm:</span>
             <Toolbar
               count={1}
@@ -207,10 +161,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
           </Col>
         </Row>
       </Card>
-      <Card
-        className="th-card-margin-bottom th-card-reset-margin"
-        title="CHUYÊN ĐỀ ĐÀO TẠO TRỰC TUYẾN"
-      >
+      <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ height: "54vh", overflowY: "auto" }}>
           {Data.length !== 0 &&
             Data.map((dt, index) => {

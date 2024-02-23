@@ -1,5 +1,5 @@
 import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Input, Switch, Upload } from "antd";
+import { Button, Card, Col, Form, Input, Spin, Switch, Upload } from "antd";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -38,6 +38,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
   const [FileTaiLieu, setFileTaiLieu] = useState(null);
   const [DisableUploadTaiLieu, setDisableUploadTaiLieu] = useState(false);
   const [id, setId] = useState(null);
+  const [Loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
@@ -209,6 +210,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           formchuyendedaotao.fileTaiLieu ||
           formchuyendedaotao.fileVideo
         ) {
+          setLoading(true);
           const formData = new FormData();
           formchuyendedaotao.fileTaiLieu
             ? formData.append("file", formchuyendedaotao.fileTaiLieu.file)
@@ -223,15 +225,18 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           })
             .then((res) => res.json())
             .then((data) => {
+              setLoading(false);
               formchuyendedaotao.fileTaiLieu
                 ? (formchuyendedaotao.fileTaiLieu = data.path)
                 : (formchuyendedaotao.fileVideo = data.path);
               saveData(formchuyendedaotao, saveQuit);
             })
             .catch(() => {
+              setLoading(false);
               Helpers.alertError("Tải file không thành công.");
             });
         } else {
+          setLoading(true);
           const formData = new FormData();
           formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
           formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
@@ -245,11 +250,13 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           })
             .then((res) => res.json())
             .then((data) => {
+              setLoading(false);
               formchuyendedaotao.fileTaiLieu = data[0].path;
               formchuyendedaotao.fileVideo = data[1].path;
               saveData(formchuyendedaotao, saveQuit);
             })
             .catch(() => {
+              setLoading(false);
               Helpers.alertError("Tải file không thành công.");
             });
         }
@@ -257,6 +264,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
         if (!formchuyendedaotao.fileVideo) {
           Helpers.alertError("Vui lòng tải file video lên.");
         } else if (!formchuyendedaotao.fileTaiLieu) {
+          setLoading(true);
           const formData = new FormData();
           formData.append("file", formchuyendedaotao.fileVideo.file);
 
@@ -269,13 +277,16 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           })
             .then((res) => res.json())
             .then((data) => {
+              setLoading(false);
               formchuyendedaotao.fileVideo = data.path;
               saveData(formchuyendedaotao, saveQuit);
             })
             .catch(() => {
+              setLoading(false);
               Helpers.alertError("Tải file không thành công.");
             });
         } else {
+          setLoading(true);
           const formData = new FormData();
           formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
           formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
@@ -289,11 +300,13 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           })
             .then((res) => res.json())
             .then((data) => {
+              setLoading(false);
               formchuyendedaotao.fileTaiLieu = data[0].path;
               formchuyendedaotao.fileVideo = data[1].path;
               saveData(formchuyendedaotao, saveQuit);
             })
             .catch(() => {
+              setLoading(false);
               Helpers.alertError("Tải file không thành công.");
             });
         }
@@ -301,6 +314,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
         if (!formchuyendedaotao.fileTaiLieu) {
           Helpers.alertError("Vui lòng tải file tài liệu lên.");
         } else if (!formchuyendedaotao.fileVideo) {
+          setLoading(true);
           const formData = new FormData();
           formData.append("file", formchuyendedaotao.fileTaiLieu.file);
 
@@ -313,13 +327,16 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           })
             .then((res) => res.json())
             .then((data) => {
+              setLoading(false);
               formchuyendedaotao.fileTaiLieu = data.path;
               saveData(formchuyendedaotao, saveQuit);
             })
             .catch(() => {
+              setLoading(false);
               Helpers.alertError("Tải file không thành công.");
             });
         } else {
+          setLoading(true);
           const formData = new FormData();
           formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
           formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
@@ -333,11 +350,13 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           })
             .then((res) => res.json())
             .then((data) => {
+              setLoading(false);
               formchuyendedaotao.fileTaiLieu = data[0].path;
               formchuyendedaotao.fileVideo = data[1].path;
               saveData(formchuyendedaotao, saveQuit);
             })
             .catch(() => {
+              setLoading(false);
               Helpers.alertError("Tải file không thành công.");
             });
         }
@@ -356,6 +375,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             formchuyendedaotao.fileTaiLieu.file) ||
           (formchuyendedaotao.fileVideo && formchuyendedaotao.fileVideo.file)
         ) {
+          setLoading(true);
           const formData = new FormData();
           formchuyendedaotao.fileTaiLieu && formchuyendedaotao.fileTaiLieu.file
             ? formData.append("file", formchuyendedaotao.fileTaiLieu.file)
@@ -370,6 +390,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           })
             .then((res) => res.json())
             .then((data) => {
+              setLoading(false);
               formchuyendedaotao.fileTaiLieu &&
               formchuyendedaotao.fileTaiLieu.file
                 ? (formchuyendedaotao.fileTaiLieu = data.path)
@@ -377,9 +398,11 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               saveData(formchuyendedaotao, saveQuit);
             })
             .catch(() => {
+              setLoading(false);
               Helpers.alertError("Tải file không thành công.");
             });
         } else {
+          setLoading(true);
           const formData = new FormData();
           formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
           formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
@@ -393,11 +416,13 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           })
             .then((res) => res.json())
             .then((data) => {
+              setLoading(false);
               formchuyendedaotao.fileTaiLieu = data[0].path;
               formchuyendedaotao.fileVideo = data[1].path;
               saveData(formchuyendedaotao, saveQuit);
             })
             .catch(() => {
+              setLoading(false);
               Helpers.alertError("Tải file không thành công.");
             });
         }
@@ -413,6 +438,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             (formchuyendedaotao.fileTaiLieu &&
               !formchuyendedaotao.fileTaiLieu.file)
           ) {
+            setLoading(true);
             const formData = new FormData();
             formData.append("file", formchuyendedaotao.fileVideo.file);
 
@@ -425,13 +451,16 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             })
               .then((res) => res.json())
               .then((data) => {
+                setLoading(false);
                 formchuyendedaotao.fileVideo = data.path;
                 saveData(formchuyendedaotao, saveQuit);
               })
               .catch(() => {
+                setLoading(false);
                 Helpers.alertError("Tải file không thành công.");
               });
           } else {
+            setLoading(true);
             const formData = new FormData();
             formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
             formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
@@ -445,11 +474,13 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             })
               .then((res) => res.json())
               .then((data) => {
+                setLoading(false);
                 formchuyendedaotao.fileTaiLieu = data[0].path;
                 formchuyendedaotao.fileVideo = data[1].path;
                 saveData(formchuyendedaotao, saveQuit);
               })
               .catch(() => {
+                setLoading(false);
                 Helpers.alertError("Tải file không thành công.");
               });
           }
@@ -458,6 +489,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             formchuyendedaotao.fileTaiLieu &&
             formchuyendedaotao.fileTaiLieu.file
           ) {
+            setLoading(true);
             const formData = new FormData();
             formData.append("file", formchuyendedaotao.fileTaiLieu.file);
 
@@ -470,10 +502,12 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             })
               .then((res) => res.json())
               .then((data) => {
+                setLoading(false);
                 formchuyendedaotao.fileTaiLieu = data.path;
                 saveData(formchuyendedaotao, saveQuit);
               })
               .catch(() => {
+                setLoading(false);
                 Helpers.alertError("Tải file không thành công.");
               });
           } else {
@@ -491,6 +525,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             !formchuyendedaotao.fileVideo ||
             (formchuyendedaotao.fileVideo && !formchuyendedaotao.fileVideo.file)
           ) {
+            setLoading(true);
             const formData = new FormData();
             formData.append("file", formchuyendedaotao.fileTaiLieu.file);
 
@@ -503,13 +538,16 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             })
               .then((res) => res.json())
               .then((data) => {
+                setLoading(false);
                 formchuyendedaotao.fileTaiLieu = data.path;
                 saveData(formchuyendedaotao, saveQuit);
               })
               .catch(() => {
+                setLoading(false);
                 Helpers.alertError("Tải file không thành công.");
               });
           } else {
+            setLoading(true);
             const formData = new FormData();
             formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
             formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
@@ -523,11 +561,13 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             })
               .then((res) => res.json())
               .then((data) => {
+                setLoading(false);
                 formchuyendedaotao.fileTaiLieu = data[0].path;
                 formchuyendedaotao.fileVideo = data[1].path;
                 saveData(formchuyendedaotao, saveQuit);
               })
               .catch(() => {
+                setLoading(false);
                 Helpers.alertError("Tải file không thành công.");
               });
           }
@@ -536,6 +576,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             formchuyendedaotao.fileVideo &&
             formchuyendedaotao.fileVideo.file
           ) {
+            setLoading(true);
             const formData = new FormData();
             formData.append("file", formchuyendedaotao.fileVideo.file);
 
@@ -548,10 +589,12 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             })
               .then((res) => res.json())
               .then((data) => {
+                setLoading(false);
                 formchuyendedaotao.fileVideo = data.path;
                 saveData(formchuyendedaotao, saveQuit);
               })
               .catch(() => {
+                setLoading(false);
                 Helpers.alertError("Tải file không thành công.");
               });
           } else {
@@ -661,7 +704,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
   };
 
   const propstailieu = {
-    accept: ".pdf, .doc, .docx, .ppt, .pptx",
+    accept: ".pdf, .doc, .docx, .ppt, .pptx, .xls, .xlsx",
     beforeUpload: (file) => {
       const allowedFileTypes = [
         "application/pdf",
@@ -669,11 +712,13 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "application/vnd.ms-powerpoint",
         "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       ];
 
       if (!allowedFileTypes.includes(file.type)) {
         Helpers.alertError(
-          `${file.name} không phải là tệp PDF, Word, hoặc PowerPoint`
+          `${file.name} không phải là tệp PDF, Word, Excel, hoặc PowerPoint`
         );
         return false;
       }
@@ -699,327 +744,330 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
-      <Card
-        className="th-card-margin-bottom"
-        align={"center"}
-        style={{ width: "100%" }}
-      >
-        <Form
-          {...DEFAULT_FORM_ADD_170PX}
-          form={form}
-          name="nguoi-dung-control"
-          onFinish={onFinish}
-          onFieldsChange={() => setFieldTouch(true)}
+      <Spin spinning={Loading} size="large" tip="Đang tải file...">
+        <Card
+          className="th-card-margin-bottom"
+          align={"center"}
+          style={{ width: "100%" }}
         >
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
-            <FormItem
-              label="Tên chuyên đề"
-              name={["formchuyendedaotao", "tenChuyenDeDaoTao"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-                {
-                  max: 250,
-                  message: "Tên chuyên đề đào tạo không được quá 250 ký tự",
-                },
-              ]}
-            >
-              <Input
-                className="input-item"
-                placeholder="Nhập tên chuyên đề đào tạo"
-              />
-            </FormItem>
-          </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
-            <FormItem
-              label="Mô tả chuyên đề"
-              name={["formchuyendedaotao", "moTa"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-            >
-              <TextArea
-                rows={6}
-                className="input-item"
-                placeholder="Nhập mô tả chuyên đề đào tạo"
-              />
-            </FormItem>
-          </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
-            <FormItem
-              label="Kiến thức"
-              name={["formchuyendedaotao", "vptq_lms_KienThuc_Id"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-              ]}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListKienThuc ? ListKienThuc : []}
-                placeholder="Chọn chuyên đề đào tạo"
-                optionsvalue={["id", "tenKienThuc"]}
-                style={{ width: "100%" }}
-                optionFilterProp="name"
-                showSearch
-              />
-            </FormItem>
-          </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
-            <FormItem
-              label="Hình thức đào tạo"
-              name={["formchuyendedaotao", "vptq_lms_HinhThucDaoTao_Id"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-              ]}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListHinhThuc ? ListHinhThuc : []}
-                placeholder="Chọn hình thức đào tạo"
-                optionsvalue={["id", "tenHinhThucDaoTao"]}
-                style={{ width: "100%" }}
-                optionFilterProp="name"
-                showSearch
-                onSelect={handleSelectHinhThucDaoTao}
-              />
-            </FormItem>
-          </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
-            <FormItem
-              label="Giảng viên"
-              name={["formchuyendedaotao", "vptq_lms_GiangVien_Id"]}
-              rules={[
-                {
-                  type: "string",
-                  required:
-                    HinhThucDaoTao && HinhThucDaoTao === HINHTHUCDAOTAO_TUHOC
-                      ? false
-                      : true,
-                },
-              ]}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListGiangVien ? ListGiangVien : []}
-                placeholder="Chọn giảng viên đào tạo"
-                optionsvalue={["id", "tenGiangVien"]}
-                style={{ width: "100%" }}
-                optionFilterProp="name"
-                showSearch
-                disabled={type !== "new"}
-              />
-            </FormItem>
-          </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
-            <FormItem
-              label="Thời lượng đào tạo"
-              name={["formchuyendedaotao", "thoiLuongDaoTao"]}
-              rules={[
-                {
-                  required:
-                    HinhThucDaoTao && HinhThucDaoTao === HINHTHUCDAOTAO_TUHOC
-                      ? false
-                      : true,
-                },
-              ]}
-            >
-              <Input
-                type="number"
-                className="input-item"
-                placeholder="Nhập thời lượng đào tạo (Phút)"
-              />
-            </FormItem>
-          </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
-            <FormItem
-              label="Video đào tạo"
-              name={["formchuyendedaotao", "fileVideo"]}
-              rules={[
-                {
-                  type: "file",
-                  required: HinhThucDaoTao && HinhThucDaoTao === DAOTAO_ONLINE,
-                },
-              ]}
-            >
-              {!DisableUploadVideo ? (
-                <Upload {...propsvideo}>
-                  <Button
-                    className="th-margin-bottom-0"
-                    style={{
-                      marginBottom: 0,
-                    }}
-                    icon={<UploadOutlined />}
-                  >
-                    Tải file video
-                  </Button>
-                </Upload>
-              ) : FileVideo && FileVideo.name ? (
-                <span>
-                  <span
-                    style={{
-                      color: "#0469B9",
-                      cursor: "pointer",
-                      whiteSpace: "break-spaces",
-                    }}
-                    onClick={() => handleOpenFile(FileVideo)}
-                  >
-                    {FileVideo.name}{" "}
+          <Form
+            {...DEFAULT_FORM_ADD_170PX}
+            form={form}
+            name="nguoi-dung-control"
+            onFinish={onFinish}
+            onFieldsChange={() => setFieldTouch(true)}
+          >
+            <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+              <FormItem
+                label="Tên chuyên đề"
+                name={["formchuyendedaotao", "tenChuyenDeDaoTao"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                  {
+                    max: 250,
+                    message: "Tên chuyên đề đào tạo không được quá 250 ký tự",
+                  },
+                ]}
+              >
+                <Input
+                  className="input-item"
+                  placeholder="Nhập tên chuyên đề đào tạo"
+                />
+              </FormItem>
+            </Col>
+            <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+              <FormItem
+                label="Mô tả chuyên đề"
+                name={["formchuyendedaotao", "moTa"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <TextArea
+                  rows={6}
+                  className="input-item"
+                  placeholder="Nhập mô tả chuyên đề đào tạo"
+                />
+              </FormItem>
+            </Col>
+            <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+              <FormItem
+                label="Kiến thức"
+                name={["formchuyendedaotao", "vptq_lms_KienThuc_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListKienThuc ? ListKienThuc : []}
+                  placeholder="Chọn chuyên đề đào tạo"
+                  optionsvalue={["id", "tenKienThuc"]}
+                  style={{ width: "100%" }}
+                  optionFilterProp="name"
+                  showSearch
+                />
+              </FormItem>
+            </Col>
+            <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+              <FormItem
+                label="Hình thức đào tạo"
+                name={["formchuyendedaotao", "vptq_lms_HinhThucDaoTao_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required: true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListHinhThuc ? ListHinhThuc : []}
+                  placeholder="Chọn hình thức đào tạo"
+                  optionsvalue={["id", "tenHinhThucDaoTao"]}
+                  style={{ width: "100%" }}
+                  optionFilterProp="name"
+                  showSearch
+                  onSelect={handleSelectHinhThucDaoTao}
+                />
+              </FormItem>
+            </Col>
+            <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+              <FormItem
+                label="Giảng viên"
+                name={["formchuyendedaotao", "vptq_lms_GiangVien_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                    required:
+                      HinhThucDaoTao && HinhThucDaoTao === HINHTHUCDAOTAO_TUHOC
+                        ? false
+                        : true,
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListGiangVien ? ListGiangVien : []}
+                  placeholder="Chọn giảng viên đào tạo"
+                  optionsvalue={["id", "tenGiangVien"]}
+                  style={{ width: "100%" }}
+                  optionFilterProp="name"
+                  showSearch
+                  disabled={type !== "new"}
+                />
+              </FormItem>
+            </Col>
+            <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+              <FormItem
+                label="Thời lượng đào tạo"
+                name={["formchuyendedaotao", "thoiLuongDaoTao"]}
+                rules={[
+                  {
+                    required:
+                      HinhThucDaoTao && HinhThucDaoTao === HINHTHUCDAOTAO_TUHOC
+                        ? false
+                        : true,
+                  },
+                ]}
+              >
+                <Input
+                  type="number"
+                  className="input-item"
+                  placeholder="Nhập thời lượng đào tạo (Phút)"
+                />
+              </FormItem>
+            </Col>
+            <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+              <FormItem
+                label="Video đào tạo"
+                name={["formchuyendedaotao", "fileVideo"]}
+                rules={[
+                  {
+                    type: "file",
+                    required:
+                      HinhThucDaoTao && HinhThucDaoTao === DAOTAO_ONLINE,
+                  },
+                ]}
+              >
+                {!DisableUploadVideo ? (
+                  <Upload {...propsvideo}>
+                    <Button
+                      className="th-margin-bottom-0"
+                      style={{
+                        marginBottom: 0,
+                      }}
+                      icon={<UploadOutlined />}
+                    >
+                      Tải file video
+                    </Button>
+                  </Upload>
+                ) : FileVideo && FileVideo.name ? (
+                  <span>
+                    <span
+                      style={{
+                        color: "#0469B9",
+                        cursor: "pointer",
+                        whiteSpace: "break-spaces",
+                      }}
+                      onClick={() => handleOpenFile(FileVideo)}
+                    >
+                      {FileVideo.name}{" "}
+                    </span>
+                    <DeleteOutlined
+                      style={{ cursor: "pointer", color: "red" }}
+                      onClick={() => {
+                        setFileVideo(null);
+                        setDisableUploadVideo(false);
+                        setFieldsValue({
+                          formchuyendedaotao: {
+                            fileVideo: null,
+                          },
+                        });
+                      }}
+                    />
                   </span>
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    onClick={() => {
-                      setFileVideo(null);
-                      setDisableUploadVideo(false);
-                      setFieldsValue({
-                        formchuyendedaotao: {
-                          fileVideo: null,
-                        },
-                      });
-                    }}
-                  />
-                </span>
-              ) : (
-                <span>
-                  <a
-                    target="_blank"
-                    href={BASE_URL_API + FileVideo}
-                    rel="noopener noreferrer"
-                  >
-                    {FileVideo && FileVideo.split("/")[5]}{" "}
-                  </a>
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    onClick={() => {
-                      setFieldTouch(true);
-                      setFileVideo(null);
-                      setDisableUploadVideo(false);
-                      setFieldsValue({
-                        formchuyendedaotao: {
-                          fileVideo: null,
-                        },
-                      });
-                    }}
-                  />
-                </span>
-              )}
-            </FormItem>
-          </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
-            <FormItem
-              label="File tài liệu"
-              name={["formchuyendedaotao", "fileTaiLieu"]}
-              rules={[
-                {
-                  type: "file",
-                  required:
-                    HinhThucDaoTao && HinhThucDaoTao === HINHTHUCDAOTAO_TUHOC
-                      ? false
-                      : true,
-                },
-              ]}
-            >
-              {!DisableUploadTaiLieu ? (
-                <Upload {...propstailieu}>
-                  <Button
-                    className="th-margin-bottom-0"
-                    style={{
-                      marginBottom: 0,
-                    }}
-                    icon={<UploadOutlined />}
-                  >
-                    Tải file tài liệu
-                  </Button>
-                </Upload>
-              ) : FileTaiLieu && FileTaiLieu.name ? (
-                <span>
-                  <span
-                    style={{
-                      color: "#0469B9",
-                      cursor: "pointer",
-                      whiteSpace: "break-spaces",
-                    }}
-                    onClick={() => handleOpenFile(FileTaiLieu)}
-                  >
-                    {FileTaiLieu.name}{" "}
+                ) : (
+                  <span>
+                    <a
+                      target="_blank"
+                      href={BASE_URL_API + FileVideo}
+                      rel="noopener noreferrer"
+                    >
+                      {FileVideo && FileVideo.split("/")[5]}{" "}
+                    </a>
+                    <DeleteOutlined
+                      style={{ cursor: "pointer", color: "red" }}
+                      onClick={() => {
+                        setFieldTouch(true);
+                        setFileVideo(null);
+                        setDisableUploadVideo(false);
+                        setFieldsValue({
+                          formchuyendedaotao: {
+                            fileVideo: null,
+                          },
+                        });
+                      }}
+                    />
                   </span>
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    onClick={() => {
-                      setFileTaiLieu(null);
-                      setDisableUploadTaiLieu(false);
-                      setFieldsValue({
-                        formchuyendedaotao: {
-                          fileTaiLieu: null,
-                        },
-                      });
-                    }}
-                  />
-                </span>
-              ) : (
-                <span>
-                  <a
-                    target="_blank"
-                    href={BASE_URL_API + FileTaiLieu}
-                    rel="noopener noreferrer"
-                  >
-                    {FileTaiLieu && FileTaiLieu.split("/")[5]}{" "}
-                  </a>
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    onClick={() => {
-                      setFieldTouch(true);
-                      setFileTaiLieu(null);
-                      setDisableUploadTaiLieu(false);
-                      setFieldsValue({
-                        formchuyendedaotao: {
-                          fileTaiLieu: null,
-                        },
-                      });
-                    }}
-                  />
-                </span>
-              )}
-            </FormItem>
-          </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
-            <FormItem
-              label="Sử dụng"
-              name={["formchuyendedaotao", "isSuDung"]}
-              valuePropName="checked"
-            >
-              <Switch />
-            </FormItem>
-          </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
-            <FormItem
-              label="Ghi chú"
-              name={["formchuyendedaotao", "ghiChu"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-            >
-              <Input className="input-item" placeholder="Nhập ghi chú" />
-            </FormItem>
-          </Col>
-          <FormSubmit
-            goBack={goBack}
-            saveAndClose={saveAndClose}
-            disabled={fieldTouch}
-          />
-        </Form>
-      </Card>
+                )}
+              </FormItem>
+            </Col>
+            <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+              <FormItem
+                label="File tài liệu"
+                name={["formchuyendedaotao", "fileTaiLieu"]}
+                rules={[
+                  {
+                    type: "file",
+                    required:
+                      HinhThucDaoTao && HinhThucDaoTao === HINHTHUCDAOTAO_TUHOC
+                        ? false
+                        : true,
+                  },
+                ]}
+              >
+                {!DisableUploadTaiLieu ? (
+                  <Upload {...propstailieu}>
+                    <Button
+                      className="th-margin-bottom-0"
+                      style={{
+                        marginBottom: 0,
+                      }}
+                      icon={<UploadOutlined />}
+                    >
+                      Tải file tài liệu
+                    </Button>
+                  </Upload>
+                ) : FileTaiLieu && FileTaiLieu.name ? (
+                  <span>
+                    <span
+                      style={{
+                        color: "#0469B9",
+                        cursor: "pointer",
+                        whiteSpace: "break-spaces",
+                      }}
+                      onClick={() => handleOpenFile(FileTaiLieu)}
+                    >
+                      {FileTaiLieu.name}{" "}
+                    </span>
+                    <DeleteOutlined
+                      style={{ cursor: "pointer", color: "red" }}
+                      onClick={() => {
+                        setFileTaiLieu(null);
+                        setDisableUploadTaiLieu(false);
+                        setFieldsValue({
+                          formchuyendedaotao: {
+                            fileTaiLieu: null,
+                          },
+                        });
+                      }}
+                    />
+                  </span>
+                ) : (
+                  <span>
+                    <a
+                      target="_blank"
+                      href={BASE_URL_API + FileTaiLieu}
+                      rel="noopener noreferrer"
+                    >
+                      {FileTaiLieu && FileTaiLieu.split("/")[5]}{" "}
+                    </a>
+                    <DeleteOutlined
+                      style={{ cursor: "pointer", color: "red" }}
+                      onClick={() => {
+                        setFieldTouch(true);
+                        setFileTaiLieu(null);
+                        setDisableUploadTaiLieu(false);
+                        setFieldsValue({
+                          formchuyendedaotao: {
+                            fileTaiLieu: null,
+                          },
+                        });
+                      }}
+                    />
+                  </span>
+                )}
+              </FormItem>
+            </Col>
+            <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+              <FormItem
+                label="Sử dụng"
+                name={["formchuyendedaotao", "isSuDung"]}
+                valuePropName="checked"
+              >
+                <Switch />
+              </FormItem>
+            </Col>
+            <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+              <FormItem
+                label="Ghi chú"
+                name={["formchuyendedaotao", "ghiChu"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Input className="input-item" placeholder="Nhập ghi chú" />
+              </FormItem>
+            </Col>
+            <FormSubmit
+              goBack={goBack}
+              saveAndClose={saveAndClose}
+              disabled={fieldTouch}
+            />
+          </Form>
+        </Card>
+      </Spin>
     </div>
   );
 };

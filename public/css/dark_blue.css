@@ -21467,14 +21467,14 @@ textarea.ant-pagination-options-quick-jumper input {
 }
 
 .ant-popover-inner-content {
-  padding: 12px 0;
+  padding: 15px;
   color: #545454;
   width: 100%;
 }
 
 .ant-popover-message {
   position: relative;
-  padding: 4px 0 12px;
+  padding: 15px;
   color: #545454;
   font-size: 14px;
 }

@@ -543,7 +543,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
   };
 
   const propfiledinhkem = {
-    accept: ".pdf, .doc, .docx, .ppt, .pptx",
+    accept: ".pdf, .doc, .docx, .ppt, .pptx, .xls, .xlsx",
     beforeUpload: (file) => {
       const allowedFileTypes = [
         "application/pdf",
@@ -551,11 +551,13 @@ const TabsHoiDap = ({ dataHoiDap }) => {
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "application/vnd.ms-powerpoint",
         "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       ];
 
       if (!allowedFileTypes.includes(file.type)) {
         Helpers.alertError(
-          `${file.name} không phải là tệp PDF, Word, hoặc PowerPoint`
+          `${file.name} không phải là tệp PDF, Word, Excel, hoặc PowerPoint`
         );
         return false;
       } else {
@@ -602,7 +604,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
   };
 
   const propfiledinhkemedit = {
-    accept: ".pdf, .doc, .docx, .ppt, .pptx",
+    accept: ".pdf, .doc, .docx, .ppt, .pptx, .xls, .xlsx",
     beforeUpload: (file) => {
       const allowedFileTypes = [
         "application/pdf",
@@ -610,11 +612,13 @@ const TabsHoiDap = ({ dataHoiDap }) => {
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "application/vnd.ms-powerpoint",
         "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       ];
 
       if (!allowedFileTypes.includes(file.type)) {
         Helpers.alertError(
-          `${file.name} không phải là tệp PDF, Word, hoặc PowerPoint`
+          `${file.name} không phải là tệp PDF, Word, Excel, hoặc PowerPoint`
         );
         return false;
       } else {

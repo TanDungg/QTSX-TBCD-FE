@@ -1000,7 +1000,7 @@ function ThiKhaoSat({ permission, history }) {
           className="th-card-margin-bottom th-card-reset-margin"
           title={"Danh sách câu hỏi"}
           style={{
-            maxHeight: "50vh",
+            maxHeight: "55vh",
             overflowY: "auto",
             width: "100%",
           }}

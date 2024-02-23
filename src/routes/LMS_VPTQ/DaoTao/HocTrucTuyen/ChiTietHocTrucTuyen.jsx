@@ -10,12 +10,14 @@ import TabsDanhGia from "./TabsDanhGia";
 import moment from "moment";
 import Helpers from "src/helpers";
 import ModalThiKhaoSat from "./ModalThiKhaoSat";
+import HlsVideoPlayer from "src/components/Common/HlsVideoPlayer";
 
 function ChiTietHocTrucTuyen({ match, history, permission }) {
   const dispatch = useDispatch();
   const playerRef = useRef(null);
   const intervalRef = useRef(null);
   const [ChiTiet, setChiTiet] = useState(null);
+  const [VideoChiaNho, setVideoChiaNho] = useState(null);
   const [id, setId] = useState(null);
   const [isSeek, setIsSeek] = useState(false);
   const [ThoiGianXem, setThoiGianXem] = useState(0);
@@ -63,6 +65,25 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
         // setThoiLuongVideo(res.data.thoiLuongVideo);
       } else {
         setChiTiet(null);
+      }
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `vptq_lms_HocTrucTuyen/hoc-video-chia-nho/${id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setVideoChiaNho(res.data);
+      } else {
+        setVideoChiaNho(null);
       }
     });
   };
@@ -436,6 +457,20 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                 onEnded={handleEnded}
               />
             )}
+            {/* {ChiTiet && (
+              <HlsVideoPlayer
+                tsFiles={
+                  VideoChiaNho &&
+                  VideoChiaNho.fileVideo &&
+                  VideoChiaNho.fileVideo.tsFiles
+                }
+                m3u8File={
+                  VideoChiaNho &&
+                  VideoChiaNho.fileVideo &&
+                  VideoChiaNho.fileVideo.m3u8File
+                }
+              />
+            )} */}
           </Col>
           <Col xxl={7} xl={8} lg={24} xs={24} style={{ marginBottom: 8 }}>
             <Card

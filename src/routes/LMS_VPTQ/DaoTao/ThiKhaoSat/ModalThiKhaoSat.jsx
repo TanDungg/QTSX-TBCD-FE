@@ -738,7 +738,7 @@ function ModalThiKhaoSat({
             </Col>
           </Row>
         </Card>
-      ) : (
+      ) : !KetQuaThi ? (
         <Card
           className="th-card-margin-bottom th-card-reset-margin"
           title={"Hướng dẫn thi trắc nghiệm"}
@@ -749,7 +749,7 @@ function ModalThiKhaoSat({
             style={{ width: "100%" }}
           />
         </Card>
-      )}
+      ) : null}
       {KetQuaThi && (
         <Card
           className="th-card-margin-bottom th-card-reset-margin"

@@ -421,26 +421,26 @@ const HocPhiForm = ({ history, match, permission }) => {
   const props = {
     accept: ".pdf, .doc, .docx, .ppt, .pptx, .xls, .xlsx",
     beforeUpload: (file) => {
-      const allowedFormats = [
-        "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "application/vnd.ms-powerpoint",
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-        "application/vnd.ms-excel",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      ];
+        const allowedFileTypes = [
+          "application/pdf",
+          "application/msword",
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          "application/vnd.ms-powerpoint",
+          "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+          "application/vnd.ms-excel",
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        ];
 
-      if (!allowedFormats.includes(file.type)) {
-        Helpers.alertError(
-          `${file.name} không phải là một tệp PDF, Word, PowerPoint, hoặc Excel hợp lệ`
-        );
-        return false;
-      } else {
-        setFileDinhKem(file);
-        setDisableUpload(true);
-        return false;
-      }
+        if (!allowedFileTypes.includes(file.type)) {
+          Helpers.alertError(
+            `${file.name} không phải là tệp PDF, Word, Excel, hoặc PowerPoint`
+          );
+          return false;
+        } else {
+          setFileDinhKem(file);
+          setDisableUpload(true);
+          return false;
+        }
     },
     showUploadList: false,
     maxCount: 1,

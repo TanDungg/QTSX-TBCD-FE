@@ -517,7 +517,7 @@ function TienTrinhHocTap({ permission, history }) {
                 format={"DD/MM/YYYY"}
                 style={{ width: "85%" }}
                 onChange={(date, dateString) => handleChangeNgay(dateString)}
-                allowClear={false}
+                allowClear={true}
               />
             </Col>
           </Row>
