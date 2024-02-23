@@ -684,7 +684,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
             </Row>
           </Card>
         </Card>
-      ) : (
+      ) : !KetQuaThi ? (
         <Card
           className="th-card-margin-bottom th-card-reset-margin"
           title={"Hướng dẫn thi trắc nghiệm"}
@@ -695,7 +695,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
             style={{ width: "100%" }}
           />
         </Card>
-      )}
+      ) : null}
       {KetQuaThi && (
         <Card
           className="th-card-margin-bottom th-card-reset-margin"
@@ -877,7 +877,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
           <Card
             className="th-card-margin-bottom th-card-reset-margin"
             style={{
-              maxHeight: "30vh",
+              maxHeight: "35vh",
               overflowY: "auto",
               width: "100%",
             }}

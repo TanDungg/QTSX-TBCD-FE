@@ -10,12 +10,7 @@ import {
   TAB_SIZE,
 } from "src/constants/ThemeSetting";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  loadMenu,
-  donViLoad,
-  fetchStart,
-  fetchReset,
-} from "src/appRedux/actions";
+import { loadMenu, donViLoad, fetchStart } from "src/appRedux/actions";
 import { Modal, Select } from "src/components/Common";
 import {
   convertObjectToUrlParams,
@@ -74,13 +69,13 @@ const Topbar = () => {
 
     fetchData();
 
-    const interval = setInterval(fetchData, 60000);
+    // const interval = setInterval(fetchData, 60000);
 
-    return () => {
-      clearInterval(interval);
-      dispatch(fetchReset());
-    };
-  }, []); 
+    // return () => {
+    //   clearInterval(interval);
+    //   dispatch(fetchReset());
+    // };
+  }, []);
 
   const getListThongBao = () => {
     let param = convertObjectToUrlParams({
@@ -122,7 +117,6 @@ const Topbar = () => {
     dispatch(donViLoad());
     history.push("/home");
   };
-
 
   const handleXemThongBao = (id) => {
     new Promise((resolve, reject) => {

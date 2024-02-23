@@ -304,9 +304,6 @@ function ImportDanhSachCBNV({
               }
             }
 
-            console.log("Indices:", indices);
-            console.log("Rows:", row);
-
             const newData = ListCNBV.map((cbnv) => {
               if (!cbnv.maNhanVien) {
                 return {

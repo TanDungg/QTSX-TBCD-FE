@@ -367,7 +367,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   };
 
   const handleGuiThoiGianXem = (thoigian) => {
-    if (thoigian > ThoiGianDaXem) {
+    if (thoigian > ThoiGianDaXem && thoigian > 1) {
       const newData = {
         vptq_lms_LopHocChiTiet_Id: ChiTiet.vptq_lms_LopHocChiTiet_Id,
         thoiDiemVideo: thoigian,
@@ -477,7 +477,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                     <Image
                       src={BASE_URL_API + ChiTiet.hinhAnhGiangVien}
                       alt="Hình ảnh giảng viên"
-                      style={{ width: "100%", height: "150px" }}
+                      style={{ height: "150px" }}
                     />
                   )}
                 </Col>
