@@ -63,7 +63,7 @@ function ImportNguoiDung({ match, history }) {
       title: "Mã quyền",
       dataIndex: "maQuyen",
       key: "maQuyen",
-      align: "center",
+      align: "left",
       width: 200,
     },
     {
@@ -77,7 +77,7 @@ function ImportNguoiDung({ match, history }) {
       title: "Lỗi",
       dataIndex: "ghiChuImport",
       key: "ghiChuImport",
-      align: "center",
+      align: "left",
       width: 200,
     },
   ];
@@ -136,6 +136,10 @@ function ImportNguoiDung({ match, history }) {
       const worksheet = workbook.Sheets["Import"];
 
       const checkMau =
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 0, r: 4 }, e: { c: 0, r: 4 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -143,6 +147,10 @@ function ImportNguoiDung({ match, history }) {
           })[0]
           .toString()
           .trim() === "STT" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 1, r: 4 }, e: { c: 1, r: 4 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -150,6 +158,10 @@ function ImportNguoiDung({ match, history }) {
           })[0]
           .toString()
           .trim() === "Mã nhân viên *" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 2, r: 4 }, e: { c: 2, r: 4 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -157,6 +169,10 @@ function ImportNguoiDung({ match, history }) {
           })[0]
           .toString()
           .trim() === "Họ tên" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 3, r: 4 }, e: { c: 3, r: 4 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -164,6 +180,10 @@ function ImportNguoiDung({ match, history }) {
           })[0]
           .toString()
           .trim() === "Mã quyền *" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 4, r: 4 }, e: { c: 4, r: 4 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -252,27 +272,26 @@ function ImportNguoiDung({ match, history }) {
             Object.keys(RowTrung).forEach((maNhanVien) => {
               const indices = RowTrung[maNhanVien];
               if (indices.length > 1) {
+                // duplicatedRows.push(
+                //   `Mã nhân viên ${maNhanVien} trùng tại hàng: ${indices.join(
+                //     ", "
+                //   )}`
+                // );
                 indices.forEach((index) => {
                   const listhangtrung = indices.filter((key) => key !== index);
-                  console.log(listhangtrung);
                   ListCNBV[
                     index - 1
                   ].ghiChuImport = `Trùng mã nhân viên với hàng: ${listhangtrung.join(
                     ", "
                   )}`;
                 });
-                duplicatedRows.push(
-                  `Mã nhân viên ${maNhanVien} trùng tại hàng: ${indices.join(
-                    ", "
-                  )}`
-                );
               }
             });
 
             if (duplicatedRows.length > 0) {
               setCheckDanger(true);
-              const message = duplicatedRows.join("; ");
-              setMessageError(message);
+              // const message = duplicatedRows.join("; ");
+              // setMessageError(message);
             }
 
             setDataListNguoiDung(newData);
