@@ -106,7 +106,7 @@ function ModalTaoLopHoc({ openModalFS, openModal, dataTaoLopHoc, refesh }) {
         )
       );
     }).then((res) => {
-      if (res && res.data.length) {
+      if (res && res.status !== 409) {
         const dethi = res.data.find((dt) => dt.isDefault === true);
         setFieldsValue({
           modaltaolophoc: {

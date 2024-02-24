@@ -129,7 +129,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_CauHoi/${id}`,
+          `vptq_lms_CauHoi/${id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -453,7 +453,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_CauHoi/kiem-tra-cau-hoi`,
+            `vptq_lms_CauHoi/kiem-tra-cau-hoi?donViHienHanh_Id=${INFO.donVi_Id}`,
             "POST",
             newData,
             "ADD",
@@ -504,7 +504,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_CauHoi/${id}`,
+            `vptq_lms_CauHoi/${id}?donViHienHanh_Id=${INFO.donVi_Id}`,
             "PUT",
             newData,
             "EDIT",
@@ -530,7 +530,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_CauHoi/cau-hoi-sau-kiem-tra`,
+          `vptq_lms_CauHoi/cau-hoi-sau-kiem-tra?donViHienHanh_Id=${INFO.donVi_Id}`,
           "POST",
           DataLuuBoQuaTrung,
           "ADD",
@@ -679,10 +679,10 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
             >
               <Col
                 xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -708,10 +708,10 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
               </Col>
               <Col
                 xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -741,10 +741,10 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
               </Col>
               <Col
                 xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -844,10 +844,10 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
               </Col>
               <Col
                 xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -940,10 +940,10 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
               </Col>
               <Col
                 xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -960,10 +960,10 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
               </Col>
               <Col
                 xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -980,10 +980,10 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
               </Col>
               <Col
                 xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",

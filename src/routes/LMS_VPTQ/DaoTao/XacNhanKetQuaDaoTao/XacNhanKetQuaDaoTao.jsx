@@ -12,7 +12,12 @@ import {
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { removeDuplicates, reDataForTable } from "src/util/Common";
+import {
+  removeDuplicates,
+  reDataForTable,
+  getTokenInfo,
+  getLocalStorage,
+} from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { EditableTableRow, Table } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -30,6 +35,11 @@ const FormItem = Form.Item;
 function XacNhanKetQuaDaoTao({ permission, history }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [Data, setData] = useState([]);
   const [DataChiTiet, setDataChiTiet] = useState(null);
   const [ActiveModalHuyDuyet, setActiveModalHuyDuyet] = useState(false);
@@ -52,7 +62,7 @@ function XacNhanKetQuaDaoTao({ permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_HocTrucTuyen/list-chua-duyet`,
+          `vptq_lms_HocTrucTuyen/list-chua-duyet?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -343,7 +353,7 @@ function XacNhanKetQuaDaoTao({ permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_HocTrucTuyen/duyet/${id}`,
+          `vptq_lms_HocTrucTuyen/duyet/${id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "PUT",
           newData,
           "DUYET",
@@ -386,7 +396,7 @@ function XacNhanKetQuaDaoTao({ permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_HocTrucTuyen/duyet/${DataChiTiet.vptq_lms_KetQuaDaoTao_Id}`,
+          `vptq_lms_HocTrucTuyen/duyet/${DataChiTiet.vptq_lms_KetQuaDaoTao_Id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "PUT",
           newData,
           "TUCHOI",

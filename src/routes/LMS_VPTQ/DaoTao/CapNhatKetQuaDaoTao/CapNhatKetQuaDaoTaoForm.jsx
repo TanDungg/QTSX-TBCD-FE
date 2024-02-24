@@ -57,7 +57,7 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_ThiTrucTuyen/isQLHocTrucTuyen`,
+          `vptq_lms_ThiTrucTuyen/isQLHocTrucTuyen?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -244,7 +244,7 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_HocTrucTuyen/ket-qua-dao-tao-khong-lop-hoc`,
+          `vptq_lms_HocTrucTuyen/ket-qua-dao-tao-khong-lop-hoc?donViHienHanh_Id=${INFO.donVi_Id}`,
           "POST",
           newData,
           "ADD",

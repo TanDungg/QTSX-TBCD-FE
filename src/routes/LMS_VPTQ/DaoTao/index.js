@@ -23,6 +23,9 @@ const ChiTietHocTrucTuyen = asyncComponent(() =>
   import("./HocTrucTuyen/ChiTietHocTrucTuyen")
 );
 
+/* Xác nhận hỏi đáp */
+const XacNhanHoiDap = asyncComponent(() => import("./XacNhanHoiDap/XacNhanHoiDap"));
+
 /* Thi khảo sát */
 const ThiKhaoSat = asyncComponent(() => import("./ThiKhaoSat/ThiKhaoSat"));
 
@@ -72,6 +75,13 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/hoc-truc-tuyen/:id/chi-tiet`}
         exact
         component={Auth(ChiTietHocTrucTuyen, menus, pathname, permission)}
+      />
+
+      {/* Xác nhận hỏi đáp */}
+      <Route
+        path={`${match.url}/xac-nhan-hoi-dap`}
+        exact
+        component={Auth(XacNhanHoiDap, menus, pathname, permission)}
       />
 
       {/* Thi khảo sát */}

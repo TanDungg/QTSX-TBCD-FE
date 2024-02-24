@@ -1,6 +1,7 @@
 import {
   DeleteOutlined,
   PlusCircleOutlined,
+  PlusOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
 import { Button, Card, Col, DatePicker, Form, Input, Row } from "antd";
@@ -26,6 +27,7 @@ import {
 import moment from "moment";
 import Helpers from "src/helpers";
 import ModalThemDanhSachCBNV from "./ModalThemDanhSachCBNV";
+import ModalAddMucTieu from "./ModalAddMucTieu";
 
 const FormItem = Form.Item;
 
@@ -38,6 +40,8 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
   const [fieldTouch, setFieldTouch] = useState(false);
   const [ListChuyenDe, setListChuyenDe] = useState([]);
   const [ListDonVi, setListDonVi] = useState([]);
+  const [ListMucTieuDaoTao, setListMucTieuDaoTao] = useState([]);
+  const [MucTieuDaoTao, setMucTieuDaoTao] = useState(null);
   const [DonVi, setDonVi] = useState(null);
   const [ListUserDuyet, setListUserDuyet] = useState([]);
   const [ListCBNV, setListCBNV] = useState([]);
@@ -45,10 +49,12 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
   const [ActiveModalImportDanhSachCBNV, setActiveModalImportDanhSachCBNV] =
     useState(false);
   const [ActiveModalDanhSachCBNV, setActiveModalDanhSachCBNV] = useState(false);
+  const [ActiveModalAddMucTieu, setActiveModalAddMucTieu] = useState(false);
 
   useEffect(() => {
     getListChuyenDe();
     getListDonVi();
+    getListMucTieu();
     if (includes(match.url, "them-moi")) {
       if (permission && permission.add) {
         setType("new");
@@ -155,6 +161,30 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
+  const getListMucTieu = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `vptq_lms_MucTieuDaoTao?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListMucTieuDaoTao(res.data);
+        } else {
+          setListMucTieuDaoTao([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const getInfo = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -178,6 +208,7 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
             },
           });
           setDonVi(res.data.donVi_Id);
+          setMucTieuDaoTao(res.data.vptq_lms_MucTieuDaoTao_Id);
           getListUserDuyet(res.data.donVi_Id);
           setListCBNV(
             res.data.list_ChiTiets && JSON.parse(res.data.list_ChiTiets)
@@ -212,7 +243,6 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
     );
     setListCBNV(listnhanvien);
     setFieldTouch(true);
-    
   };
 
   let colValues = [
@@ -316,9 +346,11 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
     if (type === "new") {
       const newData = {
         ...formdangkydaotao,
+        vptq_lms_MucTieuDaoTao_Id: MucTieuDaoTao,
         thoiGianDuKien: formdangkydaotao.thoiGianDuKien.format("DD/MM/YYYY"),
         list_ChiTiets: ListCBNV,
       };
+
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -460,6 +492,14 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
 
   const disabledDate = (current) => {
     return current && current < dayjs().startOf("day");
+  };
+
+  const handleRefesh = () => {
+    getListMucTieu();
+  };
+
+  const handleSelectMucTieu = (value) => {
+    setMucTieuDaoTao(value);
   };
 
   const formTitle =
@@ -616,17 +656,32 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
               <Col xxl={12} xl={16} lg={20} md={20} sm={24} xs={24}>
                 <FormItem
                   label="Mục tiêu đào tạo"
-                  name={["formdangkydaotao", "mucTieu"]}
+                  name={["formdangkydaotao", "vptq_lms_MucTieuDaoTao_Id"]}
                   rules={[
                     {
                       type: "string",
                     },
                   ]}
                 >
-                  <Input
-                    className="input-item"
-                    placeholder="Nhập mục tiêu đào tạo"
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListMucTieuDaoTao ? ListMucTieuDaoTao : []}
+                    placeholder="Chọn mục tiêu đào tạo"
+                    optionsvalue={["id", "tenMucTieuDaoTao"]}
+                    style={{ width: "calc(100% - 50px)" }}
+                    showSearch
+                    optionFilterProp={"name"}
+                    onSelect={handleSelectMucTieu}
                   />
+                  <div
+                    className="button-add"
+                    style={{ width: "45px", marginLeft: "5px" }}
+                    onClick={() =>
+                      type === "new" && setActiveModalAddMucTieu(true)
+                    }
+                  >
+                    <PlusOutlined />
+                  </div>
                 </FormItem>
               </Col>
               <Col xxl={12} xl={16} lg={20} md={20} sm={24} xs={24}>
@@ -714,6 +769,11 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
         donVi={DonVi}
         list_cbnv={ListCBNV}
         DataThemDanhSach={handleThemDanhSach}
+      />
+      <ModalAddMucTieu
+        openModal={ActiveModalAddMucTieu}
+        openModalFS={setActiveModalAddMucTieu}
+        refesh={handleRefesh}
       />
     </div>
   );

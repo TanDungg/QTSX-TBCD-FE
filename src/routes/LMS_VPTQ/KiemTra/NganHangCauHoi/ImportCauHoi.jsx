@@ -23,13 +23,18 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
 import { Modal, ModalDeleteConfirm } from "src/components/Common";
-import { exportExcel } from "src/util/Common";
+import { exportExcel, getTokenInfo, getLocalStorage } from "src/util/Common";
 import * as XLSX from "xlsx";
 import { EditableTableRow, Table } from "src/components/Common";
 const { EditableRow, EditableCell } = EditableTableRow;
 
 function ImportCauHoi({ openModalFS, openModal, refesh }) {
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [DataListCauHoi, setDataListCauHoi] = useState([]);
   const [FileImport, setFileImport] = useState(null);
   const [checkDanger, setCheckDanger] = useState(false);
@@ -226,7 +231,7 @@ function ImportCauHoi({ openModalFS, openModal, refesh }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_CauHoi/export-file-mau`,
+          `vptq_lms_CauHoi/export-file-mau?donViHienHanh_Id=${INFO.donVi_Id}`,
           "POST",
           null,
           "DOWLOAD",
@@ -573,8 +578,8 @@ function ImportCauHoi({ openModalFS, openModal, refesh }) {
       dispatch(
         fetchStart(
           DataLoi && !DataLoi.isError
-            ? `vptq_lms_CauHoi/import-bo-qua-trung`
-            : `vptq_lms_CauHoi/import`,
+            ? `vptq_lms_CauHoi/import-bo-qua-trung?donViHienHanh_Id=${INFO.donVi_Id}`
+            : `vptq_lms_CauHoi/import?donViHienHanh_Id=${INFO.donVi_Id}`,
           "POST",
           DataListCauHoi,
           "IMPORT",

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Button, Divider, Row, Modal as AntModal, Col, Tag } from "antd";
+import { Card, Button, Row, Modal as AntModal, Col, Tag } from "antd";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import isEmpty from "lodash/isEmpty";
@@ -21,6 +21,8 @@ function DuyetLopHoc({ history, permission }) {
   const [ListChuyenDe, setListChuyenDe] = useState([]);
   const [ChuyenDe, setChuyenDe] = useState(null);
   const [keyword, setKeyword] = useState("");
+  const [SelectedLopHoc, setSelectedLopHoc] = useState([]);
+  const [SelectedKeys, setSelectedKeys] = useState([]);
   const [ChiTietLopHoc, setChiTietLopHoc] = useState(null);
   const [ActiveModalChiTiet, setActiveModalChiTiet] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
@@ -90,7 +92,7 @@ function DuyetLopHoc({ history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const getChiTiet = (id, duyet) => {
+  const getDataChiTiet = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -108,7 +110,6 @@ function DuyetLopHoc({ history, permission }) {
         if (res && res.data) {
           const chitiet = {
             ...res.data,
-            duyetLopHoc: duyet,
             list_ChiTiets:
               res.data.list_ChiTiets && JSON.parse(res.data.list_ChiTiets),
           };
@@ -117,18 +118,6 @@ function DuyetLopHoc({ history, permission }) {
         setActiveModalChiTiet(true);
       })
       .catch((error) => console.error(error));
-  };
-
-  const actionContent = (item) => {
-    const duyet = { onClick: () => handleDuyet(item) };
-
-    return (
-      <React.Fragment>
-        <a {...duyet} title="Duyệt lớp học" style={{ fontSize: "15px" }}>
-          <CheckCircleOutlined />
-        </a>
-      </React.Fragment>
-    );
   };
 
   const onSearchCBNV = () => {
@@ -142,15 +131,11 @@ function DuyetLopHoc({ history, permission }) {
     }
   };
 
+  const hanldeXemChiTiet = (item) => {
+    getDataChiTiet(item.id);
+  };
+
   let renderHead = [
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
-      fixed: "left",
-    },
     {
       title: "STT",
       dataIndex: "key",
@@ -165,6 +150,18 @@ function DuyetLopHoc({ history, permission }) {
       key: "maLopHoc",
       align: "center",
       width: 120,
+      render: (value, record) => {
+        return (
+          <div
+            style={{ color: "#0469b9", cursor: "pointer" }}
+            onClick={() => {
+              hanldeXemChiTiet(record);
+            }}
+          >
+            {value}
+          </div>
+        );
+      },
       fixed: width > 1600 && "left",
       filters: removeDuplicates(
         map(Data, (d) => {
@@ -451,20 +448,17 @@ function DuyetLopHoc({ history, permission }) {
     },
   ];
 
-  const handleDuyet = (item) => {
-    setActiveModalChiTiet(true);
-    getChiTiet(item.id, true);
-  };
-
   const handleXacNhan = () => {
-    const newData = { id: ChiTietLopHoc.id };
+    const newData = SelectedLopHoc.map((lophoc) => {
+      return lophoc.id;
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_LopHoc/duyet/${ChiTietLopHoc.id}`,
+          `vptq_lms_LopHoc/duyet`,
           "PUT",
           newData,
-          "DUYET",
+          "XACNHAN",
           "",
           resolve,
           reject
@@ -473,7 +467,8 @@ function DuyetLopHoc({ history, permission }) {
     })
       .then((res) => {
         if (res.status !== 409) {
-          setActiveModalChiTiet(false);
+          setSelectedLopHoc([]);
+          setSelectedKeys([]);
           getListData(ChuyenDe, keyword);
         }
       })
@@ -488,19 +483,18 @@ function DuyetLopHoc({ history, permission }) {
     onOk: handleXacNhan,
   };
 
-  const XacNhan = () => {
+  const ModalXacNhan = () => {
     Modal(prop);
   };
 
   const handleTuChoi = (data) => {
-    const newData = {
-      id: ChiTietLopHoc.id,
-      lyDoTuChoi: data,
-    };
+    const newData = SelectedLopHoc.map((lophoc) => {
+      return lophoc.id;
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_LopHoc/duyet/${ChiTietLopHoc.id}`,
+          `vptq_lms_LopHoc/duyet/?lyDoTuChoi=${data}`,
           "PUT",
           newData,
           "TUCHOI",
@@ -511,8 +505,11 @@ function DuyetLopHoc({ history, permission }) {
       );
     })
       .then((res) => {
-        setActiveModalChiTiet(false);
-        getListData(ChuyenDe, keyword);
+        if (res && res.status !== 409) {
+          setSelectedLopHoc([]);
+          setSelectedKeys([]);
+          getListData(ChuyenDe, keyword);
+        }
       })
       .catch((error) => console.error(error));
   };
@@ -527,6 +524,42 @@ function DuyetLopHoc({ history, permission }) {
     getListData(null, keyword);
   };
 
+  const rowSelection = {
+    selectedRowKeys: SelectedKeys,
+    selectedRows: SelectedLopHoc,
+    onChange: (selectedRowKeys, selectedRows) => {
+      const newSelectedLopHoc = [...selectedRows];
+      const newSelectedKeys = [...selectedRowKeys];
+      setSelectedLopHoc(newSelectedLopHoc);
+      setSelectedKeys(newSelectedKeys);
+    },
+  };
+
+  const addButtonRender = () => {
+    return (
+      <>
+        <Button
+          icon={<CheckCircleOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={ModalXacNhan}
+          disabled={SelectedLopHoc.length === 0}
+        >
+          Duyệt
+        </Button>
+        <Button
+          icon={<CloseCircleOutlined />}
+          className="th-margin-bottom-0"
+          type="danger"
+          onClick={() => setActiveModalTuChoi(true)}
+          disabled={SelectedLopHoc.length === 0}
+        >
+          Từ chối
+        </Button>
+      </>
+    );
+  };
+
   const title = (
     <span>
       CHI TIẾT LỚP HỌC {ChiTietLopHoc && ChiTietLopHoc.maLopHoc.toUpperCase()}
@@ -538,6 +571,7 @@ function DuyetLopHoc({ history, permission }) {
       <ContainerHeader
         title="Danh sách lớp học chưa duyệt"
         description="Danh sách lớp học chưa duyệt"
+        buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom">
         <Row>
@@ -600,6 +634,12 @@ function DuyetLopHoc({ history, permission }) {
           size="small"
           pagination={false}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            preserveSelectedRowKeys: true,
+            selectedRowKeys: SelectedKeys,
+          }}
         />
       </Card>
       <AntModal
@@ -968,43 +1008,6 @@ function DuyetLopHoc({ history, permission }) {
             // loading={loading}
           />
         </Card>
-        {ChiTietLopHoc && ChiTietLopHoc.duyetLopHoc ? (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              marginTop: "10px",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <Divider />
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                marginTop: "10px",
-              }}
-            >
-              <Button
-                icon={<CheckCircleOutlined />}
-                className="th-margin-bottom-0"
-                type="primary"
-                onClick={XacNhan}
-              >
-                Duyệt
-              </Button>
-              <Button
-                icon={<CloseCircleOutlined />}
-                className="th-margin-bottom-0"
-                type="danger"
-                onClick={() => setActiveModalTuChoi(true)}
-              >
-                Hủy duyệt
-              </Button>
-            </div>
-          </div>
-        ) : null}
       </AntModal>
       <ModalTuChoi
         openModal={ActiveModalTuChoi}

@@ -16,6 +16,8 @@ import {
   exportExcel,
   getNgayDauThang,
   getNgayCuoiThang,
+  getTokenInfo,
+  getLocalStorage,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -28,6 +30,11 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function BaoCaoHocPhiTheoLopHoc({ history, permission }) {
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [DataBaoCao, setDataBaoCao] = useState([]);
   const [ListDonVi, setListDonVi] = useState([]);
   const [DonVi, setDonVi] = useState(null);
@@ -60,6 +67,7 @@ function BaoCaoHocPhiTheoLopHoc({ history, permission }) {
     denNgay
   ) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       donVi_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
       vptq_lms_LopHoc_Id,
@@ -98,6 +106,7 @@ function BaoCaoHocPhiTheoLopHoc({ history, permission }) {
     denNgay
   ) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       donVi_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
       tuNgay,
@@ -732,7 +741,7 @@ function BaoCaoHocPhiTheoLopHoc({ history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 1900, y: "44vh" }}
+          scroll={{ x: 1900, y: "47vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive th-table"

@@ -23,7 +23,11 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { convertObjectToUrlParams } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  getTokenInfo,
+  getLocalStorage,
+} from "src/util/Common";
 import { BASE_URL_API } from "src/constants/Config";
 import ReactPlayer from "react-player";
 import ModalThiKhaoSat from "./ModalThiKhaoSat";
@@ -33,6 +37,11 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function ThiKhaoSat({ permission, history }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [Data, setData] = useState([]);
   const [IsAdmin, setIsAdmin] = useState(null);
   const [ListKienThuc, setListKienThuc] = useState([]);
@@ -73,6 +82,7 @@ function ThiKhaoSat({ permission, history }) {
     page
   ) => {
     let param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       vptq_lms_KienThuc_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
       vptq_lms_LopHoc_Id,
@@ -104,7 +114,7 @@ function ThiKhaoSat({ permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_BaoCao/is-admin`,
+          `vptq_lms_BaoCao/is-admin?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -126,6 +136,7 @@ function ThiKhaoSat({ permission, history }) {
 
   const getListFilter = (vptq_lms_KienThuc_Id, vptq_lms_ChuyenDeDaoTao_Id) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       vptq_lms_KienThuc_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
     });
@@ -174,6 +185,7 @@ function ThiKhaoSat({ permission, history }) {
 
   const handleKichHoatThiLai = (vptq_lms_LopHocChiTiet_Id) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       vptq_lms_LopHocChiTiet_Id: vptq_lms_LopHocChiTiet_Id,
     });
     new Promise((resolve, reject) => {
@@ -245,7 +257,7 @@ function ThiKhaoSat({ permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_ThiTrucTuyen/${item.vptq_lms_ThiTrucTuyen_Id}`,
+          `vptq_lms_ThiTrucTuyen/${item.vptq_lms_ThiTrucTuyen_Id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",

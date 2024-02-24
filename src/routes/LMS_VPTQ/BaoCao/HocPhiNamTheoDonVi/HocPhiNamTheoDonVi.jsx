@@ -10,6 +10,8 @@ import {
   removeDuplicates,
   exportExcel,
   getNamNow,
+  getTokenInfo,
+  getLocalStorage,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -21,6 +23,11 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function BaoCaoHocPhiNamTheoDonVi({ history, permission }) {
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [DataBaoCao, setDataBaoCao] = useState([]);
   const [ListDataChiTiet, setListDataChiTiet] = useState([]);
   const [ActiveModalChiTiet, setActiveModalChiTiet] = useState(false);
@@ -41,6 +48,7 @@ function BaoCaoHocPhiNamTheoDonVi({ history, permission }) {
 
   const getListData = (nam) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       nam,
     });
     new Promise((resolve, reject) => {
@@ -107,6 +115,7 @@ function BaoCaoHocPhiNamTheoDonVi({ history, permission }) {
 
   const handleChiTiet = (thang, item) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       thang: thang,
       nam: Nam,
     });

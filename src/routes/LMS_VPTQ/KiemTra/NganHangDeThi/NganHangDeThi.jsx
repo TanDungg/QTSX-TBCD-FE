@@ -20,7 +20,13 @@ import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { removeDuplicates, reDataForTable } from "src/util/Common";
+import {
+  removeDuplicates,
+  reDataForTable,
+  convertObjectToUrlParams,
+  getTokenInfo,
+  getLocalStorage,
+} from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import {
   EditableTableRow,
@@ -30,7 +36,6 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { convertObjectToUrlParams } from "src/util/Common";
 import ModalThiThu from "./ModalThiThu";
 import { BASE_URL_API } from "src/constants/Config";
 import ReactPlayer from "react-player";
@@ -40,6 +45,11 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function NganHangDeThi({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [Data, setData] = useState([]);
   const [ListKienThuc, setListKienThuc] = useState([]);
   const [KienThuc, setKienThuc] = useState(null);
@@ -75,6 +85,7 @@ function NganHangDeThi({ permission, history, match }) {
     page
   ) => {
     let param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       vptq_lms_KienThuc_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
       keyword,
@@ -183,7 +194,7 @@ function NganHangDeThi({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_DeThi/${item.id}`,
+          `vptq_lms_DeThi/${item.id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -211,7 +222,7 @@ function NganHangDeThi({ permission, history, match }) {
   };
 
   const deleteItemAction = (item) => {
-    let url = `vptq_lms_DeThi/${item.id}`;
+    let url = `vptq_lms_DeThi/${item.id}?donViHienHanh_Id=${INFO.donVi_Id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -272,7 +283,7 @@ function NganHangDeThi({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_DeThi/set-su-dung/${record.id}`,
+          `vptq_lms_DeThi/set-su-dung/${record.id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "PUT",
           null,
           "EDIT",
@@ -294,7 +305,7 @@ function NganHangDeThi({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_DeThi/set-default/${record.id}`,
+          `vptq_lms_DeThi/set-default/${record.id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "PUT",
           null,
           "EDIT",

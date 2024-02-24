@@ -1,36 +1,22 @@
 import React, { useState, useEffect } from "react";
-import { Card, Divider, Tag, Modal as AntModal, Button, Row, Col } from "antd";
-import {
-  CheckCircleOutlined,
-  CloseCircleOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
+import { Card, Tag, Modal as AntModal, Button, Row, Col } from "antd";
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import { useDispatch, useSelector } from "react-redux";
 import map from "lodash/map";
 import { Modal, Table } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
-import {
-  reDataForTable,
-  removeDuplicates,
-  getLocalStorage,
-  getTokenInfo,
-} from "src/util/Common";
+import { reDataForTable, removeDuplicates } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import ModalTuChoi from "./ModalTuChoi";
 
 function KiemTraVaDuyet({ history, permission }) {
   const dispatch = useDispatch();
-  const INFO = {
-    ...getLocalStorage("menu"),
-    user_Id: getTokenInfo().id,
-    token: getTokenInfo().token,
-  };
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
-  const [PhieuDangKy, setPhieuDangKy] = useState(null);
-  const [ListCBNV, setListCBNV] = useState(null);
-  const [ActiveModalKiemTra, setActiveModalKiemTra] = useState(false);
-  const [ActiveModalDuyet, setActiveModalDuyet] = useState(false);
+  const [DataChiTiet, setDataChiTiet] = useState(null);
+  const [SelectedChuyenDe, setSelectedChuyenDe] = useState([]);
+  const [SelectedKeys, setSelectedKeys] = useState([]);
+  const [ActiveModalChiTiet, setActiveModalChiTiet] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
 
   useEffect(() => {
@@ -69,14 +55,14 @@ function KiemTraVaDuyet({ history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const getListCBNV = (id) => {
+  const getDataChiTiet = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
           `vptq_lms_PhieuDangKyDaoTao/${id}`,
           "GET",
           null,
-          "DETAIL",
+          "LIST",
           "",
           resolve,
           reject
@@ -85,59 +71,20 @@ function KiemTraVaDuyet({ history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListCBNV(
-            res.data.list_ChiTiets && JSON.parse(res.data.list_ChiTiets)
-          );
+          setActiveModalChiTiet(true);
+          setDataChiTiet(res.data);
+        } else {
+          setActiveModalChiTiet(true);
+          setDataChiTiet(null);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  const actionContent = (item) => {
-    const kiemtra =
-      !item.isKiemTra && INFO.user_Id === item.nguoiKiemTra_Id
-        ? {
-            onClick: () => {
-              setActiveModalKiemTra(true);
-              setPhieuDangKy(item);
-              getListCBNV(item.id);
-            },
-          }
-        : { disabled: true };
-
-    const duyet =
-      item.isKiemTra && !item.duyet && INFO.user_Id === item.nguoiDuyet_Id
-        ? {
-            onClick: () => {
-              setActiveModalDuyet(true);
-              setPhieuDangKy(item);
-              getListCBNV(item.id);
-            },
-          }
-        : { disabled: true };
-
-    return (
-      <React.Fragment>
-        <a {...kiemtra} title="Xóa">
-          <SettingOutlined />
-        </a>
-        <Divider type="vertical" />
-        <a {...duyet} title="Xóa">
-          <CheckCircleOutlined />
-        </a>
-      </React.Fragment>
-    );
+  const hanldeXemChiTiet = (item) => {
+    getDataChiTiet(item.id);
   };
-
   let renderHead = [
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 100,
-      render: (value) => actionContent(value),
-      fixed: "left",
-    },
     {
       title: "STT",
       dataIndex: "key",
@@ -153,6 +100,18 @@ function KiemTraVaDuyet({ history, permission }) {
       align: "center",
       width: 130,
       fixed: width > 1600 && "left",
+      render: (value, record) => {
+        return (
+          <div
+            style={{ color: "#0469b9", cursor: "pointer" }}
+            onClick={() => {
+              hanldeXemChiTiet(record);
+            }}
+          >
+            {value}
+          </div>
+        );
+      },
       filters: removeDuplicates(
         map(Data, (d) => {
           return {
@@ -258,19 +217,19 @@ function KiemTraVaDuyet({ history, permission }) {
     },
     {
       title: "Mục tiêu đào tạo",
-      dataIndex: "mucTieu",
-      key: "mucTieu",
+      dataIndex: "tenMucTieuDaoTao",
+      key: "tenMucTieuDaoTao",
       align: "left",
-      width: 150,
+      width: 200,
       filters: removeDuplicates(
         map(Data, (d) => {
           return {
-            text: d.mucTieu,
-            value: d.mucTieu,
+            text: d.tenMucTieuDaoTao,
+            value: d.tenMucTieuDaoTao,
           };
         })
       ),
-      onFilter: (value, record) => record.mucTieu.includes(value),
+      onFilter: (value, record) => record.tenMucTieuDaoTao.includes(value),
       filterSearch: true,
     },
     {
@@ -400,14 +359,16 @@ function KiemTraVaDuyet({ history, permission }) {
   ];
 
   const handleXacNhan = () => {
-    const newData = { id: PhieuDangKy.id };
+    const newData = SelectedChuyenDe.map((chuyende) => {
+      return chuyende.id;
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_PhieuDangKyDaoTao/kiem-tra-hoac-duyet/${PhieuDangKy.id}`,
+          `vptq_lms_PhieuDangKyDaoTao/kiem-tra-hoac-duyet`,
           "PUT",
           newData,
-          "KIEMTRA",
+          "XACNHAN",
           "",
           resolve,
           reject
@@ -416,8 +377,8 @@ function KiemTraVaDuyet({ history, permission }) {
     })
       .then((res) => {
         if (res.status !== 409) {
-          setActiveModalKiemTra(false);
-          setActiveModalDuyet(false);
+          setSelectedChuyenDe([]);
+          setSelectedKeys([]);
           getListData();
         }
       })
@@ -428,25 +389,22 @@ function KiemTraVaDuyet({ history, permission }) {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: ActiveModalKiemTra
-      ? "Xác nhận đã kiểm tra"
-      : "Xác nhận duyệt phiếu đăng ký đào tạo",
+    title: "Xác nhận kiểm tra (duyệt) phiếu đăng ký đào tạo",
     onOk: handleXacNhan,
   };
 
-  const XacNhan = () => {
+  const ModalXacNhan = () => {
     Modal(prop);
   };
 
   const handleTuChoi = (data) => {
-    const newData = {
-      id: PhieuDangKy.id,
-      lyDoTuChoi: data,
-    };
+    const newData = SelectedChuyenDe.map((chuyende) => {
+      return chuyende.id;
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_PhieuDangKyDaoTao/kiem-tra-hoac-duyet/${PhieuDangKy.id}`,
+          `vptq_lms_PhieuDangKyDaoTao/kiem-tra-hoac-duyet?lyDoTuChoi=${data}`,
           "PUT",
           newData,
           "TUCHOI",
@@ -457,24 +415,55 @@ function KiemTraVaDuyet({ history, permission }) {
       );
     })
       .then((res) => {
-        setActiveModalKiemTra(false);
-        setActiveModalDuyet(false);
+        setSelectedChuyenDe([]);
+        setSelectedKeys([]);
         getListData();
       })
       .catch((error) => console.error(error));
   };
 
-  const title = ActiveModalKiemTra
-    ? `KIỂM TRA ĐĂNG KÝ ĐÀO TẠO ${
-        PhieuDangKy && PhieuDangKy.maPhieuDangKyDaoTao
-      }`
-    : `DUYỆT ĐĂNG KÝ ĐÀO TẠO ${PhieuDangKy && PhieuDangKy.maPhieuDangKyDaoTao}`;
+  const addButtonRender = () => {
+    return (
+      <>
+        <Button
+          icon={<CheckCircleOutlined />}
+          className="th-margin-bottom-0"
+          type="primary"
+          onClick={ModalXacNhan}
+          disabled={SelectedChuyenDe.length === 0}
+        >
+          Kiểm tra (Duyệt)
+        </Button>
+        <Button
+          icon={<CloseCircleOutlined />}
+          className="th-margin-bottom-0"
+          type="danger"
+          onClick={() => setActiveModalTuChoi(true)}
+          disabled={SelectedChuyenDe.length === 0}
+        >
+          Từ chối
+        </Button>
+      </>
+    );
+  };
+
+  const rowSelection = {
+    selectedRowKeys: SelectedKeys,
+    selectedRows: SelectedChuyenDe,
+    onChange: (selectedRowKeys, selectedRows) => {
+      const newSelectedChuyenDe = [...selectedRows];
+      const newSelectedKeys = [...selectedRowKeys];
+      setSelectedChuyenDe(newSelectedChuyenDe);
+      setSelectedKeys(newSelectedKeys);
+    },
+  };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
         title="Kiểm tra và duyệt đăng ký đào tạo"
         description="Danh sách kiểm tra và duyệt đăng ký đào tạo"
+        buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
@@ -486,24 +475,22 @@ function KiemTraVaDuyet({ history, permission }) {
           size="small"
           pagination={false}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            preserveSelectedRowKeys: true,
+            selectedRowKeys: SelectedKeys,
+          }}
         />
       </Card>
       <AntModal
-        title={title}
+        title={"Chi tiết phiếu đăng ký đào tạo"}
         className="th-card-reset-margin"
-        open={ActiveModalKiemTra ? ActiveModalKiemTra : ActiveModalDuyet}
+        open={ActiveModalChiTiet}
         width={width >= 1600 ? `80%` : "100%"}
         closable={true}
         onCancel={() => {
-          if (ActiveModalKiemTra) {
-            setActiveModalKiemTra(false);
-            setPhieuDangKy(null);
-            setListCBNV([]);
-          } else {
-            setActiveModalDuyet(false);
-            setPhieuDangKy(null);
-            setListCBNV([]);
-          }
+          setActiveModalChiTiet(false);
         }}
         footer={null}
       >
@@ -529,13 +516,13 @@ function KiemTraVaDuyet({ history, permission }) {
               >
                 Tên phiếu đăng ký:
               </span>
-              {PhieuDangKy && (
+              {DataChiTiet && (
                 <span
                   style={{
                     width: "calc(100% - 150px)",
                   }}
                 >
-                  {PhieuDangKy.tenPhieuDangKyDaoTao}
+                  {DataChiTiet.tenPhieuDangKyDaoTao}
                 </span>
               )}
             </Col>
@@ -559,13 +546,13 @@ function KiemTraVaDuyet({ history, permission }) {
               >
                 Chuyên đề đào tạo:
               </span>
-              {PhieuDangKy && (
+              {DataChiTiet && (
                 <span
                   style={{
                     width: "calc(100% - 150px)",
                   }}
                 >
-                  {PhieuDangKy.tenChuyenDeDaoTao}
+                  {DataChiTiet.tenChuyenDeDaoTao}
                 </span>
               )}
             </Col>
@@ -589,13 +576,13 @@ function KiemTraVaDuyet({ history, permission }) {
               >
                 Thời gian dự kiến:
               </span>
-              {PhieuDangKy && (
+              {DataChiTiet && (
                 <span
                   style={{
                     width: "calc(100% - 140px)",
                   }}
                 >
-                  {PhieuDangKy.thoiGianDuKien}
+                  {DataChiTiet.thoiGianDuKien}
                 </span>
               )}
             </Col>
@@ -619,13 +606,13 @@ function KiemTraVaDuyet({ history, permission }) {
               >
                 Đơn vị:
               </span>
-              {PhieuDangKy && (
+              {DataChiTiet && (
                 <span
                   style={{
                     width: "calc(100% - 70px)",
                   }}
                 >
-                  {PhieuDangKy.tenDonVi}
+                  {DataChiTiet.tenDonVi}
                 </span>
               )}
             </Col>
@@ -649,13 +636,13 @@ function KiemTraVaDuyet({ history, permission }) {
               >
                 Mục tiêu đào tạo:
               </span>
-              {PhieuDangKy && (
+              {DataChiTiet && (
                 <span
                   style={{
                     width: "calc(100% - 140px)",
                   }}
                 >
-                  {PhieuDangKy.mucTieu}
+                  {DataChiTiet.mucTieu}
                 </span>
               )}
             </Col>
@@ -679,13 +666,13 @@ function KiemTraVaDuyet({ history, permission }) {
               >
                 Người tạo phiếu:
               </span>
-              {PhieuDangKy && (
+              {DataChiTiet && (
                 <span
                   style={{
                     width: "calc(100% - 130px)",
                   }}
                 >
-                  {PhieuDangKy.tenNguoiTao}
+                  {DataChiTiet.tenNguoiTao}
                 </span>
               )}
             </Col>
@@ -709,13 +696,13 @@ function KiemTraVaDuyet({ history, permission }) {
               >
                 Người kiểm tra:
               </span>
-              {PhieuDangKy && (
+              {DataChiTiet && (
                 <span
                   style={{
                     width: "calc(100% - 140px)",
                   }}
                 >
-                  {PhieuDangKy.tenNguoiKiemTra}
+                  {DataChiTiet.tenNguoiKiemTra}
                 </span>
               )}
             </Col>
@@ -739,13 +726,13 @@ function KiemTraVaDuyet({ history, permission }) {
               >
                 Người duyệt:
               </span>
-              {PhieuDangKy && (
+              {DataChiTiet && (
                 <span
                   style={{
                     width: "calc(100% - 120px)",
                   }}
                 >
-                  {PhieuDangKy.tenNguoiDuyet}
+                  {DataChiTiet.tenNguoiDuyet}
                 </span>
               )}
             </Col>
@@ -769,13 +756,13 @@ function KiemTraVaDuyet({ history, permission }) {
               >
                 Ghi chú:
               </span>
-              {PhieuDangKy && (
+              {DataChiTiet && (
                 <span
                   style={{
                     width: "calc(100% - 120px)",
                   }}
                 >
-                  {PhieuDangKy.moTa}
+                  {DataChiTiet.moTa}
                 </span>
               )}
             </Col>
@@ -790,47 +777,15 @@ function KiemTraVaDuyet({ history, permission }) {
             scroll={{ x: 1000, y: "35vh" }}
             columns={columnCBNV}
             className="gx-table-responsive th-table"
-            dataSource={reDataForTable(ListCBNV)}
+            dataSource={reDataForTable(
+              DataChiTiet &&
+                DataChiTiet.list_ChiTiets &&
+                JSON.parse(DataChiTiet.list_ChiTiets)
+            )}
             size="small"
             pagination={false}
-            // loading={loading}
           />
         </Card>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "center",
-            marginTop: "10px",
-            flexDirection: "column",
-            alignItems: "center",
-          }}
-        >
-          <Divider />
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              marginTop: "10px",
-            }}
-          >
-            <Button
-              icon={<CheckCircleOutlined />}
-              className="th-margin-bottom-0"
-              type="primary"
-              onClick={XacNhan}
-            >
-              Xác nhận
-            </Button>
-            <Button
-              icon={<CloseCircleOutlined />}
-              className="th-margin-bottom-0"
-              type="danger"
-              onClick={() => setActiveModalTuChoi(true)}
-            >
-              Hủy
-            </Button>
-          </div>
-        </div>
       </AntModal>
       <ModalTuChoi
         openModal={ActiveModalTuChoi}

@@ -1,5 +1,5 @@
 import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Image, Input, Upload } from "antd";
+import { Button, Card, Col, Form, Input, Upload } from "antd";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -23,23 +23,16 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
   const { validateFields, resetFields, setFieldsValue } = form;
   const [fieldTouch, setFieldTouch] = useState(false);
   const [type, setType] = useState("new");
-  const [ListDonViDaoTao, setListDonViDaoTao] = useState([]);
-  const [ListLoaiGiangVien, setListLoaiGiangVien] = useState([]);
-  const [ListChuyenMon, setListChuyenMon] = useState([]);
+  const [ListKienThuc, setListKienThuc] = useState([]);
   const [FileTaiLieu, setFileTaiLieu] = useState(null);
-  const [FileAnh, setFileAnh] = useState(null);
   const [DisableUpload, setDisableUpload] = useState(false);
-  const [OpenImage, setOpenImage] = useState(false);
   const [id, setId] = useState(null);
-  const [info, setInfo] = useState(null);
 
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
       if (permission && permission.add) {
         setType("new");
-        getListDonViDaoTao();
-        getListLoaiGiangVien();
-        getListChuyenMon();
+        getListKienThuc();
       } else if (permission && !permission.add) {
         history.push("/home");
       }
@@ -57,11 +50,11 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListDonViDaoTao = () => {
+  const getListKienThuc = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_DonViDaoTao?page=-1`,
+          `vptq_lms_KienThuc?page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -73,57 +66,9 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListDonViDaoTao(res.data);
+          setListKienThuc(res.data);
         } else {
-          setListDonViDaoTao([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListLoaiGiangVien = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `vptq_lms_LoaiGiangVien?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListLoaiGiangVien(res.data);
-        } else {
-          setListLoaiGiangVien([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListChuyenMon = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `vptq_lms_ChuyenMon?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListChuyenMon(res.data);
-        } else {
-          setListChuyenMon([]);
+          setListKienThuc([]);
         }
       })
       .catch((error) => console.error(error));
@@ -133,7 +78,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_GiangVien/${id}`,
+          `vptq_lms_TaiLieuThamKhao/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -146,12 +91,9 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           const data = res.data;
-          setInfo(data);
-          getListDonViDaoTao();
-          getListLoaiGiangVien();
-          getListChuyenMon();
-          if (res.data.hinhAnh) {
-            setFileTaiLieu(res.data.hinhAnh);
+          getListKienThuc();
+          if (res.data.fileTaiLieu) {
+            setFileTaiLieu(res.data.fileTaiLieu);
             setDisableUpload(true);
           }
           setFieldsValue({
@@ -186,127 +128,130 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
   };
 
   const uploadFile = (formtailieuthamkhao, saveQuit) => {
-    if (type === "new" && formtailieuthamkhao.hinhAnh) {
-      const formData = new FormData();
-      formData.append("file", formtailieuthamkhao.hinhAnh.file);
-      fetch(`${BASE_URL_API}/api/Upload`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: "Bearer ".concat(INFO.token),
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          formtailieuthamkhao.hinhAnh = data.path;
-          saveData(formtailieuthamkhao, saveQuit);
-        })
-        .catch(() => {
-          console.log("Tải hình ảnh không thành công.");
-        });
-    } else if (
-      type === "edit" &&
-      formtailieuthamkhao.hinhAnh &&
-      formtailieuthamkhao.hinhAnh.file
-    ) {
-      const formData = new FormData();
-      formData.append("file", formtailieuthamkhao.hinhAnh.file);
-      fetch(
-        info.hinhAnh
-          ? `${BASE_URL_API}/api/Upload?stringPath=${info.hinhAnh}`
-          : `${BASE_URL_API}/api/Upload`,
-        {
+    if (type === "new") {
+      if (!formtailieuthamkhao.fileTaiLieu) {
+        Helpers.alertError("Vui lòng tải file tài liệu lên!");
+      } else {
+        const formData = new FormData();
+        formData.append("file", formtailieuthamkhao.fileTaiLieu.file);
+        fetch(`${BASE_URL_API}/api/Upload`, {
           method: "POST",
           body: formData,
           headers: {
             Authorization: "Bearer ".concat(INFO.token),
           },
-        }
-      )
-        .then((res) => res.json())
-        .then((data) => {
-          formtailieuthamkhao.hinhAnh = data.path;
-          saveData(formtailieuthamkhao, saveQuit);
         })
-        .catch(() => {
-          console.log("Tải hình ảnh không thành công.");
-        });
-    } else {
-      saveData(formtailieuthamkhao, saveQuit);
+          .then((res) => res.json())
+          .then((data) => {
+            formtailieuthamkhao.fileTaiLieu = data.path;
+            saveData(formtailieuthamkhao, saveQuit);
+          })
+          .catch(() => {
+            console.log("Tải hình ảnh không thành công.");
+          });
+      }
+    }
+    if (type === "edit") {
+      if (!formtailieuthamkhao.fileTaiLieu) {
+        Helpers.alertError("Vui lòng tải file tài liệu lên!");
+      } else if (
+        formtailieuthamkhao.fileTaiLieu &&
+        formtailieuthamkhao.fileTaiLieu.file
+      ) {
+        const formData = new FormData();
+        formData.append("file", formtailieuthamkhao.fileTaiLieu.file);
+        fetch(`${BASE_URL_API}/api/Upload`, {
+          method: "POST",
+          body: formData,
+          headers: {
+            Authorization: "Bearer ".concat(INFO.token),
+          },
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            formtailieuthamkhao.fileTaiLieu = data.path;
+            saveData(formtailieuthamkhao, saveQuit);
+          })
+          .catch(() => {
+            console.log("Tải hình ảnh không thành công.");
+          });
+      } else {
+        saveData(formtailieuthamkhao, saveQuit);
+      }
     }
   };
 
   const saveData = (formtailieuthamkhao, saveQuit = false) => {
-    if (formtailieuthamkhao.hinhAnh) {
-      if (type === "new") {
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `vptq_lms_GiangVien`,
-              "POST",
-              formtailieuthamkhao,
-              "ADD",
-              "",
-              resolve,
-              reject
-            )
-          );
-        })
-          .then((res) => {
-            if (res.status !== 409) {
-              if (saveQuit) {
-                goBack();
-              } else {
-                resetFields();
-                setFieldTouch(false);
-                setDisableUpload(false);
-                setFileAnh(null);
-                setFileTaiLieu(null);
-              }
-            } else {
-              if (saveQuit) {
-                goBack();
-              } else {
-                setFieldTouch(false);
-              }
-            }
-          })
-          .catch((error) => console.error(error));
-      }
-      if (type === "edit") {
-        const newData = {
-          ...formtailieuthamkhao,
-          id: id,
-        };
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `vptq_lms_GiangVien/${id}`,
-              "PUT",
-              newData,
-              "EDIT",
-              "",
-              resolve,
-              reject
-            )
-          );
-        })
-          .then((res) => {
+    const newData = {
+      ...formtailieuthamkhao,
+      donVi_Id: INFO.donVi_Id,
+    };
+    if (type === "new") {
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `vptq_lms_TaiLieuThamKhao`,
+            "POST",
+            newData,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (res.status !== 409) {
             if (saveQuit) {
-              if (res.status !== 409) goBack();
+              goBack();
             } else {
-              getInfo(id);
+              resetFields();
+              setFieldTouch(false);
+              setDisableUpload(false);
+              setFileTaiLieu(null);
+            }
+          } else {
+            if (saveQuit) {
+              goBack();
+            } else {
               setFieldTouch(false);
             }
-          })
-          .catch((error) => console.error(error));
-      }
-    } else {
-      Helpers.alertError("Vui lòng tải file hình ảnh lên.");
+          }
+        })
+        .catch((error) => console.error(error));
+    }
+    if (type === "edit") {
+      const newData = {
+        ...formtailieuthamkhao,
+        donVi_Id: INFO.donVi_Id,
+        id: id,
+      };
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `vptq_lms_TaiLieuThamKhao/${id}`,
+            "PUT",
+            newData,
+            "EDIT",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (saveQuit) {
+            if (res.status !== 409) goBack();
+          } else {
+            getInfo(id);
+            setFieldTouch(false);
+          }
+        })
+        .catch((error) => console.error(error));
     }
   };
 
-  const propshinhanh = {
+  const propstailieu = {
     accept: ".pdf, .doc, .docx, .ppt, .pptx",
     beforeUpload: (file) => {
       const allowedFileTypes = [
@@ -332,10 +277,17 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
     maxCount: 1,
   };
 
+  const handleOpenFile = (file) => {
+    if (file) {
+      window.open(URL.createObjectURL(file), "_blank");
+    }
+  };
+
   const formTitle =
     type === "new"
       ? "Thêm mới tài liệu tham khảo"
       : "Chỉnh sửa tài liệu tham khảo";
+
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -362,17 +314,17 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 250,
-                  message: "Tên giảng viên không được quá 250 ký tự",
+                  message: "Tên tài liệu không được quá 250 ký tự",
                 },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập tên giảng viên" />
+              <Input className="input-item" placeholder="Nhập tên tài liệu" />
             </FormItem>
           </Col>
           <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
             <FormItem
-              label="Loại giảng viên"
-              name={["formtailieuthamkhao", "vptq_lms_LoaiGiangVien_Id"]}
+              label="Kiến thức"
+              name={["formtailieuthamkhao", "vptq_lms_KienThuc_Id"]}
               rules={[
                 {
                   type: "string",
@@ -382,9 +334,9 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
             >
               <Select
                 className="heading-select slt-search th-select-heading"
-                data={ListLoaiGiangVien ? ListLoaiGiangVien : []}
-                placeholder="Chọn loại giảng viên"
-                optionsvalue={["id", "tenLoaiGiangVien"]}
+                data={ListKienThuc ? ListKienThuc : []}
+                placeholder="Chọn kiến thức"
+                optionsvalue={["id", "tenKienThuc"]}
                 style={{ width: "100%" }}
                 optionFilterProp="name"
                 showSearch
@@ -393,8 +345,8 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
           </Col>
           <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
             <FormItem
-              label="Hình ảnh"
-              name={["formtailieuthamkhao", "hinhAnh"]}
+              label="File tài liệu"
+              name={["formtailieuthamkhao", "fileTaiLieu"]}
               rules={[
                 {
                   required: true,
@@ -402,7 +354,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
               ]}
             >
               {!DisableUpload ? (
-                <Upload {...propshinhanh}>
+                <Upload {...propstailieu}>
                   <Button
                     className="th-margin-bottom-0"
                     style={{
@@ -411,7 +363,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
                     icon={<UploadOutlined />}
                     disabled={type === "detail" ? true : false}
                   >
-                    Tải file hình ảnh
+                    Tải file tài liệu
                   </Button>
                 </Upload>
               ) : FileTaiLieu && FileTaiLieu.name ? (
@@ -422,7 +374,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
                       cursor: "pointer",
                       whiteSpace: "break-spaces",
                     }}
-                    onClick={() => setOpenImage(true)}
+                    onClick={() => handleOpenFile(FileTaiLieu)}
                   >
                     {FileTaiLieu.name}{" "}
                   </span>
@@ -434,25 +386,9 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
                       setDisableUpload(false);
                       setFieldsValue({
                         formtailieuthamkhao: {
-                          hinhAnh: null,
+                          fileTaiLieu: null,
                         },
                       });
-                    }}
-                  />
-                  <Image
-                    width={100}
-                    src={FileAnh}
-                    alt="preview"
-                    style={{
-                      display: "none",
-                    }}
-                    preview={{
-                      visible: OpenImage,
-                      scaleStep: 0.5,
-                      src: FileAnh,
-                      onVisibleChange: (value) => {
-                        setOpenImage(value);
-                      },
                     }}
                   />
                 </span>
@@ -476,7 +412,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
                         setDisableUpload(false);
                         setFieldsValue({
                           formtailieuthamkhao: {
-                            hinhAnh: null,
+                            fileTaiLieu: null,
                           },
                         });
                       }}

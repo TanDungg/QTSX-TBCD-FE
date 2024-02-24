@@ -20857,7 +20857,7 @@ textarea.ant-mentions {
 }
 
 .ant-pagination-item-active a {
-  color: #0469b9;
+  color: #0469b9 !important;
 }
 
 .ant-pagination-item-active:focus,
@@ -20943,7 +20943,7 @@ textarea.ant-mentions {
   display: inline-block;
   min-width: 32px;
   height: 32px;
-  color: #545454;
+  color: #0469b9;
   font-family: "NoirPro", sans-serif;
   line-height: 32px;
   text-align: center;
@@ -20998,6 +20998,7 @@ textarea.ant-mentions {
 .ant-pagination-disabled:hover,
 .ant-pagination-disabled:focus {
   cursor: not-allowed;
+  color: #545454;
 }
 
 .ant-pagination-disabled .ant-pagination-item-link,
@@ -41597,7 +41598,7 @@ fieldset[disabled] a.gx-btn {
 
 /*Pagination Styles*/
 .ant-pagination>li {
-  margin-bottom: 10px;
+  margin-bottom: 0px;
 }
 
 .ant-pagination.mini:not(:last-child) {
@@ -49291,7 +49292,7 @@ textarea.gx-chat-textarea {
 .xoa-title {
   cursor: pointer;
   color: #545454;
-    transition: color 0.3s ease;
+  transition: color 0.3s ease;
   }
   
   .xoa-title:hover {

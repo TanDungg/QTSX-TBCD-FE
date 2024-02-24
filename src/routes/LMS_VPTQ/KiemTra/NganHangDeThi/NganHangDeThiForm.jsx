@@ -18,7 +18,7 @@ import {
   DEFAULT_FORM_ADD_2COL_150PX,
 } from "src/constants/Config";
 import Helpers from "src/helpers";
-import { reDataForTable } from "src/util/Common";
+import { reDataForTable, getTokenInfo, getLocalStorage } from "src/util/Common";
 import ModalThemCauHoi from "./ModalThemCauHoi";
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -28,6 +28,11 @@ const { TextArea } = Input;
 const NganHangDeThiForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const { width, loading } = useSelector(({ common }) => common).toJS();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [fieldTouch, setFieldTouch] = useState(false);
@@ -93,7 +98,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_DeThi/${id}`,
+          `vptq_lms_DeThi/${id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -254,7 +259,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_DeThi`,
+            `vptq_lms_DeThi?donViHienHanh_Id=${INFO.donVi_Id}`,
             "POST",
             newData,
             "ADD",
@@ -300,7 +305,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_DeThi/${id}`,
+            `vptq_lms_DeThi/${id}?donViHienHanh_Id=${INFO.donVi_Id}`,
             "PUT",
             newData,
             "EDIT",
@@ -370,11 +375,11 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
               style={{ width: "100%", padding: "0px 50px" }}
             >
               <Col
-                xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xxl={14}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -399,11 +404,11 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xxl={14}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -434,11 +439,11 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xxl={14}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -462,11 +467,11 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xxl={14}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -490,11 +495,11 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xxl={14}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -518,11 +523,11 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xxl={14}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -542,11 +547,11 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xxl={14}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -562,11 +567,11 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xxl={14}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",

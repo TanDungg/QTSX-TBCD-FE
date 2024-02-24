@@ -16,6 +16,8 @@ import {
   exportExcel,
   getNgayDauThang,
   getNgayCuoiThang,
+  getTokenInfo,
+  getLocalStorage,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -28,6 +30,11 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function BaoCaoHocPhiTheoDonVi({ history, permission }) {
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [DataBaoCao, setDataBaoCao] = useState([]);
   const [DataChiTiet, setDataChiTiet] = useState(null);
   const [ListDataChiTiet, setListDataChiTiet] = useState([]);
@@ -60,6 +67,7 @@ function BaoCaoHocPhiTheoDonVi({ history, permission }) {
     denNgay
   ) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       donVi_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
       keyword,
@@ -92,7 +100,7 @@ function BaoCaoHocPhiTheoDonVi({ history, permission }) {
 
   const getDataFilter = (donVi_Id, tuNgay, denNgay) => {
     const param = convertObjectToUrlParams({
-      donVi_Id,
+      donViHienHanh_Id: donVi_Id,
       tuNgay,
       denNgay,
     });

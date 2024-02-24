@@ -27,7 +27,11 @@ import {
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { EditableTableRow, Select, Table } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { convertObjectToUrlParams } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  getTokenInfo,
+  getLocalStorage,
+} from "src/util/Common";
 import { Link } from "react-router-dom";
 import moment from "moment";
 import numeral from "numeral";
@@ -39,6 +43,11 @@ const { RangePicker } = DatePicker;
 function XacNhanDaoTao({ match, permission, history }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [Data, setData] = useState([]);
   const [ListKienThuc, setListKienThuc] = useState([]);
   const [KienThuc, setKienThuc] = useState(null);
@@ -74,6 +83,7 @@ function XacNhanDaoTao({ match, permission, history }) {
     page
   ) => {
     let param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       vptq_lms_KienThuc_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
       vptq_lms_LopHoc_Id,
@@ -109,6 +119,7 @@ function XacNhanDaoTao({ match, permission, history }) {
     denNgay
   ) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       vptq_lms_KienThuc_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
       tuNgay,
@@ -150,7 +161,7 @@ function XacNhanDaoTao({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_XacNhanDaoTao/${item.id}`,
+          `vptq_lms_XacNhanDaoTao/${item.id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
