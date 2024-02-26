@@ -29,6 +29,8 @@ import {
   convertObjectToUrlParams,
   getDateNow,
   reDataForTable,
+  getTokenInfo,
+  getLocalStorage,
 } from "src/util/Common";
 
 const FormItem = Form.Item;
@@ -36,6 +38,11 @@ const FormItem = Form.Item;
 function ModalTaoLopHoc({ openModalFS, openModal, dataTaoLopHoc, refesh }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [form] = Form.useForm();
   const { resetFields, setFieldsValue } = form;
   const [fieldTouch, setFieldTouch] = useState(false);
@@ -90,6 +97,7 @@ function ModalTaoLopHoc({ openModalFS, openModal, dataTaoLopHoc, refesh }) {
 
   const getListDeThi = (vptq_lms_ChuyenDeDaoTao_Id) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
       page: -1,
     });
