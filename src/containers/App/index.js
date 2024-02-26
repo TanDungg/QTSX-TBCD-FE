@@ -12,7 +12,6 @@ import { ConfigProvider } from "antd";
 import { IntlProvider } from "react-intl";
 import moment from "moment";
 import "moment/locale/vi";
-
 import AppLocale from "src/lngProvider";
 import MainApp from "./MainApp";
 import SignIn from "../SignIn";
@@ -28,7 +27,7 @@ import {
   onNavStyleChange,
   setThemeType,
 } from "src/appRedux/actions/Setting";
-// import { defaultValidateMessages } from "src/util/ValidatorMessage";
+import { defaultValidateMessages } from "src/util/ValidatorMessage";
 import {
   LAYOUT_TYPE_BOXED,
   LAYOUT_TYPE_FRAMED,
@@ -278,7 +277,7 @@ const App = () => {
   return (
     <ConfigProvider
       locale={newLocal}
-      // form={{ validateMessages: defaultValidateMessages }}
+      form={{ validateMessages: defaultValidateMessages }}
     >
       <IntlProvider
         locale={currentAppLocale.locale}

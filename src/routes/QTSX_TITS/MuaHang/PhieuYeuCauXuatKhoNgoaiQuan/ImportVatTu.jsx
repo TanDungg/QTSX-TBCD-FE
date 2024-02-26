@@ -38,28 +38,7 @@ function ImportVatTu({
   const [dataView, setDataView] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
-  const [HangTrung, setHangTrung] = useState([]);
-  const [DataLoi, setDataLoi] = useState();
   const [message, setMessageError] = useState([]);
-  const renderLoi = (val) => {
-    let check = false;
-    let messageLoi = "";
-    if (DataLoi && DataLoi.length > 0) {
-      DataLoi.forEach((dt) => {
-        if (dt.maVatTu === val && dt.ghiChuImport) {
-          check = true;
-          messageLoi = dt.ghiChuImport;
-        }
-      });
-    }
-    return check ? (
-      <Popover content={<span style={{ color: "red" }}>{messageLoi}</span>}>
-        {val}
-      </Popover>
-    ) : (
-      <span>{val}</span>
-    );
-  };
 
   let colValues = [
     {
@@ -435,8 +414,6 @@ function ImportVatTu({
           setMessageError("Dữ liệu import không được rỗng");
           Helper.alertError("Dữ liệu import không được rỗng");
         } else {
-          const indices = [];
-          const row = [];
           for (let i = 0; i < NewData.length; i++) {
             for (let j = i + 1; j < NewData.length; j++) {
               if (
@@ -444,24 +421,18 @@ function ImportVatTu({
                 NewData[j].maVatTu !== undefined &&
                 NewData[i].maVatTu !== undefined
               ) {
-                indices.push(NewData[i]);
-                row.push(i + 1);
-                row.push(j + 1);
+                NewData[i].ghiChuImport = `Hàng ${i + 1},${
+                  j + 1
+                } có mã vật tư trùng nhau`;
+                NewData[j].ghiChuImport = `Hàng ${i + 1},${
+                  j + 1
+                } có mã vật tư trùng nhau`;
               }
             }
           }
-          if (indices.length > 0) {
-            setMessageError(`Hàng ${row.join(", ")} có mã vật tư trùng nhau`);
-            Helper.alertError(`Hàng ${row.join(", ")} có mã vật tư trùng nhau`);
-            setHangTrung(indices);
-            setCheckDanger(true);
-          } else {
-            setHangTrung([]);
-            setCheckDanger(false);
-          }
+          setCheckDanger(false);
           setDataView(NewData);
           setFileName(file.name);
-          setDataLoi();
         }
       } else {
         setFileName(file.name);
@@ -514,13 +485,21 @@ function ImportVatTu({
       );
     }).then((res) => {
       if (res.status === 409) {
-        setDataLoi(res.data);
+        const newData = [...dataView];
+        res.data.forEach((dt) => {
+          newData.forEach((dtv) => {
+            if (dt.maVatTu.toString() === dtv.maVatTu.toString()) {
+              dtv.ghiChuImport = dt.ghiChuImport;
+            }
+          });
+        });
+        setDataView(newData);
         setMessageError("Import không thành công");
       } else {
         let check = false;
         res.data.forEach((dt) => {
           listVatTu.forEach((sp) => {
-            if (dt.vatTu_Id === sp.vatTu_Id) {
+            if (dt.maVatTu.toString() === sp.maVatTu.toString()) {
               check = true;
               setMessageError(`Vật tư ${dt.tenVatTu} đã được thêm`);
               dt.ghiChuImport = `Vật tư ${dt.tenVatTu} đã được thêm`;
@@ -528,8 +507,8 @@ function ImportVatTu({
           });
         });
         if (check) {
-          setDataLoi(res.data);
-          Helper.alertWarning(res.data[0].ghiChuImport);
+          setDataView(res.data);
+          setMessageError("Import không thành công");
         } else {
           addVatTu(res.data);
           setFileName(null);
@@ -551,13 +530,8 @@ function ImportVatTu({
   };
 
   const RowStyle = (current, index) => {
-    if (HangTrung.length > 0) {
-      HangTrung.forEach((maVatTu) => {
-        if (current.maVatTu === maVatTu) {
-          setCheckDanger(true);
-          return "red-row";
-        }
-      });
+    if (current.ghiChuImport) {
+      return "red-row";
     } else if (current.tenVatTu === undefined) {
       setCheckDanger(true);
       setMessageError("Tên vật tư không được rỗng");
@@ -566,20 +540,6 @@ function ImportVatTu({
       setCheckDanger(true);
       setMessageError("Mã vật tư không được rỗng");
       return "red-row";
-    } else if (DataLoi && DataLoi.length > 0) {
-      let check = false;
-      DataLoi.forEach((dt) => {
-        if (
-          current.maVatTu.toString() === dt.maVatTu.toString() &&
-          dt.ghiChuImport
-        ) {
-          check = true;
-        }
-      });
-      if (check) {
-        setCheckDanger(true);
-        return "red-row";
-      }
     }
   };
   const handleCancel = () => {

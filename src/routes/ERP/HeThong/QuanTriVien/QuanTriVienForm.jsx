@@ -25,8 +25,6 @@ function QuanTriVienForm({ match, permission, history }) {
   const { resetFields, setFieldsValue } = form;
   const [PhanMemSelect, setPhanMemSelect] = useState([]);
   const [DonViSelect, setDonViSelect] = useState([]);
-
-  const [id, setId] = useState("");
   const [Role_Id, setRole_Id] = useState();
   const [DonVi, setDonVi] = useState("");
 
@@ -47,7 +45,6 @@ function QuanTriVienForm({ match, permission, history }) {
           setType("edit");
           // Get info
           const params = match.params.id.split("_");
-          setId(params[0]);
           getUserActive();
           setRole_Id(params[1]);
           getInfo(params[0], params[1]);

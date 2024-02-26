@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Card, Empty, Row, Col } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { map } from "lodash";
-import { Table, EditableTableRow, Select } from "src/components/Common";
+import { isEmpty, map } from "lodash";
+import {
+  Table,
+  EditableTableRow,
+  Select,
+  Toolbar,
+} from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import ModalChiTietKho from "./ModalChiTietKho";
 import {
@@ -26,6 +31,7 @@ function LayoutKhoVatTu({ history, permission }) {
   const [soTangMax, setSoTangMax] = useState(1);
   const [Kho, setKho] = useState("");
   const [ActiveModal, setActiveModal] = useState("");
+  const [keyword, setKeyword] = useState("");
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -58,12 +64,16 @@ function LayoutKhoVatTu({ history, permission }) {
       }
     });
   };
-  const getChiTietKho = (val) => {
+  const getChiTietKho = (kho_Id, keyword) => {
+    const params = convertObjectToUrlParams({
+      keyword,
+      IsThanhPham: false,
+      kho_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          // `lkn_ViTriLuuKho/vi-tri-luu-kho-tree?kho_Id=${val}`,
-          `lkn_mobile/vi-tri-luu-kho-tree?kho_Id=${val}&IsThanhPham=false`,
+          `lkn_mobile/vi-tri-luu-kho-tree?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -73,7 +83,7 @@ function LayoutKhoVatTu({ history, permission }) {
         )
       );
     }).then((res) => {
-      if (res && res.data) {
+      if (res && res.status === 200 && res.data) {
         let soTangMax = 1;
         res.data.forEach((ke, index) => {
           if (ke.children) {
@@ -90,12 +100,16 @@ function LayoutKhoVatTu({ history, permission }) {
       }
     });
   };
-  const getChiTietViTri = (val) => {
+  const getChiTietViTri = (ke_ngan_Id, keyword) => {
+    const params = convertObjectToUrlParams({
+      keyword,
+      IsThanhPham: false,
+      ke_ngan_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          // `lkn_ViTriLuuKho/vi-tri-luu-kho-tree?kho_Id=${val}`,
-          `lkn_mobile/chi-tiet-vi-tri-luu-kho-vat-tu?ke_ngan_Id=${val}&IsThanhPham=false`,
+          `lkn_mobile/chi-tiet-vi-tri-luu-kho-vat-tu?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -203,7 +217,32 @@ function LayoutKhoVatTu({ history, permission }) {
   };
   const handleViewThongTin = (id) => {
     if (id) {
-      getChiTietViTri(id);
+      getChiTietViTri(id, keyword);
+    }
+  };
+  /**
+   * Tìm kiếm vị trí vật tư
+   *
+   */
+  const onSearchVatTu = () => {
+    getChiTietKho(Kho, keyword);
+    if (focusKe !== "" || focusNgan !== "") {
+      getChiTietViTri(focusKe === "" ? focusNgan : focusKe, keyword);
+    }
+  };
+
+  /**
+   * Thay đổi keyword
+   *
+   * @param {*} val
+   */
+  const onChangeKeyword = (val) => {
+    setKeyword(val.target.value);
+    if (isEmpty(val.target.value)) {
+      getChiTietKho(Kho, val.target.value);
+      if (focusKe !== "" || focusNgan !== "") {
+        getChiTietViTri(focusKe === "" ? focusNgan : focusKe, val.target.value);
+      }
     }
   };
   return (
@@ -236,6 +275,29 @@ function LayoutKhoVatTu({ history, permission }) {
               value={Kho}
             />
           </Col>
+          <Col
+            xxl={6}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Tìm kiếm:</h5>
+            <Toolbar
+              count={1}
+              search={{
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchVatTu,
+                onSearch: onSearchVatTu,
+                allowClear: true,
+                placeholder: "Tìm kiếm",
+              }}
+            />
+          </Col>
         </Row>
         <Row>
           <Col xxl={12} xl={12} xs={24}>
@@ -249,11 +311,7 @@ function LayoutKhoVatTu({ history, permission }) {
                         xl={12}
                         lg={12}
                         style={{
-                          height:
-                            // ke.children.length === 0
-                            //   ?
-                            soTangMax * 40,
-                          // : ke.children.length * 40,
+                          height: soTangMax * 40,
                           marginBottom: 50,
                           boxSizing: "border-box",
                         }}
@@ -283,10 +341,15 @@ function LayoutKhoVatTu({ history, permission }) {
                           }}
                           onClick={() => {
                             if (ke.children.length === 0) {
-                              setFocusKe(ke.id);
-                              setFocusNgan("");
-                              handleViewThongTin(ke.id);
-                              // setActiveModal(true);
+                              if (focusKe !== ke.id) {
+                                setFocusKe(ke.id);
+                                setFocusNgan("");
+                                handleViewThongTin(ke.id);
+                              } else {
+                                setFocusKe("");
+                                setFocusNgan("");
+                                setListChiTietVatTu([]);
+                              }
                             }
                           }}
                         >
@@ -321,23 +384,6 @@ function LayoutKhoVatTu({ history, permission }) {
                                         tang.children.map((ngan, index) => {
                                           return (
                                             <div
-                                              // span={
-                                              //   (tang.children.length === 5 ||
-                                              //     tang.children.length === 7 ||
-                                              //     tang.children.length === 9 ||
-                                              //     tang.children.length === 10 ||
-                                              //     tang.children.length === 11 ||
-                                              //     tang.children.length ===
-                                              //       13) &&
-                                              //   index + 1 ===
-                                              //     tang.children.length
-                                              //     ? Math.floor(
-                                              //         24 / tang.children.length
-                                              //       ) * 2
-                                              //     : Math.floor(
-                                              //         24 / tang.children.length
-                                              //       )
-                                              // }
                                               style={{
                                                 height: 40,
                                                 margin: 0,
@@ -355,10 +401,15 @@ function LayoutKhoVatTu({ history, permission }) {
                                                 cursor: "pointer",
                                               }}
                                               onClick={() => {
-                                                // setActiveModal(true);
-                                                handleViewThongTin(ngan.id);
-                                                setFocusNgan(ngan.id);
-                                                setFocusKe("");
+                                                if (focusNgan !== ngan.id) {
+                                                  handleViewThongTin(ngan.id);
+                                                  setFocusNgan(ngan.id);
+                                                  setFocusKe("");
+                                                } else {
+                                                  setFocusNgan("");
+                                                  setFocusKe("");
+                                                  setListChiTietVatTu([]);
+                                                }
                                               }}
                                             ></div>
                                           );
@@ -446,7 +497,7 @@ function LayoutKhoVatTu({ history, permission }) {
                 </Row>
                 <Table
                   bordered
-                  scroll={{ x: 500, y: "70vh" }}
+                  scroll={{ x: 500, y: "45vh" }}
                   columns={columns}
                   components={components}
                   className="gx-table-responsive"
