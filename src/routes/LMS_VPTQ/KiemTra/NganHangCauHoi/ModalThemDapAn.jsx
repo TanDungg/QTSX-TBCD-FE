@@ -25,6 +25,7 @@ function ModalThemDapAn({
   chitiet,
   refesh,
   DataThemDapAn,
+  indexDapAn,
 }) {
   const { width } = useSelector(({ common }) => common).toJS();
   const INFO = {
@@ -149,6 +150,7 @@ function ModalThemDapAn({
       isCorrect: isChinhSua ? chitiet.isCorrect : false,
       isChinhSua: isChinhSua,
       vptq_lms_DapAn_Id: chitiet && chitiet.vptq_lms_DapAn_Id,
+      indexDapAn: isChinhSua && indexDapAn,
     });
     resetFields();
     setDisableUploadHinhAnh(false);
