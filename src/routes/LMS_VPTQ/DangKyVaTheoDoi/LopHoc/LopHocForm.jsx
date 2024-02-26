@@ -12,7 +12,12 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_ADD_2COL_200PX, DONVI_VPTQ } from "src/constants/Config";
 import dayjs from "dayjs";
-import { reDataForTable } from "src/util/Common";
+import {
+  reDataForTable,
+  getTokenInfo,
+  getLocalStorage,
+  convertObjectToUrlParams,
+} from "src/util/Common";
 import moment from "moment";
 import Helpers from "src/helpers";
 
@@ -21,6 +26,11 @@ const FormItem = Form.Item;
 const LopHocForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [form] = Form.useForm();
   const { validateFields, setFieldsValue } = form;
   const [fieldTouch, setFieldTouch] = useState(false);
@@ -33,7 +43,6 @@ const LopHocForm = ({ history, match, permission }) => {
   useEffect(() => {
     const { id } = match.params;
     setId(id);
-    getListDeThi();
     getInfo(id);
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -63,11 +72,16 @@ const LopHocForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const getListDeThi = () => {
+  const getListDeThi = (vptq_lms_ChuyenDeDaoTao_Id) => {
+    const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
+      vptq_lms_ChuyenDeDaoTao_Id,
+      page: -1,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_DeThi?page=-1`,
+          `vptq_lms_DeThi?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -77,7 +91,7 @@ const LopHocForm = ({ history, match, permission }) => {
         )
       );
     }).then((res) => {
-      if (res && res.data.length) {
+      if (res && res.status !== 409) {
         setListDeThi(res.data);
       } else {
         setListDeThi([]);
@@ -110,6 +124,7 @@ const LopHocForm = ({ history, match, permission }) => {
             },
           });
           setIsThi(data.isThi);
+          getListDeThi(data.vptq_lms_ChuyenDeDaoTao_Id);
           getListUserDuyet();
           setListCBNV(data.list_ChiTiets && JSON.parse(data.list_ChiTiets));
         }
@@ -273,6 +288,11 @@ const LopHocForm = ({ history, match, permission }) => {
 
   const handleSwitchChange = (checked) => {
     setIsThi(checked);
+    setFieldsValue({
+      formlophoc: {
+        vptq_lms_DeThi_Id: ListDeThi.length !== 0 && ListDeThi[0].id,
+      },
+    });
   };
 
   const formTitle = "Chỉnh sửa lớp học";
