@@ -8,11 +8,20 @@ import { fetchStart } from "src/appRedux/actions";
 import { Button, Modal } from "src/components/Common";
 import { BASE_URL_API } from "src/constants/Config";
 import Helpers from "src/helpers";
-import { convertObjectToUrlParams } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  getTokenInfo,
+  getLocalStorage,
+} from "src/util/Common";
 
 function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
   const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [DemNguoc, setDemNguoc] = useState({
     hours: 0,
     minutes: 0,
@@ -68,6 +77,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
   const getDeThiThu = (vptq_lms_DeThi_Id, IsDangThiThu) => {
     new Promise((resolve, reject) => {
       const param = convertObjectToUrlParams({
+        donViHienHanh_Id: INFO.donVi_Id,
         vptq_lms_DeThi_Id,
         IsDangThiThu,
       });
@@ -105,7 +115,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_ThiThu/${vptq_lms_ThiThu_Id}`,
+          `vptq_lms_ThiThu/${vptq_lms_ThiThu_Id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -143,7 +153,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_ThiThu/nop-bai?vptq_lms_ThiThu_Id=${DeThi.vptq_lms_ThiThu_Id}`,
+          `vptq_lms_ThiThu/nop-bai?vptq_lms_ThiThu_Id=${DeThi.vptq_lms_ThiThu_Id}&donViHienHanh_Id=${INFO.donVi_Id}`,
           "PUT",
           null,
           "NOPBAI",
@@ -221,7 +231,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_ThiThu/chon-dap-an?vptq_lms_ThiThuChiTietDapAn_Id=${dapAn_Id}`,
+          `vptq_lms_ThiThu/chon-dap-an?vptq_lms_ThiThuChiTietDapAn_Id=${dapAn_Id}&donViHienHanh_Id=${INFO.donVi_Id}`,
           "PUT",
           null,
           "",
@@ -695,8 +705,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
             style={{ width: "100%" }}
           />
         </Card>
-      ) : null}
-      {KetQuaThi && (
+      ) : (
         <Card
           className="th-card-margin-bottom th-card-reset-margin"
           title={"Kết quả thi thử"}

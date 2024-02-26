@@ -23,8 +23,18 @@ const ChiTietHocTrucTuyen = asyncComponent(() =>
   import("./HocTrucTuyen/ChiTietHocTrucTuyen")
 );
 
-/* Xác nhận hỏi đáp */
-const XacNhanHoiDap = asyncComponent(() => import("./XacNhanHoiDap/XacNhanHoiDap"));
+/* Duyệt hỏi đáp */
+const DuyetHoiDap = asyncComponent(() => import("./DuyetHoiDap/DuyetHoiDap"));
+
+/* Duyệt phản hồi */
+const DuyetPhanHoi = asyncComponent(() =>
+  import("./DuyetPhanHoi/DuyetPhanHoi")
+);
+
+/* Duyệt đánh giá */
+const DuyetDanhGia = asyncComponent(() =>
+  import("./DuyetDanhGia/DuyetDanhGia")
+);
 
 /* Thi khảo sát */
 const ThiKhaoSat = asyncComponent(() => import("./ThiKhaoSat/ThiKhaoSat"));
@@ -77,11 +87,25 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(ChiTietHocTrucTuyen, menus, pathname, permission)}
       />
 
-      {/* Xác nhận hỏi đáp */}
+      {/* Duyệt hỏi đáp */}
       <Route
-        path={`${match.url}/xac-nhan-hoi-dap`}
+        path={`${match.url}/duyet-hoi-dap`}
         exact
-        component={Auth(XacNhanHoiDap, menus, pathname, permission)}
+        component={Auth(DuyetHoiDap, menus, pathname, permission)}
+      />
+
+      {/* Duyệt phản hồi */}
+      <Route
+        path={`${match.url}/duyet-phan-hoi`}
+        exact
+        component={Auth(DuyetPhanHoi, menus, pathname, permission)}
+      />
+
+       {/* Duyệt đánh giá */}
+       <Route
+        path={`${match.url}/duyet-danh-gia`}
+        exact
+        component={Auth(DuyetDanhGia, menus, pathname, permission)}
       />
 
       {/* Thi khảo sát */}

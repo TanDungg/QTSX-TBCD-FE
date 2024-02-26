@@ -162,7 +162,6 @@ function ModalThiKhaoSat({
     });
   };
 
-  console.log(ThongTinDeThi);
   const handleKetThucThi = () => {
     new Promise((resolve, reject) => {
       dispatch(

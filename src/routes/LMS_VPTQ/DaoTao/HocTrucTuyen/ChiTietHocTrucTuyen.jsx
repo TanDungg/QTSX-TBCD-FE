@@ -510,7 +510,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                     <Image
                       src={BASE_URL_API + ChiTiet.hinhAnhGiangVien}
                       alt="Hình ảnh giảng viên"
-                      style={{ height: "150px" }}
+                      style={{ width: "150px" }}
                     />
                   )}
                 </Col>

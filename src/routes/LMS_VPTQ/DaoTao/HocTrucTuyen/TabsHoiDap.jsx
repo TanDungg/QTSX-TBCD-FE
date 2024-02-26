@@ -22,6 +22,7 @@ import {
   Row,
   Modal as AntModal,
   Upload,
+  Tag,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -1087,15 +1088,17 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                     <div className="title">
                       <div>
                         <span className="name">{hd.fullName}</span>{" "}
-                        <span
-                          style={{
-                            color: hd.isDuyet ? "#0469b9" : "#545454",
-                            fontWeight: "normal",
-                            fontSize: "13px",
-                          }}
-                        >
-                          ({hd.isDuyet ? "Đã duyệt" : "Chưa duyệt"})
-                        </span>
+                        {!hd.isDuyet && (
+                          <Tag
+                            color={!hd.isDuyet && "red"}
+                            style={{
+                              fontWeight: "normal",
+                              fontSize: "13px",
+                            }}
+                          >
+                            Chưa duyệt
+                          </Tag>
+                        )}
                       </div>
                       <span className="date">{hd.ngayTao}</span>
                     </div>
@@ -1264,9 +1267,10 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                     Đóng tất cả phản hồi
                   </span>
                 )}
-                {IndexXemPhanHoi === index && hd.phanHois
-                  ? hd.phanHois.map((ph, index) =>
-                      IndexChinhSuaPhanHoi === index ? (
+                {IndexXemPhanHoi === index && hd.phanHois.length !== 0
+                  ? hd.phanHois.map((ph, index) => {
+                      console.log(ph);
+                      return IndexChinhSuaPhanHoi === index ? (
                         <div className="feedback-container" key={index}>
                           <div className="avatar">
                             <Image src={ph.hinhAnhUrl} className="avatar" />
@@ -1448,8 +1452,21 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                           </div>
                           <div className="feedback" key={index}>
                             <div className="feedback-title">
-                              <div className="feedback-user">
-                                <span className="name">{ph.fullName}</span>
+                              <div className="title">
+                                <div>
+                                  <span className="name">{ph.fullName}</span>{" "}
+                                  {!ph.isDuyet && (
+                                    <Tag
+                                      color={!ph.isDuyet && "red"}
+                                      style={{
+                                        fontWeight: "normal",
+                                        fontSize: "13px",
+                                      }}
+                                    >
+                                      Chưa duyệt
+                                    </Tag>
+                                  )}
+                                </div>
                                 <span className="date">{ph.ngayTao}</span>
                               </div>
                               <div className="title">
@@ -1583,8 +1600,8 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                             </div>
                           </div>
                         </div>
-                      )
-                    )
+                      );
+                    })
                   : null}
                 {IndexPhanHoi === index && (
                   <Card className="th-card-margin-bottom th-card-reset-margin">
