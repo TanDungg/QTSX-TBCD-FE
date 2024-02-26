@@ -355,6 +355,17 @@ export default (state = INIT_STATE, action) => {
             .set("loadingSave", false)
             .set("reset", false);
         }
+        if (apiType === "DUYET") {
+          // Message thêm mới
+          if (customMessage) Helper.alertSuccessMessage(customMessage);
+          else Helper.alertSuccessMessage(messages.DUYET_THANH_CONG);
+          return state
+            .set("message", messages.DUYET_THANH_CONG)
+            .set("customMessage", customMessage)
+            .set("loading", false)
+            .set("loadingSave", false)
+            .set("reset", false);
+        }
         return state.set("loading", false);
       } else {
         if (apiType === "IMPORT") {

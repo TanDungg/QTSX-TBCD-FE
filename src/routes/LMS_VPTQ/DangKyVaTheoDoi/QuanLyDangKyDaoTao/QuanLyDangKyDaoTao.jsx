@@ -377,7 +377,7 @@ function QuanLyDangKyDaoTao({ history, permission, match }) {
   };
 
   const handleRefesh = () => {
-    getListData(ChuyenDe, TuNgay, DenNgay, keyword);
+    getListChuyenDe(TuNgay, DenNgay);
     setSelectedCBNV([]);
     setSelectedKeys([]);
   };

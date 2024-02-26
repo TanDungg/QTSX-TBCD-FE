@@ -6,6 +6,7 @@ import {
   UnlockOutlined,
   LockOutlined,
   DeleteOutlined,
+  RedoOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -20,6 +21,7 @@ import {
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import Helpers from "src/helpers";
 
 function NguoiDung({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
@@ -149,20 +151,41 @@ function NguoiDung({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
   /**
+   * Remove item
+   *
+   * @param {*} item
+   */
+  const resetItemAction = (item) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Account/ResetPassword/${item.user_Id}`,
+          "PUT",
+          null,
+          "RESET",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status === 200) {
+          Helpers.alertSuccessMessage(res.data);
+          getListData(keyword, INFO);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  /**
    * ActionContent: Hành động trên bảng
    *
    * @param {*} item
    * @returns View
    */
   const actionContent = (item) => {
-    let check = true;
-    JSON.parse(item.chiTietRoles).forEach((r) => {
-      if (r.roleName.toUpperCase().includes("ADMINISTRATOR")) {
-        check = false;
-      }
-    });
     const editItem =
-      permission && permission.edit && check ? (
+      permission && permission.edit ? (
         <Link
           to={{
             pathname: `${match.path}/${item.user_Id}/chinh-sua`,
@@ -177,12 +200,20 @@ function NguoiDung({ match, history, permission }) {
           <EditOutlined />
         </span>
       );
+    const resetItemVal =
+      permission && permission.edit
+        ? { onClick: () => resetItemAction(item) }
+        : { disabled: true };
     const deleteItemVal =
-      permission && permission.del && check
+      permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
       <React.Fragment>
+        <a {...resetItemVal} title="Reset mật khẩu">
+          <RedoOutlined />
+        </a>
+        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteItemVal} title="Xóa">
@@ -301,15 +332,15 @@ function NguoiDung({ match, history, permission }) {
       ];
     }
     renderHead = [
-      ...renderHead,
       {
         title: "Chức năng",
         key: "action",
         align: "center",
-        width: 80,
+        width: 100,
         render: (value) => actionContent(value),
         fixed: width > 700 && "right",
       },
+      ...renderHead,
     ];
     return renderHead;
   };

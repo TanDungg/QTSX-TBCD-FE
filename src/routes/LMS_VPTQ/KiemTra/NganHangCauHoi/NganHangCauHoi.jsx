@@ -20,7 +20,12 @@ import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { removeDuplicates, reDataForTable } from "src/util/Common";
+import {
+  removeDuplicates,
+  reDataForTable,
+  getTokenInfo,
+  getLocalStorage,
+} from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import {
   EditableTableRow,
@@ -40,6 +45,11 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function CauHoi({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [Data, setData] = useState([]);
   const [ListKienThuc, setListKienThuc] = useState([]);
   const [KienThuc, setKienThuc] = useState(null);
@@ -72,6 +82,7 @@ function CauHoi({ permission, history, match }) {
     page
   ) => {
     let param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       vptq_lms_KienThuc_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
       keyword,
@@ -167,7 +178,7 @@ function CauHoi({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_CauHoi/${item.id}`,
+          `vptq_lms_CauHoi/${item.id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -194,7 +205,7 @@ function CauHoi({ permission, history, match }) {
   };
 
   const deleteItemAction = (item) => {
-    let url = `vptq_lms_CauHoi/${item.id}`;
+    let url = `vptq_lms_CauHoi/${item.id}?donViHienHanh_Id=${INFO.donVi_Id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -255,7 +266,7 @@ function CauHoi({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_CauHoi/set-su-dung/${record.id}`,
+          `vptq_lms_CauHoi/set-su-dung/${record.id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "PUT",
           null,
           "EDIT",

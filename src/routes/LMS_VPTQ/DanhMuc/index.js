@@ -59,6 +59,10 @@ const GiangVienForm = asyncComponent(() => import("./GiangVien/GiangVienForm"));
 const DonViDaoTao = asyncComponent(() => import("./DonViDaoTao/DonViDaoTao"));
 const DonViDaoTaoForm = asyncComponent(() => import("./DonViDaoTao/DonViDaoTaoForm"));
 
+/* Mục tiêu đào tạo */
+const MucTieuDaoTao = asyncComponent(() => import("./MucTieuDaoTao/MucTieuDaoTao"));
+const MucTieuDaoTaoForm = asyncComponent(() => import("./MucTieuDaoTao/MucTieuDaoTaoForm"));
+
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -300,6 +304,23 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/don-vi-dao-tao/:id/chinh-sua`}
         exact
         component={Auth(DonViDaoTaoForm, menus, pathname, permission)}
+      />
+
+      {/* Mục tiêu đào tạo */}
+      <Route
+        path={`${match.url}/muc-tieu-dao-tao`}
+        exact
+        component={Auth(MucTieuDaoTao, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/muc-tieu-dao-tao/them-moi`}
+        exact
+        component={Auth(MucTieuDaoTaoForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/muc-tieu-dao-tao/:id/chinh-sua`}
+        exact
+        component={Auth(MucTieuDaoTaoForm, menus, pathname, permission)}
       />
     </Switch>
   );

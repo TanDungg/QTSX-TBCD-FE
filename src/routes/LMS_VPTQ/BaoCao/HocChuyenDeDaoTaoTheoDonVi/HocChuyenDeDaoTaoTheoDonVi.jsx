@@ -11,6 +11,8 @@ import {
   getNgayDauThang,
   getNgayCuoiThang,
   exportExcel,
+  getLocalStorage,
+  getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -22,6 +24,11 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function BaoCaoHocChuyenDeDaoTaoTheoDonVi({ history, permission }) {
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [DataListUser, setDataListUser] = useState([]);
   const [DataListChuyenDe, setDataListChuyenDe] = useState([]);
   const [ListDonVi, setListDonVi] = useState([]);
@@ -42,6 +49,7 @@ function BaoCaoHocChuyenDeDaoTaoTheoDonVi({ history, permission }) {
 
   const getListData = (donVi_Id, tuNgay, denNgay) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       donVi_Id,
       tuNgay,
       denNgay,
@@ -73,7 +81,7 @@ function BaoCaoHocChuyenDeDaoTaoTheoDonVi({ history, permission }) {
           setDataListUser([]);
           setDataListChuyenDe([]);
         }
-             })
+      })
       .catch((error) => console.error(error));
   };
 

@@ -358,19 +358,19 @@ function DangKyDaoTao({ match, history, permission }) {
     },
     {
       title: "Mục tiêu đào tạo",
-      dataIndex: "mucTieu",
-      key: "mucTieu",
+      dataIndex: "tenMucTieuDaoTao",
+      key: "tenMucTieuDaoTao",
       align: "left",
-      width: 150,
+      width: 200,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.mucTieu,
-            value: d.mucTieu,
+            text: d.tenMucTieuDaoTao,
+            value: d.tenMucTieuDaoTao,
           };
         })
       ),
-      onFilter: (value, record) => record.mucTieu.includes(value),
+      onFilter: (value, record) => record.tenMucTieuDaoTao.includes(value),
       filterSearch: true,
     },
     {

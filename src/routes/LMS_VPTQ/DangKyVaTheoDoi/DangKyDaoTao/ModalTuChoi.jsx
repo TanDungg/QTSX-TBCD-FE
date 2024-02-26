@@ -91,7 +91,7 @@ function ModalTuChoi({ openModalFS, openModal, handleTuChoi }) {
                 htmlType={"submit"}
                 disabled={!fieldTouch}
               >
-                Hủy
+                Từ chối
               </Button>
             </div>
           </div>

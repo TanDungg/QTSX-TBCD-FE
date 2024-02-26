@@ -24,6 +24,8 @@ import {
   exportExcel,
   getNgayDauThang,
   getNgayCuoiThang,
+  getTokenInfo,
+  getLocalStorage,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -39,6 +41,11 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function BaoCaoChuyenDeDaoTao({ history, permission }) {
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [DataBaoCao, setDataBaoCao] = useState([]);
   const [DataChiTiet, setDataChiTiet] = useState(null);
   const [ListDataChiTiet, setListDataChiTiet] = useState([]);
@@ -71,6 +78,7 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
     denNgay
   ) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
       vptq_lms_LopHoc_Id,
       keyword,
@@ -103,6 +111,7 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
 
   const getDataFilter = (vptq_lms_ChuyenDeDaoTao_Id, tuNgay, denNgay) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
       tuNgay,
       denNgay,
@@ -147,10 +156,11 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
   const dataList = reDataForTable(DataBaoCao);
 
   const handleChiTiet = (item) => {
+    setActiveModalChiTiet(true);
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_BaoCao/bao-cao-chuyen-de-dao-tao/${item.vptq_lms_LopHoc_Id}`,
+          `vptq_lms_BaoCao/bao-cao-chuyen-de-dao-tao/${item.vptq_lms_LopHoc_Id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "LIST",
@@ -172,7 +182,6 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
         }
       })
       .catch((error) => console.error(error));
-    setActiveModalChiTiet(true);
   };
 
   const actionContent = (item) => {
@@ -778,7 +787,7 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 1750, y: "50vh" }}
+          scroll={{ x: 1750, y: "53vh" }}
           columns={columns}
           components={components}
           className="gx-table-responsive th-table"

@@ -65,6 +65,25 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
         setChiTiet(null);
       }
     });
+    // new Promise((resolve, reject) => {
+    //   dispatch(
+    //     fetchStart(
+    //       `vptq_lms_HocTrucTuyen/hoc-video-chia-nho/${id}`,
+    //       "GET",
+    //       null,
+    //       "DETAIL",
+    //       "",
+    //       resolve,
+    //       reject
+    //     )
+    //   );
+    // }).then((res) => {
+    //   if (res && res.data) {
+    //     setVideoChiaNho(res.data);
+    //   } else {
+    //     setVideoChiaNho(null);
+    //   }
+    // });
   };
 
   const tabLabels = [
@@ -436,6 +455,20 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                 onEnded={handleEnded}
               />
             )}
+            {/* {ChiTiet && (
+              <HlsVideoPlayer
+                tsFiles={
+                  VideoChiaNho &&
+                  VideoChiaNho.fileVideo &&
+                  VideoChiaNho.fileVideo.tsFiles
+                }
+                m3u8File={
+                  VideoChiaNho &&
+                  VideoChiaNho.fileVideo &&
+                  VideoChiaNho.fileVideo.m3u8File
+                }
+              />
+            )} */}
           </Col>
           <Col xxl={7} xl={8} lg={24} xs={24} style={{ marginBottom: 8 }}>
             <Card

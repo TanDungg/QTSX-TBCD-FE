@@ -284,6 +284,13 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
 
   let colValues = [
     {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+    {
       title: "STT",
       dataIndex: "key",
       key: "key",
@@ -386,13 +393,6 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
       key: "moTa",
       align: "center",
       width: 150,
-    },
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
     },
   ];
 

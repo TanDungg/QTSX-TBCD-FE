@@ -9,6 +9,8 @@ import {
   reDataForTable,
   exportExcel,
   getMonthYearNow,
+  getLocalStorage,
+  getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -19,6 +21,11 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function BaoCaoKetQuaChuyenDeDaoTaoTheoThang({ history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [DataBaoCao, setDataBaoCao] = useState([]);
   const [ThangNam, setThangNam] = useState(getMonthYearNow());
 
@@ -35,6 +42,7 @@ function BaoCaoKetQuaChuyenDeDaoTaoTheoThang({ history, permission }) {
 
   const getListData = (thangnam) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       thang: thangnam.slice(0, 2),
       nam: thangnam.slice(3),
     });
@@ -71,7 +79,7 @@ function BaoCaoKetQuaChuyenDeDaoTaoTheoThang({ history, permission }) {
   const tongSLThamDu = dataList.reduce((sum, item) => {
     return sum + (item.soLuongThamDu || 0);
   }, 0);
-  
+
   const tyLeThamDu = parseFloat(
     ((tongSLThamDu / tongSLDangKy) * 100).toFixed(2)
   );

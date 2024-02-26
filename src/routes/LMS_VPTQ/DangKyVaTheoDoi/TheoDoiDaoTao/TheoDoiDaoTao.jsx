@@ -9,6 +9,8 @@ import {
   reDataForTable,
   getNamNow,
   convertObjectToUrlParams,
+  getTokenInfo,
+  getLocalStorage,
 } from "src/util/Common";
 import {
   EditableTableRow,
@@ -25,6 +27,11 @@ const { EditableRow, EditableCell } = EditableTableRow;
 
 function TheoDoiDaoTao({ history, permission, match }) {
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const { loading } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
   const [ListChuyenDe, setListChuyenDe] = useState([]);
@@ -61,6 +68,7 @@ function TheoDoiDaoTao({ history, permission, match }) {
     page
   ) => {
     let param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
       donVi_Id,
       phongBan_Id,
@@ -288,7 +296,7 @@ function TheoDoiDaoTao({ history, permission, match }) {
         record.thoiLuongDaoTao.toString().includes(value),
       filterSearch: true,
       render: (value) => {
-        return <span>{value} phút</span>;
+        return value && <span>{value} phút</span>;
       },
     },
     {
@@ -385,7 +393,7 @@ function TheoDoiDaoTao({ history, permission, match }) {
                   : value === "Hoàn thành"
                   ? "blue"
                   : value === "Chưa học"
-                  ? "cyan"
+                  ? ""
                   : "orange"
               }
               style={{

@@ -39,7 +39,7 @@ function Home() {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_BaoCao/is-admin`,
+          `vptq_lms_BaoCao/is-admin?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",

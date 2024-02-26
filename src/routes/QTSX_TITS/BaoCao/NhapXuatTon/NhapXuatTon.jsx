@@ -5,7 +5,6 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { exportExcel, getDateNow, reDataForTable } from "src/util/Common";
-import { Link } from "react-router-dom";
 import {
   EditableTableRow,
   Table,
@@ -27,6 +26,7 @@ function NhapXuatTon({ permission, history, match }) {
   const [CauTrucKho_Id, setCauTrucKho_Id] = useState("");
   const [ListKho, setListKho] = useState([]);
   const [VatTu_Id, setVatTu_Id] = useState("");
+  const [IsThanhPham, setIsThanhPham] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -99,10 +99,13 @@ function NhapXuatTon({ permission, history, match }) {
     //   .catch((error) => console.error(error));
   };
   const getKho = () => {
+    const params = convertObjectToUrlParams({
+      thuTu: 1,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `CauTrucKho/cau-truc-kho-by-thu-tu?thutu=1&&isThanhPham=false`,
+          `tits_qtsx_CauTrucKho/cau-truc-kho-by-thu-tu?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -115,6 +118,7 @@ function NhapXuatTon({ permission, history, match }) {
       .then((res) => {
         if (res && res.data) {
           setCauTrucKho_Id(res.data[0].id);
+          setIsThanhPham(res.data[0].isThanhPham);
           getListData(keyword, TuNgay, DenNgay, res.data[0].id, VatTu_Id);
           setListKho(res.data);
         } else {
@@ -146,26 +150,8 @@ function NhapXuatTon({ permission, history, match }) {
     });
     return uniqueObjects;
   }
-  const dataList = reDataForTable(Data.list_ChiTiets);
-  const renderDetail = (val) => {
-    val.cauTrucKho_Id = Data.cauTrucKho_Id;
-    val.tuNgay = TuNgay;
-    val.denNgay = DenNgay;
-    const detail =
-      permission && permission.view ? (
-        <Link
-          to={{
-            pathname: `${match.url}/so-chi-tiet-vat-tu`,
-            state: { itemData: val, permission },
-          }}
-        >
-          {val.maVatTu}
-        </Link>
-      ) : (
-        <span disabled>{val.maVatTu}</span>
-      );
-    return <div>{detail}</div>;
-  };
+  const dataList = reDataForTable(Data);
+
   let colValues = [
     {
       title: "STT",
@@ -175,37 +161,37 @@ function NhapXuatTon({ permission, history, match }) {
       align: "center",
     },
     {
-      title: "Mã vật tư",
-      key: "maVatTu",
+      title: IsThanhPham ? "Mã sản phẩm" : "Mã vật tư",
+      key: "maVatPham",
+      dataIndex: "maVatPham",
       align: "center",
       width: 150,
-      render: (val) => renderDetail(val),
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maVatTu,
-            value: d.maVatTu,
+            text: d.maVatPham,
+            value: d.maVatPham,
           };
         })
       ),
-      onFilter: (value, record) => record.maVatTu.includes(value),
+      onFilter: (value, record) => record.maVatPham.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên vật tư",
-      dataIndex: "tenVatTu",
-      key: "tenVatTu",
+      title: IsThanhPham ? "Tên sản phẩm" : "Tên vật tư",
+      dataIndex: "tenVatPham",
+      key: "tenVatPham",
       align: "center",
       width: 250,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenVatTu,
-            value: d.tenVatTu,
+            text: d.tenVatPham,
+            value: d.tenVatPham,
           };
         })
       ),
-      onFilter: (value, record) => record.tenVatTu.includes(value),
+      onFilter: (value, record) => record.tenVatPham.includes(value),
       filterSearch: true,
     },
     {
@@ -277,64 +263,77 @@ function NhapXuatTon({ permission, history, match }) {
     };
   });
 
-  const XuatExcel = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `lkn_BaoCao/export-file-nhap-xuat-ton`,
-          "POST",
-          Data,
-          "",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      exportExcel(`BaoCaoNhapXuatTon`, res.data.dataexcel);
-    });
-  };
+  // const XuatExcel = () => {
+  //   new Promise((resolve, reject) => {
+  //     dispatch(
+  //       fetchStart(
+  //         `lkn_BaoCao/export-file-nhap-xuat-ton`,
+  //         "POST",
+  //         Data,
+  //         "",
+  //         "",
+  //         resolve,
+  //         reject
+  //       )
+  //     );
+  //   }).then((res) => {
+  //     exportExcel(`BaoCaoNhapXuatTon`, res.data.dataexcel);
+  //   });
+  // };
 
-  const addButtonRender = () => {
-    return (
-      <>
-        <Button
-          icon={<DownloadOutlined />}
-          classDenNgaye="th-margin-bottom-0"
-          type="primary"
-          onClick={XuatExcel}
-          disabled={(permission && !permission.add) || Data.length === 0}
-        >
-          Xuất excel
-        </Button>
-      </>
-    );
-  };
+  // const addButtonRender = () => {
+  //   return (
+  //     <>
+  //       <Button
+  //         icon={<DownloadOutlined />}
+  //         classDenNgaye="th-margin-bottom-0"
+  //         type="primary"
+  //         onClick={XuatExcel}
+  //         disabled={(permission && !permission.add) || Data.length === 0}
+  //       >
+  //         Xuất excel
+  //       </Button>
+  //     </>
+  //   );
+  // };
 
   const handleOnSelectKho = (value) => {
-    setCauTrucKho_Id(value);
-    getListData(keyword, TuNgay, DenNgay, value, VatTu_Id);
+    if (CauTrucKho_Id !== value) {
+      setIsThanhPham(ListKho.filter((k) => k.id === value)[0].isThanhPham);
+      setCauTrucKho_Id(value);
+      getListData(keyword, TuNgay, DenNgay, value, VatTu_Id);
+    }
   };
-  const handleOnSelectVatTu = (value) => {
-    setVatTu_Id(value);
-    getListData(keyword, TuNgay, DenNgay, CauTrucKho_Id, value);
-  };
+  // const handleOnSelectVatTu = (value) => {
+  //   if (VatTu_Id !== value) {
+  //     setVatTu_Id(value);
+  //     getListData(keyword, TuNgay, DenNgay, CauTrucKho_Id, value);
+  //   }
+  // };
 
   const handleChangeNgay = (dateString) => {
-    setTuNgay(dateString[0]);
-    setDenNgay(dateString[1]);
-    getListData(keyword, dateString[0], dateString[1], CauTrucKho_Id, VatTu_Id);
+    if (TuNgay !== dateString[0] || DenNgay !== dateString[1]) {
+      setTuNgay(dateString[0]);
+      setDenNgay(dateString[1]);
+      getListData(
+        keyword,
+        dateString[0],
+        dateString[1],
+        CauTrucKho_Id,
+        VatTu_Id
+      );
+    }
   };
-  const handleOnClearVatTu = () => {
-    setVatTu_Id("");
-    getListData(keyword, TuNgay, DenNgay, CauTrucKho_Id, "");
-  };
+  // const handleOnClearVatTu = () => {
+  //   setVatTu_Id("");
+  //   getListData(keyword, TuNgay, DenNgay, CauTrucKho_Id, "");
+  // };
   return (
     <div classDenNgaye="gx-main-content">
       <ContainerHeader
         title={"Báo cáo nhập xuất tồn"}
         description="Báo cáo nhập xuất tồn"
-        buttons={addButtonRender()}
+        // buttons={addButtonRender()}
       />
       <Card classDenNgaye="th-card-margin-bottom th-card-reset-margin">
         <Row style={{ marginBottom: 10 }}>
@@ -375,7 +374,7 @@ function NhapXuatTon({ permission, history, match }) {
               classDenNgaye="heading-select slt-search th-select-heading"
               data={ListKho}
               placeholder="Chọn kho"
-              optionsvalue={["id", "tenCTKho"]}
+              optionsvalue={["id", "tenCauTrucKho"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
@@ -383,7 +382,7 @@ function NhapXuatTon({ permission, history, match }) {
               value={CauTrucKho_Id}
             />
           </Col>
-          <Col
+          {/* <Col
             xxl={6}
             xl={8}
             lg={12}
@@ -406,7 +405,7 @@ function NhapXuatTon({ permission, history, match }) {
               allowClear
               value={VatTu_Id}
             />
-          </Col>
+          </Col> */}
           <Col
             xxl={6}
             xl={8}
@@ -431,19 +430,14 @@ function NhapXuatTon({ permission, history, match }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1200, y: "55vh" }}
+          scroll={{ x: 1200, y: "60vh" }}
           components={components}
           classDenNgaye="gx-table-responsive"
           dataSource={dataList}
           size="small"
           rowClassDenNgaye={"editable-row"}
           loading={loading}
-          pagination={{
-            pageSize: 20,
-            total: Data && Data.list_ChiTiets && Data.list_ChiTiets.length,
-            showSizeChanger: false,
-            showQuickJumper: true,
-          }}
+          pagination={false}
         />
       </Card>
     </div>

@@ -98,6 +98,7 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
     keyword
   ) => {
     let param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       vptq_lms_KienThuc_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
       vptq_lms_LopHoc_Id,
@@ -128,7 +129,7 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_BaoCao/is-admin`,
+          `vptq_lms_BaoCao/is-admin?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -150,6 +151,7 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
 
   const getListFilter = (vptq_lms_KienThuc_Id, vptq_lms_ChuyenDeDaoTao_Id) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       vptq_lms_KienThuc_Id,
       vptq_lms_ChuyenDeDaoTao_Id,
     });
@@ -679,7 +681,7 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_HocTrucTuyen/ket-qua-dao-tao/${DataChiTiet.vptq_lms_KetQuaDaoTao_Id}`,
+            `vptq_lms_HocTrucTuyen/ket-qua-dao-tao/${DataChiTiet.vptq_lms_KetQuaDaoTao_Id}?donViHienHanh_Id=${INFO.donVi_Id}`,
             "PUT",
             newData,
             "EDIT",
@@ -707,7 +709,7 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_HocTrucTuyen/ket-qua-dao-tao/${DataChiTiet.vptq_lms_LopHocChiTiet_Id}`,
+            `vptq_lms_HocTrucTuyen/ket-qua-dao-tao/${DataChiTiet.vptq_lms_LopHocChiTiet_Id}?donViHienHanh_Id=${INFO.donVi_Id}`,
             "POST",
             newData,
             "XACNHAN",

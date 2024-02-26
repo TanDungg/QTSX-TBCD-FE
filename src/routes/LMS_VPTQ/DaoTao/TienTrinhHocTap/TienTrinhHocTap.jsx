@@ -52,7 +52,7 @@ function TienTrinhHocTap({ permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_HocTrucTuyen/is-ql-hoc-truc-tuyen?`,
+          `vptq_lms_HocTrucTuyen/is-ql-hoc-truc-tuyen?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -70,6 +70,7 @@ function TienTrinhHocTap({ permission, history }) {
 
   const getListData = (donVi_Id, user_Id, tuNgay, denNgay) => {
     let param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       donVi_Id,
       user_Id,
       tuNgay,
@@ -517,7 +518,7 @@ function TienTrinhHocTap({ permission, history }) {
                 format={"DD/MM/YYYY"}
                 style={{ width: "85%" }}
                 onChange={(date, dateString) => handleChangeNgay(dateString)}
-                allowClear={false}
+                allowClear={true}
               />
             </Col>
           </Row>

@@ -91,7 +91,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_HocTrucTuyen/hoi-dap/${vptq_lms_ChuyenDeDaoTao_Id}`,
+          `vptq_lms_HocTrucTuyen/hoi-dap/${vptq_lms_ChuyenDeDaoTao_Id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -257,7 +257,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_HocTrucTuyen/hoi-dap/${CauHoi.vptq_lms_HoiDap_Id}`,
+            `vptq_lms_HocTrucTuyen/hoi-dap/${CauHoi.vptq_lms_HoiDap_Id}?donViHienHanh_Id=${INFO.donVi_Id}`,
             "PUT",
             newData,
             "EDIT",
@@ -290,7 +290,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_HocTrucTuyen/phan-hoi/${PhanHoi.vptq_lms_PhanHoi_Id}`,
+            `vptq_lms_HocTrucTuyen/phan-hoi/${PhanHoi.vptq_lms_PhanHoi_Id}?donViHienHanh_Id=${INFO.donVi_Id}`,
             "PUT",
             newData,
             "EDIT",
@@ -321,7 +321,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_HocTrucTuyen/hoi-dap`,
+            `vptq_lms_HocTrucTuyen/hoi-dap?donViHienHanh_Id=${INFO.donVi_Id}`,
             "POST",
             newData,
             "CAUHOI",
@@ -438,7 +438,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_HocTrucTuyen/hoi-dap/${vptq_lms_HoiDap_Id}`,
+          `vptq_lms_HocTrucTuyen/hoi-dap/${vptq_lms_HoiDap_Id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "DELETE",
           null,
           "DELETE",
@@ -497,7 +497,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_HocTrucTuyen/phan-hoi/${vptq_lms_PhanHoi_Id}`,
+          `vptq_lms_HocTrucTuyen/phan-hoi/${vptq_lms_PhanHoi_Id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "DELETE",
           null,
           "DELETE",
@@ -543,7 +543,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
   };
 
   const propfiledinhkem = {
-    accept: ".pdf, .doc, .docx, .ppt, .pptx",
+    accept: ".pdf, .doc, .docx, .ppt, .pptx, .xls, .xlsx",
     beforeUpload: (file) => {
       const allowedFileTypes = [
         "application/pdf",
@@ -551,11 +551,13 @@ const TabsHoiDap = ({ dataHoiDap }) => {
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "application/vnd.ms-powerpoint",
         "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       ];
 
       if (!allowedFileTypes.includes(file.type)) {
         Helpers.alertError(
-          `${file.name} không phải là tệp PDF, Word, hoặc PowerPoint`
+          `${file.name} không phải là tệp PDF, Word, Excel, hoặc PowerPoint`
         );
         return false;
       } else {
@@ -602,7 +604,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
   };
 
   const propfiledinhkemedit = {
-    accept: ".pdf, .doc, .docx, .ppt, .pptx",
+    accept: ".pdf, .doc, .docx, .ppt, .pptx, .xls, .xlsx",
     beforeUpload: (file) => {
       const allowedFileTypes = [
         "application/pdf",
@@ -610,11 +612,13 @@ const TabsHoiDap = ({ dataHoiDap }) => {
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         "application/vnd.ms-powerpoint",
         "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        "application/vnd.ms-excel",
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       ];
 
       if (!allowedFileTypes.includes(file.type)) {
         Helpers.alertError(
-          `${file.name} không phải là tệp PDF, Word, hoặc PowerPoint`
+          `${file.name} không phải là tệp PDF, Word, Excel, hoặc PowerPoint`
         );
         return false;
       } else {
@@ -1081,7 +1085,18 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                   <div className="user-info">
                     <Image src={hd.hinhAnhUrl} className="avatar" />
                     <div className="title">
-                      <span className="name">{hd.fullName}</span>
+                      <div>
+                        <span className="name">{hd.fullName}</span>{" "}
+                        <span
+                          style={{
+                            color: hd.isDuyet ? "#0469b9" : "#545454",
+                            fontWeight: "normal",
+                            fontSize: "13px",
+                          }}
+                        >
+                          ({hd.isDuyet ? "Đã duyệt" : "Chưa duyệt"})
+                        </span>
+                      </div>
                       <span className="date">{hd.ngayTao}</span>
                     </div>
                   </div>

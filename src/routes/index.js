@@ -52,6 +52,9 @@ const DangKyVaTheoDoi = asyncComponent(() =>
   import("./LMS_VPTQ/DangKyVaTheoDoi")
 );
 const DaoTao = asyncComponent(() => import("./LMS_VPTQ/DaoTao"));
+const TaiLieuThamKhao = asyncComponent(() =>
+  import("./LMS_VPTQ/TaiLieuThamKhao")
+);
 const KiemTra = asyncComponent(() => import("./LMS_VPTQ/KiemTra"));
 const BaoCao = asyncComponent(() => import("./LMS_VPTQ/BaoCao"));
 const App = ({ match, menus, location }) => {
@@ -186,6 +189,10 @@ const App = ({ match, menus, location }) => {
         <Route
           path={`${match.url}thiet-lap-chuyen-de-lms-vptq`}
           component={Auth(ThietLapChuyenDe, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}tai-lieu-tham-khao-lms-vptq`}
+          component={Auth(TaiLieuThamKhao, menus, pathname)}
         />
         <Route
           path={`${match.url}kiem-tra-lms-vptq`}

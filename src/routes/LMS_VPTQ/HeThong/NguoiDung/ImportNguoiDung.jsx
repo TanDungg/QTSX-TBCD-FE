@@ -18,6 +18,7 @@ import { messages } from "src/constants/Messages";
 import {
   DeleteOutlined,
   DownloadOutlined,
+  RollbackOutlined,
   SaveOutlined,
   UploadOutlined,
 } from "@ant-design/icons";
@@ -35,7 +36,6 @@ function ImportNguoiDung({ match, history }) {
   const [FileImport, setFileImport] = useState(null);
   const [checkDanger, setCheckDanger] = useState(false);
   const [messageError, setMessageError] = useState(null);
-  const [HangTrung, setHangTrung] = useState([]);
 
   let colValues = [
     {
@@ -46,7 +46,7 @@ function ImportNguoiDung({ match, history }) {
       align: "center",
     },
     {
-      title: "Mã nhân viên *",
+      title: "Mã nhân viên",
       dataIndex: "maNhanVien",
       key: "maNhanVien",
       align: "center",
@@ -60,10 +60,10 @@ function ImportNguoiDung({ match, history }) {
       width: 180,
     },
     {
-      title: "Mã quyền *",
+      title: "Mã quyền",
       dataIndex: "maQuyen",
       key: "maQuyen",
-      align: "center",
+      align: "left",
       width: 200,
     },
     {
@@ -77,7 +77,7 @@ function ImportNguoiDung({ match, history }) {
       title: "Lỗi",
       dataIndex: "ghiChuImport",
       key: "ghiChuImport",
-      align: "center",
+      align: "left",
       width: 200,
     },
   ];
@@ -136,6 +136,10 @@ function ImportNguoiDung({ match, history }) {
       const worksheet = workbook.Sheets["Import"];
 
       const checkMau =
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 0, r: 4 }, e: { c: 0, r: 4 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -143,6 +147,10 @@ function ImportNguoiDung({ match, history }) {
           })[0]
           .toString()
           .trim() === "STT" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 1, r: 4 }, e: { c: 1, r: 4 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -150,6 +158,10 @@ function ImportNguoiDung({ match, history }) {
           })[0]
           .toString()
           .trim() === "Mã nhân viên *" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 2, r: 4 }, e: { c: 2, r: 4 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -157,6 +169,10 @@ function ImportNguoiDung({ match, history }) {
           })[0]
           .toString()
           .trim() === "Họ tên" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 3, r: 4 }, e: { c: 3, r: 4 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
@@ -164,20 +180,17 @@ function ImportNguoiDung({ match, history }) {
           })[0]
           .toString()
           .trim() === "Mã quyền *" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 4, r: 4 }, e: { c: 4, r: 4 } },
+        })[0] &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
             range: { s: { c: 4, r: 4 }, e: { c: 4, r: 4 } },
           })[0]
           .toString()
-          .trim() === "Tên quyền" &&
-        XLSX.utils
-          .sheet_to_json(worksheet, {
-            header: 1,
-            range: { s: { c: 5, r: 4 }, e: { c: 5, r: 4 } },
-          })[0]
-          .toString()
-          .trim() === "Phòng ban";
+          .trim() === "Tên quyền";
 
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
@@ -223,7 +236,7 @@ function ImportNguoiDung({ match, history }) {
               ghiChuImport: null,
             });
 
-            DataTrung.push(d["Mã nhân viên"]);
+            DataTrung.push(d["Mã nhân viên *"]);
           });
           if (ListCNBV.length === 0) {
             setFileImport(file.name);
@@ -232,26 +245,6 @@ function ImportNguoiDung({ match, history }) {
             setMessageError("Dữ liệu import không được rỗng");
             Helpers.alertError("Dữ liệu import không được rỗng");
           } else {
-            let indices = [];
-            let row = [];
-            let seenValues = {};
-
-            for (let i = 0; i < DataTrung.length; i++) {
-              for (let j = i + 1; j < DataTrung.length; j++) {
-                if (
-                  DataTrung[i] === DataTrung[j] &&
-                  !seenValues[DataTrung[i]]
-                ) {
-                  indices.push(DataTrung[i]);
-
-                  let currentRow = [i + 1, j + 1];
-                  row.push(currentRow);
-
-                  seenValues[DataTrung[i]] = true;
-                }
-              }
-            }
-
             const newData = ListCNBV.map((cbnv) => {
               if (!cbnv.maNhanVien) {
                 return {
@@ -262,18 +255,47 @@ function ImportNguoiDung({ match, history }) {
                 return cbnv;
               }
             });
+
+            const RowTrung = {};
+            let duplicatedRows = [];
+
+            ListCNBV.forEach((item, index) => {
+              const { maNhanVien } = item;
+
+              if (RowTrung[maNhanVien] === undefined) {
+                RowTrung[maNhanVien] = [index + 1];
+              } else {
+                RowTrung[maNhanVien].push(index + 1);
+              }
+            });
+
+            Object.keys(RowTrung).forEach((maNhanVien) => {
+              const indices = RowTrung[maNhanVien];
+              if (indices.length > 1) {
+                // duplicatedRows.push(
+                //   `Mã nhân viên ${maNhanVien} trùng tại hàng: ${indices.join(
+                //     ", "
+                //   )}`
+                // );
+                indices.forEach((index) => {
+                  const listhangtrung = indices.filter((key) => key !== index);
+                  ListCNBV[
+                    index - 1
+                  ].ghiChuImport = `Trùng mã nhân viên với hàng: ${listhangtrung.join(
+                    ", "
+                  )}`;
+                });
+              }
+            });
+
+            if (duplicatedRows.length > 0) {
+              setCheckDanger(true);
+              // const message = duplicatedRows.join("; ");
+              // setMessageError(message);
+            }
+
             setDataListNguoiDung(newData);
             setFileImport(file.name);
-            if (indices.length > 0) {
-              setHangTrung(indices);
-              setCheckDanger(true);
-              setMessageError(
-                `Hàng ${row.join(", ")} có mã số nhân viên trùng nhau`
-              );
-            } else {
-              setHangTrung([]);
-              setCheckDanger(false);
-            }
           }
         }
       } else {
@@ -354,19 +376,12 @@ function ImportNguoiDung({ match, history }) {
     onOk: handleSubmit,
   };
 
-  const modalXK = () => {
+  const modalLuu = () => {
     Modal(prop);
   };
 
-  const RowStyle = (current, index) => {
-    if (HangTrung.length > 0) {
-      HangTrung.forEach((maNhanVien) => {
-        if (current.maNhanVien === maNhanVien) {
-          setCheckDanger(true);
-          return "red-row";
-        }
-      });
-    } else if (current.maNhanVien === null) {
+  const RowStyle = (current) => {
+    if (current.maNhanVien === null) {
       setCheckDanger(true);
       setMessageError("Import không thành công");
       return "red-row";
@@ -378,8 +393,9 @@ function ImportNguoiDung({ match, history }) {
   };
 
   const goBack = () => {
-    history.push(`${match.url.replace(`/${match.params.id}/import`, "")}`);
+    history.push(`${match.url.replace(`/import`, "")}`);
   };
+
   const titile = "Import danh sách người dùng";
 
   return (
@@ -460,12 +476,14 @@ function ImportNguoiDung({ match, history }) {
             </Button>
           </Col>
         </Row>
+      </Card>
+      <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           style={{ marginTop: 10 }}
           bordered
           scroll={{
             x: 1100,
-            y: "45vh",
+            y: "55vh",
           }}
           columns={columns}
           components={components}
@@ -485,17 +503,31 @@ function ImportNguoiDung({ match, history }) {
           }}
         >
           <Divider />
-          <Button
-            icon={<SaveOutlined />}
-            className="th-margin-bottom-0"
-            type="primary"
-            onClick={modalXK}
-            disabled={
-              DataListNguoiDung.length > 0 && !checkDanger ? false : true
-            }
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+            }}
           >
-            Lưu
-          </Button>
+            <Button
+              icon={<RollbackOutlined />}
+              className="th-margin-bottom-0"
+              onClick={() => goBack()}
+            >
+              Quay lại
+            </Button>
+            <Button
+              icon={<SaveOutlined />}
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={modalLuu}
+              disabled={
+                DataListNguoiDung.length > 0 && !checkDanger ? false : true
+              }
+            >
+              Lưu
+            </Button>
+          </div>
         </div>
       </Card>
     </div>

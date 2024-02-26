@@ -212,8 +212,8 @@ const HocPhiForm = ({ history, match, permission }) => {
       title: "Tên chuyên đề",
       dataIndex: "tenChuyenDeDaoTao",
       key: "tenChuyenDeDaoTao",
-      align: "center",
-      width: 200,
+      align: "left",
+      width: 250,
     },
     {
       title: (
@@ -421,7 +421,7 @@ const HocPhiForm = ({ history, match, permission }) => {
   const props = {
     accept: ".pdf, .doc, .docx, .ppt, .pptx, .xls, .xlsx",
     beforeUpload: (file) => {
-      const allowedFormats = [
+      const allowedFileTypes = [
         "application/pdf",
         "application/msword",
         "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
@@ -431,9 +431,9 @@ const HocPhiForm = ({ history, match, permission }) => {
         "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       ];
 
-      if (!allowedFormats.includes(file.type)) {
+      if (!allowedFileTypes.includes(file.type)) {
         Helpers.alertError(
-          `${file.name} không phải là một tệp PDF, Word, PowerPoint, hoặc Excel hợp lệ`
+          `${file.name} không phải là tệp PDF, Word, Excel, hoặc PowerPoint`
         );
         return false;
       } else {
@@ -522,11 +522,11 @@ const HocPhiForm = ({ history, match, permission }) => {
               style={{ width: "100%", padding: "0px 50px" }}
             >
               <Col
-                xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xxl={14}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -554,11 +554,11 @@ const HocPhiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xxl={14}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -587,11 +587,11 @@ const HocPhiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xxl={14}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -611,11 +611,11 @@ const HocPhiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xxl={14}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -707,11 +707,11 @@ const HocPhiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={12}
-                xl={14}
-                lg={16}
-                md={16}
-                sm={20}
+                xxl={14}
+                xl={16}
+                lg={18}
+                md={20}
+                sm={22}
                 xs={24}
                 style={{
                   padding: "0px 30px",
@@ -749,7 +749,7 @@ const HocPhiForm = ({ history, match, permission }) => {
             <Table
               bordered
               columns={columns}
-              scroll={{ x: 1300, y: "35vh" }}
+              scroll={{ x: 1000, y: "35vh" }}
               components={components}
               className="gx-table-responsive th-table"
               dataSource={reDataForTable(ListDanhSach)}

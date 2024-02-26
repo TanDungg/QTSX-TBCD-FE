@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { Card, Button, Row, Col } from "antd";
+import { Card, Button, Row, Col, Divider } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
   ExportOutlined,
   ImportOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -22,6 +23,7 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import ImportCanBoNhanVien from "./ImportCanBoNhanVien";
+import Helpers from "src/helpers";
 
 function CanBoNhanVien({ match, history, permission }) {
   const dispatch = useDispatch();
@@ -34,6 +36,7 @@ function CanBoNhanVien({ match, history, permission }) {
   const [data, setData] = useState([]);
   const [ListDonVi, setListDonVi] = useState([]);
   const [DonVi, setDonVi] = useState(null);
+  const [IsAdmin, setIsAdmin] = useState(false);
   const [ListPhongBan, setListPhongBan] = useState([]);
   const [PhongBan, setPhongBan] = useState(null);
   const [ListBoPhan, setListBoPhan] = useState([]);
@@ -44,6 +47,7 @@ function CanBoNhanVien({ match, history, permission }) {
 
   useEffect(() => {
     if (permission && permission.view) {
+      getIsAdmin();
       getListDonVi();
       setDonVi(INFO.donVi_Id.toLowerCase());
       getListPhongBan(INFO.donVi_Id.toLowerCase());
@@ -164,6 +168,53 @@ function CanBoNhanVien({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
+  const getIsAdmin = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `vptq_lms_BaoCao/is-admin`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setIsAdmin(res.data);
+        } else {
+          setIsAdmin(null);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const handleResetPassword = (id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Account/ResetPassword/${id}`,
+          "PUT",
+          null,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status !== 409) {
+          getListData(DonVi, PhongBan, BoPhan, keyword, page);
+          Helpers.alertSuccessMessage(res.data);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const handleRedirect = () => {
     history.push({
       pathname: `${match.url}/them-moi`,
@@ -188,7 +239,17 @@ function CanBoNhanVien({ match, history, permission }) {
         </span>
       );
 
-    return <React.Fragment>{editItem}</React.Fragment>;
+    const resetPassword = { onClick: () => handleResetPassword(item.user_Id) };
+
+    return (
+      <React.Fragment>
+        {editItem}
+        <Divider type="vertical" />
+        <a {...resetPassword} disabled={!IsAdmin} title="Reset mật khẩu">
+          <SyncOutlined />
+        </a>
+      </React.Fragment>
+    );
   };
 
   const handleTableChange = (pagination) => {
@@ -570,7 +631,7 @@ function CanBoNhanVien({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Đơn vị:</h5>
+            <span>Đơn vị:</span>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListDonVi ? ListDonVi : []}
@@ -592,7 +653,7 @@ function CanBoNhanVien({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Phòng ban:</h5>
+            <span>Phòng ban:</span>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListPhongBan ? ListPhongBan : []}
@@ -616,7 +677,7 @@ function CanBoNhanVien({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Bộ phận:</h5>
+            <span>Bộ phận:</span>
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListBoPhan ? ListBoPhan : []}
@@ -640,7 +701,7 @@ function CanBoNhanVien({ match, history, permission }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <h5>Tìm kiếm:</h5>
+            <span>Tìm kiếm:</span>
             <Toolbar
               count={1}
               search={{

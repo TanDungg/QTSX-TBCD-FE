@@ -31,7 +31,7 @@ export const messages = {
   CHUYEN_XU_LY_THAT_BAI:
     "Vui lòng chọn người nhận văn bản nếu muốn chuyển xử lý",
   GUI_KHONG_THANH_CONG: "Gửi không thành công",
-  DUYET_THANH_CONG: "Thành công",
+  // DUYET_THANH_CONG: "Thành công",
   DUYET_KHONG_THANH_CONG: "Không thành công",
   // Define error message
   ERROR_EMAIL: "Email không đúng định dạng\n",
@@ -76,5 +76,6 @@ export const messages = {
   QUY_TRINH_THANH_CONG: "Cập nhật quy trình thành công",
   SAO_CHEP_THANH_CONG: "Sao chép thành công",
   BAT_DAU_THANH_CONG: "Bắt đầu thành công",
+  DUYET_THANH_CONG: "Duyệt thành công",
   KET_THUC_THANH_CONG: "Kết thúc thành công",
 };

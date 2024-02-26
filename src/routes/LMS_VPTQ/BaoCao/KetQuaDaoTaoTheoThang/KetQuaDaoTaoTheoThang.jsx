@@ -9,6 +9,8 @@ import {
   reDataForTable,
   exportExcel,
   getMonthYearNow,
+  getLocalStorage,
+  getTokenInfo,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -19,6 +21,11 @@ const { EditableRow, EditableCell } = EditableTableRow;
 function BaoCaoKetQuaDaoTaoTheoThang({ history, permission }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [DataBaoCao, setDataBaoCao] = useState([]);
   const [ThangNam, setThangNam] = useState(getMonthYearNow());
 
@@ -35,6 +42,7 @@ function BaoCaoKetQuaDaoTaoTheoThang({ history, permission }) {
 
   const getListData = (thangnam) => {
     const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
       thang: thangnam.slice(0, 2),
       nam: thangnam.slice(3),
     });
@@ -146,7 +154,7 @@ function BaoCaoKetQuaDaoTaoTheoThang({ history, permission }) {
       align: "center",
       width: 100,
       render: (value) => {
-        return  <span>{value} học viên</span>;
+        return <span>{value} học viên</span>;
       },
     },
     {
@@ -230,7 +238,7 @@ function BaoCaoKetQuaDaoTaoTheoThang({ history, permission }) {
           align: "center",
           width: 100,
           render: (value) => {
-            return  <span>{value} học viên</span>;
+            return <span>{value} học viên</span>;
           },
         },
         {
@@ -250,7 +258,7 @@ function BaoCaoKetQuaDaoTaoTheoThang({ history, permission }) {
           align: "center",
           width: 100,
           render: (value) => {
-            return  <span>{value} học viên</span>;
+            return <span>{value} học viên</span>;
           },
         },
         {
