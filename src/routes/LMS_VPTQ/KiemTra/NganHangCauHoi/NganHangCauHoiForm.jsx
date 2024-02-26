@@ -70,6 +70,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
   const [DataTrung, setDataTrung] = useState(null);
   const [DataLuuBoQuaTrung, setDataLuuBoQuaTrung] = useState(null);
   const [ActiveModalThemDapAn, setActiveModalThemDapAn] = useState(false);
+  const [IndexDapAn, setIndexDapAn] = useState(null);
   const [ActiveModalCauHoiTrung, setActiveModalCauHoiTrung] = useState(false);
   const [id, setId] = useState(null);
   const [info, setInfo] = useState(null);
@@ -170,6 +171,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
   const deleteItemAction = (item) => {
     const newDanhSach = ListDapAn.filter((ds) => ds.dapAn !== item.dapAn);
     setListDapAn(newDanhSach);
+    setFieldTouch(true);
   };
 
   const actionContent = (item) => {
@@ -177,6 +179,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
       onClick: () => {
         setActiveModalThemDapAn(true);
         setDapAn(item);
+        setIndexDapAn(item.key - 1);
       },
     };
 
@@ -609,7 +612,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
   };
 
   const handleThemDapAn = (data) => {
-    if (type === "new" || (type === "edit" && !data.isChinhSua)) {
+    if (!data.isChinhSua) {
       const chitiet = ListDapAn.find(
         (listdapan) => String(listdapan.dapAn) === String(data.dapAn)
       );
@@ -627,13 +630,10 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
         setListDapAn([...ListDapAn, data]);
         setFieldTouch(true);
       }
-    } else if (type === "edit" && data.isChinhSua) {
+    } else {
       const newListDapAn = [...ListDapAn];
       newListDapAn.forEach((dapan, index) => {
-        if (
-          dapan.vptq_lms_DapAn_Id.toLowerCase() ===
-          data.vptq_lms_DapAn_Id.toLowerCase()
-        ) {
+        if (index === data.indexDapAn) {
           newListDapAn[index] = {
             ...dapan,
             dapAn: data.dapAn,
@@ -1129,6 +1129,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
         itemData={info}
         refesh={handleRefesh}
         DataThemDapAn={handleThemDapAn}
+        indexDapAn={IndexDapAn}
       />
       <AntModal
         title={`Chi tiết câu hỏi ${DataTrung && DataTrung.maCauHoi}`}

@@ -276,7 +276,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
             Data.map((dt, index) => {
               return (
                 <Col
-                  xxl={6}
+                  xxl={8}
                   xl={8}
                   lg={12}
                   md={12}
@@ -285,10 +285,11 @@ function TaiLieuThamKhao({ match, history, permission }) {
                   key={index}
                   style={{ marginBottom: 8 }}
                 >
-                  <Card
-                    className="th-card-margin-bottom th-card-reset-margin"
+                  <div
                     style={{
                       border: "2px solid #c8c8c8",
+                      borderRadius: "10px",
+                      padding: "10px 15px",
                       height: "120px",
                     }}
                   >
@@ -297,7 +298,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
                         span={24}
                         style={{
                           display: "flex",
-                          alignItems: "flex-start",
+                          alignItems: "center",
                         }}
                       >
                         {dt && (
@@ -308,6 +309,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
                               color: "#0469b9",
                               cursor: "pointer",
                               transition: "color 0.3s",
+                              width: "calc(100% - 120px)",
                             }}
                             onClick={() => handleXemChiTiet(dt)}
                             onMouseOver={(e) =>
@@ -326,6 +328,33 @@ function TaiLieuThamKhao({ match, history, permission }) {
                             {dt.tenTaiLieu}
                           </span>
                         )}
+                        <div
+                          style={{
+                            display: "flex",
+                            justifyContent: "flex-end",
+                            width: "120px",
+                          }}
+                        >
+                          <div className="button-container">
+                            <span
+                              className={`span-click liked`}
+                              title="Chỉnh sửa câu hỏi"
+                              onClick={() => handleEdit(dt)}
+                            >
+                              Chỉnh sửa
+                            </span>
+                          </div>
+                          <Divider type="vertical" />
+                          <div className="button-container">
+                            <span
+                              className={`span-click disliked`}
+                              title="Xóa câu hỏi"
+                              onClick={() => handleDelete(dt)}
+                            >
+                              Xóa
+                            </span>
+                          </div>
+                        </div>
                       </Col>
                       <Col
                         span={24}
@@ -356,6 +385,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
                         style={{
                           display: "flex",
                           alignItems: "flex-start",
+                          flexWrap: "wrap",
                         }}
                       >
                         <span
@@ -376,31 +406,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
                         )}
                       </Col>
                     </Row>
-                    <div
-                      className="button-container"
-                      style={{ display: "flex", justifyContent: "flex-end" }}
-                    >
-                      <div className="button-container">
-                        <span
-                          className={`span-click liked`}
-                          title="Chỉnh sửa câu hỏi"
-                          onClick={() => handleEdit(dt)}
-                        >
-                          Chỉnh sửa
-                        </span>
-                      </div>
-                      <Divider type="vertical" />
-                      <div className="button-container">
-                        <span
-                          className={`span-click disliked`}
-                          title="Xóa câu hỏi"
-                          onClick={() => handleDelete(dt)}
-                        >
-                          Xóa
-                        </span>
-                      </div>
-                    </div>
-                  </Card>
+                  </div>
                 </Col>
               );
             })}
