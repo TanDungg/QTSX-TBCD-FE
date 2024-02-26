@@ -285,13 +285,38 @@ function TaiLieuThamKhao({ match, history, permission }) {
                   key={index}
                   style={{ marginBottom: 8 }}
                 >
-                  <Card
-                    className="th-card-margin-bottom th-card-reset-margin"
+                  <div
                     style={{
                       border: "2px solid #c8c8c8",
+                      borderRadius: "10px",
+                      padding: "10px",
                       height: "120px",
                     }}
                   >
+                    <div
+                      className="button-container"
+                      style={{ display: "flex", justifyContent: "flex-end" }}
+                    >
+                      <div className="button-container">
+                        <span
+                          className={`span-click liked`}
+                          title="Chỉnh sửa câu hỏi"
+                          onClick={() => handleEdit(dt)}
+                        >
+                          Chỉnh sửa
+                        </span>
+                      </div>
+                      <Divider type="vertical" />
+                      <div className="button-container">
+                        <span
+                          className={`span-click disliked`}
+                          title="Xóa câu hỏi"
+                          onClick={() => handleDelete(dt)}
+                        >
+                          Xóa
+                        </span>
+                      </div>
+                    </div>
                     <Row>
                       <Col
                         span={24}
@@ -356,6 +381,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
                         style={{
                           display: "flex",
                           alignItems: "flex-start",
+                          flexWrap: "wrap",
                         }}
                       >
                         <span
@@ -376,31 +402,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
                         )}
                       </Col>
                     </Row>
-                    <div
-                      className="button-container"
-                      style={{ display: "flex", justifyContent: "flex-end" }}
-                    >
-                      <div className="button-container">
-                        <span
-                          className={`span-click liked`}
-                          title="Chỉnh sửa câu hỏi"
-                          onClick={() => handleEdit(dt)}
-                        >
-                          Chỉnh sửa
-                        </span>
-                      </div>
-                      <Divider type="vertical" />
-                      <div className="button-container">
-                        <span
-                          className={`span-click disliked`}
-                          title="Xóa câu hỏi"
-                          onClick={() => handleDelete(dt)}
-                        >
-                          Xóa
-                        </span>
-                      </div>
-                    </div>
-                  </Card>
+                  </div>
                 </Col>
               );
             })}

@@ -1,17 +1,12 @@
-import {
-  DoubleLeftOutlined,
-  DoubleRightOutlined,
-  StepBackwardOutlined,
-  StepForwardOutlined,
-} from "@ant-design/icons";
+import { StepBackwardOutlined, StepForwardOutlined } from "@ant-design/icons";
 import {
   Modal as AntModal,
   Card,
   Col,
   Image,
-  Pagination,
   Radio,
   Row,
+  Statistic,
 } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -27,6 +22,8 @@ import {
   getLocalStorage,
 } from "src/util/Common";
 
+const { Countdown } = Statistic;
+
 function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
   const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
@@ -35,16 +32,10 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const [DemNguoc, setDemNguoc] = useState({
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
   const [DeThi, setDeThi] = useState(null);
   const [ListCauHoi, setListCauHoi] = useState([]);
   const [DapAn, setDapAn] = useState(null);
   const [CauHoi, setCauHoi] = useState(null);
-  const [page, setPage] = useState(1);
   const [KetQuaThi, setKetQuaThi] = useState(null);
   const [ChiTietKetQua, setChiTietKetQua] = useState([]);
 
@@ -54,39 +45,6 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
-
-  useEffect(() => {
-    if (DeThi && DeThi.gioiHanThoiGian) {
-      const endTime = moment(DeThi.gioiHanThoiGian, "DD/MM/YYYY HH:mm:ss")
-        .toDate()
-        .getTime();
-
-      const timer = setInterval(() => {
-        const now = new Date().getTime();
-        const total = endTime - now;
-
-        if (total <= 0) {
-          clearInterval(timer);
-          Helpers.alertError("Hết thời gian thi!");
-          handleKetThucThiThu();
-        } else {
-          const hours = String(
-            Math.floor((total % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-          ).padStart(2, "0");
-          const minutes = String(
-            Math.floor((total % (1000 * 60 * 60)) / (1000 * 60))
-          ).padStart(2, "0");
-          const seconds = String(
-            Math.floor((total % (1000 * 60)) / 1000)
-          ).padStart(2, "0");
-
-          setDemNguoc({ hours, minutes, seconds });
-        }
-      }, 1000);
-
-      return () => clearInterval(timer);
-    }
-  }, [DeThi]);
 
   const getDeThiThu = (vptq_lms_DeThi_Id, IsDangThiThu) => {
     new Promise((resolve, reject) => {
@@ -183,11 +141,6 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
           setDeThi(null);
           setListCauHoi([]);
           setCauHoi(null);
-          setDemNguoc({
-            hours: 0,
-            minutes: 0,
-            seconds: 0,
-          });
         }
       })
       .catch((error) => console.error(error));
@@ -208,20 +161,6 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
   const handleChangeCauHoi = (e) => {
     setDapAn(null);
     setCauHoi(e.target.value);
-  };
-
-  const handleChangePage = (pagination) => {
-    setPage(pagination);
-  };
-
-  const itemRender = (_, type, originalElement) => {
-    if (type === "prev") {
-      return <DoubleLeftOutlined />;
-    }
-    if (type === "next") {
-      return <DoubleRightOutlined />;
-    }
-    return originalElement;
   };
 
   const SelectedCauHoi =
@@ -304,6 +243,11 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
       .catch((error) => console.error(error));
   };
 
+  const onFinish = () => {
+    Helpers.alertError("Hết thời gian thi!");
+    handleKetThucThiThu();
+  };
+
   const handleCancel = () => {
     if (DeThi) {
       modalXK();
@@ -314,11 +258,6 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
       setCauHoi(null);
       setKetQuaThi(null);
       setChiTietKetQua([]);
-      setDemNguoc({
-        hours: 0,
-        minutes: 0,
-        seconds: 0,
-      });
       refesh();
     }
   };
@@ -480,7 +419,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
             >
               <span
                 style={{
-                  width: "140px",
+                  width: "130px",
                   fontWeight: "bold",
                 }}
               >
@@ -489,12 +428,17 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
               {DeThi && DeThi.gioiHanThoiGian && (
                 <span
                   style={{
-                    width: "calc(100% - 140px)",
+                    width: "calc(100% - 130px)",
                     color: "red",
                     fontWeight: "bold",
                   }}
                 >
-                  {DemNguoc.hours} : {DemNguoc.minutes} : {DemNguoc.seconds}
+                  <Countdown
+                    value={moment(DeThi.gioiHanThoiGian, "DD/MM/YYYY HH:mm:ss")
+                      .toDate()
+                      .getTime()}
+                    onFinish={onFinish}
+                  />
                 </span>
               )}
             </Col>
@@ -710,23 +654,6 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
               </Row>
             ) : null}
           </Card>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-start",
-              paddingTop: "10px",
-              borderTop: "1px solid #e8e8e8",
-            }}
-          >
-            <Pagination
-              total={30}
-              current={page}
-              pageSize={1}
-              itemRender={itemRender}
-              showSizeChanger={false}
-              onChange={(page) => handleChangePage(page)}
-            />
-          </div>
         </Card>
       ) : !KetQuaThi ? (
         <Card

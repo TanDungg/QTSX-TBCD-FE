@@ -1,5 +1,13 @@
 import { StepBackwardOutlined, StepForwardOutlined } from "@ant-design/icons";
-import { Modal as AntModal, Card, Col, Image, Radio, Row } from "antd";
+import {
+  Modal as AntModal,
+  Card,
+  Col,
+  Image,
+  Radio,
+  Row,
+  Statistic,
+} from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import ReactPlayer from "react-player";
@@ -8,6 +16,8 @@ import { fetchStart } from "src/appRedux/actions";
 import { Button, Modal } from "src/components/Common";
 import { BASE_URL_API } from "src/constants/Config";
 import Helpers from "src/helpers";
+
+const { Countdown } = Statistic;
 
 function ModalThiKhaoSat({
   openModalFS,
@@ -18,11 +28,6 @@ function ModalThiKhaoSat({
 }) {
   const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
-  const [DemNguoc, setDemNguoc] = useState({
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
   const [ThongTinDeThi, setThongTinDeThi] = useState(null);
   const [DeThi, setDeThi] = useState(null);
   const [ListCauHoi, setListCauHoi] = useState([]);
@@ -37,39 +42,6 @@ function ModalThiKhaoSat({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
-
-  useEffect(() => {
-    if (DeThi && DeThi.gioiHanThoiGianThi) {
-      const endTime = moment(DeThi.gioiHanThoiGianThi, "DD/MM/YYYY HH:mm:ss")
-        .toDate()
-        .getTime();
-
-      const timer = setInterval(() => {
-        const now = new Date().getTime();
-        const total = endTime - now;
-
-        if (total <= 0) {
-          clearInterval(timer);
-          Helpers.alertError("Hết thời gian thi!");
-          handleKetThucThi();
-        } else {
-          const hours = String(
-            Math.floor((total % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))
-          ).padStart(2, "0");
-          const minutes = String(
-            Math.floor((total % (1000 * 60 * 60)) / (1000 * 60))
-          ).padStart(2, "0");
-          const seconds = String(
-            Math.floor((total % (1000 * 60)) / 1000)
-          ).padStart(2, "0");
-
-          setDemNguoc({ hours, minutes, seconds });
-        }
-      }, 1000);
-
-      return () => clearInterval(timer);
-    }
-  }, [DeThi]);
 
   const getThongTinThiTrucTuyen = () => {
     new Promise((resolve, reject) => {
@@ -182,11 +154,6 @@ function ModalThiKhaoSat({
           setDeThi(null);
           setListCauHoi([]);
           setCauHoi(null);
-          setDemNguoc({
-            hours: 0,
-            minutes: 0,
-            seconds: 0,
-          });
           refesh();
         }
       })
@@ -292,6 +259,11 @@ function ModalThiKhaoSat({
       .catch((error) => console.error(error));
   };
 
+  const onFinish = () => {
+    Helpers.alertError("Hết thời gian thi!");
+    handleKetThucThi();
+  };
+
   const handleCancel = () => {
     if (ListCauHoi.length) {
       ModalXacNhanNopBai();
@@ -302,14 +274,9 @@ function ModalThiKhaoSat({
       setCauHoi(null);
       setKetQuaThi(null);
       setChiTietKetQua([]);
-      setDemNguoc({
-        hours: 0,
-        minutes: 0,
-        seconds: 0,
-      });
     }
   };
-  console.log(ThongTinDeThi);
+
   const title = (
     <span>
       ĐỀ THI {ThongTinDeThi && ThongTinDeThi.tenChuyenDeDaoTao.toUpperCase()}{" "}
@@ -493,21 +460,29 @@ function ModalThiKhaoSat({
             >
               <span
                 style={{
-                  width: "140px",
+                  width: "130px",
                   fontWeight: "bold",
                 }}
               >
                 Thời gian còn lại:
               </span>
-              {ListCauHoi.length && (
+              {ListCauHoi.length && DeThi && (
                 <span
                   style={{
-                    width: "calc(100% - 140px)",
+                    width: "calc(100% - 130px)",
                     color: "red",
                     fontWeight: "bold",
                   }}
                 >
-                  {DemNguoc.hours} : {DemNguoc.minutes} : {DemNguoc.seconds}
+                  <Countdown
+                    value={moment(
+                      DeThi.gioiHanThoiGianThi,
+                      "DD/MM/YYYY HH:mm:ss"
+                    )
+                      .toDate()
+                      .getTime()}
+                    onFinish={onFinish}
+                  />
                 </span>
               )}
             </Col>

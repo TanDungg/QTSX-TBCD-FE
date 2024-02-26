@@ -24085,9 +24085,8 @@ span.ant-radio+* {
 }
 
 .ant-statistic-content {
-  color: #535353;
-  font-size: 24px;
-  font-family: "NoirPro", sans-serif;
+  color: red;
+    font-size: 15px;
 }
 
 .ant-statistic-content-value {
@@ -49293,9 +49292,9 @@ textarea.gx-chat-textarea {
   cursor: pointer;
   color: #545454;
   transition: color 0.3s ease;
-  }
-  
-  .xoa-title:hover {
+}
+
+.xoa-title:hover {
   color: red;
 }
 
