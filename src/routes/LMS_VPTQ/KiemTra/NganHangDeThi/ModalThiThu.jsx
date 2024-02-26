@@ -543,6 +543,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
               onClick={handlePrev}
               disabled={selectedIndex === 0}
             />
+
             <Radio.Group
               value={CauHoi}
               onChange={handleChangeCauHoi}
@@ -712,7 +713,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
           <div
             style={{
               display: "flex",
-              justifyContent: "flex-end",
+              justifyContent: "flex-start",
               paddingTop: "10px",
               borderTop: "1px solid #e8e8e8",
             }}
@@ -723,7 +724,6 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
               pageSize={1}
               itemRender={itemRender}
               showSizeChanger={false}
-              showQuickJumper
               onChange={(page) => handleChangePage(page)}
             />
           </div>

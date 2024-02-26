@@ -612,7 +612,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
   };
 
   const handleThemDapAn = (data) => {
-    if (type === "new" || (type === "edit" && !data.isChinhSua)) {
+    if (!data.isChinhSua) {
       const chitiet = ListDapAn.find(
         (listdapan) => String(listdapan.dapAn) === String(data.dapAn)
       );
@@ -630,7 +630,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
         setListDapAn([...ListDapAn, data]);
         setFieldTouch(true);
       }
-    } else if (type === "edit" && data.isChinhSua) {
+    } else {
       const newListDapAn = [...ListDapAn];
       newListDapAn.forEach((dapan, index) => {
         if (index === data.indexDapAn) {
