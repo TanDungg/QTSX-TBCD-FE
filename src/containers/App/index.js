@@ -44,17 +44,17 @@ import {
   getTokenInfo,
   setSessionStorage,
   removeLocalStorage,
-  removeSessionStorage,
-  removeCookieValue,
+  // removeSessionStorage,
+  // removeCookieValue,
 } from "src/util/Common";
 import InMaQrSoVIN from "src/routes/QTSX_TITS/KeHoach/SoVin/InMaQrSoVIN";
 import InMaQrCauTrucKho_TITS_QTSX from "src/routes/QTSX_TITS/InBarcode/CauTrucKho/InMaQrCauTrucKho_TITS_QTSX";
 
-import { messaging } from "src/constants/firebase";
-import { onMessage } from "firebase/messaging";
-import { getToken } from "firebase/messaging";
-import { fetchStart, thongBaoLoad } from "src/appRedux/actions";
-import Helpers from "src/helpers";
+// import { messaging } from "src/constants/firebase";
+// import { onMessage } from "firebase/messaging";
+// import { getToken } from "firebase/messaging";
+// import { fetchStart, thongBaoLoad } from "src/appRedux/actions";
+// import Helpers from "src/helpers";
 
 const RestrictedRoute = ({
   component: Component,
@@ -127,67 +127,67 @@ const App = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  async function requestPermission() {
-    const permission = await Notification.requestPermission();
-    if (permission === "granted") {
-      // Generate Token
-      const token = await getToken(messaging, {
-        vapidKey:
-          "BFCeJTv46XrShnZHdtOq9p2NqvScLWMmCVbm4JXH34W7h7rWi6e5paxAGa-_Yo5d2TsLkZI4uLkjEKCaSdMwVrI",
-      });
-      console.log(token);
-      dispatch(
-        fetchStart(
-          `TokenGen/store-token`,
-          "POST",
-          { user_Id: info.id, token: token },
-          "DETAIL",
-          ""
-        )
-      );
-      // Send this token  to server ( db)
-    } else if (permission === "denied") {
-      // alert("You denied for the notification");
-    }
-  }
+  // async function requestPermission() {
+  //   const permission = await Notification.requestPermission();
+  //   if (permission === "granted") {
+  //     // Generate Token
+  //     const token = await getToken(messaging, {
+  //       vapidKey:
+  //         "BFCeJTv46XrShnZHdtOq9p2NqvScLWMmCVbm4JXH34W7h7rWi6e5paxAGa-_Yo5d2TsLkZI4uLkjEKCaSdMwVrI",
+  //     });
+  //     console.log(token);
+  //     dispatch(
+  //       fetchStart(
+  //         `TokenGen/store-token`,
+  //         "POST",
+  //         { user_Id: info.id, token: token },
+  //         "DETAIL",
+  //         ""
+  //       )
+  //     );
+  //     // Send this token  to server ( db)
+  //   } else if (permission === "denied") {
+  //     // alert("You denied for the notification");
+  //   }
+  // }
 
-  useEffect(() => {
-    function handleServiceWorkerMessage(event) {
-      if (event.data.action === "deleteCookie") {
-        removeCookieValue("tokenInfo");
-        removeSessionStorage("tokenInfo");
-      } else {
-        dispatch(thongBaoLoad());
-      }
-    }
-    navigator.serviceWorker.addEventListener(
-      "message",
-      handleServiceWorkerMessage
-    );
-    // Dọn dẹp listener khi component unmount
-    return () => {
-      navigator.serviceWorker.removeEventListener(
-        "message",
-        handleServiceWorkerMessage
-      );
-    };
-  }, []);
+  // useEffect(() => {
+  //   function handleServiceWorkerMessage(event) {
+  //     if (event.data.action === "deleteCookie") {
+  //       removeCookieValue("tokenInfo");
+  //       removeSessionStorage("tokenInfo");
+  //     } else {
+  //       dispatch(thongBaoLoad());
+  //     }
+  //   }
+  //   navigator.serviceWorker.addEventListener(
+  //     "message",
+  //     handleServiceWorkerMessage
+  //   );
+  //   // Dọn dẹp listener khi component unmount
+  //   return () => {
+  //     navigator.serviceWorker.removeEventListener(
+  //       "message",
+  //       handleServiceWorkerMessage
+  //     );
+  //   };
+  // }, []);
 
-  useEffect(() => {
-    info && requestPermission();
-    onMessage(messaging, (payload) => {
-      if (payload.notification.title === "LogOut") {
-        removeCookieValue("tonkenInfo");
-        removeSessionStorage("tokenInfo");
-      } else {
-        dispatch(thongBaoLoad());
-        Helpers.alertFireBase(
-          payload.notification.body,
-          payload.notification.title
-        );
-      }
-    });
-  }, []);
+  // useEffect(() => {
+  //   info && requestPermission();
+  //   onMessage(messaging, (payload) => {
+  //     if (payload.notification.title === "LogOut") {
+  //       removeCookieValue("tonkenInfo");
+  //       removeSessionStorage("tokenInfo");
+  //     } else {
+  //       dispatch(thongBaoLoad());
+  //       Helpers.alertFireBase(
+  //         payload.notification.body,
+  //         payload.notification.title
+  //       );
+  //     }
+  //   });
+  // }, []);
 
   useEffect(() => {
     if (initURL === "") {

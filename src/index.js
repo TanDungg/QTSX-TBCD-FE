@@ -5,7 +5,8 @@ import NextApp from "./NextApp";
 import registerServiceWorker from "./registerServiceWorker";
 // Add this import:
 import { AppContainer } from "react-hot-loader";
-
+import dotenv from "dotenv";
+dotenv.config();
 // Wrap the rendering in a function:
 const render = (Component) => {
   ReactDOM.render(
