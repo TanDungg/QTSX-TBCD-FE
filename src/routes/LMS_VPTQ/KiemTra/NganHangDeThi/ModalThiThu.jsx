@@ -1,5 +1,18 @@
-import { StepBackwardOutlined, StepForwardOutlined } from "@ant-design/icons";
-import { Modal as AntModal, Card, Col, Image, Radio, Row } from "antd";
+import {
+  DoubleLeftOutlined,
+  DoubleRightOutlined,
+  StepBackwardOutlined,
+  StepForwardOutlined,
+} from "@ant-design/icons";
+import {
+  Modal as AntModal,
+  Card,
+  Col,
+  Image,
+  Pagination,
+  Radio,
+  Row,
+} from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import ReactPlayer from "react-player";
@@ -31,6 +44,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
   const [ListCauHoi, setListCauHoi] = useState([]);
   const [DapAn, setDapAn] = useState(null);
   const [CauHoi, setCauHoi] = useState(null);
+  const [page, setPage] = useState(1);
   const [KetQuaThi, setKetQuaThi] = useState(null);
   const [ChiTietKetQua, setChiTietKetQua] = useState([]);
 
@@ -194,6 +208,20 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
   const handleChangeCauHoi = (e) => {
     setDapAn(null);
     setCauHoi(e.target.value);
+  };
+
+  const handleChangePage = (pagination) => {
+    setPage(pagination);
+  };
+
+  const itemRender = (_, type, originalElement) => {
+    if (type === "prev") {
+      return <DoubleLeftOutlined />;
+    }
+    if (type === "next") {
+      return <DoubleRightOutlined />;
+    }
+    return originalElement;
   };
 
   const SelectedCauHoi =
@@ -566,143 +594,150 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
               overflowY: "auto",
             }}
           >
-            <Row
-              gutter={[0, 10]}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-              }}
-            >
-              {SelectedCauHoi ? (
+            {SelectedCauHoi ? (
+              <Row gutter={[0, 5]}>
                 <Col span={24}>
-                  <Row gutter={[0, 5]}>
-                    <Col span={24}>
-                      <span
-                        style={{
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Câu {selectedIndex + 1}. ({dethi.soDiemMoiCau} điểm):{" "}
-                        {SelectedCauHoi.noiDung}
-                      </span>
-                    </Col>
-                    {SelectedCauHoi.hinhAnh || SelectedCauHoi.video ? (
-                      <Col
-                        span={24}
-                        style={{
-                          display: "flex",
-                          justifyContent: "center",
-                          alignItems: "center",
-                        }}
-                      >
-                        {SelectedCauHoi.hinhAnh && (
-                          <div
-                            style={{
-                              flex: "1",
-                              textAlign: "center",
-                              padding: "0 10px",
-                            }}
-                          >
-                            <Image
-                              src={BASE_URL_API + SelectedCauHoi.hinhAnh}
-                              alt="Hình ảnh"
-                              style={{ height: "150px" }}
-                            />
-                          </div>
-                        )}
-                        {SelectedCauHoi.video && (
-                          <div
-                            style={{
-                              flex: "1",
-                              textAlign: "center",
-                              padding: "0 10px",
-                            }}
-                          >
-                            {SelectedCauHoi.video.endsWith(".mp4") ? (
-                              <ReactPlayer
-                                style={{ cursor: "pointer" }}
-                                url={BASE_URL_API + SelectedCauHoi.video}
-                                width="240px"
-                                height="150px"
-                                playing={true}
-                                muted={true}
-                                controls={false}
-                                onClick={() => {
-                                  window.open(
-                                    BASE_URL_API + SelectedCauHoi.video,
-                                    "_blank"
-                                  );
-                                }}
-                              />
-                            ) : (
-                              <a
-                                target="_blank"
-                                href={BASE_URL_API + SelectedCauHoi.video}
-                                rel="noopener noreferrer"
-                              >
-                                {SelectedCauHoi.video.split("/")[5]}
-                              </a>
-                            )}
-                          </div>
-                        )}
-                      </Col>
-                    ) : null}
-                    <Col span={24}>
-                      <Radio.Group
-                        onChange={onChangeDapAn}
-                        value={
-                          DapAn || getDefaultDapAn(SelectedCauHoi.list_DapAns)
-                        }
-                      >
-                        <Row gutter={[0, 10]}>
-                          {SelectedCauHoi.list_DapAns &&
-                            SelectedCauHoi.list_DapAns.map((ans, index) => {
-                              return (
-                                <Col span={24}>
-                                  <Radio
-                                    value={ans.vptq_lms_ThiThuChiTietDapAn_Id}
-                                    style={{
-                                      display: "flex",
-                                      alignItems: "flex-start",
-                                    }}
-                                  >
-                                    <span
-                                      style={{
-                                        fontWeight: "bold",
-                                      }}
-                                    >
-                                      {String.fromCharCode(65 + index)}.
-                                    </span>
-                                    {"  "}
-                                    <span
-                                      style={{
-                                        whiteSpace: "break-spaces",
-                                      }}
-                                    >
-                                      {ans.dapAn}
-                                    </span>
-                                  </Radio>
-                                </Col>
-                              );
-                            })}
-                        </Row>
-                      </Radio.Group>
-                    </Col>
-                  </Row>
+                  <span
+                    style={{
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Câu {selectedIndex + 1}. ({dethi.soDiemMoiCau} điểm):{" "}
+                    {SelectedCauHoi.noiDung}
+                  </span>
                 </Col>
-              ) : null}
-            </Row>
+                {SelectedCauHoi.hinhAnh || SelectedCauHoi.video ? (
+                  <Col
+                    span={24}
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {SelectedCauHoi.hinhAnh && (
+                      <div
+                        style={{
+                          flex: "1",
+                          textAlign: "center",
+                          padding: "0 10px",
+                        }}
+                      >
+                        <Image
+                          src={BASE_URL_API + SelectedCauHoi.hinhAnh}
+                          alt="Hình ảnh"
+                          style={{ height: "150px" }}
+                        />
+                      </div>
+                    )}
+                    {SelectedCauHoi.video && (
+                      <div
+                        style={{
+                          flex: "1",
+                          textAlign: "center",
+                          padding: "0 10px",
+                        }}
+                      >
+                        {SelectedCauHoi.video.endsWith(".mp4") ? (
+                          <ReactPlayer
+                            style={{ cursor: "pointer" }}
+                            url={BASE_URL_API + SelectedCauHoi.video}
+                            width="240px"
+                            height="150px"
+                            playing={true}
+                            muted={true}
+                            controls={false}
+                            onClick={() => {
+                              window.open(
+                                BASE_URL_API + SelectedCauHoi.video,
+                                "_blank"
+                              );
+                            }}
+                          />
+                        ) : (
+                          <a
+                            target="_blank"
+                            href={BASE_URL_API + SelectedCauHoi.video}
+                            rel="noopener noreferrer"
+                          >
+                            {SelectedCauHoi.video.split("/")[5]}
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </Col>
+                ) : null}
+                <Col span={24}>
+                  <Radio.Group
+                    onChange={onChangeDapAn}
+                    value={DapAn || getDefaultDapAn(SelectedCauHoi.list_DapAns)}
+                  >
+                    <Row gutter={[0, 10]}>
+                      {SelectedCauHoi.list_DapAns &&
+                        SelectedCauHoi.list_DapAns.map((ans, index) => {
+                          return (
+                            <Col span={24}>
+                              <Radio
+                                value={ans.vptq_lms_ThiThuChiTietDapAn_Id}
+                                style={{
+                                  display: "flex",
+                                  alignItems: "flex-start",
+                                }}
+                              >
+                                <span
+                                  style={{
+                                    fontWeight: "bold",
+                                  }}
+                                >
+                                  {String.fromCharCode(65 + index)}.
+                                </span>
+                                {"  "}
+                                <span
+                                  style={{
+                                    whiteSpace: "break-spaces",
+                                  }}
+                                >
+                                  {ans.dapAn}
+                                </span>
+                              </Radio>
+                            </Col>
+                          );
+                        })}
+                    </Row>
+                  </Radio.Group>
+                </Col>
+              </Row>
+            ) : null}
           </Card>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              paddingTop: "10px",
+              borderTop: "1px solid #e8e8e8",
+            }}
+          >
+            <Pagination
+              total={30}
+              current={page}
+              pageSize={1}
+              itemRender={itemRender}
+              showSizeChanger={false}
+              showQuickJumper
+              onChange={(page) => handleChangePage(page)}
+            />
+          </div>
         </Card>
       ) : !KetQuaThi ? (
         <Card
           className="th-card-margin-bottom th-card-reset-margin"
           title={"Hướng dẫn thi trắc nghiệm"}
+          align="center"
         >
           <Image
             src={require("public/HuongDanhThiTracNghiem.jpg")}
             alt="Hình ảnh"
-            style={{ width: "100%" }}
+            style={{ height: "40vh" }}
           />
         </Card>
       ) : (

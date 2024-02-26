@@ -742,15 +742,15 @@ function ModalThiKhaoSat({
         <Card
           className="th-card-margin-bottom th-card-reset-margin"
           title={"Hướng dẫn thi trắc nghiệm"}
+          align="center"
         >
           <Image
             src={require("public/HuongDanhThiTracNghiem.jpg")}
             alt="Hình ảnh"
-            style={{ width: "100%" }}
+            style={{ height: "40vh" }}
           />
         </Card>
-      ) : null}
-      {KetQuaThi && (
+      ) : (
         <Card
           className="th-card-margin-bottom th-card-reset-margin"
           title={"Kết quả thi khảo sát"}

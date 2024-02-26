@@ -19,6 +19,7 @@ import {
 } from "src/constants/Config";
 import { getTokenInfo, getLocalStorage } from "src/util/Common";
 import ModalThemCauHoi from "./ModalThemCauHoi";
+import Helpers from "src/helpers";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -248,81 +249,98 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
   };
 
   const saveData = (formdethi, saveQuit = false) => {
-    const newData = {
-      ...formdethi,
-      isSuDung: formdethi.isSuDung ? formdethi.isSuDung : false,
-      isDefault: formdethi.isDefault ? formdethi.isDefault : false,
-      list_ChiTiets: ListCauHoi,
-    };
-    if (type === "new") {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `vptq_lms_DeThi?donViHienHanh_Id=${INFO.donVi_Id}`,
-            "POST",
-            newData,
-            "ADD",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res.status !== 409) {
-            if (saveQuit) {
-              goBack();
-            } else {
-              resetFields();
-              setFieldTouch(false);
-              setListCauHoi([]);
-              setFieldsValue({
-                formdethi: {
-                  isSuDung: true,
-                },
-              });
-            }
-          } else {
-            if (saveQuit) {
-              goBack();
-            } else {
-              setFieldTouch(false);
-            }
-          }
-        })
-        .catch((error) => console.error(error));
-    }
-    if (type === "edit") {
-      console.log(formdethi);
+    if (ListCauHoi.length === 0) {
+      Helpers.alertError("Danh sách câu hỏi không được trống");
+    } else {
       const newData = {
         ...formdethi,
-        id: id,
         isSuDung: formdethi.isSuDung ? formdethi.isSuDung : false,
         isDefault: formdethi.isDefault ? formdethi.isDefault : false,
-        list_ChiTiets: ListCauHoi,
+        list_ChiTiets:
+          ListCauHoi &&
+          ListCauHoi.map((cauhoi) => {
+            return {
+              ...cauhoi,
+              vptq_lms_CauHoi_Id: cauhoi.id,
+            };
+          }),
       };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `vptq_lms_DeThi/${id}?donViHienHanh_Id=${INFO.donVi_Id}`,
-            "PUT",
-            newData,
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) goBack();
-          } else {
-            getInfo(id);
-            setFieldTouch(false);
-          }
+      if (type === "new") {
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `vptq_lms_DeThi?donViHienHanh_Id=${INFO.donVi_Id}`,
+              "POST",
+              newData,
+              "ADD",
+              "",
+              resolve,
+              reject
+            )
+          );
         })
-        .catch((error) => console.error(error));
+          .then((res) => {
+            if (res.status !== 409) {
+              if (saveQuit) {
+                goBack();
+              } else {
+                resetFields();
+                setFieldTouch(false);
+                setListCauHoi([]);
+                setFieldsValue({
+                  formdethi: {
+                    isSuDung: true,
+                  },
+                });
+              }
+            } else {
+              if (saveQuit) {
+                goBack();
+              } else {
+                setFieldTouch(false);
+              }
+            }
+          })
+          .catch((error) => console.error(error));
+      }
+      if (type === "edit") {
+        const newData = {
+          ...formdethi,
+          id: id,
+          isSuDung: formdethi.isSuDung ? formdethi.isSuDung : false,
+          isDefault: formdethi.isDefault ? formdethi.isDefault : false,
+          list_ChiTiets:
+            ListCauHoi &&
+            ListCauHoi.map((cauhoi) => {
+              return {
+                ...cauhoi,
+                vptq_lms_CauHoi_Id: cauhoi.id,
+              };
+            }),
+        };
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `vptq_lms_DeThi/${id}?donViHienHanh_Id=${INFO.donVi_Id}`,
+              "PUT",
+              newData,
+              "EDIT",
+              "",
+              resolve,
+              reject
+            )
+          );
+        })
+          .then((res) => {
+            if (saveQuit) {
+              if (res.status !== 409) goBack();
+            } else {
+              getInfo(id);
+              setFieldTouch(false);
+            }
+          })
+          .catch((error) => console.error(error));
+      }
     }
   };
 
