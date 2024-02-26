@@ -7,6 +7,7 @@ import {
   LockOutlined,
   DeleteOutlined,
   ImportOutlined,
+  SyncOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -21,14 +22,18 @@ import {
   removeDuplicates,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import Helpers from "src/helpers";
 
 function NguoiDung({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
   const dispatch = useDispatch();
   const INFO = getLocalStorage("menu");
   const { data, loading, width } = useSelector(({ common }) => common).toJS();
+  const [IsAdmin, setIsAdmin] = useState(false);
+
   useEffect(() => {
     if (permission && permission.view) {
+      getIsAdmin();
       getListData(keyword, INFO);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
@@ -46,6 +51,30 @@ function NguoiDung({ match, history, permission }) {
       donVi_Id: INFO.donVi_Id,
     });
     dispatch(fetchStart(`PhanMem/user-all-role?${param}`, "GET", null, "LIST"));
+  };
+
+  const getIsAdmin = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `vptq_lms_BaoCao/is-admin?donViHienHanh_Id=${INFO.donVi_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setIsAdmin(res.data);
+        } else {
+          setIsAdmin(null);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   const handleRedirect = () => {
@@ -113,7 +142,30 @@ function NguoiDung({ match, history, permission }) {
     })
       .then((res) => {
         if (res.status !== 409) {
+          getListData(keyword);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const handleResetPassword = (id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Account/ResetPassword/${id}`,
+          "PUT",
+          null,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status !== 409) {
           getListData(keyword, INFO);
+          Helpers.alertSuccessMessage(res.data);
         }
       })
       .catch((error) => console.error(error));
@@ -141,8 +193,14 @@ function NguoiDung({ match, history, permission }) {
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
 
+    const resetPassword = { onClick: () => handleResetPassword(item.user_Id) };
+
     return (
       <React.Fragment>
+        <a {...resetPassword} disabled={!IsAdmin} title="Reset mật khẩu">
+          <SyncOutlined />
+        </a>
+        <Divider type="vertical" />
         {editItem}
         <Divider type="vertical" />
         <a {...deleteItemVal} title="Xóa">
@@ -254,7 +312,7 @@ function NguoiDung({ match, history, permission }) {
         title: "Chức năng",
         key: "action",
         align: "center",
-        width: 100,
+        width: 120,
         render: (value) => actionContent(value),
         fixed: width > 700 && "left",
       },

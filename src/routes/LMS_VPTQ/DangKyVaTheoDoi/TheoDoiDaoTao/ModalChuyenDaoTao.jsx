@@ -45,7 +45,7 @@ function ModalChuyenDaoTao({ openModalFS, openModal, hocvien, refesh }) {
           `vptq_lms_TheoDoiDaoTao/chuyen-ngay-dao-tao/${hocvien.vptq_lms_LopHocChiTiet_Id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "PUT",
           newData,
-          "CHUYEN",
+          "CHUYENDAOTAO",
           "",
           resolve,
           reject

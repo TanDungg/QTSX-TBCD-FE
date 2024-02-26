@@ -303,7 +303,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
                         {dt && (
                           <span
                             style={{
-                              fontSize: "18px",
+                              fontSize: "16px",
                               fontWeight: "bold",
                               color: "#0469b9",
                               cursor: "pointer",

@@ -98,9 +98,9 @@ function BaoCaoHocPhiTheoDonVi({ history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const getDataFilter = (donVi_Id, tuNgay, denNgay) => {
+  const getDataFilter = (tuNgay, denNgay) => {
     const param = convertObjectToUrlParams({
-      donViHienHanh_Id: donVi_Id,
+      donViHienHanh_Id: INFO.donVi_Id,
       tuNgay,
       denNgay,
     });

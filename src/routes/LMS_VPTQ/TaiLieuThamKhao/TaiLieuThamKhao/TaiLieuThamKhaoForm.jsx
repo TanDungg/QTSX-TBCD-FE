@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { BASE_URL_API, DEFAULT_FORM_ADD_150PX } from "src/constants/Config";
+import { BASE_URL_API, DEFAULT_FORM_ADD_130PX } from "src/constants/Config";
 import Helpers from "src/helpers";
 import { getLocalStorage, getTokenInfo } from "src/util/Common";
 
@@ -297,7 +297,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
         style={{ width: "100%" }}
       >
         <Form
-          {...DEFAULT_FORM_ADD_150PX}
+          {...DEFAULT_FORM_ADD_130PX}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
@@ -424,7 +424,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
           </Col>
           <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
             <FormItem
-              label="Ghi chú"
+              label="Mô tả"
               name={["formtailieuthamkhao", "moTa"]}
               rules={[
                 {
@@ -432,7 +432,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
                 },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập ghi chú" />
+              <Input className="input-item" placeholder="Nhập mô tả tài liệu" />
             </FormItem>
           </Col>
           <FormSubmit

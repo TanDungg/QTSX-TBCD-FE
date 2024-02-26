@@ -522,7 +522,7 @@ const HocPhiForm = ({ history, match, permission }) => {
               style={{ width: "100%", padding: "0px 50px" }}
             >
               <Col
-                xxl={14}
+                xxl={12}
                 xl={16}
                 lg={18}
                 md={20}
@@ -554,7 +554,7 @@ const HocPhiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={14}
+                xxl={12}
                 xl={16}
                 lg={18}
                 md={20}
@@ -587,7 +587,7 @@ const HocPhiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={14}
+                xxl={12}
                 xl={16}
                 lg={18}
                 md={20}
@@ -611,7 +611,7 @@ const HocPhiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={14}
+                xxl={12}
                 xl={16}
                 lg={18}
                 md={20}
@@ -707,7 +707,7 @@ const HocPhiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={14}
+                xxl={12}
                 xl={16}
                 lg={18}
                 md={20}

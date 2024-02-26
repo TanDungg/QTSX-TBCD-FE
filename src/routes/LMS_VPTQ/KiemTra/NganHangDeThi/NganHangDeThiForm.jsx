@@ -17,8 +17,7 @@ import {
   BASE_URL_API,
   DEFAULT_FORM_ADD_2COL_150PX,
 } from "src/constants/Config";
-import Helpers from "src/helpers";
-import { reDataForTable, getTokenInfo, getLocalStorage } from "src/util/Common";
+import { getTokenInfo, getLocalStorage } from "src/util/Common";
 import ModalThemCauHoi from "./ModalThemCauHoi";
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -328,25 +327,9 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
   };
 
   const handleThemCauHoi = (data) => {
-    const cauhoi = ListCauHoi.find(
-      (list) =>
-        list.vptq_lms_CauHoi_Id.toLowerCase() ===
-        data.vptq_lms_CauHoi_Id.toLowerCase()
-    );
-    const title = (
-      <span>
-        Câu hỏi{" "}
-        <span style={{ fontWeight: "bold", color: "red" }}>{data.noiDung}</span>{" "}
-        đã được thêm vào đề thi
-      </span>
-    );
-
-    if (cauhoi) {
-      Helpers.alertError(title);
-    } else {
-      setListCauHoi([...ListCauHoi, data]);
-      setFieldTouch(true);
-    }
+    console.log(data);
+    setListCauHoi(data);
+    setFieldTouch(true);
   };
 
   const hanldeSelectChuyenDe = (value) => {
@@ -375,7 +358,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
               style={{ width: "100%", padding: "0px 50px" }}
             >
               <Col
-                xxl={14}
+                xxl={12}
                 xl={16}
                 lg={18}
                 md={20}
@@ -404,7 +387,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={14}
+                xxl={12}
                 xl={16}
                 lg={18}
                 md={20}
@@ -439,7 +422,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={14}
+                xxl={12}
                 xl={16}
                 lg={18}
                 md={20}
@@ -467,7 +450,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={14}
+                xxl={12}
                 xl={16}
                 lg={18}
                 md={20}
@@ -495,7 +478,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={14}
+                xxl={12}
                 xl={16}
                 lg={18}
                 md={20}
@@ -523,7 +506,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={14}
+                xxl={12}
                 xl={16}
                 lg={18}
                 md={20}
@@ -547,7 +530,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={14}
+                xxl={12}
                 xl={16}
                 lg={18}
                 md={20}
@@ -567,7 +550,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 </FormItem>
               </Col>
               <Col
-                xxl={14}
+                xxl={12}
                 xl={16}
                 lg={18}
                 md={20}
@@ -609,7 +592,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
               scroll={{ x: 1300, y: "35vh" }}
               components={components}
               className="gx-table-responsive th-table"
-              dataSource={reDataForTable(ListCauHoi)}
+              dataSource={ListCauHoi}
               size="small"
               rowClassName={"editable-row"}
               pagination={false}

@@ -17,6 +17,7 @@ import {
   Rate,
   Row,
   Modal as AntModal,
+  Tag,
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -398,6 +399,17 @@ const TabsDanhGia = ({ dataDanhGia }) => {
                           <DeleteOutlined />
                         </a>
                       ) : null}
+                      {!danhgia.isDuyet && (
+                        <Tag
+                          color={!danhgia.isDuyet && "red"}
+                          style={{
+                            fontWeight: "normal",
+                            fontSize: "13px",
+                          }}
+                        >
+                          Chưa duyệt
+                        </Tag>
+                      )}
                     </div>
                     <div className="title-rate">
                       <Rate

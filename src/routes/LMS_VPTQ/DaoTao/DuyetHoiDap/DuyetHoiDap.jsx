@@ -198,7 +198,7 @@ function XacNhanHoiDap({ history, permission }) {
       title: "Hình ảnh",
       dataIndex: "hinhAnh",
       key: "hinhAnh",
-      align: "left",
+      align: "center",
       width: 120,
       filters: removeDuplicates(
         map(Data, (d) => {
@@ -216,7 +216,7 @@ function XacNhanHoiDap({ history, permission }) {
             <Image
               src={BASE_URL_API + value}
               alt="Hình ảnh"
-              style={{ height: "80px" }}
+              style={{ width: "80px" }}
             />
           </span>
         ),
@@ -273,16 +273,20 @@ function XacNhanHoiDap({ history, permission }) {
   ];
 
   const handleXacNhan = () => {
-    const newData = SelectedHoiDap.map((lophoc) => {
-      return lophoc.id;
+    const param = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+      isDuyet: true,
+    });
+    const newData = SelectedHoiDap.map((hoidap) => {
+      return hoidap.vptq_lms_HoiDap_Id;
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_LopHoc/duyet`,
+          `vptq_lms_HocTrucTuyen/duyet-hoi-dap?${param}`,
           "PUT",
           newData,
-          "XACNHAN",
+          "DUYET",
           "",
           resolve,
           reject
@@ -293,7 +297,9 @@ function XacNhanHoiDap({ history, permission }) {
         if (res.status !== 409) {
           setSelectedHoiDap([]);
           setSelectedKeys([]);
-          getListData(ChuyenDe);
+          setChuyenDe(null);
+          getListChuyenDe();
+          getListData();
         }
       })
       .catch((error) => console.error(error));
@@ -303,7 +309,7 @@ function XacNhanHoiDap({ history, permission }) {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận duyệt lớp học",
+    title: "Xác nhận duyệt hỏi đáp",
     onOk: handleXacNhan,
   };
 
@@ -311,14 +317,18 @@ function XacNhanHoiDap({ history, permission }) {
     Modal(prop);
   };
 
-  const handleTuChoi = (data) => {
-    const newData = SelectedHoiDap.map((lophoc) => {
-      return lophoc.id;
+  const handleTuChoi = () => {
+    const param = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+      isDuyet: false,
+    });
+    const newData = SelectedHoiDap.map((hoidap) => {
+      return hoidap.vptq_lms_HoiDap_Id;
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_LopHoc/duyet/?lyDoTuChoi=${data}`,
+          `vptq_lms_HocTrucTuyen/duyet-hoi-dap?${param}`,
           "PUT",
           newData,
           "TUCHOI",
@@ -329,13 +339,27 @@ function XacNhanHoiDap({ history, permission }) {
       );
     })
       .then((res) => {
-        if (res && res.status !== 409) {
+        if (res.status !== 409) {
           setSelectedHoiDap([]);
           setSelectedKeys([]);
-          getListData(ChuyenDe);
+          setChuyenDe(null);
+          getListChuyenDe();
+          getListData();
         }
       })
       .catch((error) => console.error(error));
+  };
+
+  const proptuchoi = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Từ chối duyệt hỏi đáp",
+    onOk: handleTuChoi,
+  };
+
+  const ModalTuChoi = () => {
+    Modal(proptuchoi);
   };
 
   const handleOnSelectChuyenDe = (value) => {
@@ -366,7 +390,7 @@ function XacNhanHoiDap({ history, permission }) {
           icon={<CheckCircleOutlined />}
           className="th-margin-bottom-0"
           type="primary"
-          onClick={ModalXacNhan}
+          onClick={() => ModalXacNhan()}
           disabled={SelectedHoiDap.length === 0}
         >
           Duyệt
@@ -375,7 +399,7 @@ function XacNhanHoiDap({ history, permission }) {
           icon={<CloseCircleOutlined />}
           className="th-margin-bottom-0"
           type="danger"
-          onClick={() => ""}
+          onClick={() => ModalTuChoi()}
           disabled={SelectedHoiDap.length === 0}
         >
           Từ chối
@@ -387,8 +411,8 @@ function XacNhanHoiDap({ history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Danh sách lớp học chưa duyệt"
-        description="Danh sách lớp học chưa duyệt"
+        title="Duyệt hỏi đáp"
+        description="Duyệt hỏi đáp"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom">
@@ -407,7 +431,7 @@ function XacNhanHoiDap({ history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListChuyenDe ? ListChuyenDe : []}
               placeholder="Chọn chuyên đề đào tạo"
-              optionsvalue={["id", "tenChuyenDeDaoTao"]}
+              optionsvalue={["vptq_lms_ChuyenDeDaoTao_Id", "tenChuyenDeDaoTao"]}
               style={{ width: "100%" }}
               value={ChuyenDe}
               showSearch
