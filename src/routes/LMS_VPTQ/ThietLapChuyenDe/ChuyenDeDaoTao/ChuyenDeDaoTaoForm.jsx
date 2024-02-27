@@ -1186,6 +1186,19 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               <Input className="input-item" placeholder="Nhập ghi chú" />
             </FormItem>
           </Col>
+          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+            <FormItem
+              label="Ghi chú"
+              name={["formchuyendedaotao", "ghiChu"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+            >
+              <Input className="input-item" placeholder="Nhập ghi chú" />
+            </FormItem>
+          </Col>
           <FormSubmit
             goBack={goBack}
             saveAndClose={saveAndClose}

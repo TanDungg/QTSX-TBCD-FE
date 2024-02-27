@@ -30,11 +30,13 @@ function TaiLieuThamKhao({ match, history, permission }) {
   const [pageSize, setPageSize] = useState(null);
   const [ListKienThuc, setListKienThuc] = useState([]);
   const [KienThuc, setKienThuc] = useState(null);
+  const [IsQuanLyTaiLieu, setIsQuanLyTaiLieu] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (permission && permission.view) {
+      getIsQuanLyTaiLieu();
       getListKienThuc();
       getListData(KienThuc, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
@@ -42,6 +44,28 @@ function TaiLieuThamKhao({ match, history, permission }) {
     }
     return () => dispatch(fetchReset());
   }, []);
+
+  const getIsQuanLyTaiLieu = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `vptq_lms_TaiLieuThamKhao/is-ql-tai-lieu-tham-khao?donVi_Id=${INFO.donVi_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setIsQuanLyTaiLieu(res.data);
+      } else {
+        setIsQuanLyTaiLieu(false);
+      }
+    });
+  };
 
   const getListData = (vptq_lms_KienThuc_Id, keyword, page) => {
     let param = convertObjectToUrlParams({
@@ -208,7 +232,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
       <ContainerHeader
         title={"Tài liệu tham khảo"}
         description="Danh sách tài liệu tham khảo"
-        buttons={addButtonRender()}
+        buttons={IsQuanLyTaiLieu && addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
@@ -290,7 +314,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
                       border: "2px solid #c8c8c8",
                       borderRadius: "10px",
                       padding: "10px 15px",
-                      height: "120px",
+                      height: "140px",
                     }}
                   >
                     <Row>
@@ -328,33 +352,35 @@ function TaiLieuThamKhao({ match, history, permission }) {
                             {dt.tenTaiLieu}
                           </span>
                         )}
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            width: "120px",
-                          }}
-                        >
-                          <div className="button-container">
-                            <span
-                              className={`span-click liked`}
-                              title="Chỉnh sửa câu hỏi"
-                              onClick={() => handleEdit(dt)}
-                            >
-                              Chỉnh sửa
-                            </span>
+                        {IsQuanLyTaiLieu && (
+                          <div
+                            style={{
+                              display: "flex",
+                              justifyContent: "flex-end",
+                              width: "120px",
+                            }}
+                          >
+                            <div className="button-container">
+                              <span
+                                className={`span-click liked`}
+                                title="Chỉnh sửa câu hỏi"
+                                onClick={() => handleEdit(dt)}
+                              >
+                                Chỉnh sửa
+                              </span>
+                            </div>
+                            <Divider type="vertical" />
+                            <div className="button-container">
+                              <span
+                                className={`span-click disliked`}
+                                title="Xóa câu hỏi"
+                                onClick={() => handleDelete(dt)}
+                              >
+                                Xóa
+                              </span>
+                            </div>
                           </div>
-                          <Divider type="vertical" />
-                          <div className="button-container">
-                            <span
-                              className={`span-click disliked`}
-                              title="Xóa câu hỏi"
-                              onClick={() => handleDelete(dt)}
-                            >
-                              Xóa
-                            </span>
-                          </div>
-                        </div>
+                        )}
                       </Col>
                       <Col
                         span={24}

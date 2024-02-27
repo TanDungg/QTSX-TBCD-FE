@@ -12,11 +12,17 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchStart } from "src/appRedux/actions";
 import { DEFAULT_FORM_ADD_130PX } from "src/constants/Config";
+import { getLocalStorage, getTokenInfo } from "src/util/Common";
 const FormItem = Form.Item;
 
 function ModalHuyDangKy({ openModalFS, openModal, hocvien, refesh }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
   const { resetFields } = form;
@@ -34,7 +40,7 @@ function ModalHuyDangKy({ openModalFS, openModal, hocvien, refesh }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_LopHoc/huy-dang-ky-dao-tao/${hocvien.vptq_lms_PhieuDangKyDaoTaoChiTiet_Id}`,
+          `vptq_lms_LopHoc/huy-dang-ky-dao-tao/${hocvien.vptq_lms_PhieuDangKyDaoTaoChiTiet_Id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "PUT",
           newData,
           "CANCEL",
