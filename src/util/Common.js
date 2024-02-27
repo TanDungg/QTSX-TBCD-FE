@@ -1121,4 +1121,22 @@ export const LayDuoiFile = (file) => {
   return file.split(".").pop();
 };
 
+//Mở file
+export const OpenFile = (file) => {
+  const byteCharacters = atob(file);
+  const byteNumbers = new Array(byteCharacters.length);
+
+  for (let i = 0; i < byteCharacters.length; i++) {
+    byteNumbers[i] = byteCharacters.charCodeAt(i);
+  }
+
+  const byteArray = new Uint8Array(byteNumbers);
+  const blob = new Blob([byteArray], { type: "application/octet-stream" });
+
+  const blobUrl = URL.createObjectURL(blob);
+
+  window.open(blobUrl, "_blank");
+};
+
+
 

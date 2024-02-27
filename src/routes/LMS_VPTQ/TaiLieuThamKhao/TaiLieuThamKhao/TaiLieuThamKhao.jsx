@@ -10,6 +10,7 @@ import {
   getTokenInfo,
   getLocalStorage,
   LayDuoiFile,
+  OpenFile,
 } from "src/util/Common";
 import {
   DoubleLeftOutlined,
@@ -173,7 +174,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        handleOpenFile(res.data.fileTaiLieu);
+        OpenFile(res.data.fileBase64);
         getListData(KienThuc, keyword, page);
       }
     });
@@ -199,11 +200,20 @@ function TaiLieuThamKhao({ match, history, permission }) {
     );
   };
 
-  const handleOpenFile = (file) => {
-    if (file) {
-      window.open(BASE_URL_API + file);
-    }
-  };
+  // const handleOpenFile = (file) => {
+  //   if (file) {
+  //     const fileExtension = file.split(".").pop().toLowerCase();
+
+  //     if (fileExtension === "pdf") {
+  //       const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(
+  //         BASE_URL_API + file
+  //       )}`;
+  //       window.open(viewerUrl, "_blank");
+  //     } else {
+  //       window.open(BASE_URL_API + file, "_blank");
+  //     }
+  //   }
+  // };
 
   const handleEdit = (item) => {
     history.push(`${match.path}/${item.id}/chinh-sua`);

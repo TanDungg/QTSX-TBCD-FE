@@ -760,7 +760,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               setFileVideo(null);
               setDisableUploadTaiLieu(false);
               setFileTaiLieu(null);
-              // setLoading(null);
+              setLoading(null);
               setFieldsValue({
                 formchuyendedaotao: {
                   isSuDung: true,
@@ -771,7 +771,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             if (saveQuit) {
               goBack();
             } else {
-              // setLoading(null);
+              setLoading(null);
               setFieldTouch(false);
             }
           }
