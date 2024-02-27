@@ -723,7 +723,7 @@ function ModalThiKhaoSat({
           align="center"
         >
           <Image
-            src={require("public/HuongDanhThiTracNghiem.jpg")}
+            src={require("public/images/HuongDanhThiTracNghiem.jpg")}
             alt="Hình ảnh"
             style={{ height: "40vh" }}
           />

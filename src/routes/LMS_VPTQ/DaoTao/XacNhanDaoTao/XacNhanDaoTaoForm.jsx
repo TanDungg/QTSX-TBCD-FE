@@ -554,7 +554,7 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_XacNhanDaoTao/import`,
+          `vptq_lms_XacNhanDaoTao/import?donViHienHanh_Id=${INFO.donVi_Id}`,
           "POST",
           newData,
           "XACNHAN",
@@ -577,10 +577,14 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
   };
 
   const handleCapNhat = () => {
+    const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
+      vptq_lms_LopHoc_Id: id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_XacNhanDaoTao?vptq_lms_LopHoc_Id=${id}`,
+          `vptq_lms_XacNhanDaoTao?${param}`,
           "PUT",
           ListHocVien,
           "EDIT",
