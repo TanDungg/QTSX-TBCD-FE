@@ -10,7 +10,6 @@ import {
   getTokenInfo,
   getLocalStorage,
   LayDuoiFile,
-  OpenFile,
 } from "src/util/Common";
 import {
   DoubleLeftOutlined,
@@ -174,7 +173,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        OpenFile(res.data.fileBase64);
+        handleOpenFile(res.data.fileTaiLieu);
         getListData(KienThuc, keyword, page);
       }
     });
@@ -200,20 +199,47 @@ function TaiLieuThamKhao({ match, history, permission }) {
     );
   };
 
-  // const handleOpenFile = (file) => {
-  //   if (file) {
-  //     const fileExtension = file.split(".").pop().toLowerCase();
+  const handleOpenFile = (fileTaiLieu) => {
+    const file = BASE_URL_API + fileTaiLieu;
+    if (fileTaiLieu) {
+      const fileExtension = fileTaiLieu.split(".").pop().toLowerCase();
 
-  //     if (fileExtension === "pdf") {
-  //       const viewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(
-  //         BASE_URL_API + file
-  //       )}`;
-  //       window.open(viewerUrl, "_blank");
-  //     } else {
-  //       window.open(BASE_URL_API + file, "_blank");
-  //     }
-  //   }
-  // };
+      if (fileExtension === "pdf") {
+        const viewerUrl = file;
+        window.open(viewerUrl, "_blank");
+      } else {
+        window.open(file, "_blank");
+      }
+    }
+    // const duoifile = LayDuoiFile(fileTaiLieu);
+    // if (duoifile.includes("pdf")) {
+    //   if (fileTaiLieu) {
+    //     const fileExtension = fileTaiLieu.split(".").pop().toLowerCase();
+
+    //     if (fileExtension === "pdf") {
+    //       const viewerUrl = file;
+    //       window.open(viewerUrl, "_blank");
+    //     } else {
+    //       window.open(file, "_blank");
+    //     }
+    //   }
+    // } else if (duoifile.includes("ppt")) {
+    //   const googleSlidesViewerUrl = `https://docs.google.com/presentation/viewer?url=${encodeURIComponent(
+    //     file
+    //   )}`;
+    //   window.open(googleSlidesViewerUrl, "_blank");
+    // } else if (duoifile.includes("doc")) {
+    //   const googleDocsViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(
+    //     file
+    //   )}`;
+    //   window.open(googleDocsViewerUrl, "_blank");
+    // } else if (duoifile.includes("xlsx")) {
+    //   const googleSheetsViewerUrl = `https://docs.google.com/spreadsheets/viewer?url=${encodeURIComponent(
+    //     file
+    //   )}`;
+    //   window.open(googleSheetsViewerUrl, "_blank");
+    // }
+  };
 
   const handleEdit = (item) => {
     history.push(`${match.path}/${item.id}/chinh-sua`);
@@ -354,7 +380,8 @@ function TaiLieuThamKhao({ match, history, permission }) {
                         <img
                           src={hinhAnh}
                           alt="icon file"
-                          style={{ width: "60px" }}
+                          style={{ height: "60px", cursor: "pointer" }}
+                          onClick={() => handleXemChiTiet(dt)}
                         />
                         <div
                           style={{

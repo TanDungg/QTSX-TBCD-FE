@@ -1121,22 +1121,5 @@ export const LayDuoiFile = (file) => {
   return file.split(".").pop();
 };
 
-//Mở file
-export const OpenFile = (file, fileName) => {
-  const dataUrl = `data:application/octet-stream;base64,${file}`;
-
-  // Create an anchor element with the data URL
-  const a = document.createElement("a");
-  a.href = dataUrl;
-  a.target = "_blank";
-
-  // Specify the file name for the download
-  a.download = fileName || "file";
-
-  // Trigger a click event on the anchor element
-  const event = new MouseEvent("click");
-  a.dispatchEvent(event);
-};
-
 
 
