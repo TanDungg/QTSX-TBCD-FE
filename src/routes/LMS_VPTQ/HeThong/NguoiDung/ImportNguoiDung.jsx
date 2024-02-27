@@ -106,7 +106,9 @@ function ImportNguoiDung({ match, history }) {
         )
       );
     }).then((res) => {
-      exportExcel("FileMauImportNguoiDung", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("FileMauImportNguoiDung", res.data.dataexcel);
+      }
     });
   };
 

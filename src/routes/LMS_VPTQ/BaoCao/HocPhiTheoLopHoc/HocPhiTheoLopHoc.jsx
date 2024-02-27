@@ -509,7 +509,9 @@ function BaoCaoHocPhiTheoLopHoc({ history, permission }) {
         )
       );
     }).then((res) => {
-      exportExcel("BAO_CAO_HOC_PHI_THEO_LOP_HOC", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("BAO_CAO_HOC_PHI_THEO_LOP_HOC", res.data.dataexcel);
+      }
     });
   };
 

@@ -375,7 +375,9 @@ function BaoCaoHocPhiNamTheoDonVi({ history, permission }) {
         )
       );
     }).then((res) => {
-      exportExcel("BAO_CAO_HOC_PHI_NAM_THEO_DON_VI", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("BAO_CAO_HOC_PHI_NAM_THEO_DON_VI", res.data.dataexcel);
+      }
     });
   };
 

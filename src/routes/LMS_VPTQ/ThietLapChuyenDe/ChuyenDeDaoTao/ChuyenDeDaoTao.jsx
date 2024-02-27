@@ -275,7 +275,7 @@ function ChuyenDeDaoTao({ permission, history, match }) {
         record.thoiLuongDaoTao.toString().includes(value),
       filterSearch: true,
       render: (value) => {
-        return <span>{value} phút</span>;
+        return value && <span>{value} phút</span>;
       },
     },
     {

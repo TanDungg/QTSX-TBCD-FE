@@ -476,7 +476,9 @@ function CanBoNhanVien({ match, history, permission }) {
         )
       );
     }).then((res) => {
-      exportExcel("DanhSachCBNV", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("DanhSachCBNV", res.data.dataexcel);
+      }
     });
   };
 

@@ -129,7 +129,9 @@ function ImportDanhSachCBNV({
         )
       );
     }).then((res) => {
-      exportExcel("FileMauImportDanhSachCBNV", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("FileMauImportDanhSachCBNV", res.data.dataexcel);
+      }
     });
   };
 

@@ -324,10 +324,12 @@ function BaoCaoHocChuyenDeDaoTaoTheoDonVi({ history, permission }) {
         )
       );
     }).then((res) => {
-      exportExcel(
-        "BAO_CAO_HOC_CHUYEN_DE_DAO_TAO_THEO_DON_VI",
-        res.data.dataexcel
-      );
+      if (res && res.data) {
+        exportExcel(
+          "BAO_CAO_HOC_CHUYEN_DE_DAO_TAO_THEO_DON_VI",
+          res.data.dataexcel
+        );
+      }
     });
   };
 

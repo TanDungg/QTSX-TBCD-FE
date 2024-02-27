@@ -26,6 +26,7 @@ import { BASE_URL_API } from "src/constants/Config";
 import { messages } from "src/constants/Messages";
 import Helpers from "src/helpers";
 import {
+  convertObjectToUrlParams,
   exportExcel,
   getLocalStorage,
   getTokenInfo,
@@ -79,7 +80,7 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_XacNhanDaoTao/${id}`,
+          `vptq_lms_XacNhanDaoTao/${id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -265,10 +266,14 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
 
   //File mẫu
   const TaiFileMau = () => {
+    const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
+      vptq_lms_LopHoc_Id: id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_XacNhanDaoTao/export-file-mau?vptq_lms_LopHoc_Id=${id}`,
+          `vptq_lms_XacNhanDaoTao/export-file-mau?${param}`,
           "POST",
           null,
           "DOWLOAD",
@@ -278,7 +283,9 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
         )
       );
     }).then((res) => {
-      exportExcel("FileMauImport", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("FileMauImport", res.data.dataexcel);
+      }
     });
   };
 

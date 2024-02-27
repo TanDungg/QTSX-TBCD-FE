@@ -588,7 +588,9 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
         )
       );
     }).then((res) => {
-      exportExcel("BAO_CAO_CHUYEN_DE_DAO_TAO", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("BAO_CAO_CHUYEN_DE_DAO_TAO", res.data.dataexcel);
+      }
     });
   };
 
@@ -628,7 +630,9 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
         )
       );
     }).then((res) => {
-      exportExcel("BAO_CAO_CHI_TIET_CHUYEN_DE_DAO_TAO", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("BAO_CAO_CHI_TIET_CHUYEN_DE_DAO_TAO", res.data.dataexcel);
+      }
     });
   };
 

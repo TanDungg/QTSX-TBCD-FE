@@ -441,7 +441,9 @@ function BaoCaoDaoTaoNamTheoDonVi({ history, permission }) {
         )
       );
     }).then((res) => {
-      exportExcel("BAO_CAO_DAO_TAO_NAM_THEO_DON_VI", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("BAO_CAO_DAO_TAO_NAM_THEO_DON_VI", res.data.dataexcel);
+      }
     });
   };
 
@@ -482,10 +484,12 @@ function BaoCaoDaoTaoNamTheoDonVi({ history, permission }) {
         )
       );
     }).then((res) => {
-      exportExcel(
-        "BAO_CAO_CHI_TIET_DAO_TAO_NAM_THEO_DON_VI",
-        res.data.dataexcel
-      );
+      if (res && res.data) {
+        exportExcel(
+          "BAO_CAO_CHI_TIET_DAO_TAO_NAM_THEO_DON_VI",
+          res.data.dataexcel
+        );
+      }
     });
   };
 
