@@ -18,14 +18,13 @@ function QuanTriVienForm({ match, permission, history }) {
   const dispatch = useDispatch();
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
+  const { validateFields } = form;
   const { maNhanVien, isActive, roleNames } = initialState;
   const [roleSelect, setRoleSelect] = useState([]);
   const [UserSelect, setUserSelect] = useState();
   const { resetFields, setFieldsValue } = form;
   const [PhanMemSelect, setPhanMemSelect] = useState([]);
   const [DonViSelect, setDonViSelect] = useState([]);
-
-  const [id, setId] = useState("");
   const [Role_Id, setRole_Id] = useState();
   const [DonVi, setDonVi] = useState("");
 
@@ -46,7 +45,6 @@ function QuanTriVienForm({ match, permission, history }) {
           setType("edit");
           // Get info
           const params = match.params.id.split("_");
-          setId(params[0]);
           getUserActive();
           setRole_Id(params[1]);
           getInfo(params[0], params[1]);
@@ -114,7 +112,9 @@ function QuanTriVienForm({ match, permission, history }) {
           const newData = [];
           res.data.forEach((d) => {
             newData.push({
-              name: `${d.maNhanVien} - ${d.fullName} - ${d.email}`,
+              name: d.email
+                ? `${d.maNhanVien} - ${d.fullName} - ${d.email}`
+                : `${d.maNhanVien} - ${d.fullName}`,
               ...d,
             });
           });
@@ -194,6 +194,7 @@ function QuanTriVienForm({ match, permission, history }) {
           null,
           "DETAIL",
           "",
+
           resolve,
           reject
         )
@@ -222,17 +223,17 @@ function QuanTriVienForm({ match, permission, history }) {
    * @param {*} values
    */
   const onFinish = (values) => {
-    saveData(values.user, true);
+    saveData(values.user);
   };
-  // const saveAndClose = () => {
-  //   validateFields()
-  //     .then((values) => {
-  //       saveData(values.user, true);
-  //     })
-  //     .catch((error) => {
-  //       console.log("error", error);
-  //     });
-  // };
+  const saveAndClose = () => {
+    validateFields()
+      .then((values) => {
+        saveData(values.user, true);
+      })
+      .catch((error) => {
+        console.log("error", error);
+      });
+  };
   const saveData = (user, saveQuit = false) => {
     const newData = {
       id: user.id,
@@ -280,13 +281,13 @@ function QuanTriVienForm({ match, permission, history }) {
         );
       })
         .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) goBack();
-          } else {
-            if (res.status !== 409) {
-              getInfo(id, Role_Id);
-            }
-          }
+          // if (saveQuit) {
+          if (res.status !== 409) goBack();
+          // } else {
+          //   if (res.status !== 409) {
+          //     getInfo(id, Role_Id);
+          //   }
+          // }
         })
         .catch((error) => console.error(error));
     }
@@ -424,7 +425,7 @@ function QuanTriVienForm({ match, permission, history }) {
           </FormItem>
           <FormSubmit
             goBack={goBack}
-            // saveAndClose={saveAndClose}
+            saveAndClose={saveAndClose}
             disabled={fieldTouch}
           />
         </Form>

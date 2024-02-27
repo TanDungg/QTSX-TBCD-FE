@@ -91,7 +91,7 @@ function XacNhanHoiDap({ history, permission }) {
       );
     })
       .then((res) => {
-        if (res && res.data) {
+        if (res && res.status === 200 && res.data) {
           setListChuyenDe(res.data);
         } else {
           setListChuyenDe([]);

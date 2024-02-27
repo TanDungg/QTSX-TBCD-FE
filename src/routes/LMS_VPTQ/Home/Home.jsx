@@ -620,6 +620,7 @@ function Home() {
   let chuadanhgia = 0;
 
   DataDashboardHocVien &&
+    DataDashboardHocVien.list_ChiTiets &&
     DataDashboardHocVien.list_ChiTiets.reduce((data, item) => {
       if (item.isDat === true) {
         dat += 1;

@@ -17,7 +17,6 @@ function Quyen({ history, permission, location, match }) {
   const { loading } = useSelector(({ common }) => common).toJS();
   const [id, setId] = useState(undefined);
   const [name, setName] = useState("");
-  // console.log(permission);
   const [listPermission, setListPermission] = useState([]);
   const [listPermissionFlat, setListPermissionFlat] = useState([]);
 
@@ -227,7 +226,7 @@ function Quyen({ history, permission, location, match }) {
    *
    */
   const redirectToVaiTro = () => {
-    history.push("/he-thong/vai-tro");
+    history.push("/he-thong-erp/vai-tro");
   };
 
   /**
@@ -265,7 +264,7 @@ function Quyen({ history, permission, location, match }) {
       <Card className="th-card-margin-bottom">
         <Table
           bordered
-          scroll={{ y: "65vh", x: 800 }}
+          scroll={{ y: "70vh", x: 1000 }}
           columns={header}
           className="gx-table-responsive"
           size="small"

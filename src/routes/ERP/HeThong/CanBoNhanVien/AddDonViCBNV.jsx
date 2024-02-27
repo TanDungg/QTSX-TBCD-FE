@@ -8,7 +8,7 @@ import { Select } from "src/components/Common";
 
 const FormItem = Form.Item;
 
-function AddDonViCBNV({ openModalFS, openModal, data, addVatTu }) {
+function AddDonViCBNV({ openModalFS, openModal, data, refesh }) {
   const dispatch = useDispatch();
   const [fieldTouch, setFieldTouch] = useState(false);
   const [form] = Form.useForm();
@@ -131,6 +131,7 @@ function AddDonViCBNV({ openModalFS, openModal, data, addVatTu }) {
       .catch((error) => console.error(error));
   };
   const handleCancel = () => {
+    refesh();
     openModalFS(false);
   };
   /**
@@ -156,6 +157,7 @@ function AddDonViCBNV({ openModalFS, openModal, data, addVatTu }) {
       .then((res) => {
         if (res && res.status !== 409) {
           openModalFS(false);
+          refesh();
         }
       })
       .catch((error) => console.error(error));

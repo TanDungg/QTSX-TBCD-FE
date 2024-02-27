@@ -12,7 +12,6 @@ import { ConfigProvider } from "antd";
 import { IntlProvider } from "react-intl";
 import moment from "moment";
 import "moment/locale/vi";
-
 import AppLocale from "src/lngProvider";
 import MainApp from "./MainApp";
 import SignIn from "../SignIn";
@@ -28,7 +27,7 @@ import {
   onNavStyleChange,
   setThemeType,
 } from "src/appRedux/actions/Setting";
-// import { defaultValidateMessages } from "src/util/ValidatorMessage";
+import { defaultValidateMessages } from "src/util/ValidatorMessage";
 import {
   LAYOUT_TYPE_BOXED,
   LAYOUT_TYPE_FRAMED,
@@ -45,6 +44,8 @@ import {
   getTokenInfo,
   setSessionStorage,
   removeLocalStorage,
+  // removeSessionStorage,
+  // removeCookieValue,
 } from "src/util/Common";
 import InMaQrSoVIN from "src/routes/QTSX_TITS/KeHoach/SoVin/InMaQrSoVIN";
 import InMaQrCauTrucKho_TITS_QTSX from "src/routes/QTSX_TITS/InBarcode/CauTrucKho/InMaQrCauTrucKho_TITS_QTSX";
@@ -52,7 +53,8 @@ import InMaQrCauTrucKho_TITS_QTSX from "src/routes/QTSX_TITS/InBarcode/CauTrucKh
 // import { messaging } from "src/constants/firebase";
 // import { onMessage } from "firebase/messaging";
 // import { getToken } from "firebase/messaging";
-// import { thongBaoLoad } from "src/appRedux/actions";
+// import { fetchStart, thongBaoLoad } from "src/appRedux/actions";
+// import Helpers from "src/helpers";
 
 const RestrictedRoute = ({
   component: Component,
@@ -131,8 +133,9 @@ const App = () => {
   //     // Generate Token
   //     const token = await getToken(messaging, {
   //       vapidKey:
-  //         "BGJz6YC8lH2J-rNLlHhzr1iY8wc1N_4mhLHi6tilbf8BrJ3NOYq63MNhxeUDSyoubtnnxt7NX2LAczGrBm8_Uac",
+  //         "BFCeJTv46XrShnZHdtOq9p2NqvScLWMmCVbm4JXH34W7h7rWi6e5paxAGa-_Yo5d2TsLkZI4uLkjEKCaSdMwVrI",
   //     });
+  //     console.log(token);
   //     dispatch(
   //       fetchStart(
   //         `TokenGen/store-token`,
@@ -278,7 +281,7 @@ const App = () => {
   return (
     <ConfigProvider
       locale={newLocal}
-      // form={{ validateMessages: defaultValidateMessages }}
+      form={{ validateMessages: defaultValidateMessages }}
     >
       <IntlProvider
         locale={currentAppLocale.locale}

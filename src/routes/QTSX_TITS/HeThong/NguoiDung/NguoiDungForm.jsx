@@ -133,15 +133,10 @@ function NguoiDungForm({ match, permission, history }) {
       );
     })
       .then((res) => {
-        if (res && res.data) {
-          const newData = [];
-          res.data.forEach((r) => {
-            if (r.name.toUpperCase().includes("ADMINISTRATOR")) {
-            } else {
-              newData.push(r);
-            }
-          });
-          setRoleSelect(newData);
+        if (res && res.status === 200 && res.data) {
+          setRoleSelect(res.data);
+        } else {
+          setRoleSelect([]);
         }
       })
       .catch((error) => console.error(error));

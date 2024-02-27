@@ -568,6 +568,7 @@ function CanBoNhanVien({ match, history, permission }) {
         <AddDonViCBNV
           openModal={ActiveModalAddDonVi}
           openModalFS={setActiveModalAddDonVi}
+          refesh={refeshData}
           data={NhanSu}
         />
       </Card>
