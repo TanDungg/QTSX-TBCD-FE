@@ -1,4 +1,4 @@
-import { Button, Card, Col, Divider, Image, Pagination, Row } from "antd";
+import { Button, Card, Col, Divider, Pagination, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -341,7 +341,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
                           gap: "10px",
                         }}
                       >
-                        <Image
+                        <img
                           src={hinhAnh}
                           alt="icon file"
                           style={{ width: "60px" }}

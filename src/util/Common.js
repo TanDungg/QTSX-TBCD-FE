@@ -1120,3 +1120,5 @@ export const DemNguocThoiGian = (time) => {
 export const LayDuoiFile = (file) => {
   return file.split(".").pop();
 };
+
+

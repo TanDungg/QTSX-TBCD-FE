@@ -22,6 +22,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [fieldTouch, setFieldTouch] = useState(false);
+  const [disabledSave, setDisabledSave] = useState(false);
   const [type, setType] = useState("new");
   const [ListKienThuc, setListKienThuc] = useState([]);
   const [FileTaiLieu, setFileTaiLieu] = useState(null);
@@ -283,6 +284,14 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
     }
   };
 
+  const handleChangeMoTa = (value) => {
+    if (value && value.length > 250) {
+      setDisabledSave(false);
+    } else {
+      setDisabledSave(true);
+    }
+  };
+
   const formTitle =
     type === "new"
       ? "Thêm mới tài liệu tham khảo"
@@ -430,15 +439,23 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
                 {
                   type: "string",
                 },
+                {
+                  max: 250,
+                  message: "Mô tả không được quá 250 ký tự",
+                },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập mô tả tài liệu" />
+              <Input
+                className="input-item"
+                placeholder="Nhập mô tả tài liệu"
+                onChange={(e) => handleChangeMoTa(e.target.value)}
+              />
             </FormItem>
           </Col>
           <FormSubmit
             goBack={goBack}
             saveAndClose={saveAndClose}
-            disabled={fieldTouch}
+            disabled={fieldTouch && disabledSave}
           />
         </Form>
       </Card>
