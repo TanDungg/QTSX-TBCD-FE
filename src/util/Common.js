@@ -1115,3 +1115,8 @@ export const DemNguocThoiGian = (time) => {
 
   return { hours, minutes, seconds };
 };
+
+//Lấy đuôi file
+export const LayDuoiFile = (file) => {
+  return file.split(".").pop();
+};

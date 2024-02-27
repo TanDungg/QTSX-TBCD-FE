@@ -1,4 +1,4 @@
-import { Button, Card, Col, Divider, Pagination, Row } from "antd";
+import { Button, Card, Col, Divider, Image, Pagination, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -9,17 +9,19 @@ import {
   convertObjectToUrlParams,
   getTokenInfo,
   getLocalStorage,
+  LayDuoiFile,
 } from "src/util/Common";
 import {
   DoubleLeftOutlined,
   DoubleRightOutlined,
+  EyeOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
 import { BASE_URL_API } from "src/constants/Config";
 
 function TaiLieuThamKhao({ match, history, permission }) {
   const dispatch = useDispatch();
-  const { loading } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const INFO = {
     ...getLocalStorage("menu"),
     user_Id: getTokenInfo().id,
@@ -298,34 +300,60 @@ function TaiLieuThamKhao({ match, history, permission }) {
         >
           {Data.length !== 0 &&
             Data.map((dt, index) => {
+              const maxlength = width >= 1200 || width < 768 ? 150 : 120;
+              const duoifile = LayDuoiFile(dt.fileTaiLieu);
+              let hinhAnh;
+              if (duoifile.includes("ppt")) {
+                hinhAnh = require("public/images/icon_file_powerpoint.png");
+              } else if (duoifile.includes("doc")) {
+                hinhAnh = require("public/images/icon_file_word.png");
+              } else if (duoifile.includes("pdf")) {
+                hinhAnh = require("public/images/icon_file_pdf.png");
+              }
               return (
-                <Col
-                  xxl={8}
-                  xl={8}
-                  lg={12}
-                  md={12}
-                  sm={24}
-                  xs={24}
-                  key={index}
-                  style={{ marginBottom: 8 }}
-                >
-                  <div
-                    style={{
-                      border: "2px solid #c8c8c8",
-                      borderRadius: "10px",
-                      padding: "10px 15px",
-                      height: "140px",
-                    }}
+                dt && (
+                  <Col
+                    xxl={8}
+                    xl={12}
+                    lg={12}
+                    md={12}
+                    sm={24}
+                    xs={24}
+                    key={index}
+                    style={{ marginBottom: "15px" }}
                   >
-                    <Row>
-                      <Col
-                        span={24}
+                    <div
+                      style={{
+                        border: "2px solid #c8c8c8",
+                        borderRadius: "10px",
+                        padding: "10px 15px",
+                        height: "140px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        gap: "3px",
+                      }}
+                    >
+                      <div
                         style={{
                           display: "flex",
-                          alignItems: "center",
+                          alignItems: "flex-start",
+                          gap: "10px",
                         }}
                       >
-                        {dt && (
+                        <Image
+                          src={hinhAnh}
+                          alt="icon file"
+                          style={{ width: "60px" }}
+                        />
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            width: "100%",
+                            gap: "2px",
+                          }}
+                        >
                           <span
                             style={{
                               fontSize: "16px",
@@ -333,7 +361,8 @@ function TaiLieuThamKhao({ match, history, permission }) {
                               color: "#0469b9",
                               cursor: "pointer",
                               transition: "color 0.3s",
-                              width: "calc(100% - 120px)",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
                             }}
                             onClick={() => handleXemChiTiet(dt)}
                             onMouseOver={(e) =>
@@ -348,92 +377,65 @@ function TaiLieuThamKhao({ match, history, permission }) {
                             onMouseUp={(e) =>
                               (e.target.style.color = "#0469b9")
                             }
+                            title={dt.tenTaiLieu && dt.tenTaiLieu}
                           >
-                            {dt.tenTaiLieu}
+                            {dt.tenTaiLieu && dt.tenTaiLieu.length > 37
+                              ? `${dt.tenTaiLieu
+                                  .toUpperCase()
+                                  .substring(0, 37)}...`
+                              : dt.tenTaiLieu.toUpperCase()}
                           </span>
-                        )}
-                        {IsQuanLyTaiLieu && (
                           <div
                             style={{
                               display: "flex",
-                              justifyContent: "flex-end",
-                              width: "120px",
+                              alignItems: "center",
+                              gap: "5px",
+                              fontSize: "13px",
                             }}
                           >
-                            <div className="button-container">
-                              <span
-                                className={`span-click liked`}
-                                title="Chỉnh sửa câu hỏi"
-                                onClick={() => handleEdit(dt)}
-                              >
-                                Chỉnh sửa
-                              </span>
-                            </div>
-                            <Divider type="vertical" />
-                            <div className="button-container">
-                              <span
-                                className={`span-click disliked`}
-                                title="Xóa câu hỏi"
-                                onClick={() => handleDelete(dt)}
-                              >
-                                Xóa
-                              </span>
-                            </div>
+                            <EyeOutlined />
+                            <span>{dt.soLuotXem} lượt xem</span>
                           </div>
-                        )}
-                      </Col>
-                      <Col
-                        span={24}
-                        style={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                        }}
+                          {IsQuanLyTaiLieu && (
+                            <div
+                              style={{
+                                display: "flex",
+                              }}
+                            >
+                              <div className="button-container">
+                                <span
+                                  className={`span-click liked`}
+                                  title="Chỉnh sửa câu hỏi"
+                                  onClick={() => handleEdit(dt)}
+                                >
+                                  Chỉnh sửa
+                                </span>
+                              </div>
+                              <Divider type="vertical" />
+                              <div className="button-container">
+                                <span
+                                  className={`span-click disliked`}
+                                  title="Xóa câu hỏi"
+                                  onClick={() => handleDelete(dt)}
+                                >
+                                  Xóa
+                                </span>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <span
+                        style={{ overflow: "hidden", textOverflow: "ellipsis" }}
+                        title={dt.moTa && dt.moTa}
                       >
-                        <span
-                          style={{
-                            width: "85px",
-                          }}
-                        >
-                          Số lượt xem:
-                        </span>
-                        {dt && (
-                          <span
-                            style={{
-                              width: "calc(100% - 85px)",
-                            }}
-                          >
-                            {dt.soLuotXem} lượt
-                          </span>
-                        )}
-                      </Col>
-                      <Col
-                        span={24}
-                        style={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: "45px",
-                          }}
-                        >
-                          Mô tả:
-                        </span>
-                        {dt && (
-                          <span
-                            style={{
-                              width: "calc(100% - 45px)",
-                            }}
-                          >
-                            {dt.moTa}
-                          </span>
-                        )}
-                      </Col>
-                    </Row>
-                  </div>
-                </Col>
+                        {dt.moTa && dt.moTa.length > maxlength
+                          ? `${dt.moTa.substring(0, maxlength)}...`
+                          : dt.moTa}
+                      </span>
+                    </div>
+                  </Col>
+                )
               );
             })}
         </Row>
