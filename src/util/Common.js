@@ -1122,20 +1122,20 @@ export const LayDuoiFile = (file) => {
 };
 
 //Mở file
-export const OpenFile = (file) => {
-  const byteCharacters = atob(file);
-  const byteNumbers = new Array(byteCharacters.length);
+export const OpenFile = (file, fileName) => {
+  const dataUrl = `data:application/octet-stream;base64,${file}`;
 
-  for (let i = 0; i < byteCharacters.length; i++) {
-    byteNumbers[i] = byteCharacters.charCodeAt(i);
-  }
+  // Create an anchor element with the data URL
+  const a = document.createElement("a");
+  a.href = dataUrl;
+  a.target = "_blank";
 
-  const byteArray = new Uint8Array(byteNumbers);
-  const blob = new Blob([byteArray], { type: "application/octet-stream" });
+  // Specify the file name for the download
+  a.download = fileName || "file";
 
-  const blobUrl = URL.createObjectURL(blob);
-
-  window.open(blobUrl, "_blank");
+  // Trigger a click event on the anchor element
+  const event = new MouseEvent("click");
+  a.dispatchEvent(event);
 };
 
 
