@@ -52,7 +52,7 @@ function TaiKhoan() {
           "Account/ChangePassword",
           "POST",
           values.user,
-          "EDIT",
+          "CHANGEPASSWORD",
           "",
           resolve,
           reject
@@ -61,14 +61,10 @@ function TaiKhoan() {
     })
       .then((res) => {
         if (!res.data) resetFields();
-        resetFields([
-          {
-            user: "password",
-          },
-        ]);
         setFieldTouch(false);
         if (res.status === 200) {
           // Change tokenInfo
+          resetFields();
           let tokenInfo = getTokenInfo();
           tokenInfo.mustChangePass = false;
           const maxAge = new Date(tokenInfo.expires);
