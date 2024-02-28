@@ -666,12 +666,11 @@ function CauHoi({ permission, history, match }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 15]}>
-            <Col span={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Câu hỏi:</strong> {DataChiTiet.noiDung}
-                </span>
-              )}
+            <Col span={24} className="title-span">
+              <span style={{ whiteSpace: "nowrap" }}>
+                <strong>Câu hỏi:</strong>
+              </span>
+              <span>{DataChiTiet && DataChiTiet.noiDung}</span>
             </Col>
             {DataChiTiet && (DataChiTiet.hinhAnh || DataChiTiet.video) ? (
               <Col
@@ -759,13 +758,12 @@ function CauHoi({ permission, history, match }) {
                       backgroundColor: dapan.isCorrect && "#A9FABF",
                       color: dapan.isCorrect && "#0469b9",
                     }}
+                    className="title-span"
                   >
-                    {DataChiTiet && (
-                      <span>
-                        <strong>{String.fromCharCode(65 + index)}.</strong>{" "}
-                        {dapan.dapAn}
-                      </span>
-                    )}
+                    <span>
+                      <strong>{String.fromCharCode(65 + index)}.</strong>
+                    </span>
+                    <span>{dapan && dapan.dapAn}</span>
                   </Col>
                 );
               })}
@@ -775,35 +773,36 @@ function CauHoi({ permission, history, match }) {
           className="th-card-margin-bottom th-card-reset-margin"
           title={"Thông tin về câu hỏi"}
         >
-          <Row gutter={[0, 15]}>
-            <Col lg={12} md={12} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Chuyên đề:</strong> {DataChiTiet.tenChuyenDeDaoTao}
-                </span>
-              )}
+          <Row gutter={[0, 10]}>
+            <Col lg={12} md={12} xs={24} className="title-span">
+              <span style={{ whiteSpace: "nowrap" }}>
+                <strong>Chuyên đề đào tạo:</strong>
+              </span>
+              <span>{DataChiTiet && DataChiTiet.tenChuyenDeDaoTao}</span>
             </Col>
-            <Col lg={12} md={12} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Người tạo:</strong> {DataChiTiet.nguoiTao}
-                </span>
-              )}
+            <Col lg={12} md={12} xs={24} className="title-span">
+              <span>
+                <strong>Người tạo:</strong>
+              </span>
+              <span>{DataChiTiet && DataChiTiet.nguoiTao}</span>
             </Col>
-            <Col lg={12} md={12} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Ngày tạo:</strong> {DataChiTiet.ngayTao}
-                </span>
-              )}
+            <Col lg={12} md={12} xs={24} className="title-span">
+              <span>
+                <strong>Ngày tạo:</strong>
+              </span>
+              <span>{DataChiTiet && DataChiTiet.ngayTao}</span>
             </Col>
-            <Col lg={12} md={12} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Trạng thái sử dụng:</strong>{" "}
-                  <Checkbox checked={DataChiTiet.isSuDung} disabled />
-                </span>
-              )}
+            <Col lg={12} md={12} xs={24} className="title-span">
+              <span>
+                <strong>Trạng thái sử dụng:</strong>
+              </span>
+              <span>
+                <Checkbox
+                  checked={DataChiTiet && DataChiTiet.isSuDung}
+                  style={{ marginTop: "-10px" }}
+                  disabled
+                />
+              </span>
             </Col>
           </Row>
         </Card>

@@ -736,62 +736,123 @@ function NganHangDeThi({ permission, history, match }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 10]}>
-            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Tên đề thi:</strong> {DataChiTiet.tenDeThi}
-                </span>
-              )}
+            <Col
+              xxl={8}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap" }}>
+                <strong>Tên đề thi:</strong>
+              </span>
+              {DataChiTiet && <span>{DataChiTiet.tenDeThi}</span>}
             </Col>
-            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Chuyên đề:</strong> {DataChiTiet.tenChuyenDeDaoTao}
-                </span>
-              )}
+            <Col
+              xxl={8}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap" }}>
+                <strong>Chuyên đề:</strong>
+              </span>
+              {DataChiTiet && <span>{DataChiTiet.tenChuyenDeDaoTao}</span>}
             </Col>
-            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Số lượng câu hỏi:</strong> {DataChiTiet.soLuongCauHoi}{" "}
-                  câu
-                </span>
-              )}
+            <Col
+              xxl={8}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Số lượng câu hỏi:</strong>
+              </span>
+              {DataChiTiet && <span>{DataChiTiet.soLuongCauHoi} câu</span>}
             </Col>
-            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Thang điểm:</strong> {DataChiTiet.thangDiem} điểm
-                </span>
-              )}
+            <Col
+              xxl={8}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Thang điểm:</strong>
+              </span>
+              {DataChiTiet && <span>{DataChiTiet.thangDiem} điểm</span>}
             </Col>
-            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Thời gian làm bài:</strong>{" "}
-                  {DataChiTiet.thoiGianLamBai} phút
-                </span>
-              )}
+            <Col
+              xxl={8}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Thời gian làm bài:</strong>
+              </span>
+              {DataChiTiet && <span>{DataChiTiet.thoiGianLamBai} phút</span>}
             </Col>
-            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Người tạo:</strong> {DataChiTiet.nguoiTao}
-                </span>
-              )}
+            <Col
+              xxl={8}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Người tạo:</strong>
+              </span>
+              {DataChiTiet && <span>{DataChiTiet.nguoiTao}</span>}
             </Col>
-            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Ngày tạo:</strong> {DataChiTiet.ngayTao}
-                </span>
-              )}
+            <Col
+              xxl={8}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Ngày tạo:</strong>
+              </span>
+              {DataChiTiet && <span>{DataChiTiet.ngayTao}</span>}
             </Col>
-            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
+            <Col
+              xxl={8}
+              xl={12}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Trạng thái sử dụng:</strong>
+              </span>
               {DataChiTiet && (
                 <span>
-                  <strong>Trạng thái sử dụng:</strong>{" "}
-                  <Checkbox checked={DataChiTiet.isSuDung} disabled />
+                  <Checkbox
+                    checked={DataChiTiet.isSuDung}
+                    style={{ marginTop: "-10px" }}
+                    disabled
+                  />
                 </span>
               )}
             </Col>
@@ -837,15 +898,16 @@ function NganHangDeThi({ permission, history, match }) {
                 return (
                   <Col span={24}>
                     <Row gutter={[0, 5]}>
-                      <Col span={24}>
+                      <Col span={24} className="title-span">
                         <span
                           style={{
                             fontWeight: "bold",
+                            whiteSpace: "nowrap",
                           }}
                         >
-                          Câu {index + 1}. ({DataChiTiet.soDiemMoiCau} điểm):{" "}
-                          {cauhoi.noiDung}
+                          Câu {index + 1}. ({DataChiTiet.soDiemMoiCau} điểm):
                         </span>
+                        <span>{cauhoi.noiDung}</span>
                       </Col>
                       {cauhoi.hinhAnh || cauhoi.video ? (
                         <Col
@@ -911,13 +973,13 @@ function NganHangDeThi({ permission, history, match }) {
                       {cauhoi.list_DapAns &&
                         cauhoi.list_DapAns.map((dapan, index) => {
                           return (
-                            <Col span={24}>
+                            <Col span={24} className="title-span">
                               <span>
                                 <strong>
                                   {String.fromCharCode(65 + index)}.
-                                </strong>{" "}
-                                {dapan.dapAn}
+                                </strong>
                               </span>
+                              <span>{dapan.dapAn}</span>
                             </Col>
                           );
                         })}

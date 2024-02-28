@@ -278,157 +278,48 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
     >
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row gutter={[0, 10]}>
-          <Col
-            lg={12}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "90px",
-                fontWeight: "bold",
-              }}
-            >
-              Tên đề thi:
+          <Col lg={12} xs={24} className="title-span">
+            <span style={{ whiteSpace: "nowrap" }}>
+              <strong>Tên đề thi:</strong>
             </span>
             {dethi && (
-              <span
-                style={{
-                  width: "calc(100% - 90px)",
-                }}
-              >
-                {dethi.tenDeThi}({dethi.maDeThi})
+              <span>
+                {dethi.tenDeThi} ({dethi.maDeThi})
               </span>
             )}
           </Col>
-          <Col
-            lg={12}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "130px",
-                fontWeight: "bold",
-              }}
-            >
-              Số lượng câu hỏi:
+          <Col lg={12} xs={24} className="title-span">
+            <span>
+              <strong>Số lượng câu hỏi:</strong>
             </span>
-            {dethi && (
-              <span
-                style={{
-                  width: "calc(100% - 130px)",
-                }}
-              >
-                {dethi.soLuongCauHoi} câu
-              </span>
-            )}
+            {dethi && <span>{dethi.soLuongCauHoi} câu</span>}
           </Col>
-          <Col
-            lg={12}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "100px",
-                fontWeight: "bold",
-              }}
-            >
-              Thang điểm:
+          <Col lg={12} xs={24} className="title-span">
+            <span>
+              <strong>Thang điểm:</strong>
             </span>
-            {dethi && (
-              <span
-                style={{
-                  width: "calc(100% - 100px)",
-                }}
-              >
-                {dethi.thangDiem} điểm
-              </span>
-            )}
+            {dethi && <span>{dethi.thangDiem} điểm</span>}
           </Col>
-          <Col
-            lg={12}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "140px",
-                fontWeight: "bold",
-              }}
-            >
-              Thời gian làm bài:
+          <Col lg={12} xs={24} className="title-span">
+            <span>
+              <strong>Thời gian làm bài:</strong>
             </span>
-            {dethi && (
-              <span
-                style={{
-                  width: "calc(100% - 140px)",
-                }}
-              >
-                {dethi.thoiGianLamBai} phút
-              </span>
-            )}
+            {dethi && <span>{dethi.thoiGianLamBai} phút</span>}
           </Col>
-          <Col
-            lg={12}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "120px",
-                fontWeight: "bold",
-              }}
-            >
-              Tiêu chuẩn đạt:
+          <Col lg={12} xs={24} className="title-span">
+            <span>
+              <strong>Tiêu chuẩn đạt:</strong>
             </span>
-            {dethi && (
-              <span
-                style={{
-                  width: "calc(100% - 120px)",
-                }}
-              >
-                {dethi.tieuChuanDat}%
-              </span>
-            )}
+            {dethi && <span>{dethi.tieuChuanDat}%</span>}
           </Col>
           {DeThi && (
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "130px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời gian còn lại:
+            <Col lg={12} xs={24} className="title-span">
+              <span>
+                <strong>Thời gian còn lại:</strong>
               </span>
               {DeThi && DeThi.gioiHanThoiGian && (
                 <span
                   style={{
-                    width: "calc(100% - 130px)",
                     color: "red",
                     fontWeight: "bold",
                   }}
@@ -541,15 +432,13 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
           >
             {SelectedCauHoi ? (
               <Row gutter={[0, 5]}>
-                <Col span={24}>
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Câu {selectedIndex + 1}. ({dethi.soDiemMoiCau} điểm):{" "}
-                    {SelectedCauHoi.noiDung}
+                <Col span={24} className="title-span">
+                  <span style={{ whiteSpace: "nowrap" }}>
+                    <strong>
+                      Câu {selectedIndex + 1}. ({dethi.soDiemMoiCau} điểm):
+                    </strong>
                   </span>
+                  <span>{SelectedCauHoi.noiDung}</span>
                 </Col>
                 {SelectedCauHoi.hinhAnh || SelectedCauHoi.video ? (
                   <Col
@@ -626,24 +515,27 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
                                 value={ans.vptq_lms_ThiThuChiTietDapAn_Id}
                                 style={{
                                   display: "flex",
-                                  alignItems: "flex-start",
+                                  alignItems: "center",
                                 }}
                               >
-                                <span
-                                  style={{
-                                    fontWeight: "bold",
-                                  }}
-                                >
-                                  {String.fromCharCode(65 + index)}.
-                                </span>
-                                {"  "}
-                                <span
-                                  style={{
-                                    whiteSpace: "break-spaces",
-                                  }}
-                                >
-                                  {ans.dapAn}
-                                </span>
+                                <div className="title-span">
+                                  <span
+                                    style={{
+                                      fontWeight: "bold",
+                                    }}
+                                  >
+                                    <strong>
+                                      {String.fromCharCode(65 + index)}.
+                                    </strong>
+                                  </span>
+                                  <span
+                                    style={{
+                                      whiteSpace: "break-spaces",
+                                    }}
+                                  >
+                                    {ans.dapAn}
+                                  </span>
+                                </div>
                               </Radio>
                             </Col>
                           );
@@ -681,26 +573,12 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
               md={12}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
-              <span
-                style={{
-                  width: "70px",
-                  fontWeight: "bold",
-                }}
-              >
-                Lần thi:
+              <span>
+                <strong>Lần thi:</strong>
               </span>
-              <span
-                style={{
-                  width: "calc(100% - 70px)",
-                }}
-              >
-                Lần thứ {KetQuaThi.lanThiThu}
-              </span>
+              <span>{KetQuaThi.lanThiThu}</span>
             </Col>
             <Col
               xxl={8}
@@ -709,26 +587,12 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
               md={12}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời gian bắt đầu:
+              <span>
+                <strong>Thời gian bắt đầu:</strong>
               </span>
-              <span
-                style={{
-                  width: "calc(100% - 140px)",
-                }}
-              >
-                {KetQuaThi.thoiGianBatDau}
-              </span>
+              <span>{KetQuaThi.thoiGianBatDau}</span>
             </Col>
             <Col
               xxl={8}
@@ -737,26 +601,12 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
               md={12}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
-              <span
-                style={{
-                  width: "145px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời gian kết thúc:
+              <span>
+                <strong>Thời gian kết thúc:</strong>
               </span>
-              <span
-                style={{
-                  width: "calc(100% - 145px)",
-                }}
-              >
-                {KetQuaThi.thoiGianKetThuc}
-              </span>
+              <span>{KetQuaThi.thoiGianKetThuc}</span>
             </Col>
             <Col
               xxl={8}
@@ -765,26 +615,12 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
               md={12}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                Số câu đúng:
+              <span>
+                <strong>Số câu đúng:</strong>
               </span>
-              <span
-                style={{
-                  width: "calc(100% - 100px)",
-                }}
-              >
-                {KetQuaThi.soCauTraLoiDung} câu
-              </span>
+              <span>{KetQuaThi.soCauTraLoiDung} câu</span>
             </Col>
             <Col
               xxl={8}
@@ -793,26 +629,12 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
               md={12}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
-              <span
-                style={{
-                  width: "80px",
-                  fontWeight: "bold",
-                }}
-              >
-                Số điểm:
+              <span>
+                <strong>Số điểm:</strong>
               </span>
-              <span
-                style={{
-                  width: "calc(100% - 80px)",
-                }}
-              >
-                {KetQuaThi.soDiem} điểm
-              </span>
+              <span>{KetQuaThi.soDiem} điểm</span>
             </Col>
             <Col
               xxl={8}
@@ -821,24 +643,14 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
               md={12}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
-              <span
-                style={{
-                  width: "80px",
-                  fontWeight: "bold",
-                }}
-              >
-                Kết quả:
+              <span>
+                <strong>Kết quả:</strong>
               </span>
               <span
                 style={{
-                  width: "calc(100% - 80px)",
                   color: KetQuaThi.ketQua === "Không đạt" ? "red" : "#0469b9",
-                  fontWeight: "bold",
                 }}
               >
                 {KetQuaThi.ketQua}
@@ -859,14 +671,15 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
                     return (
                       <Col span={24}>
                         <Row gutter={[0, 10]}>
-                          <Col span={24}>
-                            <span
-                              style={{
-                                fontWeight: "bold",
-                              }}
-                            >
-                              Câu {index + 1}. ({KetQuaThi.soDiemMoiCau} điểm):{" "}
-                              {ketqua.noiDung}
+                          <Col span={24} className="title-span">
+                            <span>
+                              <strong>
+                                Câu {index + 1}. (
+                                {KetQuaThi && KetQuaThi.soDiemMoiCau} điểm):
+                              </strong>
+                            </span>
+                            <span>
+                              <strong>{ketqua.noiDung}</strong>
                             </span>
                           </Col>
                           {ketqua.hinhAnh || ketqua.video ? (
@@ -946,39 +759,45 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
                                           disabled
                                           style={{
                                             display: "flex",
-                                            alignItems: "flex-start",
+                                            alignItems: "center",
                                           }}
                                         >
-                                          <span
-                                            style={{
-                                              fontWeight: "bold",
-                                              color:
-                                                ans.isChon && ketqua.isCorrect
-                                                  ? "#0469b9"
-                                                  : ans.isChon &&
-                                                    !ketqua.isCorrect
-                                                  ? "red"
-                                                  : "",
-                                            }}
-                                          >
-                                            {String.fromCharCode(65 + index)}.
-                                          </span>
-                                          {"  "}
-                                          <span
-                                            style={{
-                                              whiteSpace: "break-spaces",
-                                              fontWeight: ans.isChon && "bold",
-                                              color:
-                                                ans.isChon && ketqua.isCorrect
-                                                  ? "#0469b9"
-                                                  : ans.isChon &&
-                                                    !ketqua.isCorrect
-                                                  ? "red"
-                                                  : "",
-                                            }}
-                                          >
-                                            {ans.dapAn}
-                                          </span>
+                                          <div className="title-span">
+                                            <span
+                                              style={{
+                                                color:
+                                                  ans.isChon && ketqua.isCorrect
+                                                    ? "#0469b9"
+                                                    : ans.isChon &&
+                                                      !ketqua.isCorrect
+                                                    ? "red"
+                                                    : "",
+                                              }}
+                                            >
+                                              <strong>
+                                                {String.fromCharCode(
+                                                  65 + index
+                                                )}
+                                                .
+                                              </strong>
+                                            </span>
+                                            <span
+                                              style={{
+                                                whiteSpace: "break-spaces",
+                                                fontWeight:
+                                                  ans.isChon && "bold",
+                                                color:
+                                                  ans.isChon && ketqua.isCorrect
+                                                    ? "#0469b9"
+                                                    : ans.isChon &&
+                                                      !ketqua.isCorrect
+                                                    ? "red"
+                                                    : "",
+                                              }}
+                                            >
+                                              {ans.dapAn}
+                                            </span>
+                                          </div>
                                         </Radio>
                                       </Col>
                                     );
