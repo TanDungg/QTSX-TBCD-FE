@@ -241,7 +241,9 @@ function ImportCauHoi({ openModalFS, openModal, refesh }) {
         )
       );
     }).then((res) => {
-      exportExcel("FileMauImportCauHoi", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("FileMauImportCauHoi", res.data.dataexcel);
+      }
     });
   };
 

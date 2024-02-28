@@ -418,7 +418,9 @@ function BaoCaoHocPhiTheoDangKyDaoTao({ history, permission }) {
         )
       );
     }).then((res) => {
-      exportExcel("BAO_CAO_HOC_PHI_THEO_DANG_KY_DAO_TAO", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("BAO_CAO_HOC_PHI_THEO_DANG_KY_DAO_TAO", res.data.dataexcel);
+      }
     });
   };
 

@@ -207,7 +207,9 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
         )
       );
     }).then((res) => {
-      exportExcel("FileMauImportCBNV", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("FileMauImportCBNV", res.data.dataexcel);
+      }
     });
   };
 

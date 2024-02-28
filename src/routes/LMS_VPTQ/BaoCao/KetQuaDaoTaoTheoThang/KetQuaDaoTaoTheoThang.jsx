@@ -317,7 +317,9 @@ function BaoCaoKetQuaDaoTaoTheoThang({ history, permission }) {
         )
       );
     }).then((res) => {
-      exportExcel("BAO_CAO_KET_QUA_DAO_TAO_THEO_THANG", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("BAO_CAO_KET_QUA_DAO_TAO_THEO_THANG", res.data.dataexcel);
+      }
     });
   };
 

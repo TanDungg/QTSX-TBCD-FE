@@ -452,7 +452,9 @@ function BaoCaoHocPhiTheoDonVi({ history, permission }) {
         )
       );
     }).then((res) => {
-      exportExcel("BAO_CAO_HOC_PHI_THEO_DON_VI", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("BAO_CAO_HOC_PHI_THEO_DON_VI", res.data.dataexcel);
+      }
     });
   };
 

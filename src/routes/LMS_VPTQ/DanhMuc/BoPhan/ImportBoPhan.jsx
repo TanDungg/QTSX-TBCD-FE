@@ -106,7 +106,9 @@ function ImportBoPhan({ openModalFS, openModal, loading, refesh }) {
         )
       );
     }).then((res) => {
-      exportExcel("File_Mau_Bo_Phan", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel("File_Mau_Bo_Phan", res.data.dataexcel);
+      }
     });
   };
   const xuLyExcel = (file) => {

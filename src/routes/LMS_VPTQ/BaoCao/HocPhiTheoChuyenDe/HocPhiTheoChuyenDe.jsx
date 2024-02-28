@@ -306,7 +306,12 @@ function BaoCaoHocPhiTheoChuyenDe({ history, permission }) {
         )
       );
     }).then((res) => {
-      exportExcel("BAO_CAO_HOC_PHI_THEO_CHUYEN_DE_DAO_TAO", res.data.dataexcel);
+      if (res && res.data) {
+        exportExcel(
+          "BAO_CAO_HOC_PHI_THEO_CHUYEN_DE_DAO_TAO",
+          res.data.dataexcel
+        );
+      }
     });
   };
 

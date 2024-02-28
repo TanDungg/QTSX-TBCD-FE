@@ -21763,6 +21763,7 @@ textarea.ant-pagination-options-quick-jumper input {
 
 .ant-progress-status-success .ant-progress-bg {
   background-color: #52c41a;
+  height: 5px !important;
 }
 
 .ant-progress-status-success .ant-progress-text {

@@ -662,7 +662,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
           align="center"
         >
           <Image
-            src={require("public/HuongDanhThiTracNghiem.jpg")}
+            src={require("public/images/HuongDanThiTracNghiem.jpg")}
             alt="Hình ảnh"
             style={{ height: "40vh" }}
           />

@@ -884,7 +884,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Tên chuyên đề"
               name={["formchuyendedaotao", "tenChuyenDeDaoTao"]}
@@ -905,7 +905,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Mô tả chuyên đề"
               name={["formchuyendedaotao", "moTa"]}
@@ -916,13 +916,13 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               ]}
             >
               <TextArea
-                rows={6}
+                rows={5}
                 className="input-item"
                 placeholder="Nhập mô tả chuyên đề đào tạo"
               />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Kiến thức"
               name={["formchuyendedaotao", "vptq_lms_KienThuc_Id"]}
@@ -944,7 +944,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Hình thức đào tạo"
               name={["formchuyendedaotao", "vptq_lms_HinhThucDaoTao_Id"]}
@@ -967,7 +967,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Giảng viên"
               name={["formchuyendedaotao", "vptq_lms_GiangVien_Id"]}
@@ -993,7 +993,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Thời lượng đào tạo"
               name={["formchuyendedaotao", "thoiLuongDaoTao"]}
@@ -1013,7 +1013,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Video đào tạo"
               name={["formchuyendedaotao", "fileVideo"]}
@@ -1087,7 +1087,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               )}
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="File tài liệu"
               name={["formchuyendedaotao", "fileTaiLieu"]}
@@ -1164,7 +1164,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               )}
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Sử dụng"
               name={["formchuyendedaotao", "isSuDung"]}
@@ -1173,7 +1173,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               <Switch />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Ghi chú"
               name={["formchuyendedaotao", "ghiChu"]}
@@ -1186,6 +1186,11 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               <Input className="input-item" placeholder="Nhập ghi chú" />
             </FormItem>
           </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24} align="left">
+            {loading && (
+              <Progress percent={parseFloat(loading.toFixed(2))} type="line" />
+            )}
+          </Col>
           <FormSubmit
             goBack={goBack}
             saveAndClose={saveAndClose}
@@ -1193,7 +1198,6 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           />
         </Form>
       </Card>
-      {loading && <Progress percent={loading} type="line" />}
     </div>
   );
 };

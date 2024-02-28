@@ -9,17 +9,19 @@ import {
   convertObjectToUrlParams,
   getTokenInfo,
   getLocalStorage,
+  LayDuoiFile,
 } from "src/util/Common";
 import {
   DoubleLeftOutlined,
   DoubleRightOutlined,
+  EyeOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
 import { BASE_URL_API } from "src/constants/Config";
 
 function TaiLieuThamKhao({ match, history, permission }) {
   const dispatch = useDispatch();
-  const { loading } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const INFO = {
     ...getLocalStorage("menu"),
     user_Id: getTokenInfo().id,
@@ -30,11 +32,13 @@ function TaiLieuThamKhao({ match, history, permission }) {
   const [pageSize, setPageSize] = useState(null);
   const [ListKienThuc, setListKienThuc] = useState([]);
   const [KienThuc, setKienThuc] = useState(null);
+  const [IsQuanLyTaiLieu, setIsQuanLyTaiLieu] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (permission && permission.view) {
+      getIsQuanLyTaiLieu();
       getListKienThuc();
       getListData(KienThuc, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
@@ -42,6 +46,28 @@ function TaiLieuThamKhao({ match, history, permission }) {
     }
     return () => dispatch(fetchReset());
   }, []);
+
+  const getIsQuanLyTaiLieu = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `vptq_lms_TaiLieuThamKhao/is-ql-tai-lieu-tham-khao?donVi_Id=${INFO.donVi_Id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setIsQuanLyTaiLieu(res.data);
+      } else {
+        setIsQuanLyTaiLieu(false);
+      }
+    });
+  };
 
   const getListData = (vptq_lms_KienThuc_Id, keyword, page) => {
     let param = convertObjectToUrlParams({
@@ -173,10 +199,46 @@ function TaiLieuThamKhao({ match, history, permission }) {
     );
   };
 
-  const handleOpenFile = (file) => {
-    if (file) {
-      window.open(BASE_URL_API + file);
+  const handleOpenFile = (fileTaiLieu) => {
+    const file = BASE_URL_API + fileTaiLieu;
+    if (fileTaiLieu) {
+      const fileExtension = fileTaiLieu.split(".").pop().toLowerCase();
+
+      if (fileExtension === "pdf") {
+        const viewerUrl = file;
+        window.open(viewerUrl, "_blank");
+      } else {
+        window.open(file, "_blank");
+      }
     }
+    // const duoifile = LayDuoiFile(fileTaiLieu);
+    // if (duoifile.includes("pdf")) {
+    //   if (fileTaiLieu) {
+    //     const fileExtension = fileTaiLieu.split(".").pop().toLowerCase();
+
+    //     if (fileExtension === "pdf") {
+    //       const viewerUrl = file;
+    //       window.open(viewerUrl, "_blank");
+    //     } else {
+    //       window.open(file, "_blank");
+    //     }
+    //   }
+    // } else if (duoifile.includes("ppt")) {
+    //   const googleSlidesViewerUrl = `https://docs.google.com/presentation/viewer?url=${encodeURIComponent(
+    //     file
+    //   )}`;
+    //   window.open(googleSlidesViewerUrl, "_blank");
+    // } else if (duoifile.includes("doc")) {
+    //   const googleDocsViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(
+    //     file
+    //   )}`;
+    //   window.open(googleDocsViewerUrl, "_blank");
+    // } else if (duoifile.includes("xlsx")) {
+    //   const googleSheetsViewerUrl = `https://docs.google.com/spreadsheets/viewer?url=${encodeURIComponent(
+    //     file
+    //   )}`;
+    //   window.open(googleSheetsViewerUrl, "_blank");
+    // }
   };
 
   const handleEdit = (item) => {
@@ -208,7 +270,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
       <ContainerHeader
         title={"Tài liệu tham khảo"}
         description="Danh sách tài liệu tham khảo"
-        buttons={addButtonRender()}
+        buttons={IsQuanLyTaiLieu && addButtonRender()}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
@@ -274,34 +336,61 @@ function TaiLieuThamKhao({ match, history, permission }) {
         >
           {Data.length !== 0 &&
             Data.map((dt, index) => {
+              const maxlength = width >= 1200 || width < 768 ? 150 : 120;
+              const duoifile = LayDuoiFile(dt.fileTaiLieu);
+              let hinhAnh;
+              if (duoifile.includes("ppt")) {
+                hinhAnh = require("public/images/icon_file_powerpoint.png");
+              } else if (duoifile.includes("doc")) {
+                hinhAnh = require("public/images/icon_file_word.png");
+              } else if (duoifile.includes("pdf")) {
+                hinhAnh = require("public/images/icon_file_pdf.png");
+              }
               return (
-                <Col
-                  xxl={8}
-                  xl={8}
-                  lg={12}
-                  md={12}
-                  sm={24}
-                  xs={24}
-                  key={index}
-                  style={{ marginBottom: 8 }}
-                >
-                  <div
-                    style={{
-                      border: "2px solid #c8c8c8",
-                      borderRadius: "10px",
-                      padding: "10px 15px",
-                      height: "120px",
-                    }}
+                dt && (
+                  <Col
+                    xxl={8}
+                    xl={12}
+                    lg={12}
+                    md={12}
+                    sm={24}
+                    xs={24}
+                    key={index}
+                    style={{ marginBottom: "15px" }}
                   >
-                    <Row>
-                      <Col
-                        span={24}
+                    <div
+                      style={{
+                        border: "2px solid #c8c8c8",
+                        borderRadius: "10px",
+                        padding: "10px 15px",
+                        height: "140px",
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-start",
+                        gap: "3px",
+                      }}
+                    >
+                      <div
                         style={{
                           display: "flex",
-                          alignItems: "center",
+                          alignItems: "flex-start",
+                          gap: "10px",
                         }}
                       >
-                        {dt && (
+                        <img
+                          src={hinhAnh}
+                          alt="icon file"
+                          style={{ height: "60px", cursor: "pointer" }}
+                          onClick={() => handleXemChiTiet(dt)}
+                        />
+                        <div
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            width: "100%",
+                            gap: "2px",
+                          }}
+                        >
                           <span
                             style={{
                               fontSize: "16px",
@@ -309,7 +398,8 @@ function TaiLieuThamKhao({ match, history, permission }) {
                               color: "#0469b9",
                               cursor: "pointer",
                               transition: "color 0.3s",
-                              width: "calc(100% - 120px)",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
                             }}
                             onClick={() => handleXemChiTiet(dt)}
                             onMouseOver={(e) =>
@@ -324,90 +414,65 @@ function TaiLieuThamKhao({ match, history, permission }) {
                             onMouseUp={(e) =>
                               (e.target.style.color = "#0469b9")
                             }
+                            title={dt.tenTaiLieu && dt.tenTaiLieu}
                           >
-                            {dt.tenTaiLieu}
+                            {dt.tenTaiLieu && dt.tenTaiLieu.length > 37
+                              ? `${dt.tenTaiLieu
+                                  .toUpperCase()
+                                  .substring(0, 37)}...`
+                              : dt.tenTaiLieu.toUpperCase()}
                           </span>
-                        )}
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "flex-end",
-                            width: "120px",
-                          }}
-                        >
-                          <div className="button-container">
-                            <span
-                              className={`span-click liked`}
-                              title="Chỉnh sửa câu hỏi"
-                              onClick={() => handleEdit(dt)}
-                            >
-                              Chỉnh sửa
-                            </span>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "5px",
+                              fontSize: "13px",
+                            }}
+                          >
+                            <EyeOutlined />
+                            <span>{dt.soLuotXem} lượt xem</span>
                           </div>
-                          <Divider type="vertical" />
-                          <div className="button-container">
-                            <span
-                              className={`span-click disliked`}
-                              title="Xóa câu hỏi"
-                              onClick={() => handleDelete(dt)}
+                          {IsQuanLyTaiLieu && (
+                            <div
+                              style={{
+                                display: "flex",
+                              }}
                             >
-                              Xóa
-                            </span>
-                          </div>
+                              <div className="button-container">
+                                <span
+                                  className={`span-click liked`}
+                                  title="Chỉnh sửa câu hỏi"
+                                  onClick={() => handleEdit(dt)}
+                                >
+                                  Chỉnh sửa
+                                </span>
+                              </div>
+                              <Divider type="vertical" />
+                              <div className="button-container">
+                                <span
+                                  className={`span-click disliked`}
+                                  title="Xóa câu hỏi"
+                                  onClick={() => handleDelete(dt)}
+                                >
+                                  Xóa
+                                </span>
+                              </div>
+                            </div>
+                          )}
                         </div>
-                      </Col>
-                      <Col
-                        span={24}
-                        style={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                        }}
+                      </div>
+                      <span
+                        style={{ overflow: "hidden", textOverflow: "ellipsis" }}
+                        title={dt.moTa && dt.moTa}
                       >
-                        <span
-                          style={{
-                            width: "85px",
-                          }}
-                        >
-                          Số lượt xem:
-                        </span>
-                        {dt && (
-                          <span
-                            style={{
-                              width: "calc(100% - 85px)",
-                            }}
-                          >
-                            {dt.soLuotXem} lượt
-                          </span>
-                        )}
-                      </Col>
-                      <Col
-                        span={24}
-                        style={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                          flexWrap: "wrap",
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: "45px",
-                          }}
-                        >
-                          Mô tả:
-                        </span>
-                        {dt && (
-                          <span
-                            style={{
-                              width: "calc(100% - 45px)",
-                            }}
-                          >
-                            {dt.moTa}
-                          </span>
-                        )}
-                      </Col>
-                    </Row>
-                  </div>
-                </Col>
+                        {dt.moTa && dt.moTa.length > maxlength
+                          ? `${dt.moTa.substring(0, maxlength)}...`
+                          : dt.moTa}
+                      </span>
+                    </div>
+                  </Col>
+                )
               );
             })}
         </Row>
