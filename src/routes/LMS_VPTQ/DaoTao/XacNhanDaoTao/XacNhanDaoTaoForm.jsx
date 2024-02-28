@@ -690,178 +690,70 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
               )}
             </Col>
             <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              <span
-                style={{
-                  width: "145px",
-                  fontWeight: "bold",
-                }}
-              >
-                Chuyên đề đào tạo:
-              </span>
               {ThongTinLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 145px)",
-                  }}
-                >
-                  <strong>Tên chuyên đề:</strong>{" "}
+                <span>
+                  <strong>Chuyên đề đào tạo:</strong>{" "}
                   {ThongTinLopHoc.tenChuyenDeDaoTao}
                 </span>
               )}
             </Col>
             <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              <span
-                style={{
-                  width: "145px",
-                  fontWeight: "bold",
-                }}
-              >
-                Hình thức đào tạo:
-              </span>
               {ThongTinLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 145px)",
-                  }}
-                >
-                  <strong>Tên chuyên đề:</strong>{" "}
+                <span>
+                  <strong>Hình thức đào tạo:</strong>{" "}
                   {ThongTinLopHoc.tenHinhThucDaoTao}
                 </span>
               )}
             </Col>
             <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              <span
-                style={{
-                  width: "135px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời gian đào tạo:
-              </span>
               {ThongTinLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 135px)",
-                  }}
-                >
-                  <strong>Tên chuyên đề:</strong>{" "}
+                <span>
+                  <strong>Thời gian đào tạo:</strong>{" "}
                   {ThongTinLopHoc.thoiGianDaoTao}
                 </span>
               )}
             </Col>
             <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              <span
-                style={{
-                  width: "150px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời lượng đào tạo:
-              </span>
               {ThongTinLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 150px)",
-                  }}
-                >
-                  <strong>Tên chuyên đề:</strong>{" "}
+                <span>
+                  <strong>Thời lượng đào tạo:</strong>{" "}
                   {ThongTinLopHoc.thoiLuongDaoTao} phút
                 </span>
               )}
             </Col>
             <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              <span
-                style={{
-                  width: "115px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người đăng ký:
-              </span>
               {ThongTinLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 115px)",
-                  }}
-                >
-                  <strong>Tên chuyên đề:</strong> {ThongTinLopHoc.tenNguoiTao}
+                <span>
+                  <strong>Người đăng ký:</strong> {ThongTinLopHoc.tenNguoiTao}
                 </span>
               )}
             </Col>
             <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              <span
-                style={{
-                  width: "135px",
-                  fontWeight: "bold",
-                }}
-              >
-                Tổng số học viên:
-              </span>
+              {ListHocVien && (
+                <span>
+                  <strong>Tổng số học viên:</strong> {ListHocVien.length} học
+                  viên
+                </span>
+              )}
+            </Col>
+            {ThongTinLopHoc && ThongTinLopHoc.diaDiem && (
+              <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
+                <span>
+                  <strong>Địa điểm đào tạo:</strong> {ThongTinLopHoc.diaDiem}
+                </span>
+              </Col>
+            )}
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               {ThongTinLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 135px)",
-                  }}
-                >
-                  <strong>Tên chuyên đề:</strong>{" "}
-                  {ThongTinLopHoc.soLuongDiemDanh} học viên
+                <span>
+                  <strong>Người duyệt:</strong> {ThongTinLopHoc.tenNguoiDuyet}
                 </span>
               )}
             </Col>
             <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              <span
-                style={{
-                  width: "135px",
-                  fontWeight: "bold",
-                }}
-              >
-                Địa điểm đào tạo:
-              </span>
               {ThongTinLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 135px)",
-                  }}
-                >
-                  <strong>Tên chuyên đề:</strong> {ThongTinLopHoc.diaDiem}
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              <span
-                style={{
-                  width: "110px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người duyệt:
-              </span>
-              {ThongTinLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 110px)",
-                  }}
-                >
-                  <strong>Tên chuyên đề:</strong> {ThongTinLopHoc.tenNguoiDuyet}
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
-              <span
-                style={{
-                  width: "105px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thi khảo sát:
-              </span>
-              {ThongTinLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 105px)",
-                  }}
-                >
-                  <strong>Tên chuyên đề:</strong>{" "}
+                <span>
+                  <strong>Thi khảo sát:</strong>{" "}
                   <Checkbox
                     checked={ThongTinLopHoc.isThi}
                     style={{ marginTop: "-10px" }}
@@ -871,32 +763,9 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
               )}
             </Col>
             {ThongTinLopHoc && ThongTinLopHoc.tenDeThi && (
-              <Col
-                xxl={8}
-                xl={8}
-                lg={12}
-                md={12}
-                sm={24}
-                xs={24}
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                }}
-              >
-                <span
-                  style={{
-                    width: "65px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Đề thi:
-                </span>
-                <span
-                  style={{
-                    width: "calc(100% - 65px)",
-                  }}
-                >
-                  <strong>Tên chuyên đề:</strong> {ThongTinLopHoc.tenDeThi}
+              <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+                <span>
+                  <strong>Đề thi:</strong> {ThongTinLopHoc.tenDeThi}
                 </span>
               </Col>
             )}
