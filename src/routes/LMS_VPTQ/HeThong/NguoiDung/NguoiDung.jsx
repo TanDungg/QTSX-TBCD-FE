@@ -258,12 +258,13 @@ function NguoiDung({ match, history, permission }) {
         key: "chiTietRoles",
         align: "center",
         render: (val) => renderDisplayName(JSON.parse(val)),
+        width: 300,
       },
       {
         title: "Mã nhân viên",
         dataIndex: "maNhanVien",
         key: "maNhanVien",
-        width: 150,
+        width: 120,
         align: "center",
         filters: removeDuplicates(
           map(dataList, (d) => {
@@ -281,6 +282,7 @@ function NguoiDung({ match, history, permission }) {
         dataIndex: "fullName",
         align: "center",
         key: "fullName",
+        width: 150,
         filters: removeDuplicates(
           map(dataList, (d) => {
             return {
@@ -292,7 +294,13 @@ function NguoiDung({ match, history, permission }) {
         filterSearch: true,
         onFilter: (value, record) => record.fullName.includes(value),
       },
-      { title: "Email", dataIndex: "email", key: "email", align: "center" },
+      {
+        title: "Email",
+        dataIndex: "email",
+        key: "email",
+        align: "center",
+        width: 180,
+      },
     ];
     if (permission && permission.edit) {
       renderHead = [

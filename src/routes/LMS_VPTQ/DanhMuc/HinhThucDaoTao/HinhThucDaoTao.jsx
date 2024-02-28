@@ -15,7 +15,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
-import { DAOTAO_ONLINE } from "src/constants/Config";
+import { HINHTHUCDAOTAO_ONLINE } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -97,7 +97,7 @@ function HinhThucDaoTao({ history, permission, match }) {
 
   const actionContent = (item) => {
     const editItem =
-      permission && permission.edit && item.id !== DAOTAO_ONLINE ? (
+      permission && permission.edit && item.id !== HINHTHUCDAOTAO_ONLINE ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -113,7 +113,7 @@ function HinhThucDaoTao({ history, permission, match }) {
         </span>
       );
     const deleteItemVal =
-      permission && permission.del && item.id !== DAOTAO_ONLINE
+      permission && permission.del && item.id !== HINHTHUCDAOTAO_ONLINE
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (

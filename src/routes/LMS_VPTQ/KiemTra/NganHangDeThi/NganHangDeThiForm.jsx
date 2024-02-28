@@ -16,6 +16,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 import {
   BASE_URL_API,
   DEFAULT_FORM_ADD_2COL_150PX,
+  HINHTHUCDAOTAO_TUHOC,
 } from "src/constants/Config";
 import { getTokenInfo, getLocalStorage } from "src/util/Common";
 import ModalThemCauHoi from "./ModalThemCauHoi";
@@ -86,7 +87,19 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListChuyenDeDaoTao(res.data);
+          const newData = res.data
+            .filter(
+              (data) =>
+                data.vptq_lms_HinhThucDaoTao_Id.toLowerCase() !==
+                HINHTHUCDAOTAO_TUHOC
+            )
+            .map((dt) => {
+              return {
+                ...dt,
+                chuyenDe: `${dt.tenChuyenDeDaoTao} (${dt.tenHinhThucDaoTao})`,
+              };
+            });
+          setListChuyenDeDaoTao(newData);
         } else {
           setListChuyenDeDaoTao([]);
         }
@@ -430,7 +443,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                     className="heading-select slt-search th-select-heading"
                     data={ListChuyenDeDaoTao ? ListChuyenDeDaoTao : []}
                     placeholder="Chọn chuyên đề đào tạo"
-                    optionsvalue={["id", "tenChuyenDeDaoTao"]}
+                    optionsvalue={["id", "chuyenDe"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
