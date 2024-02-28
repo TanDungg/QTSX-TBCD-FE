@@ -496,273 +496,69 @@ function KiemTraVaDuyet({ history, permission }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 10]}>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "150px",
-                  fontWeight: "bold",
-                }}
-              >
-                Tên phiếu đăng ký:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 150px)",
-                  }}
-                >
+                <span>
+                  <strong>Tên phiếu đăng ký:</strong>{" "}
                   {DataChiTiet.tenPhieuDangKyDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "150px",
-                  fontWeight: "bold",
-                }}
-              >
-                Chuyên đề đào tạo:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 150px)",
-                  }}
-                >
+                <span>
+                  <strong>Chuyên đề đào tạo:</strong>{" "}
                   {DataChiTiet.tenChuyenDeDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời gian dự kiến:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
+                <span>
+                  <strong>Thời gian dự kiến:</strong>{" "}
                   {DataChiTiet.thoiGianDuKien}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "70px",
-                  fontWeight: "bold",
-                }}
-              >
-                Đơn vị:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 70px)",
-                  }}
-                >
-                  {DataChiTiet.tenDonVi}
+                <span>
+                  <strong>Đơn vị:</strong> {DataChiTiet.tenDonVi}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Mục tiêu đào tạo:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
-                  {DataChiTiet.mucTieu}
+                <span>
+                  <strong>Mục tiêu đào tạo:</strong> {DataChiTiet.mucTieu}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "130px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người tạo phiếu:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 130px)",
-                  }}
-                >
-                  {DataChiTiet.tenNguoiTao}
+                <span>
+                  <strong>Người tạo phiếu:</strong> {DataChiTiet.tenNguoiTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người kiểm tra:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
-                  {DataChiTiet.tenNguoiKiemTra}
+                <span>
+                  <strong>Người kiểm tra:</strong> {DataChiTiet.tenNguoiKiemTra}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "120px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người duyệt:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 120px)",
-                  }}
-                >
-                  {DataChiTiet.tenNguoiDuyet}
+                <span>
+                  <strong>Người duyệt:</strong> {DataChiTiet.tenNguoiDuyet}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "120px",
-                  fontWeight: "bold",
-                }}
-              >
-                Ghi chú:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 120px)",
-                  }}
-                >
-                  {DataChiTiet.moTa}
+                <span>
+                  <strong>Ghi chú:</strong> {DataChiTiet.moTa}
                 </span>
               )}
             </Col>

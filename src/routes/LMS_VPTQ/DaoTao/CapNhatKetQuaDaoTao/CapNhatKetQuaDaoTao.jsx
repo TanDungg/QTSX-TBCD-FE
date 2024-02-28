@@ -877,189 +877,53 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
         title={"Cập nhật giấy chứng nhận kết quả đào tạo"}
         className="th-card-reset-margin"
         open={ActiveModalCapNhat}
-        width={width >= 1600 ? `70%` : width >= 1200 ? `85%` : "100%"}
+        width={width >= 1600 ? `75%%` : "100%"}
         closable={true}
         onCancel={() => handleRefesh()}
         footer={null}
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 10]}>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "110px",
-                  fontWeight: "bold",
-                }}
-              >
-                Mã nhân viên:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 110px)",
-                  }}
-                >
-                  {DataChiTiet.maNhanVien}
+                <span>
+                  <strong>Mã nhân viên:</strong> {DataChiTiet.maNhanVien}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "80px",
-                  fontWeight: "bold",
-                }}
-              >
-                Họ và tên:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 80px)",
-                  }}
-                >
-                  {DataChiTiet.fullName}
+                <span>
+                  <strong>Họ và tên:</strong> {DataChiTiet.fullName}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "60px",
-                  fontWeight: "bold",
-                }}
-              >
-                Đơn vị:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 60px)",
-                  }}
-                >
-                  {DataChiTiet.tenDonVi}
+                <span>
+                  <strong>Đơn vị:</strong> {DataChiTiet.tenDonVi}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "145px",
-                  fontWeight: "bold",
-                }}
-              >
-                Chuyên đề đào tạo:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 145px)",
-                  }}
-                >
+                <span>
+                  <strong>Lớp học:</strong> {DataChiTiet.tenLopHoc}
+                </span>
+              )}
+            </Col>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+              {DataChiTiet && (
+                <span>
+                  <strong>Chuyên đề đào tạo:</strong>{" "}
                   {DataChiTiet.tenChuyenDeDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "70px",
-                  fontWeight: "bold",
-                }}
-              >
-                Lớp học:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 70px)",
-                  }}
-                >
-                  {DataChiTiet.tenLopHoc}
-                </span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Hình thức đào tạo:
-              </span>
-              {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
+                <span>
+                  <strong> Hình thức đào tạo:</strong>{" "}
                   {DataChiTiet.tenHinhThucDaoTao}
                 </span>
               )}

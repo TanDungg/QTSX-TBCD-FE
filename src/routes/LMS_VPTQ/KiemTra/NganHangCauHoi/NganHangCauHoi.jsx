@@ -666,28 +666,10 @@ function CauHoi({ permission, history, match }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 15]}>
-            <Col
-              span={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "70px",
-                  fontWeight: "bold",
-                }}
-              >
-                Câu hỏi:
-              </span>
+            <Col span={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 70px)",
-                  }}
-                >
-                  {DataChiTiet.noiDung}
+                <span>
+                  <strong>Câu hỏi:</strong> {DataChiTiet.noiDung}
                 </span>
               )}
             </Col>
@@ -778,20 +760,9 @@ function CauHoi({ permission, history, match }) {
                       color: dapan.isCorrect && "#0469b9",
                     }}
                   >
-                    <span
-                      style={{
-                        width: "30px",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {String.fromCharCode(65 + index)}.
-                    </span>
                     {DataChiTiet && (
-                      <span
-                        style={{
-                          width: "calc(100% - 30px)",
-                        }}
-                      >
+                      <span>
+                        <strong>{String.fromCharCode(65 + index)}.</strong>{" "}
                         {dapan.dapAn}
                       </span>
                     )}
@@ -805,110 +776,31 @@ function CauHoi({ permission, history, match }) {
           title={"Thông tin về câu hỏi"}
         >
           <Row gutter={[0, 15]}>
-            <Col
-              lg={12}
-              md={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                Chuyên đề:
-              </span>
+            <Col lg={12} md={12} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 100px)",
-                  }}
-                >
-                  {DataChiTiet.tenChuyenDeDaoTao}
+                <span>
+                  <strong>Chuyên đề:</strong> {DataChiTiet.tenChuyenDeDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              lg={12}
-              md={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người tạo:
-              </span>
+            <Col lg={12} md={12} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 100px)",
-                  }}
-                >
-                  {DataChiTiet.nguoiTao}
+                <span>
+                  <strong>Người tạo:</strong> {DataChiTiet.nguoiTao}
                 </span>
               )}
             </Col>
-            <Col
-              lg={12}
-              md={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                Ngày tạo:
-              </span>
+            <Col lg={12} md={12} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 100px)",
-                  }}
-                >
-                  {DataChiTiet.ngayTao}
+                <span>
+                  <strong>Ngày tạo:</strong> {DataChiTiet.ngayTao}
                 </span>
               )}
             </Col>
-            <Col
-              lg={12}
-              md={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <span
-                style={{
-                  width: "150px",
-                  fontWeight: "bold",
-                }}
-              >
-                Trạng thái sử dụng:
-              </span>
+            <Col lg={12} md={12} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 150px)",
-                  }}
-                >
+                <span>
+                  <strong>Trạng thái sử dụng:</strong>{" "}
                   <Checkbox checked={DataChiTiet.isSuDung} disabled />
                 </span>
               )}

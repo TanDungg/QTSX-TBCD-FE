@@ -823,186 +823,60 @@ function ThiKhaoSat({ permission, history }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 10]}>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "70px",
-                  fontWeight: "bold",
-                }}
-              >
-                Lần thi:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 70px)",
-                  }}
-                >
-                  Lần thứ {DataChiTiet.lanThiThu}
+                <span>
+                  <strong>Lần thi:</strong> {DataChiTiet.lanThiThu}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời gian bắt đầu:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
+                <span>
+                  <strong>Thời gian bắt đầu:</strong>{" "}
                   {DataChiTiet.thoiGianBatDauThi}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "145px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời gian kết thúc:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 145px)",
-                  }}
-                >
+                <span>
+                  <strong>Thời gian kết thúc:</strong>{" "}
                   {DataChiTiet.thoiGianKetThucThi}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                Số câu đúng:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 100px)",
-                  }}
-                >
-                  {DataChiTiet.soCauTraLoiDung} câu
+                <span>
+                  <strong> Số câu đúng:</strong> {DataChiTiet.soCauTraLoiDung}{" "}
+                  câu
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "80px",
-                  fontWeight: "bold",
-                }}
-              >
-                Số điểm:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 80px)",
-                  }}
-                >
-                  {DataChiTiet.soDiem} điểm
+                <span>
+                  <strong>Số điểm:</strong> {DataChiTiet.soDiem} điểm
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "80px",
-                  fontWeight: "bold",
-                }}
-              >
-                Kết quả:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 80px)",
-                    color:
-                      DataChiTiet.ketQua === "Không đạt" ? "red" : "#0469b9",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {DataChiTiet.ketQua}
+                <span>
+                  <strong>
+                    Kết quả:{" "}
+                    <span
+                      style={{
+                        color:
+                          DataChiTiet.ketQua === "Không đạt"
+                            ? "red"
+                            : "#0469b9",
+                      }}
+                    >
+                      {DataChiTiet.ketQua}
+                    </span>
+                  </strong>
                 </span>
               )}
             </Col>
@@ -1169,93 +1043,25 @@ function ThiKhaoSat({ permission, history }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 10]}>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "120px",
-                  fontWeight: "bold",
-                }}
-              >
-                Tên chuyên đề:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {ThongTinLichSu && (
-                <span
-                  style={{
-                    width: "calc(100% - 120px)",
-                  }}
-                >
+                <span>
+                  <strong>Tên chuyên đề:</strong>{" "}
                   {ThongTinLichSu.tenChuyenDeDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                Tên đề thi:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {ThongTinLichSu && (
-                <span
-                  style={{
-                    width: "calc(100% - 100px)",
-                  }}
-                >
-                  {ThongTinLichSu.tenDeThi}
+                <span>
+                  <strong>Tên đề thi:</strong> {ThongTinLichSu.tenDeThi}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "90px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người thi:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {ThongTinLichSu && (
-                <span
-                  style={{
-                    width: "calc(100% - 90px)",
-                  }}
-                >
-                  {ThongTinLichSu.fullName}
+                <span>
+                  <strong>Người thi:</strong> {ThongTinLichSu.fullName}
                 </span>
               )}
             </Col>
