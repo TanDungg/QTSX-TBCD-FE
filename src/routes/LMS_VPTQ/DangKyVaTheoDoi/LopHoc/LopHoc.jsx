@@ -647,182 +647,49 @@ function LopHoc({ match, history, permission }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 10]}>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                Tên lớp học:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {ChiTietLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 100px)",
-                  }}
-                >
-                  {ChiTietLopHoc.tenLopHoc}
+                <span>
+                  <strong>Tên lớp học:</strong> {ChiTietLopHoc.tenLopHoc}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "150px",
-                  fontWeight: "bold",
-                }}
-              >
-                Chuyên đề đào tạo:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {ChiTietLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 150px)",
-                  }}
-                >
+                <span>
+                  <strong>Chuyên đề đào tạo:</strong>{" "}
                   {ChiTietLopHoc.tenChuyenDeDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Hình thức đào tạo:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {ChiTietLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
+                <span>
+                  <strong>Hình thức đào tạo:</strong>{" "}
                   {ChiTietLopHoc.tenHinhThucDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời gian đào tạo:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {ChiTietLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
+                <span>
+                  <strong>Thời gian đào tạo:</strong>{" "}
                   {ChiTietLopHoc.thoiGianDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "150px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời lượng đào tạo:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {ChiTietLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 150px)",
-                  }}
-                >
+                <span>
+                  <strong>Thời lượng đào tạo:</strong>{" "}
                   {ChiTietLopHoc.thoiLuongDaoTao} phút
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "105px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thi khảo sát:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {ChiTietLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 105px)",
-                  }}
-                >
+                <span>
+                  <strong>Thi khảo sát:</strong>{" "}
                   <Checkbox
                     checked={ChiTietLopHoc.isThi}
                     style={{ marginTop: "-10px" }}
@@ -831,193 +698,67 @@ function LopHoc({ match, history, permission }) {
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "120px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người đăng ký:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {ChiTietLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 120px)",
-                  }}
-                >
-                  {ChiTietLopHoc.tenNguoiTao}
+                <span>
+                  <strong>Người đăng ký:</strong> {ChiTietLopHoc.tenNguoiTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Số lượng học viên:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {ChiTietLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
+                <span>
+                  <strong>Số lượng học viên:</strong>{" "}
                   {ChiTietLopHoc.list_ChiTiets.length} học viên
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "130px",
-                  fontWeight: "bold",
-                }}
-              >
-                Địa điểm đào tạo:
-              </span>
+            {ChiTietLopHoc && ChiTietLopHoc.diaDiem && (
+              <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+                <span>
+                  <strong>Địa điểm đào tạo:</strong> {ChiTietLopHoc.diaDiem}
+                </span>
+              </Col>
+            )}
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {ChiTietLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 130px)",
-                  }}
-                >
-                  {ChiTietLopHoc.diaDiem}
+                <span>
+                  <strong>Người duyệt:</strong> {ChiTietLopHoc.tenNguoiDuyet}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người duyệt:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {ChiTietLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 100px)",
-                  }}
-                >
-                  {ChiTietLopHoc.tenNguoiDuyet}
-                </span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "90px",
-                  fontWeight: "bold",
-                }}
-              >
-                Tình trạng:
-              </span>
-              {ChiTietLopHoc && (
-                <span
-                  style={{
-                    color:
-                      ChiTietLopHoc.tinhTrang === "Đã duyệt"
-                        ? "#0469b9"
-                        : ChiTietLopHoc.tinhTrang === "Chưa duyệt"
-                        ? "orange"
-                        : "red",
-                    width: "calc(100% - 90px)",
-                  }}
-                >
-                  {ChiTietLopHoc.tinhTrang}
+                <span>
+                  <strong>Tình trạng:</strong>{" "}
+                  <span
+                    style={{
+                      color:
+                        ChiTietLopHoc.tinhTrang === "Đã duyệt"
+                          ? "#0469b9"
+                          : ChiTietLopHoc.tinhTrang === "Chưa duyệt"
+                          ? "orange"
+                          : "red",
+                      width: "calc(100% - 90px)",
+                    }}
+                  >
+                    {ChiTietLopHoc.tinhTrang}
+                  </span>
                 </span>
               )}
             </Col>
             {ChiTietLopHoc && ChiTietLopHoc.lyDoTuChoi ? (
-              <Col
-                xxl={8}
-                xl={8}
-                lg={12}
-                md={12}
-                sm={24}
-                xs={24}
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                }}
-              >
-                <span
-                  style={{
-                    width: "110px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Lý do từ chối:
-                </span>
-                {ChiTietLopHoc && (
+              <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+                <span>
+                  <strong>Lý do từ chối:</strong>{" "}
                   <span
                     style={{
                       color: "red",
-                      width: "calc(100% - 110px)",
                     }}
                   >
                     {ChiTietLopHoc.lyDoTuChoi}
                   </span>
-                )}
+                </span>
               </Col>
             ) : null}
           </Row>

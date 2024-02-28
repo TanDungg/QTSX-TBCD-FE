@@ -646,273 +646,70 @@ function DangKyDaoTao({ match, history, permission }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 10]}>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "150px",
-                  fontWeight: "bold",
-                }}
-              >
-                Tên phiếu đăng ký:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {PhieuDangKy && (
-                <span
-                  style={{
-                    width: "calc(100% - 150px)",
-                  }}
-                >
+                <span>
+                  <strong>Tên phiếu đăng ký:</strong>{" "}
                   {PhieuDangKy.tenPhieuDangKyDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "150px",
-                  fontWeight: "bold",
-                }}
-              >
-                Chuyên đề đào tạo:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {PhieuDangKy && (
-                <span
-                  style={{
-                    width: "calc(100% - 150px)",
-                  }}
-                >
+                <span>
+                  <strong>Chuyên đề đào tạo:</strong>{" "}
                   {PhieuDangKy.tenChuyenDeDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời gian dự kiến:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {PhieuDangKy && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
+                <span>
+                  <strong>Thời gian dự kiến:</strong>{" "}
                   {PhieuDangKy.thoiGianDuKien}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "70px",
-                  fontWeight: "bold",
-                }}
-              >
-                Đơn vị:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {PhieuDangKy && (
-                <span
-                  style={{
-                    width: "calc(100% - 70px)",
-                  }}
-                >
-                  {PhieuDangKy.tenDonVi}
+                <span>
+                  <strong>Đơn vị:</strong> {PhieuDangKy.tenDonVi}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Mục tiêu đào tạo:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {PhieuDangKy && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
-                  {PhieuDangKy.mucTieu}
+                <span>
+                  <strong>Mục tiêu đào tạo:</strong>{" "}
+                  {PhieuDangKy.tenMucTieuDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "130px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người tạo phiếu:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {PhieuDangKy && (
-                <span
-                  style={{
-                    width: "calc(100% - 130px)",
-                  }}
-                >
-                  {PhieuDangKy.tenNguoiTao}
+                <span>
+                  <strong>Người tạo phiếu:</strong> {PhieuDangKy.tenNguoiTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người kiểm tra:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {PhieuDangKy && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
-                  {PhieuDangKy.tenNguoiKiemTra}
+                <span>
+                  <strong>Người kiểm tra:</strong> {PhieuDangKy.tenNguoiKiemTra}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "120px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người duyệt:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {PhieuDangKy && (
-                <span
-                  style={{
-                    width: "calc(100% - 120px)",
-                  }}
-                >
-                  {PhieuDangKy.tenNguoiDuyet}
+                <span>
+                  <strong>Người duyệt:</strong> {PhieuDangKy.tenNguoiDuyet}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "120px",
-                  fontWeight: "bold",
-                }}
-              >
-                Ghi chú:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
               {PhieuDangKy && (
-                <span
-                  style={{
-                    width: "calc(100% - 120px)",
-                  }}
-                >
-                  {PhieuDangKy.moTa}
+                <span>
+                  <strong>Ghi chú:</strong> {PhieuDangKy.moTa}
                 </span>
               )}
             </Col>

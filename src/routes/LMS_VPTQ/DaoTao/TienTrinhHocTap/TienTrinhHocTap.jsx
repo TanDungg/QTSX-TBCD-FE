@@ -526,273 +526,68 @@ function TienTrinhHocTap({ permission, history }) {
       )}
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row gutter={[0, 10]}>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "85px",
-                fontWeight: "bold",
-              }}
-            >
-              Họ và tên:
-            </span>
+          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
             {Data && (
-              <span
-                style={{
-                  width: "calc(100% - 85px)",
-                }}
-              >
-                {Data.fullName}
+              <span>
+                <strong>Họ và tên:</strong> {Data.fullName}
               </span>
             )}
           </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "110px",
-                fontWeight: "bold",
-              }}
-            >
-              Mã nhân viên:
-            </span>
+          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
             {Data && (
-              <span
-                style={{
-                  width: "calc(100% - 110px)",
-                }}
-              >
-                {Data.maNhanVien}
+              <span>
+                <strong>Mã nhân viên:</strong> {Data.maNhanVien}
               </span>
             )}
           </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "85px",
-                fontWeight: "bold",
-              }}
-            >
-              Ngày sinh:
-            </span>
+          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
             {Data && (
-              <span
-                style={{
-                  width: "calc(100% - 85px)",
-                }}
-              >
-                {Data.ngaySinh}
+              <span>
+                <strong>Ngày sinh:</strong> {Data.ngaySinh}
               </span>
             )}
           </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "90px",
-                fontWeight: "bold",
-              }}
-            >
-              Chức danh:
-            </span>
+          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
             {Data && (
-              <span
-                style={{
-                  width: "calc(100% - 90px)",
-                }}
-              >
-                {Data.tenChucDanh}
+              <span>
+                <strong>Chức danh:</strong> {Data.tenChucDanh}
               </span>
             )}
           </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "80px",
-                fontWeight: "bold",
-              }}
-            >
-              Chức vụ:
-            </span>
+          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
             {Data && (
-              <span
-                style={{
-                  width: "calc(100% - 80px)",
-                }}
-              >
-                {Data.tenChucVu}
+              <span>
+                <strong>Chức vụ:</strong> {Data.tenChucVu}
               </span>
             )}
           </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "95px",
-                fontWeight: "bold",
-              }}
-            >
-              Phòng ban:
-            </span>
+          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
             {Data && (
-              <span
-                style={{
-                  width: "calc(100% - 95px)",
-                }}
-              >
-                {Data.tenPhongBan}
+              <span>
+                <strong>Phòng ban:</strong> {Data.tenPhongBan}
               </span>
             )}
           </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "60px",
-                fontWeight: "bold",
-              }}
-            >
-              Đơn vị:
-            </span>
+          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
             {Data && (
-              <span
-                style={{
-                  width: "calc(100% - 60px)",
-                }}
-              >
-                {Data.tenDonVi}
+              <span>
+                <strong>Đơn vị:</strong> {Data.tenDonVi}
               </span>
             )}
           </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "140px",
-                fontWeight: "bold",
-              }}
-            >
-              Số lượng đăng ký:
-            </span>
+          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
             {Data && (
-              <span
-                style={{
-                  width: "calc(100% - 140px)",
-                }}
-              >
-                {Data.soLuongDangKy} chuyên đề
+              <span>
+                <strong>Số lượng đăng ký:</strong> {Data.soLuongDangKy} chuyên
+                đề
               </span>
             )}
           </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "160px",
-                fontWeight: "bold",
-              }}
-            >
-              Số lượng hoàn thành:
-            </span>
+          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
             {Data && (
-              <span
-                style={{
-                  width: "calc(100% - 160px)",
-                }}
-              >
-                {Data.soLuongHoanThanh} chuyên đề
+              <span>
+                <strong>Số lượng hoàn thành:</strong> {Data.soLuongHoanThanh}{" "}
+                chuyên đề
               </span>
             )}
           </Col>

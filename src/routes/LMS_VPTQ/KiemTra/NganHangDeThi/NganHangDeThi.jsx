@@ -736,210 +736,61 @@ function NganHangDeThi({ permission, history, match }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 10]}>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                Tên đề thi:
-              </span>
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 100px)",
-                  }}
-                >
-                  {DataChiTiet.tenDeThi}
+                <span>
+                  <strong>Tên đề thi:</strong> {DataChiTiet.tenDeThi}
                 </span>
               )}
             </Col>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                Chuyên đề:
-              </span>
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 100px)",
-                  }}
-                >
-                  {DataChiTiet.tenChuyenDeDaoTao}
+                <span>
+                  <strong>Chuyên đề:</strong> {DataChiTiet.tenChuyenDeDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "130px",
-                  fontWeight: "bold",
-                }}
-              >
-                Số lượng câu hỏi:
-              </span>
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 130px)",
-                  }}
-                >
-                  {DataChiTiet.soLuongCauHoi} câu
+                <span>
+                  <strong>Số lượng câu hỏi:</strong> {DataChiTiet.soLuongCauHoi}{" "}
+                  câu
                 </span>
               )}
             </Col>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thang điểm:
-              </span>
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 100px)",
-                  }}
-                >
-                  {DataChiTiet.thangDiem} điểm
+                <span>
+                  <strong>Thang điểm:</strong> {DataChiTiet.thangDiem} điểm
                 </span>
               )}
             </Col>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời gian làm bài:
-              </span>
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
+                <span>
+                  <strong>Thời gian làm bài:</strong>{" "}
                   {DataChiTiet.thoiGianLamBai} phút
                 </span>
               )}
             </Col>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người tạo:
-              </span>
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 100px)",
-                  }}
-                >
-                  {DataChiTiet.nguoiTao}
+                <span>
+                  <strong>Người tạo:</strong> {DataChiTiet.nguoiTao}
                 </span>
               )}
             </Col>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                Ngày tạo:
-              </span>
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 100px)",
-                  }}
-                >
-                  {DataChiTiet.ngayTao}
+                <span>
+                  <strong>Ngày tạo:</strong> {DataChiTiet.ngayTao}
                 </span>
               )}
             </Col>
-            <Col
-              lg={12}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "center",
-              }}
-            >
-              <span
-                style={{
-                  width: "150px",
-                  fontWeight: "bold",
-                }}
-              >
-                Trạng thái sử dụng:
-              </span>
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 150px)",
-                  }}
-                >
+                <span>
+                  <strong>Trạng thái sử dụng:</strong>{" "}
                   <Checkbox checked={DataChiTiet.isSuDung} disabled />
                 </span>
               )}
@@ -1060,25 +911,11 @@ function NganHangDeThi({ permission, history, match }) {
                       {cauhoi.list_DapAns &&
                         cauhoi.list_DapAns.map((dapan, index) => {
                           return (
-                            <Col
-                              span={24}
-                              style={{
-                                display: "flex",
-                                alignItems: "flex-start",
-                              }}
-                            >
-                              <span
-                                style={{
-                                  width: "30px",
-                                }}
-                              >
-                                {String.fromCharCode(65 + index)}.
-                              </span>
-                              <span
-                                style={{
-                                  width: "calc(100% - 30px)",
-                                }}
-                              >
+                            <Col span={24}>
+                              <span>
+                                <strong>
+                                  {String.fromCharCode(65 + index)}.
+                                </strong>{" "}
                                 {dapan.dapAn}
                               </span>
                             </Col>
