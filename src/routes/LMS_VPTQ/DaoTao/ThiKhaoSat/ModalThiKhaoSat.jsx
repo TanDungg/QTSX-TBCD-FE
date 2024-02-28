@@ -295,194 +295,64 @@ function ModalThiKhaoSat({
     >
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row gutter={[0, 10]}>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={24}
-            sm={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "90px",
-                fontWeight: "bold",
-              }}
-            >
-              Tên đề thi:
-            </span>
+          <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
             {ThongTinDeThi && (
-              <span
-                style={{
-                  width: "calc(100% - 90px)",
-                }}
-              >
-                {ThongTinDeThi.tenDeThi}
+              <span>
+                <strong>Tên đề thi:</strong> {ThongTinDeThi.tenDeThi}
               </span>
             )}
           </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={24}
-            sm={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "130px",
-                fontWeight: "bold",
-              }}
-            >
-              Số lượng câu hỏi:
-            </span>
+          <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
             {ThongTinDeThi && (
-              <span
-                style={{
-                  width: "calc(100% - 130px)",
-                }}
-              >
-                {ThongTinDeThi.soLuongCauHoi} câu
+              <span>
+                <strong>Số lượng câu hỏi:</strong> {ThongTinDeThi.soLuongCauHoi}{" "}
+                câu
               </span>
             )}
           </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={24}
-            sm={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "140px",
-                fontWeight: "bold",
-              }}
-            >
-              Thời gian làm bài:
-            </span>
+          <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
             {ThongTinDeThi && (
-              <span
-                style={{
-                  width: "calc(100% - 140px)",
-                }}
-              >
+              <span>
+                <strong>Thời gian làm bài:</strong>{" "}
                 {ThongTinDeThi.thoiGianLamBai} phút
               </span>
             )}
           </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={24}
-            sm={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "100px",
-                fontWeight: "bold",
-              }}
-            >
-              Thang điểm:
-            </span>
+          <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
             {ThongTinDeThi && (
-              <span
-                style={{
-                  width: "calc(100% - 100px)",
-                }}
-              >
-                {ThongTinDeThi.thangDiem} điểm
+              <span>
+                <strong>Thang điểm:</strong> {ThongTinDeThi.thangDiem} điểm
               </span>
             )}
           </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={24}
-            sm={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-            }}
-          >
-            <span
-              style={{
-                width: "120px",
-                fontWeight: "bold",
-              }}
-            >
-              Tiêu chuẩn đạt:
-            </span>
+          <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
             {ThongTinDeThi && (
-              <span
-                style={{
-                  width: "calc(100% - 120px)",
-                }}
-              >
-                {ThongTinDeThi.tieuChuanDat}%
+              <span>
+                <strong>Tiêu chuẩn đạt:</strong> {ThongTinDeThi.tieuChuanDat}%
               </span>
             )}
           </Col>
           {DeThi && (
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "130px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời gian còn lại:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
               {ListCauHoi.length && DeThi && (
-                <span
-                  style={{
-                    width: "calc(100% - 130px)",
-                    color: "red",
-                    fontWeight: "bold",
-                  }}
-                >
-                  <Countdown
-                    value={moment(
-                      DeThi.gioiHanThoiGianThi,
-                      "DD/MM/YYYY HH:mm:ss"
-                    )
-                      .toDate()
-                      .getTime()}
-                    onFinish={onFinish}
-                  />
+                <span>
+                  <strong>Thời gian còn lại:</strong>{" "}
+                  <span
+                    style={{
+                      color: "red",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    <Countdown
+                      value={moment(
+                        DeThi.gioiHanThoiGianThi,
+                        "DD/MM/YYYY HH:mm:ss"
+                      )
+                        .toDate()
+                        .getTime()}
+                      onFinish={onFinish}
+                    />
+                  </span>
                 </span>
               )}
             </Col>
@@ -732,179 +602,44 @@ function ModalThiKhaoSat({
           style={{ height: "100%", overflowY: "auto" }}
         >
           <Row gutter={[0, 10]} style={{ marginBottom: "10px" }}>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "70px",
-                  fontWeight: "bold",
-                }}
-              >
-                Lần thi:
-              </span>
-              <span
-                style={{
-                  width: "calc(100% - 70px)",
-                  color: "#0469b9",
-                }}
-              >
-                Lần thứ {KetQuaThi.lanThiThu}
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+              <span>
+                <strong>Lần thi:</strong> {KetQuaThi.lanThiThu}
               </span>
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời gian bắt đầu:
-              </span>
-              <span
-                style={{
-                  width: "calc(100% - 140px)",
-                  color: "#0469b9",
-                }}
-              >
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+              <span>
+                <strong>Thời gian bắt đầu:</strong>{" "}
                 {KetQuaThi.thoiGianBatDauThi}
               </span>
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "145px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời gian kết thúc:
-              </span>
-              <span
-                style={{
-                  width: "calc(100% - 145px)",
-                  color: "#0469b9",
-                }}
-              >
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+              <span>
+                <strong>Thời gian kết thúc:</strong>{" "}
                 {KetQuaThi.thoiGianKetThucThi}
               </span>
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                Số câu đúng:
-              </span>
-              <span
-                style={{
-                  width: "calc(100% - 100px)",
-                  color: "#0469b9",
-                }}
-              >
-                {KetQuaThi.soCauTraLoiDung} câu
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+              <span>
+                <strong>Số câu đúng:</strong> {KetQuaThi.soCauTraLoiDung} câu
               </span>
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "80px",
-                  fontWeight: "bold",
-                }}
-              >
-                Số điểm:
-              </span>
-              <span
-                style={{
-                  width: "calc(100% - 80px)",
-                  color: "#0469b9",
-                }}
-              >
-                {KetQuaThi.soDiem} điểm
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+              <span>
+                <strong>Số điểm:</strong> {KetQuaThi.soDiem} điểm
               </span>
             </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "80px",
-                  fontWeight: "bold",
-                }}
-              >
-                Kết quả:
-              </span>
-              <span
-                style={{
-                  width: "calc(100% - 80px)",
-                  color: KetQuaThi.ketQua === "Không đạt" ? "red" : "#0469b9",
-                  fontWeight: "bold",
-                }}
-              >
-                {KetQuaThi.ketQua}
+            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+              <span>
+                <strong>Kết quả:</strong>{" "}
+                <span
+                  style={{
+                    color: KetQuaThi.ketQua === "Không đạt" ? "red" : "#0469b9",
+                    fontWeight: "bold",
+                  }}
+                >
+                  {KetQuaThi.ketQua}
+                </span>
               </span>
             </Col>
           </Row>

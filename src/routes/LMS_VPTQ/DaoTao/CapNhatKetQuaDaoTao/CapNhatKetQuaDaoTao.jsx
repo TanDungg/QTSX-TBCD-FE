@@ -877,7 +877,7 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
         title={"Cập nhật giấy chứng nhận kết quả đào tạo"}
         className="th-card-reset-margin"
         open={ActiveModalCapNhat}
-        width={width >= 1600 ? `75%%` : "100%"}
+        width={width >= 1600 ? `75%` : "100%"}
         closable={true}
         onCancel={() => handleRefesh()}
         footer={null}

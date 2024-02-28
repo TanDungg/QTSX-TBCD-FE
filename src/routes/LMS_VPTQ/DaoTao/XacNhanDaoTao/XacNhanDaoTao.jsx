@@ -474,11 +474,20 @@ function XacNhanDaoTao({ match, permission, history }) {
         );
       },
     },
+
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "center",
+      width: 120,
+    },
     {
       title: "Tình trạng",
       dataIndex: "tinhTrang",
       key: "tinhTrang",
       align: "center",
+      fixed: "right",
       width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
@@ -502,13 +511,6 @@ function XacNhanDaoTao({ match, permission, history }) {
             {value}
           </Tag>
         ),
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 120,
     },
   ];
 
@@ -852,302 +854,78 @@ function XacNhanDaoTao({ match, permission, history }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 10]}>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "95px",
-                  fontWeight: "bold",
-                }}
-              >
-                Tên lớp học:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 95px)",
-                  }}
-                >
-                  {DataChiTiet.tenLopHoc}
+                <span>
+                  <strong>Tên lớp học:</strong> {DataChiTiet.tenLopHoc}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "145px",
-                  fontWeight: "bold",
-                }}
-              >
-                Chuyên đề đào tạo:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 145px)",
-                  }}
-                >
+                <span>
+                  <strong>Chuyên đề đào tạo:</strong>{" "}
                   {DataChiTiet.tenChuyenDeDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "145px",
-                  fontWeight: "bold",
-                }}
-              >
-                Hình thức đào tạo:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 145px)",
-                  }}
-                >
+                <span>
+                  <strong>Hình thức đào tạo:</strong>{" "}
                   {DataChiTiet.tenHinhThucDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "135px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời gian đào tạo:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 135px)",
-                  }}
-                >
+                <span>
+                  <strong>Thời gian đào tạo:</strong>{" "}
                   {DataChiTiet.thoiGianDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "150px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thời lượng đào tạo:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 150px)",
-                  }}
-                >
+                <span>
+                  <strong>Thời lượng đào tạo:</strong>{" "}
                   {DataChiTiet.thoiLuongDaoTao} phút
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "115px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người đăng ký:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 115px)",
-                  }}
-                >
-                  {DataChiTiet.tenNguoiTao}
+                <span>
+                  <strong>Người đăng ký:</strong> {DataChiTiet.tenNguoiTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "135px",
-                  fontWeight: "bold",
-                }}
-              >
-                Tổng số học viên:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 135px)",
-                  }}
-                >
-                  {DataChiTiet.soLuongDiemDanh} học viên
+                <span>
+                  <strong>Tổng số học viên:</strong>{" "}
+                  {ListHocVien && ListHocVien.length} học viên
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "135px",
-                  fontWeight: "bold",
-                }}
-              >
-                Địa điểm đào tạo:
-              </span>
+            {DataChiTiet && DataChiTiet.diaDiem && (
+              <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
+                <span>
+                  <strong>Địa điểm đào tạo:</strong> {DataChiTiet.diaDiem}
+                </span>
+              </Col>
+            )}
+            <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 135px)",
-                  }}
-                >
-                  {DataChiTiet.diaDiem}
+                <span>
+                  <strong>Người duyệt:</strong> {DataChiTiet.tenNguoiDuyet}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "110px",
-                  fontWeight: "bold",
-                }}
-              >
-                Người duyệt:
-              </span>
+            <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 110px)",
-                  }}
-                >
-                  {DataChiTiet.tenNguoiDuyet}
-                </span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "105px",
-                  fontWeight: "bold",
-                }}
-              >
-                Thi khảo sát:
-              </span>
-              {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 105px)",
-                  }}
-                >
+                <span>
+                  <strong>Thi khảo sát:</strong>{" "}
                   <Checkbox
                     checked={DataChiTiet.isThi}
                     style={{ marginTop: "-10px" }}
@@ -1157,73 +935,24 @@ function XacNhanDaoTao({ match, permission, history }) {
               )}
             </Col>
             {DataChiTiet && DataChiTiet.tenDeThi && (
-              <Col
-                xxl={8}
-                xl={12}
-                lg={12}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                }}
-              >
-                <span
-                  style={{
-                    width: "65px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  Đề thi:
+              <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+                <span>
+                  <strong>Tên đề thi:</strong> {DataChiTiet.tenDeThi}
                 </span>
-                {DataChiTiet && (
-                  <span
-                    style={{
-                      width: "calc(100% - 65px)",
-                    }}
-                  >
-                    {DataChiTiet.tenDeThi}
-                  </span>
-                )}
               </Col>
             )}
             {DataChiTiet && DataChiTiet.fileBaoCao && (
-              <Col
-                xxl={8}
-                xl={12}
-                lg={12}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                }}
-              >
-                <span
-                  style={{
-                    width: "100px",
-                    fontWeight: "bold",
-                  }}
-                >
-                  File báo cáo:
-                </span>
-                {DataChiTiet && (
-                  <span
-                    style={{
-                      width: "calc(100% - 100px)",
-                    }}
+              <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+                <span>
+                  <strong>File báo cáo:</strong>{" "}
+                  <a
+                    target="_blank"
+                    href={BASE_URL_API + DataChiTiet.fileBaoCao}
+                    rel="noopener noreferrer"
                   >
-                    <a
-                      target="_blank"
-                      href={BASE_URL_API + DataChiTiet.fileBaoCao}
-                      rel="noopener noreferrer"
-                    >
-                      {DataChiTiet.fileBaoCao.split("/")[5]}
-                    </a>
-                  </span>
-                )}
+                    {DataChiTiet.fileBaoCao.split("/")[5]}
+                  </a>
+                </span>
               </Col>
             )}
           </Row>

@@ -232,7 +232,7 @@ function ThiKhaoSat({ permission, history }) {
           >
             Tiếp tục thi
           </Button>
-        ) : item.isKichHoatThiLai === 1 ? (
+        ) : item.isKichHoatThiLai === 1 && IsAdmin ? (
           <Button
             className="th-margin-bottom-0"
             type="primary"
@@ -489,15 +489,13 @@ function ThiKhaoSat({ permission, history }) {
     },
   ];
 
-  if (IsAdmin) {
-    colValues.unshift({
-      key: "action",
-      align: "center",
-      width: 120,
-      render: (record) => ButtonThi(record),
-      fixed: "left",
-    });
-  }
+  colValues.unshift({
+    key: "action",
+    align: "center",
+    width: 120,
+    render: (record) => ButtonThi(record),
+    fixed: "left",
+  });
 
   let colLichSu = [
     {
