@@ -250,8 +250,8 @@ function HocTrucTuyen({ match, history, permission }) {
                               dt.fileVideo ? BASE_URL_API + dt.fileVideo : null
                             }
                             controls={false}
-                            width="100%"
-                            height="200px"
+                            // width="100%"
+                            height="100%"
                             config={{
                               file: {
                                 attributes: { controlsList: "nodownload" },
@@ -297,53 +297,17 @@ function HocTrucTuyen({ match, history, permission }) {
                           </span>
                         )}
                       </Col>
-
-                      <Col
-                        span={24}
-                        style={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: "80px",
-                          }}
-                        >
-                          Giảng viên:
-                        </span>
+                      <Col span={24}>
                         {dt && (
-                          <span
-                            style={{
-                              width: "calc(100% - 90px)",
-                              color: "#0469b9",
-                            }}
-                          >
-                            {dt.tenGiangVien}
+                          <span>
+                            <strong>Giảng viên:</strong> {dt.tenGiangVien}
                           </span>
                         )}
                       </Col>
-                      <Col
-                        span={24}
-                        style={{
-                          display: "flex",
-                          alignItems: "flex-start",
-                        }}
-                      >
-                        <span
-                          style={{
-                            width: "130px",
-                          }}
-                        >
-                          Thời lượng đào tạo:
-                        </span>
+                      <Col span={24}>
                         {dt && (
-                          <span
-                            style={{
-                              width: "calc(100% - 130px)",
-                              color: "#0469b9",
-                            }}
-                          >
+                          <span>
+                            <strong>Thời lượng đào tạo:</strong>{" "}
                             {dt.thoiLuongDaoTao} phút
                           </span>
                         )}

@@ -15,6 +15,9 @@ const CanBoNhanVienForm = asyncComponent(() =>
   import("./CanBoNhanVien/CanBoNhanVienForm")
 );
 
+/* Chữ ký */
+const ChuKy = asyncComponent(() => import("./ChuKy/ChuKy"));
+
 /* Người dùng */
 const NguoiDung = asyncComponent(() => import("./NguoiDung/NguoiDung"));
 const NguoiDungForm = asyncComponent(() => import("./NguoiDung/NguoiDungForm"));
@@ -70,6 +73,13 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/can-bo-nhan-vien/:id/chinh-sua`}
         exact
         component={Auth(CanBoNhanVienForm, menus, pathname, permission)}
+      />
+
+      {/* Chữ ký */}
+      <Route
+        path={`${match.url}/chu-ky`}
+        exact
+        component={Auth(ChuKy, menus, pathname, permission)}
       />
 
       {/* Người dùng */}

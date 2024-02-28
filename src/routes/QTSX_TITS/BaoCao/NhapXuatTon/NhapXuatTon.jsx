@@ -1,10 +1,9 @@
-import { DownloadOutlined } from "@ant-design/icons";
-import { Button, Card, Row, Col, DatePicker } from "antd";
+import { Card, Row, Col, DatePicker } from "antd";
 import { map, isEmpty } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { exportExcel, getDateNow, reDataForTable } from "src/util/Common";
+import { getDateNow, reDataForTable } from "src/util/Common";
 import {
   EditableTableRow,
   Table,
@@ -25,7 +24,6 @@ function NhapXuatTon({ permission, history, match }) {
   const [keyword, setKeyword] = useState("");
   const [CauTrucKho_Id, setCauTrucKho_Id] = useState("");
   const [ListKho, setListKho] = useState([]);
-  const [VatTu_Id, setVatTu_Id] = useState("");
   const [IsThanhPham, setIsThanhPham] = useState(false);
 
   useEffect(() => {
@@ -119,7 +117,7 @@ function NhapXuatTon({ permission, history, match }) {
         if (res && res.data) {
           setCauTrucKho_Id(res.data[0].id);
           setIsThanhPham(res.data[0].isThanhPham);
-          getListData(keyword, TuNgay, DenNgay, res.data[0].id, VatTu_Id);
+          getListData(keyword, TuNgay, DenNgay, res.data[0].id);
           setListKho(res.data);
         } else {
           setListKho([]);
@@ -130,12 +128,12 @@ function NhapXuatTon({ permission, history, match }) {
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, TuNgay, DenNgay, CauTrucKho_Id, VatTu_Id);
+      getListData(val.target.value, TuNgay, DenNgay, CauTrucKho_Id);
     }
   };
 
   const onSearchKeyword = () => {
-    getListData(keyword, TuNgay, DenNgay, CauTrucKho_Id, VatTu_Id);
+    getListData(keyword, TuNgay, DenNgay, CauTrucKho_Id);
   };
 
   function removeDuplicates(arr) {
@@ -301,7 +299,7 @@ function NhapXuatTon({ permission, history, match }) {
     if (CauTrucKho_Id !== value) {
       setIsThanhPham(ListKho.filter((k) => k.id === value)[0].isThanhPham);
       setCauTrucKho_Id(value);
-      getListData(keyword, TuNgay, DenNgay, value, VatTu_Id);
+      getListData(keyword, TuNgay, DenNgay, value);
     }
   };
   // const handleOnSelectVatTu = (value) => {
@@ -315,13 +313,7 @@ function NhapXuatTon({ permission, history, match }) {
     if (TuNgay !== dateString[0] || DenNgay !== dateString[1]) {
       setTuNgay(dateString[0]);
       setDenNgay(dateString[1]);
-      getListData(
-        keyword,
-        dateString[0],
-        dateString[1],
-        CauTrucKho_Id,
-        VatTu_Id
-      );
+      getListData(keyword, dateString[0], dateString[1], CauTrucKho_Id);
     }
   };
   // const handleOnClearVatTu = () => {
