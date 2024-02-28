@@ -682,48 +682,14 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
           title={"Thông tin lớp học"}
         >
           <Row gutter={[0, 12]}>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "95px",
-                  fontWeight: "bold",
-                }}
-              >
-                Tên lớp học:
-              </span>
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               {ThongTinLopHoc && (
-                <span
-                  style={{
-                    width: "calc(100% - 95px)",
-                  }}
-                >
-                  {ThongTinLopHoc.tenLopHoc}
+                <span>
+                  <strong>Tên lớp học:</strong> {ThongTinLopHoc.tenLopHoc}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               <span
                 style={{
                   width: "145px",
@@ -738,22 +704,12 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                     width: "calc(100% - 145px)",
                   }}
                 >
+                  <strong>Tên chuyên đề:</strong>{" "}
                   {ThongTinLopHoc.tenChuyenDeDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               <span
                 style={{
                   width: "145px",
@@ -768,22 +724,12 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                     width: "calc(100% - 145px)",
                   }}
                 >
+                  <strong>Tên chuyên đề:</strong>{" "}
                   {ThongTinLopHoc.tenHinhThucDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               <span
                 style={{
                   width: "135px",
@@ -798,22 +744,12 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                     width: "calc(100% - 135px)",
                   }}
                 >
+                  <strong>Tên chuyên đề:</strong>{" "}
                   {ThongTinLopHoc.thoiGianDaoTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               <span
                 style={{
                   width: "150px",
@@ -828,22 +764,12 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                     width: "calc(100% - 150px)",
                   }}
                 >
+                  <strong>Tên chuyên đề:</strong>{" "}
                   {ThongTinLopHoc.thoiLuongDaoTao} phút
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               <span
                 style={{
                   width: "115px",
@@ -858,22 +784,11 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                     width: "calc(100% - 115px)",
                   }}
                 >
-                  {ThongTinLopHoc.tenNguoiTao}
+                  <strong>Tên chuyên đề:</strong> {ThongTinLopHoc.tenNguoiTao}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               <span
                 style={{
                   width: "135px",
@@ -888,22 +803,12 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                     width: "calc(100% - 135px)",
                   }}
                 >
+                  <strong>Tên chuyên đề:</strong>{" "}
                   {ThongTinLopHoc.soLuongDiemDanh} học viên
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               <span
                 style={{
                   width: "135px",
@@ -918,22 +823,11 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                     width: "calc(100% - 135px)",
                   }}
                 >
-                  {ThongTinLopHoc.diaDiem}
+                  <strong>Tên chuyên đề:</strong> {ThongTinLopHoc.diaDiem}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               <span
                 style={{
                   width: "110px",
@@ -948,22 +842,11 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                     width: "calc(100% - 110px)",
                   }}
                 >
-                  {ThongTinLopHoc.tenNguoiDuyet}
+                  <strong>Tên chuyên đề:</strong> {ThongTinLopHoc.tenNguoiDuyet}
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
+            <Col xxl={8} xl={12} lg={12} md={12} sm={24} xs={24}>
               <span
                 style={{
                   width: "105px",
@@ -978,6 +861,7 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                     width: "calc(100% - 105px)",
                   }}
                 >
+                  <strong>Tên chuyên đề:</strong>{" "}
                   <Checkbox
                     checked={ThongTinLopHoc.isThi}
                     style={{ marginTop: "-10px" }}
@@ -989,9 +873,9 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
             {ThongTinLopHoc && ThongTinLopHoc.tenDeThi && (
               <Col
                 xxl={8}
-                xl={12}
+                xl={8}
                 lg={12}
-                md={24}
+                md={12}
                 sm={24}
                 xs={24}
                 style={{
@@ -1012,32 +896,14 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                     width: "calc(100% - 65px)",
                   }}
                 >
-                  {ThongTinLopHoc.tenDeThi}
+                  <strong>Tên chuyên đề:</strong> {ThongTinLopHoc.tenDeThi}
                 </span>
               </Col>
             )}
             {(ThongTinLopHoc && ThongTinLopHoc.fileBaoCao) ||
               (type === "xacnhan" && (
-                <Col
-                  xxl={8}
-                  xl={12}
-                  lg={12}
-                  md={24}
-                  sm={24}
-                  xs={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <span
-                    style={{
-                      width: "100px",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    File báo cáo:
-                  </span>
+                <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+                  <strong>File báo cáo:</strong>{" "}
                   {type === "xacnhan" ? (
                     !DisableUploadBaoCao ? (
                       <Upload {...filebaocao}>
