@@ -842,7 +842,11 @@ const TabsHoiDap = ({ dataHoiDap }) => {
             return IndexChinhSuaCauHoi === index ? (
               <div className="rate-edit">
                 <div className="avatar">
-                  <Image src={hd.hinhAnhUrl} className="avatar" />
+                  <img
+                    src={hd.hinhAnhUrl}
+                    alt="ảnh đại diện"
+                    className="avatar"
+                  />
                 </div>
                 <div className="title-edit">
                   <div className="user-info">
@@ -1084,7 +1088,11 @@ const TabsHoiDap = ({ dataHoiDap }) => {
               <div className="question-container" key={index}>
                 <div className="question-container">
                   <div className="user-info">
-                    <Image src={hd.hinhAnhUrl} className="avatar" />
+                    <img
+                      src={hd.hinhAnhUrl}
+                      alt="ảnh đại diện"
+                      className="avatar"
+                    />
                     <div className="title">
                       <div>
                         <span className="name">{hd.fullName}</span>{" "}
@@ -1273,7 +1281,11 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                       return IndexChinhSuaPhanHoi === index ? (
                         <div className="feedback-container" key={index}>
                           <div className="avatar">
-                            <Image src={ph.hinhAnhUrl} className="avatar" />
+                            <img
+                              src={ph.hinhAnhUrl}
+                              alt="ảnh đại diện"
+                              className="avatar"
+                            />
                           </div>
                           <div className="feedback" key={index}>
                             <span className="name">{ph.fullName}</span>
@@ -1448,7 +1460,11 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                       ) : (
                         <div className="feedback-container" key={index}>
                           <div className="avatar">
-                            <Image src={ph.hinhAnhUrl} className="avatar" />
+                            <img
+                              src={ph.hinhAnhUrl}
+                              alt="ảnh đại diện"
+                              className="avatar"
+                            />
                           </div>
                           <div className="feedback" key={index}>
                             <div className="feedback-title">
