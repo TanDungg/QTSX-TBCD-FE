@@ -126,6 +126,8 @@ const CongDoan = asyncComponent(() =>
 const CongDoanForm = asyncComponent(() =>
   import("./DanhMucCongDoan/DanhMucCongDoanForm")
 );
+const LoaiLop = asyncComponent(() => import("./LoaiLop/LoaiLop"));
+const LoaiLopForm = asyncComponent(() => import("./LoaiLop/LoaiLopForm"));
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -609,6 +611,21 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/cong-doan/:id/chinh-sua`}
         exact
         component={Auth(CongDoanForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/loai-lop`}
+        exact
+        component={Auth(LoaiLop, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/loai-lop/them-moi`}
+        exact
+        component={Auth(LoaiLopForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/loai-lop/:id/chinh-sua`}
+        exact
+        component={Auth(LoaiLopForm, menus, pathname, permission)}
       />
       <Route path="*" component={Auth(NotFound, menus, pathname)} />
     </Switch>

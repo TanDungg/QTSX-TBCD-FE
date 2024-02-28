@@ -25,6 +25,7 @@ function SanPhamForm({ match, permission, history }) {
   const [id, setId] = useState(undefined);
   const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
   const [ListDonViTinh, setListDonViTinh] = useState([]);
+  const [ListLoaiLop, setListLoaiLop] = useState([]);
   const [FileHinhAnh, setFileHinhAnh] = useState(null);
   const [FileAnh, setFileAnh] = useState(null);
   const [OpenImage, setOpenImage] = useState(false);
@@ -42,6 +43,7 @@ function SanPhamForm({ match, permission, history }) {
       } else {
         setType("new");
         getDonViTinh();
+        getLoaiLop();
         getLoaiSanPham();
       }
     } else {
@@ -53,6 +55,8 @@ function SanPhamForm({ match, permission, history }) {
           setId(match.params.id);
           getInfo(match.params.id);
           getDonViTinh();
+          getLoaiLop();
+
           getLoaiSanPham();
         }
       }
@@ -86,7 +90,36 @@ function SanPhamForm({ match, permission, history }) {
       })
       .catch((error) => console.error(error));
   };
-
+  const getLoaiLop = async () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_LoaiLop?page=-1`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiLop(
+            res.data.map((l) => {
+              return {
+                ...l,
+                name: l.maLoaiLop + " - " + l.tenLoaiLop,
+              };
+            })
+          );
+        } else {
+          setListLoaiLop([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   const getDonViTinh = async () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -523,6 +556,26 @@ function SanPhamForm({ match, permission, history }) {
                 data={ListDonViTinh ? ListDonViTinh : []}
                 placeholder="Chọn đơn vị tính"
                 optionsvalue={["id", "tenDonViTinh"]}
+                style={{ width: "100%" }}
+                showSearch
+                optionFilterProp="name"
+              />
+            </FormItem>
+            <FormItem
+              label="Loại lốp"
+              name={["sanpham", "tits_qtsx_LoaiLop_Id"]}
+              rules={[
+                {
+                  type: "string",
+                  required: true,
+                },
+              ]}
+            >
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListLoaiLop ? ListLoaiLop : []}
+                placeholder="Chọn loại lốp"
+                optionsvalue={["id", "name"]}
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp="name"

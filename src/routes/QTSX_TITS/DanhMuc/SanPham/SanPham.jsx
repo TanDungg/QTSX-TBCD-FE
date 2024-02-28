@@ -298,6 +298,22 @@ function SanPham({ match, history, permission }) {
       filterSearch: true,
     },
     {
+      title: "Loại lốp",
+      dataIndex: "maLoaiLop",
+      key: "maLoaiLop",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maLoaiLop,
+            value: d.maLoaiLop,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maLoaiLop.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Thông số kỹ thuật",
       dataIndex: "thongSoKyThuat",
       key: "thongSoKyThuat",
