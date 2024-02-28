@@ -12,7 +12,6 @@ import {
   Card,
   Col,
   Divider,
-  Image,
   Input,
   Rate,
   Row,
@@ -281,7 +280,11 @@ const TabsDanhGia = ({ dataDanhGia }) => {
             return IsEdit === index ? (
               <div className="rate-edit">
                 <div className="avatar">
-                  <Image src={danhgia.hinhAnhUrl} className="avatar" />
+                  <img
+                    src={danhgia.hinhAnhUrl}
+                    alt="ảnh đại diện"
+                    className="avatar"
+                  />
                 </div>
                 <div className="title-edit">
                   <div className="user-info">
@@ -361,7 +364,11 @@ const TabsDanhGia = ({ dataDanhGia }) => {
               <div className="rate-container" key={index}>
                 <div className="user-info">
                   <div className="avatar">
-                    <Image src={danhgia.hinhAnhUrl} className="avatar" />
+                    <img
+                      src={danhgia.hinhAnhUrl}
+                      alt="ảnh đại diện"
+                      className="avatar"
+                    />
                   </div>
                   <div className="title">
                     <div className="user-info">

@@ -986,27 +986,27 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                 </span>
               )}
             </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
+            {ThongTinLopHoc && ThongTinLopHoc.tenDeThi && (
+              <Col
+                xxl={8}
+                xl={12}
+                lg={12}
+                md={24}
+                sm={24}
+                xs={24}
                 style={{
-                  width: "65px",
-                  fontWeight: "bold",
+                  display: "flex",
+                  alignItems: "flex-start",
                 }}
               >
-                Đề thi:
-              </span>
-              {ThongTinLopHoc && (
+                <span
+                  style={{
+                    width: "65px",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Đề thi:
+                </span>
                 <span
                   style={{
                     width: "calc(100% - 65px)",
@@ -1014,98 +1014,101 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                 >
                   {ThongTinLopHoc.tenDeThi}
                 </span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={12}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
-            >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
-                File báo cáo:
-              </span>
-              {type === "xacnhan" ? (
-                !DisableUploadBaoCao ? (
-                  <Upload {...filebaocao}>
-                    <Button
-                      className="th-margin-bottom-0"
-                      style={{
-                        marginBottom: 0,
-                      }}
-                      icon={<UploadOutlined />}
-                    >
-                      Tải file tài liệu
-                    </Button>
-                  </Upload>
-                ) : FileBaoCao && FileBaoCao.name ? (
-                  <span style={{ width: "calc(100% - 100px)" }}>
-                    <span
-                      style={{
-                        color: "#0469B9",
-                        cursor: "pointer",
-                        whiteSpace: "break-spaces",
-                      }}
-                      onClick={() => handleOpenFile(FileBaoCao)}
-                    >
-                      {FileBaoCao.name}{" "}
-                    </span>
-                    <DeleteOutlined
-                      style={{ cursor: "pointer", color: "red" }}
-                      onClick={() => {
-                        setFileBaoCao(null);
-                        setDisableUploadBaoCao(false);
-                      }}
-                    />
-                  </span>
-                ) : (
-                  <span>
-                    <a
-                      target="_blank"
-                      href={BASE_URL_API + FileBaoCao}
-                      rel="noopener noreferrer"
-                    >
-                      {FileBaoCao && FileBaoCao.split("/")[5]}{" "}
-                    </a>
-                    <DeleteOutlined
-                      style={{ cursor: "pointer", color: "red" }}
-                      onClick={() => {
-                        setFileBaoCao(null);
-                        setDisableUploadBaoCao(false);
-                      }}
-                    />
-                  </span>
-                )
-              ) : (
-                ThongTinLopHoc &&
-                ThongTinLopHoc.fileBaoCao && (
+              </Col>
+            )}
+            {(ThongTinLopHoc && ThongTinLopHoc.fileBaoCao) ||
+              (type === "xacnhan" && (
+                <Col
+                  xxl={8}
+                  xl={12}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    display: "flex",
+                    alignItems: "flex-start",
+                  }}
+                >
                   <span
                     style={{
-                      width: "calc(100% - 65px)",
+                      width: "100px",
+                      fontWeight: "bold",
                     }}
                   >
-                    <a
-                      target="_blank"
-                      href={BASE_URL_API + ThongTinLopHoc.fileBaoCao}
-                      rel="noopener noreferrer"
-                    >
-                      {ThongTinLopHoc.fileBaoCao.split("/")[5]}{" "}
-                    </a>
+                    File báo cáo:
                   </span>
-                )
-              )}
-            </Col>
+                  {type === "xacnhan" ? (
+                    !DisableUploadBaoCao ? (
+                      <Upload {...filebaocao}>
+                        <Button
+                          className="th-margin-bottom-0"
+                          style={{
+                            marginBottom: 0,
+                          }}
+                          icon={<UploadOutlined />}
+                        >
+                          Tải file tài liệu
+                        </Button>
+                      </Upload>
+                    ) : FileBaoCao && FileBaoCao.name ? (
+                      <span style={{ width: "calc(100% - 100px)" }}>
+                        <span
+                          style={{
+                            color: "#0469B9",
+                            cursor: "pointer",
+                            whiteSpace: "break-spaces",
+                          }}
+                          onClick={() => handleOpenFile(FileBaoCao)}
+                        >
+                          {FileBaoCao.name}{" "}
+                        </span>
+                        <DeleteOutlined
+                          style={{ cursor: "pointer", color: "red" }}
+                          onClick={() => {
+                            setFileBaoCao(null);
+                            setDisableUploadBaoCao(false);
+                          }}
+                        />
+                      </span>
+                    ) : (
+                      <span>
+                        <a
+                          target="_blank"
+                          href={BASE_URL_API + FileBaoCao}
+                          rel="noopener noreferrer"
+                        >
+                          {FileBaoCao && FileBaoCao.split("/")[5]}{" "}
+                        </a>
+                        <DeleteOutlined
+                          style={{ cursor: "pointer", color: "red" }}
+                          onClick={() => {
+                            setFileBaoCao(null);
+                            setDisableUploadBaoCao(false);
+                          }}
+                        />
+                      </span>
+                    )
+                  ) : (
+                    ThongTinLopHoc &&
+                    ThongTinLopHoc.fileBaoCao && (
+                      <span
+                        style={{
+                          width: "calc(100% - 65px)",
+                        }}
+                      >
+                        <a
+                          target="_blank"
+                          href={BASE_URL_API + ThongTinLopHoc.fileBaoCao}
+                          rel="noopener noreferrer"
+                        >
+                          {ThongTinLopHoc.fileBaoCao.split("/")[5]}{" "}
+                        </a>
+                      </span>
+                    )
+                  )}
+                </Col>
+              ))}
           </Row>
         </Card>
         <Card

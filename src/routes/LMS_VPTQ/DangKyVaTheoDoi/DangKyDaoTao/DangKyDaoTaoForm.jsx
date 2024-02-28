@@ -499,6 +499,7 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
   };
 
   const handleSelectMucTieu = (value) => {
+    setFieldTouch(true);
     setMucTieuDaoTao(value);
   };
 

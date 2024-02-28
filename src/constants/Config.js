@@ -1,8 +1,8 @@
-export const BASE_URL_API = "https://erp-api.thacoindustries.com";
+// export const BASE_URL_API = "https://erp-api.thacoindustries.com";
 // export const BASE_URL_API = "https://apitesterp.thacoindustries.com";
 
 // export const BASE_URL_API = `http://10.14.7.215:1512`;
-// export const BASE_URL_API = `http://10.14.7.72:90`;
+export const BASE_URL_API = `http://10.14.7.72:90`;
 
 export const BASE_URL_APP = `${window.location.origin.toString()}`;
 //TPC
@@ -18,7 +18,7 @@ export const XUONG_GCCT = "951c1ae9-6d79-4142-98b3-76faa32a28a2";
 export const SMRM_BANGIAO = "7b89430c-4069-41d4-980b-ff9079a44abe";
 // Phần mềm đào tạo
 export const DONVI_VPTQ = "d12ca19c-2e1a-41b7-86f3-3eb3c7d81a90";
-export const DAOTAO_ONLINE = "cd6b4be5-ca9e-43a7-9cb0-e9058d5653cc";
+export const HINHTHUCDAOTAO_ONLINE = "cd6b4be5-ca9e-43a7-9cb0-e9058d5653cc";
 export const HINHTHUCDAOTAO_TAPTRUNG = "178a69cc-0482-45bd-9113-610eec25abc8";
 export const HINHTHUCDAOTAO_TUHOC = "eb361924-0ae2-406e-b0b9-1085fb6837f1";
 export const DVDT_TRUONG_CD_THACO = "34b63254-5247-4f8e-9628-5b9c2596df41";

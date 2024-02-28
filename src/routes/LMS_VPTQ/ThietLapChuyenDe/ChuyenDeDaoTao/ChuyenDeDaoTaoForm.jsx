@@ -8,7 +8,7 @@ import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import {
   BASE_URL_API,
-  DAOTAO_ONLINE,
+  HINHTHUCDAOTAO_ONLINE,
   DEFAULT_FORM_ADD_170PX,
   HINHTHUCDAOTAO_TUHOC,
 } from "src/constants/Config";
@@ -278,7 +278,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
           xhr.send(formData);
         }
-      } else if (HinhThucDaoTao === DAOTAO_ONLINE) {
+      } else if (HinhThucDaoTao === HINHTHUCDAOTAO_ONLINE) {
         if (!formchuyendedaotao.fileVideo) {
           Helpers.alertError("Vui lòng tải file video lên.");
         } else if (!formchuyendedaotao.fileTaiLieu) {
@@ -497,7 +497,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
           xhr.send(formData);
         }
-      } else if (HinhThucDaoTao === DAOTAO_ONLINE) {
+      } else if (HinhThucDaoTao === HINHTHUCDAOTAO_ONLINE) {
         if (!formchuyendedaotao.fileVideo) {
           Helpers.alertError("Vui lòng tải file video lên.");
         } else if (
@@ -1020,7 +1020,8 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               rules={[
                 {
                   type: "file",
-                  required: HinhThucDaoTao && HinhThucDaoTao === DAOTAO_ONLINE,
+                  required:
+                    HinhThucDaoTao && HinhThucDaoTao === HINHTHUCDAOTAO_ONLINE,
                 },
               ]}
             >

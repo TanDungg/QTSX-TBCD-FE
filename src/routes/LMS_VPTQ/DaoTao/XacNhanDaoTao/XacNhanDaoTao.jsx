@@ -1,5 +1,6 @@
 import {
   EditOutlined,
+  ExportOutlined,
   SearchOutlined,
   SettingOutlined,
 } from "@ant-design/icons";
@@ -12,6 +13,7 @@ import {
   Tag,
   DatePicker,
   Checkbox,
+  Button,
 } from "antd";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
@@ -23,6 +25,7 @@ import {
   getNgayCuoiThang,
   getDateTimeNow,
   getDateNow,
+  exportExcel,
 } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { EditableTableRow, Select, Table } from "src/components/Common";
@@ -210,7 +213,8 @@ function XacNhanDaoTao({ match, permission, history }) {
       moment(item.thoiGianKetThuc, "DD/MM/YYYY") >=
         moment(getDateNow(), "DD/MM/YYYY") &&
       moment(item.thoiGianDaoTao, "DD/MM/YYYY HH:mm") <=
-        moment(getDateTimeNow(), "DD/MM/YYYY HH:mm") ? (
+        moment(getDateTimeNow(), "DD/MM/YYYY HH:mm") &&
+      item.isDaDiemDanh === true ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua-danh-sach`,
@@ -631,6 +635,30 @@ function XacNhanDaoTao({ match, permission, history }) {
       }),
     };
   });
+
+  const handleXuatExcelChiTiet = () => {
+    const param = convertObjectToUrlParams({
+      donViHienHanh_Id: INFO.donVi_Id,
+      vptq_lms_LopHoc_Id: DataChiTiet && DataChiTiet.id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `vptq_lms_XacNhanDaoTao/export-file-mau?${param}`,
+          "POST",
+          null,
+          "DOWLOAD",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        exportExcel("DanhSachHocVien", res.data.dataexcel);
+      }
+    });
+  };
 
   const handleOnSelectKienThuc = (value) => {
     setKienThuc(value);
@@ -1199,6 +1227,16 @@ function XacNhanDaoTao({ match, permission, history }) {
               </Col>
             )}
           </Row>
+          <div align={"end"}>
+            <Button
+              icon={<ExportOutlined />}
+              className="th-margin-bottom-0"
+              onClick={() => handleXuatExcelChiTiet()}
+              type="primary"
+            >
+              Xuất excel
+            </Button>
+          </div>
         </Card>
         <Card
           className="th-card-margin-bottom th-card-reset-margin"

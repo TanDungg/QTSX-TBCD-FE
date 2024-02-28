@@ -495,7 +495,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                       color: "#0469b9",
                     }}
                   >
-                    Giới thiệu giảng viên
+                    GIỚI THIỆU GIẢNG VIÊN
                   </span>
                 </Col>
                 <Col
@@ -514,107 +514,32 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                     />
                   )}
                 </Col>
-                <Col
-                  span={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                      width: "90px",
-                    }}
-                  >
-                    Giảng viên:
-                  </span>
+                <Col span={24}>
                   {ChiTiet && (
-                    <span
-                      style={{
-                        width: "calc(100% - 90px)",
-                        color: "#0469b9",
-                      }}
-                    >
-                      {ChiTiet.tenGiangVien}
+                    <span>
+                      <strong>Giảng viên:</strong> {ChiTiet.tenGiangVien}
                     </span>
                   )}
                 </Col>
-                <Col
-                  span={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                      width: "120px",
-                    }}
-                  >
-                    Loại giảng viên:
-                  </span>
+                <Col span={24}>
                   {ChiTiet && (
-                    <span
-                      style={{
-                        width: "calc(100% - 120px)",
-                        color: "#0469b9",
-                      }}
-                    >
+                    <span>
+                      <strong>Loại giảng viên:</strong>{" "}
                       {ChiTiet.tenLoaiGiangVien}
                     </span>
                   )}
                 </Col>
-                <Col
-                  span={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                      width: "60px",
-                    }}
-                  >
-                    Đơn vị:
-                  </span>
+                <Col span={24}>
                   {ChiTiet && (
-                    <span
-                      style={{
-                        width: "calc(100% - 60px)",
-                        color: "#0469b9",
-                      }}
-                    >
-                      {ChiTiet.tenDonViDaoTao}
+                    <span>
+                      <strong>Đơn vị:</strong> {ChiTiet.tenDonViDaoTao}
                     </span>
                   )}
                 </Col>
-                <Col
-                  span={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontWeight: "bold",
-                      width: "80px",
-                    }}
-                  >
-                    Giới thiệu:
-                  </span>
+                <Col span={24}>
                   {ChiTiet && (
-                    <span
-                      style={{
-                        width: "calc(100% - 80px)",
-                        color: "#0469b9",
-                      }}
-                    >
-                      {ChiTiet.gioiThieu}
+                    <span>
+                      <strong>Giới thiệu:</strong> {ChiTiet.gioiThieu}
                     </span>
                   )}
                 </Col>
@@ -654,62 +579,17 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
             <Row gutter={[0, 8]} style={{ alignItems: "center" }}>
               <Col xxl={20} xl={19} lg={18} md={18} sm={16} xs={16}>
                 <Row gutter={[0, 8]}>
-                  <Col
-                    xxl={12}
-                    xl={12}
-                    lg={12}
-                    md={12}
-                    sm={24}
-                    xs={24}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: "80px",
-                      }}
-                    >
-                      Giảng viên:
-                    </span>
+                  <Col xxl={12} xl={12} lg={12} md={12} sm={24} xs={24}>
                     {ChiTiet && (
-                      <span
-                        style={{
-                          width: "calc(100% - 90px)",
-                          color: "#0469b9",
-                        }}
-                      >
-                        {ChiTiet.tenGiangVien}
+                      <span>
+                        <strong>Giảng viên:</strong> {ChiTiet.tenGiangVien}
                       </span>
                     )}
                   </Col>
-                  <Col
-                    xxl={12}
-                    xl={12}
-                    lg={12}
-                    md={12}
-                    sm={24}
-                    xs={24}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span
-                      style={{
-                        width: "130px",
-                      }}
-                    >
-                      Thời lượng đào tạo:
-                    </span>
+                  <Col xxl={12} xl={12} lg={12} md={12} sm={24} xs={24}>
                     {ChiTiet && (
-                      <span
-                        style={{
-                          width: "calc(100% - 130px)",
-                          color: "#0469b9",
-                        }}
-                      >
+                      <span>
+                        <strong>Thời lượng đào tạo:</strong>{" "}
                         {ChiTiet.thoiLuongDaoTao} phút
                       </span>
                     )}

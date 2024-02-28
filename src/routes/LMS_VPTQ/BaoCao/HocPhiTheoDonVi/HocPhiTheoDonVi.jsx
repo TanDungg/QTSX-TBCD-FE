@@ -157,10 +157,8 @@ function BaoCaoHocPhiTheoDonVi({ history, permission }) {
   };
 
   const actionContent = (item) => {
-    const detailItem =
-      permission && permission.del && !item.isUsed
-        ? { onClick: () => handleChiTiet(item) }
-        : { disabled: true };
+    const detailItem = { onClick: () => handleChiTiet(item) };
+
 
     return item.key === "Tổng" ? (
       <span>{item.key}</span>

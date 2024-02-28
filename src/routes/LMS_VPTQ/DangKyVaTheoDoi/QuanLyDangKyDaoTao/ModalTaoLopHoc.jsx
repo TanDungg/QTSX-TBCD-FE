@@ -21,9 +21,10 @@ import {
   Table,
 } from "src/components/Common";
 import {
-  DAOTAO_ONLINE,
+  HINHTHUCDAOTAO_ONLINE,
   DEFAULT_FORM_ADD_2COL_200PX,
   DONVI_VPTQ,
+  HINHTHUCDAOTAO_TUHOC,
 } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
@@ -381,7 +382,8 @@ function ModalTaoLopHoc({ openModalFS, openModal, dataTaoLopHoc, refesh }) {
               </FormItem>
             </Col>
             {dataTaoLopHoc &&
-            dataTaoLopHoc.vptq_lms_HinhThucDaoTao_Id !== DAOTAO_ONLINE ? (
+            dataTaoLopHoc.vptq_lms_HinhThucDaoTao_Id !==
+              HINHTHUCDAOTAO_ONLINE ? (
               <Col xxl={12} xl={16} lg={20} md={20} sm={24} xs={24}>
                 <FormItem
                   label="Địa điểm đào tạo"
@@ -400,15 +402,19 @@ function ModalTaoLopHoc({ openModalFS, openModal, dataTaoLopHoc, refesh }) {
                 </FormItem>
               </Col>
             ) : null}
-            <Col xxl={12} xl={16} lg={20} md={20} sm={24} xs={24}>
-              <FormItem
-                label="Thi khảo sát"
-                name={["modaltaolophoc", "isThi"]}
-                valuePropName="checked"
-              >
-                <Switch onChange={handleSwitchChange} />
-              </FormItem>
-            </Col>
+            {dataTaoLopHoc &&
+            dataTaoLopHoc.vptq_lms_HinhThucDaoTao_Id !==
+              HINHTHUCDAOTAO_TUHOC ? (
+              <Col xxl={12} xl={16} lg={20} md={20} sm={24} xs={24}>
+                <FormItem
+                  label="Thi khảo sát"
+                  name={["modaltaolophoc", "isThi"]}
+                  valuePropName="checked"
+                >
+                  <Switch onChange={handleSwitchChange} />
+                </FormItem>
+              </Col>
+            ) : null}
             {isThi ? (
               <Col xxl={12} xl={16} lg={20} md={20} sm={24} xs={24}>
                 <FormItem

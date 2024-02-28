@@ -7,11 +7,13 @@ import {
   Col,
   Tag,
   Checkbox,
+  Button,
 } from "antd";
 import {
   EditOutlined,
   DeleteOutlined,
   SearchOutlined,
+  FilePdfOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -26,6 +28,7 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
+  exportPDF,
   reDataForTable,
   removeDuplicates,
 } from "src/util/Common";
@@ -524,6 +527,28 @@ function LopHoc({ match, history, permission }) {
     },
   ];
 
+  const handleXuatFilePDF = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `vptq_lms_LopHoc/export-pdf?vptq_lms_LopHoc_Id=${
+            ChiTietLopHoc && ChiTietLopHoc.id
+          }`,
+          "POST",
+          null,
+          "",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        exportPDF("DanhSachHocVien", res.data.datapdf);
+      }
+    });
+  };
+
   const handleOnSelectChuyenDe = (value) => {
     setChuyenDe(value);
     getListData(value, keyword, page, pageSize);
@@ -996,6 +1021,18 @@ function LopHoc({ match, history, permission }) {
               </Col>
             ) : null}
           </Row>
+          {ChiTietLopHoc && ChiTietLopHoc.isDuyet ? (
+            <div align={"end"}>
+              <Button
+                icon={<FilePdfOutlined />}
+                className="th-margin-bottom-0"
+                onClick={() => handleXuatFilePDF()}
+                type="primary"
+              >
+                Xuất pdf
+              </Button>
+            </div>
+          ) : null}
         </Card>
         <Card className="th-card-margin-bottom" title={"Danh sách học viên"}>
           <Table
