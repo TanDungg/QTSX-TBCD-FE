@@ -92,12 +92,6 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
       const cautruckho = {
         ...cautruckhovattu,
         viTri: !cautruckhovattu.viTri ? 0 : cautruckhovattu.viTri,
-        tits_qtsx_CauTrucKho_ChungTus:
-          cautruckhovattu.tits_qtsx_CauTrucKho_ChungTus.map((chungtu) => {
-            return {
-              tits_qtsx_ChungTu_Id: chungtu,
-            };
-          }),
       };
 
       new Promise((resolve, reject) => {
@@ -130,12 +124,6 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
         ...cautruckhovattu,
         id: id,
         viTri: !cautruckhovattu.viTri ? 0 : cautruckhovattu.viTri,
-        tits_qtsx_CauTrucKho_ChungTus:
-          cautruckhovattu.tits_qtsx_CauTrucKho_ChungTus.map((chungtu) => {
-            return {
-              tits_qtsx_ChungTu_Id: chungtu,
-            };
-          }),
       };
 
       new Promise((resolve, reject) => {
