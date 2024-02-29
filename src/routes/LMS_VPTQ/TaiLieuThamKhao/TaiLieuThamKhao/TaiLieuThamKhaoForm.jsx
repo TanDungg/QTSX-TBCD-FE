@@ -1,5 +1,5 @@
 import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Input, Upload } from "antd";
+import { Button, Card, Col, Form, Input, Progress, Upload } from "antd";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -28,6 +28,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
   const [FileTaiLieu, setFileTaiLieu] = useState(null);
   const [DisableUpload, setDisableUpload] = useState(false);
   const [id, setId] = useState(null);
+  const [Loading, setLoading] = useState(null);
 
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
@@ -97,6 +98,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
             setFileTaiLieu(res.data.fileTaiLieu);
             setDisableUpload(true);
           }
+          setDisabledSave(true);
           setFieldsValue({
             formtailieuthamkhao: data,
           });
@@ -129,56 +131,42 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
   };
 
   const uploadFile = (formtailieuthamkhao, saveQuit) => {
-    if (type === "new") {
-      if (!formtailieuthamkhao.fileTaiLieu) {
-        Helpers.alertError("Vui lòng tải file tài liệu lên!");
-      } else {
-        const formData = new FormData();
-        formData.append("file", formtailieuthamkhao.fileTaiLieu.file);
-        fetch(`${BASE_URL_API}/api/Upload`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(INFO.token),
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            formtailieuthamkhao.fileTaiLieu = data.path;
-            saveData(formtailieuthamkhao, saveQuit);
-          })
-          .catch(() => {
-            console.log("Tải hình ảnh không thành công.");
-          });
-      }
-    }
-    if (type === "edit") {
-      if (!formtailieuthamkhao.fileTaiLieu) {
-        Helpers.alertError("Vui lòng tải file tài liệu lên!");
-      } else if (
+    if (!formtailieuthamkhao.fileTaiLieu) {
+      Helpers.alertError("Vui lòng tải file tài liệu lên!");
+    } else if (
+      (type === "new" && formtailieuthamkhao.fileTaiLieu) ||
+      (type === "edit" &&
         formtailieuthamkhao.fileTaiLieu &&
-        formtailieuthamkhao.fileTaiLieu.file
-      ) {
-        const formData = new FormData();
-        formData.append("file", formtailieuthamkhao.fileTaiLieu.file);
-        fetch(`${BASE_URL_API}/api/Upload`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(INFO.token),
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            formtailieuthamkhao.fileTaiLieu = data.path;
-            saveData(formtailieuthamkhao, saveQuit);
-          })
-          .catch(() => {
-            console.log("Tải hình ảnh không thành công.");
-          });
-      } else {
-        saveData(formtailieuthamkhao, saveQuit);
-      }
+        formtailieuthamkhao.fileTaiLieu.file)
+    ) {
+      const formData = new FormData();
+      formData.append("file", formtailieuthamkhao.fileTaiLieu.file);
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const progress = (event.loaded / event.total) * 100;
+          setLoading(progress);
+        }
+      };
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
+          formtailieuthamkhao.fileTaiLieu = data.path;
+          saveData(formtailieuthamkhao, saveQuit);
+        } else {
+          Helpers.alertError("Tải file không thành công.");
+        }
+      };
+
+      xhr.onerror = () => {
+        Helpers.alertError("Tải file không thành công.");
+      };
+      xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
+      xhr.send(formData);
+    } else if (type === "edit" && formtailieuthamkhao.fileTaiLieu) {
+      saveData(formtailieuthamkhao, saveQuit);
     }
   };
 
@@ -207,16 +195,13 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
               goBack();
             } else {
               resetFields();
+              setLoading(false);
               setFieldTouch(false);
               setDisableUpload(false);
               setFileTaiLieu(null);
             }
           } else {
-            if (saveQuit) {
-              goBack();
-            } else {
-              setFieldTouch(false);
-            }
+            setFieldTouch(false);
           }
         })
         .catch((error) => console.error(error));
@@ -241,11 +226,11 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) goBack();
-          } else {
-            getInfo(id);
+          if (res.status === 409 || !saveQuit) {
+            setLoading(false);
             setFieldTouch(false);
+          } else {
+            goBack();
           }
         })
         .catch((error) => console.error(error));
@@ -393,6 +378,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
                     onClick={() => {
                       setFileTaiLieu(null);
                       setDisableUpload(false);
+                      setFieldTouch(true);
                       setFieldsValue({
                         formtailieuthamkhao: {
                           fileTaiLieu: null,
@@ -419,6 +405,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
                       onClick={() => {
                         setFileTaiLieu(null);
                         setDisableUpload(false);
+                        setFieldTouch(true);
                         setFieldsValue({
                           formtailieuthamkhao: {
                             fileTaiLieu: null,
@@ -451,6 +438,11 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
                 onChange={(e) => handleChangeMoTa(e.target.value)}
               />
             </FormItem>
+          </Col>
+          <Col span={24} align="left">
+            {Loading && (
+              <Progress percent={parseFloat(Loading.toFixed(2))} type="line" />
+            )}
           </Col>
           <FormSubmit
             goBack={goBack}

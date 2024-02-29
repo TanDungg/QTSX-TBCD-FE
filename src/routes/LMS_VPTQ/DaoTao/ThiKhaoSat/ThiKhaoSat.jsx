@@ -43,7 +43,7 @@ function ThiKhaoSat({ permission, history }) {
     token: getTokenInfo().token,
   };
   const [Data, setData] = useState([]);
-  const [IsAdmin, setIsAdmin] = useState(null);
+  const [IsQuanLyDaoTao, setIsQuanLyDaoTao] = useState(null);
   const [ListKienThuc, setListKienThuc] = useState([]);
   const [KienThuc, setKienThuc] = useState(null);
   const [ListChuyenDeDaoTao, setListChuyenDeDaoTao] = useState([]);
@@ -63,7 +63,7 @@ function ThiKhaoSat({ permission, history }) {
 
   useEffect(() => {
     if (permission && permission.view) {
-      getIsAdmin();
+      getIsQuanLyDaoTao();
       getListFilter();
       getListData(KienThuc, ChuyenDeDaoTao, LopHoc, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
@@ -110,11 +110,11 @@ function ThiKhaoSat({ permission, history }) {
     });
   };
 
-  const getIsAdmin = () => {
+  const getIsQuanLyDaoTao = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_BaoCao/is-admin?donViHienHanh_Id=${INFO.donVi_Id}`,
+          `vptq_lms_HocTrucTuyen/is-ql-hoc-truc-tuyen?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -126,9 +126,9 @@ function ThiKhaoSat({ permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setIsAdmin(res.data);
+          setIsQuanLyDaoTao(res.data);
         } else {
-          setIsAdmin(null);
+          setIsQuanLyDaoTao(null);
         }
       })
       .catch((error) => console.error(error));
@@ -232,7 +232,7 @@ function ThiKhaoSat({ permission, history }) {
           >
             Tiếp tục thi
           </Button>
-        ) : item.isKichHoatThiLai === 1 && IsAdmin ? (
+        ) : item.isKichHoatThiLai === 1 && IsQuanLyDaoTao ? (
           <Button
             className="th-margin-bottom-0"
             type="primary"
@@ -762,7 +762,7 @@ function ThiKhaoSat({ permission, history }) {
               onClear={handleClearLopHoc}
             />
           </Col>
-          {IsAdmin && (
+          {IsQuanLyDaoTao && (
             <Col
               xxl={6}
               xl={8}

@@ -29512,8 +29512,8 @@ div.ant-typography-edit-content.ant-typography-rtl {
 }
 
 .ant-upload.ant-upload-select-picture-card {
-  width: 104px;
-  height: 104px;
+  width: 250px;
+  height: 250px;
   margin-right: 8px;
   margin-bottom: 8px;
   text-align: center;
@@ -49317,6 +49317,7 @@ textarea.gx-chat-textarea {
   border: 1px solid red;
   color: #fff;
 }
+
 .title-span {
   display: flex;
   flex-direction: row;

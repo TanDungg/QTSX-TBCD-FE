@@ -259,8 +259,8 @@ function CauHoi({ permission, history, match }) {
     );
   };
 
-  const { totalRow } = Data;
-  let dataList = reDataForTable(Data.datalist);
+  const { totalRow, pageSize } = Data;
+  const dataList = reDataForTable(Data.datalist, page, pageSize);
 
   const handleChangeSuDung = (value, record) => {
     new Promise((resolve, reject) => {

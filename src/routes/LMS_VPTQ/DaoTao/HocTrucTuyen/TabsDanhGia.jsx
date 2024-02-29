@@ -414,7 +414,9 @@ const TabsDanhGia = ({ dataDanhGia }) => {
                             fontSize: "13px",
                           }}
                         >
-                          Chưa duyệt
+                          {danhgia.lyDoTuChoi
+                            ? `Đã bị từ chối: ${danhgia.lyDoTuChoi}`
+                            : "Chưa duyệt"}
                         </Tag>
                       )}
                     </div>

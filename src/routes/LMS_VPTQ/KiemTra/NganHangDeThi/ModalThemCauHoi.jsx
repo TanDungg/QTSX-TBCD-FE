@@ -9,6 +9,7 @@ import {
   convertObjectToUrlParams,
   getTokenInfo,
   getLocalStorage,
+  reDataForTable,
 } from "src/util/Common";
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -34,13 +35,6 @@ function ModalThemCauHoi({
   useEffect(() => {
     if (openModal) {
       getListCauHoi(chuyende);
-      if (list_cauhoi.length > 0) {
-        setSelectedCauHoi(list_cauhoi);
-        const listKey = list_cauhoi.map((cauhoi) => {
-          return cauhoi.key;
-        });
-        setSelectedKeys(listKey);
-      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
@@ -70,11 +64,23 @@ function ModalThemCauHoi({
           const data = res.data.map((dt, index) => {
             return {
               ...dt,
-              key: index + 1,
+              vptq_lms_CauHoi_Id: dt.id,
+              stt: index + 1,
             };
           });
-          console.log(data);
           setListCauHoi(data);
+          if (list_cauhoi.length > 0) {
+            const list = data.filter((dt) =>
+              list_cauhoi.some(
+                (cauhoi) => cauhoi.vptq_lms_CauHoi_Id === dt.vptq_lms_CauHoi_Id
+              )
+            );
+            setSelectedCauHoi(list);
+            const listKey = list.map((cauhoi) => {
+              return cauhoi.stt;
+            });
+            setSelectedKeys(listKey);
+          }
         } else {
           setListCauHoi([]);
         }
@@ -179,7 +185,7 @@ function ModalThemCauHoi({
           scroll={{ x: 1000, y: "50vh" }}
           components={components}
           className="gx-table-responsive th-table"
-          dataSource={ListCauHoi}
+          dataSource={reDataForTable(ListCauHoi)}
           size="small"
           rowClassName={"editable-row"}
           pagination={false}

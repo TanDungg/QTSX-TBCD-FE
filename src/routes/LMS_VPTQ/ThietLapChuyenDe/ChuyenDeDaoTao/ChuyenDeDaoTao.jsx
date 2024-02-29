@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Checkbox, Col, Divider, Row } from "antd";
+import { Button, Card, Checkbox, Col, Divider, Image, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
@@ -17,7 +17,6 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 import { BASE_URL_API } from "src/constants/Config";
-import ReactPlayer from "react-player";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -342,34 +341,15 @@ function ChuyenDeDaoTao({ permission, history, match }) {
       filterSearch: true,
     },
     {
-      title: "Bài giảng bằng video",
-      dataIndex: "fileVideo",
-      key: "fileVideo",
+      title: "Video bài giảng",
+      dataIndex: "anhDaiDienChuyenDe",
+      key: "anhDaiDienChuyenDe",
       align: "center",
-      width: 200,
+      width: 120,
       render: (value) => {
         return (
           value && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <ReactPlayer
-                style={{ cursor: "pointer" }}
-                url={BASE_URL_API + value}
-                width="100px"
-                height="100px"
-                playing={false}
-                muted={true}
-                controls={false}
-                onClick={() => {
-                  window.open(BASE_URL_API + value, "_blank");
-                }}
-              />
-            </div>
+            <Image src={BASE_URL_API + value} style={{ width: "80px" }} />
           )
         );
       },

@@ -10,6 +10,7 @@ import {
   Upload,
   Divider,
   Image,
+  Progress,
 } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
@@ -60,7 +61,7 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
     token: getTokenInfo().token,
   };
   const [Data, setData] = useState([]);
-  const [IsAdmin, setIsAdmin] = useState(null);
+  const [IsQuanLyDaoTao, setIsQuanLyDaoTao] = useState(null);
   const [ListKienThuc, setListKienThuc] = useState([]);
   const [KienThuc, setKienThuc] = useState(null);
   const [ListChuyenDeDaoTao, setListChuyenDeDaoTao] = useState([]);
@@ -77,10 +78,11 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
   const [form] = Form.useForm();
   const { resetFields, setFieldsValue } = form;
   const [fieldTouch, setFieldTouch] = useState(false);
+  const [Loading, setLoading] = useState(null);
 
   useEffect(() => {
     if (permission && permission.view) {
-      getIsAdmin();
+      getIsQuanLyDaoTao();
       getListFilter();
       getListData(KienThuc, ChuyenDeDaoTao, LopHoc, keyword);
     } else if ((permission && !permission.view) || permission === undefined) {
@@ -125,11 +127,11 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
     });
   };
 
-  const getIsAdmin = () => {
+  const getIsQuanLyDaoTao = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_BaoCao/is-admin?donViHienHanh_Id=${INFO.donVi_Id}`,
+          `vptq_lms_HocTrucTuyen/is-ql-hoc-truc-tuyen?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -141,9 +143,9 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setIsAdmin(res.data);
+          setIsQuanLyDaoTao(res.data);
         } else {
-          setIsAdmin(null);
+          setIsQuanLyDaoTao(null);
         }
       })
       .catch((error) => console.error(error));
@@ -648,21 +650,32 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
       if (formcapnhat.giayChungNhan.file) {
         const formData = new FormData();
         formData.append("file", formcapnhat.giayChungNhan.file);
-        fetch(`${BASE_URL_API}/api/Upload`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(INFO.token),
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => {
+
+        const xhr = new XMLHttpRequest();
+        xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const progress = (event.loaded / event.total) * 100;
+            setLoading(progress);
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status === 200) {
+            const data = JSON.parse(xhr.responseText);
             formcapnhat.giayChungNhan = data.path;
             saveData(formcapnhat);
-          })
-          .catch(() => {
-            Helpers.alertError(`Tải file hình ảnh không thành công!`);
-          });
+          } else {
+            Helpers.alertError("Tải file không thành công.");
+          }
+        };
+
+        xhr.onerror = () => {
+          Helpers.alertError("Tải file không thành công.");
+        };
+
+        xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
+        xhr.send(formData);
       } else {
         saveData(formcapnhat);
       }
@@ -694,8 +707,10 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
         .then((res) => {
           if (res && res.status !== 409) {
             handleRefesh();
+            setLoading(null);
             getListData(KienThuc, ChuyenDeDaoTao, LopHoc, keyword);
           } else {
+            setLoading(null);
             setFieldTouch(false);
           }
         })
@@ -722,8 +737,10 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
         .then((res) => {
           if (res && res.status !== 409) {
             handleRefesh();
+            setLoading(null);
             getListData(KienThuc, ChuyenDeDaoTao, LopHoc, keyword);
           } else {
+            setLoading(null);
             setFieldTouch(false);
           }
         })
@@ -754,7 +771,7 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
         description="Danh sách đào tạo"
         buttons={addButtonRender()}
       />
-      {IsAdmin && (
+      {IsQuanLyDaoTao && (
         <Card className="th-card-margin-bottom">
           <Row>
             <Col
@@ -1094,6 +1111,14 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
                     placeholder="Nhập ghi chú"
                   />
                 </FormItem>
+              </Col>
+              <Col span={24} align="left">
+                {Loading && (
+                  <Progress
+                    percent={parseFloat(Loading.toFixed(2))}
+                    type="line"
+                  />
+                )}
               </Col>
             </Row>
             <div

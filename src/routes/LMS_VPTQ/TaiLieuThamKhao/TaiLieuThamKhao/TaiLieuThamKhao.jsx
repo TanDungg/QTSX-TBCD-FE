@@ -191,7 +191,6 @@ function TaiLieuThamKhao({ match, history, permission }) {
           className="th-margin-bottom-0"
           type="primary"
           onClick={handleRedirect}
-          disabled={permission && !permission.add}
         >
           Thêm tài liệu
         </Button>

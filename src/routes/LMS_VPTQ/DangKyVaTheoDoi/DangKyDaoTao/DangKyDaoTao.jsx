@@ -212,7 +212,7 @@ function DangKyDaoTao({ match, history, permission }) {
 
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(DonVi, TuNgay, DenNgay, keyword, page);
+    getListData(DonVi, TuNgay, DenNgay, keyword, pagination);
   };
 
   const onSearchCBNV = () => {

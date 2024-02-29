@@ -142,7 +142,6 @@ function ModalThiKhaoSat({
           "PUT",
           null,
           "NOPBAI",
-
           "",
           resolve,
           reject
@@ -155,6 +154,8 @@ function ModalThiKhaoSat({
           setDeThi(null);
           setListCauHoi([]);
           setCauHoi(null);
+        } else if (res && res.data) {
+          handleCancel()
         }
       })
       .catch((error) => console.error(error));

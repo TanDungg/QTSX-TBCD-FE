@@ -1,5 +1,20 @@
-import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Input, Progress, Switch, Upload } from "antd";
+import {
+  DeleteOutlined,
+  LoadingOutlined,
+  PlusOutlined,
+  UploadOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Progress,
+  Switch,
+  Upload,
+  message,
+} from "antd";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -17,6 +32,20 @@ import { getLocalStorage, getTokenInfo } from "src/util/Common";
 
 const { TextArea } = Input;
 const FormItem = Form.Item;
+
+const getBase64 = (img, callback) => {
+  const reader = new FileReader();
+  reader.addEventListener("load", () => callback(reader.result));
+  reader.readAsDataURL(img);
+};
+
+const beforeUpload = (file) => {
+  const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+  if (!isJpgOrPng) {
+    message.error("Vui lòng tải file ảnh!");
+  }
+  return isJpgOrPng;
+};
 
 const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
@@ -39,6 +68,9 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
   const [DisableUploadTaiLieu, setDisableUploadTaiLieu] = useState(false);
   const [id, setId] = useState(null);
   const [loading, setLoading] = useState(null);
+  const [Path, setPath] = useState();
+  const [LoadingImage, setLoadingImage] = useState(false);
+  const [ImageUrl, setImageUrl] = useState();
 
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
@@ -141,6 +173,23 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
+  const convertToBase64 = async (imageUrl) => {
+    try {
+      const response = await fetch(BASE_URL_API + imageUrl);
+      const blob = await response.blob();
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        const base64Data = reader.result;
+        setImageUrl(base64Data);
+      };
+
+      reader.readAsDataURL(blob);
+    } catch (error) {
+      console.error("Lỗi chuyển dữ liệu sang base64:", error);
+    }
+  };
+
   const getInfo = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -169,6 +218,10 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           if (data.fileTaiLieu) {
             setDisableUploadTaiLieu(true);
             setFileTaiLieu(data.fileTaiLieu);
+          }
+          if (data.anhDaiDienChuyenDe) {
+            setPath(data.anhDaiDienChuyenDe);
+            convertToBase64(data.anhDaiDienChuyenDe);
           }
           setFieldsValue({
             formchuyendedaotao: data,
@@ -731,88 +784,129 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
   };
 
   const saveData = (formchuyendedaotao, saveQuit = false) => {
-    if (type === "new") {
-      const newData = {
-        ...formchuyendedaotao,
-        thoiLuongDaoTao: parseInt(formchuyendedaotao.thoiLuongDaoTao),
-      };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `vptq_lms_ChuyenDeDaoTao`,
-            "POST",
-            newData,
-            "ADD",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res.status !== 409) {
-            if (saveQuit) {
-              goBack();
-            } else {
-              resetFields();
-              setFieldTouch(false);
-              setDisableUploadVideo(false);
-              setFileVideo(null);
-              setDisableUploadTaiLieu(false);
-              setFileTaiLieu(null);
-              setLoading(null);
-              setFieldsValue({
-                formchuyendedaotao: {
-                  isSuDung: true,
-                },
-              });
-            }
-          } else {
-            if (saveQuit) {
-              goBack();
-            } else {
-              setLoading(null);
-              setFieldTouch(false);
-            }
-          }
+    if (formchuyendedaotao.anhDaiDienChuyenDe) {
+      if (type === "new") {
+        const newData = {
+          ...formchuyendedaotao,
+          anhDaiDienChuyenDe: Path,
+          thoiLuongDaoTao: parseInt(formchuyendedaotao.thoiLuongDaoTao),
+        };
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `vptq_lms_ChuyenDeDaoTao`,
+              "POST",
+              newData,
+              "ADD",
+              "",
+              resolve,
+              reject
+            )
+          );
         })
-        .catch((error) => console.error(error));
-    }
-    if (type === "edit") {
-      const newData = {
-        ...formchuyendedaotao,
-        id: id,
-        thoiLuongDaoTao: parseInt(formchuyendedaotao.thoiLuongDaoTao),
-      };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `vptq_lms_ChuyenDeDaoTao/${id}`,
-            "PUT",
-            newData,
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) goBack();
-          } else {
-            getInfo(id);
-            setLoading(null);
-            setFieldTouch(false);
-          }
+          .then((res) => {
+            if (res.status !== 409) {
+              if (saveQuit) {
+                goBack();
+              } else {
+                resetFields();
+                setFieldTouch(false);
+                setDisableUploadVideo(false);
+                setFileVideo(null);
+                setDisableUploadTaiLieu(false);
+                setFileTaiLieu(null);
+                setLoading(null);
+                setPath(null);
+                setImageUrl(null);
+                setFieldsValue({
+                  formchuyendedaotao: {
+                    isSuDung: true,
+                  },
+                });
+              }
+            } else {
+              if (saveQuit) {
+                goBack();
+              } else {
+                setLoading(null);
+                setFieldTouch(false);
+              }
+            }
+          })
+          .catch((error) => console.error(error));
+      }
+      if (type === "edit") {
+        const newData = {
+          ...formchuyendedaotao,
+          id: id,
+          anhDaiDienChuyenDe: Path,
+          thoiLuongDaoTao: parseInt(formchuyendedaotao.thoiLuongDaoTao),
+        };
+        new Promise((resolve, reject) => {
+          dispatch(
+            fetchStart(
+              `vptq_lms_ChuyenDeDaoTao/${id}`,
+              "PUT",
+              newData,
+              "EDIT",
+              "",
+              resolve,
+              reject
+            )
+          );
         })
-        .catch((error) => console.error(error));
+          .then((res) => {
+            if (saveQuit) {
+              if (res.status !== 409) goBack();
+            } else {
+              getInfo(id);
+              setLoading(null);
+              setFieldTouch(false);
+            }
+          })
+          .catch((error) => console.error(error));
+      }
+    } else {
+      Helpers.alertError("Vui lòng tải hình ảnh đại diện của chuyên đề lên!");
     }
   };
 
   const handleSelectHinhThucDaoTao = (value) => {
     setHinhThucDaoTao(value);
   };
+
+  const handleChange = (info) => {
+    if (info.file.status === "uploading") {
+      setLoadingImage(true);
+      return;
+    }
+    if (info.file.status === "done") {
+      setPath(info.file.response.path);
+      getBase64(info.file.originFileObj, (url) => {
+        setLoadingImage(false);
+        setImageUrl(url);
+      });
+    }
+  };
+
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      {LoadingImage ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </button>
+  );
 
   const propsvideo = {
     accept: "video/*",
@@ -1187,6 +1281,38 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               <Input className="input-item" placeholder="Nhập ghi chú" />
             </FormItem>
           </Col>
+          {HinhThucDaoTao && HinhThucDaoTao === HINHTHUCDAOTAO_ONLINE ? (
+            <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+              <FormItem
+                label="Hình ảnh đại diện"
+                name={["formchuyendedaotao", "anhDaiDienChuyenDe"]}
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+              >
+                <Upload
+                  listType="picture-card"
+                  className="avatar-uploader"
+                  showUploadList={false}
+                  action={`${BASE_URL_API}/api/Upload`}
+                  headers={{
+                    Authorization: "Bearer ".concat(INFO.token),
+                  }}
+                  beforeUpload={beforeUpload}
+                  onChange={handleChange}
+                  style={{ width: "250px" }}
+                >
+                  {ImageUrl ? (
+                    <img src={ImageUrl} alt="Hình ảnh đại diện chuyên đề" />
+                  ) : (
+                    uploadButton
+                  )}
+                </Upload>
+              </FormItem>
+            </Col>
+          ) : null}
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24} align="left">
             {loading && (
               <Progress percent={parseFloat(loading.toFixed(2))} type="line" />

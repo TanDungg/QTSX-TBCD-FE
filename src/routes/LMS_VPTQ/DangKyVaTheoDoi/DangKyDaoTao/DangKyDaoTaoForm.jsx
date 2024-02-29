@@ -153,7 +153,13 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListUserDuyet(res.data);
+          const newData = res.data.map((dt) => {
+            return {
+              ...dt,
+              user: `${dt.maNhanVien} - ${dt.fullName}`,
+            };
+          });
+          setListUserDuyet(newData);
         } else {
           setListUserDuyet([]);
         }
@@ -421,13 +427,10 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) {
-              goBack();
-            }
-          } else {
-            getInfo(id);
+          if (res.status === 409 || !saveQuit) {
             setFieldTouch(false);
+          } else {
+            goBack();
           }
         })
         .catch((error) => console.error(error));
@@ -625,7 +628,7 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
                     className="heading-select slt-search th-select-heading"
                     data={ListUserDuyet ? ListUserDuyet : []}
                     placeholder="Chọn người kiểm tra"
-                    optionsvalue={["user_Id", "fullName"]}
+                    optionsvalue={["user_Id", "user"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp={"name"}
@@ -647,7 +650,7 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
                     className="heading-select slt-search th-select-heading"
                     data={ListUserDuyet ? ListUserDuyet : []}
                     placeholder="Chọn người duyệt"
-                    optionsvalue={["user_Id", "fullName"]}
+                    optionsvalue={["user_Id", "user"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp={"name"}

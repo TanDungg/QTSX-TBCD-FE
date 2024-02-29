@@ -12,6 +12,7 @@ import {
   Divider,
   Form,
   Input,
+  Progress,
   Row,
   Upload,
 } from "antd";
@@ -65,7 +66,7 @@ const HocPhiForm = ({ history, match, permission }) => {
   const [ChiTiet, setChiTiet] = useState(null);
   const [ActiveModalDanhSach, setActiveModalDanhSach] = useState(false);
   const [id, setId] = useState(null);
-  const [info, setInfo] = useState(null);
+  const [Loading, setLoading] = useState(null);
 
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
@@ -135,7 +136,6 @@ const HocPhiForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           const data = res.data;
-          setInfo(data);
           getListDonViDaoTao();
           if (data.fileDinhKem) {
             setFileDinhKem(data.fileDinhKem);
@@ -163,7 +163,7 @@ const HocPhiForm = ({ history, match, permission }) => {
         ds.vptq_lms_ChuyenDeDaoTao_Id.toLowerCase() !==
         item.vptq_lms_ChuyenDeDaoTao_Id.toLowerCase()
     );
-  
+
     setListDanhSach(newDanhSach);
     setFieldTouch(true);
   };
@@ -286,51 +286,40 @@ const HocPhiForm = ({ history, match, permission }) => {
   };
 
   const uploadFile = (formhocphi, saveQuit) => {
-    if (type === "new" && formhocphi.fileDinhKem) {
-      const formData = new FormData();
-      formData.append("file", formhocphi.fileDinhKem.file);
-      fetch(`${BASE_URL_API}/api/Upload`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: "Bearer ".concat(INFO.token),
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          formhocphi.fileDinhKem = data.path;
-          saveData(formhocphi, saveQuit);
-        })
-        .catch(() => {
-          console.log("Tải file đính kèm không thành công.");
-        });
-    } else if (
-      type === "edit" &&
-      formhocphi.fileDinhKem &&
-      formhocphi.fileDinhKem.file
+    if (
+      (type === "new" && formhocphi.fileDinhKem) ||
+      (type === "edit" && formhocphi.fileDinhKem && formhocphi.fileDinhKem.file)
     ) {
       const formData = new FormData();
       formData.append("file", formhocphi.fileDinhKem.file);
-      fetch(
-        info.fileDinhKem
-          ? `${BASE_URL_API}/api/Upload?stringPath=${info.fileDinhKem}`
-          : `${BASE_URL_API}/api/Upload`,
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(INFO.token),
-          },
+
+      const xhr = new XMLHttpRequest();
+
+      xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
+
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const progress = (event.loaded / event.total) * 100;
+          setLoading(progress);
         }
-      )
-        .then((res) => res.json())
-        .then((data) => {
+      };
+
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
           formhocphi.fileDinhKem = data.path;
           saveData(formhocphi, saveQuit);
-        })
-        .catch(() => {
-          console.log("Tải file đính kèm không thành công.");
-        });
+        } else {
+          Helpers.alertError("Tải file không thành công.");
+        }
+      };
+
+      xhr.onerror = () => {
+        Helpers.alertError("Tải file không thành công.");
+      };
+
+      xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
+      xhr.send(formData);
     } else {
       saveData(formhocphi, saveQuit);
     }
@@ -367,6 +356,7 @@ const HocPhiForm = ({ history, match, permission }) => {
                 setDisableUpload(false);
                 setFileDinhKem(null);
                 setListDanhSach([]);
+                setLoading(null);
                 setFieldsValue({
                   formhocphi: {
                     ngayApDung: moment(getDateNow(), "DD/MM/YYYY"),
@@ -378,6 +368,7 @@ const HocPhiForm = ({ history, match, permission }) => {
                 goBack();
               } else {
                 setFieldTouch(false);
+                setLoading(null);
               }
             }
           })
@@ -409,6 +400,7 @@ const HocPhiForm = ({ history, match, permission }) => {
             } else {
               getInfo(id);
               setFieldTouch(false);
+              setLoading(null);
             }
           })
           .catch((error) => console.error(error));
@@ -447,7 +439,22 @@ const HocPhiForm = ({ history, match, permission }) => {
   };
 
   const handleThemDanhSach = (data) => {
-    if (type === "new" || (type === "edit" && !data.isChinhSua)) {
+    if (data.isChinhSua) {
+      const newDanhSach = [...ListDanhSach];
+      newDanhSach.forEach((list, index) => {
+        if (
+          list.vptq_lms_ChuyenDeDaoTao_Id.toLowerCase() ===
+          data.vptq_lms_ChuyenDeDaoTao_Id.toLowerCase()
+        ) {
+          newDanhSach[index] = {
+            ...list,
+            ...data,
+          };
+        }
+      });
+      setListDanhSach(newDanhSach);
+      setFieldTouch(true);
+    } else {
       const chitiet = ListDanhSach.find(
         (list) =>
           list.vptq_lms_ChuyenDeDaoTao_Id.toLowerCase() ===
@@ -455,11 +462,7 @@ const HocPhiForm = ({ history, match, permission }) => {
       );
       const title = (
         <span>
-          Cấp độ{" "}
-          <span style={{ fontWeight: "bold", color: "red" }}>
-            {data.tenCapDo}
-          </span>{" "}
-          của chuyên đề{" "}
+          Chuyên đề{" "}
           <span style={{ fontWeight: "bold", color: "red" }}>
             {data.tenChuyenDeDaoTao}
           </span>{" "}
@@ -473,21 +476,6 @@ const HocPhiForm = ({ history, match, permission }) => {
         setListDanhSach([...ListDanhSach, data]);
         setFieldTouch(true);
       }
-    } else if (type === "edit" && data.isChinhSua) {
-      const newDanhSach = [...ListDanhSach];
-      newDanhSach.forEach((ds, index) => {
-        if (
-          ds.vptq_lms_HocPhiChiTiet_Id.toLowerCase() ===
-          data.vptq_lms_HocPhiChiTiet_Id.toLowerCase()
-        ) {
-          newDanhSach[index] = {
-            ...ds,
-            ...data,
-          };
-        }
-      });
-      setListDanhSach(newDanhSach);
-      setFieldTouch(true);
     }
   };
 
@@ -730,6 +718,14 @@ const HocPhiForm = ({ history, match, permission }) => {
                   <Input className="input-item" placeholder="Nhập ghi chú" />
                 </FormItem>
               </Col>
+              <Col span={24} align="left">
+                {Loading && (
+                  <Progress
+                    percent={parseFloat(Loading.toFixed(2))}
+                    type="line"
+                  />
+                )}
+              </Col>
             </Row>
           </Card>
           <Card
@@ -770,8 +766,6 @@ const HocPhiForm = ({ history, match, permission }) => {
         openModal={ActiveModalDanhSach}
         openModalFS={setActiveModalDanhSach}
         chitiet={ChiTiet}
-        type={type}
-        itemData={info}
         refesh={handleRefesh}
         DataThemDanhSach={handleThemDanhSach}
       />

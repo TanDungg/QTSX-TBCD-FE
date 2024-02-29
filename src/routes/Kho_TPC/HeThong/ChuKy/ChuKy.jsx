@@ -35,6 +35,7 @@ function ChuKy({ match, history, permission }) {
       getData();
     }
   }, []);
+
   const getData = () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -64,6 +65,7 @@ function ChuKy({ match, history, permission }) {
       }
     });
   };
+
   const handleCancel = () => setPreviewOpen(false);
   const handlePreview = async (file) => {
     if (!file.url && !file.preview) {

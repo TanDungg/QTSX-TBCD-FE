@@ -110,12 +110,11 @@ function VaiTroForm({ history, match, permission }) {
         );
       })
         .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) goBack();
-          } else {
-            getInfo(id);
-            setFieldTouch(false);
-          }
+           if (res.status === 409 || !saveQuit) {
+             setFieldTouch(false);
+           } else {
+             goBack();
+           }
         })
         .catch((error) => console.error(error));
     }

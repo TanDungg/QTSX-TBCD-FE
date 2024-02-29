@@ -160,8 +160,23 @@ function ModalThemDanhSach({
               name={["modalthemdanhsach", "hocPhi"]}
               rules={[
                 {
-                  type: "string",
                   required: true,
+                  message: "Vui lòng nhập học phí!",
+                },
+                {
+                  validator: (rule, value) => {
+                    if (value && value.toString().toLowerCase().includes("e")) {
+                      return Promise.reject("Không được nhập chữ e!");
+                    }
+                    if (value && value < 0) {
+                      return Promise.reject("Học phí không được là số âm!");
+                    }
+                    const currencyFormat = /^\d{1,3}(,\d{3})*(,\d{1,2})?$/;
+                    if (value && !currencyFormat.test(value.toString())) {
+                      return Promise.reject("Định dạng tiền tệ không đúng!");
+                    }
+                    return Promise.resolve();
+                  },
                 },
               ]}
             >
