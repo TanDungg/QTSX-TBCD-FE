@@ -330,8 +330,9 @@ function DuyetDanhGia({ history, permission }) {
   const handleTuChoi = (tuchoi) => {
     const param = convertObjectToUrlParams({
       donVi_Id: INFO.donVi_Id,
-      lyDoTuChoi: tuchoi,
+      lyDoTuChoi: tuchoi.lyDoTuChoi,
     });
+    
     const newData = SelectedDanhGia.map((hoidap) => {
       return hoidap.vptq_lms_DanhGia_Id;
     });

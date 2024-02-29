@@ -1,18 +1,18 @@
 import { Button, Card, Col, Image, Row, Tabs, Modal as AntModal } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import ReactPlayer from "react-player";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
 import TabsHoiDap from "./TabsHoiDap";
 import TabsDanhGia from "./TabsDanhGia";
-import moment from "moment";
 import Helpers from "src/helpers";
 import ModalThiKhaoSat from "./ModalThiKhaoSat";
 
 function ChiTietHocTrucTuyen({ match, history, permission }) {
   const dispatch = useDispatch();
+  const { width } = useSelector(({ common }) => common).toJS();
   const playerRef = useRef(null);
   const intervalRef = useRef(null);
   const [ChiTiet, setChiTiet] = useState(null);
@@ -20,7 +20,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   const [isSeek, setIsSeek] = useState(false);
   const [ThoiGianXem, setThoiGianXem] = useState(0);
   const [ThoiGianDaXem, setThoiGianDaXem] = useState(0);
-  // const [ThoiLuongVideo, setThoiLuongVideo] = useState(0);
+  const [ThoiLuongVideo, setThoiLuongVideo] = useState(null);
   const [ActiveModalThiKhaoSat, setActiveModalThiKhaoSat] = useState(false);
   const [ThoiGianThongBao, setThoiGianThongBao] = useState(null);
 
@@ -60,30 +60,11 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
       if (res && res.data) {
         setChiTiet(res.data);
         setThoiGianDaXem(res.data.thoiDiemVideo);
-        // setThoiLuongVideo(res.data.thoiLuongVideo);
+        setThoiLuongVideo(res.data.thoiLuongVideo);
       } else {
         setChiTiet(null);
       }
     });
-    // new Promise((resolve, reject) => {
-    //   dispatch(
-    //     fetchStart(
-    //       `vptq_lms_HocTrucTuyen/hoc-video-chia-nho/${id}`,
-    //       "GET",
-    //       null,
-    //       "DETAIL",
-    //       "",
-    //       resolve,
-    //       reject
-    //     )
-    //   );
-    // }).then((res) => {
-    //   if (res && res.data) {
-    //     setVideoChiaNho(res.data);
-    //   } else {
-    //     setVideoChiaNho(null);
-    //   }
-    // });
   };
 
   const tabLabels = [
@@ -371,17 +352,14 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   };
 
   const handleEnded = () => {
-    if (!ChiTiet.isDaXemVideo) {
-      handleGuiThoiGianXem(ThoiGianXem);
-      getInfo(id);
-      if (ChiTiet.isThi) {
-        ModalThi();
-      } else {
-        ModalKhongThi();
+    handleGuiThoiGianXem(ThoiGianXem);
+    console.log(ThoiGianXem);
+    console.log(ThoiLuongVideo);
+    getInfo(id);
+    if (ChiTiet && ChiTiet.isDaXemVideo) {
+      if (playerRef.current) {
+        playerRef.current.seekTo(0);
       }
-    }
-    if (playerRef.current) {
-      playerRef.current.seekTo(0);
     }
   };
 
@@ -406,6 +384,18 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
       }).then((res) => {
         if (res && res.status !== 409) {
           setThoiGianDaXem(res.data);
+          if (
+            parseFloat(thoigian.toFixed(0)) ===
+            parseFloat(ThoiLuongVideo.toFixed(0))
+          ) {
+            if (ChiTiet && !ChiTiet.isDaXemVideo) {
+              if (ChiTiet && ChiTiet.isThi) {
+                ModalThi();
+              } else {
+                ModalKhongThi();
+              }
+            }
+          }
         }
       });
     }
@@ -429,16 +419,33 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
-          <Col xxl={17} xl={16} lg={24} xs={24} style={{ marginBottom: 8 }}>
-            {ChiTiet && (
+          <Col
+            xxl={17}
+            xl={16}
+            lg={24}
+            xs={24}
+            style={{
+              marginBottom: 8,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            {ChiTiet && (!ChiTiet.hasLopHoc || !ChiTiet.isDangHoc) ? (
+              <img
+                src={BASE_URL_API + ChiTiet.anhDaiDienChuyenDe}
+                alt={"Ảnh đại diện chuyên đề"}
+                style={{
+                  maxWidth: width >= 1600 ? "80%" : "100%",
+                  maxHeight: width >= 1600 ? "80%" : "100%",
+                  width: "auto",
+                  height: "auto",
+                }}
+              />
+            ) : (
               <ReactPlayer
-                url={
-                  ChiTiet.fileVideo ? BASE_URL_API + ChiTiet.fileVideo : null
-                }
-                controls={
-                  ChiTiet.hasLopHoc &&
-                  moment(ChiTiet.thoiGianDaoTao, "DD/MM/YYYY HH:mm") < moment()
-                }
+                url={ChiTiet && BASE_URL_API + ChiTiet.fileVideo}
+                controls={true}
                 width="100%"
                 height="100%"
                 config={{
@@ -455,21 +462,8 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                 onEnded={handleEnded}
               />
             )}
-            {/* {ChiTiet && (
-              <HlsVideoPlayer
-                tsFiles={
-                  VideoChiaNho &&
-                  VideoChiaNho.fileVideo &&
-                  VideoChiaNho.fileVideo.tsFiles
-                }
-                m3u8File={
-                  VideoChiaNho &&
-                  VideoChiaNho.fileVideo &&
-                  VideoChiaNho.fileVideo.m3u8File
-                }
-              />
-            )} */}
           </Col>
+
           <Col xxl={7} xl={8} lg={24} xs={24} style={{ marginBottom: 8 }}>
             <Card
               className="th-card-margin-bottom th-card-reset-margin"

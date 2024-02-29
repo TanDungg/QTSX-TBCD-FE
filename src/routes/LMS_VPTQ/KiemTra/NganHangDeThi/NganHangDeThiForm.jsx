@@ -18,7 +18,7 @@ import {
   DEFAULT_FORM_ADD_2COL_150PX,
   HINHTHUCDAOTAO_TUHOC,
 } from "src/constants/Config";
-import { getTokenInfo, getLocalStorage } from "src/util/Common";
+import { getTokenInfo, getLocalStorage, reDataForTable } from "src/util/Common";
 import ModalThemCauHoi from "./ModalThemCauHoi";
 import Helpers from "src/helpers";
 
@@ -125,7 +125,6 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
         if (res && res.data) {
           const data = res.data;
           getListChuyenDeDaoTao();
-
           setChuyenDe(data.vptq_lms_ChuyenDeDaoTao_Id);
           setFieldsValue({
             formdethi: data,
@@ -269,14 +268,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
         ...formdethi,
         isSuDung: formdethi.isSuDung ? formdethi.isSuDung : false,
         isDefault: formdethi.isDefault ? formdethi.isDefault : false,
-        list_ChiTiets:
-          ListCauHoi &&
-          ListCauHoi.map((cauhoi) => {
-            return {
-              ...cauhoi,
-              vptq_lms_CauHoi_Id: cauhoi.id,
-            };
-          }),
+        list_ChiTiets: ListCauHoi && ListCauHoi,
       };
       if (type === "new") {
         new Promise((resolve, reject) => {
@@ -307,11 +299,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
                 });
               }
             } else {
-              if (saveQuit) {
-                goBack();
-              } else {
-                setFieldTouch(false);
-              }
+              setFieldTouch(false);
             }
           })
           .catch((error) => console.error(error));
@@ -348,7 +336,6 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
             if (saveQuit) {
               if (res.status !== 409) goBack();
             } else {
-              getInfo(id);
               setFieldTouch(false);
             }
           })
@@ -358,7 +345,6 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
   };
 
   const handleThemCauHoi = (data) => {
-    console.log(data);
     setListCauHoi(data);
     setFieldTouch(true);
   };
@@ -623,7 +609,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
               scroll={{ x: 1300, y: "35vh" }}
               components={components}
               className="gx-table-responsive th-table"
-              dataSource={ListCauHoi}
+              dataSource={reDataForTable(ListCauHoi)}
               size="small"
               rowClassName={"editable-row"}
               pagination={false}

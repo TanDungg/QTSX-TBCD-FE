@@ -1,7 +1,6 @@
 import { Card, Col, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
-import React, { useEffect, useRef, useState } from "react";
-import ReactPlayer from "react-player";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { Select, Toolbar } from "src/components/Common";
@@ -15,7 +14,6 @@ import { BASE_URL_API } from "src/constants/Config";
 
 function HocTrucTuyen({ match, history, permission }) {
   const dispatch = useDispatch();
-  const playerRef = useRef(null);
   const { loading } = useSelector(({ common }) => common).toJS();
   const INFO = {
     ...getLocalStorage("menu"),
@@ -242,24 +240,15 @@ function HocTrucTuyen({ match, history, permission }) {
                         }}
                       >
                         {dt && (
-                          <ReactPlayer
+                          <img
+                            src={BASE_URL_API + dt.anhDaiDienChuyenDe}
+                            alt={"Ảnh đại diện chuyên đề"}
+                            onClick={() => handleXemChiTiet(dt)}
                             style={{
+                              width: "100%",
+                              height: "200px",
                               cursor: "pointer",
                             }}
-                            url={
-                              dt.fileVideo ? BASE_URL_API + dt.fileVideo : null
-                            }
-                            controls={false}
-                            // width="100%"
-                            height="100%"
-                            config={{
-                              file: {
-                                attributes: { controlsList: "nodownload" },
-                              },
-                            }}
-                            ref={playerRef}
-                            onStart={() => playerRef.current.seekTo(25)}
-                            onClick={() => handleXemChiTiet(dt)}
                           />
                         )}
                       </Col>

@@ -332,31 +332,34 @@ function ModalThiKhaoSat({
               </span>
             )}
           </Col>
-          {DeThi && (
-            <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
-              {ListCauHoi.length && DeThi && (
-                <span>
-                  <strong>Thời gian còn lại:</strong>{" "}
-                  <span
-                    style={{
-                      color: "red",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    <Countdown
-                      value={moment(
-                        DeThi.gioiHanThoiGianThi,
-                        "DD/MM/YYYY HH:mm:ss"
-                      )
-                        .toDate()
-                        .getTime()}
-                      onFinish={onFinish}
-                    />
-                  </span>
-                </span>
-              )}
+          {ListCauHoi.length && DeThi ? (
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={24}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Thời gian còn lại:</strong>
+              </span>
+              <span
+                style={{
+                  color: "red",
+                  fontWeight: "bold",
+                }}
+              >
+                <Countdown
+                  value={moment(DeThi.gioiHanThoiGianThi, "DD/MM/YYYY HH:mm:ss")
+                    .toDate()
+                    .getTime()}
+                  onFinish={onFinish}
+                />
+              </span>
             </Col>
-          )}
+          ) : null}
         </Row>
         <div align={"end"}>
           {DeThi ? (

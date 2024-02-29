@@ -1,39 +1,44 @@
 import React, { useEffect, useState } from "react";
-import { Card, Upload, Col, Button, Modal, Image } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { useDispatch } from "react-redux";
-import { fetchStart } from "src/appRedux/actions/Common";
+import { Button, Card, Upload, message } from "antd";
+import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
 import { BASE_URL_API } from "src/constants/Config";
-import ContainerHeader from "src/components/ContainerHeader";
 import {
-  convertObjectToUrlParams,
-  getLocalStorage,
   getTokenInfo,
+  getLocalStorage,
+  convertObjectToUrlParams,
 } from "src/util/Common";
+import ContainerHeader from "src/components/ContainerHeader";
+import { fetchStart } from "src/appRedux/actions";
+import { useDispatch } from "react-redux";
 
-const getBase64 = (file) =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result);
-    reader.onerror = (error) => reject(error);
-  });
+const getBase64 = (img, callback) => {
+  const reader = new FileReader();
+  reader.addEventListener("load", () => callback(reader.result));
+  reader.readAsDataURL(img);
+};
+
+const beforeUpload = (file) => {
+  const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+  if (!isJpgOrPng) {
+    message.error("Vui lòng tải file ảnh!");
+  }
+  return isJpgOrPng;
+};
 
 function ChuKy({ permission }) {
-  const [previewOpen, setPreviewOpen] = useState(false);
   const dispatch = useDispatch();
   const INFO = {
     ...getLocalStorage("menu"),
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const [previewImage, setPreviewImage] = useState("");
-  const [fileList, setFileList] = useState([]);
-  const [Path, setPath] = useState([]);
+  const [Path, setPath] = useState();
+  const [loading, setLoading] = useState(false);
+  const [ImageUrl, setImageUrl] = useState();
   const [disable, setDisable] = useState(true);
 
   useEffect(() => {
-    if (permission && permission) {
+    if (permission && permission.view) {
       getData();
     }
   }, []);
@@ -55,58 +60,19 @@ function ChuKy({ permission }) {
       if (res && res.data) {
         if (res.data.hinhAnhChuKySo) {
           const dataUrl = `data:image/png;base64,${res.data.hinhAnhChuKySo}`;
-          setPath(res.data.hinhAnhChuKySo);
-          setFileList([
-            {
-              url: dataUrl,
-              uid: "-1",
-              name: res.data.hinhAnhChuKySo.split("_")[1],
-              status: "done",
-            },
-          ]);
+          setImageUrl(dataUrl);
+        } else {
+          setImageUrl(null);
         }
+      } else {
+        setImageUrl(null);
       }
     });
   };
 
-  const handleCancel = () => setPreviewOpen(false);
-
-  const handlePreview = async (file) => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj);
-    }
-    setPreviewImage(file.url || file.preview);
-    setPreviewOpen(true);
-  };
-
-  const handleChange = ({ fileList: newFileList }) => {
-    if (newFileList.length > 0 && newFileList[0].status === "done") {
-      setPath(newFileList[0].response.path ? newFileList[0].response.path : "");
-      setDisable(false);
-    } else {
-      setPath("");
-      setDisable(false);
-    }
-    setFileList(newFileList);
-  };
-
-  const uploadButton = (
-    <div>
-      <PlusOutlined />
-      <div
-        style={{
-          marginTop: 8,
-        }}
-      >
-        Upload
-      </div>
-    </div>
-  );
-
-  const saveData = () => {
+  const handleLuuChuKySo = () => {
     const params = convertObjectToUrlParams({
       HinhAnhChuKySo: Path,
-      id: INFO.user_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -121,55 +87,105 @@ function ChuKy({ permission }) {
         )
       );
     }).then((res) => {
-      if (res && res.data) {
+      if (res && res.status !== 409) {
+        setPath(null);
+        setImageUrl(null);
         setDisable(true);
         getData();
       }
     });
   };
 
+  const handleXoaChuKySo = () => {
+    const params = convertObjectToUrlParams({
+      Isdelete: true,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Account/chu-ky-so?${params}`,
+          "PUT",
+          null,
+          "DELETE",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      getData();
+    });
+  };
+
+  const handleChange = (info) => {
+    if (info.file.status === "uploading") {
+      setLoading(true);
+      return;
+    }
+    if (info.file.status === "done") {
+      setPath(info.file.response.path);
+      getBase64(info.file.originFileObj, (url) => {
+        setLoading(false);
+        setImageUrl(url);
+        setDisable(false);
+      });
+    }
+  };
+
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload
+      </div>
+    </button>
+  );
+
   return (
     <div className="gx-main-content">
-      <ContainerHeader title="Chữ ký" description="Chữ ký" />
-      <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Col
-          xxl={10}
-          xl={10}
-          lg={20}
-          md={20}
-          sm={19}
-          xs={18}
-          style={{ marginBottom: 8 }}
+      <ContainerHeader title="Chữ ký số" description="Chữ ký số" />
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        style={{ height: "75vh" }}
+      >
+        <Upload
+          listType="picture-card"
+          className="avatar-uploader"
+          showUploadList={false}
+          action={`${BASE_URL_API}/api/Upload`}
+          headers={{
+            Authorization: "Bearer ".concat(INFO.token),
+          }}
+          beforeUpload={beforeUpload}
+          onChange={handleChange}
+          style={{ width: "250px" }}
         >
-          <Upload
-            accept="image/png, image/jpeg"
-            action={`${BASE_URL_API}/api/Upload`}
-            headers={{
-              Authorization: "Bearer ".concat(INFO.token),
-            }}
-            listType="picture-card"
-            fileList={fileList}
-            onPreview={handlePreview}
-            onChange={handleChange}
-            className="upload-chu-ky"
-          >
-            {fileList.length >= 1 ? null : uploadButton}
-          </Upload>
-          <Modal open={previewOpen} footer={null} onCancel={handleCancel}>
-            <Image
-              alt="Chữ ký số"
-              style={{
-                width: "100%",
-              }}
-              src={previewImage}
-            />
-          </Modal>
-        </Col>
-        <Col span={24}>
-          <Button type="primary" onClick={saveData} disabled={disable}>
+          {ImageUrl ? <img src={ImageUrl} alt="Chữ ký số" /> : uploadButton}
+        </Upload>
+        <div
+          style={{
+            display: "flex",
+            width: "250px",
+            justifyContent: "space-around",
+          }}
+        >
+          <Button type="primary" onClick={handleLuuChuKySo} disabled={disable}>
             Lưu chữ ký
           </Button>
-        </Col>
+          <Button type="danger" onClick={handleXoaChuKySo} disabled={!ImageUrl}>
+            Xóa chữ ký
+          </Button>
+        </div>
       </Card>
     </div>
   );

@@ -1,4 +1,14 @@
-import { Card, Col, Row, Button, Form, Input, Upload, DatePicker } from "antd";
+import {
+  Card,
+  Col,
+  Row,
+  Button,
+  Form,
+  Input,
+  Upload,
+  DatePicker,
+  Progress,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import {
@@ -38,6 +48,7 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
   const [GiayChungNhan, setGiayChungNhan] = useState(null);
   const [DisableUploadGiayChungNhan, setDisableUploadGiayChungNhan] =
     useState(false);
+  const [Loading, setLoading] = useState(null);
 
   useEffect(() => {
     if (permission && permission.add) {
@@ -213,21 +224,30 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
     if (formthemmoiketqua.giayChungNhan) {
       const formData = new FormData();
       formData.append("file", formthemmoiketqua.giayChungNhan.file);
-      fetch(`${BASE_URL_API}/api/Upload`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: "Bearer ".concat(INFO.token),
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => {
+
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
+      xhr.upload.onprogress = (event) => {
+        if (event.lengthComputable) {
+          const progress = (event.loaded / event.total) * 100;
+          setLoading(progress);
+        }
+      };
+      xhr.onload = () => {
+        if (xhr.status === 200) {
+          const data = JSON.parse(xhr.responseText);
           formthemmoiketqua.giayChungNhan = data.path;
-          saveData(formthemmoiketqua);
-        })
-        .catch(() => {
-          Helpers.alertError(`Tải file hình ảnh không thành công!`);
-        });
+          saveData(formthemmoiketqua, saveQuit);
+        } else {
+          Helpers.alertError("Tải file không thành công.");
+        }
+      };
+
+      xhr.onerror = () => {
+        Helpers.alertError("Tải file không thành công.");
+      };
+      xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
+      xhr.send(formData);
     } else {
       Helpers.alertError(`Vui lòng tải file cập nhật kết quả đào tạo!`);
     }
@@ -510,6 +530,14 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
                   placeholder="Nhập ghi chú"
                 />
               </FormItem>
+            </Col>
+            <Col span={24} align="left">
+              {Loading && (
+                <Progress
+                  percent={parseFloat(Loading.toFixed(2))}
+                  type="line"
+                />
+              )}
             </Col>
           </Row>
           <FormSubmit

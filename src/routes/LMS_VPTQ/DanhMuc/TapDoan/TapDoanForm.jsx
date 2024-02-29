@@ -94,11 +94,7 @@ const TapDoanForm = ({ history, match, permission }) => {
               setFieldTouch(false);
             }
           } else {
-            if (saveQuit) {
-              goBack();
-            } else {
-              setFieldTouch(false);
-            }
+            setFieldTouch(false);
           }
         })
         .catch((error) => console.error(error));
@@ -119,11 +115,10 @@ const TapDoanForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) goBack();
-          } else {
-            getInfo(id);
+          if (res.status === 409 || !saveQuit) {
             setFieldTouch(false);
+          } else {
+            goBack();
           }
         })
         .catch((error) => console.error(error));

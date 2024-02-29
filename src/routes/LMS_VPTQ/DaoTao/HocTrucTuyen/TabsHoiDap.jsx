@@ -156,9 +156,16 @@ const TabsHoiDap = ({ dataHoiDap }) => {
           .then((res) => res.json())
           .then((data) => {
             FileHinhAnhEditHoiDap && FileHinhAnhEditHoiDap.name
-              ? (edithoidap.hinhAnh = data.path)
-              : (edithoidap.fileDinhKem = data.path);
-            saveData(edithoidap);
+              ? saveData({
+                  ...edithoidap,
+                  hinhAnh: data.path,
+                  fileDinhKem: FileDinhKemEditHoiDap,
+                })
+              : saveData({
+                  ...edithoidap,
+                  hinhAnh: FileHinhAnhEditHoiDap,
+                  fileDinhKem: data.path,
+                });
           })
           .catch(() => {
             Helpers.alertError(
@@ -170,6 +177,8 @@ const TabsHoiDap = ({ dataHoiDap }) => {
             );
           });
       } else {
+        edithoidap.hinhAnh = FileHinhAnhEditHoiDap;
+        edithoidap.fileDinhKem = FileDinhKemEditHoiDap;
         saveData(edithoidap);
       }
     } else if (IsEditPhanHoi) {
@@ -193,6 +202,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
             Helpers.alertError(`Tải file hình ảnh không thành công.`);
           });
       } else {
+        editphanhoi.hinhAnh = FileHinhAnhEditPhanHoi;
         saveData(editphanhoi);
       }
     } else {
@@ -835,10 +845,9 @@ const TabsHoiDap = ({ dataHoiDap }) => {
           </div>
         </Form>
       </Card>
-      <Card className="th-card-margin-bottom th-card-reset-margin">
-        {HoiDap &&
-          HoiDap.results.length !== 0 &&
-          HoiDap.results.map((hd, index) => {
+      {HoiDap && HoiDap.results.length !== 0 ? (
+        <Card className="th-card-margin-bottom th-card-reset-margin">
+          {HoiDap.results.map((hd, index) => {
             return IndexChinhSuaCauHoi === index ? (
               <div className="rate-edit">
                 <div className="avatar">
@@ -1684,7 +1693,8 @@ const TabsHoiDap = ({ dataHoiDap }) => {
               </div>
             );
           })}
-      </Card>
+        </Card>
+      ) : null}
     </div>
   );
 };

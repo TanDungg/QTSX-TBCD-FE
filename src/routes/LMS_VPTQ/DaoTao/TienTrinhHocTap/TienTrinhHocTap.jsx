@@ -141,8 +141,16 @@ function TienTrinhHocTap({ permission, history }) {
       .then((res) => {
         if (res && res.data) {
           if (donviId) {
-            setHocVien(res.data[0].user_Id);
-            getListData(donviId, res.data[0].user_Id, TuNgay, DenNgay);
+            const data = res.data.find(
+              (dt) => dt.user_Id.toLowerCase() === INFO.user_Id.toLowerCase()
+            );
+            if (data) {
+              setHocVien(INFO.user_Id.toLowerCase());
+              getListData(donviId, INFO.user_Id, TuNgay, DenNgay);
+            } else {
+              setHocVien(res.data[0].user_Id);
+              getListData(donviId, res.data[0].user_Id, TuNgay, DenNgay);
+            }
           } else {
             setHocVien(INFO.user_Id.toLowerCase());
             getListData(INFO.donVi_Id, INFO.user_Id, TuNgay, DenNgay);
