@@ -10,6 +10,7 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { fetchStart } from "src/appRedux/actions";
 import { useDispatch } from "react-redux";
+import { Modal } from "src/components/Common";
 
 const getBase64 = (img, callback) => {
   const reader = new FileReader();
@@ -96,6 +97,18 @@ function ChuKy({ permission }) {
     });
   };
 
+  const propluu = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận lưu chữ ký số",
+    onOk: handleLuuChuKySo,
+  };
+
+  const modalLuuChuKySo = () => {
+    Modal(propluu);
+  };
+
   const handleXoaChuKySo = () => {
     const params = convertObjectToUrlParams({
       Isdelete: true,
@@ -115,6 +128,18 @@ function ChuKy({ permission }) {
     }).then((res) => {
       getData();
     });
+  };
+
+  const propdelete = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận lưu chữ ký số",
+    onOk: handleXoaChuKySo,
+  };
+
+  const modalXoaChuKySo = () => {
+    Modal(propdelete);
   };
 
   const handleChange = (info) => {
@@ -179,10 +204,10 @@ function ChuKy({ permission }) {
             justifyContent: "space-around",
           }}
         >
-          <Button type="primary" onClick={handleLuuChuKySo} disabled={disable}>
+          <Button type="primary" onClick={modalLuuChuKySo} disabled={disable}>
             Lưu chữ ký
           </Button>
-          <Button type="danger" onClick={handleXoaChuKySo} disabled={!ImageUrl}>
+          <Button type="danger" onClick={modalXoaChuKySo} disabled={!ImageUrl}>
             Xóa chữ ký
           </Button>
         </div>

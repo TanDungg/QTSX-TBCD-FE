@@ -229,9 +229,10 @@ const Topbar = () => {
 
   const ModalXoaThongBao = (thongbao) => {
     confirm({
-      title: "Xóa thông báo!",
       icon: <ExclamationCircleOutlined />,
-      content: `${thongbao.body}`,
+      content: `Xóa thông báo ${thongbao.body}`,
+      okText: "Xác nhận",
+      cancelText: "Hủy",
       onOk() {
         handleXoaThongBao(thongbao);
       },

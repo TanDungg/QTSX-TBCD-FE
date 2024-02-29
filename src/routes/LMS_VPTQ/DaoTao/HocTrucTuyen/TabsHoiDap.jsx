@@ -469,9 +469,10 @@ const TabsHoiDap = ({ dataHoiDap }) => {
 
   const ModalXoaHoiDap = (vptq_lms_HoiDap_Id) => {
     confirm({
-      title: "Xóa hỏi đáp!",
       icon: <ExclamationCircleOutlined />,
       content: "Xác nhận xóa hỏi đáp!",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
       onOk() {
         handleXoaHoiDap(vptq_lms_HoiDap_Id);
       },
@@ -528,9 +529,10 @@ const TabsHoiDap = ({ dataHoiDap }) => {
 
   const ModalXoaPhanHoi = (vptq_lms_PhanHoi_Id) => {
     confirm({
-      title: "Xóa phản hồi!",
       icon: <ExclamationCircleOutlined />,
       content: "Xác nhận xóa phản hồi!",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
       onOk() {
         handleXoaPhanHoi(vptq_lms_PhanHoi_Id);
       },

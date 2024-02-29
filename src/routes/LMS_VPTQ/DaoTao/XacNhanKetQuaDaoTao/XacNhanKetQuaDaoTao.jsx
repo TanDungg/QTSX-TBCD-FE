@@ -374,7 +374,7 @@ function XacNhanKetQuaDaoTao({ permission, history }) {
 
   const ModalDuyetChungNhan = (id) => {
     confirm({
-      title: "Xác nhận duyệt giấy chứng nhận kết quả đào tạo!",
+      content: "Xác nhận duyệt giấy chứng nhận kết quả đào tạo!",
       okText: "Xác nhận",
       cancelText: "Hủy",
       onOk() {

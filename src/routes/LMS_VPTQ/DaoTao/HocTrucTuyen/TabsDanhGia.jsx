@@ -179,9 +179,10 @@ const TabsDanhGia = ({ dataDanhGia }) => {
 
   const ModalXoaDanhGia = (vptq_lms_DanhGia_Id) => {
     confirm({
-      title: "Xóa đánh giá!",
       icon: <ExclamationCircleOutlined />,
       content: "Xác nhận xóa đánh giá của bạn!",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
       onOk() {
         handleXoaDanhGia(vptq_lms_DanhGia_Id);
       },

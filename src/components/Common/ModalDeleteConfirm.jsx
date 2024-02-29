@@ -10,7 +10,6 @@ import { messages } from "src/constants/Messages";
  */
 function ModalDeleteConfirm(deleteAction, item, name, title) {
   Modal.confirm({
-    title: `Xóa ${title}`,
     content: `Bạn sẽ xoá ${title} ${name}. 
     Nhấn Đồng ý để xác nhận.`,
     onOk(e) {

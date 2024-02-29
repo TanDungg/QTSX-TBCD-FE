@@ -195,7 +195,13 @@ function ChuyenDeDaoTao({ permission, history, match }) {
       fixed: "left",
     },
     {
-      title: "Trạng thái sử dụng",
+      title: (
+        <div>
+          Trạng thái
+          <br />
+          sử dụng
+        </div>
+      ),
       dataIndex: "isSuDung",
       key: "isSuDung",
       align: "center",
