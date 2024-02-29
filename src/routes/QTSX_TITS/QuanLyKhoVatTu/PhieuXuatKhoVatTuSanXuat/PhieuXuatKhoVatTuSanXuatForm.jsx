@@ -59,7 +59,7 @@ const VatTuForm = ({ history, match, permission }) => {
   const [ListXuong, setListXuong] = useState([]);
   const [ListKhoVatTu, setListKhoVatTu] = useState([]);
   const [NgayKHSX, setNgayKHSX] = useState(getDateNow(), "DD/MM/YYYY");
-  const [Xuong, setXuong] = useState(null);
+  const [Xuong, setXuong] = useState();
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
   const [KhoVatTu, setKhoVatTu] = useState(null);
@@ -181,8 +181,17 @@ const VatTuForm = ({ history, match, permission }) => {
         )
       );
     }).then((res) => {
-      if (res && res.status !== 409) {
-        setListSanPham(res.data);
+      if (res && res.status === 200) {
+        setListSanPham(
+          res.data.map((sp) => {
+            return {
+              ...sp,
+              sanPham_DonHang_Id:
+                sp.tits_qtsx_SanPham_Id + "/" + sp.tits_qtsx_DonHang_Id,
+              name: sp.tenSanPham + " - " + sp.maPhieu,
+            };
+          })
+        );
       } else {
         setListSanPham([]);
       }
@@ -243,7 +252,7 @@ const VatTuForm = ({ history, match, permission }) => {
       );
     })
       .then((res) => {
-        if (res && res.data) {
+        if (res && res.status === 200) {
           setListBOM(res.data);
         } else {
           setListBOM([]);
@@ -436,6 +445,10 @@ const VatTuForm = ({ history, match, permission }) => {
             setFieldsValue({
               phieuxuatkhovattusanxuattheoOEM: {
                 ...listdata,
+                sanPham_DonHang_Id:
+                  listdata.tits_qtsx_SanPham_Id +
+                  "/" +
+                  listdata.tits_qtsx_DonHang_Id,
                 ngayXuatKho: moment(listdata.ngayXuatKho, "DD/MM/YYYY"),
               },
             });
@@ -446,6 +459,10 @@ const VatTuForm = ({ history, match, permission }) => {
             setFieldsValue({
               phieuxuatkhovattusanxuattheoBOM: {
                 ...listdata,
+                sanPham_DonHang_Id:
+                  listdata.tits_qtsx_SanPham_Id +
+                  "/" +
+                  listdata.tits_qtsx_DonHang_Id,
                 ngayXuatKho: moment(listdata.ngayXuatKho, "DD/MM/YYYY"),
               },
             });
@@ -1226,22 +1243,22 @@ const VatTuForm = ({ history, match, permission }) => {
 
   const handleSelectListSanPham = (val) => {
     setSanPham(val);
-    const newSanPham = ListSanPham.find(
-      (sp) => sp.tits_qtsx_SanPham_Id === val
-    );
+    const newSanPham = ListSanPham.find((sp) => sp.sanPham_DonHang_Id === val);
     setFieldsValue(
       value === 0
         ? {
             phieuxuatkhovattusanxuattheoOEM: {
               tits_qtsx_SoLo_Id: null,
+              tits_qtsx_SanPham_Id: newSanPham.tits_qtsx_SanPham_Id,
               tits_qtsx_DonHang_Id: newSanPham.tits_qtsx_DonHang_Id,
               soLuongLo: null,
             },
           }
-        : { 
+        : {
             phieuxuatkhovattusanxuattheoBOM: {
               tits_qtsx_SoLo_Id: null,
               tits_qtsx_DonHang_Id: newSanPham.tits_qtsx_DonHang_Id,
+              tits_qtsx_SanPham_Id: newSanPham.tits_qtsx_SanPham_Id,
               soLuongLo: null,
               tits_qtsx_BOMXuong_Id: null,
             },
@@ -1249,13 +1266,17 @@ const VatTuForm = ({ history, match, permission }) => {
     );
     setListSoLo([]);
     setSoLuongLo(null);
-    getListSoLo(Xuong, newSanPham.tits_qtsx_DonHang_Id, val);
+    getListSoLo(
+      Xuong,
+      newSanPham.tits_qtsx_DonHang_Id,
+      newSanPham.tits_qtsx_SanPham_Id
+    );
     if (value === 0) {
       setListVatTuTheoOEM([]);
     } else {
       setListBOM([]);
       setListVatTuTheoBOM([]);
-      getListDinhMucVatTu(Xuong, val);
+      getListDinhMucVatTu(Xuong, newSanPham.tits_qtsx_SanPham_Id);
     }
   };
 
@@ -1278,7 +1299,7 @@ const VatTuForm = ({ history, match, permission }) => {
           }
     );
     if (value === 0) {
-      getListVatTu(Xuong, SanPham, isThepTam, newData.soLuongLo);
+      getListVatTu(Xuong, SanPham.split("/")[0], isThepTam, newData.soLuongLo);
     }
   };
 
@@ -1540,7 +1561,9 @@ const VatTuForm = ({ history, match, permission }) => {
                           format={"DD/MM/YYYY"}
                           allowClear={false}
                           onChange={(date, dateString) => {
-                            getListSanPham(Xuong, dateString);
+                            if (Xuong) {
+                              getListSanPham(Xuong, dateString);
+                            }
                             setNgayKHSX(dateString, "DD/MM/YYYY");
                             setFieldsValue({
                               phieuxuatkhovattusanxuattheoOEM: {
@@ -1636,7 +1659,7 @@ const VatTuForm = ({ history, match, permission }) => {
                         label="Sản phẩm"
                         name={[
                           "phieuxuatkhovattusanxuattheoOEM",
-                          "tits_qtsx_SanPham_Id",
+                          "sanPham_DonHang_Id",
                         ]}
                         rules={[
                           {
@@ -1649,7 +1672,7 @@ const VatTuForm = ({ history, match, permission }) => {
                           className="heading-select slt-search th-select-heading"
                           data={ListSanPham ? ListSanPham : []}
                           placeholder="Chọn sản phẩm"
-                          optionsvalue={["tits_qtsx_SanPham_Id", "tenSanPham"]}
+                          optionsvalue={["sanPham_DonHang_Id", "name"]}
                           style={{ width: "100%" }}
                           showSearch
                           optionFilterProp="name"
@@ -2154,7 +2177,9 @@ const VatTuForm = ({ history, match, permission }) => {
                           format={"DD/MM/YYYY"}
                           allowClear={false}
                           onChange={(date, dateString) => {
-                            getListSanPham(Xuong, dateString);
+                            if (Xuong) {
+                              getListSanPham(Xuong, dateString);
+                            }
                             setNgayKHSX(dateString, "DD/MM/YYYY");
                             setFieldsValue({
                               phieuxuatkhovattusanxuattheoBOM: {
@@ -2292,7 +2317,7 @@ const VatTuForm = ({ history, match, permission }) => {
                         label="Sản phẩm"
                         name={[
                           "phieuxuatkhovattusanxuattheoBOM",
-                          "tits_qtsx_SanPham_Id",
+                          "sanPham_DonHang_Id",
                         ]}
                         rules={[
                           {
@@ -2305,7 +2330,7 @@ const VatTuForm = ({ history, match, permission }) => {
                           className="heading-select slt-search th-select-heading"
                           data={ListSanPham ? ListSanPham : []}
                           placeholder="Chọn sản phẩm"
-                          optionsvalue={["tits_qtsx_SanPham_Id", "tenSanPham"]}
+                          optionsvalue={["sanPham_DonHang_Id", "name"]}
                           style={{ width: "100%" }}
                           showSearch
                           optionFilterProp="name"

@@ -402,7 +402,7 @@ function NhapKhoVatTu({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "In Void",
+      title: "In Voice",
       dataIndex: "inVoid",
       key: "inVoid",
       align: "center",

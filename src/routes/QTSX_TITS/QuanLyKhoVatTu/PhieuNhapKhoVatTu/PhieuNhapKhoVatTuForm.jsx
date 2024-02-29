@@ -1025,7 +1025,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="In Void"
+                label="In Voice"
                 name={["phieunhapkhovattu", "inVoid"]}
                 rules={[
                   {
