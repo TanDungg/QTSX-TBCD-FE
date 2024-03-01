@@ -794,7 +794,7 @@ function BOMForm({ match, permission, history }) {
               khoiLuong:
                 (d[KL] && d[KL] !== 0) || d[KL] === 0
                   ? d[KL].toString().trim() !== ""
-                    ? Number(d[KL].toString().trim()).toFixed(3)
+                    ? Number(d[KL].toString().trim()).toFixed(1)
                     : undefined
                   : undefined,
               dinhMuc:
