@@ -1,4 +1,8 @@
-import { StepBackwardOutlined, StepForwardOutlined } from "@ant-design/icons";
+import {
+  ExclamationCircleOutlined,
+  StepBackwardOutlined,
+  StepForwardOutlined,
+} from "@ant-design/icons";
 import {
   Modal as AntModal,
   Card,
@@ -16,8 +20,10 @@ import { fetchStart } from "src/appRedux/actions";
 import { Button, Modal } from "src/components/Common";
 import { BASE_URL_API } from "src/constants/Config";
 import Helpers from "src/helpers";
+import { getTokenInfo, getLocalStorage } from "src/util/Common";
 
 const { Countdown } = Statistic;
+const { confirm } = AntModal;
 
 function ModalThiKhaoSat({
   openModalFS,
@@ -28,6 +34,11 @@ function ModalThiKhaoSat({
 }) {
   const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [ThongTinDeThi, setThongTinDeThi] = useState(null);
   const [DeThi, setDeThi] = useState(null);
   const [ListCauHoi, setListCauHoi] = useState([]);
@@ -71,7 +82,7 @@ function ModalThiKhaoSat({
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_ThiTrucTuyen/${thongtin}`,
+          `vptq_lms_ThiTrucTuyen/${thongtin}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -122,6 +133,18 @@ function ModalThiKhaoSat({
       .catch((error) => console.error(error));
   };
 
+  const ModalThi = (item) => {
+    confirm({
+      icon: <ExclamationCircleOutlined />,
+      content: "Xác nhận thi khảo sát!",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
+      onOk() {
+        getDeThiTrucTuyen(item);
+      },
+    });
+  };
+
   const ModalThiDat = () => {
     AntModal.success({
       content: "Chúc mừng bạn đã vượt qua bài thi khảo sát!",
@@ -155,7 +178,13 @@ function ModalThiKhaoSat({
           setListCauHoi([]);
           setCauHoi(null);
         } else if (res && res.data) {
-          handleCancel()
+          openModalFS(false);
+          setThongTinDeThi(null);
+          setListCauHoi([]);
+          setCauHoi(null);
+          setKetQuaThi(null);
+          setChiTietKetQua([]);
+          refesh();
         }
       })
       .catch((error) => console.error(error));
@@ -255,6 +284,14 @@ function ModalThiKhaoSat({
             }
           });
           setListCauHoi(newlistcauhoi);
+        } else if (res && res.data) {
+          openModalFS(false);
+          setThongTinDeThi(null);
+          setListCauHoi([]);
+          setCauHoi(null);
+          setKetQuaThi(null);
+          setChiTietKetQua([]);
+          refesh();
         }
       })
       .catch((error) => console.error(error));
@@ -502,7 +539,7 @@ function ModalThiKhaoSat({
           ) : KetQuaThi && KetQuaThi.isDaThi === 1 ? null : (
             <Button
               className="th-margin-bottom-0"
-              onClick={() => getDeThiTrucTuyen(thongtin)}
+              onClick={() => ModalThi(thongtin)}
               type="primary"
             >
               Bắt đầu
@@ -745,27 +782,16 @@ function ModalThiKhaoSat({
                   md={12}
                   sm={24}
                   xs={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
+                  className="title-span"
                 >
                   <span
                     style={{
-                      width: "70px",
                       fontWeight: "bold",
                     }}
                   >
                     Lần thi:
                   </span>
-                  <span
-                    style={{
-                      width: "calc(100% - 70px)",
-                      color: "#0469b9",
-                    }}
-                  >
-                    Lần thứ {KetQuaThi.lanThiThu}
-                  </span>
+                  <span>{KetQuaThi.lanThiThu}</span>
                 </Col>
                 <Col
                   xxl={8}
@@ -774,27 +800,16 @@ function ModalThiKhaoSat({
                   md={12}
                   sm={24}
                   xs={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
+                  className="title-span"
                 >
                   <span
                     style={{
-                      width: "140px",
                       fontWeight: "bold",
                     }}
                   >
                     Thời gian bắt đầu:
                   </span>
-                  <span
-                    style={{
-                      width: "calc(100% - 140px)",
-                      color: "#0469b9",
-                    }}
-                  >
-                    {KetQuaThi.thoiGianBatDauThi}
-                  </span>
+                  <span>{KetQuaThi.thoiGianBatDauThi}</span>
                 </Col>
                 <Col
                   xxl={8}
@@ -803,27 +818,16 @@ function ModalThiKhaoSat({
                   md={12}
                   sm={24}
                   xs={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
+                  className="title-span"
                 >
                   <span
                     style={{
-                      width: "145px",
                       fontWeight: "bold",
                     }}
                   >
                     Thời gian kết thúc:
                   </span>
-                  <span
-                    style={{
-                      width: "calc(100% - 145px)",
-                      color: "#0469b9",
-                    }}
-                  >
-                    {KetQuaThi.thoiGianKetThucThi}
-                  </span>
+                  <span>{KetQuaThi.thoiGianKetThucThi}</span>
                 </Col>
                 <Col
                   xxl={8}
@@ -832,27 +836,16 @@ function ModalThiKhaoSat({
                   md={12}
                   sm={24}
                   xs={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
+                  className="title-span"
                 >
                   <span
                     style={{
-                      width: "100px",
                       fontWeight: "bold",
                     }}
                   >
                     Số câu đúng:
                   </span>
-                  <span
-                    style={{
-                      width: "calc(100% - 100px)",
-                      color: "#0469b9",
-                    }}
-                  >
-                    {KetQuaThi.soCauTraLoiDung} câu
-                  </span>
+                  <span>{KetQuaThi.soCauTraLoiDung} câu</span>
                 </Col>
                 <Col
                   xxl={8}
@@ -861,27 +854,16 @@ function ModalThiKhaoSat({
                   md={12}
                   sm={24}
                   xs={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
+                  className="title-span"
                 >
                   <span
                     style={{
-                      width: "80px",
                       fontWeight: "bold",
                     }}
                   >
                     Số điểm:
                   </span>
-                  <span
-                    style={{
-                      width: "calc(100% - 80px)",
-                      color: "#0469b9",
-                    }}
-                  >
-                    {KetQuaThi.soDiem} điểm
-                  </span>
+                  <span>{KetQuaThi.soDiem} điểm</span>
                 </Col>
                 <Col
                   xxl={8}
@@ -890,14 +872,10 @@ function ModalThiKhaoSat({
                   md={12}
                   sm={24}
                   xs={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                  }}
+                  className="title-span"
                 >
                   <span
                     style={{
-                      width: "80px",
                       fontWeight: "bold",
                     }}
                   >
@@ -905,7 +883,6 @@ function ModalThiKhaoSat({
                   </span>
                   <span
                     style={{
-                      width: "calc(100% - 80px)",
                       color:
                         KetQuaThi.ketQua === "Không đạt" ? "red" : "#0469b9",
                       fontWeight: "bold",
