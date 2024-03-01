@@ -825,28 +825,12 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
               md={24}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
-              <span
-                style={{
-                  width: "145px",
-                  fontWeight: "bold",
-                }}
-              >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
                 Chuyên đề đào tạo:
               </span>
-              {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 145px)",
-                  }}
-                >
-                  {DataChiTiet.tenChuyenDeDaoTao}
-                </span>
-              )}
+              {DataChiTiet && <span>{DataChiTiet.tenChuyenDeDaoTao}</span>}
             </Col>
             <Col
               xxl={8}
@@ -855,25 +839,17 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
               md={24}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
               <span
                 style={{
-                  width: "75px",
                   fontWeight: "bold",
                 }}
               >
                 Lớp học:
               </span>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 75px)",
-                  }}
-                >
+                <span>
                   {DataChiTiet.tenLopHoc} ({DataChiTiet.maLopHoc})
                 </span>
               )}
@@ -885,28 +861,16 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
               md={24}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
               <span
                 style={{
-                  width: "140px",
                   fontWeight: "bold",
                 }}
               >
                 Hình thức đào tạo:
               </span>
-              {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
-                  {DataChiTiet.tenHinhThucDaoTao}
-                </span>
-              )}
+              {DataChiTiet && <span>{DataChiTiet.tenHinhThucDaoTao}</span>}
             </Col>
             <Col
               xxl={8}
@@ -915,28 +879,16 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
               md={24}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
               <span
                 style={{
-                  width: "135px",
                   fontWeight: "bold",
                 }}
               >
                 Địa điểm đào tạo:
               </span>
-              {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 135px)",
-                  }}
-                >
-                  {DataChiTiet.diaDiem}
-                </span>
-              )}
+              {DataChiTiet && <span>{DataChiTiet.diaDiem}</span>}
             </Col>
             <Col
               xxl={8}
@@ -945,28 +897,16 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
               md={24}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
               <span
                 style={{
-                  width: "90px",
                   fontWeight: "bold",
                 }}
               >
                 Giảng viên:
               </span>
-              {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 90px)",
-                  }}
-                >
-                  {DataChiTiet.tenGiangVien}
-                </span>
-              )}
+              {DataChiTiet && <span>{DataChiTiet.tenGiangVien}</span>}
             </Col>
             <Col
               xxl={8}
@@ -975,28 +915,16 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
               md={24}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
               <span
                 style={{
-                  width: "140px",
                   fontWeight: "bold",
                 }}
               >
                 Số lượng học viên:
               </span>
-              {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
-                  {DataChiTiet.soLuong} học viên
-                </span>
-              )}
+              {DataChiTiet && <span>{DataChiTiet.soLuong} học viên</span>}
             </Col>
             <Col
               xxl={8}
@@ -1005,28 +933,16 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
               md={24}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
               <span
                 style={{
-                  width: "145px",
                   fontWeight: "bold",
                 }}
               >
                 Thời lượng đào tạo:
               </span>
-              {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 145px)",
-                  }}
-                >
-                  {DataChiTiet.thoiLuongDaoTao} phút
-                </span>
-              )}
+              {DataChiTiet && <span>{DataChiTiet.thoiLuongDaoTao} phút</span>}
             </Col>
             <Col
               xxl={8}
@@ -1035,28 +951,16 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
               md={24}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
               <span
                 style={{
-                  width: "140px",
                   fontWeight: "bold",
                 }}
               >
                 Thời gian đào tạo:
               </span>
-              {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
-                  {DataChiTiet.thoiGianDaoTao}
-                </span>
-              )}
+              {DataChiTiet && <span>{DataChiTiet.thoiGianDaoTao}</span>}
             </Col>
             <Col
               xxl={8}
@@ -1065,28 +969,16 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
               md={24}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
               <span
                 style={{
-                  width: "140px",
                   fontWeight: "bold",
                 }}
               >
                 Thời gian kết thúc:
               </span>
-              {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
-                  {DataChiTiet.thoiGianKetThuc}
-                </span>
-              )}
+              {DataChiTiet && <span>{DataChiTiet.thoiGianKetThuc}</span>}
             </Col>
           </Row>
           <div align={"end"}>
