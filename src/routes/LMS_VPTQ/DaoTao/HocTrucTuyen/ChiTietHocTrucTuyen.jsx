@@ -80,28 +80,16 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
               md={12}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
               <span
                 style={{
-                  width: "90px",
                   fontWeight: "bold",
                 }}
               >
                 Mã lớp học:
               </span>
-              {ChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 90px)",
-                  }}
-                >
-                  {ChiTiet.maLopHoc}
-                </span>
-              )}
+              {ChiTiet && <span>{ChiTiet.maLopHoc}</span>}
             </Col>
             <Col
               xxl={8}
@@ -110,28 +98,12 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
               md={12}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
-              <span
-                style={{
-                  width: "100px",
-                  fontWeight: "bold",
-                }}
-              >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
                 Tên lớp học:
               </span>
-              {ChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 100px)",
-                  }}
-                >
-                  {ChiTiet.tenLopHoc}
-                </span>
-              )}
+              {ChiTiet && <span>{ChiTiet.tenLopHoc}</span>}
             </Col>
             <Col
               xxl={8}
@@ -140,28 +112,16 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
               md={12}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
               <span
                 style={{
-                  width: "150px",
                   fontWeight: "bold",
                 }}
               >
                 Thời lượng đào tạo:
               </span>
-              {ChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 150px)",
-                  }}
-                >
-                  {ChiTiet.thoiLuongDaoTao} phút
-                </span>
-              )}
+              {ChiTiet && <span>{ChiTiet.thoiLuongDaoTao} phút</span>}
             </Col>
             <Col
               xxl={8}
@@ -170,28 +130,16 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
               md={12}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
               <span
                 style={{
-                  width: "140px",
                   fontWeight: "bold",
                 }}
               >
                 Thời gian đào tạo:
               </span>
-              {ChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
-                  {ChiTiet.thoiGianDaoTao}
-                </span>
-              )}
+              {ChiTiet && <span>{ChiTiet.thoiGianDaoTao}</span>}
             </Col>
             <Col
               xxl={8}
@@ -200,28 +148,16 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
               md={12}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
               <span
                 style={{
-                  width: "140px",
                   fontWeight: "bold",
                 }}
               >
                 Thời gian kết thúc:
               </span>
-              {ChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
-                  {ChiTiet.thoiGianKetThuc}
-                </span>
-              )}
+              {ChiTiet && <span>{ChiTiet.thoiGianKetThuc}</span>}
             </Col>
             <Col
               xxl={8}
@@ -230,28 +166,16 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
               md={12}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
               <span
                 style={{
-                  width: "70px",
                   fontWeight: "bold",
                 }}
               >
                 Ghi chú:
               </span>
-              {ChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 70px)",
-                  }}
-                >
-                  {ChiTiet.ghiChu}
-                </span>
-              )}
+              {ChiTiet && <span>{ChiTiet.ghiChu}</span>}
             </Col>
           </Row>
         </Card>
@@ -261,7 +185,9 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
       label: "Mô tả",
       children: (
         <Card className="th-card-margin-bottom th-card-reset-margin">
-          <span>{ChiTiet && ChiTiet.moTa}</span>
+          <span style={{ whiteSpace: "pre-line" }}>
+            {ChiTiet && ChiTiet.moTa}
+          </span>
         </Card>
       ),
     },

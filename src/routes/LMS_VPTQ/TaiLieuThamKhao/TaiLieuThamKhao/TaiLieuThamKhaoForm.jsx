@@ -22,7 +22,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [fieldTouch, setFieldTouch] = useState(false);
-  const [disabledSave, setDisabledSave] = useState(false);
+  const [MoTa, setMoTa] = useState("");
   const [type, setType] = useState("new");
   const [ListKienThuc, setListKienThuc] = useState([]);
   const [FileTaiLieu, setFileTaiLieu] = useState(null);
@@ -98,7 +98,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
             setFileTaiLieu(res.data.fileTaiLieu);
             setDisableUpload(true);
           }
-          setDisabledSave(true);
+          setMoTa(data.moTa);
           setFieldsValue({
             formtailieuthamkhao: data,
           });
@@ -270,11 +270,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
   };
 
   const handleChangeMoTa = (value) => {
-    if (value && value.length > 250) {
-      setDisabledSave(false);
-    } else {
-      setDisabledSave(true);
-    }
+    setMoTa(value);
   };
 
   const formTitle =
@@ -447,7 +443,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
           <FormSubmit
             goBack={goBack}
             saveAndClose={saveAndClose}
-            disabled={fieldTouch && disabledSave}
+            disabled={fieldTouch && MoTa.length <= 250}
           />
         </Form>
       </Card>

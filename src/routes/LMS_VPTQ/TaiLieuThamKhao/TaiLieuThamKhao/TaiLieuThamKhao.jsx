@@ -17,7 +17,6 @@ import {
   EyeOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import { BASE_URL_API } from "src/constants/Config";
 
 function TaiLieuThamKhao({ match, history, permission }) {
   const dispatch = useDispatch();
@@ -159,24 +158,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
   };
 
   const handleXemChiTiet = (item) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `vptq_lms_TaiLieuThamKhao/${item.id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        handleOpenFile(res.data.fileTaiLieu);
-        getListData(KienThuc, keyword, page);
-      }
-    });
+    history.push(`${match.path}/${item.id}/chi-tiet`);
   };
 
   const handleRedirect = () => {
@@ -196,20 +178,6 @@ function TaiLieuThamKhao({ match, history, permission }) {
         </Button>
       </>
     );
-  };
-
-  const handleOpenFile = (fileTaiLieu) => {
-    const file = BASE_URL_API + fileTaiLieu;
-    if (fileTaiLieu) {
-      const fileExtension = fileTaiLieu.split(".").pop().toLowerCase();
-
-      if (fileExtension === "pdf") {
-        const viewerUrl = file;
-        window.open(viewerUrl, "_blank");
-      } else {
-        window.open(file, "_blank");
-      }
-    }
   };
 
   const handleEdit = (item) => {

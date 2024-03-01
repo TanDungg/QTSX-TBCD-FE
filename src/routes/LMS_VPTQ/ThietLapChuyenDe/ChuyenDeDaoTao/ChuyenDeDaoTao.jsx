@@ -289,6 +289,9 @@ function ChuyenDeDaoTao({ permission, history, match }) {
       key: "moTa",
       align: "left",
       width: 300,
+      render: (value) => {
+        return value && <span style={{ whiteSpace: "pre-line" }}>{value}</span>;
+      },
     },
     {
       title: "Kiến thức",
