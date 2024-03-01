@@ -646,72 +646,123 @@ function DangKyDaoTao({ match, history, permission }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 10]}>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {PhieuDangKy && (
-                <span>
-                  <strong>Tên phiếu đăng ký:</strong>{" "}
-                  {PhieuDangKy.tenPhieuDangKyDaoTao}
-                </span>
-              )}
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap" }}>
+                <strong>Tên phiếu đăng ký:</strong>
+              </span>
+              {PhieuDangKy && <span>{PhieuDangKy.tenPhieuDangKyDaoTao}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap" }}>
+                <strong>Chuyên đề đào tạo:</strong>
+              </span>
+              {PhieuDangKy && <span>{PhieuDangKy.tenChuyenDeDaoTao}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Thời gian dự kiến:</strong>
+              </span>
+              {PhieuDangKy && <span>{PhieuDangKy.thoiGianDuKien}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap" }}>
+                <strong>Đơn vị:</strong>
+              </span>
+              {PhieuDangKy && <span>{PhieuDangKy.tenDonVi}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap" }}>
+                <strong>Mục tiêu đào tạo:</strong>
+              </span>
+              {PhieuDangKy && <span>{PhieuDangKy.tenMucTieuDaoTao}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Người tạo phiếu:</strong>
+              </span>
+              {PhieuDangKy && <span>{PhieuDangKy.tenNguoiTao}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Người kiểm tra:</strong>
+              </span>
+              {PhieuDangKy && <span>{PhieuDangKy.tenNguoiKiemTra}</span>}
             </Col>
             <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {PhieuDangKy && (
-                <span>
-                  <strong>Chuyên đề đào tạo:</strong>{" "}
-                  {PhieuDangKy.tenChuyenDeDaoTao}
-                </span>
-              )}
+              <span>
+                <strong>Người duyệt:</strong>
+              </span>
+              {PhieuDangKy && <span>{PhieuDangKy.tenNguoiDuyet}</span>}
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {PhieuDangKy && (
-                <span>
-                  <strong>Thời gian dự kiến:</strong>{" "}
-                  {PhieuDangKy.thoiGianDuKien}
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {PhieuDangKy && (
-                <span>
-                  <strong>Đơn vị:</strong> {PhieuDangKy.tenDonVi}
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {PhieuDangKy && (
-                <span>
-                  <strong>Mục tiêu đào tạo:</strong>{" "}
-                  {PhieuDangKy.tenMucTieuDaoTao}
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {PhieuDangKy && (
-                <span>
-                  <strong>Người tạo phiếu:</strong> {PhieuDangKy.tenNguoiTao}
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {PhieuDangKy && (
-                <span>
-                  <strong>Người kiểm tra:</strong> {PhieuDangKy.tenNguoiKiemTra}
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {PhieuDangKy && (
-                <span>
-                  <strong>Người duyệt:</strong> {PhieuDangKy.tenNguoiDuyet}
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {PhieuDangKy && (
-                <span>
-                  <strong>Ghi chú:</strong> {PhieuDangKy.moTa}
-                </span>
-              )}
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Ghi chú:</strong>
+              </span>
+              {PhieuDangKy && <span>{PhieuDangKy.moTa}</span>}
             </Col>
           </Row>
         </Card>
