@@ -517,14 +517,14 @@ function Home() {
         },
       ],
       style: {
-        fontSize: 16,
-        fill: "#fff",
+        fontSize: 15,
+        fill: "#000",
       },
     },
     legend: {
       itemName: {
         style: {
-          fontSize: 16,
+          fontSize: 15,
           fill: "#000",
         },
       },
@@ -533,7 +533,7 @@ function Home() {
       label: {
         style: {
           fill: "#000",
-          fontSize: 16,
+          fontSize: 15,
         },
       },
     },
@@ -668,7 +668,15 @@ function Home() {
           </Radio.Group>
           <Card className="th-card-margin-bottom th-card-reset-margin">
             <Row gutter={[0, 10]}>
-              <Col span={width >= 1700 ? 12 : 24}>
+              <Col
+                span={
+                  width >= 1700 &&
+                  DataDashboardAdmin &&
+                  DataDashboardAdmin.length <= 6
+                    ? 12
+                    : 24
+                }
+              >
                 <Column
                   {...SoLuongHocVienColumnAdmin}
                   className="colum-height-plot"
@@ -685,8 +693,19 @@ function Home() {
                   </h4>
                 </div>
               </Col>
-              {width < 1700 && <Divider />}
-              <Col span={width >= 1700 ? 12 : 24}>
+              {width < 1700 ||
+                (DataDashboardAdmin && DataDashboardAdmin.length > 6 && (
+                  <Divider />
+                ))}
+              <Col
+                span={
+                  width >= 1700 &&
+                  DataDashboardAdmin &&
+                  DataDashboardAdmin.length <= 6
+                    ? 12
+                    : 24
+                }
+              >
                 <div
                   style={{
                     display: "flex",

@@ -195,7 +195,13 @@ function ChuyenDeDaoTao({ permission, history, match }) {
       fixed: "left",
     },
     {
-      title: "Trạng thái sử dụng",
+      title: (
+        <div>
+          Trạng thái
+          <br />
+          sử dụng
+        </div>
+      ),
       dataIndex: "isSuDung",
       key: "isSuDung",
       align: "center",
@@ -283,6 +289,9 @@ function ChuyenDeDaoTao({ permission, history, match }) {
       key: "moTa",
       align: "left",
       width: 300,
+      render: (value) => {
+        return value && <span style={{ whiteSpace: "pre-line" }}>{value}</span>;
+      },
     },
     {
       title: "Kiến thức",

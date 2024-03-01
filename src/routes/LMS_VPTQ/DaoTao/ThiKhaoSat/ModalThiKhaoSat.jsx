@@ -1,4 +1,8 @@
-import { StepBackwardOutlined, StepForwardOutlined } from "@ant-design/icons";
+import {
+  ExclamationCircleOutlined,
+  StepBackwardOutlined,
+  StepForwardOutlined,
+} from "@ant-design/icons";
 import {
   Modal as AntModal,
   Card,
@@ -16,8 +20,10 @@ import { fetchStart } from "src/appRedux/actions";
 import { Button, Modal } from "src/components/Common";
 import { BASE_URL_API } from "src/constants/Config";
 import Helpers from "src/helpers";
+import { getTokenInfo, getLocalStorage } from "src/util/Common";
 
 const { Countdown } = Statistic;
+const { confirm } = AntModal;
 
 function ModalThiKhaoSat({
   openModalFS,
@@ -28,6 +34,11 @@ function ModalThiKhaoSat({
 }) {
   const { width } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [ThongTinDeThi, setThongTinDeThi] = useState(null);
   const [DeThi, setDeThi] = useState(null);
   const [ListCauHoi, setListCauHoi] = useState([]);
@@ -71,7 +82,7 @@ function ModalThiKhaoSat({
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_ThiTrucTuyen/${thongtin}`,
+          `vptq_lms_ThiTrucTuyen/${thongtin}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -122,6 +133,18 @@ function ModalThiKhaoSat({
       .catch((error) => console.error(error));
   };
 
+  const ModalThi = (item) => {
+    confirm({
+      icon: <ExclamationCircleOutlined />,
+      content: "Xác nhận thi khảo sát!",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
+      onOk() {
+        getDeThiTrucTuyen(item);
+      },
+    });
+  };
+
   const ModalThiDat = () => {
     AntModal.success({
       content: "Chúc mừng bạn đã vượt qua bài thi khảo sát!",
@@ -154,6 +177,14 @@ function ModalThiKhaoSat({
           setDeThi(null);
           setListCauHoi([]);
           setCauHoi(null);
+          refesh();
+        } else if (res && res.data) {
+          openModalFS(false);
+          setThongTinDeThi(null);
+          setListCauHoi([]);
+          setCauHoi(null);
+          setKetQuaThi(null);
+          setChiTietKetQua([]);
           refesh();
         }
       })
@@ -254,6 +285,14 @@ function ModalThiKhaoSat({
             }
           });
           setListCauHoi(newlistcauhoi);
+        } else if (res && res.data) {
+          openModalFS(false);
+          setThongTinDeThi(null);
+          setListCauHoi([]);
+          setCauHoi(null);
+          setKetQuaThi(null);
+          setChiTietKetQua([]);
+          refesh();
         }
       })
       .catch((error) => console.error(error));
@@ -274,6 +313,7 @@ function ModalThiKhaoSat({
       setCauHoi(null);
       setKetQuaThi(null);
       setChiTietKetQua([]);
+      refesh();
     }
   };
 
@@ -295,41 +335,82 @@ function ModalThiKhaoSat({
     >
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row gutter={[0, 10]}>
-          <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
-            {ThongTinDeThi && (
-              <span>
-                <strong>Tên đề thi:</strong> {ThongTinDeThi.tenDeThi}
-              </span>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={24}
+            sm={24}
+            xs={24}
+            className="title-span"
+          >
+            <span style={{ whiteSpace: "nowrap" }}>
+              <strong>Tên đề thi:</strong>
+            </span>
+            {ThongTinDeThi && <span>{ThongTinDeThi.tenDeThi}</span>}
+          </Col>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={24}
+            sm={24}
+            xs={24}
+            className="title-span"
+          >
+            <span>
+              <strong>Số lượng câu hỏi:</strong>
+            </span>
+            {ThongTinDeThi && ThongTinDeThi.soLuongCauHoi && (
+              <span>{ThongTinDeThi.soLuongCauHoi} câu</span>
             )}
           </Col>
-          <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
-            {ThongTinDeThi && (
-              <span>
-                <strong>Số lượng câu hỏi:</strong> {ThongTinDeThi.soLuongCauHoi}{" "}
-                câu
-              </span>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={24}
+            sm={24}
+            xs={24}
+            className="title-span"
+          >
+            <span>
+              <strong>Thời gian làm bài:</strong>
+            </span>
+            {ThongTinDeThi && ThongTinDeThi.thoiGianLamBai && (
+              <span>{ThongTinDeThi.thoiGianLamBai} phút</span>
             )}
           </Col>
-          <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
-            {ThongTinDeThi && (
-              <span>
-                <strong>Thời gian làm bài:</strong>{" "}
-                {ThongTinDeThi.thoiGianLamBai} phút
-              </span>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={24}
+            sm={24}
+            xs={24}
+            className="title-span"
+          >
+            <span>
+              <strong>Thang điểm:</strong>
+            </span>
+            {ThongTinDeThi && ThongTinDeThi.thangDiem && (
+              <span>{ThongTinDeThi.thangDiem} điểm</span>
             )}
           </Col>
-          <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
-            {ThongTinDeThi && (
-              <span>
-                <strong>Thang điểm:</strong> {ThongTinDeThi.thangDiem} điểm
-              </span>
-            )}
-          </Col>
-          <Col xxl={8} xl={8} lg={12} md={24} sm={24} xs={24}>
-            {ThongTinDeThi && (
-              <span>
-                <strong>Tiêu chuẩn đạt:</strong> {ThongTinDeThi.tieuChuanDat}%
-              </span>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={24}
+            sm={24}
+            xs={24}
+            className="title-span"
+          >
+            <span>
+              <strong>Tiêu chuẩn đạt:</strong>
+            </span>
+            {ThongTinDeThi && ThongTinDeThi.tieuChuanDat && (
+              <span>{ThongTinDeThi.tieuChuanDat}%</span>
             )}
           </Col>
           {ListCauHoi.length && DeThi ? (
@@ -373,7 +454,7 @@ function ModalThiKhaoSat({
           ) : KetQuaThi && KetQuaThi.isDaThi === 1 ? null : (
             <Button
               className="th-margin-bottom-0"
-              onClick={() => getDeThiTrucTuyen(thongtin)}
+              onClick={() => ModalThi(thongtin)}
               type="primary"
             >
               Bắt đầu
@@ -605,44 +686,95 @@ function ModalThiKhaoSat({
           style={{ height: "100%", overflowY: "auto" }}
         >
           <Row gutter={[0, 10]} style={{ marginBottom: "10px" }}>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
               <span>
-                <strong>Lần thi:</strong> {KetQuaThi.lanThiThu}
+                <strong>Lần thi:</strong>
               </span>
+              <span>{KetQuaThi.lanThiThu}</span>
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
               <span>
-                <strong>Thời gian bắt đầu:</strong>{" "}
-                {KetQuaThi.thoiGianBatDauThi}
+                <strong>Thời gian bắt đầu:</strong>
               </span>
+              <span>{KetQuaThi.thoiGianBatDauThi}</span>
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
               <span>
-                <strong>Thời gian kết thúc:</strong>{" "}
-                {KetQuaThi.thoiGianKetThucThi}
+                <strong>Thời gian kết thúc:</strong>
               </span>
+              <span>{KetQuaThi.thoiGianKetThucThi}</span>
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
               <span>
-                <strong>Số câu đúng:</strong> {KetQuaThi.soCauTraLoiDung} câu
+                <strong>Số câu đúng:</strong>
               </span>
+              <span>{KetQuaThi.soCauTraLoiDung} câu</span>
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
               <span>
-                <strong>Số điểm:</strong> {KetQuaThi.soDiem} điểm
+                <strong>Số điểm:</strong>
               </span>
+              <span>{KetQuaThi.soDiem} điểm</span>
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
               <span>
-                <strong>Kết quả:</strong>{" "}
-                <span
-                  style={{
-                    color: KetQuaThi.ketQua === "Không đạt" ? "red" : "#0469b9",
-                    fontWeight: "bold",
-                  }}
-                >
-                  {KetQuaThi.ketQua}
-                </span>
+                <strong>Kết quả:</strong>
+              </span>
+              <span
+                style={{
+                  color: KetQuaThi.ketQua === "Không đạt" ? "red" : "#0469b9",
+                  fontWeight: "bold",
+                }}
+              >
+                {KetQuaThi.ketQua}
               </span>
             </Col>
           </Row>
@@ -744,10 +876,7 @@ function ModalThiKhaoSat({
                                             ans.vptq_lms_ThiTrucTuyenChiTietDapAn_Id
                                           }
                                           disabled
-                                          style={{
-                                            display: "flex",
-                                            alignItems: "flex-start",
-                                          }}
+                                          className="title-span"
                                         >
                                           <span
                                             style={{
@@ -763,7 +892,6 @@ function ModalThiKhaoSat({
                                           >
                                             {String.fromCharCode(65 + index)}.
                                           </span>
-                                          {"  "}
                                           <span
                                             style={{
                                               whiteSpace: "break-spaces",

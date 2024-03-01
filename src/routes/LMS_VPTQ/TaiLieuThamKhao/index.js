@@ -10,6 +10,9 @@ const TaiLieuThamKhao = asyncComponent(() =>
 const TaiLieuThamKhaoForm = asyncComponent(() =>
   import("./TaiLieuThamKhao/TaiLieuThamKhaoForm")
 );
+const TaiLieuThamKhaoChiTiet = asyncComponent(() =>
+  import("./TaiLieuThamKhao/TaiLieuThamKhaoChiTiet")
+);
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -30,6 +33,11 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/:id/chinh-sua`}
         exact
         component={Auth(TaiLieuThamKhaoForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/:id/chi-tiet`}
+        exact
+        component={Auth(TaiLieuThamKhaoChiTiet, menus, pathname, permission)}
       />
     </Switch>
   );

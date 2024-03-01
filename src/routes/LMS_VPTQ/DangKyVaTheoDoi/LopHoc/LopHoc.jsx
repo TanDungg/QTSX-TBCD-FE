@@ -647,49 +647,92 @@ function LopHoc({ match, history, permission }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 10]}>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap" }}>
+                <strong>Tên lớp học:</strong>
+              </span>
+              {ChiTietLopHoc && <span>{ChiTietLopHoc.tenLopHoc}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap" }}>
+                <strong>Chuyên đề đào tạo:</strong>
+              </span>
+              {ChiTietLopHoc && <span>{ChiTietLopHoc.tenChuyenDeDaoTao}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Hình thức đào tạo:</strong>
+              </span>
+              {ChiTietLopHoc && <span>{ChiTietLopHoc.tenHinhThucDaoTao}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Thời gian đào tạo:</strong>
+              </span>
+              {ChiTietLopHoc && <span>{ChiTietLopHoc.thoiGianDaoTao}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Thời lượng đào tạo:</strong>
+              </span>
               {ChiTietLopHoc && (
-                <span>
-                  <strong>Tên lớp học:</strong> {ChiTietLopHoc.tenLopHoc}
-                </span>
+                <span>{ChiTietLopHoc.thoiLuongDaoTao} phút</span>
               )}
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Thi khảo sát:</strong>
+              </span>
               {ChiTietLopHoc && (
                 <span>
-                  <strong>Chuyên đề đào tạo:</strong>{" "}
-                  {ChiTietLopHoc.tenChuyenDeDaoTao}
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {ChiTietLopHoc && (
-                <span>
-                  <strong>Hình thức đào tạo:</strong>{" "}
-                  {ChiTietLopHoc.tenHinhThucDaoTao}
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {ChiTietLopHoc && (
-                <span>
-                  <strong>Thời gian đào tạo:</strong>{" "}
-                  {ChiTietLopHoc.thoiGianDaoTao}
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {ChiTietLopHoc && (
-                <span>
-                  <strong>Thời lượng đào tạo:</strong>{" "}
-                  {ChiTietLopHoc.thoiLuongDaoTao} phút
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {ChiTietLopHoc && (
-                <span>
-                  <strong>Thi khảo sát:</strong>{" "}
                   <Checkbox
                     checked={ChiTietLopHoc.isThi}
                     style={{ marginTop: "-10px" }}
@@ -698,52 +741,91 @@ function LopHoc({ match, history, permission }) {
                 </span>
               )}
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {ChiTietLopHoc && (
-                <span>
-                  <strong>Người đăng ký:</strong> {ChiTietLopHoc.tenNguoiTao}
-                </span>
-              )}
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Người đăng ký:</strong>
+              </span>
+              {ChiTietLopHoc && <span>{ChiTietLopHoc.tenNguoiTao}</span>}
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Số lượng học viên:</strong>
+              </span>
               {ChiTietLopHoc && (
-                <span>
-                  <strong>Số lượng học viên:</strong>{" "}
-                  {ChiTietLopHoc.list_ChiTiets.length} học viên
-                </span>
+                <span>{ChiTietLopHoc.list_ChiTiets.length} học viên</span>
               )}
             </Col>
             {ChiTietLopHoc && ChiTietLopHoc.diaDiem && (
-              <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+              <Col
+                xxl={8}
+                xl={8}
+                lg={12}
+                md={12}
+                sm={24}
+                xs={24}
+                className="title-span"
+              >
                 <span>
-                  <strong>Địa điểm đào tạo:</strong> {ChiTietLopHoc.diaDiem}
+                  <strong>Địa điểm đào tạo:</strong>
                 </span>
+                <span>{ChiTietLopHoc.diaDiem}</span>
               </Col>
             )}
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {ChiTietLopHoc && (
-                <span>
-                  <strong>Người duyệt:</strong> {ChiTietLopHoc.tenNguoiDuyet}
-                </span>
-              )}
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Người duyệt:</strong>
+              </span>
+              {ChiTietLopHoc && <span>{ChiTietLopHoc.tenNguoiDuyet}</span>}
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Tình trạng:</strong>
+              </span>
               {ChiTietLopHoc && (
-                <span>
-                  <strong>Tình trạng:</strong>{" "}
-                  <span
-                    style={{
-                      color:
-                        ChiTietLopHoc.tinhTrang === "Đã duyệt"
-                          ? "#0469b9"
-                          : ChiTietLopHoc.tinhTrang === "Chưa duyệt"
-                          ? "orange"
-                          : "red",
-                      width: "calc(100% - 90px)",
-                    }}
-                  >
-                    {ChiTietLopHoc.tinhTrang}
-                  </span>
+                <span
+                  style={{
+                    color:
+                      ChiTietLopHoc.tinhTrang === "Đã duyệt"
+                        ? "#0469b9"
+                        : ChiTietLopHoc.tinhTrang === "Chưa duyệt"
+                        ? "orange"
+                        : "red",
+                    width: "calc(100% - 90px)",
+                  }}
+                >
+                  {ChiTietLopHoc.tinhTrang}
                 </span>
               )}
             </Col>

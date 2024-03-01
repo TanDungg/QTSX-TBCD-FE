@@ -661,28 +661,12 @@ function BaoCaoHocPhiTheoDonVi({ history, permission }) {
               md={24}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
-              <span
-                style={{
-                  width: "145px",
-                  fontWeight: "bold",
-                }}
-              >
-                Chuyên đề đào tạo:
+              <span style={{ whiteSpace: "nowrap" }}>
+                <strong>Chuyên đề đào tạo:</strong>
               </span>
-              {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 145px)",
-                  }}
-                >
-                  {DataChiTiet.tenChuyenDeDaoTao}
-                </span>
-              )}
+              {DataChiTiet && <span>{DataChiTiet.tenChuyenDeDaoTao}</span>}
             </Col>
             <Col
               xxl={8}
@@ -691,28 +675,12 @@ function BaoCaoHocPhiTheoDonVi({ history, permission }) {
               md={24}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
-              <span
-                style={{
-                  width: "140px",
-                  fontWeight: "bold",
-                }}
-              >
-                Hình thức đào tạo:
+              <span>
+                <strong>Hình thức đào tạo:</strong>
               </span>
-              {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 140px)",
-                  }}
-                >
-                  {DataChiTiet.tenHinhThucDaoTao}
-                </span>
-              )}
+              {DataChiTiet && <span>{DataChiTiet.tenHinhThucDaoTao}</span>}
             </Col>
             <Col
               xxl={8}
@@ -721,28 +689,12 @@ function BaoCaoHocPhiTheoDonVi({ history, permission }) {
               md={24}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
-              <span
-                style={{
-                  width: "135px",
-                  fontWeight: "bold",
-                }}
-              >
-                Địa điểm đào tạo:
+              <span>
+                <strong>Địa điểm đào tạo:</strong>
               </span>
-              {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 135px)",
-                  }}
-                >
-                  {DataChiTiet.diaDiem}
-                </span>
-              )}
+              {DataChiTiet && <span>{DataChiTiet.diaDiem}</span>}
             </Col>
             <Col
               xxl={8}
@@ -751,28 +703,12 @@ function BaoCaoHocPhiTheoDonVi({ history, permission }) {
               md={24}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
-              <span
-                style={{
-                  width: "90px",
-                  fontWeight: "bold",
-                }}
-              >
-                Giảng viên:
+              <span>
+                <strong>Giảng viên:</strong>
               </span>
-              {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 90px)",
-                  }}
-                >
-                  {DataChiTiet.tenGiangVien}
-                </span>
-              )}
+              {DataChiTiet && <span>{DataChiTiet.tenGiangVien}</span>}
             </Col>
             <Col
               xxl={8}
@@ -781,25 +717,13 @@ function BaoCaoHocPhiTheoDonVi({ history, permission }) {
               md={24}
               sm={24}
               xs={24}
-              style={{
-                display: "flex",
-                alignItems: "flex-start",
-              }}
+              className="title-span"
             >
-              <span
-                style={{
-                  width: "105px",
-                  fontWeight: "bold",
-                }}
-              >
-                Tổng học phí:
+              <span>
+                <strong>Tổng học phí:</strong>
               </span>
               {DataChiTiet && (
-                <span
-                  style={{
-                    width: "calc(100% - 105px)",
-                  }}
-                >
+                <span>
                   {numeral(DataChiTiet.tongHocPhi).format("0,0 VNĐ")} VNĐ
                 </span>
               )}

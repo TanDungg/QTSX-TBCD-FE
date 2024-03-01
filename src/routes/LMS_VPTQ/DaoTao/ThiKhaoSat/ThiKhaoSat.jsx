@@ -1,4 +1,8 @@
-import { HistoryOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  ExclamationCircleOutlined,
+  HistoryOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import {
   Card,
   Col,
@@ -33,6 +37,7 @@ import ReactPlayer from "react-player";
 import ModalThiKhaoSat from "./ModalThiKhaoSat";
 
 const { EditableRow, EditableCell } = EditableTableRow;
+const { confirm } = AntModal;
 
 function ThiKhaoSat({ permission, history }) {
   const dispatch = useDispatch();
@@ -207,6 +212,31 @@ function ThiKhaoSat({ permission, history }) {
     });
   };
 
+  const ModalThi = (item) => {
+    confirm({
+      icon: <ExclamationCircleOutlined />,
+      content: "Tiếp tục thi khảo sát!",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
+      onOk() {
+        setActiveModalThiKhaoSat(true);
+        setThongTinThi(item);
+      },
+    });
+  };
+
+  const ModalKichHoatThiLai = (vptq_lms_LopHocChiTiet_Id) => {
+    confirm({
+      icon: <ExclamationCircleOutlined />,
+      content: "Xác nhận kích hoạt thi lại!",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
+      onOk() {
+        handleKichHoatThiLai(vptq_lms_LopHocChiTiet_Id);
+      },
+    });
+  };
+
   const ButtonThi = (item) => {
     return (
       <div>
@@ -226,8 +256,7 @@ function ThiKhaoSat({ permission, history }) {
             className="th-margin-bottom-0"
             type="danger"
             onClick={() => {
-              setActiveModalThiKhaoSat(true);
-              setThongTinThi(item);
+              ModalThi(item);
             }}
           >
             Tiếp tục thi
@@ -236,7 +265,7 @@ function ThiKhaoSat({ permission, history }) {
           <Button
             className="th-margin-bottom-0"
             type="primary"
-            onClick={() => handleKichHoatThiLai(item.vptq_lms_LopHocChiTiet_Id)}
+            onClick={() => ModalKichHoatThiLai(item.vptq_lms_LopHocChiTiet_Id)}
             disabled={item.isKichHoatThiLai === 0}
           >
             Thi lại
@@ -821,60 +850,100 @@ function ThiKhaoSat({ permission, history }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 10]}>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Lần thi:</strong> {DataChiTiet.lanThiThu}
-                </span>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Lần thi:</strong>
+              </span>
+              {DataChiTiet && <span>{DataChiTiet.lanThiThu}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Thời gian bắt đầu:</strong>
+              </span>
+              {DataChiTiet && <span>{DataChiTiet.thoiGianBatDauThi}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Thời gian kết thúc:</strong>
+              </span>
+              {DataChiTiet && <span>{DataChiTiet.thoiGianKetThucThi}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong> Số câu đúng:</strong>
+              </span>
+              {DataChiTiet && DataChiTiet.soCauTraLoiDung && (
+                <span>{DataChiTiet.soCauTraLoiDung} câu</span>
               )}
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Thời gian bắt đầu:</strong>{" "}
-                  {DataChiTiet.thoiGianBatDauThi}
-                </span>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Số điểm:</strong>
+              </span>
+              {DataChiTiet && DataChiTiet.soDiem && (
+                <span>{DataChiTiet.soDiem} điểm</span>
               )}
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Kết quả:</strong>
+              </span>
               {DataChiTiet && (
-                <span>
-                  <strong>Thời gian kết thúc:</strong>{" "}
-                  {DataChiTiet.thoiGianKetThucThi}
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong> Số câu đúng:</strong> {DataChiTiet.soCauTraLoiDung}{" "}
-                  câu
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>Số điểm:</strong> {DataChiTiet.soDiem} điểm
-                </span>
-              )}
-            </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {DataChiTiet && (
-                <span>
-                  <strong>
-                    Kết quả:{" "}
-                    <span
-                      style={{
-                        color:
-                          DataChiTiet.ketQua === "Không đạt"
-                            ? "red"
-                            : "#0469b9",
-                      }}
-                    >
-                      {DataChiTiet.ketQua}
-                    </span>
-                  </strong>
+                <span
+                  style={{
+                    color:
+                      DataChiTiet.ketQua === "Không đạt" ? "red" : "#0469b9",
+                  }}
+                >
+                  {DataChiTiet.ketQua}
                 </span>
               )}
             </Col>

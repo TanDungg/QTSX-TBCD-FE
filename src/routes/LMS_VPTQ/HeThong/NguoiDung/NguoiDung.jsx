@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Card, Button, Tag, Divider, Row, Col } from "antd";
+import { Card, Button, Tag, Divider, Row, Col, Modal as AntModal } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -8,6 +8,7 @@ import {
   DeleteOutlined,
   ImportOutlined,
   SyncOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,6 +24,8 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import Helpers from "src/helpers";
+
+const { confirm } = AntModal;
 
 function NguoiDung({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
@@ -171,6 +174,18 @@ function NguoiDung({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
+  const ModalResetMatKhau = (id) => {
+    confirm({
+      icon: <ExclamationCircleOutlined />,
+      content: "Xác nhận reset mật khẩu!",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
+      onOk() {
+        handleResetPassword(id);
+      },
+    });
+  };
+
   const actionContent = (item) => {
     const editItem =
       permission && permission.edit ? (
@@ -193,7 +208,7 @@ function NguoiDung({ match, history, permission }) {
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
 
-    const resetPassword = { onClick: () => handleResetPassword(item.user_Id) };
+    const resetPassword = { onClick: () => ModalResetMatKhau(item.user_Id) };
 
     return (
       <React.Fragment>

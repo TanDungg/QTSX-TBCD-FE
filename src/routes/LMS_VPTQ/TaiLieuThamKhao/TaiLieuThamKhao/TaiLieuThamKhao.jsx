@@ -17,7 +17,6 @@ import {
   EyeOutlined,
   PlusOutlined,
 } from "@ant-design/icons";
-import { BASE_URL_API } from "src/constants/Config";
 
 function TaiLieuThamKhao({ match, history, permission }) {
   const dispatch = useDispatch();
@@ -159,24 +158,7 @@ function TaiLieuThamKhao({ match, history, permission }) {
   };
 
   const handleXemChiTiet = (item) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `vptq_lms_TaiLieuThamKhao/${item.id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        handleOpenFile(res.data.fileTaiLieu);
-        getListData(KienThuc, keyword, page);
-      }
-    });
+    history.push(`${match.path}/${item.id}/chi-tiet`);
   };
 
   const handleRedirect = () => {
@@ -196,48 +178,6 @@ function TaiLieuThamKhao({ match, history, permission }) {
         </Button>
       </>
     );
-  };
-
-  const handleOpenFile = (fileTaiLieu) => {
-    const file = BASE_URL_API + fileTaiLieu;
-    if (fileTaiLieu) {
-      const fileExtension = fileTaiLieu.split(".").pop().toLowerCase();
-
-      if (fileExtension === "pdf") {
-        const viewerUrl = file;
-        window.open(viewerUrl, "_blank");
-      } else {
-        window.open(file, "_blank");
-      }
-    }
-    // const duoifile = LayDuoiFile(fileTaiLieu);
-    // if (duoifile.includes("pdf")) {
-    //   if (fileTaiLieu) {
-    //     const fileExtension = fileTaiLieu.split(".").pop().toLowerCase();
-
-    //     if (fileExtension === "pdf") {
-    //       const viewerUrl = file;
-    //       window.open(viewerUrl, "_blank");
-    //     } else {
-    //       window.open(file, "_blank");
-    //     }
-    //   }
-    // } else if (duoifile.includes("ppt")) {
-    //   const googleSlidesViewerUrl = `https://docs.google.com/presentation/viewer?url=${encodeURIComponent(
-    //     file
-    //   )}`;
-    //   window.open(googleSlidesViewerUrl, "_blank");
-    // } else if (duoifile.includes("doc")) {
-    //   const googleDocsViewerUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(
-    //     file
-    //   )}`;
-    //   window.open(googleDocsViewerUrl, "_blank");
-    // } else if (duoifile.includes("xlsx")) {
-    //   const googleSheetsViewerUrl = `https://docs.google.com/spreadsheets/viewer?url=${encodeURIComponent(
-    //     file
-    //   )}`;
-    //   window.open(googleSheetsViewerUrl, "_blank");
-    // }
   };
 
   const handleEdit = (item) => {

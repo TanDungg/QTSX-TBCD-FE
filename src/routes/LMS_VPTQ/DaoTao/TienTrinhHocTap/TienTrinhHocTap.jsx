@@ -19,7 +19,7 @@ const { RangePicker } = DatePicker;
 
 function TienTrinhHocTap({ permission, history }) {
   const dispatch = useDispatch();
-  const { loading } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const INFO = {
     ...getLocalStorage("menu"),
     user_Id: getTokenInfo().id,
@@ -172,6 +172,7 @@ function TienTrinhHocTap({ permission, history }) {
       key: "key",
       width: 50,
       align: "center",
+      fixed: width >= 1200 && "left",
     },
     {
       title: "Chứng nhận",
@@ -179,6 +180,7 @@ function TienTrinhHocTap({ permission, history }) {
       key: "giayChungNhan",
       width: 100,
       align: "center",
+      fixed: width >= 1200 && "left",
       render: (value) =>
         value && (
           <span>
@@ -196,6 +198,7 @@ function TienTrinhHocTap({ permission, history }) {
       key: "tenChuyenDeDaoTao",
       align: "left",
       width: 250,
+      fixed: width >= 1200 && "left",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -212,7 +215,7 @@ function TienTrinhHocTap({ permission, history }) {
       dataIndex: "tenLopHoc",
       key: "tenLopHoc",
       align: "left",
-      width: 200,
+      width: 170,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -262,6 +265,29 @@ function TienTrinhHocTap({ permission, history }) {
         })
       ),
       onFilter: (value, record) => record.thoiGianDaoTao.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: (
+        <div>
+          Thời gian
+          <br />
+          kết thúc
+        </div>
+      ),
+      dataIndex: "thoiGianKetThuc",
+      key: "thoiGianKetThuc",
+      align: "center",
+      width: 100,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.thoiGianKetThuc,
+            value: d.thoiGianKetThuc,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.thoiGianKetThuc.includes(value),
       filterSearch: true,
     },
     {
@@ -380,6 +406,7 @@ function TienTrinhHocTap({ permission, history }) {
       key: "trangThai",
       align: "center",
       width: 150,
+      fixed: width >= 768 && "right",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -395,7 +422,7 @@ function TienTrinhHocTap({ permission, history }) {
           <Tag
             color={
               value === "Chưa hoàn thành"
-                ? "cyan"
+                ? "orange"
                 : value === "Đã học, chưa thi"
                 ? "orange"
                 : value === "Hoàn thành"
@@ -534,70 +561,131 @@ function TienTrinhHocTap({ permission, history }) {
       )}
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row gutter={[0, 10]}>
-          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-            {Data && (
-              <span>
-                <strong>Họ và tên:</strong> {Data.fullName}
-              </span>
-            )}
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            className="title-span"
+          >
+            <span>
+              <strong>Họ và tên:</strong>
+            </span>
+            {Data && <span>{Data.fullName}</span>}
           </Col>
-          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-            {Data && (
-              <span>
-                <strong>Mã nhân viên:</strong> {Data.maNhanVien}
-              </span>
-            )}
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            className="title-span"
+          >
+            <span>
+              <strong>Mã nhân viên:</strong>
+            </span>
+            {Data && <span>{Data.maNhanVien}</span>}
           </Col>
-          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-            {Data && (
-              <span>
-                <strong>Ngày sinh:</strong> {Data.ngaySinh}
-              </span>
-            )}
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            className="title-span"
+          >
+            <span>
+              <strong>Ngày sinh:</strong>
+            </span>
+            {Data && <span>{Data.ngaySinh}</span>}
           </Col>
-          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-            {Data && (
-              <span>
-                <strong>Chức danh:</strong> {Data.tenChucDanh}
-              </span>
-            )}
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            className="title-span"
+          >
+            <span>
+              <strong>Chức danh:</strong>
+            </span>
+            {Data && <span>{Data.tenChucDanh}</span>}
           </Col>
-          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-            {Data && (
-              <span>
-                <strong>Chức vụ:</strong> {Data.tenChucVu}
-              </span>
-            )}
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            className="title-span"
+          >
+            <span>
+              <strong>Chức vụ:</strong>
+            </span>
+            {Data && <span>{Data.tenChucVu}</span>}
           </Col>
-          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-            {Data && (
-              <span>
-                <strong>Phòng ban:</strong> {Data.tenPhongBan}
-              </span>
-            )}
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            className="title-span"
+          >
+            <span>
+              <strong>Phòng ban:</strong>
+            </span>
+            {Data && <span>{Data.tenPhongBan}</span>}
           </Col>
-          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-            {Data && (
-              <span>
-                <strong>Đơn vị:</strong> {Data.tenDonVi}
-              </span>
-            )}
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            className="title-span"
+          >
+            <span style={{ whiteSpace: "nowrap" }}>
+              <strong>Đơn vị:</strong>
+            </span>
+            {Data && <span>{Data.tenDonVi}</span>}
           </Col>
-          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-            {Data && (
-              <span>
-                <strong>Số lượng đăng ký:</strong> {Data.soLuongDangKy} chuyên
-                đề
-              </span>
-            )}
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            className="title-span"
+          >
+            <span>
+              <strong>Số lượng đăng ký:</strong>
+            </span>
+            {Data && <span>{Data.soLuongDangKy} chuyên đề</span>}
           </Col>
-          <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-            {Data && (
-              <span>
-                <strong>Số lượng hoàn thành:</strong> {Data.soLuongHoanThanh}{" "}
-                chuyên đề
-              </span>
-            )}
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            className="title-span"
+          >
+            <span>
+              <strong>Số lượng hoàn thành:</strong>
+            </span>
+            {Data && <span>{Data.soLuongHoanThanh} chuyên đề</span>}
           </Col>
         </Row>
       </Card>
@@ -605,7 +693,7 @@ function TienTrinhHocTap({ permission, history }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1500, y: "36vh" }}
+          scroll={{ x: 1600, y: "36vh" }}
           components={components}
           className="gx-table-responsive th-table"
           dataSource={dataList}

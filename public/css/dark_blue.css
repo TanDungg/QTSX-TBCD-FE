@@ -20247,9 +20247,9 @@ textarea.ant-mentions {
 }
 
 .ant-modal-confirm-body .ant-modal-confirm-content {
-  margin-top: 8px;
+  margin-top: 0px;
   color: #545454;
-  font-size: 14px;
+  font-size: 16px;
 }
 
 .ant-modal-confirm-body>.anticon {
@@ -49323,4 +49323,16 @@ textarea.gx-chat-textarea {
   flex-direction: row;
   align-items: flex-start;
   gap: 10px;
+}
+.ant-modal-confirm-body {
+  display: flex;
+  align-items: center;
+}
+.dTuydp {
+  display: none;
+}
+
+.fxPyEs {
+  align-items: center;
+  justify-content: start;
 }
