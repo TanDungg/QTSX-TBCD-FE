@@ -339,11 +339,13 @@ function SanPham({ match, history, permission }) {
       align: "center",
       render: (value) => (
         <span>
-          <Image
-            src={BASE_URL_API + value}
-            alt="Hình ảnh"
-            style={{ maxWidth: 50, maxHeight: 50 }}
-          />
+          {value && (
+            <Image
+              src={BASE_URL_API + value}
+              alt="Hình ảnh"
+              style={{ maxWidth: 50, maxHeight: 50 }}
+            />
+          )}
         </span>
       ),
     },

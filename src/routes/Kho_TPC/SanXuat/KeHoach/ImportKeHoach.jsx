@@ -498,8 +498,8 @@ function ImportKeHoach({ match, permission, history }) {
                     index <= getNumberDayOfMonth(Thang, Nam);
                     index++
                   ) {
-                    if (d[index]) {
-                      slNgay[index] = d[index];
+                    if (d[index] && typeof d[index] === "number") {
+                      slNgay[index] = d[index].toFixed(0);
                     }
                   }
                   if (Object.keys(slNgay).length > 0) {

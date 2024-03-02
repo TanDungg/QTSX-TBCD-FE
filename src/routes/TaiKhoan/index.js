@@ -5,6 +5,7 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { getTokenInfo, setCookieValue } from "src/util/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { FormSubmit } from "src/components/Common";
+import Helpers from "src/helpers";
 const FormItem = Form.Item;
 
 function TaiKhoan() {
@@ -72,6 +73,7 @@ function TaiKhoan() {
             path: "/",
             maxAge: maxAge.getTime(),
           });
+          Helpers.alertSuccessMessage("Thay đổi mật khẩu thành công!!!");
           setTimeout(() => {
             window.location.href = "/home";
           }, 3000);
