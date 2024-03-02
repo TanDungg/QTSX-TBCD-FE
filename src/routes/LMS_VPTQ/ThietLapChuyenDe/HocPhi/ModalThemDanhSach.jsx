@@ -22,6 +22,7 @@ function ModalThemDanhSach({
   const { validateFields, resetFields, setFieldsValue } = form;
   const [ListChuyenDe, setListChuyenDe] = useState(null);
   const [isChinhSua, setIsChinhSua] = useState(false);
+  const [HocPhi, setHocPhi] = useState(null);
 
   useEffect(() => {
     if (openModal) {
@@ -104,6 +105,11 @@ function ModalThemDanhSach({
     }
   };
 
+  const handleNhapHocPhi = (e) => {
+    const hocphi = e.target.value;
+    setHocPhi(hocphi);
+  };
+
   const handleCancel = () => {
     resetFields();
     setIsChinhSua(false);
@@ -171,10 +177,6 @@ function ModalThemDanhSach({
                     if (value && value < 0) {
                       return Promise.reject("Học phí không được là số âm!");
                     }
-                    const currencyFormat = /^\d{1,3}(,\d{3})*(,\d{1,2})?$/;
-                    if (value && !currencyFormat.test(value.toString())) {
-                      return Promise.reject("Định dạng tiền tệ không đúng!");
-                    }
                     return Promise.resolve();
                   },
                 },
@@ -184,6 +186,7 @@ function ModalThemDanhSach({
                 type="number"
                 className="input-item"
                 placeholder="Nhập học phí (VNĐ/Học viên)"
+                onChange={handleNhapHocPhi}
               />
             </FormItem>
           </Col>
@@ -208,10 +211,13 @@ function ModalThemDanhSach({
             <FormSubmit
               goBack={handleCancel}
               saveAndClose={saveAndClose}
-              disabled={fieldTouch}
+              disabled={fieldTouch && HocPhi > 0}
             />
           ) : (
-            <FormSubmit goBack={handleCancel} disabled={fieldTouch} />
+            <FormSubmit
+              goBack={handleCancel}
+              disabled={fieldTouch && HocPhi > 0}
+            />
           )}
         </Form>
       </Card>

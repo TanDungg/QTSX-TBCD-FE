@@ -517,14 +517,14 @@ function Home() {
         },
       ],
       style: {
-        fontSize: 15,
+        fontSize: 14,
         fill: "#000",
       },
     },
     legend: {
       itemName: {
         style: {
-          fontSize: 15,
+          fontSize: 14,
           fill: "#000",
         },
       },
@@ -533,7 +533,7 @@ function Home() {
       label: {
         style: {
           fill: "#000",
-          fontSize: 15,
+          fontSize: 14,
         },
       },
     },

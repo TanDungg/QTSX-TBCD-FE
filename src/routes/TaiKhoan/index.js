@@ -89,12 +89,6 @@ function TaiKhoan() {
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
         title={"Thông tin tài khoản"}
-        headStyle={{
-          textAlign: "center",
-          backgroundColor: "#0469B9",
-          color: "#fff",
-          fontWeight: "bold",
-        }}
       >
         <Row
           style={{
@@ -108,29 +102,19 @@ function TaiKhoan() {
             md={12}
             sm={20}
             xs={24}
+            className="title-span"
             style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: 20,
+              marginBottom: "10px",
             }}
           >
             <span
               style={{
-                width: "100px",
                 fontWeight: "bold",
               }}
             >
               Họ và tên:
             </span>
-            {data && (
-              <span
-                style={{
-                  width: "calc(100% - 120px)",
-                }}
-              >
-                {data.fullName}
-              </span>
-            )}
+            {data && <span>{data.fullName}</span>}
           </Col>
           <Col
             xxl={8}
@@ -139,29 +123,19 @@ function TaiKhoan() {
             md={12}
             sm={20}
             xs={24}
+            className="title-span"
             style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: 20,
+              marginBottom: "10px",
             }}
           >
             <span
               style={{
-                width: "100px",
                 fontWeight: "bold",
               }}
             >
               MSNV:
             </span>
-            {data && (
-              <span
-                style={{
-                  width: "calc(100% - 120px)",
-                }}
-              >
-                {data.maNhanVien}
-              </span>
-            )}
+            {data && <span>{data.maNhanVien}</span>}
           </Col>
           <Col
             xxl={8}
@@ -170,29 +144,19 @@ function TaiKhoan() {
             md={12}
             sm={20}
             xs={24}
+            className="title-span"
             style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: 20,
+              marginBottom: "10px",
             }}
           >
             <span
               style={{
-                width: "100px",
                 fontWeight: "bold",
               }}
             >
               Email:
             </span>
-            {data && (
-              <span
-                style={{
-                  width: "calc(100% - 120px)",
-                }}
-              >
-                {data.email}
-              </span>
-            )}
+            {data && <span>{data.email}</span>}
           </Col>
           <Col
             xxl={8}
@@ -201,29 +165,19 @@ function TaiKhoan() {
             md={12}
             sm={20}
             xs={24}
+            className="title-span"
             style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: 20,
+              marginBottom: "10px",
             }}
           >
             <span
               style={{
-                width: "100px",
                 fontWeight: "bold",
               }}
             >
               Chức vụ:
             </span>
-            {data && (
-              <span
-                style={{
-                  width: "calc(100% - 120px)",
-                }}
-              >
-                {data.tenChucVu}
-              </span>
-            )}
+            {data && <span>{data.tenChucVu}</span>}
           </Col>
           <Col
             xxl={8}
@@ -232,29 +186,19 @@ function TaiKhoan() {
             md={12}
             sm={20}
             xs={24}
+            className="title-span"
             style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: 20,
+              marginBottom: "10px",
             }}
           >
             <span
               style={{
-                width: "100px",
                 fontWeight: "bold",
               }}
             >
               Bộ phận:
             </span>
-            {data && (
-              <span
-                style={{
-                  width: "calc(100% - 120px)",
-                }}
-              >
-                {data.tenBoPhan}
-              </span>
-            )}
+            {data && <span>{data.tenBoPhan}</span>}
           </Col>
           <Col
             xxl={8}
@@ -263,55 +207,35 @@ function TaiKhoan() {
             md={12}
             sm={20}
             xs={24}
+            className="title-span"
             style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: 20,
+              marginBottom: "10px",
             }}
           >
             <span
               style={{
-                width: "100px",
                 fontWeight: "bold",
               }}
             >
               Phòng ban:
             </span>
-            {data && (
-              <span
-                style={{
-                  width: "calc(100% - 120px)",
-                }}
-              >
-                {data.tenPhongBan}
-              </span>
-            )}
+            {data && <span>{data.tenPhongBan}</span>}
           </Col>
           <Col
             span={24}
+            className="title-span"
             style={{
-              display: "flex",
-              alignItems: "center",
-              marginBottom: 20,
+              marginBottom: "10px",
             }}
           >
             <span
               style={{
-                width: "100px",
                 fontWeight: "bold",
               }}
             >
               Đơn vị:
             </span>
-            {data && (
-              <span
-                style={{
-                  width: "calc(100% - 120px)",
-                }}
-              >
-                {data.tenDonVi}
-              </span>
-            )}
+            {data && <span>{data.tenDonVi}</span>}
           </Col>
         </Row>
         <Divider

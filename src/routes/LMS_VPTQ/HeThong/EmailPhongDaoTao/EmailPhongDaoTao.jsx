@@ -13,20 +13,44 @@ import ContainerHeader from "src/components/ContainerHeader";
 
 const FormItem = Form.Item;
 
-function EmailPhongDaoTao() {
+function EmailPhongDaoTao({ history }) {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { resetFields } = form;
-  const [data, setData] = useState();
+  const [Data, setData] = useState(null);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [AcitveThayDoiEmail, setAcitveThayDoiEmail] = useState(false);
   const [disabledSave, setDisabledSave] = useState(false);
   const [newPassword, setnewPassword] = useState(null);
 
   useEffect(() => {
-    getInfo();
+    getIsAdminVPTQ();
     return () => dispatch(fetchReset());
   }, []);
+
+  const getIsAdminVPTQ = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `vptq_lms_EmailPhongDaoTao/is-admin-vptq`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status !== 409) {
+          getInfo();
+        } else {
+          history.push("/home");
+        }
+      })
+      .catch((error) => console.error(error));
+  };
 
   const getInfo = () => {
     new Promise((resolve, reject) => {
@@ -177,13 +201,13 @@ function EmailPhongDaoTao() {
             >
               Email phòng đào tạo:
             </span>
-            {data && (
+            {Data && (
               <span
                 style={{
                   width: "calc(100% - 160px)",
                 }}
               >
-                {data}
+                {Data}
               </span>
             )}
           </div>

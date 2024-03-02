@@ -49324,10 +49324,12 @@ textarea.gx-chat-textarea {
   align-items: flex-start;
   gap: 10px;
 }
+
 .ant-modal-confirm-body {
   display: flex;
   align-items: center;
 }
+
 .dTuydp {
   display: none;
 }
@@ -49335,4 +49337,7 @@ textarea.gx-chat-textarea {
 .fxPyEs {
   align-items: center;
   justify-content: start;
+}
+.ant-spin-text {
+  font-size: 15px;
 }

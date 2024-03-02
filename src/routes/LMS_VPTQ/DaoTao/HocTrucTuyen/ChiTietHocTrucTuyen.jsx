@@ -326,6 +326,8 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
               }
             }
           }
+        }else{
+          playerRef.current.seekTo(ThoiGianDaXem);
         }
       });
     }
@@ -382,10 +384,8 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                 src={BASE_URL_API + ChiTiet.anhDaiDienChuyenDe}
                 alt={"Ảnh đại diện chuyên đề"}
                 style={{
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  width: "auto",
-                  height: "auto",
+                  width: "100%",
+                  height: "600px",
                 }}
               />
             ) : (
@@ -393,7 +393,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                 url={ChiTiet && BASE_URL_API + ChiTiet.fileVideo}
                 controls={true}
                 width="100%"
-                height="100%"
+                height="500px"
                 config={{
                   file: {
                     attributes: { controlsList: "nodownload nodrag" },
@@ -468,16 +468,20 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                   {ChiTiet && <span>{ChiTiet.tenLoaiGiangVien}</span>}
                 </Col>
                 <Col span={24} className="title-span">
-                  <span>
+                  <span style={{ whiteSpace: "nowrap" }}>
                     <strong>Đơn vị:</strong>
                   </span>
                   {ChiTiet && <span>{ChiTiet.tenDonViDaoTao}</span>}
                 </Col>
                 <Col span={24} className="title-span">
-                  <span>
+                  <span style={{ whiteSpace: "nowrap" }}>
                     <strong>Giới thiệu:</strong>
                   </span>
-                  {ChiTiet && <span>{ChiTiet.gioiThieu}</span>}
+                  {ChiTiet && (
+                    <span style={{ whiteSpace: "pre-line" }}>
+                      {ChiTiet.gioiThieu}
+                    </span>
+                  )}
                 </Col>
               </Row>
             </Card>
