@@ -893,100 +893,101 @@ function NganHangDeThi({ permission, history, match }) {
             gutter={[0, 15]}
             style={{ maxHeight: "35vh", overflowY: "auto" }}
           >
-            {ListCauHoi.length &&
-              ListCauHoi.map((cauhoi, index) => {
-                return (
-                  <Col span={24}>
-                    <Row gutter={[0, 5]}>
-                      <Col span={24} className="title-span">
-                        <span
-                          style={{
-                            fontWeight: "bold",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          Câu {index + 1}. ({DataChiTiet.soDiemMoiCau} điểm):
-                        </span>
-                        <span>{cauhoi.noiDung}</span>
-                      </Col>
-                      {cauhoi.hinhAnh || cauhoi.video ? (
-                        <Col
-                          span={24}
-                          style={{
-                            display: "flex",
-                            justifyContent: "center",
-                            alignItems: "center",
-                          }}
-                        >
-                          {cauhoi.hinhAnh && (
-                            <div
-                              style={{
-                                flex: "1",
-                                textAlign: "center",
-                                padding: "0 10px",
-                              }}
-                            >
-                              <Image
-                                src={BASE_URL_API + cauhoi.hinhAnh}
-                                alt="Hình ảnh"
-                                style={{ height: "150px" }}
-                              />
-                            </div>
-                          )}
-                          {cauhoi.video && (
-                            <div
-                              style={{
-                                flex: "1",
-                                textAlign: "center",
-                                padding: "0 10px",
-                              }}
-                            >
-                              {cauhoi.video.endsWith(".mp4") ? (
-                                <ReactPlayer
-                                  style={{ cursor: "pointer" }}
-                                  url={BASE_URL_API + cauhoi.video}
-                                  width="240px"
-                                  height="150px"
-                                  playing={true}
-                                  muted={true}
-                                  controls={false}
-                                  onClick={() => {
-                                    window.open(
-                                      BASE_URL_API + cauhoi.video,
-                                      "_blank"
-                                    );
-                                  }}
-                                />
-                              ) : (
-                                <a
-                                  target="_blank"
-                                  href={BASE_URL_API + cauhoi.video}
-                                  rel="noopener noreferrer"
-                                >
-                                  {cauhoi.video.split("/")[5]}
-                                </a>
-                              )}
-                            </div>
-                          )}
+            {ListCauHoi.length !== 0
+              ? ListCauHoi.map((cauhoi, index) => {
+                  return (
+                    <Col span={24}>
+                      <Row gutter={[0, 5]}>
+                        <Col span={24} className="title-span">
+                          <span
+                            style={{
+                              fontWeight: "bold",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            Câu {index + 1}. ({DataChiTiet.soDiemMoiCau} điểm):
+                          </span>
+                          <span>{cauhoi.noiDung}</span>
                         </Col>
-                      ) : null}
-                      {cauhoi.list_DapAns &&
-                        cauhoi.list_DapAns.map((dapan, index) => {
-                          return (
-                            <Col span={24} className="title-span">
-                              <span>
-                                <strong>
-                                  {String.fromCharCode(65 + index)}.
-                                </strong>
-                              </span>
-                              <span>{dapan.dapAn}</span>
-                            </Col>
-                          );
-                        })}
-                    </Row>
-                  </Col>
-                );
-              })}
+                        {cauhoi.hinhAnh || cauhoi.video ? (
+                          <Col
+                            span={24}
+                            style={{
+                              display: "flex",
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            {cauhoi.hinhAnh && (
+                              <div
+                                style={{
+                                  flex: "1",
+                                  textAlign: "center",
+                                  padding: "0 10px",
+                                }}
+                              >
+                                <Image
+                                  src={BASE_URL_API + cauhoi.hinhAnh}
+                                  alt="Hình ảnh"
+                                  style={{ height: "150px" }}
+                                />
+                              </div>
+                            )}
+                            {cauhoi.video && (
+                              <div
+                                style={{
+                                  flex: "1",
+                                  textAlign: "center",
+                                  padding: "0 10px",
+                                }}
+                              >
+                                {cauhoi.video.endsWith(".mp4") ? (
+                                  <ReactPlayer
+                                    style={{ cursor: "pointer" }}
+                                    url={BASE_URL_API + cauhoi.video}
+                                    width="240px"
+                                    height="150px"
+                                    playing={true}
+                                    muted={true}
+                                    controls={false}
+                                    onClick={() => {
+                                      window.open(
+                                        BASE_URL_API + cauhoi.video,
+                                        "_blank"
+                                      );
+                                    }}
+                                  />
+                                ) : (
+                                  <a
+                                    target="_blank"
+                                    href={BASE_URL_API + cauhoi.video}
+                                    rel="noopener noreferrer"
+                                  >
+                                    {cauhoi.video.split("/")[5]}
+                                  </a>
+                                )}
+                              </div>
+                            )}
+                          </Col>
+                        ) : null}
+                        {cauhoi.list_DapAns &&
+                          cauhoi.list_DapAns.map((dapan, index) => {
+                            return (
+                              <Col span={24} className="title-span">
+                                <span>
+                                  <strong>
+                                    {String.fromCharCode(65 + index)}.
+                                  </strong>
+                                </span>
+                                <span>{dapan.dapAn}</span>
+                              </Col>
+                            );
+                          })}
+                      </Row>
+                    </Col>
+                  );
+                })
+              : null}
           </Row>
         </Card>
       </AntModal>

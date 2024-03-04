@@ -744,7 +744,15 @@ function DangKyDaoTao({ match, history, permission }) {
               </span>
               {PhieuDangKy && <span>{PhieuDangKy.tenNguoiKiemTra}</span>}
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
               <span>
                 <strong>Người duyệt:</strong>
               </span>

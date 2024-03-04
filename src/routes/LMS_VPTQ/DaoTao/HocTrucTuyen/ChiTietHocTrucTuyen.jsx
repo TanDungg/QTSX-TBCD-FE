@@ -1,21 +1,19 @@
 import { Button, Card, Col, Image, Row, Tabs, Modal as AntModal } from "antd";
 import React, { useEffect, useRef, useState } from "react";
-import ReactPlayer from "react-player";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
 import TabsHoiDap from "./TabsHoiDap";
 import TabsDanhGia from "./TabsDanhGia";
-import Helpers from "src/helpers";
 import ModalThiKhaoSat from "./ModalThiKhaoSat";
 import { Modal } from "src/components/Common";
+import Hls from "hls.js";
 
 function ChiTietHocTrucTuyen({ match, history, permission }) {
   const dispatch = useDispatch();
   const playerRef = useRef(null);
   const intervalRef = useRef(null);
-  const isSeeking = useRef(false);
   const [ChiTiet, setChiTiet] = useState(null);
   const [id, setId] = useState(null);
   const [isSeek, setIsSeek] = useState(false);
@@ -23,7 +21,6 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   const [ThoiGianDaXem, setThoiGianDaXem] = useState(0);
   const [ThoiLuongVideo, setThoiLuongVideo] = useState(null);
   const [ActiveModalThiKhaoSat, setActiveModalThiKhaoSat] = useState(false);
-  const [ThoiGianThongBao, setThoiGianThongBao] = useState(null);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -45,10 +42,32 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   }, []);
 
   const getInfo = (id) => {
+    // new Promise((resolve, reject) => {
+    //   dispatch(
+    //     fetchStart(
+    //       `vptq_lms_HocTrucTuyen/hoc/${id}`,
+    //       "GET",
+    //       null,
+    //       "DETAIL",
+    //       "",
+    //       resolve,
+    //       reject
+    //     )
+    //   );
+    // }).then((res) => {
+    //   if (res && res.data) {
+    //     setChiTiet(res.data);
+    //     setThoiGianDaXem(res.data.thoiDiemVideo);
+    //     setThoiLuongVideo(res.data.thoiLuongVideo);
+    //   } else {
+    //     setChiTiet(null);
+    //   }
+    // });
+
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_HocTrucTuyen/hoc/${id}`,
+          `vptq_lms_HocTrucTuyen/hoc-video-chia-nho/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -62,10 +81,24 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
         setChiTiet(res.data);
         setThoiGianDaXem(res.data.thoiDiemVideo);
         setThoiLuongVideo(res.data.thoiLuongVideo);
+        res.data.fileVideo && setupVideo(res.data.fileVideo);
       } else {
         setChiTiet(null);
       }
     });
+  };
+
+  const setupVideo = (fileVideo) => {
+    const video = playerRef.current;
+    const videoSrc = BASE_URL_API + fileVideo;
+
+    if (Hls.isSupported()) {
+      const hls = new Hls();
+      hls.loadSource(videoSrc);
+      hls.attachMedia(video);
+    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+      video.src = videoSrc;
+    }
   };
 
   const tabLabels = [
@@ -222,19 +255,22 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
     },
   ];
 
-  const handleProgress = (progress) => {
-    setThoiGianXem(progress.playedSeconds);
+  const handleTimeUpdate = () => {
+    const currentTime = playerRef.current.currentTime;
+    setThoiGianXem(currentTime);
   };
 
   const handlePlay = () => {
     if (playerRef.current) {
+      const videoPlayer = playerRef.current;
       if (ThoiGianDaXem && !isSeek && !ChiTiet.isDaXemVideo) {
-        playerRef.current.seekTo(ThoiGianDaXem);
+        videoPlayer.currentTime = ThoiGianDaXem;
         setThoiGianXem(ThoiGianDaXem);
       }
+
       if (!ChiTiet.isDaXemVideo) {
         intervalRef.current = setInterval(() => {
-          handleGuiThoiGianXem(playerRef.current.getCurrentTime());
+          handleGuiThoiGianXem(videoPlayer.currentTime);
         }, 5000);
       }
     }
@@ -244,30 +280,25 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
-    if (!ChiTiet.isDaXemVideo && ThoiGianXem > ThoiGianDaXem) {
+    if (
+      !ChiTiet.isDaXemVideo &&
+      ThoiGianXem > ThoiGianDaXem &&
+      parseFloat(ThoiGianXem.toFixed(0)) !==
+        parseFloat(ThoiLuongVideo.toFixed(0))
+    ) {
       handleGuiThoiGianXem(ThoiGianXem);
     }
   };
 
-  const handleSeek = () => {
+  const handleSeeked = () => {
     if (playerRef.current) {
       setIsSeek(true);
-      const currentTime = playerRef.current.getCurrentTime();
-      const thoigian = 10000;
-
+      const videoPlayer = playerRef.current;
+      const currentTime = videoPlayer.currentTime;
       if (currentTime > ThoiGianDaXem && !ChiTiet.isDaXemVideo) {
-        if (!ThoiGianThongBao || Date.now() - ThoiGianThongBao > thoigian) {
-          Helpers.alertError("Bạn không được tua video quá nhanh!");
-          setThoiGianThongBao(Date.now());
-        }
-        playerRef.current.seekTo(ThoiGianDaXem);
+        videoPlayer.currentTime = ThoiGianDaXem;
       }
     }
-  };
-
-  const handleSeeked = () => {
-    setIsSeek(false);
-    isSeeking.current = false;
   };
 
   const ModalThi = () => {
@@ -288,7 +319,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
     getInfo(id);
     if (ChiTiet && ChiTiet.isDaXemVideo) {
       if (playerRef.current) {
-        playerRef.current.seekTo(0);
+        playerRef.current.currentTime = 0;
       }
     }
   };
@@ -326,6 +357,8 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
               }
             }
           }
+        } else {
+          playerRef.current.currentTime = ThoiGianDaXem;
         }
       });
     }
@@ -363,37 +396,52 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
         }`}
         back={goBack}
       />
-      <Card className="th-card-margin-bottom th-card-reset-margin">
-        <Row>
-          <Col
-            xxl={17}
-            xl={16}
-            lg={24}
-            xs={24}
-            style={{
-              marginBottom: 8,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-            }}
-          >
-            {ChiTiet && (!ChiTiet.hasLopHoc || !ChiTiet.isDangHoc) ? (
-              <img
-                src={BASE_URL_API + ChiTiet.anhDaiDienChuyenDe}
-                alt={"Ảnh đại diện chuyên đề"}
-                style={{
-                  maxWidth: "100%",
-                  maxHeight: "100%",
-                  width: "auto",
-                  height: "auto",
-                }}
-              />
-            ) : (
-              <ReactPlayer
+      {ChiTiet ? (
+        <Card className="th-card-margin-bottom th-card-reset-margin">
+          <Row>
+            <Col
+              xxl={17}
+              xl={16}
+              lg={24}
+              xs={24}
+              style={{
+                marginBottom: 8,
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              {!ChiTiet.hasLopHoc || !ChiTiet.isDangHoc ? (
+                <img
+                  src={BASE_URL_API + ChiTiet.anhDaiDienChuyenDe}
+                  alt={"Ảnh đại diện chuyên đề"}
+                  style={{
+                    width: "100%",
+                    height: "550px",
+                  }}
+                />
+              ) : (
+                <video
+                  ref={playerRef}
+                  controls
+                  style={{ width: "100%", height: "550px" }}
+                  config={{
+                    file: {
+                      attributes: { controlsList: "nodownload nodrag" },
+                    },
+                  }}
+                  onTimeUpdate={handleTimeUpdate}
+                  onPlay={handlePlay}
+                  onPause={handlePause}
+                  onSeeked={handleSeeked}
+                  onEnded={handleEnded}
+                />
+              )}
+              {/* <ReactPlayer
                 url={ChiTiet && BASE_URL_API + ChiTiet.fileVideo}
                 controls={true}
                 width="100%"
-                height="100%"
+                height="500px"
                 config={{
                   file: {
                     attributes: { controlsList: "nodownload nodrag" },
@@ -404,210 +452,216 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                 onProgress={handleProgress}
                 onPlay={handlePlay}
                 onPause={handlePause}
-                onSeek={handleSeek}
                 onSeeked={handleSeeked}
                 onEnded={handleEnded}
-              />
-            )}
-          </Col>
+              /> */}
+            </Col>
 
-          <Col xxl={7} xl={8} lg={24} xs={24} style={{ marginBottom: 8 }}>
-            <Card
-              className="th-card-margin-bottom th-card-reset-margin"
-              style={{
-                border: "2px solid #c8c8c8",
-                width: "100%",
-                height: "100%",
-              }}
-            >
-              <Row gutter={[0, 8]}>
-                <Col
-                  span={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    justifyContent: "center",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: "18px",
-                      fontWeight: "bold",
-                      color: "#0469b9",
-                    }}
-                  >
-                    GIỚI THIỆU GIẢNG VIÊN
-                  </span>
-                </Col>
-                <Col
-                  span={24}
-                  style={{
-                    display: "flex",
-                    alignItems: "flex-start",
-                    justifyContent: "center",
-                  }}
-                >
-                  {ChiTiet && (
-                    <Image
-                      src={BASE_URL_API + ChiTiet.hinhAnhGiangVien}
-                      alt="Hình ảnh giảng viên"
-                      style={{ width: "150px" }}
-                    />
-                  )}
-                </Col>
-                <Col span={24} className="title-span">
-                  <span>
-                    <strong>Giảng viên:</strong>
-                  </span>
-                  {ChiTiet && <span>{ChiTiet.tenGiangVien}</span>}
-                </Col>
-                <Col span={24} className="title-span">
-                  <span>
-                    <strong>Loại giảng viên:</strong>
-                  </span>
-                  {ChiTiet && <span>{ChiTiet.tenLoaiGiangVien}</span>}
-                </Col>
-                <Col span={24} className="title-span">
-                  <span>
-                    <strong>Đơn vị:</strong>
-                  </span>
-                  {ChiTiet && <span>{ChiTiet.tenDonViDaoTao}</span>}
-                </Col>
-                <Col span={24} className="title-span">
-                  <span>
-                    <strong>Giới thiệu:</strong>
-                  </span>
-                  {ChiTiet && <span>{ChiTiet.gioiThieu}</span>}
-                </Col>
-              </Row>
-            </Card>
-          </Col>
-        </Row>
-        <Row
-          gutter={[0, 8]}
-          style={{
-            marginBottom: "10px",
-          }}
-        >
-          <Col
-            xxl={17}
-            xl={16}
-            lg={24}
-            xs={24}
-            style={{
-              display: "flex",
-              alignItems: "center",
-            }}
-          >
-            {ChiTiet && (
-              <span
+            <Col xxl={7} xl={8} lg={24} xs={24} style={{ marginBottom: 8 }}>
+              <Card
+                className="th-card-margin-bottom th-card-reset-margin"
                 style={{
-                  fontSize: "20px",
-                  fontWeight: "bold",
-                  color: "#0469b9",
+                  border: "2px solid #c8c8c8",
+                  width: "100%",
+                  height: "100%",
                 }}
               >
-                {ChiTiet.tenChuyenDeDaoTao}
-              </span>
-            )}
-          </Col>
-          <Col xxl={17} xl={16} lg={24} xs={24}>
-            <Row gutter={[0, 8]} style={{ alignItems: "center" }}>
-              <Col xxl={20} xl={19} lg={18} md={18} sm={16} xs={16}>
                 <Row gutter={[0, 8]}>
                   <Col
-                    xxl={12}
-                    xl={12}
-                    lg={12}
-                    md={12}
-                    sm={24}
-                    xs={24}
-                    className="title-span"
+                    span={24}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      justifyContent: "center",
+                    }}
                   >
+                    <span
+                      style={{
+                        fontSize: "18px",
+                        fontWeight: "bold",
+                        color: "#0469b9",
+                      }}
+                    >
+                      GIỚI THIỆU GIẢNG VIÊN
+                    </span>
+                  </Col>
+                  <Col
+                    span={24}
+                    style={{
+                      display: "flex",
+                      alignItems: "flex-start",
+                      justifyContent: "center",
+                    }}
+                  >
+                    {ChiTiet && (
+                      <Image
+                        src={BASE_URL_API + ChiTiet.hinhAnhGiangVien}
+                        alt="Hình ảnh giảng viên"
+                        style={{ width: "150px" }}
+                      />
+                    )}
+                  </Col>
+                  <Col span={24} className="title-span">
                     <span>
                       <strong>Giảng viên:</strong>
                     </span>
                     {ChiTiet && <span>{ChiTiet.tenGiangVien}</span>}
                   </Col>
-                  <Col
-                    xxl={12}
-                    xl={12}
-                    lg={12}
-                    md={12}
-                    sm={24}
-                    xs={24}
-                    className="title-span"
-                  >
+                  <Col span={24} className="title-span">
                     <span>
-                      <strong>Thời lượng đào tạo:</strong>
+                      <strong>Loại giảng viên:</strong>
                     </span>
-                    {ChiTiet && <span>{ChiTiet.thoiLuongDaoTao} phút</span>}
+                    {ChiTiet && <span>{ChiTiet.tenLoaiGiangVien}</span>}
+                  </Col>
+                  <Col span={24} className="title-span">
+                    <span style={{ whiteSpace: "nowrap" }}>
+                      <strong>Đơn vị:</strong>
+                    </span>
+                    {ChiTiet && <span>{ChiTiet.tenDonViDaoTao}</span>}
+                  </Col>
+                  <Col span={24} className="title-span">
+                    <span style={{ whiteSpace: "nowrap" }}>
+                      <strong>Giới thiệu:</strong>
+                    </span>
+                    {ChiTiet && (
+                      <span style={{ whiteSpace: "pre-line" }}>
+                        {ChiTiet.gioiThieu}
+                      </span>
+                    )}
                   </Col>
                 </Row>
-              </Col>
-              {ChiTiet &&
-              ChiTiet.isDaXemVideo &&
-              !ChiTiet.isDaThi &&
-              ChiTiet.isThi ? (
-                <Col
-                  xxl={4}
-                  xl={5}
-                  lg={6}
-                  md={6}
-                  sm={8}
-                  xs={8}
+              </Card>
+            </Col>
+          </Row>
+          <Row
+            gutter={[0, 8]}
+            style={{
+              marginBottom: "10px",
+            }}
+          >
+            <Col
+              xxl={17}
+              xl={16}
+              lg={24}
+              xs={24}
+              style={{
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              {ChiTiet && (
+                <span
                   style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "flex-end",
+                    fontSize: "20px",
+                    fontWeight: "bold",
+                    color: "#0469b9",
                   }}
                 >
-                  {ChiTiet && ChiTiet.isDangThi ? (
-                    <Button
-                      className="th-margin-bottom-0"
-                      onClick={() => ModalTiepTucThi()}
-                      type="danger"
+                  {ChiTiet.tenChuyenDeDaoTao}
+                </span>
+              )}
+            </Col>
+            <Col xxl={17} xl={16} lg={24} xs={24}>
+              <Row gutter={[0, 8]} style={{ alignItems: "center" }}>
+                <Col xxl={20} xl={19} lg={18} md={18} sm={16} xs={16}>
+                  <Row gutter={[0, 8]}>
+                    <Col
+                      xxl={12}
+                      xl={12}
+                      lg={12}
+                      md={12}
+                      sm={24}
+                      xs={24}
+                      className="title-span"
                     >
-                      Tiếp tục thi
-                    </Button>
-                  ) : (
-                    <Button
-                      className="th-margin-bottom-0"
-                      onClick={() => setActiveModalThiKhaoSat(true)}
-                      type="primary"
+                      <span>
+                        <strong>Giảng viên:</strong>
+                      </span>
+                      {ChiTiet && <span>{ChiTiet.tenGiangVien}</span>}
+                    </Col>
+                    <Col
+                      xxl={12}
+                      xl={12}
+                      lg={12}
+                      md={12}
+                      sm={24}
+                      xs={24}
+                      className="title-span"
                     >
-                      Thi khảo sát
-                    </Button>
-                  )}
+                      <span>
+                        <strong>Thời lượng đào tạo:</strong>
+                      </span>
+                      {ChiTiet && <span>{ChiTiet.thoiLuongDaoTao} phút</span>}
+                    </Col>
+                  </Row>
                 </Col>
-              ) : null}
-            </Row>
-          </Col>
-        </Row>
-        <Card className="th-card-margin-bottom th-card-reset-margin">
-          <Tabs
-            defaultActiveKey="1"
-            type="card"
-            size={"middle"}
-            items={tabLabels
-              .filter((tab, index) => {
-                return !(
-                  ChiTiet &&
-                  ChiTiet.hasLopHoc === false &&
-                  tab.label === "Thông tin khóa học"
-                );
-              })
-              .map((tab, i) => {
-                const id = String(i + 1);
-                return {
-                  label: tab.label,
-                  key: id,
-                  children: tab.children,
-                };
-              })}
-          />
+                {ChiTiet &&
+                ChiTiet.isDaXemVideo &&
+                !ChiTiet.isDaThi &&
+                ChiTiet.isThi ? (
+                  <Col
+                    xxl={4}
+                    xl={5}
+                    lg={6}
+                    md={6}
+                    sm={8}
+                    xs={8}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "flex-end",
+                    }}
+                  >
+                    {ChiTiet && ChiTiet.isDangThi ? (
+                      <Button
+                        className="th-margin-bottom-0"
+                        onClick={() => ModalTiepTucThi()}
+                        type="danger"
+                      >
+                        Tiếp tục thi
+                      </Button>
+                    ) : (
+                      <Button
+                        className="th-margin-bottom-0"
+                        onClick={() => setActiveModalThiKhaoSat(true)}
+                        type="primary"
+                      >
+                        Thi khảo sát
+                      </Button>
+                    )}
+                  </Col>
+                ) : null}
+              </Row>
+            </Col>
+          </Row>
+          <Card className="th-card-margin-bottom th-card-reset-margin">
+            <Tabs
+              defaultActiveKey="1"
+              type="card"
+              size={"middle"}
+              items={tabLabels
+                .filter((tab, index) => {
+                  return !(
+                    (ChiTiet &&
+                      ChiTiet.hasLopHoc === false &&
+                      tab.label === "Thông tin khóa học") ||
+                    (ChiTiet &&
+                      ChiTiet.hasLopHoc === false &&
+                      tab.label === "Tài liệu")
+                  );
+                })
+                .map((tab, i) => {
+                  const id = String(i + 1);
+                  return {
+                    label: tab.label,
+                    key: id,
+                    children: tab.children,
+                  };
+                })}
+            />
+          </Card>
         </Card>
-      </Card>
+      ) : null}
       <ModalThiKhaoSat
         openModal={ActiveModalThiKhaoSat}
         openModalFS={setActiveModalThiKhaoSat}

@@ -904,7 +904,7 @@ function ThiKhaoSat({ permission, history }) {
               <span>
                 <strong> Số câu đúng:</strong>
               </span>
-              {DataChiTiet && DataChiTiet.soCauTraLoiDung && (
+              {DataChiTiet && DataChiTiet.soCauTraLoiDung !== null && (
                 <span>{DataChiTiet.soCauTraLoiDung} câu</span>
               )}
             </Col>
@@ -920,7 +920,7 @@ function ThiKhaoSat({ permission, history }) {
               <span>
                 <strong>Số điểm:</strong>
               </span>
-              {DataChiTiet && DataChiTiet.soDiem && (
+              {DataChiTiet && DataChiTiet.soDiem !== null && (
                 <span>{DataChiTiet.soDiem} điểm</span>
               )}
             </Col>
@@ -953,12 +953,16 @@ function ThiKhaoSat({ permission, history }) {
           className="th-card-margin-bottom th-card-reset-margin"
           title={"Danh sách câu hỏi"}
           style={{
-            maxHeight: "55vh",
-            overflowY: "auto",
             width: "100%",
           }}
         >
-          <Row gutter={[0, 10]}>
+          <Row
+            gutter={[0, 10]}
+            style={{
+              maxHeight: "45vh",
+              overflowY: "auto",
+            }}
+          >
             {ChiTiet
               ? ChiTiet.map((ketqua, index) => {
                   return (
