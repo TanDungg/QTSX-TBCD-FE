@@ -134,7 +134,7 @@ function ChuKy({ permission }) {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Xác nhận lưu chữ ký số",
+    title: "Xác nhận xóa chữ ký số",
     onOk: handleXoaChuKySo,
   };
 

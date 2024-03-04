@@ -27,7 +27,7 @@
     "file-saver": "^2.0.2",
     "firebase": "^10.1.0",
     "fs": "^0.0.1-security",
-    "hls.js": "^1.5.6",
+    "hls.js": "^1.1.5",
     "html-to-image": "^1.11.11",
     "html2canvas": "^1.4.1",
     "immutable": "^4.0.0-rc.12",

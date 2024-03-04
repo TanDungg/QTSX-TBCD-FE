@@ -1,7 +1,8 @@
 import {
+  ClockCircleOutlined,
+  DoubleLeftOutlined,
+  DoubleRightOutlined,
   ExclamationCircleOutlined,
-  StepBackwardOutlined,
-  StepForwardOutlined,
 } from "@ant-design/icons";
 import {
   Modal as AntModal,
@@ -45,6 +46,7 @@ function ModalThiKhaoSat({
   const [DapAn, setDapAn] = useState(null);
   const [CauHoi, setCauHoi] = useState(null);
   const [KetQuaThi, setKetQuaThi] = useState(null);
+  const [XemDanhSach, setXemDanhSach] = useState(false);
   const [ChiTietKetQua, setChiTietKetQua] = useState([]);
 
   useEffect(() => {
@@ -203,9 +205,9 @@ function ModalThiKhaoSat({
     Modal(prop);
   };
 
-  const handleChangeCauHoi = (e) => {
+  const handleChangeCauHoi = (vptq_lms_ThiTrucTuyenChiTiet_Id) => {
     setDapAn(null);
-    setCauHoi(e.target.value);
+    setCauHoi(vptq_lms_ThiTrucTuyenChiTiet_Id);
   };
 
   const SelectedCauHoi =
@@ -413,34 +415,6 @@ function ModalThiKhaoSat({
               <span>{ThongTinDeThi.tieuChuanDat}%</span>
             )}
           </Col>
-          {ListCauHoi.length && DeThi ? (
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={24}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span>
-                <strong>Thời gian còn lại:</strong>
-              </span>
-              <span
-                style={{
-                  color: "red",
-                  fontWeight: "bold",
-                }}
-              >
-                <Countdown
-                  value={moment(DeThi.gioiHanThoiGianThi, "DD/MM/YYYY HH:mm:ss")
-                    .toDate()
-                    .getTime()}
-                  onFinish={onFinish}
-                />
-              </span>
-            </Col>
-          ) : null}
         </Row>
         <div align={"end"}>
           {DeThi ? (
@@ -467,205 +441,327 @@ function ModalThiKhaoSat({
           className="th-card-margin-bottom th-card-reset-margin"
           title={"Danh sách câu hỏi"}
         >
-          <Row gutter={[0, 10]}>
-            <Col
-              span={24}
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+            }}
+          >
+            <div
               style={{
                 display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                marginBottom: "10px",
+                gap: "15px",
+                padding: "5px",
+                flexWrap: "wrap",
               }}
             >
-              <Button
-                className="th-margin-bottom-0"
-                style={{ margin: "0px" }}
-                icon={<StepBackwardOutlined />}
-                type="primary"
-                onClick={handlePrev}
-                disabled={selectedIndex === 0}
-              />
-
-              <Radio.Group
-                value={CauHoi}
-                onChange={handleChangeCauHoi}
-                buttonStyle="solid"
-                style={{ display: "flex", justifyContent: "center" }}
+              {DeThi && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    border: "1px solid red",
+                    borderRadius: "5px",
+                    padding: "8px 5px",
+                    justifyContent: "center",
+                    width: "120px",
+                    cursor: "not-allowed",
+                  }}
+                >
+                  <ClockCircleOutlined
+                    style={{
+                      color: "red",
+                    }}
+                  />
+                  <span
+                    style={{
+                      color: "red",
+                      fontWeight: "bold",
+                      fontSize: "16px",
+                    }}
+                  >
+                    <Countdown
+                      value={moment(
+                        DeThi.gioiHanThoiGianThi,
+                        "DD/MM/YYYY HH:mm:ss"
+                      )
+                        .toDate()
+                        .getTime()}
+                      onFinish={onFinish}
+                    />
+                  </span>
+                </div>
+              )}
+              <span
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  borderRadius: "5px",
+                  padding: "8px 5px",
+                  justifyContent: "center",
+                  width: "180px",
+                  border: "1px solid #0469b9",
+                  color: "#0469b9",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                }}
+                onClick={() => setXemDanhSach(!XemDanhSach)}
+              >
+                {XemDanhSach ? "Ẩn danh sách câu hỏi" : "Xem danh sách câu hỏi"}
+              </span>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "15px",
+                  flexWrap: "wrap",
+                  width: "300px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "5px",
+                    border:
+                      selectedIndex === 0
+                        ? "1px solid #c8c8c8"
+                        : "1px solid #0469b9",
+                    borderRadius: "5px",
+                    padding: "8px 5px",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "120px",
+                    cursor: selectedIndex === 0 ? "not-allowed" : "pointer",
+                    color: selectedIndex === 0 ? "#545454" : "#0469b9",
+                  }}
+                  onClick={handlePrev}
+                  disabled={selectedIndex === 0}
+                >
+                  <DoubleLeftOutlined />
+                  <span>Câu trước</span>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "5px",
+                    width: "120px",
+                    border:
+                      selectedIndex === ListCauHoi.length - 1
+                        ? "1px solid #c8c8c8"
+                        : "1px solid #0469b9",
+                    borderRadius: "5px",
+                    padding: "8px 5px",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor:
+                      selectedIndex === ListCauHoi.length - 1
+                        ? "not-allowed"
+                        : "pointer",
+                    color:
+                      selectedIndex === ListCauHoi.length - 1
+                        ? "#545454"
+                        : "#0469b9",
+                  }}
+                  onClick={handleNext}
+                  disabled={selectedIndex === ListCauHoi.length - 1}
+                >
+                  <span>Câu kế tiếp</span>
+                  <DoubleRightOutlined />
+                </div>
+              </div>
+            </div>
+            {XemDanhSach ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "10px",
+                  padding: "5px",
+                }}
               >
                 {ListCauHoi.map((item, index) => {
                   const isSelected =
                     CauHoi === item.vptq_lms_ThiTrucTuyenChiTiet_Id;
                   const isChon = item.list_DapAns.some((ans) => ans.isChon);
-
                   return (
-                    <Radio.Button
-                      key={item.vptq_lms_ThiTrucTuyenChiTiet_Id}
-                      value={item.vptq_lms_ThiTrucTuyenChiTiet_Id}
+                    <div
                       style={{
-                        backgroundColor: isSelected
-                          ? "green"
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        border: isSelected
+                          ? "1px solid #0469b9"
                           : isChon
-                          ? "DarkGray"
+                          ? "1px solid darkgray"
+                          : "1px solid #c8c8c8",
+                        borderRadius: "5px",
+                        padding: "8px 5px",
+                        justifyContent: "center",
+                        width: "50px",
+                        background: isChon
+                          ? "#FFFFCC"
+                          : isSelected
+                          ? "#fff"
                           : "",
-                        color: isSelected || isChon ? "#fff" : "#000",
+                        color: isChon
+                          ? "#000"
+                          : isSelected
+                          ? "#0469b9"
+                          : "#000",
+                        cursor: "pointer",
+                        fontSize: "15px",
                       }}
+                      onClick={() =>
+                        handleChangeCauHoi(item.vptq_lms_ThiTrucTuyenChiTiet_Id)
+                      }
                     >
                       {index + 1}
-                    </Radio.Button>
+                    </div>
                   );
                 })}
-              </Radio.Group>
-              <Button
-                style={{ margin: "0px" }}
-                icon={<StepForwardOutlined />}
-                className="th-margin-bottom-0"
-                type="primary"
-                onClick={handleNext}
-                disabled={selectedIndex === ListCauHoi.length - 1}
-              />
-            </Col>
-            <Col>
-              <Card
-                className="th-card-margin-bottom th-card-reset-margin"
-                style={{
-                  height: "35vh",
-                  width: "100%",
-                  overflowY: "auto",
-                }}
-              >
-                <Row
-                  gutter={[0, 10]}
+              </div>
+            ) : null}
+          </div>
+          <Card
+            className="th-card-margin-bottom th-card-reset-margin"
+            style={{
+              height: "35vh",
+              width: "100%",
+              overflowY: "auto",
+            }}
+          >
+            {SelectedCauHoi ? (
+              <Row gutter={[0, 10]}>
+                <Col span={24} className="title-span">
+                  <span style={{ whiteSpace: "nowrap" }}>
+                    <strong>
+                      Câu {selectedIndex + 1}. (
+                      {ThongTinDeThi && ThongTinDeThi.soDiemMoiCau} điểm):
+                    </strong>
+                  </span>
+                  <span style={{ whiteSpace: "pre-line" }}>
+                    {SelectedCauHoi.noiDung}
+                  </span>
+                </Col>
+                {SelectedCauHoi.hinhAnh || SelectedCauHoi.video ? (
+                  <Col
+                    span={24}
+                    style={{
+                      display: "flex",
+                      justifyContent: "center",
+                      alignItems: "center",
+                    }}
+                  >
+                    {SelectedCauHoi.hinhAnh && (
+                      <div
+                        style={{
+                          flex: "1",
+                          textAlign: "center",
+                          padding: "0 10px",
+                        }}
+                      >
+                        <Image
+                          src={BASE_URL_API + SelectedCauHoi.hinhAnh}
+                          alt="Hình ảnh"
+                          style={{ height: "150px" }}
+                        />
+                      </div>
+                    )}
+                    {SelectedCauHoi.video && (
+                      <div
+                        style={{
+                          flex: "1",
+                          textAlign: "center",
+                          padding: "0 10px",
+                        }}
+                      >
+                        {SelectedCauHoi.video.endsWith(".mp4") ? (
+                          <ReactPlayer
+                            style={{ cursor: "pointer" }}
+                            url={BASE_URL_API + SelectedCauHoi.video}
+                            width="240px"
+                            height="150px"
+                            playing={true}
+                            muted={true}
+                            controls={false}
+                            onClick={() => {
+                              window.open(
+                                BASE_URL_API + SelectedCauHoi.video,
+                                "_blank"
+                              );
+                            }}
+                          />
+                        ) : (
+                          <a
+                            target="_blank"
+                            href={BASE_URL_API + SelectedCauHoi.video}
+                            rel="noopener noreferrer"
+                          >
+                            {SelectedCauHoi.video.split("/")[5]}
+                          </a>
+                        )}
+                      </div>
+                    )}
+                  </Col>
+                ) : null}
+                <Col
+                  span={24}
                   style={{
-                    display: "flex",
-                    flexDirection: "column",
+                    width: "100%",
                   }}
                 >
-                  {SelectedCauHoi ? (
-                    <Col span={24}>
-                      <Row gutter={[0, 5]}>
-                        <Col span={24}>
-                          <span
-                            style={{
-                              fontWeight: "bold",
-                            }}
-                          >
-                            Câu {selectedIndex + 1}. (
-                            {ThongTinDeThi && ThongTinDeThi.soDiemMoiCau} điểm):{" "}
-                            {SelectedCauHoi.noiDung}
-                          </span>
-                        </Col>
-                        {SelectedCauHoi.hinhAnh || SelectedCauHoi.video ? (
-                          <Col
-                            span={24}
-                            style={{
-                              display: "flex",
-                              justifyContent: "center",
-                              alignItems: "center",
-                            }}
-                          >
-                            {SelectedCauHoi.hinhAnh && (
-                              <div
+                  <Radio.Group
+                    onChange={onChangeDapAn}
+                    value={DapAn || getDefaultDapAn(SelectedCauHoi.list_DapAns)}
+                    style={{
+                      width: "100%",
+                    }}
+                  >
+                    <Row gutter={[0, 10]}>
+                      {SelectedCauHoi.list_DapAns &&
+                        SelectedCauHoi.list_DapAns.map((ans, index) => {
+                          return (
+                            <Col span={24}>
+                              <Radio
+                                value={ans.vptq_lms_ThiTrucTuyenChiTietDapAn_Id}
                                 style={{
-                                  flex: "1",
-                                  textAlign: "center",
-                                  padding: "0 10px",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  padding: "10px 0px 10px 5px",
+                                  border: ans.isChon
+                                    ? "1px solid #0469b9"
+                                    : "1px solid #c8c8c8",
+                                  borderRadius: "5px",
+                                  color: ans.isChon ? "#0469b9" : "",
+                                  fontWeight: ans.isChon ? "bold" : "",
                                 }}
                               >
-                                <Image
-                                  src={BASE_URL_API + SelectedCauHoi.hinhAnh}
-                                  alt="Hình ảnh"
-                                  style={{ height: "150px" }}
-                                />
-                              </div>
-                            )}
-                            {SelectedCauHoi.video && (
-                              <div
-                                style={{
-                                  flex: "1",
-                                  textAlign: "center",
-                                  padding: "0 10px",
-                                }}
-                              >
-                                {SelectedCauHoi.video.endsWith(".mp4") ? (
-                                  <ReactPlayer
-                                    style={{ cursor: "pointer" }}
-                                    url={BASE_URL_API + SelectedCauHoi.video}
-                                    width="240px"
-                                    height="150px"
-                                    playing={true}
-                                    muted={true}
-                                    controls={false}
-                                    onClick={() => {
-                                      window.open(
-                                        BASE_URL_API + SelectedCauHoi.video,
-                                        "_blank"
-                                      );
+                                <div className="title-span">
+                                  <span
+                                    style={{
+                                      fontWeight: "bold",
                                     }}
-                                  />
-                                ) : (
-                                  <a
-                                    target="_blank"
-                                    href={BASE_URL_API + SelectedCauHoi.video}
-                                    rel="noopener noreferrer"
                                   >
-                                    {SelectedCauHoi.video.split("/")[5]}
-                                  </a>
-                                )}
-                              </div>
-                            )}
-                          </Col>
-                        ) : null}
-                        <Col span={24}>
-                          <Radio.Group
-                            onChange={onChangeDapAn}
-                            value={
-                              DapAn ||
-                              getDefaultDapAn(SelectedCauHoi.list_DapAns)
-                            }
-                          >
-                            <Row gutter={[0, 10]}>
-                              {SelectedCauHoi.list_DapAns &&
-                                SelectedCauHoi.list_DapAns.map((ans, index) => {
-                                  return (
-                                    <Col span={24}>
-                                      <Radio
-                                        value={
-                                          ans.vptq_lms_ThiTrucTuyenChiTietDapAn_Id
-                                        }
-                                        style={{
-                                          display: "flex",
-                                          alignItems: "flex-start",
-                                        }}
-                                      >
-                                        <span
-                                          style={{
-                                            fontWeight: "bold",
-                                          }}
-                                        >
-                                          {String.fromCharCode(65 + index)}.
-                                        </span>
-                                        {"  "}
-                                        <span
-                                          style={{
-                                            whiteSpace: "break-spaces",
-                                          }}
-                                        >
-                                          {ans.dapAn}
-                                        </span>
-                                      </Radio>
-                                    </Col>
-                                  );
-                                })}
-                            </Row>
-                          </Radio.Group>
-                        </Col>
-                      </Row>
-                    </Col>
-                  ) : null}
-                </Row>
-              </Card>
-            </Col>
-          </Row>
+                                    {String.fromCharCode(65 + index)}.
+                                  </span>
+                                  <span
+                                    style={{
+                                      whiteSpace: "break-spaces",
+                                    }}
+                                  >
+                                    {ans.dapAn}
+                                  </span>
+                                </div>
+                              </Radio>
+                            </Col>
+                          );
+                        })}
+                    </Row>
+                  </Radio.Group>
+                </Col>
+              </Row>
+            ) : null}
+          </Card>
         </Card>
       ) : !KetQuaThi ? (
         <Card
@@ -791,13 +887,14 @@ function ModalThiKhaoSat({
                     return (
                       <Col span={24}>
                         <Row gutter={[0, 10]}>
-                          <Col span={24}>
-                            <span
-                              style={{
-                                fontWeight: "bold",
-                              }}
-                            >
-                              Câu {index + 1}. ({KetQuaThi.soDiemMoiCau} điểm):{" "}
+                          <Col span={24} className="title-span">
+                            <span style={{ whiteSpace: "nowrap" }}>
+                              <strong>
+                                Câu {index + 1}. (
+                                {KetQuaThi && KetQuaThi.soDiemMoiCau} điểm):
+                              </strong>
+                            </span>
+                            <span style={{ whiteSpace: "pre-line" }}>
                               {ketqua.noiDung}
                             </span>
                           </Col>
@@ -866,7 +963,7 @@ function ModalThiKhaoSat({
                             <Radio.Group
                               value={getDefaultDapAn(ketqua.list_DapAns)}
                             >
-                              <Row gutter={[0, 5]}>
+                              <Row gutter={[0, 10]}>
                                 {ketqua.list_DapAns &&
                                   ketqua.list_DapAns.map((ans, index) => {
                                     return (

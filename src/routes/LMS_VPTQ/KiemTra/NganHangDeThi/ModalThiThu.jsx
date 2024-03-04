@@ -1,4 +1,8 @@
-import { StepBackwardOutlined, StepForwardOutlined } from "@ant-design/icons";
+import {
+  ClockCircleOutlined,
+  DoubleLeftOutlined,
+  DoubleRightOutlined,
+} from "@ant-design/icons";
 import {
   Modal as AntModal,
   Card,
@@ -37,6 +41,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
   const [DapAn, setDapAn] = useState(null);
   const [CauHoi, setCauHoi] = useState(null);
   const [KetQuaThi, setKetQuaThi] = useState(null);
+  const [XemDanhSach, setXemDanhSach] = useState(false);
   const [ChiTietKetQua, setChiTietKetQua] = useState([]);
 
   useEffect(() => {
@@ -68,7 +73,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
       .then((res) => {
         if (res && res.data) {
           setDeThi(res.data);
-          setListCauHoi(res.data.list_ChiTiets);
+          res.data.list_ChiTiets && setListCauHoi(res.data.list_ChiTiets);
           setCauHoi(
             res.data.list_ChiTiets &&
               res.data.list_ChiTiets[0].vptq_lms_ThiThuChiTiet_Id
@@ -158,9 +163,9 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
     Modal(prop);
   };
 
-  const handleChangeCauHoi = (e) => {
+  const handleChangeCauHoi = (value) => {
     setDapAn(null);
-    setCauHoi(e.target.value);
+    setCauHoi(value);
   };
 
   const SelectedCauHoi =
@@ -312,28 +317,6 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
             </span>
             {dethi && <span>{dethi.tieuChuanDat}%</span>}
           </Col>
-          {DeThi && (
-            <Col lg={12} xs={24} className="title-span">
-              <span>
-                <strong>Thời gian còn lại:</strong>
-              </span>
-              {DeThi && DeThi.gioiHanThoiGian && (
-                <span
-                  style={{
-                    color: "red",
-                    fontWeight: "bold",
-                  }}
-                >
-                  <Countdown
-                    value={moment(DeThi.gioiHanThoiGian, "DD/MM/YYYY HH:mm:ss")
-                      .toDate()
-                      .getTime()}
-                    onFinish={onFinish}
-                  />
-                </span>
-              )}
-            </Col>
-          )}
         </Row>
         <div align={"end"}>
           {!DeThi ? (
@@ -363,64 +346,182 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
           <div
             style={{
               display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              marginBottom: "10px",
+              flexDirection: "column",
             }}
           >
-            <Button
-              className="th-margin-bottom-0"
-              style={{
-                margin: "0px",
-              }}
-              icon={<StepBackwardOutlined />}
-              type="primary"
-              onClick={handlePrev}
-              disabled={selectedIndex === 0}
-            />
-
-            <Radio.Group
-              value={CauHoi}
-              onChange={handleChangeCauHoi}
-              buttonStyle="solid"
+            <div
               style={{
                 display: "flex",
+                gap: "15px",
+                padding: "5px",
                 flexWrap: "wrap",
-                maxWidth: "100%",
               }}
             >
-              {ListCauHoi.map((item, index) => {
-                const isSelected = CauHoi === item.vptq_lms_ThiThuChiTiet_Id;
-                const isChon = item.list_DapAns.some((ans) => ans.isChon);
-
-                return (
-                  <Radio.Button
-                    key={item.vptq_lms_ThiThuChiTiet_Id}
-                    value={item.vptq_lms_ThiThuChiTiet_Id}
+              {DeThi && (
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "10px",
+                    border: "1px solid red",
+                    borderRadius: "5px",
+                    padding: "8px 5px",
+                    justifyContent: "center",
+                    width: "120px",
+                    cursor: "not-allowed",
+                  }}
+                >
+                  <ClockCircleOutlined
                     style={{
-                      backgroundColor: isSelected
-                        ? "green"
-                        : isChon
-                        ? "DarkGray"
-                        : "",
-                      color: isSelected || isChon ? "#fff" : "#000",
+                      color: "red",
+                    }}
+                  />
+                  <span
+                    style={{
+                      color: "red",
+                      fontWeight: "bold",
+                      fontSize: "16px",
                     }}
                   >
-                    {index + 1}
-                  </Radio.Button>
-                );
-              })}
-            </Radio.Group>
-            <Button
-              style={{
-                margin: "0px",
-              }}
-              icon={<StepForwardOutlined />}
-              className="th-margin-bottom-0"
-              type="primary"
-              onClick={handleNext}
-              disabled={selectedIndex === ListCauHoi.length - 1}
-            />
+                    <Countdown
+                      value={moment(
+                        DeThi.gioiHanThoiGian,
+                        "DD/MM/YYYY HH:mm:ss"
+                      )
+                        .toDate()
+                        .getTime()}
+                      onFinish={onFinish}
+                    />
+                  </span>
+                </div>
+              )}
+              <span
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  borderRadius: "5px",
+                  padding: "8px 5px",
+                  justifyContent: "center",
+                  width: "180px",
+                  border: "1px solid #0469b9",
+                  color: "#0469b9",
+                  fontWeight: "bold",
+                  cursor: "pointer",
+                }}
+                onClick={() => setXemDanhSach(!XemDanhSach)}
+              >
+                {XemDanhSach ? "Ẩn danh sách câu hỏi" : "Xem danh sách câu hỏi"}
+              </span>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "15px",
+                  flexWrap: "wrap",
+                  width: "300px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "5px",
+                    border:
+                      selectedIndex === 0
+                        ? "1px solid #c8c8c8"
+                        : "1px solid #0469b9",
+                    borderRadius: "5px",
+                    padding: "8px 5px",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    width: "120px",
+                    cursor: selectedIndex === 0 ? "not-allowed" : "pointer",
+                    color: selectedIndex === 0 ? "#545454" : "#0469b9",
+                  }}
+                  onClick={handlePrev}
+                  disabled={selectedIndex === 0}
+                >
+                  <DoubleLeftOutlined />
+                  <span>Câu trước</span>
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "5px",
+                    width: "120px",
+                    border:
+                      selectedIndex === ListCauHoi.length - 1
+                        ? "1px solid #c8c8c8"
+                        : "1px solid #0469b9",
+                    borderRadius: "5px",
+                    padding: "8px 5px",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor:
+                      selectedIndex === ListCauHoi.length - 1
+                        ? "not-allowed"
+                        : "pointer",
+                    color:
+                      selectedIndex === ListCauHoi.length - 1
+                        ? "#545454"
+                        : "#0469b9",
+                  }}
+                  onClick={handleNext}
+                  disabled={selectedIndex === ListCauHoi.length - 1}
+                >
+                  <span>Câu kế tiếp</span>
+                  <DoubleRightOutlined />
+                </div>
+              </div>
+            </div>
+            {XemDanhSach ? (
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "10px",
+                  padding: "5px",
+                }}
+              >
+                {ListCauHoi.map((item, index) => {
+                  const isSelected = CauHoi === item.vptq_lms_ThiThuChiTiet_Id;
+                  const isChon = item.list_DapAns.some((ans) => ans.isChon);
+                  return (
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "10px",
+                        border: isSelected
+                          ? "1px solid #0469b9"
+                          : isChon
+                          ? "1px solid darkgray"
+                          : "1px solid #c8c8c8",
+                        borderRadius: "5px",
+                        padding: "8px 5px",
+                        justifyContent: "center",
+                        width: "50px",
+                        background: isChon
+                          ? "#FFFFCC"
+                          : isSelected
+                          ? "#fff"
+                          : "",
+                        color: isChon
+                          ? "#000"
+                          : isSelected
+                          ? "#0469b9"
+                          : "#000",
+                        cursor: "pointer",
+                        fontSize: "15px",
+                      }}
+                      onClick={() =>
+                        handleChangeCauHoi(item.vptq_lms_ThiThuChiTiet_Id)
+                      }
+                    >
+                      {index + 1}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : null}
           </div>
           <Card
             className="th-card-margin-bottom th-card-reset-margin"
@@ -431,14 +532,16 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
             }}
           >
             {SelectedCauHoi ? (
-              <Row gutter={[0, 5]}>
+              <Row gutter={[0, 10]}>
                 <Col span={24} className="title-span">
                   <span style={{ whiteSpace: "nowrap" }}>
                     <strong>
                       Câu {selectedIndex + 1}. ({dethi.soDiemMoiCau} điểm):
                     </strong>
                   </span>
-                  <span>{SelectedCauHoi.noiDung}</span>
+                  <span style={{ whiteSpace: "pre-line" }}>
+                    {SelectedCauHoi.noiDung}
+                  </span>
                 </Col>
                 {SelectedCauHoi.hinhAnh || SelectedCauHoi.video ? (
                   <Col
@@ -501,10 +604,18 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
                     )}
                   </Col>
                 ) : null}
-                <Col span={24}>
+                <Col
+                  span={24}
+                  style={{
+                    width: "100%",
+                  }}
+                >
                   <Radio.Group
                     onChange={onChangeDapAn}
                     value={DapAn || getDefaultDapAn(SelectedCauHoi.list_DapAns)}
+                    style={{
+                      width: "100%",
+                    }}
                   >
                     <Row gutter={[0, 10]}>
                       {SelectedCauHoi.list_DapAns &&
@@ -516,6 +627,13 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
                                 style={{
                                   display: "flex",
                                   alignItems: "center",
+                                  padding: "10px 0px 10px 5px",
+                                  border: ans.isChon
+                                    ? "1px solid #0469b9"
+                                    : "1px solid #c8c8c8",
+                                  borderRadius: "5px",
+                                  color: ans.isChon ? "#0469b9" : "",
+                                  fontWeight: ans.isChon ? "bold" : "",
                                 }}
                               >
                                 <div className="title-span">
@@ -672,14 +790,12 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
                       <Col span={24}>
                         <Row gutter={[0, 10]}>
                           <Col span={24} className="title-span">
-                            <span>
+                            <span style={{ whiteSpace: "pre-line" }}>
                               <strong>
                                 Câu {index + 1}. (
                                 {KetQuaThi && KetQuaThi.soDiemMoiCau} điểm):
                               </strong>
-                            </span>
-                            <span>
-                              <strong>{ketqua.noiDung}</strong>
+                              {ketqua.noiDung}
                             </span>
                           </Col>
                           {ketqua.hinhAnh || ketqua.video ? (
@@ -747,7 +863,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
                             <Radio.Group
                               value={getDefaultDapAn(ketqua.list_DapAns)}
                             >
-                              <Row gutter={[0, 5]}>
+                              <Row gutter={[0, 10]}>
                                 {ketqua.list_DapAns &&
                                   ketqua.list_DapAns.map((ans, index) => {
                                     return (
