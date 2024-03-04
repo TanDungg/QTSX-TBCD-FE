@@ -25,6 +25,7 @@ function SanPhamForm({ match, permission, history }) {
   const [id, setId] = useState(undefined);
   const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
   const [ListDonViTinh, setListDonViTinh] = useState([]);
+  const [ListLoaiLop, setListLoaiLop] = useState([]);
   const [FileHinhAnh, setFileHinhAnh] = useState(null);
   const [FileAnh, setFileAnh] = useState(null);
   const [OpenImage, setOpenImage] = useState(false);
@@ -42,6 +43,7 @@ function SanPhamForm({ match, permission, history }) {
       } else {
         setType("new");
         getDonViTinh();
+        getLoaiLop();
         getLoaiSanPham();
       }
     } else {
@@ -53,6 +55,8 @@ function SanPhamForm({ match, permission, history }) {
           setId(match.params.id);
           getInfo(match.params.id);
           getDonViTinh();
+          getLoaiLop();
+
           getLoaiSanPham();
         }
       }
@@ -86,7 +90,36 @@ function SanPhamForm({ match, permission, history }) {
       })
       .catch((error) => console.error(error));
   };
-
+  const getLoaiLop = async () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_LoaiLop?page=-1`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiLop(
+            res.data.map((l) => {
+              return {
+                ...l,
+                name: l.maLoaiLop + " - " + l.tenLoaiLop,
+              };
+            })
+          );
+        } else {
+          setListLoaiLop([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   const getDonViTinh = async () => {
     new Promise((resolve, reject) => {
       dispatch(
@@ -173,151 +206,163 @@ function SanPhamForm({ match, permission, history }) {
         console.log("error", error);
       });
   };
+  const XoaFile = (hinhAnh, thongSoKyThuat) => {
+    const listStringPath = [];
+    if (hinhAnh) {
+      listStringPath.push({
+        stringPath: hinhAnh,
+      });
+    }
+    if (thongSoKyThuat) {
+      listStringPath.push({
+        stringPath: thongSoKyThuat,
+      });
+    }
+    if (listStringPath.length > 0) {
+      dispatch(
+        fetchStart(`Upload/RemoveMulti`, "POST", listStringPath, "XOAFILE", "")
+      );
+    }
+  };
+  const CallAPIUpLoadFile = (
+    sanpham,
+    saveQuit,
+    hinhAnh,
+    thongSoKyThuat,
+    stringPath
+  ) => {
+    const formData = new FormData();
+    let url = `Upload${
+      stringPath !== undefined ? `?stringPath=${stringPath}` : ""
+    }`;
+    if (hinhAnh !== undefined && thongSoKyThuat !== undefined) {
+      formData.append("lstFiles", hinhAnh);
+      formData.append("lstFiles", thongSoKyThuat);
+      url = "Upload/Multi";
+    } else if (hinhAnh !== undefined) {
+      formData.append("file", hinhAnh);
+    } else if (thongSoKyThuat !== undefined) {
+      formData.append("file", thongSoKyThuat);
+    }
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          url,
+          "POST",
+          formData,
+          "UPLOADFILE",
+          "",
+          resolve,
+          reject,
+          true
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status === 200) {
+          if (hinhAnh !== undefined && thongSoKyThuat !== undefined) {
+            sanpham.hinhAnh = res.data[0].path;
+            sanpham.thongSoKyThuat = res.data[1].path;
+          } else if (thongSoKyThuat !== undefined) {
+            sanpham.thongSoKyThuat = res.data.path;
+          } else if (hinhAnh !== undefined) {
+            sanpham.hinhAnh = res.data.path;
+          }
+          saveData(sanpham, saveQuit);
+        }
+      })
+      .catch((error) => console.log(error));
+  };
 
   const uploadFile = (sanpham, saveQuit) => {
     if (type === "new") {
-      if (!sanpham.hinhAnh) {
-        Helpers.alertError("Vui lòng tải hình ảnh lên");
-      } else if (!sanpham.thongSoKyThuat) {
-        const formData = new FormData();
-        sanpham.hinhAnh && formData.append("file", sanpham.hinhAnh.file);
-        fetch(`${BASE_URL_API}/api/Upload`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(INFO.token),
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            sanpham.hinhAnh = data.path;
-            saveData(sanpham, saveQuit);
-          })
-          .catch(() => {
-            console.log("upload failed.");
-          });
+      if (sanpham.hinhAnh && sanpham.thongSoKyThuat) {
+        console.log(sanpham);
+        CallAPIUpLoadFile(
+          sanpham,
+          saveQuit,
+          sanpham.hinhAnh.file,
+          sanpham.thongSoKyThuat.file,
+          undefined
+        );
+      } else if (sanpham.hinhAnh) {
+        CallAPIUpLoadFile(
+          sanpham,
+          saveQuit,
+          sanpham.hinhAnh.file,
+          undefined,
+          undefined
+        );
+      } else if (sanpham.thongSoKyThuat) {
+        CallAPIUpLoadFile(
+          sanpham,
+          saveQuit,
+          undefined,
+          sanpham.thongSoKyThuat.file,
+          undefined
+        );
       } else {
-        const formData = new FormData();
-        formData.append("lstFiles", sanpham.thongSoKyThuat.file);
-        formData.append("lstFiles", sanpham.hinhAnh.file);
-        fetch(`${BASE_URL_API}/api/Upload/Multi`, {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(INFO.token),
-          },
-        })
-          .then((res) => res.json())
-          .then((data) => {
-            sanpham.thongSoKyThuat = data[0].path;
-            sanpham.hinhAnh = data[1].path;
-            saveData(sanpham, saveQuit);
-          })
-          .catch(() => {
-            console.log("upload failed.");
-          });
+        saveData(sanpham, saveQuit);
       }
-    }
-    if (type === "edit") {
-      if (!sanpham.hinhAnh) {
-        Helpers.alertError("Vui lòng tải hình ảnh lên");
-      } else if (!sanpham.thongSoKyThuat) {
+    } else if (type === "edit") {
+      if (sanpham.hinhAnh && sanpham.thongSoKyThuat) {
+        if (sanpham.hinhAnh.file && sanpham.thongSoKyThuat.file) {
+          XoaFile(info.hinhAnh, info.thongSoKyThuat);
+          CallAPIUpLoadFile(
+            sanpham,
+            saveQuit,
+            sanpham.hinhAnh.file,
+            sanpham.thongSoKyThuat.file,
+            undefined
+          );
+        } else if (sanpham.hinhAnh.file) {
+          CallAPIUpLoadFile(
+            sanpham,
+            saveQuit,
+            sanpham.hinhAnh.file,
+            undefined,
+            undefined
+          );
+        } else if (sanpham.thongSoKyThuat.file) {
+          CallAPIUpLoadFile(
+            sanpham,
+            saveQuit,
+            undefined,
+            sanpham.thongSoKyThuat.file,
+            undefined
+          );
+        } else {
+          saveData(sanpham, saveQuit);
+        }
+      } else if (sanpham.hinhAnh && !sanpham.thongSoKyThuat) {
         if (sanpham.hinhAnh.file) {
-          const formData = new FormData();
-          formData.append("file", sanpham.hinhAnh.file);
-          fetch(
-            info.hinhAnh
-              ? `${BASE_URL_API}/api/Upload?stringPath=${info.hinhAnh}`
-              : `${BASE_URL_API}/api/Upload`,
-            {
-              method: "POST",
-              body: formData,
-              headers: {
-                Authorization: "Bearer ".concat(INFO.token),
-              },
-            }
-          )
-            .then((res) => res.json())
-            .then((data) => {
-              sanpham.hinhAnh = data.path;
-              saveData(sanpham, saveQuit);
-            })
-            .catch(() => {
-              console.log("upload failed.");
-            });
+          CallAPIUpLoadFile(
+            sanpham,
+            saveQuit,
+            sanpham.hinhAnh.file,
+            undefined,
+            info.hinhAnh ? info.hinhAnh : undefined
+          );
+        } else {
+          saveData(sanpham, saveQuit);
+        }
+        XoaFile(info.thongSoKyThuat);
+      } else if (!sanpham.hinhAnh && sanpham.thongSoKyThuat) {
+        XoaFile(info.hinhAnh);
+        if (sanpham.thongSoKyThuat.file) {
+          CallAPIUpLoadFile(
+            sanpham,
+            saveQuit,
+            undefined,
+            sanpham.thongSoKyThuat.file,
+            info.thongSoKyThuat ? info.thongSoKyThuat : undefined
+          );
         } else {
           saveData(sanpham, saveQuit);
         }
       } else {
-        if (sanpham.hinhAnh.file && sanpham.thongSoKyThuat.file) {
-          const formData = new FormData();
-          formData.append("lstFiles", sanpham.thongSoKyThuat.file);
-          formData.append("lstFiles", sanpham.hinhAnh.file);
-          fetch(`${BASE_URL_API}/api/Upload/Multi`, {
-            method: "POST",
-            body: formData,
-            headers: {
-              Authorization: "Bearer ".concat(INFO.token),
-            },
-          })
-            .then((res) => res.json())
-            .then((data) => {
-              sanpham.thongSoKyThuat = data[0].path;
-              sanpham.hinhAnh = data[1].path;
-              saveData(sanpham, saveQuit);
-            })
-            .catch(() => {
-              console.log("upload failed.");
-            });
-        } else if (sanpham.hinhAnh.file) {
-          const formData = new FormData();
-          formData.append("file", sanpham.hinhAnh.file);
-          fetch(
-            info.hinhAnh
-              ? `${BASE_URL_API}/api/Upload?stringPath=${info.hinhAnh}`
-              : `${BASE_URL_API}/api/Upload`,
-            {
-              method: "POST",
-              body: formData,
-              headers: {
-                Authorization: "Bearer ".concat(INFO.token),
-              },
-            }
-          )
-            .then((res) => res.json())
-            .then((data) => {
-              sanpham.hinhAnh = data.path;
-              saveData(sanpham, saveQuit);
-            })
-            .catch(() => {
-              console.log("upload failed.");
-            });
-        } else if (sanpham.thongSoKyThuat.file) {
-          const formData = new FormData();
-          formData.append("file", sanpham.thongSoKyThuat.file);
-          fetch(
-            info.thongSoKyThuat
-              ? `${BASE_URL_API}/api/Upload?stringPath=${info.thongSoKyThuat}`
-              : `${BASE_URL_API}/api/Upload`,
-            {
-              method: "POST",
-              body: formData,
-              headers: {
-                Authorization: "Bearer ".concat(INFO.token),
-              },
-            }
-          )
-            .then((res) => res.json())
-            .then((data) => {
-              sanpham.thongSoKyThuat = data.path;
-              saveData(sanpham, saveQuit);
-            })
-            .catch(() => {
-              console.log("upload failed.");
-            });
-        } else {
-          saveData(sanpham, saveQuit);
-        }
+        XoaFile(info.hinhAnh, info.thongSoKyThuat);
+        saveData(sanpham, saveQuit);
       }
     }
   };
@@ -353,8 +398,7 @@ function SanPhamForm({ match, permission, history }) {
           }
         })
         .catch((error) => console.error(error));
-    }
-    if (type === "edit") {
+    } else if (type === "edit") {
       sanpham.id = id;
       new Promise((resolve, reject) => {
         dispatch(
@@ -529,12 +573,32 @@ function SanPhamForm({ match, permission, history }) {
               />
             </FormItem>
             <FormItem
+              label="Loại lốp"
+              name={["sanpham", "tits_qtsx_LoaiLop_Id"]}
+              rules={[
+                {
+                  type: "string",
+                  required: true,
+                },
+              ]}
+            >
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListLoaiLop ? ListLoaiLop : []}
+                placeholder="Chọn loại lốp"
+                optionsvalue={["id", "name"]}
+                style={{ width: "100%" }}
+                showSearch
+                optionFilterProp="name"
+              />
+            </FormItem>
+            <FormItem
               label="Thông số kỹ thuật"
               name={["sanpham", "thongSoKyThuat"]}
               rules={[
                 {
                   type: "file",
-                  required: true,
+                  // required: true,
                 },
               ]}
             >
@@ -568,6 +632,7 @@ function SanPhamForm({ match, permission, history }) {
                     onClick={() => {
                       setFileThongSo(null);
                       setDisableUploadThongSo(false);
+                      setFieldTouch(true);
                       setFieldsValue({
                         sanpham: {
                           thongSoKyThuat: null,
@@ -598,6 +663,7 @@ function SanPhamForm({ match, permission, history }) {
                       onClick={() => {
                         setFileThongSo(null);
                         setDisableUploadThongSo(false);
+                        setFieldTouch(true);
                         setFieldsValue({
                           sanpham: {
                             thongSoKyThuat: null,
@@ -615,7 +681,7 @@ function SanPhamForm({ match, permission, history }) {
               rules={[
                 {
                   type: "file",
-                  required: true,
+                  // required: true,
                 },
               ]}
             >
@@ -649,6 +715,7 @@ function SanPhamForm({ match, permission, history }) {
                     onClick={() => {
                       setFileHinhAnh(null);
                       setDisableUpload(false);
+                      setFieldTouch(true);
                       setFieldsValue({
                         sanpham: {
                           hinhAnh: null,
@@ -689,6 +756,7 @@ function SanPhamForm({ match, permission, history }) {
                       onClick={() => {
                         setFileHinhAnh(null);
                         setDisableUpload(false);
+                        setFieldTouch(true);
                         setFieldsValue({
                           sanpham: {
                             hinhAnh: null,

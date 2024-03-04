@@ -302,12 +302,6 @@ function NhapXuatTon({ permission, history, match }) {
       getListData(keyword, TuNgay, DenNgay, value);
     }
   };
-  // const handleOnSelectVatTu = (value) => {
-  //   if (VatTu_Id !== value) {
-  //     setVatTu_Id(value);
-  //     getListData(keyword, TuNgay, DenNgay, CauTrucKho_Id, value);
-  //   }
-  // };
 
   const handleChangeNgay = (dateString) => {
     if (TuNgay !== dateString[0] || DenNgay !== dateString[1]) {
@@ -316,10 +310,6 @@ function NhapXuatTon({ permission, history, match }) {
       getListData(keyword, dateString[0], dateString[1], CauTrucKho_Id);
     }
   };
-  // const handleOnClearVatTu = () => {
-  //   setVatTu_Id("");
-  //   getListData(keyword, TuNgay, DenNgay, CauTrucKho_Id, "");
-  // };
   return (
     <div classDenNgaye="gx-main-content">
       <ContainerHeader

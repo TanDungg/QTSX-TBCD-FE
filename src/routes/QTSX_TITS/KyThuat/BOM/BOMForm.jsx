@@ -226,6 +226,7 @@ function BOMForm({ match, permission, history }) {
                 day: ct.quyCach.day,
                 dn: ct.quyCach.dn,
                 dt: ct.quyCach.dt,
+                chung: ct.quyCach.chung,
                 ed: ct.thuTuChuyen_Tinh.eD,
                 giaCong: ct.thuTuChuyen_Tinh.giaCong,
                 kho: ct.thuTuChuyen_Tinh.kho,
@@ -489,18 +490,6 @@ function BOMForm({ match, permission, history }) {
         type: "binary",
       });
       const worksheet = workbook.Sheets["BOM"];
-      console.log(
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 8, r: 5 }, e: { c: 8, r: 5 } },
-        })[0]
-      );
-      console.log(
-        XLSX.utils.sheet_to_json(worksheet, {
-          header: 1,
-          range: { s: { c: 9, r: 5 }, e: { c: 9, r: 5 } },
-        })[0]
-      );
       let checkMau =
         XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
@@ -720,7 +709,6 @@ function BOMForm({ match, permission, history }) {
             .toString()
             .trim() !== dt.name
         ) {
-          console.log("object");
           checkMau = false;
         }
       });
@@ -753,7 +741,7 @@ function BOMForm({ match, permission, history }) {
             const object = {};
             dataThietLap.forEach((dt) => {
               object[dt.tits_qtsx_TramXuong_Id] =
-                (d[dt.name] && d[dt.name] !== 0) || d[dt.name] === 0
+                d[dt.name] !== undefined
                   ? d[dt.name].toString().trim() !== ""
                     ? d[dt.name].toString().trim()
                     : undefined
@@ -762,127 +750,127 @@ function BOMForm({ match, permission, history }) {
             NewData.push({
               ...object,
               STT:
-                (d.STT && d.STT !== 0) || d.STT === 0
+                d.STT !== undefined
                   ? d.STT.toString().trim() !== ""
                     ? d.STT.toString().trim()
                     : undefined
                   : undefined,
               tenChiTiet:
-                (d[TCT] && d[TCT] !== 0) || d[TCT] === 0
+                d[TCT] !== undefined
                   ? d[TCT].toString().trim() !== ""
                     ? d[TCT].toString().trim()
                     : undefined
                   : undefined,
               maChiTiet:
-                (d[MCT] && d[MCT] !== 0) || d[MCT] === 0
+                d[MCT] !== undefined
                   ? d[MCT].toString().trim() !== ""
                     ? d[MCT].toString().trim()
                     : undefined
                   : undefined,
               vatLieu:
-                (d[VL] && d[VL] !== 0) || d[VL] === 0
+                d[VL] !== undefined
                   ? d[VL].toString().trim() !== ""
                     ? d[VL].toString().trim()
                     : undefined
                   : undefined,
               xuatXu:
-                (d[XX] && d[XX] !== 0) || d[XX] === 0
+                d[XX] !== undefined
                   ? d[XX].toString().trim() !== ""
                     ? d[XX].toString().trim()
                     : undefined
                   : undefined,
               khoiLuong:
-                (d[KL] && d[KL] !== 0) || d[KL] === 0
+                d[KL] !== undefined
                   ? d[KL].toString().trim() !== ""
-                    ? Number(d[KL].toString().trim()).toFixed(3)
+                    ? Number(d[KL].toString().trim()).toFixed(1)
                     : undefined
                   : undefined,
               dinhMuc:
-                (d[DM] && d[DM] !== 0) || d[DM] === 0
+                d[DM] !== undefined
                   ? d[DM].toString().trim() !== ""
                     ? d[DM].toString().trim()
                     : undefined
                   : undefined,
               phuongPhapGiaCong:
-                (d[PPGC] && d[PPGC] !== 0) || d[PPGC] === 0
+                d[PPGC] !== undefined
                   ? d[PPGC].toString().trim() !== ""
                     ? d[PPGC].toString().trim()
                     : undefined
                   : undefined,
               moTa:
-                (d[GCKT] && d[GCKT] !== 0) || d[GCKT] === 0
+                d[GCKT] !== undefined
                   ? d[GCKT].toString().trim() !== ""
                     ? d[GCKT].toString().trim()
                     : undefined
                   : undefined,
               maTram:
-                (d[MT] && d[MT] !== 0) || d[MT] === 0
+                d[MT] !== undefined
                   ? d[MT].toString().trim() !== ""
                     ? d[MT].toString().trim()
                     : undefined
                   : undefined,
               dai:
-                (d["Dài"] && d["Dài"] !== 0) || d["Dài"] === 0
+                d["Dài"] !== undefined
                   ? d["Dài"].toString().trim() !== ""
                     ? d["Dài"].toString().trim()
                     : undefined
                   : undefined,
               rong:
-                (d["Rộng"] && d["Rộng"] !== 0) || d["Rộng"] === 0
+                d["Rộng"] !== undefined
                   ? d["Rộng"].toString().trim() !== ""
                     ? d["Rộng"].toString().trim()
                     : undefined
                   : undefined,
               day:
-                (d["Dày"] && d["Dày"] !== 0) || d["Dày"] === 0
+                d["Dày"] !== undefined
                   ? d["Dày"].toString().trim() !== ""
                     ? d["Dày"].toString().trim()
                     : undefined
                   : undefined,
               dn:
-                (d["Dn"] && d["Dn"] !== 0) || d["Dn"] === 0
+                d["Dn"] !== undefined
                   ? d["Dn"].toString().trim() !== ""
                     ? d["Dn"].toString().trim()
                     : undefined
                   : undefined,
               dt:
-                (d["Dt"] && d["Dt"] !== 0) || d["Dt"] === 0
+                d["Dt"] !== undefined
                   ? d["Dt"].toString().trim() !== ""
                     ? d["Dt"].toString().trim()
                     : undefined
                   : undefined,
               chung:
-                (d["Chung"] && d["Chung"] !== 0) || d["Chung"] === 0
-                  ? d["Chung"].toString().trim() !== ""
-                    ? d["Chung"].toString().trim()
+                d.Chung !== undefined
+                  ? d.Chung.toString().trim() !== ""
+                    ? d.Chung.toString().trim()
                     : undefined
                   : undefined,
               kho:
-                (d["Kho"] && d["Kho"] !== 0) || d["Kho"] === 0
+                d["Kho"] !== undefined
                   ? d["Kho"].toString().trim() !== ""
                     ? d["Kho"].toString().trim()
                     : undefined
                   : undefined,
               ed:
-                (d["ED"] && d["ED"] !== 0) || d["ED"] === 0
+                d["ED"] !== undefined
                   ? d["ED"].toString().trim() !== ""
                     ? d["ED"].toString().trim()
                     : undefined
                   : undefined,
               giaCong:
-                (d["Gia công"] && d["Gia công"] !== 0) || d["Gia công"] === 0
+                d["Gia công"] !== undefined
                   ? d["Gia công"].toString().trim() !== ""
                     ? d["Gia công"].toString().trim()
                     : undefined
                   : undefined,
               xiMa:
-                (d["Xi mạ"] && d["Xi mạ"] !== 0) || d["Xi mạ"] === 0
+                d["Xi mạ"] !== undefined
                   ? d["Xi mạ"].toString().trim() !== ""
                     ? d["Xi mạ"].toString().trim()
                     : undefined
                   : undefined,
               nmk:
-                (d["NMK"] && d["NMK"] !== 0) || d["NMK"] === 0
+                d["NMK"] !== undefined
                   ? d["NMK"].toString().trim() !== ""
                     ? d["NMK"].toString().trim()
                     : undefined
@@ -983,7 +971,6 @@ function BOMForm({ match, permission, history }) {
       saveData(values.BOM);
     }
   };
-
   /**
    * Lưu và thoát
    *
@@ -1004,6 +991,7 @@ function BOMForm({ match, permission, history }) {
 
   const saveData = (BOM, saveQuit = false) => {
     if (type === "new") {
+      console.log(ListChiTiet);
       const newData = {
         ...BOM,
         donVi_Id: INFO.donVi_Id,
@@ -1016,11 +1004,11 @@ function BOMForm({ match, permission, history }) {
             ...ct,
             thuTuNguoiDung: ct.STT,
             thuTuChuyen_Tinh: {
-              giaCong: ct.giaCong ? ct.giaCong : undefined,
-              ed: ct.ed ? ct.ed : undefined,
-              xiMa: ct.xiMa ? ct.xiMa : undefined,
-              nmk: ct.nmk ? ct.nmk : undefined,
-              kho: ct.kho ? ct.kho : undefined,
+              giaCong: ct.giaCong,
+              ed: ct.ed,
+              xiMa: ct.xiMa,
+              nmk: ct.nmk,
+              kho: ct.kho,
             },
             thuTuChuyen_Dong: dataThietLap.map((dt) => {
               let key = "";
@@ -1035,12 +1023,12 @@ function BOMForm({ match, permission, history }) {
               };
             }),
             quyCach: {
-              dai: ct.dai ? ct.dai : undefined,
-              rong: ct.rong ? ct.rong : undefined,
-              day: ct.day ? ct.day : undefined,
-              dn: ct.dn ? ct.dn : undefined,
-              dt: ct.dt ? ct.dt : undefined,
-              chung: ct.chung ? ct.chung : undefined,
+              dai: ct.dai,
+              rong: ct.rong,
+              day: ct.day,
+              dn: ct.dn,
+              dt: ct.dt,
+              chung: ct.chung,
             },
           };
         }),

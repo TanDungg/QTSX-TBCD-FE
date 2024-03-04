@@ -68,9 +68,8 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
   const [ListUserKy, setListUserKy] = useState([]);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
-  const [ListChungTu, setListChungTu] = useState([]);
+  const [FileChungTu, setFileChungTu] = useState();
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
-  const [DisabledXacNhan, setDisabledXacNhan] = useState(false);
 
   useEffect(() => {
     const load = () => {
@@ -198,12 +197,6 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        const newChungTu = res.data.filter((d) => d.id === cautruckho);
-        setListChungTu(
-          newChungTu &&
-            newChungTu[0].chiTietChungTus &&
-            JSON.parse(newChungTu[0].chiTietChungTus)
-        );
         setListKho(res.data);
       } else {
         setListKho([]);
@@ -294,25 +287,12 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           getListPhieuKiemTra();
           getPhieuNhanHang();
           getKho(res.data.tits_qtsx_CauTrucKho_Id);
-          const listchungtu =
-            res.data.list_ChungTu && JSON.parse(res.data.list_ChungTu);
-          if (listchungtu === null) {
-            setDisabledXacNhan(true);
-          }
-
-          const newListChungTu = {};
-          listchungtu &&
-            listchungtu.forEach((chungtu) => {
-              const key = `fileChungTu${chungtu.maChungTu}`;
-              newListChungTu[key] = chungtu.fileChungTu;
-            });
-
-          setListChungTu(listchungtu && listchungtu);
+          setFileChungTu(res.data.fileChungTu);
           setFieldsValue({
             phieunhapkhovattu: {
               ...res.data,
-              ...newListChungTu,
-              list_ChungTu: listchungtu && listchungtu,
+              fileChungTu:
+                res.data.fileChungTu === "" ? null : res.data.fileChungTu,
               ngayNhapKho: res.data.ngayNhapKho
                 ? moment(res.data.ngayNhapKho, "DD/MM/YYYY HH:mm:ss")
                 : null,
@@ -355,7 +335,10 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
 
   const actionContent = (item) => {
     const deleteItemVal =
-      permission && permission.del && type === "edit"
+      permission &&
+      permission.del &&
+      type === "edit" &&
+      info.tinhTrang === "Chưa xác nhận"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -422,7 +405,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
             </Tag>
           );
         })}
-        {type === "edit" && (
+        {type === "edit" && info.tinhTrang === "Chưa xác nhận" && (
           <EditOutlined
             style={{
               color: "#0469B9",
@@ -462,7 +445,9 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           className={`input-item`}
           value={item.moTa}
           onChange={(val) => changeGhiChu(val, item)}
-          disabled={type === "edit" ? false : true}
+          disabled={
+            type === "edit" && info.tinhTrang === "Chưa xác nhận" ? false : true
+          }
         />
       </>
     );
@@ -559,7 +544,11 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         if (ListVatTu.length === 0) {
           Helpers.alertError("Danh sách vật tư rỗng");
         } else {
-          uploadFile(values.phieunhapkhovattu, val);
+          if (form.getFieldValue("phieunhapkhovattu").inVoid && !FileChungTu) {
+            Helpers.alertError("File chứng từ chưa được thêm");
+          } else {
+            uploadFile(values.phieunhapkhovattu, val);
+          }
         }
       })
       .catch((error) => {
@@ -568,131 +557,46 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
   };
 
   const uploadFile = (phieunhapkhovattu, saveQuit) => {
-    if (type === "new" && ListChungTu) {
+    if (type === "edit" && FileChungTu) {
       const formData = new FormData();
-      Object.keys(phieunhapkhovattu).forEach((key) => {
-        if (key.startsWith("fileChungTu") && phieunhapkhovattu[key] !== "") {
-          formData.append("lstFiles", phieunhapkhovattu[key].file);
-        }
-      });
-      fetch(`${BASE_URL_API}/api/Upload/Multi`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: "Bearer ".concat(INFO.token),
-        },
+      formData.append("file", FileChungTu);
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `Upload?stringPath=${
+              FileChungTu.name ? (info.fileChungTu ? info.fileChungTu : "") : ""
+            }`,
+            "POST",
+            formData,
+            "UPLOAD",
+            "",
+            resolve,
+            reject,
+            true
+          )
+        );
       })
-        .then((res) => res.json())
-        .then((path) => {
-          path.forEach((pathname) => {
-            Object.keys(phieunhapkhovattu).forEach((key) => {
-              if (
-                key.startsWith("fileChungTu") &&
-                phieunhapkhovattu[key] !== ""
-              ) {
-                if (phieunhapkhovattu[key] && phieunhapkhovattu[key].fileList) {
-                  const fileList = phieunhapkhovattu[key].fileList.find(
-                    (file) => file.name === pathname.fileName
-                  );
-                  if (fileList) {
-                    phieunhapkhovattu[key] = pathname.path;
-                  }
-                }
-              }
-            });
-          });
-
-          const newData = {
-            ...phieunhapkhovattu,
-            ngayNhapKho: phieunhapkhovattu.ngayNhapKho.format(
-              "DD/MM/YYYY HH:mm:ss"
-            ),
-            list_ChungTu: ListChungTu.map((chungtu) => {
-              const filechungtu = [];
-              for (const key in phieunhapkhovattu) {
-                if (
-                  key.startsWith("fileChungTu") &&
-                  key.slice(11) === chungtu.maChungTu
-                ) {
-                  filechungtu.push(phieunhapkhovattu[key]);
-                }
-              }
-              return {
-                ...chungtu,
-                fileChungTu: filechungtu.length > 0 ? filechungtu[0] : null,
-              };
-            }),
-            tits_qtsx_PhieuNhapKhoVatTuChiTiets: ListVatTu,
-          };
-          saveData(newData, saveQuit);
+        .then((res) => {
+          if (res && res.status === 200) {
+            phieunhapkhovattu.fileChungTu = res.data.path;
+            saveData(phieunhapkhovattu, saveQuit);
+          }
         })
-        .catch(() => {
-          console.log("upload failed.");
-        });
-    } else if (type === "edit" && ListChungTu) {
-      const formData = new FormData();
-      Object.keys(phieunhapkhovattu).forEach((key) => {
-        if (key.startsWith("fileChungTu")) {
-          phieunhapkhovattu[key] &&
-            formData.append("lstFiles", phieunhapkhovattu[key].file);
-        }
-      });
-      fetch(`${BASE_URL_API}/api/Upload/Multi`, {
-        method: "POST",
-        body: formData,
-        headers: {
-          Authorization: "Bearer ".concat(INFO.token),
-        },
-      })
-        .then((res) => res.json())
-        .then((path) => {
-          path.forEach((pathname) => {
-            Object.keys(phieunhapkhovattu).forEach((key) => {
-              if (
-                key.startsWith("fileChungTu") &&
-                phieunhapkhovattu[key] !== ""
-              ) {
-                if (phieunhapkhovattu[key] && phieunhapkhovattu[key].fileList) {
-                  const fileList = phieunhapkhovattu[key].fileList.find(
-                    (file) => file.name === pathname.fileName
-                  );
-                  if (fileList) {
-                    phieunhapkhovattu[key] = pathname.path;
-                  }
-                }
-              }
-            });
-          });
-
-          const newData = {
-            ...phieunhapkhovattu,
-            id: id,
-            tits_qtsx_PhieuKiemTraVatTu_Id: info.tits_qtsx_PhieuKiemTraVatTu_Id,
-            ngayNhapKho: phieunhapkhovattu.ngayNhapKho.format(
-              "DD/MM/YYYY HH:mm:ss"
-            ),
-            list_ChungTu: ListChungTu.map((chungtu) => {
-              const filechungtu = [];
-              for (const key in phieunhapkhovattu) {
-                if (
-                  key.startsWith("fileChungTu") &&
-                  key.slice(11) === chungtu.maChungTu
-                ) {
-                  filechungtu.push(phieunhapkhovattu[key]);
-                }
-              }
-              return {
-                ...chungtu,
-                fileChungTu: filechungtu.length > 0 ? filechungtu[0] : null,
-              };
-            }),
-            tits_qtsx_PhieuNhapKhoVatTuChiTiets: ListVatTu,
-          };
-          saveData(newData, saveQuit);
-        })
-        .catch(() => {
-          console.log("upload failed.");
-        });
+        .catch((error) => console.error(error));
+    } else {
+      if (info.fileChungTu) {
+        dispatch(
+          fetchStart(
+            `Upload/delete-image?stringPath=${info.fileChungTu}`,
+            "POST",
+            null,
+            "DELETEUPLOAD",
+            ""
+          )
+        );
+      }
+      phieunhapkhovattu.fileChungTu = "";
+      saveData(phieunhapkhovattu, saveQuit);
     }
   };
 
@@ -722,7 +626,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               getListPhieuKiemTra();
               getPhieuNhanHang();
               getKho();
-              setListChungTu([]);
+              setFileChungTu([]);
               setFieldsValue({
                 phieunhapkhovattu: {
                   ngayNhapKho: moment(
@@ -739,8 +643,9 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
           }
         })
         .catch((error) => console.error(error));
-    }
-    if (type === "edit") {
+    } else if (type === "edit" && info.tinhTrang === "Chưa xác nhận") {
+      phieunhapkhovattu.id = id;
+      phieunhapkhovattu.tits_qtsx_PhieuNhapKhoVatTuChiTiets = ListVatTu;
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -755,14 +660,46 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (saveQuit) {
-            goBack();
-          } else {
-            if (res.status !== 409) {
-              getInfo(id);
-              setFieldTouch(false);
+          if (res && res.status === 200) {
+            if (saveQuit) {
+              goBack();
             } else {
-              setFieldTouch(false);
+              if (res.status !== 409) {
+                getInfo(id);
+                setFieldTouch(false);
+              } else {
+                setFieldTouch(false);
+              }
+            }
+          }
+        })
+        .catch((error) => console.error(error));
+    } else if (type === "edit" && info.tinhTrang === "Đã xác nhận") {
+      phieunhapkhovattu.id = id;
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `tits_qtsx_PhieuNhapKhoVatTu/put-file-chung-tu/${id}`,
+            "PUT",
+            phieunhapkhovattu,
+            "EDIT",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (res && res.status === 200) {
+            if (saveQuit) {
+              goBack();
+            } else {
+              if (res.status !== 409) {
+                getInfo(id);
+                setFieldTouch(false);
+              } else {
+                setFieldTouch(false);
+              }
             }
           }
         })
@@ -858,137 +795,13 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       </span>
     );
 
-  const renderFileChungTu = () => {
-    const chungtu = [];
-    const [FileChungTu, setFileChungTu] = useState([]);
-
-    const handleFileChange = (index, file, key) => {
-      setFieldTouch(key);
-      setFileChungTu((prevFileChungTu) => {
-        const newChungTu = [...prevFileChungTu];
-        newChungTu[index] = file;
-        return newChungTu;
-      });
-
-      const maChungTu = ListChungTu[index].maChungTu;
-      setFieldsValue({
-        phieunhapkhovattu: {
-          [`fileChungTu${maChungTu}`]: file,
-        },
-      });
-    };
-    useEffect(() => {
-      ListChungTu &&
-        ListChungTu.forEach((item, i) => {
-          if (item.fileChungTu) {
-            handleFileChange(i, item.fileChungTu, false);
-          }
-        });
-    }, [ListChungTu]);
-
-    for (let i = 0; i < (ListChungTu && ListChungTu.length); i++) {
-      const props = {
-        accept: ".pdf, .xlsx, .xls",
-        beforeUpload: (file) => {
-          const isPDF =
-            file.type === "application/pdf" ||
-            file.type ===
-              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-          if (!isPDF) {
-            Helpers.alertError(
-              `${file.name} không phải là file PDF hoặc file EXCEL`
-            );
-          } else {
-            handleFileChange(i, file, true);
-            return false;
-          }
-        },
-        showUploadList: false,
-        maxCount: 1,
-      };
-
-      chungtu.push(
-        <Col
-          key={i}
-          xxl={12}
-          xl={12}
-          lg={24}
-          md={24}
-          sm={24}
-          xs={24}
-          style={{ marginBottom: 8 }}
-        >
-          <Form.Item
-            label={`File chứng từ ${ListChungTu[i].maChungTu}`}
-            name={[
-              "phieunhapkhovattu",
-              `fileChungTu${ListChungTu[i].maChungTu}`,
-            ]}
-            rules={[
-              {
-                type: "file",
-                required: true,
-              },
-            ]}
-          >
-            {!FileChungTu[i] ? (
-              <Upload {...props}>
-                <Button
-                  style={{ marginBottom: 0 }}
-                  icon={<UploadOutlined />}
-                  disabled={type === "xacnhan" || type === "detail"}
-                >
-                  File chứng từ {ListChungTu[i].maChungTu}
-                </Button>
-              </Upload>
-            ) : FileChungTu[i].name ? (
-              <span>
-                <span
-                  style={{
-                    color: "#0469B9",
-                    cursor: "pointer",
-                    whiteSpace: "break-spaces",
-                    // wordBreak: "break-all",
-                  }}
-                  onClick={() => renderPDF(FileChungTu[i] && FileChungTu[i])}
-                >
-                  {FileChungTu[i].name}{" "}
-                </span>
-                <DeleteOutlined
-                  style={{ cursor: "pointer", color: "red" }}
-                  disabled={type === "edit" ? false : true}
-                  onClick={() => handleFileChange(i, null, true)}
-                />
-              </span>
-            ) : (
-              <span>
-                <a
-                  style={{
-                    whiteSpace: "break-spaces",
-                    wordBreak: "break-all",
-                  }}
-                  target="_blank"
-                  href={BASE_URL_API + FileChungTu[i]}
-                  rel="noopener noreferrer"
-                >
-                  {FileChungTu[i].split("/")[5]}{" "}
-                </a>
-                {type === "edit" && (
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    disabled={type === "edit" ? false : true}
-                    onClick={() => {
-                      handleFileChange(i, null, true);
-                    }}
-                  />
-                )}
-              </span>
-            )}
-          </Form.Item>
-        </Col>
-      );
-    }
-    return chungtu;
+  const props = {
+    beforeUpload: (file) => {
+      setFileChungTu(file);
+      return false;
+    },
+    showUploadList: false,
+    maxCount: 1,
   };
 
   return (
@@ -1186,7 +999,11 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 <DatePicker
                   format={"DD/MM/YYYY HH:mm:ss"}
                   showTime
-                  disabled={type === "edit" ? false : true}
+                  disabled={
+                    type === "edit" && info.tinhTrang === "Chưa xác nhận"
+                      ? false
+                      : true
+                  }
                   allowClear={false}
                   onChange={(date, dateString) => {
                     setFieldsValue({
@@ -1208,17 +1025,16 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Biên bản bàn giao"
-                name={["phieunhapkhovattu", "bienBanBanGiao"]}
+                label="In Voice"
+                name={["phieunhapkhovattu", "inVoid"]}
                 rules={[
                   {
-                    required: true,
                     type: "string",
                   },
                 ]}
               >
                 <Input
-                  placeholder="Biên bản bàn giao"
+                  placeholder="In Void"
                   disabled={type === "edit" ? false : true}
                 />
               </FormItem>
@@ -1243,7 +1059,11 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               >
                 <Input
                   placeholder="Nội dung nhập"
-                  disabled={type === "edit" ? false : true}
+                  disabled={
+                    type === "edit" && info.tinhTrang === "Chưa xác nhận"
+                      ? false
+                      : true
+                  }
                 />
               </FormItem>
             </Col>
@@ -1274,7 +1094,11 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "edit" ? false : true}
+                  disabled={
+                    type === "edit" && info.tinhTrang === "Chưa xác nhận"
+                      ? false
+                      : true
+                  }
                 />
               </FormItem>
             </Col>
@@ -1305,11 +1129,101 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
-                  disabled={type === "edit" ? false : true}
+                  disabled={
+                    type === "edit" && info.tinhTrang === "Chưa xác nhận"
+                      ? false
+                      : true
+                  }
                 />
               </FormItem>
             </Col>
-            {renderFileChungTu()}
+            <Col
+              xxl={12}
+              xl={12}
+              lg={24}
+              md={24}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: 8 }}
+            >
+              <Form.Item
+                label={`File chứng từ `}
+                name={["phieunhapkhovattu", `fileChungTu`]}
+                rules={[
+                  {
+                    type: "file",
+                  },
+                ]}
+              >
+                {!FileChungTu ? (
+                  <Upload {...props}>
+                    <Button
+                      style={{ marginBottom: 0 }}
+                      icon={<UploadOutlined />}
+                      disabled={type === "xacnhan" || type === "detail"}
+                    >
+                      File chứng từ
+                    </Button>
+                  </Upload>
+                ) : FileChungTu.name ? (
+                  <span>
+                    <span
+                      style={{
+                        color: "#0469B9",
+                        cursor: "pointer",
+                        whiteSpace: "break-spaces",
+                        // wordBreak: "break-all",
+                      }}
+                      onClick={() => renderPDF(FileChungTu && FileChungTu)}
+                    >
+                      {FileChungTu.name}{" "}
+                    </span>
+                    <DeleteOutlined
+                      style={{ cursor: "pointer", color: "red" }}
+                      disabled={type === "edit" ? false : true}
+                      onClick={() => {
+                        setFieldTouch(true);
+                        setFileChungTu();
+                        setFieldsValue({
+                          phieunhapkhovattu: {
+                            fileChungTu: null,
+                          },
+                        });
+                      }}
+                    />
+                  </span>
+                ) : (
+                  <span>
+                    <a
+                      style={{
+                        whiteSpace: "break-spaces",
+                        wordBreak: "break-all",
+                      }}
+                      target="_blank"
+                      href={BASE_URL_API + FileChungTu}
+                      rel="noopener noreferrer"
+                    >
+                      {FileChungTu && FileChungTu.split("/")[5]}{" "}
+                    </a>
+                    {type === "edit" && (
+                      <DeleteOutlined
+                        style={{ cursor: "pointer", color: "red" }}
+                        disabled={type === "edit" ? false : true}
+                        onClick={() => {
+                          setFieldTouch(true);
+                          setFileChungTu();
+                          setFieldsValue({
+                            phieunhapkhovattu: {
+                              fileChungTu: null,
+                            },
+                          });
+                        }}
+                      />
+                    )}
+                  </span>
+                )}
+              </Form.Item>
+            </Col>
             {info.tinhTrang === "Đã từ chối" && (
               <Col
                 xxl={12}
@@ -1376,9 +1290,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               className="th-margin-bottom-0"
               type="primary"
               onClick={modalXK}
-              disabled={
-                info.tinhTrang !== "Chưa xác nhận" || DisabledXacNhan === true
-              }
+              disabled={info.tinhTrang !== "Chưa xác nhận"}
             >
               Xác nhận
             </Button>
@@ -1387,9 +1299,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
               className="th-margin-bottom-0"
               type="danger"
               onClick={() => setActiveModalTuChoi(true)}
-              disabled={
-                info.tinhTrang !== "Chưa xác nhận" || DisabledXacNhan === true
-              }
+              disabled={info.tinhTrang !== "Chưa xác nhận"}
             >
               Từ chối
             </Button>

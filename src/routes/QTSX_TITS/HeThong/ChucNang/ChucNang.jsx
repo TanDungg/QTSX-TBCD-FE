@@ -204,7 +204,7 @@ function ChucNang({ match, history, permission }) {
         );
       })
         .then((res) => {
-          if (res && res.status === 204) {
+          if (res && res.status === 200) {
             loadData(INFO);
           }
         })

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Card, Button, Divider, Col, Tag } from "antd";
+import { Card, Button, Divider, Col } from "antd";
 import {
   PlusOutlined,
   EditOutlined,
@@ -256,22 +256,7 @@ function CauTrucKhoVatTu({ match, history, permission }) {
     );
   };
   let dataList = reDataForTable(data);
-  // dataList = reDataSelectedTable(dataList);
-  // let dataList = data;
-  const renderChungTu = (val) => {
-    const chungTu = val && val;
-    if (!isEmpty(chungTu)) {
-      return map(chungTu, (item, index) => {
-        let color = "green";
-        return (
-          <Tag key={index} color={color}>
-            {item.tenChungTu}
-          </Tag>
-        );
-      });
-    }
-    return null;
-  };
+
   let renderHead = (type) => {
     const render = [
       {
@@ -355,17 +340,7 @@ function CauTrucKhoVatTu({ match, history, permission }) {
       },
     ];
     return type === "kho"
-      ? [
-          ...render,
-          {
-            title: "Chứng từ",
-            dataIndex: "chiTietChungTus",
-            key: "chiTietChungTus",
-            render: (val) => renderChungTu(val),
-            align: "center",
-          },
-          ...BarCode,
-        ]
+      ? [...render, ...BarCode]
       : [
           ...render,
           {

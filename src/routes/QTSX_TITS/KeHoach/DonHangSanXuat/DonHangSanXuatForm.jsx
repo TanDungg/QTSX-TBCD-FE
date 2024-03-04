@@ -385,9 +385,9 @@ const DonHangSanXuatForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Lốp",
-      dataIndex: "lop",
-      key: "lop",
+      title: "Loại lốp",
+      dataIndex: "maLoaiLop",
+      key: "maLoaiLop",
       align: "center",
     },
     {

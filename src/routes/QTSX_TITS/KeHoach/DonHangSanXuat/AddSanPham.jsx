@@ -80,7 +80,15 @@ function AddSanPham({
     })
       .then((res) => {
         if (res && res.data) {
-          setListSanPham(res.data);
+          setListSanPham(
+            res.data.map((sp) => {
+              return {
+                ...sp,
+                name:
+                  sp.maSanPham + " - " + sp.tenSanPham + " - " + sp.maLoaiLop,
+              };
+            })
+          );
         } else {
           setListSanPham([]);
         }
@@ -121,6 +129,8 @@ function AddSanPham({
         newData.tenSanPham = sp.tenSanPham;
         newData.maSanPham = sp.maSanPham;
         newData.tenLoaiSanPham = sp.tenLoaiSanPham;
+        newData.tits_qtsx_LoaiLop_Id = sp.tits_qtsx_LoaiLop_Id;
+        newData.maLoaiLop = sp.maLoaiLop;
       }
     });
     ListMauSac.forEach((ms) => {
@@ -190,7 +200,7 @@ function AddSanPham({
               className="heading-select slt-search th-select-heading"
               data={ListSanPham}
               placeholder="Chọn sản phẩm"
-              optionsvalue={["id", "tenSanPham"]}
+              optionsvalue={["id", "name"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"
@@ -199,6 +209,7 @@ function AddSanPham({
                   if (sp.id === val) {
                     setFieldsValue({
                       chitiet: {
+                        maLoaiLop: sp.maLoaiLop,
                         tenDonViTinh: sp.tenDonViTinh,
                       },
                     });
@@ -208,11 +219,11 @@ function AddSanPham({
             />
           </FormItem>
           <FormItem
-            label="Lốp"
-            name={["chitiet", "lop"]}
-            rules={[{ type: "string", required: true }]}
+            label="Loại lốp"
+            name={["chitiet", "maLoaiLop"]}
+            rules={[{ type: "string" }]}
           >
-            <Input placeholder="Lốp"></Input>
+            <Input placeholder="Loại lốp" disabled={true}></Input>
           </FormItem>
           <FormItem
             label="Màu sắc"

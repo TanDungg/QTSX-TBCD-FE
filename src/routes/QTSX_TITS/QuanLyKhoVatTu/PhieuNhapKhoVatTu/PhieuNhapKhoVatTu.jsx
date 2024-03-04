@@ -131,7 +131,7 @@ function NhapKhoVatTu({ match, history, permission }) {
       );
 
     const editItem =
-      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
+      permission && permission.edit ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -399,6 +399,23 @@ function NhapKhoVatTu({ match, history, permission }) {
         })
       ),
       onFilter: (value, record) => record.maPhieuNhanHang.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "In Voice",
+      dataIndex: "inVoid",
+      key: "inVoid",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.inVoid,
+            value: d.inVoid,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.inVoid && record.inVoid.includes(value),
       filterSearch: true,
     },
     {

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Card, Form, Spin } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { includes } from "lodash";
-import { Input, FormSubmit, Select } from "src/components/Common";
+import { Input, FormSubmit } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -17,10 +17,8 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
   const [fieldTouch, setFieldTouch] = useState(false);
-  const [ListChungTu, setListChungTu] = useState([]);
 
   useEffect(() => {
-    getChungTu();
     if (includes(match.url, "them-moi")) {
       if (permission && !permission.add) {
         history.push("/home");
@@ -76,30 +74,6 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
       .catch((error) => console.error(error));
   };
 
-  const getChungTu = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_ChungTu?page=-1`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListChungTu(res.data);
-        } else {
-          setListChungTu([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
   const onFinish = (values) => {
     saveData(values.cautruckhovattu);
   };
@@ -118,12 +92,6 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
       const cautruckho = {
         ...cautruckhovattu,
         viTri: !cautruckhovattu.viTri ? 0 : cautruckhovattu.viTri,
-        tits_qtsx_CauTrucKho_ChungTus:
-          cautruckhovattu.tits_qtsx_CauTrucKho_ChungTus.map((chungtu) => {
-            return {
-              tits_qtsx_ChungTu_Id: chungtu,
-            };
-          }),
       };
 
       new Promise((resolve, reject) => {
@@ -156,12 +124,6 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
         ...cautruckhovattu,
         id: id,
         viTri: !cautruckhovattu.viTri ? 0 : cautruckhovattu.viTri,
-        tits_qtsx_CauTrucKho_ChungTus:
-          cautruckhovattu.tits_qtsx_CauTrucKho_ChungTus.map((chungtu) => {
-            return {
-              tits_qtsx_ChungTu_Id: chungtu,
-            };
-          }),
       };
 
       new Promise((resolve, reject) => {
@@ -244,26 +206,6 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
               ]}
             >
               <Input className="input-item" placeholder="Nhập tên kho vật tư" />
-            </FormItem>
-            <FormItem
-              label="Chứng từ"
-              name={["cautruckhovattu", "tits_qtsx_CauTrucKho_ChungTus"]}
-              rules={[
-                {
-                  type: "array",
-                },
-              ]}
-            >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListChungTu ? ListChungTu : []}
-                placeholder="Chọn chứng từ"
-                optionsvalue={["id", "tenChungTu"]}
-                style={{ width: "100%" }}
-                showSearch
-                optionFilterProp="name"
-                mode={"multiple"}
-              />
             </FormItem>
             <FormSubmit
               goBack={goBack}

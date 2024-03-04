@@ -1,15 +1,12 @@
 // export const BASE_URL_API = "https://erp-api.thacoindustries.com";
 // export const BASE_URL_API = "https://apitesterp.thacoindustries.com";
-
+//
 // export const BASE_URL_API = `http://10.14.7.215:1512`;
 export const BASE_URL_API = `http://10.14.7.72:90`;
-
-// export const BASE_URL_API = `http://113.176.118.58:82`;
 
 export const BASE_URL_APP = `${window.location.origin.toString()}`;
 //TPC
 export const LOAI_NCC_NOI_BO = "1fbe1c5c-5ecd-46a2-92f8-10b994cce5af";
-// export const LOAI_NCC_NOI_BO = "0657c2ab-cde0-4753-b2c4-5801bb4891fa";
 export const LOAI_KE_HOACH_SAN_XUAT = "3adecca0-3fe1-4433-b93b-0137dc3dfdce";
 export const XACNHAN_DIEUCHUYENVATTU_KHO_TPC =
   "XACNHAN_DIEUCHUYENVATTU_KHO_TPC";

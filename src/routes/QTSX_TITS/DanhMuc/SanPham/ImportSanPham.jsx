@@ -229,6 +229,12 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
       align: "center",
     },
     {
+      title: "Mã loại lốp",
+      dataIndex: "maLoaiLop",
+      key: "maLoaiLop",
+      align: "center",
+    },
+    {
       title: "Thông số kỹ thuật",
       key: "thongSoKyThuat",
       align: "center",
@@ -240,6 +246,7 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
       align: "center",
       render: (record) => renderHinhAnh(record),
     },
+
     {
       title: "Lỗi",
       dataIndex: "ghiChuImport",
@@ -355,7 +362,18 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
             range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
           })[0]
           .toString()
-          .trim() === "Mã đơn vị tính";
+          .trim() === "Mã đơn vị tính" &&
+        XLSX.utils.sheet_to_json(worksheet, {
+          header: 1,
+          range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
+        })[0] &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
+          })[0]
+          .toString()
+          .trim() === "Mã loại lốp";
 
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
@@ -400,6 +418,11 @@ function ImportSanPham({ openModalFS, openModal, loading, refesh }) {
               maDonViTinh: data[index][MDVT]
                 ? data[index][MDVT].toString().trim() !== ""
                   ? data[index][MDVT].toString().trim()
+                  : null
+                : null,
+              maLoaiLop: data[index]["Mã loại lốp"]
+                ? data[index]["Mã loại lốp"].toString().trim() !== ""
+                  ? data[index]["Mã loại lốp"].toString().trim()
                   : null
                 : null,
               thongSoKyThuat: null,

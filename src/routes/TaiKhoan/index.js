@@ -5,6 +5,7 @@ import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import { getTokenInfo, setCookieValue } from "src/util/Common";
 import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import { FormSubmit } from "src/components/Common";
+import Helpers from "src/helpers";
 const FormItem = Form.Item;
 
 function TaiKhoan() {
@@ -52,7 +53,7 @@ function TaiKhoan() {
           "Account/ChangePassword",
           "POST",
           values.user,
-          "EDIT",
+          "CHANGEPASSWORD",
           "",
           resolve,
           reject
@@ -61,14 +62,10 @@ function TaiKhoan() {
     })
       .then((res) => {
         if (!res.data) resetFields();
-        resetFields([
-          {
-            user: "password",
-          },
-        ]);
         setFieldTouch(false);
         if (res.status === 200) {
           // Change tokenInfo
+          resetFields();
           let tokenInfo = getTokenInfo();
           tokenInfo.mustChangePass = false;
           const maxAge = new Date(tokenInfo.expires);
@@ -76,6 +73,7 @@ function TaiKhoan() {
             path: "/",
             maxAge: maxAge.getTime(),
           });
+          Helpers.alertSuccessMessage("Thay đổi mật khẩu thành công!!!");
           setTimeout(() => {
             window.location.href = "/home";
           }, 3000);

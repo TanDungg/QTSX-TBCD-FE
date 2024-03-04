@@ -298,6 +298,22 @@ function SanPham({ match, history, permission }) {
       filterSearch: true,
     },
     {
+      title: "Loại lốp",
+      dataIndex: "maLoaiLop",
+      key: "maLoaiLop",
+      align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maLoaiLop,
+            value: d.maLoaiLop,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maLoaiLop.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Thông số kỹ thuật",
       dataIndex: "thongSoKyThuat",
       key: "thongSoKyThuat",
@@ -323,11 +339,13 @@ function SanPham({ match, history, permission }) {
       align: "center",
       render: (value) => (
         <span>
-          <Image
-            src={BASE_URL_API + value}
-            alt="Hình ảnh"
-            style={{ maxWidth: 50, maxHeight: 50 }}
-          />
+          {value && (
+            <Image
+              src={BASE_URL_API + value}
+              alt="Hình ảnh"
+              style={{ maxWidth: 50, maxHeight: 50 }}
+            />
+          )}
         </span>
       ),
     },

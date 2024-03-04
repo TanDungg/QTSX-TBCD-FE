@@ -932,24 +932,18 @@ function TraCuuThongTinXe({ history, permission }) {
                                   width: "calc(100% - 130px)",
                                 }}
                               >
-                                {vattu.list_ChungTu && (
-                                  <span
-                                    onClick={() => {
-                                      setListFileChungTu(
-                                        JSON.parse(vattu.list_ChungTu)
-                                      );
-                                      setActiveModalFileChungTu(true);
-                                    }}
+                                {vattu.fileChungTu && (
+                                  <a
+                                    href={BASE_URL_API + vattu.fileChungTu}
                                     title="Xem file chứng từ"
                                     style={{
-                                      color: "#0469b9",
                                       fontWeight: "bold",
                                       textDecoration: "underline",
                                       cursor: "pointer",
                                     }}
                                   >
-                                    Xem file chứng từ
-                                  </span>
+                                    File chứng từ
+                                  </a>
                                 )}
                               </span>
                             </Col>
