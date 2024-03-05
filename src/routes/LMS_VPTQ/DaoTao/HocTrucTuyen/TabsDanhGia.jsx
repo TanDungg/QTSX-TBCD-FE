@@ -262,7 +262,7 @@ const TabsDanhGia = ({ dataDanhGia }) => {
           </Row>
         </Card>
       )}
-      {DanhGia && DanhGia.danhGias.length !== 0 && (
+      {DanhGia && DanhGia.danhGias && DanhGia.danhGias.length !== 0 && (
         <Card className="th-card-margin-bottom th-card-reset-margin">
           {DanhGia.danhGias.map((danhgia, index) => {
             const editdanhgia = {

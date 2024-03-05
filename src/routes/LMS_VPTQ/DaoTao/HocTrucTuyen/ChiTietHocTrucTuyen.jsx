@@ -155,7 +155,9 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
               >
                 Thời lượng đào tạo:
               </span>
-              {ChiTiet && <span>{ChiTiet.thoiLuongDaoTao} phút</span>}
+              {ChiTiet && ChiTiet.thoiLuongDaoTao && (
+                <span>{ChiTiet.thoiLuongDaoTao} phút</span>
+              )}
             </Col>
             <Col
               xxl={8}
@@ -387,15 +389,12 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   const goBack = () => {
     history.push(`${match.url.replace(`/${match.params.id}/chi-tiet`, "")}`);
   };
-
+  const title = ChiTiet && ChiTiet.tenChuyenDeDaoTao && (
+    <span>CHUYÊN ĐỀ {ChiTiet.tenChuyenDeDaoTao.toUpperCase()}</span>
+  );
   return (
     <div className="gx-main-content">
-      <ContainerHeader
-        title={`CHUYÊN ĐỀ ${
-          ChiTiet && ChiTiet.tenChuyenDeDaoTao.toUpperCase()
-        }`}
-        back={goBack}
-      />
+      <ContainerHeader title={title} back={goBack} />
       {ChiTiet ? (
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row>
@@ -591,7 +590,9 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                       <span>
                         <strong>Thời lượng đào tạo:</strong>
                       </span>
-                      {ChiTiet && <span>{ChiTiet.thoiLuongDaoTao} phút</span>}
+                      {ChiTiet && ChiTiet.thoiLuongDaoTao && (
+                        <span>{ChiTiet.thoiLuongDaoTao} phút</span>
+                      )}
                     </Col>
                   </Row>
                 </Col>
