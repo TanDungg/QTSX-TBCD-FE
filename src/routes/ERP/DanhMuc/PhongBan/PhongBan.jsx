@@ -347,7 +347,11 @@ function PhongBan({ match, permission, history }) {
           }}
           loading={loading}
         />
-        <ImportPhongBan openModal={ActiveModal} openModalFS={setActiveModal} />
+        <ImportPhongBan
+          openModal={ActiveModal}
+          openModalFS={setActiveModal}
+          refresh={() => getListData(keyword)}
+        />
       </Card>
     </div>
   );
