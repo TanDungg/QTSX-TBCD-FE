@@ -725,7 +725,7 @@ function NganHangDeThi({ permission, history, match }) {
         title={`ĐỀ THI ${DataChiTiet && DataChiTiet.maDeThi}`}
         className="th-card-reset-margin"
         open={ActiveModalChiTietDeThi}
-        width={width >= 1600 ? `70%` : width >= 1200 ? `80%` : "100%"}
+        width={width >= 1600 ? `80%` : "100%"}
         closable={true}
         onCancel={() => {
           setActiveModalChiTietDeThi(false);
@@ -907,7 +907,9 @@ function NganHangDeThi({ permission, history, match }) {
                           >
                             Câu {index + 1}. ({DataChiTiet.soDiemMoiCau} điểm):
                           </span>
-                          <span>{cauhoi.noiDung}</span>
+                          <span style={{ whiteSpace: "pre-line" }}>
+                            {cauhoi.noiDung}
+                          </span>
                         </Col>
                         {cauhoi.hinhAnh || cauhoi.video ? (
                           <Col
@@ -995,7 +997,7 @@ function NganHangDeThi({ permission, history, match }) {
         title={"Lịch sử thi thử"}
         className="th-card-reset-margin"
         open={ActiveModalLichSuThiThu}
-        width={width > 1200 ? `70%` : "100%"}
+        width={width > 1600 ? `80%` : "100%"}
         closable={true}
         onCancel={() => {
           setActiveModalLichSuThiThu(false);

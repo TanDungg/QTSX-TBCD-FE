@@ -847,7 +847,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
           </div>
         </Form>
       </Card>
-      {HoiDap && HoiDap.results.length !== 0 ? (
+      {HoiDap && HoiDap.results && HoiDap.results.length !== 0 ? (
         <Card className="th-card-margin-bottom th-card-reset-margin">
           {HoiDap.results.map((hd, index) => {
             return IndexChinhSuaCauHoi === index ? (
