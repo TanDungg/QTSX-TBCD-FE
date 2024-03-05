@@ -22,12 +22,14 @@ function AddSanPham({
   const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
   const [ListMauSac, setListMauSac] = useState([]);
+  const [ListLoaiLop, setListLoaiLop] = useState([]);
   const [form] = Form.useForm();
   const { resetFields, setFieldsValue } = form;
   useEffect(() => {
     if (openModal) {
       getLoaiSanPham();
       getMauSac();
+      getListLoaiLop();
       if (type === "edit") {
         getSanPham(info.tits_qtsx_LoaiSanPham_Id);
         setFieldsValue({
@@ -84,8 +86,7 @@ function AddSanPham({
             res.data.map((sp) => {
               return {
                 ...sp,
-                name:
-                  sp.maSanPham + " - " + sp.tenSanPham + " - " + sp.maLoaiLop,
+                name: sp.maSanPham + " - " + sp.tenSanPham,
               };
             })
           );
@@ -118,6 +119,30 @@ function AddSanPham({
       })
       .catch((error) => console.error(error));
   };
+  const getListLoaiLop = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_LoaiLop?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiLop(res.data);
+        } else {
+          setListLoaiLop([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const saveData = (chitiet) => {
     const newData = chitiet;
     newData.ngay = chitiet.ngay && chitiet.ngay._i;
@@ -129,8 +154,11 @@ function AddSanPham({
         newData.tenSanPham = sp.tenSanPham;
         newData.maSanPham = sp.maSanPham;
         newData.tenLoaiSanPham = sp.tenLoaiSanPham;
-        newData.tits_qtsx_LoaiLop_Id = sp.tits_qtsx_LoaiLop_Id;
-        newData.maLoaiLop = sp.maLoaiLop;
+      }
+    });
+    ListLoaiLop.forEach((loailop) => {
+      if (loailop.id === newData.tits_qtsx_LoaiLop_Id) {
+        newData.tenLoaiLop = loailop.tenLoaiLop;
       }
     });
     ListMauSac.forEach((ms) => {
@@ -220,10 +248,18 @@ function AddSanPham({
           </FormItem>
           <FormItem
             label="Loại lốp"
-            name={["chitiet", "maLoaiLop"]}
-            rules={[{ type: "string" }]}
+            name={["chitiet", "tits_qtsx_LoaiLop_Id"]}
+            rules={[{ type: "string", required: true }]}
           >
-            <Input placeholder="Loại lốp" disabled={true}></Input>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListLoaiLop}
+              placeholder="Chọn loại lốp"
+              optionsvalue={["id", "tenLoaiLop"]}
+              style={{ width: "100%" }}
+              showSearch
+              optionFilterProp="name"
+            />
           </FormItem>
           <FormItem
             label="Màu sắc"
