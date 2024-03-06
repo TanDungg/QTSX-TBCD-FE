@@ -1,4 +1,4 @@
-import { Modal as AntModal, Form, Card, Input, Col } from "antd";
+import { Modal as AntModal, Form, Card, Input, Col, InputNumber } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchStart } from "src/appRedux/actions";
@@ -105,8 +105,8 @@ function ModalThemDanhSach({
     }
   };
 
-  const handleNhapHocPhi = (e) => {
-    const hocphi = e.target.value;
+  const handleNhapHocPhi = (value) => {
+    const hocphi = value;
     setHocPhi(hocphi);
   };
 
@@ -182,11 +182,15 @@ function ModalThemDanhSach({
                 },
               ]}
             >
-              <Input
-                type="number"
-                className="input-item"
-                placeholder="Nhập học phí (VNĐ/Học viên)"
+              <InputNumber
+                placeholder="Nhập học phí chuyên đề (VNĐ/Học viên)"
+                addonAfter="VNĐ"
+                formatter={(value) =>
+                  `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                }
+                parser={(value) => value.replace(/\$\s?|(,*)/g, "")}
                 onChange={handleNhapHocPhi}
+                style={{ width: "100%" }}
               />
             </FormItem>
           </Col>
