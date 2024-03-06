@@ -61,13 +61,15 @@ function ModalThemCauHoi({
     })
       .then((res) => {
         if (res && res.data) {
-          const data = res.data.map((dt, index) => {
-            return {
-              ...dt,
-              vptq_lms_CauHoi_Id: dt.id,
-              stt: index + 1,
-            };
-          });
+          const data = res.data
+            .filter((data) => data.isSuDung === true)
+            .map((dt, index) => {
+              return {
+                ...dt,
+                vptq_lms_CauHoi_Id: dt.id,
+                stt: index + 1,
+              };
+            });
           setListCauHoi(data);
           if (list_cauhoi.length > 0) {
             const list = data.filter((dt) =>

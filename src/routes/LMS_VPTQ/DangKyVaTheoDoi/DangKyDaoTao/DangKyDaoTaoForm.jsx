@@ -96,12 +96,14 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          const newData = res.data.map((dt) => {
-            return {
-              ...dt,
-              chuyenDe: `${dt.tenChuyenDeDaoTao} (${dt.tenHinhThucDaoTao})`,
-            };
-          });
+          const newData = res.data
+            .filter((data) => data.isSuDung === true)
+            .map((dt) => {
+              return {
+                ...dt,
+                chuyenDe: `${dt.tenChuyenDeDaoTao} (${dt.tenHinhThucDaoTao})`,
+              };
+            });
           setListChuyenDe(newData);
         } else {
           setListChuyenDe([]);

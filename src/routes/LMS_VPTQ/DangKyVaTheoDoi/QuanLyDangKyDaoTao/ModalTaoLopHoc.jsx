@@ -128,7 +128,8 @@ function ModalTaoLopHoc({ openModalFS, openModal, dataTaoLopHoc, refesh }) {
             vptq_lms_DeThi_Id: dethi && dethi.id,
           },
         });
-        setListDeThi(res.data);
+        const newData = res.data.filter((data) => data.isSuDung === true);
+        setListDeThi(newData);
       } else {
         setListDeThi([]);
       }
