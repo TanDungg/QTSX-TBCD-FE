@@ -323,6 +323,8 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
       if (playerRef.current) {
         playerRef.current.currentTime = 0;
       }
+    }else{
+      playerRef.current.currentTime = ThoiGianDaXem;
     }
   };
 
