@@ -162,7 +162,6 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
   const dataList = reDataForTable(DataBaoCao);
 
   const handleChiTiet = (item) => {
-    setActiveModalChiTiet(true);
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -186,6 +185,7 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
           setDataChiTiet(null);
           setListDataChiTiet([]);
         }
+        setActiveModalChiTiet(true);
       })
       .catch((error) => console.error(error));
   };

@@ -203,8 +203,8 @@ function CauHoi({ permission, history, match }) {
         setDataChiTiet([]);
         setListDapAn([]);
       }
+      setDisabledModalChiTiet(true);
     });
-    setDisabledModalChiTiet(true);
   };
 
   const deleteItemFunc = (item) => {

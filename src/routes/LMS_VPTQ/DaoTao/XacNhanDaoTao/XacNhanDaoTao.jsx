@@ -190,9 +190,9 @@ function XacNhanDaoTao({ match, permission, history }) {
           setDataChiTiet(null);
           setListHocVien([]);
         }
+        setActiveChiTietLopHoc(true);
       })
       .catch((error) => console.error(error));
-    setActiveChiTietLopHoc(true);
   };
 
   const actionContent = (item) => {

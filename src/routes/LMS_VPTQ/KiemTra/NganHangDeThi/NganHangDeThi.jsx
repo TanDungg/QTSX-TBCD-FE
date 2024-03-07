@@ -220,8 +220,8 @@ function NganHangDeThi({ permission, history, match }) {
         setDataChiTiet(null);
         setListCauHoi([]);
       }
+      setActiveModalChiTietDeThi(true);
     });
-    setActiveModalChiTietDeThi(true);
   };
 
   const deleteItemFunc = (item) => {

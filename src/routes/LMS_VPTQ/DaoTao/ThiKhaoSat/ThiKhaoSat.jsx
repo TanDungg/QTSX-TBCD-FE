@@ -325,22 +325,21 @@ function ThiKhaoSat({ permission, history }) {
           setDataChiTiet(null);
           setChiTiet([]);
         }
+        setActiveModalChiTiet(true);
       })
       .catch((error) => console.error(error));
-    setActiveModalChiTiet(true);
   };
 
   const actionContent = (item) => {
-    const lichsu =
-      item.hasThiLai === 1
-        ? { onClick: () => handleXemLichSu(item) }
-        : { disabled: true };
-
     const chitiet =
       item.isXemChiTiet === 1
         ? { onClick: () => handleXemChiTiet(item) }
         : { disabled: true };
 
+    const lichsu =
+      item.hasThiLai === 1
+        ? { onClick: () => handleXemLichSu(item) }
+        : { disabled: true };
     return (
       <div>
         <React.Fragment>
@@ -400,6 +399,29 @@ function ThiKhaoSat({ permission, history }) {
         })
       ),
       onFilter: (value, record) => record.tenDeThi.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: (
+        <div>
+          Thời gian
+          <br />
+          kết thúc
+        </div>
+      ),
+      dataIndex: "thoiGianKetThuc",
+      key: "thoiGianKetThuc",
+      align: "center",
+      width: 110,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.thoiGianKetThuc,
+            value: d.thoiGianKetThuc,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.thoiGianKetThuc.includes(value),
       filterSearch: true,
     },
     {
