@@ -28,6 +28,8 @@ function* signInUserWithEmailPassword({ payload }) {
     );
     if (signInUser && signInUser.data.token) {
       const maxAge = new Date(signInUser.data.expires);
+      setSessionStorage("accessRole", signInUser.data.accessRole);
+      signInUser.data.accessRole = "";
       setCookieValue("tokenInfo", signInUser.data, {
         path: "/",
         maxAge: maxAge.getTime(),

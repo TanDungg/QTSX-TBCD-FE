@@ -19,6 +19,7 @@ import {
   getLocalStorage,
   getTokenInfo,
   removeDuplicates,
+  getSessionStorage,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -38,8 +39,11 @@ function DieuChuyenVatTu({ match, history, permission }) {
   const INFO = {
     ...getLocalStorage("menu"),
     user_Id: getTokenInfo().id,
-    accessRole: JSON.parse(getTokenInfo().accessRole),
+    accessRole:
+      getSessionStorage("accessRole") &&
+      JSON.parse(getSessionStorage("accessRole")),
   };
+  console.log(INFO);
   const [ListKho, setListKho] = useState([]);
 
   const [Kho, setKho] = useState(null);
