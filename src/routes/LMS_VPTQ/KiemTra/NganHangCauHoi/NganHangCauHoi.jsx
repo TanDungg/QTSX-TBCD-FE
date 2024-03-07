@@ -150,7 +150,15 @@ function CauHoi({ permission, history, match }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListChuyenDeDaoTao(res.data);
+          const newData = res.data
+            .filter((dt) => dt.isSuDung === true)
+            .map((data) => {
+              return {
+                ...data,
+                chuyenDe: `${data.tenChuyenDeDaoTao} (${data.tenHinhThucDaoTao})`,
+              };
+            });
+          setListChuyenDeDaoTao(newData);
         } else {
           setListChuyenDeDaoTao([]);
         }
@@ -195,8 +203,8 @@ function CauHoi({ permission, history, match }) {
         setDataChiTiet([]);
         setListDapAn([]);
       }
+      setDisabledModalChiTiet(true);
     });
-    setDisabledModalChiTiet(true);
   };
 
   const deleteItemFunc = (item) => {
@@ -390,6 +398,23 @@ function CauHoi({ permission, history, match }) {
       filterSearch: true,
     },
     {
+      title: "Hình thức đào tạo",
+      dataIndex: "tenHinhThucDaoTao",
+      key: "tenHinhThucDaoTao",
+      align: "left",
+      width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenHinhThucDaoTao,
+            value: d.tenHinhThucDaoTao,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenHinhThucDaoTao.includes(value),
+      filterSearch: true,
+    },
+    {
       title: "Người lập",
       dataIndex: "nguoiTao",
       key: "nguoiTao",
@@ -562,7 +587,7 @@ function CauHoi({ permission, history, match }) {
       <Card className="th-card-margin-bottom ">
         <Row>
           <Col
-            xxl={6}
+            xxl={8}
             xl={8}
             lg={12}
             md={12}
@@ -586,7 +611,7 @@ function CauHoi({ permission, history, match }) {
             />
           </Col>
           <Col
-            xxl={6}
+            xxl={8}
             xl={8}
             lg={12}
             md={12}
@@ -599,7 +624,7 @@ function CauHoi({ permission, history, match }) {
               className="heading-select slt-search th-select-heading"
               data={ListChuyenDeDaoTao ? ListChuyenDeDaoTao : []}
               placeholder="Chọn chuyên đề đào tạo"
-              optionsvalue={["id", "tenChuyenDeDaoTao"]}
+              optionsvalue={["id", "chuyenDe"]}
               style={{ width: "100%" }}
               value={ChuyenDeDaoTao}
               showSearch
@@ -610,7 +635,7 @@ function CauHoi({ permission, history, match }) {
             />
           </Col>
           <Col
-            xxl={6}
+            xxl={8}
             xl={8}
             lg={12}
             md={12}

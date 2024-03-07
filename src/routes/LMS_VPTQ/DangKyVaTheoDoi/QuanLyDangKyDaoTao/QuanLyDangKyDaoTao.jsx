@@ -103,7 +103,13 @@ function QuanLyDangKyDaoTao({ history, permission, match }) {
       );
     }).then((res) => {
       if (res && res.data.length) {
-        setListChuyenDe(res.data);
+        const newData = res.data.map((data) => {
+          return {
+            ...data,
+            chuyenDe: `${data.tenChuyenDeDaoTao} (${data.tenHinhThucDaoTao})`,
+          };
+        });
+        setListChuyenDe(newData);
         setChuyenDe(res.data[0].vptq_lms_ChuyenDeDaoTao_Id);
         getListData(
           res.data[0].vptq_lms_ChuyenDeDaoTao_Id,
@@ -392,7 +398,7 @@ function QuanLyDangKyDaoTao({ history, permission, match }) {
       <Card className="th-card-margin-bottom ">
         <Row>
           <Col
-            xxl={6}
+            xxl={8}
             xl={8}
             lg={12}
             md={12}
@@ -405,7 +411,7 @@ function QuanLyDangKyDaoTao({ history, permission, match }) {
               className="heading-select slt-search th-select-heading"
               data={ListChuyenDe ? ListChuyenDe : []}
               placeholder="Chọn chuyên đề"
-              optionsvalue={["vptq_lms_ChuyenDeDaoTao_Id", "tenChuyenDeDaoTao"]}
+              optionsvalue={["vptq_lms_ChuyenDeDaoTao_Id", "chuyenDe"]}
               style={{ width: "100%" }}
               value={ChuyenDe}
               showSearch

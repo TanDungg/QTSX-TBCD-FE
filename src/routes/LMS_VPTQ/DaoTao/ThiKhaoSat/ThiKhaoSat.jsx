@@ -161,7 +161,13 @@ function ThiKhaoSat({ permission, history }) {
       .then((res) => {
         if (res && res.data) {
           setListKienThuc(res.data.list_KienThucs);
-          setListChuyenDeDaoTao(res.data.list_ChuyenDeDaoTaos);
+          const newData = res.data.list_ChuyenDeDaoTaos.map((data) => {
+            return {
+              ...data,
+              chuyenDe: `${data.tenChuyenDeDaoTao} (${data.tenHinhThucDaoTao})`,
+            };
+          });
+          setListChuyenDeDaoTao(newData);
           setListLopHoc(res.data.list_LopHocs);
         } else {
           setListKienThuc([]);
@@ -319,22 +325,21 @@ function ThiKhaoSat({ permission, history }) {
           setDataChiTiet(null);
           setChiTiet([]);
         }
+        setActiveModalChiTiet(true);
       })
       .catch((error) => console.error(error));
-    setActiveModalChiTiet(true);
   };
 
   const actionContent = (item) => {
-    const lichsu =
-      item.hasThiLai === 1
-        ? { onClick: () => handleXemLichSu(item) }
-        : { disabled: true };
-
     const chitiet =
       item.isXemChiTiet === 1
         ? { onClick: () => handleXemChiTiet(item) }
         : { disabled: true };
 
+    const lichsu =
+      item.hasThiLai === 1
+        ? { onClick: () => handleXemLichSu(item) }
+        : { disabled: true };
     return (
       <div>
         <React.Fragment>
@@ -394,6 +399,29 @@ function ThiKhaoSat({ permission, history }) {
         })
       ),
       onFilter: (value, record) => record.tenDeThi.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: (
+        <div>
+          Thời gian
+          <br />
+          kết thúc
+        </div>
+      ),
+      dataIndex: "thoiGianKetThuc",
+      key: "thoiGianKetThuc",
+      align: "center",
+      width: 110,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.thoiGianKetThuc,
+            value: d.thoiGianKetThuc,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.thoiGianKetThuc.includes(value),
       filterSearch: true,
     },
     {
@@ -757,7 +785,7 @@ function ThiKhaoSat({ permission, history }) {
               className="heading-select slt-search th-select-heading"
               data={ListChuyenDeDaoTao ? ListChuyenDeDaoTao : []}
               placeholder="Chọn chuyên đề đào tạo"
-              optionsvalue={["vptq_lms_ChuyenDeDaoTao_Id", "tenChuyenDeDaoTao"]}
+              optionsvalue={["vptq_lms_ChuyenDeDaoTao_Id", "chuyenDe"]}
               style={{ width: "100%" }}
               value={ChuyenDeDaoTao}
               showSearch

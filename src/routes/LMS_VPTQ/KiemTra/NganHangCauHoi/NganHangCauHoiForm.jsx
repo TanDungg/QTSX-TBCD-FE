@@ -118,7 +118,15 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListChuyenDeDaoTao(res.data);
+          const newData = res.data
+            .filter((dt) => dt.isSuDung === true)
+            .map((data) => {
+              return {
+                ...data,
+                chuyenDe: `${data.tenChuyenDeDaoTao} (${data.tenHinhThucDaoTao})`,
+              };
+            });
+          setListChuyenDeDaoTao(newData);
         } else {
           setListChuyenDeDaoTao([]);
         }
@@ -727,7 +735,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
                     className="heading-select slt-search th-select-heading"
                     data={ListChuyenDeDaoTao ? ListChuyenDeDaoTao : []}
                     placeholder="Chọn chuyên đề đào tạo"
-                    optionsvalue={["id", "tenChuyenDeDaoTao"]}
+                    optionsvalue={["id", "chuyenDe"]}
                     style={{ width: "100%" }}
                     optionFilterProp="name"
                     showSearch

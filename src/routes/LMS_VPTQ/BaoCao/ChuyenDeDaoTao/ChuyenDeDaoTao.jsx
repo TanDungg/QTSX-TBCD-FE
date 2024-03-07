@@ -134,7 +134,13 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
           const data = res.data && res.data;
           const chuyendedaotao =
             data.list_ChuyenDes && JSON.parse(data.list_ChuyenDes);
-          setListChuyenDeDaoTao(chuyendedaotao);
+          const newData = chuyendedaotao.map((data) => {
+            return {
+              ...data,
+              chuyenDe: `${data.tenChuyenDeDaoTao} (${data.tenHinhThucDaoTao})`,
+            };
+          });
+          setListChuyenDeDaoTao(newData);
 
           const lophoc =
             data.list_LopHocs &&
@@ -156,7 +162,6 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
   const dataList = reDataForTable(DataBaoCao);
 
   const handleChiTiet = (item) => {
-    setActiveModalChiTiet(true);
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -180,6 +185,7 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
           setDataChiTiet(null);
           setListDataChiTiet([]);
         }
+        setActiveModalChiTiet(true);
       })
       .catch((error) => console.error(error));
   };
@@ -703,7 +709,7 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListChuyenDeDaoTao ? ListChuyenDeDaoTao : []}
               placeholder="Chọn chuyên đề đào tạo"
-              optionsvalue={["vptq_lms_ChuyenDeDaoTao_Id", "tenChuyenDeDaoTao"]}
+              optionsvalue={["vptq_lms_ChuyenDeDaoTao_Id", "chuyenDe"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"

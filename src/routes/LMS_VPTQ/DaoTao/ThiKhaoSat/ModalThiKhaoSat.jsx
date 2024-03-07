@@ -1024,37 +1024,43 @@ function ModalThiKhaoSat({
                                             ans.vptq_lms_ThiTrucTuyenChiTietDapAn_Id
                                           }
                                           disabled
-                                          className="title-span"
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                          }}
                                         >
-                                          <span
-                                            style={{
-                                              fontWeight: "bold",
-                                              color:
-                                                ans.isChon && ketqua.isCorrect
-                                                  ? "#0469b9"
-                                                  : ans.isChon &&
-                                                    !ketqua.isCorrect
-                                                  ? "red"
-                                                  : "",
-                                            }}
-                                          >
-                                            {String.fromCharCode(65 + index)}.
-                                          </span>
-                                          <span
-                                            style={{
-                                              whiteSpace: "break-spaces",
-                                              fontWeight: ans.isChon && "bold",
-                                              color:
-                                                ans.isChon && ketqua.isCorrect
-                                                  ? "#0469b9"
-                                                  : ans.isChon &&
-                                                    !ketqua.isCorrect
-                                                  ? "red"
-                                                  : "",
-                                            }}
-                                          >
-                                            {ans.dapAn}
-                                          </span>
+                                          <div className="title-span">
+                                            <span
+                                              style={{
+                                                fontWeight: "bold",
+                                                color:
+                                                  ans.isChon && ketqua.isCorrect
+                                                    ? "#0469b9"
+                                                    : ans.isChon &&
+                                                      !ketqua.isCorrect
+                                                    ? "red"
+                                                    : "",
+                                              }}
+                                            >
+                                              {String.fromCharCode(65 + index)}.
+                                            </span>
+                                            <span
+                                              style={{
+                                                whiteSpace: "break-spaces",
+                                                fontWeight:
+                                                  ans.isChon && "bold",
+                                                color:
+                                                  ans.isChon && ketqua.isCorrect
+                                                    ? "#0469b9"
+                                                    : ans.isChon &&
+                                                      !ketqua.isCorrect
+                                                    ? "red"
+                                                    : "",
+                                              }}
+                                            >
+                                              {ans.dapAn}
+                                            </span>
+                                          </div>
                                         </Radio>
                                       </Col>
                                     );

@@ -17,7 +17,7 @@ import { BASE_URL_API } from "src/constants/Config";
 const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
-function TienTrinhHocTap({ permission, history }) {
+function TienTrinhHocTap({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const INFO = {
@@ -163,6 +163,12 @@ function TienTrinhHocTap({ permission, history }) {
       .catch((error) => console.error(error));
   };
 
+  const handleHocTrucTuyen = (item) => {
+    history.push({
+      pathname: `hoc-truc-tuyen/${item.vptq_lms_ChuyenDeDaoTao_Id}/chi-tiet`,
+    });
+  };
+
   let dataList = reDataForTable(Data.list_ChiTiets);
 
   let colValues = [
@@ -209,6 +215,24 @@ function TienTrinhHocTap({ permission, history }) {
       ),
       onFilter: (value, record) => record.tenChuyenDeDaoTao.includes(value),
       filterSearch: true,
+      render: (value, record) => {
+        return record.isDangHocOnline ? (
+          <span
+            style={{
+              color: "#0469b9",
+              cursor: "pointer",
+              fontWeight: "bold",
+            }}
+            onClick={() => {
+              handleHocTrucTuyen(record);
+            }}
+          >
+            {value}
+          </span>
+        ) : (
+          <span>{value}</span>
+        );
+      },
     },
     {
       title: "Tên lớp học",

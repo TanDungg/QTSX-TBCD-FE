@@ -144,7 +144,13 @@ function XacNhanDaoTao({ match, permission, history }) {
       .then((res) => {
         if (res && res.data) {
           setListKienThuc(res.data.list_KienThucs);
-          setListChuyenDeDaoTao(res.data.list_ChuyenDeDaoTaos);
+          const newData = res.data.list_ChuyenDeDaoTaos.map((data) => {
+            return {
+              ...data,
+              chuyenDe: `${data.tenChuyenDeDaoTao} (${data.tenHinhThucDaoTao})`,
+            };
+          });
+          setListChuyenDeDaoTao(newData);
           setListLopHoc(res.data.list_LopHocs);
         } else {
           setListKienThuc([]);
@@ -184,9 +190,9 @@ function XacNhanDaoTao({ match, permission, history }) {
           setDataChiTiet(null);
           setListHocVien([]);
         }
+        setActiveChiTietLopHoc(true);
       })
       .catch((error) => console.error(error));
-    setActiveChiTietLopHoc(true);
   };
 
   const actionContent = (item) => {
@@ -762,7 +768,7 @@ function XacNhanDaoTao({ match, permission, history }) {
               className="heading-select slt-search th-select-heading"
               data={ListChuyenDeDaoTao ? ListChuyenDeDaoTao : []}
               placeholder="Chọn chuyên đề đào tạo"
-              optionsvalue={["vptq_lms_ChuyenDeDaoTao_Id", "tenChuyenDeDaoTao"]}
+              optionsvalue={["vptq_lms_ChuyenDeDaoTao_Id", "chuyenDe"]}
               style={{ width: "100%" }}
               value={ChuyenDeDaoTao}
               showSearch

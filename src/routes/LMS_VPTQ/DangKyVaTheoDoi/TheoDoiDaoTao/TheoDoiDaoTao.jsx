@@ -112,7 +112,14 @@ function TheoDoiDaoTao({ history, permission, match }) {
       );
     }).then((res) => {
       if (res && res.data.length) {
-        const newData = res.data.filter((dt) => dt.isSuDung === true);
+        const newData = res.data
+          .filter((dt) => dt.isSuDung === true)
+          .map((data) => {
+            return {
+              ...data,
+              chuyenDe: `${data.tenChuyenDeDaoTao} (${data.tenHinhThucDaoTao})`,
+            };
+          });
         setListChuyenDe(newData);
       } else {
         setData([]);
@@ -564,7 +571,7 @@ function TheoDoiDaoTao({ history, permission, match }) {
               className="heading-select slt-search th-select-heading"
               data={ListChuyenDe ? ListChuyenDe : []}
               placeholder="Chọn chuyên đề"
-              optionsvalue={["id", "tenChuyenDeDaoTao"]}
+              optionsvalue={["id", "chuyenDe"]}
               style={{ width: "100%" }}
               value={ChuyenDe}
               showSearch
