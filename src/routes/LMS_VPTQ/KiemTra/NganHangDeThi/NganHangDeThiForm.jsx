@@ -91,7 +91,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
             .filter(
               (data) =>
                 data.vptq_lms_HinhThucDaoTao_Id.toLowerCase() !==
-                HINHTHUCDAOTAO_TUHOC
+                  HINHTHUCDAOTAO_TUHOC && data.isSuDung === true
             )
             .map((dt) => {
               return {

@@ -26,6 +26,8 @@ import {
   HINHTHUCDAOTAO_ONLINE,
   DEFAULT_FORM_ADD_170PX,
   HINHTHUCDAOTAO_TUHOC,
+  HINHTHUCDAOTAO_TAPTRUNG,
+  HINHTHUCDAOTAO_NOIBO,
 } from "src/constants/Config";
 import Helpers from "src/helpers";
 import { getLocalStorage, getTokenInfo } from "src/util/Common";
@@ -256,7 +258,46 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
 
   const uploadFile = (formchuyendedaotao, saveQuit) => {
     if (type === "new") {
-      if (HinhThucDaoTao === HINHTHUCDAOTAO_TUHOC) {
+      if (HinhThucDaoTao === HINHTHUCDAOTAO_ONLINE) {
+        if (!formchuyendedaotao.fileVideo) {
+          Helpers.alertError("Vui lòng tải file video lên!");
+        } else if (!formchuyendedaotao.fileTaiLieu) {
+          Helpers.alertError("Vui lòng tải file tài liệu lên!");
+        } else {
+          const formData = new FormData();
+          formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
+          formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
+
+          const xhr = new XMLHttpRequest();
+
+          xhr.open("POST", `${BASE_URL_API}/api/Upload/Multi`, true);
+
+          xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+              const progress = (event.loaded / event.total) * 100;
+              setLoading(progress);
+            }
+          };
+
+          xhr.onload = () => {
+            if (xhr.status === 200) {
+              const data = JSON.parse(xhr.responseText);
+              formchuyendedaotao.fileTaiLieu = data[0].path;
+              formchuyendedaotao.fileVideo = data[1].path;
+              saveData(formchuyendedaotao, saveQuit);
+            } else {
+              Helpers.alertError("Tải file không thành công.");
+            }
+          };
+
+          xhr.onerror = () => {
+            Helpers.alertError("Tải file không thành công.");
+          };
+
+          xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
+          xhr.send(formData);
+        }
+      } else {
         if (!formchuyendedaotao.fileTaiLieu && !formchuyendedaotao.fileVideo) {
           saveData(formchuyendedaotao, saveQuit);
         } else if (
@@ -331,226 +372,9 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
           xhr.send(formData);
         }
-      } else if (HinhThucDaoTao === HINHTHUCDAOTAO_ONLINE) {
-        if (!formchuyendedaotao.fileVideo) {
-          Helpers.alertError("Vui lòng tải file video lên.");
-        } else if (!formchuyendedaotao.fileTaiLieu) {
-          const formData = new FormData();
-          formData.append("file", formchuyendedaotao.fileVideo.file);
-
-          const xhr = new XMLHttpRequest();
-
-          xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
-
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const progress = (event.loaded / event.total) * 100;
-              setLoading(progress);
-            }
-          };
-
-          xhr.onload = () => {
-            if (xhr.status === 200) {
-              const data = JSON.parse(xhr.responseText);
-              formchuyendedaotao.fileVideo = data.path;
-              saveData(formchuyendedaotao, saveQuit);
-            } else {
-              Helpers.alertError("Tải file không thành công.");
-            }
-          };
-
-          xhr.onerror = () => {
-            Helpers.alertError("Tải file không thành công.");
-          };
-
-          xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-          xhr.send(formData);
-        } else {
-          const formData = new FormData();
-          formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
-          formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
-
-          const xhr = new XMLHttpRequest();
-
-          xhr.open("POST", `${BASE_URL_API}/api/Upload/Multi`, true);
-
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const progress = (event.loaded / event.total) * 100;
-              setLoading(progress);
-            }
-          };
-
-          xhr.onload = () => {
-            if (xhr.status === 200) {
-              const data = JSON.parse(xhr.responseText);
-              formchuyendedaotao.fileTaiLieu = data[0].path;
-              formchuyendedaotao.fileVideo = data[1].path;
-              saveData(formchuyendedaotao, saveQuit);
-            } else {
-              Helpers.alertError("Tải file không thành công.");
-            }
-          };
-
-          xhr.onerror = () => {
-            Helpers.alertError("Tải file không thành công.");
-          };
-
-          xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-          xhr.send(formData);
-        }
-      } else {
-        if (!formchuyendedaotao.fileTaiLieu) {
-          Helpers.alertError("Vui lòng tải file tài liệu lên.");
-        } else if (!formchuyendedaotao.fileVideo) {
-          const formData = new FormData();
-          formData.append("file", formchuyendedaotao.fileTaiLieu.file);
-
-          const xhr = new XMLHttpRequest();
-
-          xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
-
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const progress = (event.loaded / event.total) * 100;
-              setLoading(progress);
-            }
-          };
-
-          xhr.onload = () => {
-            if (xhr.status === 200) {
-              const data = JSON.parse(xhr.responseText);
-              formchuyendedaotao.fileTaiLieu = data.path;
-              saveData(formchuyendedaotao, saveQuit);
-            } else {
-              Helpers.alertError("Tải file không thành công.");
-            }
-          };
-
-          xhr.onerror = () => {
-            Helpers.alertError("Tải file không thành công.");
-          };
-
-          xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-          xhr.send(formData);
-        } else {
-          const formData = new FormData();
-          formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
-          formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
-
-          const xhr = new XMLHttpRequest();
-
-          xhr.open("POST", `${BASE_URL_API}/api/Upload/Multi`, true);
-
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const progress = (event.loaded / event.total) * 100;
-              setLoading(progress);
-            }
-          };
-
-          xhr.onload = () => {
-            if (xhr.status === 200) {
-              const data = JSON.parse(xhr.responseText);
-              formchuyendedaotao.fileTaiLieu = data[0].path;
-              formchuyendedaotao.fileVideo = data[1].path;
-              saveData(formchuyendedaotao, saveQuit);
-            } else {
-              Helpers.alertError("Tải file không thành công.");
-            }
-          };
-
-          xhr.onerror = () => {
-            Helpers.alertError("Tải file không thành công.");
-          };
-
-          xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-          xhr.send(formData);
-        }
       }
     } else {
-      if (HinhThucDaoTao === HINHTHUCDAOTAO_TUHOC) {
-        if (
-          (!formchuyendedaotao.fileTaiLieu && !formchuyendedaotao.fileVideo) ||
-          (formchuyendedaotao.fileTaiLieu &&
-            !formchuyendedaotao.fileTaiLieu.file) ||
-          (formchuyendedaotao.fileVideo && !formchuyendedaotao.fileVideo.file)
-        ) {
-          saveData(formchuyendedaotao, saveQuit);
-        } else if (
-          (formchuyendedaotao.fileTaiLieu &&
-            formchuyendedaotao.fileTaiLieu.file) ||
-          (formchuyendedaotao.fileVideo && formchuyendedaotao.fileVideo.file)
-        ) {
-          const formData = new FormData();
-          formchuyendedaotao.fileTaiLieu && formchuyendedaotao.fileTaiLieu.file
-            ? formData.append("file", formchuyendedaotao.fileTaiLieu.file)
-            : formData.append("file", formchuyendedaotao.fileVideo.file);
-
-          const xhr = new XMLHttpRequest();
-
-          xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
-
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const progress = (event.loaded / event.total) * 100;
-              setLoading(progress);
-            }
-          };
-
-          xhr.onload = () => {
-            if (xhr.status === 200) {
-              const data = JSON.parse(xhr.responseText);
-              formchuyendedaotao.fileTaiLieu
-                ? (formchuyendedaotao.fileTaiLieu = data.path)
-                : (formchuyendedaotao.fileVideo = data.path);
-              saveData(formchuyendedaotao, saveQuit);
-            } else {
-              Helpers.alertError("Tải file không thành công.");
-            }
-          };
-
-          xhr.onerror = () => {
-            Helpers.alertError("Tải file không thành công.");
-          };
-
-          xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-          xhr.send(formData);
-        } else {
-          const formData = new FormData();
-          formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
-          formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
-
-          const xhr = new XMLHttpRequest();
-
-          xhr.open("POST", `${BASE_URL_API}/api/Upload/Multi`, true);
-
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const progress = (event.loaded / event.total) * 100;
-              setLoading(progress);
-            }
-          };
-
-          xhr.onload = () => {
-            if (xhr.status === 200) {
-              const data = JSON.parse(xhr.responseText);
-              formchuyendedaotao.fileTaiLieu = data[0].path;
-              formchuyendedaotao.fileVideo = data[1].path;
-              saveData(formchuyendedaotao, saveQuit);
-            } else {
-              Helpers.alertError("Tải file không thành công.");
-            }
-          };
-
-          xhr.onerror = () => {
-            Helpers.alertError("Tải file không thành công.");
-          };
-
-          xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-          xhr.send(formData);
-        }
-      } else if (HinhThucDaoTao === HINHTHUCDAOTAO_ONLINE) {
+      if (HinhThucDaoTao === HINHTHUCDAOTAO_ONLINE) {
         if (!formchuyendedaotao.fileVideo) {
           Helpers.alertError("Vui lòng tải file video lên.");
         } else if (
@@ -666,125 +490,97 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           }
         }
       } else {
-        if (!formchuyendedaotao.fileTaiLieu) {
-          Helpers.alertError("Vui lòng tải file tài liệu lên.");
-        } else if (
-          formchuyendedaotao.fileTaiLieu &&
-          formchuyendedaotao.fileTaiLieu.file
+        if (
+          (!formchuyendedaotao.fileTaiLieu && !formchuyendedaotao.fileVideo) ||
+          (formchuyendedaotao.fileTaiLieu &&
+            !formchuyendedaotao.fileTaiLieu.file) ||
+          (formchuyendedaotao.fileVideo && !formchuyendedaotao.fileVideo.file)
         ) {
-          if (
-            !formchuyendedaotao.fileVideo ||
-            (formchuyendedaotao.fileVideo && !formchuyendedaotao.fileVideo.file)
-          ) {
-            const formData = new FormData();
-            formData.append("file", formchuyendedaotao.fileTaiLieu.file);
+          saveData(formchuyendedaotao, saveQuit);
+        } else if (
+          (formchuyendedaotao.fileTaiLieu &&
+            formchuyendedaotao.fileTaiLieu.file) ||
+          (formchuyendedaotao.fileVideo && formchuyendedaotao.fileVideo.file)
+        ) {
+          const formData = new FormData();
+          formchuyendedaotao.fileTaiLieu && formchuyendedaotao.fileTaiLieu.file
+            ? formData.append("file", formchuyendedaotao.fileTaiLieu.file)
+            : formData.append("file", formchuyendedaotao.fileVideo.file);
 
-            const xhr = new XMLHttpRequest();
+          const xhr = new XMLHttpRequest();
 
-            xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
+          xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
 
-            xhr.upload.onprogress = (event) => {
-              if (event.lengthComputable) {
-                const progress = (event.loaded / event.total) * 100;
-                setLoading(progress);
-              }
-            };
+          xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+              const progress = (event.loaded / event.total) * 100;
+              setLoading(progress);
+            }
+          };
 
-            xhr.onload = () => {
-              if (xhr.status === 200) {
-                const data = JSON.parse(xhr.responseText);
-                formchuyendedaotao.fileVideo = data.path;
-                saveData(formchuyendedaotao, saveQuit);
-              } else {
-                Helpers.alertError("Tải file không thành công.");
-              }
-            };
-
-            xhr.onerror = () => {
+          xhr.onload = () => {
+            if (xhr.status === 200) {
+              const data = JSON.parse(xhr.responseText);
+              formchuyendedaotao.fileTaiLieu
+                ? (formchuyendedaotao.fileTaiLieu = data.path)
+                : (formchuyendedaotao.fileVideo = data.path);
+              saveData(formchuyendedaotao, saveQuit);
+            } else {
               Helpers.alertError("Tải file không thành công.");
-            };
+            }
+          };
 
-            xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-            xhr.send(formData);
-          } else {
-            const formData = new FormData();
-            formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
-            formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
+          xhr.onerror = () => {
+            Helpers.alertError("Tải file không thành công.");
+          };
 
-            const xhr = new XMLHttpRequest();
-
-            xhr.open("POST", `${BASE_URL_API}/api/Upload/Multi`, true);
-
-            xhr.upload.onprogress = (event) => {
-              if (event.lengthComputable) {
-                const progress = (event.loaded / event.total) * 100;
-                setLoading(progress);
-              }
-            };
-
-            xhr.onload = () => {
-              if (xhr.status === 200) {
-                const data = JSON.parse(xhr.responseText);
-                formchuyendedaotao.fileTaiLieu = data[0].path;
-                formchuyendedaotao.fileVideo = data[1].path;
-                saveData(formchuyendedaotao, saveQuit);
-              } else {
-                Helpers.alertError("Tải file không thành công.");
-              }
-            };
-
-            xhr.onerror = () => {
-              Helpers.alertError("Tải file không thành công.");
-            };
-
-            xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-            xhr.send(formData);
-          }
+          xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
+          xhr.send(formData);
         } else {
-          if (
-            formchuyendedaotao.fileVideo &&
-            formchuyendedaotao.fileVideo.file
-          ) {
-            const formData = new FormData();
-            formData.append("file", formchuyendedaotao.fileVideo.file);
+          const formData = new FormData();
+          formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
+          formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
 
-            const xhr = new XMLHttpRequest();
+          const xhr = new XMLHttpRequest();
 
-            xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
+          xhr.open("POST", `${BASE_URL_API}/api/Upload/Multi`, true);
 
-            xhr.upload.onprogress = (event) => {
-              if (event.lengthComputable) {
-                const progress = (event.loaded / event.total) * 100;
-                setLoading(progress);
-              }
-            };
+          xhr.upload.onprogress = (event) => {
+            if (event.lengthComputable) {
+              const progress = (event.loaded / event.total) * 100;
+              setLoading(progress);
+            }
+          };
 
-            xhr.onload = () => {
-              if (xhr.status === 200) {
-                const data = JSON.parse(xhr.responseText);
-                formchuyendedaotao.fileVideo = data.path;
-                saveData(formchuyendedaotao, saveQuit);
-              } else {
-                Helpers.alertError("Tải file không thành công.");
-              }
-            };
-
-            xhr.onerror = () => {
+          xhr.onload = () => {
+            if (xhr.status === 200) {
+              const data = JSON.parse(xhr.responseText);
+              formchuyendedaotao.fileTaiLieu = data[0].path;
+              formchuyendedaotao.fileVideo = data[1].path;
+              saveData(formchuyendedaotao, saveQuit);
+            } else {
               Helpers.alertError("Tải file không thành công.");
-            };
+            }
+          };
 
-            xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-            xhr.send(formData);
-          } else {
-            saveData(formchuyendedaotao, saveQuit);
-          }
+          xhr.onerror = () => {
+            Helpers.alertError("Tải file không thành công.");
+          };
+
+          xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
+          xhr.send(formData);
         }
       }
     }
   };
 
   const saveData = (formchuyendedaotao, saveQuit = false) => {
-    if (formchuyendedaotao.anhDaiDienChuyenDe) {
+    if (
+      !formchuyendedaotao.anhDaiDienChuyenDe &&
+      formchuyendedaotao.vptq_lms_HinhThucDaoTao_Id === HINHTHUCDAOTAO_ONLINE
+    ) {
+      Helpers.alertError("Vui lòng tải hình ảnh đại diện của chuyên đề lên!");
+    } else {
       if (type === "new") {
         const newData = {
           ...formchuyendedaotao,
@@ -866,8 +662,6 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           })
           .catch((error) => console.error(error));
       }
-    } else {
-      Helpers.alertError("Vui lòng tải hình ảnh đại diện của chuyên đề lên!");
     }
   };
 
@@ -1069,9 +863,13 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                 {
                   type: "string",
                   required:
-                    HinhThucDaoTao && HinhThucDaoTao === HINHTHUCDAOTAO_TUHOC
-                      ? false
-                      : true,
+                    (HinhThucDaoTao &&
+                      HinhThucDaoTao === HINHTHUCDAOTAO_ONLINE) ||
+                    (HinhThucDaoTao &&
+                      HinhThucDaoTao === HINHTHUCDAOTAO_TAPTRUNG) ||
+                    (HinhThucDaoTao && HinhThucDaoTao === HINHTHUCDAOTAO_NOIBO)
+                      ? true
+                      : false,
                 },
               ]}
             >
@@ -1190,9 +988,9 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                 {
                   type: "file",
                   required:
-                    HinhThucDaoTao && HinhThucDaoTao === HINHTHUCDAOTAO_TUHOC
-                      ? false
-                      : true,
+                    HinhThucDaoTao && HinhThucDaoTao === HINHTHUCDAOTAO_ONLINE
+                      ? true
+                      : false,
                 },
               ]}
             >

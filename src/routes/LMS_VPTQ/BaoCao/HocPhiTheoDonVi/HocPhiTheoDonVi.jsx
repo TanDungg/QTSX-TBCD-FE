@@ -126,7 +126,13 @@ function BaoCaoHocPhiTheoDonVi({ history, permission }) {
 
           const chuyendedaotao =
             data.list_ChuyenDes && JSON.parse(data.list_ChuyenDes);
-          setListChuyenDeDaoTao(chuyendedaotao);
+          const newData = chuyendedaotao.map((data) => {
+            return {
+              ...data,
+              chuyenDe: `${data.tenChuyenDeDaoTao} (${data.tenHinhThucDaoTao})`,
+            };
+          });
+          setListChuyenDeDaoTao(newData);
         } else {
           setListDonVi([]);
           setListChuyenDeDaoTao([]);
@@ -158,7 +164,6 @@ function BaoCaoHocPhiTheoDonVi({ history, permission }) {
 
   const actionContent = (item) => {
     const detailItem = { onClick: () => handleChiTiet(item) };
-
 
     return item.key === "Tổng" ? (
       <span>{item.key}</span>
@@ -567,7 +572,7 @@ function BaoCaoHocPhiTheoDonVi({ history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListChuyenDeDaoTao ? ListChuyenDeDaoTao : []}
               placeholder="Chọn chuyên đề đào tạo"
-              optionsvalue={["vptq_lms_ChuyenDeDaoTao_Id", "tenChuyenDeDaoTao"]}
+              optionsvalue={["vptq_lms_ChuyenDeDaoTao_Id", "chuyenDe"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"

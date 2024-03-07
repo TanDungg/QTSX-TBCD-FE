@@ -113,7 +113,13 @@ function BaoCaoHocPhiTheoChuyenDe({ history, permission }) {
       .then((res) => {
         if (res && res.status !== 409) {
           const data = res.data && res.data;
-          setListChuyenDeDaoTao(data);
+          const newData = data.map((dt) => {
+            return {
+              ...dt,
+              chuyenDe: `${dt.tenChuyenDeDaoTao} (${dt.tenHinhThucDaoTao})`,
+            };
+          });
+          setListChuyenDeDaoTao(newData);
         } else {
           setListChuyenDeDaoTao([]);
         }
@@ -370,7 +376,7 @@ function BaoCaoHocPhiTheoChuyenDe({ history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Row>
           <Col
-            xxl={6}
+            xxl={8}
             xl={8}
             lg={12}
             md={12}
@@ -385,7 +391,7 @@ function BaoCaoHocPhiTheoChuyenDe({ history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListChuyenDeDaoTao ? ListChuyenDeDaoTao : []}
               placeholder="Chọn chuyên đề đào tạo"
-              optionsvalue={["vptq_lms_ChuyenDeDaoTao_Id", "tenChuyenDeDaoTao"]}
+              optionsvalue={["vptq_lms_ChuyenDeDaoTao_Id", "chuyenDe"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"

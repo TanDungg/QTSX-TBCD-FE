@@ -104,11 +104,6 @@ td.summary-cell {
   text-align: center;
 }
 
-.total-row {
-  /* color: #000; */
-  font-weight: bold;
-}
-
 .ant-modal-mask,
 .ant-image-preview-mask {
   position: fixed;

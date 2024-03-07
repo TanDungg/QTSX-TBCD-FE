@@ -107,7 +107,15 @@ function LopHoc({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListChuyenDe(res.data);
+          const newData = res.data
+            .filter((dt) => dt.isSuDung === true)
+            .map((data) => {
+              return {
+                ...data,
+                chuyenDe: `${data.tenChuyenDeDaoTao} (${data.tenHinhThucDaoTao})`,
+              };
+            });
+          setListChuyenDe(newData);
         } else {
           setListChuyenDe([]);
         }
@@ -584,7 +592,7 @@ function LopHoc({ match, history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListChuyenDe ? ListChuyenDe : []}
               placeholder="Chọn chuyên đề đào tạo"
-              optionsvalue={["id", "tenChuyenDeDaoTao"]}
+              optionsvalue={["id", "chuyenDe"]}
               style={{ width: "100%" }}
               value={ChuyenDe}
               showSearch
