@@ -68,8 +68,10 @@ const PhongBanForm = ({ history, match, permission }) => {
       );
     })
       .then((res) => {
-        if (res && res.data) {
+        if (res && res.status === 200) {
           setDonViSelect(res.data);
+        } else {
+          setDonViSelect([]);
         }
       })
       .catch((error) => console.error(error));
@@ -87,8 +89,17 @@ const PhongBanForm = ({ history, match, permission }) => {
       );
     })
       .then((res) => {
-        if (res && res.data) {
-          setPhongBanTree(res.data);
+        if (res && res.status === 200) {
+          setPhongBanTree(
+            res.data.map((dt) => {
+              return {
+                ...dt,
+                name: dt.tenPhongBan + " - " + dt.tenDonVi,
+              };
+            })
+          );
+        } else {
+          setDonViSelect([]);
         }
       })
       .catch((error) => console.error(error));
@@ -263,13 +274,14 @@ const PhongBanForm = ({ history, match, permission }) => {
             ]}
             initialValue={phongBan_Id}
           >
-            <TreeSelect
-              className="tree-select-item"
-              datatreeselect={PhongBanTree ? PhongBanTree : []}
-              name="menu"
-              options={["id", "tenDonVi", "children"]}
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={PhongBanTree ? PhongBanTree : []}
               placeholder="Ban/Phòng cha"
+              optionsvalue={["id", "name"]}
               style={{ width: "100%" }}
+              optionFilterProp="name"
+              showSearch
             />
           </FormItem>
           <FormItem
