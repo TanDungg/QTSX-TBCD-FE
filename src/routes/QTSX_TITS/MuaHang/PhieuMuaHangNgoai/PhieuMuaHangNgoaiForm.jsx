@@ -193,7 +193,13 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserKy(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            nguoiDuyet: `${dt.maNhanVien} - ${dt.fullName}`,
+          };
+        });
+        setListUserKy(newData);
       } else {
         setListUserKy([]);
       }
@@ -1107,7 +1113,6 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-
             <Col
               xxl={12}
               xl={12}
@@ -1168,7 +1173,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn người nhận"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "nguoiDuyet"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1199,7 +1204,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn người kiểm tra"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "nguoiDuyet"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1230,7 +1235,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn kế toán duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "nguoiDuyet"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1261,7 +1266,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn người duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "nguoiDuyet"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1404,7 +1409,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                       className="heading-select slt-search th-select-heading"
                       data={ListUserKy}
                       placeholder="Chọn người thu mua"
-                      optionsvalue={["user_Id", "fullName"]}
+                      optionsvalue={["user_Id", "nguoiDuyet"]}
                       style={{ width: "100%" }}
                       showSearch
                       optionFilterProp="name"

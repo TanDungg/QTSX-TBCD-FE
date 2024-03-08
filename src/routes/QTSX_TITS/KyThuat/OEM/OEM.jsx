@@ -561,7 +561,7 @@ function OEM({ match, history, permission }) {
           scroll={{ x: 1200, y: "70vh" }}
           columns={columns}
           components={components}
-          className="gx-table-responsive"
+          className="gx-table-responsive th-table"
           dataSource={dataList}
           size="small"
           rowClassName={(record) => {

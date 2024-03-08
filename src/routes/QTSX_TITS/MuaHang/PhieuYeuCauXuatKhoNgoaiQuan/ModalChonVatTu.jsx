@@ -8,6 +8,7 @@ import {
   Col,
   Card,
   DatePicker,
+  Divider,
 } from "antd";
 import { map } from "lodash";
 import moment from "moment";
@@ -43,7 +44,6 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
 
   useEffect(() => {
     if (openModal) {
-      getListVatTu();
       setFieldsValue({
         themvattu: {
           ngayHoanThanh: moment(getDateNow(), "DD/MM/YYYY"),
@@ -56,11 +56,13 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
-  const getListVatTu = () => {
+  const getListVatTu = (isChiTiet) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_VatTu?page=-1`,
+          isChiTiet === "0"
+            ? `tits_qtsx_PhieuYeuCauXuatKhoNgoaiQuan/list-vat-tu-xuat-kho-ngoai-quan`
+            : `tits_qtsx_PhieuYeuCauXuatKhoNgoaiQuan/list-chi-tiet-xuat-kho-ngoai-quan`,
           "GET",
           null,
           "DETAIL",
@@ -81,7 +83,9 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
         const newData = newListVatTu.filter((data) => {
           if (itemData.length > 0) {
             return !itemData.some(
-              (item) => item.tits_qtsx_VatTu_Id.toLowerCase() === data.id
+              (item) =>
+                item.tits_qtsx_VatTu_Id.toLowerCase() ===
+                data.tits_qtsx_VatTu_Id.toLowerCase()
             );
           } else {
             return true;
@@ -117,22 +121,11 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
     });
   };
 
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
   const deleteItemFunc = (item) => {
     const title = "vật tư";
     ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
   };
 
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
   const deleteItemAction = (item) => {
     const newData = DataListVatTu.filter(
       (d) => d.tits_qtsx_VatTu_Id !== item.tits_qtsx_VatTu_Id
@@ -145,12 +138,6 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
     setListVatTu([...ListVatTu, vattu[0]]);
   };
 
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
   const actionContent = (item) => {
     const deleteItemVal = { onClick: () => deleteItemFunc(item) };
 
@@ -304,7 +291,9 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
 
   const onFinish = (values) => {
     const data = values.themvattu;
-    const listvattu = ListVatTu.find((d) => d.id === data.tits_qtsx_VatTu_Id);
+    const listvattu = ListVatTu.find(
+      (d) => d.tits_qtsx_VatTu_Id === data.tits_qtsx_VatTu_Id
+    );
 
     const donhang = ListPhieuMuaHang.find(
       (d) =>
@@ -320,13 +309,16 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
       const DataList = {
         ...data,
         ...(listvattu && listvattu),
+        isChiTiet: data.isChiTiet === "1" ? true : false,
         maPhieu: donhang && donhang.maPhieu,
         ngayHoanThanh: data.ngayHoanThanh.format("DD/MM/YYYY"),
         tong: data.nhapKhau && parseFloat(data.nhapKhau) + parseFloat(data.vat),
       };
       setDataListVatTu([...DataListVatTu, DataList]);
 
-      const VatTu = ListVatTu.filter((d) => d.id !== data.tits_qtsx_VatTu_Id);
+      const VatTu = ListVatTu.filter(
+        (d) => d.tits_qtsx_VatTu_Id !== data.tits_qtsx_VatTu_Id
+      );
       setListVatTu(VatTu);
       resetFields();
       setFieldTouch(false);
@@ -343,6 +335,10 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
     openModalFS(false);
     setListVatTu([]);
     setDataListVatTu([]);
+  };
+
+  const handleChangeLoai = (value) => {
+    getListVatTu(value);
   };
 
   const handleSelectVatTu = (value) => {
@@ -363,7 +359,7 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
       footer={null}
     >
       <Card className="th-card-margin-bottom th-card-reset-margin">
-        <div className="gx-main-content">
+        <div className="gx-main-content" style={{ marginBottom: "10px" }}>
           <Form
             {...DEFAULT_FORM_XUATKHONGOAIQUAN}
             form={form}
@@ -372,6 +368,43 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
             onFieldsChange={() => setFieldTouch(true)}
           >
             <Row>
+              <Col
+                xxl={12}
+                xl={12}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{ marginBottom: 8 }}
+              >
+                <FormItem
+                  label="Loại"
+                  name={["themvattu", "isChiTiet"]}
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={[
+                      {
+                        id: "0",
+                        name: "Vật tư",
+                      },
+                      {
+                        id: "1",
+                        name: "Cụm chi tiết",
+                      },
+                    ]}
+                    placeholder="Chọn loại"
+                    optionsvalue={["id", "name"]}
+                    style={{ width: "100%" }}
+                    onChange={(val) => handleChangeLoai(val)}
+                  />
+                </FormItem>
+              </Col>
               <Col
                 xxl={12}
                 xl={12}
@@ -395,42 +428,11 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
                     className="heading-select slt-search th-select-heading"
                     data={ListVatTu}
                     placeholder="Chọn tên vật tư"
-                    optionsvalue={["id", "vatTu"]}
+                    optionsvalue={["tits_qtsx_VatTu_Id", "vatTu"]}
                     style={{ width: "100%" }}
                     showSearch
                     onSelect={handleSelectVatTu}
                     optionFilterProp="name"
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={12}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{ marginBottom: 8 }}
-              >
-                <FormItem
-                  label="Đơn vị tính"
-                  name={["themvattu", "tits_qtsx_VatTu_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListVatTu}
-                    placeholder="Chọn đơn vị tính"
-                    optionsvalue={["id", "tenDonViTinh"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp="name"
-                    disabled={true}
                   />
                 </FormItem>
               </Col>
@@ -585,7 +587,7 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
                     min={0}
                     step="0.01"
                     className="input-item"
-                    placeholder="Nhập số lượng nhập khẩu"
+                    placeholder="Nhập VAT"
                     inputMode="numeric"
                   />
                 </FormItem>
@@ -669,8 +671,8 @@ function ModalTuChoi({ openModalFS, openModal, DataThemVatTu, itemData }) {
               </Button>
             </Row>
           </Form>
+          <Divider />
         </div>
-
         <Table
           bordered
           columns={columns}
