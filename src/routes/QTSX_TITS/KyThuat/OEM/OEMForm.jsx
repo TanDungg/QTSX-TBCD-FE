@@ -14,6 +14,7 @@ import {
   Button,
   Tag,
   Image,
+  Divider,
 } from "antd";
 import { includes, map } from "lodash";
 import Helper from "src/helpers";
@@ -150,7 +151,13 @@ const OEMForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListNguoiDuyet(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            nguoiDuyet: `${dt.maNhanVien} - ${dt.fullName}`,
+          };
+        });
+        setListNguoiDuyet(newData);
       } else {
         setListNguoiDuyet([]);
       }
@@ -218,54 +225,36 @@ const OEMForm = ({ history, match, permission }) => {
       key: "key",
       align: "center",
       width: 50,
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Mã vật tư/chi tiết",
       dataIndex: "maVatTuChiTiet",
       key: "maVatTuChiTiet",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Tên vật tư/chi tiết",
       dataIndex: "tenVatTuChiTiet",
       key: "tenVatTuChiTiet",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Mã đơn vị tính",
       dataIndex: type === "new" ? "maDonViTinh" : "tenDonViTinh",
       key: type === "new" ? "maDonViTinh" : "tenDonViTinh",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Thông số kỹ thuật",
       dataIndex: "thongSoKyThuat",
       key: "thongSoKyThuat",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Vật liệu",
       dataIndex: "vatLieu",
       key: "vatLieu",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Số lượng",
@@ -273,18 +262,12 @@ const OEMForm = ({ history, match, permission }) => {
       key: "dinhMuc",
       align: "center",
       width: 80,
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Mã xưởng nhận",
       dataIndex: type === "new" ? "maXuong" : "tenXuong",
       key: type === "new" ? "maXuong" : "tenXuong",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Hình ảnh",
@@ -307,9 +290,6 @@ const OEMForm = ({ history, match, permission }) => {
       dataIndex: "moTa",
       key: "moTa",
       align: "center",
-      onCell: (record) => ({
-        className: record.key === "*" ? "total-row" : "",
-      }),
     },
     {
       title: "Lỗi",
@@ -556,7 +536,7 @@ const OEMForm = ({ history, match, permission }) => {
         Chi tiết OEM -{" "}
         <Tag color={"blue"} style={{ fontSize: "15px" }}>
           {info.maOEM}
-        </Tag>
+        </Tag>{" "}
         <Tag
           color={
             info.trangThai === "Chưa duyệt"
@@ -720,7 +700,7 @@ const OEMForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListNguoiDuyet}
                   placeholder="Chọn người kiểm tra"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "nguoiDuyet"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -751,7 +731,7 @@ const OEMForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListNguoiDuyet}
                   placeholder="Chọn người phê duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "nguoiDuyet"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -826,24 +806,46 @@ const OEMForm = ({ history, match, permission }) => {
       {type === "xacnhan" &&
       info.trangThai === "Chưa duyệt" &&
       info.nguoiPheDuyet_Id === INFO.user_Id ? (
-        <div style={{ display: "flex", justifyContent: "center" }}>
-          <Button icon={<RollbackOutlined />} type="default" onClick={goBack}>
-            Quay lại
-          </Button>
-          <Button
-            icon={<CheckCircleOutlined />}
-            type="primary"
-            onClick={modalXK}
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          <Divider />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              marginBottom: "15px",
+            }}
           >
-            Xác nhận
-          </Button>
-          <Button
-            icon={<CloseCircleOutlined />}
-            type="danger"
-            onClick={() => setActiveModalTuChoi(true)}
-          >
-            Từ chối
-          </Button>
+            <Button
+              icon={<RollbackOutlined />}
+              className="th-margin-bottom-0"
+              type="default"
+              onClick={goBack}
+            >
+              Quay lại
+            </Button>
+            <Button
+              icon={<CheckCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="primary"
+              onClick={modalXK}
+            >
+              Xác nhận
+            </Button>
+            <Button
+              icon={<CloseCircleOutlined />}
+              className="th-margin-bottom-0"
+              type="danger"
+              onClick={() => setActiveModalTuChoi(true)}
+            >
+              Từ chối
+            </Button>
+          </div>
         </div>
       ) : null}
       <DanhSachImport

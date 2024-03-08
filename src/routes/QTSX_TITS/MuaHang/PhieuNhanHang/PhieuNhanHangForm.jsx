@@ -65,7 +65,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           getNguoiNhanHang(INFO);
           setFieldsValue({
             phieunhanhang: {
-              ngayTaoPhieu: moment(getDateNow(), "DD/MM/YYYY"),
+              ngayTao: moment(getDateNow(), "DD/MM/YYYY"),
             },
           });
         } else if (permission && !permission.add) {
@@ -173,8 +173,8 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           setInfo(data);
 
           const chiTiet =
-            data.chiTiet_NhanHangs &&
-            JSON.parse(data.chiTiet_NhanHangs).map((data) => {
+            data.chiTietPhieus &&
+            data.chiTietPhieus.map((data) => {
               return {
                 ...data,
                 soLuongCu: data.soLuong,
@@ -190,7 +190,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           setFieldsValue({
             phieunhanhang: {
               ...data,
-              ngayTaoPhieu: moment(data.ngayTaoPhieu, "DD/MM/YYYY"),
+              ngayTao: moment(data.ngayTao, "DD/MM/YYYY"),
               isLoaiPhieu: data.isLoaiPhieu.toString(),
             },
           });
@@ -281,15 +281,28 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       newData.length === 0 && setFieldTouch(true);
     }
     const newData = [...listVatTu];
-    newData.forEach((ct, index) => {
+    const newListVatTu = newData.map((dt) => {
       if (
-        ct.tits_qtsx_PhieuMuaHangChiTiet_Id ===
+        dt.tits_qtsx_PhieuMuaHangChiTiet_Id ===
         item.tits_qtsx_PhieuMuaHangChiTiet_Id
       ) {
-        ct.soLuong = SoLuongNhan;
+        return {
+          ...dt,
+          soLuong: SoLuongNhan,
+          vatTus: dt.isChiTiet
+            ? dt.vatTus.map((vattu) => {
+                return {
+                  ...vattu,
+                  soLuong: vattu.dinhMuc * SoLuongNhan,
+                };
+              })
+            : [],
+        };
+      } else {
+        return dt;
       }
     });
-    setListVatTu(newData);
+    setListVatTu(newListVatTu);
   };
 
   const rendersoLuong = (item) => {
@@ -323,6 +336,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       </>
     );
   };
+
   let colValues = [
     {
       title: "STT",
@@ -366,6 +380,92 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       key: "soLuong",
       align: "center",
       render: (record) => rendersoLuong(record),
+    },
+    {
+      title: "Hạng mục sử dụng",
+      dataIndex: "hangMucSuDung",
+      key: "hangMucSuDung",
+      align: "center",
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "ghiChu",
+      key: "ghiChu",
+      align: "center",
+    },
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+  ];
+
+  const renderChildItems = (record) => {
+    if (record.isChiTiet) {
+      return (
+        <div style={{ marginTop: 10, marginBottom: 10 }}>
+          <Table
+            bordered
+            scroll={{ y: "35vh", x: 1100 }}
+            columns={colValuesChildren}
+            components={components}
+            className="gx-table-responsive"
+            dataSource={reDataForTable(record.vatTus)}
+            size="small"
+            rowClassName={"editable-row"}
+            pagination={false}
+          />
+        </div>
+      );
+    }
+    return null;
+  };
+
+  let colValuesChildren = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      width: 45,
+      align: "center",
+    },
+    {
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
+      align: "center",
+    },
+    {
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
+      align: "center",
+    },
+    {
+      title: "Loại vật tư",
+      dataIndex: "tenLoaiVatTu",
+      key: "tenLoaiVatTu",
+      align: "center",
+    },
+    {
+      title: "Đơn vị tính",
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
+      align: "center",
+    },
+    {
+      title: "Số lượng chưa nhận",
+      dataIndex: "soLuongChuaNhan",
+      key: "soLuongChuaNhan",
+      align: "center",
+    },
+    {
+      title: "Số lượng nhận",
+      dataIndex: "soLuong",
+      key: "soLuong",
+      align: "center",
     },
     {
       title: "Hạng mục sử dụng",
@@ -487,8 +587,8 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     if (type === "new") {
       const newData = {
         ...phieunhanhang,
-        ngayTaoPhieu: phieunhanhang.ngayTaoPhieu.format("DD/MM/YYYY"),
-        chiTiet_NhanHangs: listVatTu.map((dt) => {
+        ngayTao: phieunhanhang.ngayTao.format("DD/MM/YYYY"),
+        chiTietPhieus: listVatTu.map((dt) => {
           return {
             ...dt,
             soLuong: dt.soLuong && parseFloat(dt.soLuong),
@@ -520,7 +620,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
               setDisableUpload(false);
               setFieldsValue({
                 phieunhanhang: {
-                  ngayTaoPhieu: moment(getDateNow(), "DD/MM/YYYY"),
+                  ngayTao: moment(getDateNow(), "DD/MM/YYYY"),
                 },
               });
             }
@@ -535,8 +635,8 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
         ...phieunhanhang,
         id: id,
         tits_qtsx_PhieuMuaHang_Id: info.tits_qtsx_PhieuMuaHang_Id,
-        ngayTaoPhieu: phieunhanhang.ngayTaoPhieu.format("DD/MM/YYYY"),
-        chiTiet_NhanHangs: listVatTu,
+        ngayTao: phieunhanhang.ngayTao.format("DD/MM/YYYY"),
+        chiTietPhieus: listVatTu,
       };
       new Promise((resolve, reject) => {
         dispatch(
@@ -574,13 +674,22 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
   };
 
   const hanldeSelectPhieu = (value) => {
-    const newData = ListPhieuMuaHang.filter((d) => d.id === value);
+    const newData = ListPhieuMuaHang.find((d) => d.id === value);
     const data =
-      newData[0].chiTietPhieus &&
-      JSON.parse(newData[0].chiTietPhieus).map((data) => {
+      newData.chiTietPhieus &&
+      newData.chiTietPhieus.map((data) => {
         return {
           ...data,
           soLuong: data.soLuongChuaNhan ? data.soLuongChuaNhan : 0,
+          vatTus: data.isChiTiet
+            ? data.vatTus.map((vattu) => {
+                return {
+                  ...vattu,
+                  isChildren: true,
+                  soLuong: vattu.soLuongChuaNhan ? vattu.soLuongChuaNhan : 0,
+                };
+              })
+            : [],
         };
       });
     setListVatTu(data);
@@ -742,7 +851,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
                     className="heading-select slt-search th-select-heading"
                     data={ListPhieuMuaHang}
                     placeholder="Chọn mã phiếu mua hàng"
-                    optionsvalue={["id", "tenNguoiYeuCau"]}
+                    optionsvalue={["id", "nguoiYeuCau"]}
                     style={{ width: "100%" }}
                     showSearch
                     onSelect={hanldeSelectPhieu}
@@ -753,7 +862,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
               ) : (
                 <FormItem
                   label="Người yêu cầu"
-                  name={["phieunhanhang", "nguoiYeuCauMua"]}
+                  name={["phieunhanhang", "nguoiYeuCau"]}
                   rules={[
                     {
                       type: "string",
@@ -776,7 +885,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Ngày tạo phiếu"
-                name={["phieunhanhang", "ngayTaoPhieu"]}
+                name={["phieunhanhang", "ngayTao"]}
               >
                 <DatePicker
                   format={"DD/MM/YYYY"}
@@ -927,6 +1036,10 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
           rowClassName={"editable-row"}
           pagination={false}
           // loading={loading}
+          expandable={{
+            expandedRowRender: renderChildItems,
+            rowExpandable: (record) => record.name !== "Not Expandable",
+          }}
         />
       </Card>
       {type === "new" || type === "edit" ? (

@@ -166,7 +166,13 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserKy(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            nguoiDuyet: `${dt.maNhanVien} - ${dt.fullName}`,
+          };
+        });
+        setListUserKy(newData);
       } else {
         setListUserKy([]);
       }
@@ -706,7 +712,7 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn người kiểm tra"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "nguoiDuyet"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -737,7 +743,7 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn kế toán duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "nguoiDuyet"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -768,7 +774,7 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn người duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "nguoiDuyet"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

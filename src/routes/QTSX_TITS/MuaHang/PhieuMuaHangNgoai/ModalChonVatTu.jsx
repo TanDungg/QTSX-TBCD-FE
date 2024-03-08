@@ -10,6 +10,7 @@ import {
   DatePicker,
   Upload,
   Image,
+  Divider,
 } from "antd";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -51,7 +52,11 @@ function ModalChonVatTu({
             item.tits_qtsx_VatTu_Id.toLowerCase() !==
             dataEdit.tits_qtsx_VatTu_Id.toLowerCase()
         );
-        getListVatTu(newListVatTu);
+        if (dataEdit.isChiTiet) {
+          getListVatTu("1", newListVatTu);
+        } else {
+          getListVatTu("0", newListVatTu);
+        }
         if (isMuaHangTrongNuoc === "1") {
           if (dataEdit.moTa) {
             setFile(dataEdit.moTa);
@@ -61,6 +66,7 @@ function ModalChonVatTu({
         setFieldsValue({
           themvattu: {
             ...dataEdit,
+            isChiTiet: dataEdit.isChiTiet ? "1" : "0",
             ngay: moment(dataEdit.ngay, "DD/MM/YYYY"),
             nguoiThuMua_Id: dataEdit.nguoiThuMua_Id.toLowerCase(),
             tits_qtsx_DonHang_Id: dataEdit.tits_qtsx_DonHang_Id.toLowerCase(),
@@ -68,7 +74,6 @@ function ModalChonVatTu({
           },
         });
       } else {
-        getListVatTu(itemVatTu);
         setFieldsValue({
           themvattu: {
             ngay: moment(getDateNow(), "DD/MM/YYYY"),
@@ -82,11 +87,13 @@ function ModalChonVatTu({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openModal]);
 
-  const getListVatTu = (vatTus) => {
+  const getListVatTu = (isChiTiet, vatTus) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_VatTu?page=-1`,
+          isChiTiet === "0"
+            ? `tits_qtsx_PhieuMuaHangNgoai/list-vat-tu-mua-hang-ngoai`
+            : `tits_qtsx_PhieuMuaHangNgoai/list-chi-tiet-mua-hang-ngoai`,
           "GET",
           null,
           "DETAIL",
@@ -106,7 +113,9 @@ function ModalChonVatTu({
         const newData = newListVatTu.filter((data) => {
           if (vatTus.length > 0) {
             return !vatTus.some(
-              (item) => item.tits_qtsx_VatTu_Id.toLowerCase() === data.id
+              (item) =>
+                item.tits_qtsx_VatTu_Id.toLowerCase() ===
+                data.tits_qtsx_VatTu_Id.toLowerCase()
             );
           } else {
             return true;
@@ -146,8 +155,9 @@ function ModalChonVatTu({
     const data = values.themvattu;
     data.ngay = data.ngay && data.ngay._i;
     data.hinhAnh = fileChat && fileChat;
+    data.isChiTiet = data.isChiTiet === "1" ? true : false;
     ListVatTu.forEach((vt) => {
-      if (vt.id === data.tits_qtsx_VatTu_Id) {
+      if (vt.tits_qtsx_VatTu_Id === data.tits_qtsx_VatTu_Id) {
         data.tenVatTu = vt.tenVatTu;
         data.maVatTu = vt.maVatTu;
         data.tenDonViTinh = vt.tenDonViTinh;
@@ -204,6 +214,10 @@ function ModalChonVatTu({
     maxCount: 1,
   };
 
+  const handleChangeLoai = (value) => {
+    getListVatTu(value, itemVatTu);
+  };
+
   const handleCancel = () => {
     openModalFS(false);
   };
@@ -237,23 +251,30 @@ function ModalChonVatTu({
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Tên vật tư"
-                  name={["themvattu", "tits_qtsx_VatTu_Id"]}
+                  label="Loại"
+                  name={["themvattu", "isChiTiet"]}
                   rules={[
                     {
-                      type: "string",
                       required: true,
                     },
                   ]}
                 >
                   <Select
                     className="heading-select slt-search th-select-heading"
-                    data={ListVatTu}
-                    placeholder="Chọn tên vật tư"
-                    optionsvalue={["id", "vatTu"]}
+                    data={[
+                      {
+                        id: "0",
+                        name: "Vật tư",
+                      },
+                      {
+                        id: "1",
+                        name: "Cụm chi tiết",
+                      },
+                    ]}
+                    placeholder="Chọn loại"
+                    optionsvalue={["id", "name"]}
                     style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp="name"
+                    onChange={(val) => handleChangeLoai(val)}
                   />
                 </FormItem>
               </Col>
@@ -267,7 +288,7 @@ function ModalChonVatTu({
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Loại vật tư"
+                  label="Tên vật tư"
                   name={["themvattu", "tits_qtsx_VatTu_Id"]}
                   rules={[
                     {
@@ -279,12 +300,11 @@ function ModalChonVatTu({
                   <Select
                     className="heading-select slt-search th-select-heading"
                     data={ListVatTu}
-                    placeholder="Chọn tên loại vật tư"
-                    optionsvalue={["id", "tenLoaiVatTu"]}
+                    placeholder="Chọn tên vật tư"
+                    optionsvalue={["tits_qtsx_VatTu_Id", "vatTu"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
-                    disabled={true}
                   />
                 </FormItem>
               </Col>
@@ -466,7 +486,7 @@ function ModalChonVatTu({
                     className="heading-select slt-search th-select-heading"
                     data={ListUserThuMua}
                     placeholder="Chọn CV thu mua"
-                    optionsvalue={["id", "fullName"]}
+                    optionsvalue={["id", "nguoiDuyet"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
@@ -652,9 +672,11 @@ function ModalChonVatTu({
                 </>
               )}
             </Row>
+            <Divider />
             <Row justify={"center"}>
               <Button
                 style={{ margin: 0 }}
+                className="th-margin-bottom-0"
                 type="primary"
                 htmlType="submit"
                 disabled={!fieldTouch}

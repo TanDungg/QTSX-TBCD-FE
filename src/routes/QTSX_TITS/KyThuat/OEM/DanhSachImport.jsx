@@ -2,6 +2,7 @@ import {
   DeleteOutlined,
   UploadOutlined,
   DownloadOutlined,
+  SaveOutlined,
 } from "@ant-design/icons";
 import {
   Modal as AntModal,
@@ -13,6 +14,7 @@ import {
   Alert,
   Popover,
   Image,
+  Divider,
 } from "antd";
 import { messages } from "src/constants/Messages";
 import Helper from "src/helpers";
@@ -364,8 +366,6 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
           if (
             data[index][KEY] &&
             data[index][KEY].toString().trim() === "" &&
-            data[index][MVTCT] &&
-            data[index][MVTCT].toString().trim() === "" &&
             data[index][TVTCT] &&
             data[index][TVTCT].toString().trim() === ""
           ) {
@@ -601,6 +601,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
   const modalXK = () => {
     Modal(prop);
   };
+
   const RowStyle = (current, index) => {
     if (HangTrung.length > 0) {
       const trunglap = HangTrung.find(
@@ -619,12 +620,9 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
       setCheckDanger(true);
       setMessageError("Tên chi tiết không được rỗng");
       return "red-row";
-    } else if (current.STT !== "*" && current.maVatTuChiTiet === null) {
-      setCheckDanger(true);
-      setMessageError("Mã vật tư không được rỗng");
-      return "red-row";
     }
   };
+
   const handleCancel = () => {
     if (checkDanger === true) {
       openModalFS(false);
@@ -708,7 +706,7 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
           <Table
             bordered
             columns={columns}
-            scroll={{ x: 900, y: "40vh" }}
+            scroll={{ x: 1300, y: "40vh" }}
             components={components}
             className="gx-table-responsive"
             dataSource={dataView}
@@ -717,15 +715,23 @@ function DanhSachImport({ openModalFS, openModal, DanhSachChiTiet, itemData }) {
             pagination={false}
             // loading={loading}
           />
-          <Button
-            className="th-margin-bottom-0"
-            style={{ marginTop: 10, float: "right" }}
-            type="primary"
-            onClick={modalXK}
-            disabled={dataView.length > 0 && checkDanger}
+          <Divider />
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+            }}
           >
-            Lưu
-          </Button>
+            <Button
+              className="th-margin-bottom-0"
+              icon={<SaveOutlined />}
+              type="primary"
+              onClick={modalXK}
+              disabled={dataView.length > 0 && checkDanger}
+            >
+              Lưu
+            </Button>
+          </div>
         </Card>
         <Image
           width={"80%"}
