@@ -1,47 +1,58 @@
-import { Button, Card, Col, Divider } from "antd";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Divider, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import {
+  removeDuplicates,
+  reDataForTable,
+  convertObjectToUrlParams,
+} from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { removeDuplicates, reDataForTable } from "src/util/Common";
 import {
   EditableTableRow,
   ModalDeleteConfirm,
+  Select,
   Table,
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { convertObjectToUrlParams } from "src/util/Common";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
-import { HINHTHUCDAOTAO_ONLINE } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function HinhThucDaoTao({ history, permission, match }) {
+function SanPham({ permission, history, match }) {
   const dispatch = useDispatch();
-  const { width, loading } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
+  const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
+  const [LoaiSanPham, setLoaiSanPham] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
-  const { totalRow, pageSize } = Data;
 
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(keyword, page);
+      getListLoaiSanPham();
+      getListData(LoaiSanPham, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListData = (keyword, page) => {
-    let param = convertObjectToUrlParams({ keyword, page });
+  const getListData = (tsec_qtsx_LoaiSanPham_Id, keyword, page) => {
+    let param = convertObjectToUrlParams({
+      tsec_qtsx_LoaiSanPham_Id,
+      keyword,
+      page,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_HinhThucDaoTao?${param}`,
+          `tsec_qtsx_SanPham?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -59,45 +70,65 @@ function HinhThucDaoTao({ history, permission, match }) {
     });
   };
 
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    getListData(keyword, pagination);
+  const getListLoaiSanPham = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_LoaiSanPham?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiSanPham(res.data);
+        } else {
+          setListLoaiSanPham([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
-  const onSearchNguoiDung = () => {
-    getListData(keyword, page);
+  const handleTableChange = (pagination) => {
+    setPage(pagination);
+    getListData(LoaiSanPham, keyword, pagination);
+  };
+
+  const onSearchSanPham = () => {
+    getListData(LoaiSanPham, keyword, page);
   };
 
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, page);
+      getListData(LoaiSanPham, val.target.value, page);
     }
   };
 
-  const handleClearSearch = () => {
-    getListData(null, 1);
-  };
-
   const deleteItemFunc = (item) => {
-    const title = "hình thức đào tạo";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenHinhThucDaoTao, title);
+    const title = "sản phẩm";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenSanPham, title);
   };
 
   const deleteItemAction = (item) => {
-    let url = `vptq_lms_HinhThucDaoTao/${item.id}`;
+    let url = `tsec_qtsx_SanPham/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        getListData(keyword, page);
+        getListData(LoaiSanPham, keyword, page);
       })
       .catch((error) => console.error(error));
   };
 
   const actionContent = (item) => {
     const editItem =
-      permission && permission.edit && item.id !== HINHTHUCDAOTAO_ONLINE ? (
+      permission && permission.edit ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -112,8 +143,9 @@ function HinhThucDaoTao({ history, permission, match }) {
           <EditOutlined />
         </span>
       );
+
     const deleteItemVal =
-      permission && permission.del && item.id !== HINHTHUCDAOTAO_ONLINE
+      permission && permission.del && !item.isUsed
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
     return (
@@ -129,6 +161,7 @@ function HinhThucDaoTao({ history, permission, match }) {
     );
   };
 
+  const { totalRow } = Data;
   let dataList = reDataForTable(Data.datalist);
 
   let colValues = [
@@ -147,45 +180,72 @@ function HinhThucDaoTao({ history, permission, match }) {
       align: "center",
     },
     {
-      title: "Mã hình thức đào tạo",
-      dataIndex: "maHinhThucDaoTao",
-      key: "maHinhThucDaoTao",
+      title: "Mã sản phẩm",
+      dataIndex: "maSanPham",
+      key: "maSanPham",
       align: "center",
+      width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maSanPham,
+            value: d.maSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.maSanPham.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Tên sản phẩm",
+      dataIndex: "tenSanPham",
+      key: "tenSanPham",
+      align: "left",
       width: 200,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maHinhThucDaoTao,
-            value: d.maHinhThucDaoTao,
+            text: d.tenSanPham,
+            value: d.tenSanPham,
           };
         })
       ),
-      onFilter: (value, record) => record.maHinhThucDaoTao.includes(value),
+      onFilter: (value, record) => record.tenSanPham.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên hình thức đào tạo",
-      dataIndex: "tenHinhThucDaoTao",
-      key: "tenHinhThucDaoTao",
+      title: "Loại sản phẩm",
+      dataIndex: "tenLoaiSanPham",
+      key: "tenLoaiSanPham",
       align: "center",
-      width: 300,
+      width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenHinhThucDaoTao,
-            value: d.tenHinhThucDaoTao,
+            text: d.tenLoaiSanPham,
+            value: d.tenLoaiSanPham,
           };
         })
       ),
-      onFilter: (value, record) => record.tenHinhThucDaoTao.includes(value),
+      onFilter: (value, record) => record.tenLoaiSanPham.includes(value),
       filterSearch: true,
     },
     {
-      title: "Ghi chú",
-      dataIndex: "moTa",
-      key: "moTa",
+      title: "Đơn vị tính",
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
       align: "center",
       width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDonViTinh,
+            value: d.tenDonViTinh,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenDonViTinh.includes(value),
+      filterSearch: true,
     },
   ];
 
@@ -234,40 +294,59 @@ function HinhThucDaoTao({ history, permission, match }) {
     );
   };
 
+  const handleOnSelectLoaiSanPham = (value) => {
+    setLoaiSanPham(value);
+    getListData(value, keyword, page);
+  };
+
+  const handleClearLoaiSanPham = () => {
+    setLoaiSanPham(null);
+    getListData(null, keyword, page);
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Danh mục hình thức đào tạo"}
-        description="Danh sách hình thức đào tạo"
+        title={"Danh mục sản phẩm"}
+        description="Danh sách sản phẩm"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
-        <Col
-          xxl={8}
-          xl={12}
-          lg={16}
-          md={16}
-          sm={20}
-          xs={24}
-          style={{
-            display: "flex",
-            alignItems: "center",
-          }}
-        >
-          <span
-            style={{
-              width: "80px",
-            }}
+        <Row>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
           >
-            Tìm kiếm:
-          </span>
-          <div
-            style={{
-              flex: 1,
-              alignItems: "center",
-              marginTop: width < 576 ? 10 : 0,
-            }}
+            <span>Loại sản phẩm:</span>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListLoaiSanPham ? ListLoaiSanPham : []}
+              placeholder="Chọn loại sản phẩm"
+              optionsvalue={["id", "tenLoaiSanPham"]}
+              style={{ width: "100%" }}
+              value={LoaiSanPham}
+              showSearch
+              optionFilterProp={"name"}
+              onSelect={handleOnSelectLoaiSanPham}
+              allowClear
+              onClear={handleClearLoaiSanPham}
+            />
+          </Col>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
           >
+            <span>Tìm kiếm:</span>
             <Toolbar
               count={1}
               search={{
@@ -275,29 +354,28 @@ function HinhThucDaoTao({ history, permission, match }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchNguoiDung,
-                onSearch: onSearchNguoiDung,
+                onPressEnter: onSearchSanPham,
+                onSearch: onSearchSanPham,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
-                onClear: { handleClearSearch },
               }}
             />
-          </div>
-        </Col>
+          </Col>
+        </Row>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 650, y: "55vh" }}
+          scroll={{ x: 900, y: "50vh" }}
           components={components}
-          className="gx-table-responsive"
+          className="gx-table-responsive th-table"
           dataSource={dataList}
           size="small"
           rowClassName={"editable-row"}
           pagination={{
             onChange: handleTableChange,
-            pageSize,
+            pageSize: 20,
             total: totalRow,
             showSizeChanger: false,
             showQuickJumper: true,
@@ -309,4 +387,4 @@ function HinhThucDaoTao({ history, permission, match }) {
   );
 }
 
-export default HinhThucDaoTao;
+export default SanPham;

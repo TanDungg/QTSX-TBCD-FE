@@ -6,11 +6,17 @@ import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_ADD_130PX } from "src/constants/Config";
+import { getTokenInfo, getLocalStorage } from "src/util/Common";
 
 const FormItem = Form.Item;
 
-const CapDoNhanSuForm = ({ history, match, permission }) => {
+const CongDoanForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [type, setType] = useState("new");
@@ -43,7 +49,7 @@ const CapDoNhanSuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_CapDoNhanSu/${id}`,
+          `tsec_qtsx_CongDoan/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -56,7 +62,7 @@ const CapDoNhanSuForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            formcapdonhansu: res.data,
+            formcongdoan: res.data,
           });
         }
       })
@@ -73,27 +79,31 @@ const CapDoNhanSuForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
-    saveData(values.formcapdonhansu);
+    saveData(values.formcongdoan);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.formcapdonhansu, true);
+        saveData(values.formcongdoan, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (formcapdonhansu, saveQuit = false) => {
+  const saveData = (formcongdoan, saveQuit = false) => {
     if (type === "new") {
+      const newData = {
+        ...formcongdoan,
+        donVi_Id: INFO.donVi_Id,
+      };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_CapDoNhanSu`,
+            `tsec_qtsx_CongDoan`,
             "POST",
-            formcapdonhansu,
+            newData,
             "ADD",
             "",
             resolve,
@@ -116,11 +126,15 @@ const CapDoNhanSuForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...formcapdonhansu, id: id };
+      const newData = {
+        ...formcongdoan,
+        donVi_Id: INFO.donVi_Id,
+        id: id,
+      };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_CapDoNhanSu/${id}`,
+            `tsec_qtsx_CongDoan/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -142,7 +156,7 @@ const CapDoNhanSuForm = ({ history, match, permission }) => {
   };
 
   const formTitle =
-    type === "new" ? "Thêm mới cấp độ nhân sự" : "Chỉnh sửa cấp độ nhân sự";
+    type === "new" ? "Thêm mới công đoạn" : "Chỉnh sửa công đoạn";
 
   return (
     <div className="gx-main-content">
@@ -159,10 +173,10 @@ const CapDoNhanSuForm = ({ history, match, permission }) => {
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Mã cấp độ"
-              name={["formcapdonhansu", "maCapDoNhanSu"]}
+              label="Mã công đoạn"
+              name={["formcongdoan", "maCongDoan"]}
               rules={[
                 {
                   type: "string",
@@ -170,20 +184,17 @@ const CapDoNhanSuForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 50,
-                  message: "Mã cấp độ nhân sự không được quá 50 ký tự",
+                  message: "Mã công đoạn không được quá 50 ký tự",
                 },
               ]}
             >
-              <Input
-                className="input-item"
-                placeholder="Nhập mã cấp độ nhân sự"
-              />
+              <Input className="input-item" placeholder="Nhập mã công đoạn" />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Tên cấp độ"
-              name={["formcapdonhansu", "tenCapDoNhanSu"]}
+              label="Tên công đoạn"
+              name={["formcongdoan", "tenCongDoan"]}
               rules={[
                 {
                   type: "string",
@@ -191,20 +202,17 @@ const CapDoNhanSuForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 250,
-                  message: "Tên cấp độ nhân sự không được quá 250 ký tự",
+                  message: "Tên công đoạn không được quá 250 ký tự",
                 },
               ]}
             >
-              <Input
-                className="input-item"
-                placeholder="Nhập tên cấp độ nhân sự"
-              />
+              <Input className="input-item" placeholder="Nhập tên công đoạn" />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Ghi chú"
-              name={["formcapdonhansu", "moTa"]}
+              name={["formcongdoan", "moTa"]}
               rules={[
                 {
                   type: "string",
@@ -229,4 +237,4 @@ const CapDoNhanSuForm = ({ history, match, permission }) => {
   );
 };
 
-export default CapDoNhanSuForm;
+export default CongDoanForm;

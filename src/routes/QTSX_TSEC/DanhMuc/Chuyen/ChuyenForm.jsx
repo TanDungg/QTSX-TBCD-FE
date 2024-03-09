@@ -3,21 +3,23 @@ import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit } from "src/components/Common";
+import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_ADD_130PX } from "src/constants/Config";
 
 const FormItem = Form.Item;
 
-const TruongForm = ({ history, match, permission }) => {
+const ChuyenForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
-  const [type, setType] = useState("new");
   const [fieldTouch, setFieldTouch] = useState(false);
-  const [id, setId] = useState(undefined);
+  const [type, setType] = useState("new");
+  const [ListCongDoan, setListCongDoan] = useState([]);
+  const [id, setId] = useState(null);
 
   useEffect(() => {
+    getListCongDoan();
     if (includes(match.url, "them-moi")) {
       if (permission && permission.add) {
         setType("new");
@@ -27,7 +29,6 @@ const TruongForm = ({ history, match, permission }) => {
     } else {
       if (permission && permission.edit) {
         setType("edit");
-        // Get info
         const { id } = match.params;
         setId(id);
         getInfo(id);
@@ -39,11 +40,11 @@ const TruongForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getInfo = (id) => {
+  const getListCongDoan = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_Truong/${id}`,
+          `tsec_qtsx_CongDoan?page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -55,8 +56,33 @@ const TruongForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
+          setListCongDoan(res.data);
+        } else {
+          setListCongDoan([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getInfo = (id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_Chuyen/${id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const data = res.data;
           setFieldsValue({
-            truong: res.data,
+            formchuyen: data,
           });
         }
       })
@@ -73,27 +99,27 @@ const TruongForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
-    saveData(values.truong);
+    saveData(values.formchuyen);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.truong, true);
+        saveData(values.formchuyen, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (truong, saveQuit = false) => {
+  const saveData = (formchuyen, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_Truong`,
+            `tsec_qtsx_Chuyen`,
             "POST",
-            truong,
+            formchuyen,
             "ADD",
             "",
             resolve,
@@ -116,11 +142,14 @@ const TruongForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...truong, id: id };
+      const newData = {
+        ...formchuyen,
+        id: id,
+      };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_Truong/${id}`,
+            `tsec_qtsx_Chuyen/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -131,17 +160,22 @@ const TruongForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (res.status === 409 || !saveQuit) {
+          if (res && res.status === 409) {
             setFieldTouch(false);
           } else {
-            goBack();
+            if (saveQuit) {
+              goBack();
+            } else {
+              getInfo(id);
+              setFieldTouch(false);
+            }
           }
         })
         .catch((error) => console.error(error));
     }
   };
 
-  const formTitle = type === "new" ? "Thêm mới trường" : "Chỉnh sửa trường";
+  const formTitle = type === "new" ? "Thêm mới chuyền" : "Chỉnh sửa chuyền";
 
   return (
     <div className="gx-main-content">
@@ -158,10 +192,10 @@ const TruongForm = ({ history, match, permission }) => {
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Mã trường"
-              name={["truong", "maTruong"]}
+              label="Mã chuyền"
+              name={["formchuyen", "maChuyen"]}
               rules={[
                 {
                   type: "string",
@@ -169,17 +203,17 @@ const TruongForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 50,
-                  message: "Mã trường không được quá 50 ký tự",
+                  message: "Mã chuyền không được quá 50 ký tự",
                 },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập mã trường" />
+              <Input className="input-item" placeholder="Nhập mã chuyền" />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Tên trường"
-              name={["truong", "tenTruong"]}
+              label="Tên chuyền"
+              name={["formchuyen", "tenChuyen"]}
               rules={[
                 {
                   type: "string",
@@ -187,35 +221,39 @@ const TruongForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 250,
-                  message: "Tên trường không được quá 250 ký tự",
+                  message: "Tên chuyền không được quá 250 ký tự",
                 },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập tên trường" />
+              <Input className="input-item" placeholder="Nhập tên chuyền" />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Địa điểm"
-              name={["truong", "diaDiem"]}
+              label="Công đoạn"
+              name={["formchuyen", "tsec_qtsx_CongDoan_Id"]}
               rules={[
                 {
                   type: "string",
                   required: true,
                 },
-                {
-                  max: 250,
-                  message: "Địa điểm không được quá 250 ký tự",
-                },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập tên trường" />
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListCongDoan ? ListCongDoan : []}
+                placeholder="Chọn công đoạn"
+                optionsvalue={["id", "tenCongDoan"]}
+                style={{ width: "100%" }}
+                optionFilterProp="name"
+                showSearch
+              />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Ghi chú"
-              name={["truong", "moTa"]}
+              name={["formchuyen", "moTa"]}
               rules={[
                 {
                   type: "string",
@@ -240,4 +278,4 @@ const TruongForm = ({ history, match, permission }) => {
   );
 };
 
-export default TruongForm;
+export default ChuyenForm;

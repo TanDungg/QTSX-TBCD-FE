@@ -142,7 +142,7 @@ const LoaiSanPhamForm = ({ history, match, permission }) => {
   };
 
   const formTitle =
-    type === "new" ? "Thêm mới loại giảng viên" : "Chỉnh sửa loại giảng viên";
+    type === "new" ? "Thêm mới loại sản phẩm" : "Chỉnh sửa loại sản phẩm";
 
   return (
     <div className="gx-main-content">
@@ -159,9 +159,9 @@ const LoaiSanPhamForm = ({ history, match, permission }) => {
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Mã loại giảng viên"
+              label="Mã loại sản phẩm"
               name={["formloaisanpham", "maLoaiSanPham"]}
               rules={[
                 {
@@ -170,19 +170,19 @@ const LoaiSanPhamForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 50,
-                  message: "Mã loại giảng viên không được quá 50 ký tự",
+                  message: "Mã loại sản phẩm không được quá 50 ký tự",
                 },
               ]}
             >
               <Input
                 className="input-item"
-                placeholder="Nhập mã loại giảng viên"
+                placeholder="Nhập mã loại sản phẩm"
               />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Tên loại giảng viên"
+              label="Tên loại sản phẩm"
               name={["formloaisanpham", "tenLoaiSanPham"]}
               rules={[
                 {
@@ -191,31 +191,14 @@ const LoaiSanPhamForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 250,
-                  message: "Tên loại giảng viên không được quá 250 ký tự",
+                  message: "Tên loại sản phẩm không được quá 250 ký tự",
                 },
               ]}
             >
               <Input
                 className="input-item"
-                placeholder="Nhập tên loại giảng viên"
+                placeholder="Nhập tên loại sản phẩm"
               />
-            </FormItem>
-          </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
-            <FormItem
-              label="Ghi chú"
-              name={["formloaisanpham", "moTa"]}
-              rules={[
-                {
-                  type: "string",
-                },
-                {
-                  max: 250,
-                  message: "Ghi chú không được quá 250 ký tự",
-                },
-              ]}
-            >
-              <Input className="input-item" placeholder="Nhập ghi chú" />
             </FormItem>
           </Col>
           <FormSubmit

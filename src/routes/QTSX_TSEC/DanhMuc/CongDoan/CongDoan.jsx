@@ -1,10 +1,9 @@
-import { Button, Card, Col, Divider } from "antd";
+import { Button, Card, Col, Divider, Input } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { removeDuplicates, reDataForTable } from "src/util/Common";
 import {
   EditableTableRow,
   ModalDeleteConfirm,
@@ -12,19 +11,30 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { convertObjectToUrlParams } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  getTokenInfo,
+  getLocalStorage,
+  removeDuplicates,
+  reDataForTable,
+} from "src/util/Common";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function CapDoNhanSu({ history, permission, match }) {
+function CongDoan({ history, permission, match }) {
   const dispatch = useDispatch();
-  const { width, loading } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [Data, setData] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
-  const { totalRow, pageSize } = Data;
+  const [editingRecord, setEditingRecord] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -36,11 +46,15 @@ function CapDoNhanSu({ history, permission, match }) {
   }, []);
 
   const getListData = (keyword, page) => {
-    let param = convertObjectToUrlParams({ keyword, page });
+    let param = convertObjectToUrlParams({
+      donVi_Id: INFO.donVi_Id,
+      keyword,
+      page,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_CapDoNhanSu?${param}`,
+          `tsec_qtsx_CongDoan?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -79,12 +93,12 @@ function CapDoNhanSu({ history, permission, match }) {
   };
 
   const deleteItemFunc = (item) => {
-    const title = "cấp độ nhân sự";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenCapDoNhanSu, title);
+    const title = "công đoạn";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenCongDoan, title);
   };
 
   const deleteItemAction = (item) => {
-    let url = `vptq_lms_CapDoNhanSu/${item.id}`;
+    let url = `tsec_qtsx_CongDoan/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -128,7 +142,91 @@ function CapDoNhanSu({ history, permission, match }) {
     );
   };
 
-  let dataList = reDataForTable(Data.datalist);
+  const { totalRow, pageSize } = Data;
+
+  const ChangeThuTu = (val, item) => {
+    const ThuTu = val.target.value;
+
+    if (!ThuTu || Number(ThuTu) <= 0) {
+      setEditingRecord([
+        ...editingRecord,
+        { ...item, message: "Thứ tự phải là số lớn hơn 0 và bắt buộc" },
+      ]);
+    } else {
+      const newData = editingRecord.filter((d) => d.id !== item.id);
+      setEditingRecord(newData);
+    }
+
+    const newData = {
+      ...Data,
+      datalist:
+        Data &&
+        Data.datalist.map((dt) => {
+          if (dt.id === item.id) {
+            return {
+              ...dt,
+              thuTu: ThuTu,
+            };
+          }
+          return dt;
+        }),
+    };
+
+    setData(newData);
+  };
+
+  const handleChangeThuTu = (val, item) => {
+    const newData = {
+      tsec_qtsx_CongDoan_Id: item.id,
+      thuTu: val.target.value,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_CongDoan/put-thu-tu-cong-doan`,
+          "PUT",
+          newData,
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status !== 409) {
+          getListData(keyword, page);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const renderThuTu = (item) => {
+    let isEditing = false;
+    let message = "";
+    editingRecord.forEach((ct) => {
+      if (ct.id === item.id) {
+        isEditing = true;
+        message = ct.message;
+      }
+    });
+    return (
+      <>
+        <Input
+          style={{
+            textAlign: "center",
+            width: "100%",
+          }}
+          className={`input-item`}
+          type="number"
+          value={item.thuTu}
+          onBlur={(value) => !isEditing && handleChangeThuTu(value, item)}
+          onChange={(value) => ChangeThuTu(value, item)}
+        />
+        {isEditing && <div style={{ color: "red" }}>{message}</div>}
+      </>
+    );
+  };
 
   let colValues = [
     {
@@ -146,37 +244,44 @@ function CapDoNhanSu({ history, permission, match }) {
       align: "center",
     },
     {
-      title: "Mã cấp độ nhân sự",
-      dataIndex: "maCapDoNhanSu",
-      key: "maCapDoNhanSu",
+      title: "Thứ tự",
+      key: "thuTu",
       align: "center",
-      width: 200,
+      width: 100,
+      render: (record) => renderThuTu(record),
+    },
+    {
+      title: "Mã công đoạn",
+      dataIndex: "maCongDoan",
+      key: "maCongDoan",
+      align: "center",
+      width: 150,
       filters: removeDuplicates(
-        map(dataList, (d) => {
+        map(Data.datalist, (d) => {
           return {
-            text: d.maCapDoNhanSu,
-            value: d.maCapDoNhanSu,
+            text: d.maCongDoan,
+            value: d.maCongDoan,
           };
         })
       ),
-      onFilter: (value, record) => record.maCapDoNhanSu.includes(value),
+      onFilter: (value, record) => record.maCongDoan.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên cấp độ nhân sự",
-      dataIndex: "tenCapDoNhanSu",
-      key: "tenCapDoNhanSu",
+      title: "Tên công đoạn",
+      dataIndex: "tenCongDoan",
+      key: "tenCongDoan",
       align: "center",
-      width: 300,
+      width: 250,
       filters: removeDuplicates(
-        map(dataList, (d) => {
+        map(Data.datalist, (d) => {
           return {
-            text: d.tenCapDoNhanSu,
-            value: d.tenCapDoNhanSu,
+            text: d.tenCongDoan,
+            value: d.tenCongDoan,
           };
         })
       ),
-      onFilter: (value, record) => record.tenCapDoNhanSu.includes(value),
+      onFilter: (value, record) => record.tenCongDoan.includes(value),
       filterSearch: true,
     },
     {
@@ -236,8 +341,8 @@ function CapDoNhanSu({ history, permission, match }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Danh mục cấp độ nhân sự"}
-        description="Danh sách cấp độ nhân sự"
+        title={"Danh mục công đoạn"}
+        description="Danh sách công đoạn"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -251,47 +356,35 @@ function CapDoNhanSu({ history, permission, match }) {
           style={{
             display: "flex",
             alignItems: "center",
+            gap: "15px",
+            width: "100%",
           }}
         >
-          <span
-            style={{
-              width: "80px",
+          <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
+          <Toolbar
+            count={1}
+            search={{
+              title: "Tìm kiếm",
+              loading,
+              value: keyword,
+              onChange: onChangeKeyword,
+              onPressEnter: onSearchNguoiDung,
+              onSearch: onSearchNguoiDung,
+              placeholder: "Nhập từ khóa",
+              allowClear: true,
+              onClear: { handleClearSearch },
             }}
-          >
-            Tìm kiếm:
-          </span>
-          <div
-            style={{
-              flex: 1,
-              alignItems: "center",
-              marginTop: width < 576 ? 10 : 0,
-            }}
-          >
-            <Toolbar
-              count={1}
-              search={{
-                title: "Tìm kiếm",
-                loading,
-                value: keyword,
-                onChange: onChangeKeyword,
-                onPressEnter: onSearchNguoiDung,
-                onSearch: onSearchNguoiDung,
-                placeholder: "Nhập từ khóa",
-                allowClear: true,
-                onClear: { handleClearSearch },
-              }}
-            />
-          </div>
+          />
         </Col>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 650, y: "55vh" }}
+          scroll={{ x: 800, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
-          dataSource={dataList}
+          dataSource={Data && reDataForTable(Data.datalist)}
           size="small"
           rowClassName={"editable-row"}
           pagination={{
@@ -308,4 +401,4 @@ function CapDoNhanSu({ history, permission, match }) {
   );
 }
 
-export default CapDoNhanSu;
+export default CongDoan;

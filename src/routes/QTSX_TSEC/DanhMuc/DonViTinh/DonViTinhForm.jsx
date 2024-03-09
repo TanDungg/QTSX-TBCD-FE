@@ -5,12 +5,18 @@ import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_ADD_130PX } from "src/constants/Config";
+import { DEFAULT_FORM_ADD_170PX } from "src/constants/Config";
+import { getTokenInfo, getLocalStorage } from "src/util/Common";
 
 const FormItem = Form.Item;
 
-const KienThucForm = ({ history, match, permission }) => {
+const DonViTinhForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [type, setType] = useState("new");
@@ -43,7 +49,7 @@ const KienThucForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_KienThuc/${id}`,
+          `DonViTinh/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -56,7 +62,7 @@ const KienThucForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            formkienthuc: res.data,
+            formdonvitinh: res.data,
           });
         }
       })
@@ -73,32 +79,28 @@ const KienThucForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
-    saveData(values.formkienthuc);
+    saveData(values.formdonvitinh);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.formkienthuc, true);
+        saveData(values.formdonvitinh, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (formkienthuc, saveQuit = false) => {
+  const saveData = (formdonvitinh, saveQuit = false) => {
     if (type === "new") {
+      const newData = {
+        ...formdonvitinh,
+        donVi_Id: INFO.donVi_Id,
+      };
       new Promise((resolve, reject) => {
         dispatch(
-          fetchStart(
-            `vptq_lms_KienThuc`,
-            "POST",
-            formkienthuc,
-            "ADD",
-            "",
-            resolve,
-            reject
-          )
+          fetchStart(`DonViTinh`, "POST", newData, "ADD", "", resolve, reject)
         );
       })
         .then((res) => {
@@ -116,11 +118,15 @@ const KienThucForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...formkienthuc, id: id };
+      const newData = {
+        ...formdonvitinh,
+        donVi_Id: INFO.donVi_Id,
+        id: id,
+      };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_KienThuc/${id}`,
+            `DonViTinh/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -131,10 +137,15 @@ const KienThucForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (res.status === 409 || !saveQuit) {
+          if (res && res.status === 409) {
             setFieldTouch(false);
           } else {
-            goBack();
+            if (saveQuit) {
+              goBack();
+            } else {
+              getInfo(id);
+              setFieldTouch(false);
+            }
           }
         })
         .catch((error) => console.error(error));
@@ -142,7 +153,7 @@ const KienThucForm = ({ history, match, permission }) => {
   };
 
   const formTitle =
-    type === "new" ? "Thêm mới kiến thức" : "Chỉnh sửa kiến thức";
+    type === "new" ? "Thêm mới đơn vị tính" : "Chỉnh sửa đơn vị tính";
 
   return (
     <div className="gx-main-content">
@@ -153,16 +164,16 @@ const KienThucForm = ({ history, match, permission }) => {
         style={{ width: "100%" }}
       >
         <Form
-          {...DEFAULT_FORM_ADD_130PX}
+          {...DEFAULT_FORM_ADD_170PX}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Mã kiến thức"
-              name={["formkienthuc", "maKienThuc"]}
+              label="Mã đơn vị tính"
+              name={["formdonvitinh", "maDonViTinh"]}
               rules={[
                 {
                   type: "string",
@@ -170,17 +181,17 @@ const KienThucForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 50,
-                  message: "Mã kiến thức không được quá 50 ký tự",
+                  message: "Mã đơn vị tính không được quá 50 ký tự",
                 },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập mã kiến thức" />
+              <Input className="input-item" placeholder="Nhập mã đơn vị tính" />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Tên kiến thức"
-              name={["formkienthuc", "tenKienThuc"]}
+              label="Tên đơn vị tính"
+              name={["formdonvitinh", "tenDonViTinh"]}
               rules={[
                 {
                   type: "string",
@@ -188,28 +199,14 @@ const KienThucForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 250,
-                  message: "Tên kiến thức không được quá 250 ký tự",
+                  message: "Tên đơn vị tính không được quá 250 ký tự",
                 },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập tên kiến thức" />
-            </FormItem>
-          </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
-            <FormItem
-              label="Ghi chú"
-              name={["formkienthuc", "moTa"]}
-              rules={[
-                {
-                  type: "string",
-                },
-                {
-                  max: 250,
-                  message: "Ghi chú không được quá 250 ký tự",
-                },
-              ]}
-            >
-              <Input className="input-item" placeholder="Nhập ghi chú" />
+              <Input
+                className="input-item"
+                placeholder="Nhập tên đơn vị tính"
+              />
             </FormItem>
           </Col>
           <FormSubmit
@@ -223,4 +220,4 @@ const KienThucForm = ({ history, match, permission }) => {
   );
 };
 
-export default KienThucForm;
+export default DonViTinhForm;

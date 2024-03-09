@@ -3,21 +3,35 @@ import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit } from "src/components/Common";
+import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_ADD_150PX } from "src/constants/Config";
+import {
+  convertObjectToUrlParams,
+  getLocalStorage,
+  getTokenInfo,
+} from "src/util/Common";
 
 const FormItem = Form.Item;
 
-const ChucDanhForm = ({ history, match, permission }) => {
+const SanPhamForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
-  const [type, setType] = useState("new");
   const [fieldTouch, setFieldTouch] = useState(false);
-  const [id, setId] = useState(undefined);
+  const [type, setType] = useState("new");
+  const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
+  const [ListDonViTinh, setListDonViTinh] = useState([]);
+  const [id, setId] = useState(null);
 
   useEffect(() => {
+    getListLoaiSanPham();
+    getListDonViTinh();
     if (includes(match.url, "them-moi")) {
       if (permission && permission.add) {
         setType("new");
@@ -38,11 +52,11 @@ const ChucDanhForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getInfo = (id) => {
+  const getListLoaiSanPham = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_ChucDanh/${id}`,
+          `tsec_qtsx_LoaiSanPham?page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -54,8 +68,61 @@ const ChucDanhForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
+          setListLoaiSanPham(res.data);
+        } else {
+          setListLoaiSanPham([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListDonViTinh = () => {
+    let param = convertObjectToUrlParams({
+      DonVi_Id: INFO.donVi_Id,
+      page: -1,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `DonViTinh?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListDonViTinh(res.data);
+        } else {
+          setListDonViTinh([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getInfo = (id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_SanPham/${id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const data = res.data;
           setFieldsValue({
-            chucdanh: res.data,
+            formsanpham: data,
           });
         }
       })
@@ -72,27 +139,27 @@ const ChucDanhForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
-    saveData(values.chucdanh);
+    saveData(values.formsanpham);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.chucdanh, true);
+        saveData(values.formsanpham, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (chucdanh, saveQuit = false) => {
+  const saveData = (formsanpham, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_ChucDanh`,
+            `tsec_qtsx_SanPham`,
             "POST",
-            chucdanh,
+            formsanpham,
             "ADD",
             "",
             resolve,
@@ -115,11 +182,14 @@ const ChucDanhForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...chucdanh, id: id };
+      const newData = {
+        ...formsanpham,
+        id: id,
+      };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `vptq_lms_ChucDanh/${id}`,
+            `tsec_qtsx_SanPham/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -130,18 +200,22 @@ const ChucDanhForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (res.status === 409 || !saveQuit) {
+          if (res && res.status === 409) {
             setFieldTouch(false);
           } else {
-            goBack();
+            if (saveQuit) {
+              goBack();
+            } else {
+              getInfo(id);
+              setFieldTouch(false);
+            }
           }
         })
         .catch((error) => console.error(error));
     }
   };
 
-  const formTitle =
-    type === "new" ? "Thêm mới chức danh" : "Chỉnh sửa chức danh";
+  const formTitle = type === "new" ? "Thêm mới sản phẩm" : "Chỉnh sửa sản phẩm";
 
   return (
     <div className="gx-main-content">
@@ -158,10 +232,10 @@ const ChucDanhForm = ({ history, match, permission }) => {
           onFinish={onFinish}
           onFieldsChange={() => setFieldTouch(true)}
         >
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Mã chức danh"
-              name={["chucdanh", "maChucDanh"]}
+              label="Mã sản phẩm"
+              name={["formsanpham", "maSanPham"]}
               rules={[
                 {
                   type: "string",
@@ -169,17 +243,17 @@ const ChucDanhForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 50,
-                  message: "Mã chức danh không được quá 50 ký tự",
+                  message: "Mã sản phẩm không được quá 50 ký tự",
                 },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập mã chức danh" />
+              <Input className="input-item" placeholder="Nhập mã sản phẩm" />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Tên chức danh"
-              name={["chucdanh", "tenChucDanh"]}
+              label="Tên sản phẩm"
+              name={["formsanpham", "tenSanPham"]}
               rules={[
                 {
                   type: "string",
@@ -187,28 +261,55 @@ const ChucDanhForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 250,
-                  message: "Tên chức danh không được quá 250 ký tự",
+                  message: "Tên sản phẩm không được quá 250 ký tự",
                 },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập tên chức danh" />
+              <Input className="input-item" placeholder="Nhập tên sản phẩm" />
             </FormItem>
           </Col>
-          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Ghi chú"
-              name={["chucdanh", "moTa"]}
+              label="Loại sản phẩm"
+              name={["formsanpham", "tsec_qtsx_LoaiSanPham_Id"]}
               rules={[
                 {
                   type: "string",
-                },
-                {
-                  max: 250,
-                  message: "Ghi chú không được quá 250 ký tự",
+                  required: true,
                 },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập ghi chú" />
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListLoaiSanPham ? ListLoaiSanPham : []}
+                placeholder="Chọn loại sản phẩm"
+                optionsvalue={["id", "tenLoaiSanPham"]}
+                style={{ width: "100%" }}
+                optionFilterProp="name"
+                showSearch
+              />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Đơn vị tính"
+              name={["formsanpham", "donViTinh_Id"]}
+              rules={[
+                {
+                  type: "string",
+                  required: true,
+                },
+              ]}
+            >
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListDonViTinh ? ListDonViTinh : []}
+                placeholder="Chọn đơn vị tính"
+                optionsvalue={["id", "tenDonViTinh"]}
+                style={{ width: "100%" }}
+                optionFilterProp="name"
+                showSearch
+              />
             </FormItem>
           </Col>
           <FormSubmit
@@ -222,4 +323,4 @@ const ChucDanhForm = ({ history, match, permission }) => {
   );
 };
 
-export default ChucDanhForm;
+export default SanPhamForm;

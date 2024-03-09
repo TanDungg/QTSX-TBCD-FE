@@ -1,11 +1,15 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Divider, Image, Row } from "antd";
+import { Button, Card, Col, Divider, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
-import { removeDuplicates, reDataForTable } from "src/util/Common";
+import {
+  removeDuplicates,
+  reDataForTable,
+  convertObjectToUrlParams,
+} from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import {
   EditableTableRow,
@@ -15,24 +19,22 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { convertObjectToUrlParams } from "src/util/Common";
-import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function GiangVien({ permission, history, match }) {
+function Chuyen({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
-  const [ListDonViDaoTao, setListDonViDaoTao] = useState([]);
-  const [DonViDaoTao, setDonViDaoTao] = useState([]);
+  const [ListCongDoan, setListCongDoan] = useState([]);
+  const [CongDoan, setCongDoan] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (permission && permission.view) {
-      getListDonViDaoTao();
-      getListData(DonViDaoTao, keyword, page);
+      getListCongDoan();
+      getListData(CongDoan, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -41,16 +43,16 @@ function GiangVien({ permission, history, match }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListData = (vptq_lms_DonViDaoTao_Id, keyword, page) => {
+  const getListData = (tsec_qtsx_CongDoan_Id, keyword, page) => {
     let param = convertObjectToUrlParams({
-      vptq_lms_DonViDaoTao_Id,
+      tsec_qtsx_CongDoan_Id,
       keyword,
       page,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_GiangVien?${param}`,
+          `tsec_qtsx_Chuyen?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -68,11 +70,11 @@ function GiangVien({ permission, history, match }) {
     });
   };
 
-  const getListDonViDaoTao = () => {
+  const getListCongDoan = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_DonViDaoTao?page=-1`,
+          `tsec_qtsx_CongDoan?page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -84,9 +86,9 @@ function GiangVien({ permission, history, match }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListDonViDaoTao(res.data);
+          setListCongDoan(res.data);
         } else {
-          setListDonViDaoTao([]);
+          setListCongDoan([]);
         }
       })
       .catch((error) => console.error(error));
@@ -94,32 +96,32 @@ function GiangVien({ permission, history, match }) {
 
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(DonViDaoTao, keyword, pagination);
+    getListData(CongDoan, keyword, pagination);
   };
 
-  const onSearchGiangVien = () => {
-    getListData(DonViDaoTao, keyword, page);
+  const onSearchChuyen = () => {
+    getListData(CongDoan, keyword, page);
   };
 
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(DonViDaoTao, val.target.value, page);
+      getListData(CongDoan, val.target.value, page);
     }
   };
 
   const deleteItemFunc = (item) => {
-    const title = "giảng viên";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenGiangVien, title);
+    const title = "chuyền";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenChuyen, title);
   };
 
   const deleteItemAction = (item) => {
-    let url = `vptq_lms_GiangVien/${item.id}`;
+    let url = `tsec_qtsx_Chuyen/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        getListData(DonViDaoTao, keyword, page);
+        getListData(CongDoan, keyword, page);
       })
       .catch((error) => console.error(error));
   };
@@ -178,135 +180,75 @@ function GiangVien({ permission, history, match }) {
       align: "center",
     },
     {
-      title: "Hình ảnh",
-      dataIndex: "hinhAnh",
-      key: "hinhAnh",
+      title: "Mã chuyền",
+      dataIndex: "maChuyen",
+      key: "maChuyen",
       align: "center",
       width: 150,
-      render: (value, record) => {
-        return (
-          value && (
-            <span>
-              <Image
-                src={BASE_URL_API + value}
-                alt="Hình ảnh giảng viên"
-                style={{ maxWidth: 70, maxHeight: 70 }}
-              />
-            </span>
-          )
-        );
-      },
-    },
-    {
-      title: "Mã giảng viên",
-      dataIndex: "maGiangVien",
-      key: "maGiangVien",
-      align: "center",
-      width: 120,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maGiangVien,
-            value: d.maGiangVien,
+            text: d.maChuyen,
+            value: d.maChuyen,
           };
         })
       ),
-      onFilter: (value, record) => record.maGiangVien.includes(value),
+      onFilter: (value, record) => record.maChuyen.includes(value),
       filterSearch: true,
     },
     {
-      title: "Họ và tên",
-      dataIndex: "tenGiangVien",
-      key: "tenGiangVien",
-      align: "left",
-      width: 180,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenGiangVien,
-            value: d.tenGiangVien,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenGiangVien.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Đơn vị đào tạo",
-      dataIndex: "tenDonViDaoTao",
-      key: "tenDonViDaoTao",
+      title: "Tên chuyền",
+      dataIndex: "tenChuyen",
+      key: "tenChuyen",
       align: "left",
       width: 200,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenDonViDaoTao,
-            value: d.tenDonViDaoTao,
+            text: d.tenChuyen,
+            value: d.tenChuyen,
           };
         })
       ),
-      onFilter: (value, record) => record.tenDonViDaoTao.includes(value),
+      onFilter: (value, record) => record.tenChuyen.includes(value),
       filterSearch: true,
     },
     {
-      title: "Giới thiệu",
-      dataIndex: "gioiThieu",
-      key: "gioiThieu",
-      align: "left",
-      width: 150,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.gioiThieu,
-            value: d.gioiThieu,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.gioiThieu.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Loại giảng viên",
-      dataIndex: "tenLoaiGiangVien",
-      key: "tenLoaiGiangVien",
+      title: "Công đoạn",
+      dataIndex: "tenCongDoan",
+      key: "tenCongDoan",
       align: "center",
       width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenLoaiGiangVien,
-            value: d.tenLoaiGiangVien,
+            text: d.tenCongDoan,
+            value: d.tenCongDoan,
           };
         })
       ),
-      onFilter: (value, record) => record.tenLoaiGiangVien.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Chuyên môn",
-      dataIndex: "tenChuyenMon",
-      key: "tenChuyenMon",
-      align: "center",
-      width: 150,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenChuyenMon,
-            value: d.tenChuyenMon,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenChuyenMon.includes(value),
+      onFilter: (value, record) => record.tenCongDoan.includes(value),
       filterSearch: true,
     },
     {
       title: "Ghi chú",
       dataIndex: "moTa",
       key: "moTa",
-      align: "left",
+      align: "center",
       width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.moTa,
+            value: d.moTa,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.moTa.includes(value),
+      filterSearch: true,
     },
   ];
+
   const components = {
     body: {
       row: EditableRow,
@@ -352,21 +294,21 @@ function GiangVien({ permission, history, match }) {
     );
   };
 
-  const handleOnSelectDonViDaoTao = (value) => {
-    setDonViDaoTao(value);
+  const handleOnSelectCongDoan = (value) => {
+    setCongDoan(value);
     getListData(value, keyword, page);
   };
 
-  const handleClearDonViDaoTao = () => {
-    setDonViDaoTao(null);
+  const handleClearCongDoan = () => {
+    setCongDoan(null);
     getListData(null, keyword, page);
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Danh mục giảng viên"}
-        description="Danh sách giảng viên"
+        title={"Danh mục chuyền"}
+        description="Danh sách chuyền"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -380,23 +322,23 @@ function GiangVien({ permission, history, match }) {
             xs={24}
             style={{ marginBottom: 8 }}
           >
-            <span>Đơn vị:</span>
+            <span>Công đoạn:</span>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListDonViDaoTao ? ListDonViDaoTao : []}
-              placeholder="Chọn đơn vị đào tạo"
-              optionsvalue={["id", "tenDonViDaoTao"]}
+              data={ListCongDoan ? ListCongDoan : []}
+              placeholder="Chọn công đoạn"
+              optionsvalue={["id", "tenCongDoan"]}
               style={{ width: "100%" }}
-              value={DonViDaoTao}
+              value={CongDoan}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectDonViDaoTao}
+              onSelect={handleOnSelectCongDoan}
               allowClear
-              onClear={handleClearDonViDaoTao}
+              onClear={handleClearCongDoan}
             />
           </Col>
           <Col
-            xxl={5}
+            xxl={8}
             xl={8}
             lg={12}
             md={12}
@@ -412,8 +354,8 @@ function GiangVien({ permission, history, match }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchGiangVien,
-                onSearch: onSearchGiangVien,
+                onPressEnter: onSearchChuyen,
+                onSearch: onSearchChuyen,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
               }}
@@ -425,7 +367,7 @@ function GiangVien({ permission, history, match }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1000, y: "50vh" }}
+          scroll={{ x: 900, y: "50vh" }}
           components={components}
           className="gx-table-responsive th-table"
           dataSource={dataList}
@@ -445,4 +387,4 @@ function GiangVien({ permission, history, match }) {
   );
 }
 
-export default GiangVien;
+export default Chuyen;

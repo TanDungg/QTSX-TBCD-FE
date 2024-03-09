@@ -20,7 +20,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 
 function LoaiSanPham({ history, permission, match }) {
   const dispatch = useDispatch();
-  const { width, loading } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
@@ -79,7 +79,7 @@ function LoaiSanPham({ history, permission, match }) {
   };
 
   const deleteItemFunc = (item) => {
-    const title = "loại giảng viên";
+    const title = "loại sản phẩm";
     ModalDeleteConfirm(deleteItemAction, item, item.tenLoaiSanPham, title);
   };
 
@@ -146,7 +146,7 @@ function LoaiSanPham({ history, permission, match }) {
       align: "center",
     },
     {
-      title: "Mã loại giảng viên",
+      title: "Mã loại sản phẩm",
       dataIndex: "maLoaiSanPham",
       key: "maLoaiSanPham",
       align: "center",
@@ -163,11 +163,11 @@ function LoaiSanPham({ history, permission, match }) {
       filterSearch: true,
     },
     {
-      title: "Tên loại giảng viên",
+      title: "Tên loại sản phẩm",
       dataIndex: "tenLoaiSanPham",
       key: "tenLoaiSanPham",
       align: "center",
-      width: 300,
+      width: 250,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -178,13 +178,6 @@ function LoaiSanPham({ history, permission, match }) {
       ),
       onFilter: (value, record) => record.tenLoaiSanPham.includes(value),
       filterSearch: true,
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 150,
     },
   ];
 
@@ -236,8 +229,8 @@ function LoaiSanPham({ history, permission, match }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Danh mục loại giảng viên"}
-        description="Danh sách loại giảng viên"
+        title={"Danh mục loại sản phẩm"}
+        description="Danh sách loại sản phẩm"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -251,37 +244,25 @@ function LoaiSanPham({ history, permission, match }) {
           style={{
             display: "flex",
             alignItems: "center",
+            gap: "15px",
+            width: "100%",
           }}
         >
-          <span
-            style={{
-              width: "80px",
+          <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
+          <Toolbar
+            count={1}
+            search={{
+              title: "Tìm kiếm",
+              loading,
+              value: keyword,
+              onChange: onChangeKeyword,
+              onPressEnter: onSearchNguoiDung,
+              onSearch: onSearchNguoiDung,
+              placeholder: "Nhập từ khóa",
+              allowClear: true,
+              onClear: { handleClearSearch },
             }}
-          >
-            Tìm kiếm:
-          </span>
-          <div
-            style={{
-              flex: 1,
-              alignItems: "center",
-              marginTop: width < 576 ? 10 : 0,
-            }}
-          >
-            <Toolbar
-              count={1}
-              search={{
-                title: "Tìm kiếm",
-                loading,
-                value: keyword,
-                onChange: onChangeKeyword,
-                onPressEnter: onSearchNguoiDung,
-                onSearch: onSearchNguoiDung,
-                placeholder: "Nhập từ khóa",
-                allowClear: true,
-                onClear: { handleClearSearch },
-              }}
-            />
-          </div>
+          />
         </Col>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
