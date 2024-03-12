@@ -95,7 +95,7 @@ const Topbar = () => {
         )
       );
     }).then((res) => {
-      if (res && res.data) {
+      if (res && res.status === 200) {
         setListThongBao(res.data.list_ChiTiets);
         setThongBaoChuaXem(res.data.soLuongChuaXem);
       } else {
