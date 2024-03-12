@@ -186,7 +186,11 @@ const KhaiBaoSoContainerForm = ({ history, match, permission }) => {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const newData = ListVatTu.filter((d) => d.key !== item.key);
+    const newData = ListVatTu.filter(
+      (d) =>
+        d.tits_qtsx_SoContainerDoRoi_Id.toLowerCase() !==
+        item.tits_qtsx_SoContainerDoRoi_Id.toLowerCase()
+    );
     setListVatTu(newData);
   };
   /**

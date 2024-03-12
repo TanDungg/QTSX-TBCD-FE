@@ -1051,7 +1051,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                 >
                   {ImageUrl ? (
                     <img
-                      style={{ maxWidth: "250px", height: "100%" }}
+                      style={{ maxWidth: "100%", height: "100%" }}
                       src={ImageUrl}
                       alt="Hình ảnh đại diện chuyên đề"
                     />

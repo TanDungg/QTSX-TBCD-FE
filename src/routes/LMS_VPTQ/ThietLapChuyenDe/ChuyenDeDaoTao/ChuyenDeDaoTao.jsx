@@ -17,6 +17,7 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 import { BASE_URL_API } from "src/constants/Config";
+import ReactPlayer from "react-player";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -351,6 +352,40 @@ function ChuyenDeDaoTao({ permission, history, match }) {
     },
     {
       title: "Video bài giảng",
+      dataIndex: "fileVideo",
+      key: "fileVideo",
+      align: "center",
+      width: 120,
+      render: (value) => {
+        return (
+          value && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <ReactPlayer
+                url={BASE_URL_API + value}
+                width="80px"
+                height="45px"
+                onClick={() => window.open(BASE_URL_API + value, "_blank")}
+                style={{ cursor: "pointer" }}
+              />
+            </div>
+          )
+        );
+      },
+    },
+    {
+      title: (
+        <div>
+          Ảnh đại diện
+          <br />
+          chuyên đề
+        </div>
+      ),
       dataIndex: "anhDaiDienChuyenDe",
       key: "anhDaiDienChuyenDe",
       align: "center",
