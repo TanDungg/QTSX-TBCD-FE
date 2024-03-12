@@ -629,6 +629,8 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
       } else {
         setFileVideo(file);
         setDisableUploadVideo(true);
+        setErrorLoadingVideo(false);
+        setLoadingVideo(null);
         return false;
       }
     },
@@ -658,6 +660,8 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
 
       setFileTaiLieu(file);
       setDisableUploadTaiLieu(true);
+      setErrorLoadingTaiLieu(false);
+      setLoadingTaiLieu(null);
       return false;
     },
     showUploadList: false,
@@ -865,18 +869,24 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                     >
                       {FileVideo.name}{" "}
                     </span>
-                    <DeleteOutlined
-                      style={{ cursor: "pointer", color: "red" }}
-                      onClick={() => {
-                        setFileVideo(null);
-                        setDisableUploadVideo(false);
-                        setFieldsValue({
-                          formchuyendedaotao: {
-                            fileVideo: null,
-                          },
-                        });
-                      }}
-                    />
+                    {LoadingVideo ? (
+                      <DeleteOutlined
+                        style={{ cursor: "no-drop", color: "#545454" }}
+                      />
+                    ) : (
+                      <DeleteOutlined
+                        style={{ cursor: "pointer", color: "red" }}
+                        onClick={() => {
+                          setFileVideo(null);
+                          setDisableUploadVideo(false);
+                          setFieldsValue({
+                            formchuyendedaotao: {
+                              fileVideo: null,
+                            },
+                          });
+                        }}
+                      />
+                    )}
                   </span>
                 ) : (
                   <span>
@@ -887,19 +897,25 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                     >
                       {FileVideo && FileVideo.split("/")[5]}{" "}
                     </a>
-                    <DeleteOutlined
-                      style={{ cursor: "pointer", color: "red" }}
-                      onClick={() => {
-                        setFieldTouch(true);
-                        setFileVideo(null);
-                        setDisableUploadVideo(false);
-                        setFieldsValue({
-                          formchuyendedaotao: {
-                            fileVideo: null,
-                          },
-                        });
-                      }}
-                    />
+                    {LoadingVideo ? (
+                      <DeleteOutlined
+                        style={{ cursor: "no-drop", color: "#545454" }}
+                      />
+                    ) : (
+                      <DeleteOutlined
+                        style={{ cursor: "pointer", color: "red" }}
+                        onClick={() => {
+                          setFieldTouch(true);
+                          setFileVideo(null);
+                          setDisableUploadVideo(false);
+                          setFieldsValue({
+                            formchuyendedaotao: {
+                              fileVideo: null,
+                            },
+                          });
+                        }}
+                      />
+                    )}
                   </span>
                 )}
                 {LoadingVideo && (
@@ -957,18 +973,24 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                     >
                       {FileTaiLieu.name}{" "}
                     </span>
-                    <DeleteOutlined
-                      style={{ cursor: "pointer", color: "red" }}
-                      onClick={() => {
-                        setFileTaiLieu(null);
-                        setDisableUploadTaiLieu(false);
-                        setFieldsValue({
-                          formchuyendedaotao: {
-                            fileTaiLieu: null,
-                          },
-                        });
-                      }}
-                    />
+                    {LoadingTaiLieu ? (
+                      <DeleteOutlined
+                        style={{ cursor: "no-drop", color: "#545454" }}
+                      />
+                    ) : (
+                      <DeleteOutlined
+                        style={{ cursor: "pointer", color: "red" }}
+                        onClick={() => {
+                          setFileTaiLieu(null);
+                          setDisableUploadTaiLieu(false);
+                          setFieldsValue({
+                            formchuyendedaotao: {
+                              fileTaiLieu: null,
+                            },
+                          });
+                        }}
+                      />
+                    )}
                   </span>
                 ) : (
                   <span>
@@ -979,19 +1001,25 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                     >
                       {FileTaiLieu && FileTaiLieu.split("/")[5]}{" "}
                     </a>
-                    <DeleteOutlined
-                      style={{ cursor: "pointer", color: "red" }}
-                      onClick={() => {
-                        setFieldTouch(true);
-                        setFileTaiLieu(null);
-                        setDisableUploadTaiLieu(false);
-                        setFieldsValue({
-                          formchuyendedaotao: {
-                            fileTaiLieu: null,
-                          },
-                        });
-                      }}
-                    />
+                    {LoadingTaiLieu ? (
+                      <DeleteOutlined
+                        style={{ cursor: "no-drop", color: "#545454" }}
+                      />
+                    ) : (
+                      <DeleteOutlined
+                        style={{ cursor: "pointer", color: "red" }}
+                        onClick={() => {
+                          setFieldTouch(true);
+                          setFileTaiLieu(null);
+                          setDisableUploadTaiLieu(false);
+                          setFieldsValue({
+                            formchuyendedaotao: {
+                              fileTaiLieu: null,
+                            },
+                          });
+                        }}
+                      />
+                    )}
                   </span>
                 )}
                 {LoadingTaiLieu && (
@@ -1047,6 +1075,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                   }}
                   beforeUpload={beforeUpload}
                   onChange={handleChange}
+                  accept="image/*"
                   style={{ width: "250px", height: "250px" }}
                 >
                   {ImageUrl ? (
