@@ -57,6 +57,12 @@ const TaiLieuThamKhao = asyncComponent(() =>
 );
 const KiemTra = asyncComponent(() => import("./LMS_VPTQ/KiemTra"));
 const BaoCao = asyncComponent(() => import("./LMS_VPTQ/BaoCao"));
+
+/* LMS_VPTQ */
+const Home_QTSX_TSEC = asyncComponent(() => import("./QTSX_TSEC/Home"));
+const HeThong_QTSX_TSEC = asyncComponent(() => import("./QTSX_TSEC/HeThong"));
+const DanhMuc_QTSX_TSEC = asyncComponent(() => import("./QTSX_TSEC/DanhMuc"));
+
 const App = ({ match, menus, location }) => {
   const { pathname } = location;
   return (
@@ -201,6 +207,19 @@ const App = ({ match, menus, location }) => {
         <Route
           path={`${match.url}bao-cao-lms-vptq`}
           component={Auth(BaoCao, menus, pathname)}
+        />
+         {/* LMS-VPTQ */}
+         <Route
+          path={`${match.url}home-qtsx-tsec`}
+          component={Auth(Home_QTSX_TSEC, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}he-thong-qtsx-tsec`}
+          component={Auth(HeThong_QTSX_TSEC, menus, pathname)}
+        />
+        <Route
+          path={`${match.url}danh-muc-qtsx-tsec`}
+          component={Auth(DanhMuc_QTSX_TSEC, menus, pathname)}
         />
         <Route path="*" component={Auth(NotFound, menus, pathname)} />
       </Switch>
