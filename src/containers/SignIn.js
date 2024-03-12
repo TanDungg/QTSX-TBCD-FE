@@ -71,8 +71,6 @@ const SignIn = ({ history }) => {
 
   useEffect(() => {
     const userInfo = getTokenInfo();
-    console.log(authUser);
-    console.log(userInfo);
     if ((authUser && authUser.token) || (userInfo && userInfo.token)) {
       const url = sessionStorage.getItem("currentURL");
       const session = sessionStorage.getItem("tokenInfo");
