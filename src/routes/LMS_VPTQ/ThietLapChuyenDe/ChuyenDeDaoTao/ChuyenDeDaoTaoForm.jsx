@@ -277,11 +277,11 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             }
           } else {
             const formData = new FormData();
-            formData.append("lstFiles", FileVideo);
+            formData.append("file", FileVideo);
 
             const xhr = new XMLHttpRequest();
 
-            xhr.open("POST", `${BASE_URL_API}/api/Upload/Multi`, true);
+            xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
 
             xhr.upload.onprogress = (event) => {
               if (event.lengthComputable) {
@@ -294,7 +294,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             xhr.onload = () => {
               if (xhr.status === 200) {
                 const data = JSON.parse(xhr.responseText);
-                formchuyendedaotao.fileVideo = data[0].path;
+                formchuyendedaotao.fileVideo = data.path;
                 resolve();
               } else {
                 setErrorLoadingVideo(true);
@@ -382,11 +382,11 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             }
           } else if (FileVideo && FileVideo.name) {
             const formData = new FormData();
-            formData.append("lstFiles", FileVideo);
+            formData.append("file", FileVideo);
 
             const xhr = new XMLHttpRequest();
 
-            xhr.open("POST", `${BASE_URL_API}/api/Upload/Multi`, true);
+            xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
 
             xhr.upload.onprogress = (event) => {
               if (event.lengthComputable) {
@@ -399,7 +399,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             xhr.onload = () => {
               if (xhr.status === 200) {
                 const data = JSON.parse(xhr.responseText);
-                formchuyendedaotao.fileVideo = data[0].path;
+                formchuyendedaotao.fileVideo = data.path;
                 resolve();
               } else {
                 setErrorLoadingVideo(true);
@@ -1047,10 +1047,14 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                   }}
                   beforeUpload={beforeUpload}
                   onChange={handleChange}
-                  style={{ width: "250px" }}
+                  style={{ width: "250px", height: "250px" }}
                 >
                   {ImageUrl ? (
-                    <img src={ImageUrl} alt="Hình ảnh đại diện chuyên đề" />
+                    <img
+                      style={{ maxWidth: "250px", height: "100%" }}
+                      src={ImageUrl}
+                      alt="Hình ảnh đại diện chuyên đề"
+                    />
                   ) : (
                     uploadButton
                   )}
