@@ -69,10 +69,13 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
   const [FileTaiLieu, setFileTaiLieu] = useState(null);
   const [DisableUploadTaiLieu, setDisableUploadTaiLieu] = useState(false);
   const [id, setId] = useState(null);
-  const [loading, setLoading] = useState(null);
+  const [ImageUrl, setImageUrl] = useState();
   const [Path, setPath] = useState();
   const [LoadingImage, setLoadingImage] = useState(false);
-  const [ImageUrl, setImageUrl] = useState();
+  const [LoadingVideo, setLoadingVideo] = useState(null);
+  const [ErrorLoadingVideo, setErrorLoadingVideo] = useState(false);
+  const [LoadingTaiLieu, setLoadingTaiLieu] = useState(null);
+  const [ErrorLoadingTaiLieu, setErrorLoadingTaiLieu] = useState(false);
 
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
@@ -243,10 +246,14 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
+    setErrorLoadingVideo(false);
+    setErrorLoadingTaiLieu(false);
     uploadFile(values.formchuyendedaotao);
   };
 
   const saveAndClose = () => {
+    setErrorLoadingVideo(false);
+    setErrorLoadingTaiLieu(false);
     validateFields()
       .then((values) => {
         uploadFile(values.formchuyendedaotao, true);
@@ -258,168 +265,19 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
 
   const uploadFile = (formchuyendedaotao, saveQuit) => {
     if (type === "new") {
-      if (HinhThucDaoTao === HINHTHUCDAOTAO_ONLINE) {
-        if (!formchuyendedaotao.fileVideo) {
-          Helpers.alertError("Vui lòng tải file video lên!");
-        } else if (!formchuyendedaotao.fileTaiLieu) {
-          Helpers.alertError("Vui lòng tải file tài liệu lên!");
-        } else {
-          const formData = new FormData();
-          formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
-          formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
-
-          const xhr = new XMLHttpRequest();
-
-          xhr.open("POST", `${BASE_URL_API}/api/Upload/Multi`, true);
-
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const progress = (event.loaded / event.total) * 100;
-              setLoading(progress);
-            }
-          };
-
-          xhr.onload = () => {
-            if (xhr.status === 200) {
-              const data = JSON.parse(xhr.responseText);
-              formchuyendedaotao.fileTaiLieu = data[0].path;
-              formchuyendedaotao.fileVideo = data[1].path;
-              saveData(formchuyendedaotao, saveQuit);
-            } else {
-              Helpers.alertError("Tải file không thành công.");
-            }
-          };
-
-          xhr.onerror = () => {
-            Helpers.alertError("Tải file không thành công.");
-          };
-
-          xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-          xhr.send(formData);
-        }
-      } else {
-        if (!formchuyendedaotao.fileTaiLieu && !formchuyendedaotao.fileVideo) {
-          saveData(formchuyendedaotao, saveQuit);
-        } else if (
-          formchuyendedaotao.fileTaiLieu ||
-          formchuyendedaotao.fileVideo
-        ) {
-          const formData = new FormData();
-          formchuyendedaotao.fileTaiLieu
-            ? formData.append("file", formchuyendedaotao.fileTaiLieu.file)
-            : formData.append("file", formchuyendedaotao.fileVideo.file);
-
-          const xhr = new XMLHttpRequest();
-
-          xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
-
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const progress = (event.loaded / event.total) * 100;
-              setLoading(progress);
-            }
-          };
-
-          xhr.onload = () => {
-            if (xhr.status === 200) {
-              const data = JSON.parse(xhr.responseText);
-              formchuyendedaotao.fileTaiLieu
-                ? (formchuyendedaotao.fileTaiLieu = data.path)
-                : (formchuyendedaotao.fileVideo = data.path);
-              saveData(formchuyendedaotao, saveQuit);
-            } else {
-              Helpers.alertError("Tải file không thành công.");
-            }
-          };
-
-          xhr.onerror = () => {
-            Helpers.alertError("Tải file không thành công.");
-          };
-
-          xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-          xhr.send(formData);
-        } else {
-          const formData = new FormData();
-          formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
-          formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
-
-          const xhr = new XMLHttpRequest();
-
-          xhr.open("POST", `${BASE_URL_API}/api/Upload/Multi`, true);
-
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const progress = (event.loaded / event.total) * 100;
-              setLoading(progress);
-            }
-          };
-
-          xhr.onload = () => {
-            if (xhr.status === 200) {
-              const data = JSON.parse(xhr.responseText);
-              formchuyendedaotao.fileTaiLieu = data[0].path;
-              formchuyendedaotao.fileVideo = data[1].path;
-              saveData(formchuyendedaotao, saveQuit);
-            } else {
-              Helpers.alertError("Tải file không thành công.");
-            }
-          };
-
-          xhr.onerror = () => {
-            Helpers.alertError("Tải file không thành công.");
-          };
-
-          xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-          xhr.send(formData);
-        }
-      }
-    } else {
-      if (HinhThucDaoTao === HINHTHUCDAOTAO_ONLINE) {
-        if (!formchuyendedaotao.fileVideo) {
-          Helpers.alertError("Vui lòng tải file video lên.");
-        } else if (
-          formchuyendedaotao.fileVideo &&
-          formchuyendedaotao.fileVideo.file
-        ) {
+      const uploadVideo = () => {
+        return new Promise((resolve, reject) => {
           if (
-            !formchuyendedaotao.fileTaiLieu ||
-            (formchuyendedaotao.fileTaiLieu &&
-              !formchuyendedaotao.fileTaiLieu.file)
+            (!FileVideo || !FileTaiLieu) &&
+            formchuyendedaotao.vptq_lms_HinhThucDaoTao_Id ===
+              HINHTHUCDAOTAO_ONLINE
           ) {
-            const formData = new FormData();
-            formData.append("file", formchuyendedaotao.fileVideo.file);
-
-            const xhr = new XMLHttpRequest();
-
-            xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
-
-            xhr.upload.onprogress = (event) => {
-              if (event.lengthComputable) {
-                const progress = (event.loaded / event.total) * 100;
-                setLoading(progress);
-              }
-            };
-
-            xhr.onload = () => {
-              if (xhr.status === 200) {
-                const data = JSON.parse(xhr.responseText);
-                formchuyendedaotao.fileVideo = data.path;
-                saveData(formchuyendedaotao, saveQuit);
-              } else {
-                Helpers.alertError("Tải file không thành công.");
-              }
-            };
-
-            xhr.onerror = () => {
-              Helpers.alertError("Tải file không thành công.");
-            };
-
-            xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-            xhr.send(formData);
+            if (!FileVideo) {
+              reject("Vui lòng tải file video lên!");
+            }
           } else {
             const formData = new FormData();
-            formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
-            formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
+            formData.append("lstFiles", FileVideo);
 
             const xhr = new XMLHttpRequest();
 
@@ -428,35 +286,46 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             xhr.upload.onprogress = (event) => {
               if (event.lengthComputable) {
                 const progress = (event.loaded / event.total) * 100;
-                setLoading(progress);
+                setFieldTouch(false);
+                setLoadingVideo(progress);
               }
             };
 
             xhr.onload = () => {
               if (xhr.status === 200) {
                 const data = JSON.parse(xhr.responseText);
-                formchuyendedaotao.fileTaiLieu = data[0].path;
-                formchuyendedaotao.fileVideo = data[1].path;
-                saveData(formchuyendedaotao, saveQuit);
+                formchuyendedaotao.fileVideo = data[0].path;
+                resolve();
               } else {
-                Helpers.alertError("Tải file không thành công.");
+                setErrorLoadingVideo(true);
+                reject("Tải file video không thành công.");
               }
             };
 
             xhr.onerror = () => {
-              Helpers.alertError("Tải file không thành công.");
+              setErrorLoadingVideo(true);
+              reject("Tải file video không thành công.");
             };
 
             xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
             xhr.send(formData);
           }
-        } else {
+        });
+      };
+
+      const uploadTaiLieu = () => {
+        return new Promise((resolve, reject) => {
           if (
-            formchuyendedaotao.fileTaiLieu &&
-            formchuyendedaotao.fileTaiLieu.file
+            (!FileTaiLieu || !FileVideo) &&
+            formchuyendedaotao.vptq_lms_HinhThucDaoTao_Id ===
+              HINHTHUCDAOTAO_ONLINE
           ) {
+            if (!FileTaiLieu) {
+              reject("Vui lòng tải file tài liệu lên!");
+            }
+          } else {
             const formData = new FormData();
-            formData.append("file", formchuyendedaotao.fileTaiLieu.file);
+            formData.append("file", FileTaiLieu);
 
             const xhr = new XMLHttpRequest();
 
@@ -465,7 +334,8 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             xhr.upload.onprogress = (event) => {
               if (event.lengthComputable) {
                 const progress = (event.loaded / event.total) * 100;
-                setLoading(progress);
+                setFieldTouch(false);
+                setLoadingTaiLieu(progress);
               }
             };
 
@@ -473,104 +343,141 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               if (xhr.status === 200) {
                 const data = JSON.parse(xhr.responseText);
                 formchuyendedaotao.fileTaiLieu = data.path;
-                saveData(formchuyendedaotao, saveQuit);
+                resolve();
               } else {
-                Helpers.alertError("Tải file không thành công.");
+                setErrorLoadingTaiLieu(true);
+                reject("Tải file tài liệu không thành công.");
               }
             };
 
             xhr.onerror = () => {
-              Helpers.alertError("Tải file không thành công.");
+              setErrorLoadingTaiLieu(true);
+              reject("Tải file tài liệu không thành công.");
+            };
+
+            xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
+            xhr.send(formData);
+          }
+        });
+      };
+
+      Promise.all([uploadVideo(), uploadTaiLieu()])
+        .then(() => {
+          saveData(formchuyendedaotao, saveQuit);
+        })
+        .catch((error) => {
+          Helpers.alertError(error);
+          setFieldTouch(true);
+        });
+    } else {
+      const uploadVideo = () => {
+        return new Promise((resolve, reject) => {
+          if (
+            (!FileVideo || !FileTaiLieu) &&
+            formchuyendedaotao.vptq_lms_HinhThucDaoTao_Id ===
+              HINHTHUCDAOTAO_ONLINE
+          ) {
+            if (!FileVideo) {
+              reject("Vui lòng tải file video lên!");
+            }
+          } else if (FileVideo && FileVideo.name) {
+            const formData = new FormData();
+            formData.append("lstFiles", FileVideo);
+
+            const xhr = new XMLHttpRequest();
+
+            xhr.open("POST", `${BASE_URL_API}/api/Upload/Multi`, true);
+
+            xhr.upload.onprogress = (event) => {
+              if (event.lengthComputable) {
+                const progress = (event.loaded / event.total) * 100;
+                setFieldTouch(false);
+                setLoadingVideo(progress);
+              }
+            };
+
+            xhr.onload = () => {
+              if (xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                formchuyendedaotao.fileVideo = data[0].path;
+                resolve();
+              } else {
+                setErrorLoadingVideo(true);
+                reject("Tải file video không thành công.");
+              }
+            };
+
+            xhr.onerror = () => {
+              setErrorLoadingVideo(true);
+              reject("Tải file video không thành công.");
             };
 
             xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
             xhr.send(formData);
           } else {
-            saveData(formchuyendedaotao, saveQuit);
+            resolve();
           }
-        }
-      } else {
-        if (
-          (!formchuyendedaotao.fileTaiLieu && !formchuyendedaotao.fileVideo) ||
-          (formchuyendedaotao.fileTaiLieu &&
-            !formchuyendedaotao.fileTaiLieu.file) ||
-          (formchuyendedaotao.fileVideo && !formchuyendedaotao.fileVideo.file)
-        ) {
+        });
+      };
+
+      const uploadTaiLieu = () => {
+        return new Promise((resolve, reject) => {
+          if (
+            (!FileTaiLieu || !FileVideo) &&
+            formchuyendedaotao.vptq_lms_HinhThucDaoTao_Id ===
+              HINHTHUCDAOTAO_ONLINE
+          ) {
+            if (!FileTaiLieu) {
+              reject("Vui lòng tải file tài liệu lên!");
+            }
+          } else if (FileTaiLieu && FileTaiLieu.name) {
+            const formData = new FormData();
+            formData.append("file", FileTaiLieu);
+
+            const xhr = new XMLHttpRequest();
+
+            xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
+
+            xhr.upload.onprogress = (event) => {
+              if (event.lengthComputable) {
+                const progress = (event.loaded / event.total) * 100;
+                setFieldTouch(false);
+                setLoadingTaiLieu(progress);
+              }
+            };
+
+            xhr.onload = () => {
+              if (xhr.status === 200) {
+                const data = JSON.parse(xhr.responseText);
+                formchuyendedaotao.fileTaiLieu = data.path;
+                resolve();
+              } else {
+                setErrorLoadingTaiLieu(true);
+                reject("Tải file tài liệu không thành công.");
+              }
+            };
+
+            xhr.onerror = () => {
+              setErrorLoadingTaiLieu(true);
+              reject("Tải file tài liệu không thành công.");
+            };
+
+            xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
+            xhr.send(formData);
+          } else {
+            resolve();
+          }
+        });
+      };
+
+      Promise.all([uploadVideo(), uploadTaiLieu()])
+        .then(() => {
           saveData(formchuyendedaotao, saveQuit);
-        } else if (
-          (formchuyendedaotao.fileTaiLieu &&
-            formchuyendedaotao.fileTaiLieu.file) ||
-          (formchuyendedaotao.fileVideo && formchuyendedaotao.fileVideo.file)
-        ) {
-          const formData = new FormData();
-          formchuyendedaotao.fileTaiLieu && formchuyendedaotao.fileTaiLieu.file
-            ? formData.append("file", formchuyendedaotao.fileTaiLieu.file)
-            : formData.append("file", formchuyendedaotao.fileVideo.file);
-
-          const xhr = new XMLHttpRequest();
-
-          xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
-
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const progress = (event.loaded / event.total) * 100;
-              setLoading(progress);
-            }
-          };
-
-          xhr.onload = () => {
-            if (xhr.status === 200) {
-              const data = JSON.parse(xhr.responseText);
-              formchuyendedaotao.fileTaiLieu
-                ? (formchuyendedaotao.fileTaiLieu = data.path)
-                : (formchuyendedaotao.fileVideo = data.path);
-              saveData(formchuyendedaotao, saveQuit);
-            } else {
-              Helpers.alertError("Tải file không thành công.");
-            }
-          };
-
-          xhr.onerror = () => {
-            Helpers.alertError("Tải file không thành công.");
-          };
-
-          xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-          xhr.send(formData);
-        } else {
-          const formData = new FormData();
-          formData.append("lstFiles", formchuyendedaotao.fileTaiLieu.file);
-          formData.append("lstFiles", formchuyendedaotao.fileVideo.file);
-
-          const xhr = new XMLHttpRequest();
-
-          xhr.open("POST", `${BASE_URL_API}/api/Upload/Multi`, true);
-
-          xhr.upload.onprogress = (event) => {
-            if (event.lengthComputable) {
-              const progress = (event.loaded / event.total) * 100;
-              setLoading(progress);
-            }
-          };
-
-          xhr.onload = () => {
-            if (xhr.status === 200) {
-              const data = JSON.parse(xhr.responseText);
-              formchuyendedaotao.fileTaiLieu = data[0].path;
-              formchuyendedaotao.fileVideo = data[1].path;
-              saveData(formchuyendedaotao, saveQuit);
-            } else {
-              Helpers.alertError("Tải file không thành công.");
-            }
-          };
-
-          xhr.onerror = () => {
-            Helpers.alertError("Tải file không thành công.");
-          };
-
-          xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-          xhr.send(formData);
-        }
-      }
+        })
+        .catch((error) => {
+          Helpers.alertError(error);
+          setFieldTouch(true);
+        });
     }
   };
 
@@ -611,7 +518,8 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                 setFileVideo(null);
                 setDisableUploadTaiLieu(false);
                 setFileTaiLieu(null);
-                setLoading(null);
+                setLoadingVideo(null);
+                setLoadingTaiLieu(null);
                 setPath(null);
                 setImageUrl(null);
                 setFieldsValue({
@@ -624,7 +532,8 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               if (saveQuit) {
                 goBack();
               } else {
-                setLoading(null);
+                setLoadingVideo(null);
+                setLoadingTaiLieu(null);
                 setFieldTouch(false);
               }
             }
@@ -656,7 +565,8 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               if (res.status !== 409) goBack();
             } else {
               getInfo(id);
-              setLoading(null);
+              setLoadingVideo(null);
+              setLoadingTaiLieu(null);
               setFieldTouch(false);
             }
           })
@@ -667,6 +577,13 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
 
   const handleSelectHinhThucDaoTao = (value) => {
     setHinhThucDaoTao(value);
+    setPath(null);
+    setImageUrl(null);
+    setFieldsValue({
+      formchuyendedaotao: {
+        anhDaiDienChuyenDe: null,
+      },
+    });
   };
 
   const handleChange = (info) => {
@@ -917,67 +834,82 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                 },
               ]}
             >
-              {!DisableUploadVideo ? (
-                <Upload {...propsvideo}>
-                  <Button
-                    className="th-margin-bottom-0"
-                    style={{
-                      marginBottom: 0,
-                    }}
-                    icon={<UploadOutlined />}
-                  >
-                    Tải file video
-                  </Button>
-                </Upload>
-              ) : FileVideo && FileVideo.name ? (
-                <span>
-                  <span
-                    style={{
-                      color: "#0469B9",
-                      cursor: "pointer",
-                      whiteSpace: "break-spaces",
-                    }}
-                    onClick={() => handleOpenFile(FileVideo)}
-                  >
-                    {FileVideo.name}{" "}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "100%",
+                }}
+              >
+                {!DisableUploadVideo ? (
+                  <Upload {...propsvideo}>
+                    <Button
+                      className="th-margin-bottom-0"
+                      style={{
+                        marginBottom: 0,
+                      }}
+                      icon={<UploadOutlined />}
+                    >
+                      Tải file video
+                    </Button>
+                  </Upload>
+                ) : FileVideo && FileVideo.name ? (
+                  <span>
+                    <span
+                      style={{
+                        color: "#0469B9",
+                        cursor: "pointer",
+                        whiteSpace: "break-spaces",
+                      }}
+                      onClick={() => handleOpenFile(FileVideo)}
+                    >
+                      {FileVideo.name}{" "}
+                    </span>
+                    <DeleteOutlined
+                      style={{ cursor: "pointer", color: "red" }}
+                      onClick={() => {
+                        setFileVideo(null);
+                        setDisableUploadVideo(false);
+                        setFieldsValue({
+                          formchuyendedaotao: {
+                            fileVideo: null,
+                          },
+                        });
+                      }}
+                    />
                   </span>
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    onClick={() => {
-                      setFileVideo(null);
-                      setDisableUploadVideo(false);
-                      setFieldsValue({
-                        formchuyendedaotao: {
-                          fileVideo: null,
-                        },
-                      });
-                    }}
+                ) : (
+                  <span>
+                    <a
+                      target="_blank"
+                      href={BASE_URL_API + FileVideo}
+                      rel="noopener noreferrer"
+                    >
+                      {FileVideo && FileVideo.split("/")[5]}{" "}
+                    </a>
+                    <DeleteOutlined
+                      style={{ cursor: "pointer", color: "red" }}
+                      onClick={() => {
+                        setFieldTouch(true);
+                        setFileVideo(null);
+                        setDisableUploadVideo(false);
+                        setFieldsValue({
+                          formchuyendedaotao: {
+                            fileVideo: null,
+                          },
+                        });
+                      }}
+                    />
+                  </span>
+                )}
+                {LoadingVideo && (
+                  <Progress
+                    percent={parseFloat(LoadingVideo.toFixed(2))}
+                    type="line"
+                    status={ErrorLoadingVideo ? "exception" : ""}
                   />
-                </span>
-              ) : (
-                <span>
-                  <a
-                    target="_blank"
-                    href={BASE_URL_API + FileVideo}
-                    rel="noopener noreferrer"
-                  >
-                    {FileVideo && FileVideo.split("/")[5]}{" "}
-                  </a>
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    onClick={() => {
-                      setFieldTouch(true);
-                      setFileVideo(null);
-                      setDisableUploadVideo(false);
-                      setFieldsValue({
-                        formchuyendedaotao: {
-                          fileVideo: null,
-                        },
-                      });
-                    }}
-                  />
-                </span>
-              )}
+                )}
+              </div>
             </FormItem>
           </Col>
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
@@ -994,67 +926,82 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                 },
               ]}
             >
-              {!DisableUploadTaiLieu ? (
-                <Upload {...propstailieu}>
-                  <Button
-                    className="th-margin-bottom-0"
-                    style={{
-                      marginBottom: 0,
-                    }}
-                    icon={<UploadOutlined />}
-                  >
-                    Tải file tài liệu
-                  </Button>
-                </Upload>
-              ) : FileTaiLieu && FileTaiLieu.name ? (
-                <span>
-                  <span
-                    style={{
-                      color: "#0469B9",
-                      cursor: "pointer",
-                      whiteSpace: "break-spaces",
-                    }}
-                    onClick={() => handleOpenFile(FileTaiLieu)}
-                  >
-                    {FileTaiLieu.name}{" "}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  width: "100%",
+                }}
+              >
+                {!DisableUploadTaiLieu ? (
+                  <Upload {...propstailieu}>
+                    <Button
+                      className="th-margin-bottom-0"
+                      style={{
+                        marginBottom: 0,
+                      }}
+                      icon={<UploadOutlined />}
+                    >
+                      Tải file tài liệu
+                    </Button>
+                  </Upload>
+                ) : FileTaiLieu && FileTaiLieu.name ? (
+                  <span>
+                    <span
+                      style={{
+                        color: "#0469B9",
+                        cursor: "pointer",
+                        whiteSpace: "break-spaces",
+                      }}
+                      onClick={() => handleOpenFile(FileTaiLieu)}
+                    >
+                      {FileTaiLieu.name}{" "}
+                    </span>
+                    <DeleteOutlined
+                      style={{ cursor: "pointer", color: "red" }}
+                      onClick={() => {
+                        setFileTaiLieu(null);
+                        setDisableUploadTaiLieu(false);
+                        setFieldsValue({
+                          formchuyendedaotao: {
+                            fileTaiLieu: null,
+                          },
+                        });
+                      }}
+                    />
                   </span>
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    onClick={() => {
-                      setFileTaiLieu(null);
-                      setDisableUploadTaiLieu(false);
-                      setFieldsValue({
-                        formchuyendedaotao: {
-                          fileTaiLieu: null,
-                        },
-                      });
-                    }}
+                ) : (
+                  <span>
+                    <a
+                      target="_blank"
+                      href={BASE_URL_API + FileTaiLieu}
+                      rel="noopener noreferrer"
+                    >
+                      {FileTaiLieu && FileTaiLieu.split("/")[5]}{" "}
+                    </a>
+                    <DeleteOutlined
+                      style={{ cursor: "pointer", color: "red" }}
+                      onClick={() => {
+                        setFieldTouch(true);
+                        setFileTaiLieu(null);
+                        setDisableUploadTaiLieu(false);
+                        setFieldsValue({
+                          formchuyendedaotao: {
+                            fileTaiLieu: null,
+                          },
+                        });
+                      }}
+                    />
+                  </span>
+                )}
+                {LoadingTaiLieu && (
+                  <Progress
+                    percent={parseFloat(LoadingTaiLieu.toFixed(2))}
+                    type="line"
+                    status={ErrorLoadingTaiLieu ? "exception" : ""}
                   />
-                </span>
-              ) : (
-                <span>
-                  <a
-                    target="_blank"
-                    href={BASE_URL_API + FileTaiLieu}
-                    rel="noopener noreferrer"
-                  >
-                    {FileTaiLieu && FileTaiLieu.split("/")[5]}{" "}
-                  </a>
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    onClick={() => {
-                      setFieldTouch(true);
-                      setFileTaiLieu(null);
-                      setDisableUploadTaiLieu(false);
-                      setFieldsValue({
-                        formchuyendedaotao: {
-                          fileTaiLieu: null,
-                        },
-                      });
-                    }}
-                  />
-                </span>
-              )}
+                )}
+              </div>
             </FormItem>
           </Col>
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
@@ -1111,11 +1058,6 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               </FormItem>
             </Col>
           ) : null}
-          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24} align="left">
-            {loading && (
-              <Progress percent={parseFloat(loading.toFixed(2))} type="line" />
-            )}
-          </Col>
           <FormSubmit
             goBack={goBack}
             saveAndClose={saveAndClose}

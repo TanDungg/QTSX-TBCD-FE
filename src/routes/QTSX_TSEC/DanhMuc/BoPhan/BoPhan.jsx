@@ -244,7 +244,7 @@ function BoPhan({ permission, history }) {
             <Select
               className="heading-select slt-search th-select-heading"
               data={ListPhongBan ? ListPhongBan : []}
-              placeholder="Chọn đơn vị đào tạo"
+              placeholder="Chọn phòng ban"
               optionsvalue={["id", "tenPhongBan"]}
               style={{ width: "100%" }}
               value={PhongBan}
