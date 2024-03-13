@@ -9,6 +9,7 @@ import {
   Button,
   Tag,
   Upload,
+  Popover,
 } from "antd";
 import { includes, isEmpty, map } from "lodash";
 import Helper from "src/helpers";
@@ -33,6 +34,7 @@ import {
   reDataForTable,
   renderPDF,
 } from "src/util/Common";
+import QRCode from "qrcode.react";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
@@ -56,6 +58,8 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
   const [editingRecord, setEditingRecord] = useState([]);
   const { validateFields, resetFields, setFieldsValue } = form;
   const [info, setInfo] = useState({});
+  // const [selectedDevice, setSelectedDevice] = useState([]);
+  // const [selectedKeys, setSelectedKeys] = useState([]);
 
   useEffect(() => {
     const load = () => {
@@ -116,7 +120,13 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListNguoiNhan(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            nguoiNhan: `${dt.maNhanVien} - ${dt.fullName}`,
+          };
+        });
+        setListNguoiNhan(newData);
       } else {
         setListNguoiNhan([]);
       }
@@ -402,6 +412,31 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     },
   ];
 
+  if (type === "detail") {
+    const findQrCode =
+      listVatTu && listVatTu.find((list) => list.qrCode !== null);
+    if (findQrCode) {
+      colValues.unshift({
+        title: "Mã Barcode",
+        dataIndex: "qrCode",
+        key: "qrCode",
+        align: "center",
+        render: (value) =>
+          value ? (
+            <div id="myqrcode">
+              <Popover content={value}>
+                <QRCode
+                  value={value}
+                  bordered={false}
+                  style={{ width: 50, height: 50 }}
+                />
+              </Popover>
+            </div>
+          ) : null,
+      });
+    }
+  }
+
   const renderChildItems = (record) => {
     if (record.isChiTiet) {
       return (
@@ -416,6 +451,30 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
             size="small"
             rowClassName={"editable-row"}
             pagination={false}
+            // rowSelection={
+            //   type === "detail" && {
+            //     type: "checkbox",
+            //     ...rowSelection,
+            //     preserveSelectedRowKeys: true,
+            //     selectedRowKeys: selectedKeys,
+            //     getCheckboxProps: (record) => ({}),
+            //   }
+            // }
+            // onRow={(record, rowIndex) => {
+            //   return (
+            //     type === "detail" && {
+            //       onClick: (e) => {
+            //         const found = find(selectedKeys, (k) => k === record.key);
+            //         if (found === undefined) {
+            //           setSelectedDevice([...selectedDevice, record]);
+            //           setSelectedKeys([...selectedKeys, record.key]);
+            //         } else {
+            //           hanldeRemoveSelected(record);
+            //         }
+            //       },
+            //     }
+            //   );
+            // }}
           />
         </div>
       );
@@ -487,6 +546,29 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
       render: (value) => actionContent(value),
     },
   ];
+
+  if (type === "detail") {
+    colValuesChildren.unshift({
+      title: "Mã Barcode",
+      dataIndex: "qrCode",
+      key: "qrCode",
+      align: "center",
+      width: 100,
+      render: (value) =>
+        value ? (
+          <div id="myqrcode">
+            <Popover content={value}>
+              <QRCode
+                value={value}
+                bordered={false}
+                style={{ width: 50, height: 50 }}
+              />
+            </Popover>
+          </div>
+        ) : null,
+    });
+  }
+
   const components = {
     body: {
       row: EditableRow,
@@ -716,6 +798,47 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     }
   };
 
+  // const handlePrint = () => {
+  //   setLocalStorage("inMa", selectedDevice);
+  //   window.open(`${match.url}/in-ma-Qrcode`, "_blank");
+  // };
+
+  // const addButtonRender = () => {
+  //   return type === "detail" ? (
+  //     <Button
+  //       icon={<PrinterOutlined />}
+  //       className="th-margin-bottom-0"
+  //       type="primary"
+  //       onClick={handlePrint}
+  //       disabled={selectedDevice.length === 0}
+  //     >
+  //       In Barcode
+  //     </Button>
+  //   ) : null;
+  // };
+
+  // function hanldeRemoveSelected(device) {
+  //   const newDevice = remove(selectedDevice, (d) => {
+  //     return d.key !== device.key;
+  //   });
+  //   const newKeys = remove(selectedKeys, (d) => {
+  //     return d !== device.key;
+  //   });
+  //   setSelectedDevice(newDevice);
+  //   setSelectedKeys(newKeys);
+  // }
+
+  // const rowSelection = {
+  //   selectedRowKeys: selectedKeys,
+  //   selectedRows: selectedDevice,
+  //   onChange: (selectedRowKeys, selectedRows) => {
+  //     const newSelectedDevice = [...selectedRows];
+  //     const newSelectedKey = [...selectedRowKeys];
+  //     setSelectedDevice(newSelectedDevice);
+  //     setSelectedKeys(newSelectedKey);
+  //   },
+  // };
+
   const formTitle =
     type === "new" ? (
       "Tạo phiếu nhận hàng "
@@ -732,7 +855,11 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
 
   return (
     <div className="gx-main-content">
-      <ContainerHeader title={formTitle} back={goBack} />
+      <ContainerHeader
+        title={formTitle}
+        back={goBack}
+        // buttons={addButtonRender()}
+      />
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
         title={"Thông tin nhận hàng"}
@@ -917,7 +1044,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListNguoiNhan}
                   placeholder="Chọn người nhận"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "nguoiNhan"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

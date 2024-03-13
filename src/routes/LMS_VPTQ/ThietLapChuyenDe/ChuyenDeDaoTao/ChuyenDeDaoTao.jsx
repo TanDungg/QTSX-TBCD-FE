@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Checkbox, Col, Divider, Image, Row } from "antd";
+import { Button, Card, Checkbox, Col, Divider, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
@@ -17,7 +17,6 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 import { BASE_URL_API } from "src/constants/Config";
-import ReactPlayer from "react-player";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -366,6 +365,7 @@ function ChuyenDeDaoTao({ permission, history, match }) {
         return (
           value && (
             <img
+              alt="Ảnh đại diện chuyên đề"
               src={BASE_URL_API + value}
               style={{ width: "80px", cursor: "pointer" }}
               onClick={() =>

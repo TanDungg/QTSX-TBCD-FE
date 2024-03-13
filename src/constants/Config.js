@@ -1,5 +1,5 @@
-// export const BASE_URL_API = "https://erp-api.thacoindustries.com";
-// export const BASE_URL_API = "https://apitesterp.thacoindustries.com";
+// export const BASE_URL_API = "http://erp-api.thacoindustries.com";
+// export const BASE_URL_API = "http://apitesterp.thacoindustries.com";
 //
 // export const BASE_URL_API = `http://10.14.7.215:1512`;
 // export const BASE_URL_API = `http://113.176.118.58:81`;
