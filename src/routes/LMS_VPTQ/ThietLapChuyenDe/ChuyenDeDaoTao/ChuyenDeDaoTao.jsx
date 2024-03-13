@@ -351,34 +351,6 @@ function ChuyenDeDaoTao({ permission, history, match }) {
       filterSearch: true,
     },
     {
-      title: "Video bài giảng",
-      dataIndex: "fileVideo",
-      key: "fileVideo",
-      align: "center",
-      width: 120,
-      render: (value) => {
-        return (
-          value && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <ReactPlayer
-                url={BASE_URL_API + value}
-                width="80px"
-                height="45px"
-                onClick={() => window.open(BASE_URL_API + value, "_blank")}
-                style={{ cursor: "pointer" }}
-              />
-            </div>
-          )
-        );
-      },
-    },
-    {
       title: (
         <div>
           Ảnh đại diện
@@ -390,10 +362,16 @@ function ChuyenDeDaoTao({ permission, history, match }) {
       key: "anhDaiDienChuyenDe",
       align: "center",
       width: 120,
-      render: (value) => {
+      render: (value, record) => {
         return (
           value && (
-            <Image src={BASE_URL_API + value} style={{ width: "80px" }} />
+            <img
+              src={BASE_URL_API + value}
+              style={{ width: "80px", cursor: "pointer" }}
+              onClick={() =>
+                window.open(BASE_URL_API + record.fileVideo, "_blank")
+              }
+            />
           )
         );
       },

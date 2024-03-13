@@ -450,7 +450,6 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
         anhDaiDienChuyenDe: Path,
         thoiLuongDaoTao: parseInt(formchuyendedaotao.thoiLuongDaoTao),
       };
-      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
