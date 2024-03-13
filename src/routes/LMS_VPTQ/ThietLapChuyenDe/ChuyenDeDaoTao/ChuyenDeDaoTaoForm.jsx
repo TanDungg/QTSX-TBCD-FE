@@ -15,6 +15,7 @@ import {
   Upload,
   message,
 } from "antd";
+import axios from "axios";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -36,20 +37,6 @@ import axios from "axios";
 const { TextArea } = Input;
 const FormItem = Form.Item;
 
-const getBase64 = (img, callback) => {
-  const reader = new FileReader();
-  reader.addEventListener("load", () => callback(reader.result));
-  reader.readAsDataURL(img);
-};
-
-const beforeUpload = (file) => {
-  const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
-  if (!isJpgOrPng) {
-    message.error("Vui lòng tải file ảnh!");
-  }
-  return isJpgOrPng;
-};
-
 const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
@@ -66,6 +53,8 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
   const [ListHinhThuc, setListHinhThuc] = useState([]);
   const [HinhThucDaoTao, setHinhThucDaoTao] = useState(null);
   const [FileVideo, setFileVideo] = useState(null);
+  const [FileHinhAnh, setFileHinhAnh] = useState(null);
+
   const [DisableUploadVideo, setDisableUploadVideo] = useState(false);
   const [FileTaiLieu, setFileTaiLieu] = useState(null);
   const [DisableUploadTaiLieu, setDisableUploadTaiLieu] = useState(false);
@@ -264,92 +253,71 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
       });
   };
 
-  const uploadFile = (formchuyendedaotao, saveQuit) => {
+  const uploadFile = async (formchuyendedaotao, saveQuit) => {
     if (type === "new") {
-      const uploadVideo = () => {
-        return new Promise((resolve, reject) => {
-          if (
-            (!FileVideo || !FileTaiLieu) &&
-            formchuyendedaotao.vptq_lms_HinhThucDaoTao_Id ===
-              HINHTHUCDAOTAO_ONLINE
-          ) {
-            if (!FileVideo) {
-              reject("Vui lòng tải file video lên!");
+      if (
+        (!FileVideo || !FileTaiLieu || !FileHinhAnh) &&
+        formchuyendedaotao.vptq_lms_HinhThucDaoTao_Id === HINHTHUCDAOTAO_ONLINE
+      ) {
+        if (!FileVideo) {
+          Helpers.alertWarning("Vui lòng tải file video lên!");
+        }
+        if (!FileTaiLieu) {
+          Helpers.alertWarning("Vui lòng tải file tài liệu lên!");
+        }
+        if (!FileHinhAnh) {
+          Helpers.alertWarning("Vui lòng tải hình ảnh đại diện lên!");
+        }
+      } else {
+        if (FileVideo) {
+          const formDataVideo = new FormData();
+          formDataVideo.append("file", FileVideo);
+          const responseVideo = await axios.post(
+            BASE_URL_API + "/api/Upload",
+            formDataVideo,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${INFO.token}`,
+              },
+              onUploadProgress: (progressEvent) => {
+                const percentCompleted = Math.round(
+                  (progressEvent.loaded * 100) / progressEvent.total
+                );
+                setLoadingVideo(percentCompleted);
+              },
             }
-          } else {
-            const formData = new FormData();
-            formData.append("file", FileVideo);
-
-            axios
-              .post(`${BASE_URL_API}/api/Upload`, formData, {
-                headers: {
-                  Authorization: "Bearer ".concat(INFO.token),
-                },
-                onUploadProgress: (progressEvent) => {
-                  const progress = Math.round(
-                    (progressEvent.loaded / progressEvent.total) * 100
-                  );
-                  setLoadingVideo(progress);
-                },
-              })
-              .then((response) => {
-                formchuyendedaotao.fileVideo = response.data.path;
-                resolve();
-              })
-              .catch(() => {
-                setErrorLoadingVideo(true);
-                Helpers.alertWarning("Tải file video không thành công!");
-              });
-          }
-        });
-      };
-
-      const uploadTaiLieu = () => {
-        return new Promise((resolve, reject) => {
-          if (
-            (!FileTaiLieu || !FileVideo) &&
-            formchuyendedaotao.vptq_lms_HinhThucDaoTao_Id ===
-              HINHTHUCDAOTAO_ONLINE
-          ) {
-            if (!FileTaiLieu) {
-              reject("Vui lòng tải file tài liệu lên!");
+          );
+          formchuyendedaotao.fileVideo = await responseVideo.data.path;
+        }
+        if (FileTaiLieu || FileHinhAnh) {
+          const formData = new FormData();
+          FileTaiLieu && formData.append("lstFiles", FileTaiLieu);
+          FileHinhAnh && formData.append("lstFiles", FileHinhAnh);
+          const response = await axios.post(
+            BASE_URL_API + "/api/Upload/Multi",
+            formData,
+            {
+              headers: {
+                "Content-Type": "multipart/form-data",
+                Authorization: `Bearer ${INFO.token}`,
+              },
+              onUploadProgress: (progressEvent) => {
+                const percentCompleted = Math.round(
+                  (progressEvent.loaded * 100) / progressEvent.total
+                );
+                setLoadingTaiLieu(percentCompleted);
+              },
             }
-          } else {
-            const formData = new FormData();
-            formData.append("file", FileTaiLieu);
-
-            axios
-              .post(`${BASE_URL_API}/api/Upload`, formData, {
-                headers: {
-                  Authorization: "Bearer ".concat(INFO.token),
-                },
-                onUploadProgress: (progressEvent) => {
-                  const progress = Math.round(
-                    (progressEvent.loaded / progressEvent.total) * 100
-                  );
-                  setLoadingTaiLieu(progress);
-                },
-              })
-              .then((response) => {
-                formchuyendedaotao.fileTaiLieu = response.data.path;
-                resolve();
-              })
-              .catch(() => {
-                setErrorLoadingTaiLieu(true);
-                Helpers.alertWarning("Tải file video không thành công!");
-              });
-          }
-        });
-      };
-
-      Promise.all([uploadVideo(), uploadTaiLieu()])
-        .then(() => {
-          saveData(formchuyendedaotao, saveQuit);
-        })
-        .catch((error) => {
-          Helpers.alertError(error);
-          setFieldTouch(true);
-        });
+          );
+          const dataPath = await response.data;
+          formchuyendedaotao.fileTaiLieu = FileTaiLieu && dataPath[0].path;
+          formchuyendedaotao.anhDaiDienChuyenDe = FileTaiLieu
+            ? dataPath[1].path
+            : dataPath[0].path;
+        }
+        saveData(formchuyendedaotao, saveQuit);
+      }
     } else {
       const uploadVideo = () => {
         return new Promise((resolve, reject) => {
@@ -442,96 +410,88 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
   };
 
   const saveData = (formchuyendedaotao, saveQuit = false) => {
-    if (
-      !formchuyendedaotao.anhDaiDienChuyenDe &&
-      formchuyendedaotao.vptq_lms_HinhThucDaoTao_Id === HINHTHUCDAOTAO_ONLINE
-    ) {
-      Helpers.alertError("Vui lòng tải hình ảnh đại diện của chuyên đề lên!");
-    } else {
-      if (type === "new") {
-        const newData = {
-          ...formchuyendedaotao,
-          anhDaiDienChuyenDe: Path,
-          thoiLuongDaoTao: parseInt(formchuyendedaotao.thoiLuongDaoTao),
-        };
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `vptq_lms_ChuyenDeDaoTao`,
-              "POST",
-              newData,
-              "ADD",
-              "",
-              resolve,
-              reject
-            )
-          );
-        })
-          .then((res) => {
-            if (res.status !== 409) {
-              if (saveQuit) {
-                goBack();
-              } else {
-                resetFields();
-                setFieldTouch(false);
-                setDisableUploadVideo(false);
-                setFileVideo(null);
-                setDisableUploadTaiLieu(false);
-                setFileTaiLieu(null);
-                setLoadingVideo(null);
-                setLoadingTaiLieu(null);
-                setPath(null);
-                setImageUrl(null);
-                setFieldsValue({
-                  formchuyendedaotao: {
-                    isSuDung: true,
-                  },
-                });
-              }
-            } else {
-              if (saveQuit) {
-                goBack();
-              } else {
-                setLoadingVideo(null);
-                setLoadingTaiLieu(null);
-                setFieldTouch(false);
-              }
-            }
-          })
-          .catch((error) => console.error(error));
-      }
-      if (type === "edit") {
-        const newData = {
-          ...formchuyendedaotao,
-          id: id,
-          anhDaiDienChuyenDe: Path,
-          thoiLuongDaoTao: parseInt(formchuyendedaotao.thoiLuongDaoTao),
-        };
-        new Promise((resolve, reject) => {
-          dispatch(
-            fetchStart(
-              `vptq_lms_ChuyenDeDaoTao/${id}`,
-              "PUT",
-              newData,
-              "EDIT",
-              "",
-              resolve,
-              reject
-            )
-          );
-        })
-          .then((res) => {
+    if (type === "new") {
+      const newData = {
+        ...formchuyendedaotao,
+        thoiLuongDaoTao: parseInt(formchuyendedaotao.thoiLuongDaoTao),
+      };
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `vptq_lms_ChuyenDeDaoTao`,
+            "POST",
+            newData,
+            "ADD",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (res.status !== 409) {
             if (saveQuit) {
-              if (res.status !== 409) goBack();
+              goBack();
             } else {
-              getInfo(id);
+              resetFields();
+              setFieldTouch(false);
+              setDisableUploadVideo(false);
+              setFileVideo(null);
+              setDisableUploadTaiLieu(false);
+              setFileTaiLieu(null);
+              setFileHinhAnh(null);
+              setLoadingVideo(null);
+              setLoadingTaiLieu(null);
+              setPath(null);
+              setImageUrl(null);
+              setFieldsValue({
+                formchuyendedaotao: {
+                  isSuDung: true,
+                },
+              });
+            }
+          } else {
+            if (saveQuit) {
+              goBack();
+            } else {
               setLoadingVideo(null);
               setLoadingTaiLieu(null);
               setFieldTouch(false);
             }
-          })
-          .catch((error) => console.error(error));
-      }
+          }
+        })
+        .catch((error) => console.error(error));
+    } else if (type === "edit") {
+      const newData = {
+        ...formchuyendedaotao,
+        id: id,
+        anhDaiDienChuyenDe: Path,
+        thoiLuongDaoTao: parseInt(formchuyendedaotao.thoiLuongDaoTao),
+      };
+      new Promise((resolve, reject) => {
+        dispatch(
+          fetchStart(
+            `vptq_lms_ChuyenDeDaoTao/${id}`,
+            "PUT",
+            newData,
+            "EDIT",
+            "",
+            resolve,
+            reject
+          )
+        );
+      })
+        .then((res) => {
+          if (saveQuit) {
+            if (res.status !== 409) goBack();
+          } else {
+            getInfo(id);
+            setLoadingVideo(null);
+            setLoadingTaiLieu(null);
+            setFieldTouch(false);
+          }
+        })
+        .catch((error) => console.error(error));
     }
   };
 
@@ -546,20 +506,6 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
     });
   };
 
-  const handleChange = (info) => {
-    if (info.file.status === "uploading") {
-      setLoadingImage(true);
-      return;
-    }
-    if (info.file.status === "done") {
-      setPath(info.file.response.path);
-      getBase64(info.file.originFileObj, (url) => {
-        setLoadingImage(false);
-        setImageUrl(url);
-      });
-    }
-  };
-
   const uploadButton = (
     <button
       style={{
@@ -568,7 +514,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
       }}
       type="button"
     >
-      {LoadingImage ? <LoadingOutlined /> : <PlusOutlined />}
+      <PlusOutlined />
       <div
         style={{
           marginTop: 8,
@@ -627,7 +573,18 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
     showUploadList: false,
     maxCount: 1,
   };
-
+  const beforeUpload = (file) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      message.error("Vui lòng tải file ảnh!");
+    } else {
+      const reader = new FileReader();
+      setFileHinhAnh(file);
+      reader.onload = (e) => setImageUrl(e.target.result);
+      reader.readAsDataURL(file);
+    }
+    return false;
+  };
   const handleOpenFile = (file) => {
     if (file) {
       window.open(URL.createObjectURL(file), "_blank");
@@ -1027,15 +984,10 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               >
                 <Upload
                   listType="picture-card"
+                  accept="image/*"
                   className="avatar-uploader"
                   showUploadList={false}
-                  action={`${BASE_URL_API}/api/Upload`}
-                  headers={{
-                    Authorization: "Bearer ".concat(INFO.token),
-                  }}
                   beforeUpload={beforeUpload}
-                  onChange={handleChange}
-                  accept="image/*"
                   style={{ width: "250px", height: "250px" }}
                 >
                   {ImageUrl ? (
