@@ -31,6 +31,7 @@ import {
 } from "src/constants/Config";
 import Helpers from "src/helpers";
 import { getLocalStorage, getTokenInfo } from "src/util/Common";
+import axios from "axios";
 
 const { TextArea } = Input;
 const FormItem = Form.Item;
@@ -279,36 +280,26 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             const formData = new FormData();
             formData.append("file", FileVideo);
 
-            const xhr = new XMLHttpRequest();
-
-            xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
-
-            xhr.upload.onprogress = (event) => {
-              if (event.lengthComputable) {
-                const progress = (event.loaded / event.total) * 100;
-                setFieldTouch(false);
-                setLoadingVideo(progress);
-              }
-            };
-
-            xhr.onload = () => {
-              if (xhr.status === 200) {
-                const data = JSON.parse(xhr.responseText);
-                formchuyendedaotao.fileVideo = data.path;
+            axios
+              .post(`${BASE_URL_API}/api/Upload`, formData, {
+                headers: {
+                  Authorization: "Bearer ".concat(INFO.token),
+                },
+                onUploadProgress: (progressEvent) => {
+                  const progress = Math.round(
+                    (progressEvent.loaded / progressEvent.total) * 100
+                  );
+                  setLoadingVideo(progress);
+                },
+              })
+              .then((response) => {
+                formchuyendedaotao.fileVideo = response.data.path;
                 resolve();
-              } else {
+              })
+              .catch(() => {
                 setErrorLoadingVideo(true);
-                reject("Tải file video không thành công.");
-              }
-            };
-
-            xhr.onerror = () => {
-              setErrorLoadingVideo(true);
-              reject("Tải file video không thành công.");
-            };
-
-            xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-            xhr.send(formData);
+                Helpers.alertWarning("Tải file video không thành công!");
+              });
           }
         });
       };
@@ -327,36 +318,26 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             const formData = new FormData();
             formData.append("file", FileTaiLieu);
 
-            const xhr = new XMLHttpRequest();
-
-            xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
-
-            xhr.upload.onprogress = (event) => {
-              if (event.lengthComputable) {
-                const progress = (event.loaded / event.total) * 100;
-                setFieldTouch(false);
-                setLoadingTaiLieu(progress);
-              }
-            };
-
-            xhr.onload = () => {
-              if (xhr.status === 200) {
-                const data = JSON.parse(xhr.responseText);
-                formchuyendedaotao.fileTaiLieu = data.path;
+            axios
+              .post(`${BASE_URL_API}/api/Upload`, formData, {
+                headers: {
+                  Authorization: "Bearer ".concat(INFO.token),
+                },
+                onUploadProgress: (progressEvent) => {
+                  const progress = Math.round(
+                    (progressEvent.loaded / progressEvent.total) * 100
+                  );
+                  setLoadingTaiLieu(progress);
+                },
+              })
+              .then((response) => {
+                formchuyendedaotao.fileTaiLieu = response.data.path;
                 resolve();
-              } else {
+              })
+              .catch(() => {
                 setErrorLoadingTaiLieu(true);
-                reject("Tải file tài liệu không thành công.");
-              }
-            };
-
-            xhr.onerror = () => {
-              setErrorLoadingTaiLieu(true);
-              reject("Tải file tài liệu không thành công.");
-            };
-
-            xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-            xhr.send(formData);
+                Helpers.alertWarning("Tải file video không thành công!");
+              });
           }
         });
       };
@@ -383,37 +364,26 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
           } else if (FileVideo && FileVideo.name) {
             const formData = new FormData();
             formData.append("file", FileVideo);
-
-            const xhr = new XMLHttpRequest();
-
-            xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
-
-            xhr.upload.onprogress = (event) => {
-              if (event.lengthComputable) {
-                const progress = (event.loaded / event.total) * 100;
-                setFieldTouch(false);
-                setLoadingVideo(progress);
-              }
-            };
-
-            xhr.onload = () => {
-              if (xhr.status === 200) {
-                const data = JSON.parse(xhr.responseText);
-                formchuyendedaotao.fileVideo = data.path;
+            axios
+              .post(`${BASE_URL_API}/api/Upload`, formData, {
+                headers: {
+                  Authorization: "Bearer ".concat(INFO.token),
+                },
+                onUploadProgress: (progressEvent) => {
+                  const progress = Math.round(
+                    (progressEvent.loaded / progressEvent.total) * 100
+                  );
+                  setLoadingVideo(progress);
+                },
+              })
+              .then((response) => {
+                formchuyendedaotao.fileVideo = response.data.path;
                 resolve();
-              } else {
+              })
+              .catch(() => {
                 setErrorLoadingVideo(true);
-                reject("Tải file video không thành công.");
-              }
-            };
-
-            xhr.onerror = () => {
-              setErrorLoadingVideo(true);
-              reject("Tải file video không thành công.");
-            };
-
-            xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-            xhr.send(formData);
+                Helpers.alertWarning("Tải file video không thành công!");
+              });
           } else {
             resolve();
           }
@@ -434,36 +404,26 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             const formData = new FormData();
             formData.append("file", FileTaiLieu);
 
-            const xhr = new XMLHttpRequest();
-
-            xhr.open("POST", `${BASE_URL_API}/api/Upload`, true);
-
-            xhr.upload.onprogress = (event) => {
-              if (event.lengthComputable) {
-                const progress = (event.loaded / event.total) * 100;
-                setFieldTouch(false);
-                setLoadingTaiLieu(progress);
-              }
-            };
-
-            xhr.onload = () => {
-              if (xhr.status === 200) {
-                const data = JSON.parse(xhr.responseText);
-                formchuyendedaotao.fileTaiLieu = data.path;
+            axios
+              .post(`${BASE_URL_API}/api/Upload`, formData, {
+                headers: {
+                  Authorization: "Bearer ".concat(INFO.token),
+                },
+                onUploadProgress: (progressEvent) => {
+                  const progress = Math.round(
+                    (progressEvent.loaded / progressEvent.total) * 100
+                  );
+                  setLoadingTaiLieu(progress);
+                },
+              })
+              .then((response) => {
+                formchuyendedaotao.fileTaiLieu = response.data.path;
                 resolve();
-              } else {
+              })
+              .catch(() => {
                 setErrorLoadingTaiLieu(true);
-                reject("Tải file tài liệu không thành công.");
-              }
-            };
-
-            xhr.onerror = () => {
-              setErrorLoadingTaiLieu(true);
-              reject("Tải file tài liệu không thành công.");
-            };
-
-            xhr.setRequestHeader("Authorization", "Bearer " + INFO.token);
-            xhr.send(formData);
+                Helpers.alertWarning("Tải file video không thành công!");
+              });
           } else {
             resolve();
           }
@@ -869,7 +829,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                     >
                       {FileVideo.name}{" "}
                     </span>
-                    {LoadingVideo ? (
+                    {LoadingVideo !== null ? (
                       <DeleteOutlined
                         style={{ cursor: "no-drop", color: "#545454" }}
                       />
@@ -897,7 +857,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                     >
                       {FileVideo && FileVideo.split("/")[5]}{" "}
                     </a>
-                    {LoadingVideo ? (
+                    {LoadingVideo !== null ? (
                       <DeleteOutlined
                         style={{ cursor: "no-drop", color: "#545454" }}
                       />
@@ -918,7 +878,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                     )}
                   </span>
                 )}
-                {LoadingVideo && (
+                {LoadingVideo !== null && (
                   <Progress
                     percent={parseFloat(LoadingVideo.toFixed(2))}
                     type="line"
@@ -973,7 +933,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                     >
                       {FileTaiLieu.name}{" "}
                     </span>
-                    {LoadingTaiLieu ? (
+                    {LoadingTaiLieu !== null ? (
                       <DeleteOutlined
                         style={{ cursor: "no-drop", color: "#545454" }}
                       />
@@ -1001,7 +961,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                     >
                       {FileTaiLieu && FileTaiLieu.split("/")[5]}{" "}
                     </a>
-                    {LoadingTaiLieu ? (
+                    {LoadingTaiLieu !== null ? (
                       <DeleteOutlined
                         style={{ cursor: "no-drop", color: "#545454" }}
                       />
@@ -1022,7 +982,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                     )}
                   </span>
                 )}
-                {LoadingTaiLieu && (
+                {LoadingTaiLieu !== null && (
                   <Progress
                     percent={parseFloat(LoadingTaiLieu.toFixed(2))}
                     type="line"
