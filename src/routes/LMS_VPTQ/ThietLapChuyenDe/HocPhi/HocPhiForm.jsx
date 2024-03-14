@@ -622,7 +622,7 @@ const HocPhiForm = ({ history, match, permission }) => {
                   {!DisableUpload ? (
                     <Upload {...props}>
                       <Button
-                        className="th-margin-bottom-0"
+                        className="th-margin-bottom-0 btn-margin-bottom-0"
                         style={{
                           marginBottom: 0,
                         }}
@@ -734,7 +734,7 @@ const HocPhiForm = ({ history, match, permission }) => {
           >
             <div align={"end"} style={{ marginBottom: "10px" }}>
               <Button
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 icon={<PlusCircleOutlined />}
                 onClick={() => setActiveModalDanhSach(true)}
                 type="primary"

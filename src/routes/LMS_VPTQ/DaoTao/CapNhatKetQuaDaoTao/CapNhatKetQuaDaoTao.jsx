@@ -580,7 +580,7 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
       <>
         <Button
           icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={handleRedirect}
           disabled={permission && !permission.add}
@@ -1029,7 +1029,7 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
                   {!DisableUploadGiayChungNhan ? (
                     <Upload {...props}>
                       <Button
-                        className="th-margin-bottom-0"
+                        className="th-margin-bottom-0 btn-margin-bottom-0"
                         style={{
                           marginBottom: 0,
                         }}
@@ -1141,14 +1141,14 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
               >
                 <Button
                   icon={<CloseCircleOutlined />}
-                  className="th-margin-bottom-0"
+                  className="th-margin-bottom-0 btn-margin-bottom-0"
                   onClick={() => handleRefesh()}
                 >
                   Đóng
                 </Button>
                 <Button
                   icon={<SaveOutlined />}
-                  className="th-margin-bottom-0"
+                  className="th-margin-bottom-0 btn-margin-bottom-0"
                   type="primary"
                   htmlType={"submit"}
                   disabled={!fieldTouch}

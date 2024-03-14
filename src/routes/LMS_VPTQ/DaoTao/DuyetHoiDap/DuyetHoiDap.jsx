@@ -388,7 +388,7 @@ function XacNhanHoiDap({ history, permission }) {
       <>
         <Button
           icon={<CheckCircleOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={() => ModalXacNhan()}
           disabled={SelectedHoiDap.length === 0}
@@ -397,7 +397,7 @@ function XacNhanHoiDap({ history, permission }) {
         </Button>
         <Button
           icon={<CloseCircleOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="danger"
           onClick={() => ModalTuChoi()}
           disabled={SelectedHoiDap.length === 0}

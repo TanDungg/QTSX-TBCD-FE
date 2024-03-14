@@ -723,7 +723,7 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
                 }}
               >
                 <Button
-                  className="th-margin-bottom-0"
+                  className="th-margin-bottom-0 btn-margin-bottom-0"
                   icon={<PlusCircleOutlined />}
                   onClick={() => setActiveModalDanhSachCBNV(true)}
                   type="primary"
@@ -732,7 +732,7 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
                   Thêm danh sách CBNV
                 </Button>
                 <Button
-                  className="th-margin-bottom-0"
+                  className="th-margin-bottom-0 btn-margin-bottom-0"
                   icon={<UploadOutlined />}
                   onClick={() => setActiveModalImportDanhSachCBNV(true)}
                   type="primary"

@@ -777,7 +777,7 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                     !DisableUploadBaoCao ? (
                       <Upload {...filebaocao}>
                         <Button
-                          className="th-margin-bottom-0"
+                          className="th-margin-bottom-0 btn-margin-bottom-0"
                           style={{
                             marginBottom: 0,
                           }}
@@ -874,7 +874,7 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                 {!FileImportDanhSach ? (
                   <Upload {...propfileimport}>
                     <Button
-                      className="th-margin-bottom-0"
+                      className="th-margin-bottom-0 btn-margin-bottom-0"
                       icon={<UploadOutlined />}
                       danger={CheckDanger}
                     >
@@ -917,7 +917,7 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
                 <Button
                   icon={<DownloadOutlined />}
                   onClick={TaiFileMau}
-                  className="th-margin-bottom-0"
+                  className="th-margin-bottom-0 btn-margin-bottom-0"
                   type="primary"
                 >
                   File mẫu
@@ -946,7 +946,7 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
         >
           <Button
             icon={<RollbackOutlined />}
-            className="th-margin-bottom-0"
+            className="th-margin-bottom-0 btn-margin-bottom-0"
             type="default"
             onClick={goBack}
           >
@@ -954,7 +954,7 @@ const XacNhanDaoTaoForm = ({ history, match, permission }) => {
           </Button>
           <Button
             icon={<SaveOutlined />}
-            className="th-margin-bottom-0"
+            className="th-margin-bottom-0 btn-margin-bottom-0"
             type="primary"
             onClick={type === "xacnhan" ? handleXacNhan : handleCapNhat}
             disabled={type === "xacnhan" ? !ListHocVien : DisabledCapNhat}

@@ -747,7 +747,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                 {!DisableUploadVideo ? (
                   <Upload {...propsvideo}>
                     <Button
-                      className="th-margin-bottom-0"
+                      className="th-margin-bottom-0 btn-margin-bottom-0"
                       style={{
                         marginBottom: 0,
                       }}
@@ -851,7 +851,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                 {!DisableUploadTaiLieu ? (
                   <Upload {...propstailieu}>
                     <Button
-                      className="th-margin-bottom-0"
+                      className="th-margin-bottom-0 btn-margin-bottom-0"
                       style={{
                         marginBottom: 0,
                       }}

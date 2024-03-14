@@ -451,7 +451,7 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
                 {!DisableUploadGiayChungNhan ? (
                   <Upload {...props}>
                     <Button
-                      className="th-margin-bottom-0"
+                      className="th-margin-bottom-0 btn-margin-bottom-0"
                       style={{
                         marginBottom: 0,
                       }}

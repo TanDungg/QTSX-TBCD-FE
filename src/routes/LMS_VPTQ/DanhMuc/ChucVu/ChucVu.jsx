@@ -98,10 +98,7 @@ function ChucVu({ history, permission, match }) {
     );
   };
 
-  const dataList = reDataForTable(
-    Data.datalist,
-    page === 1 ? page : pageSize * (page - 1) + 2
-  );
+  const dataList = reDataForTable(Data.datalist, page, pageSize);
 
   let colValues = [
     {

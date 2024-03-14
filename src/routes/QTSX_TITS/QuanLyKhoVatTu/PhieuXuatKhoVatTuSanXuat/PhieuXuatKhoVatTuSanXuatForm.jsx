@@ -58,7 +58,7 @@ const VatTuForm = ({ history, match, permission }) => {
   const [ListUserKy, setListUserKy] = useState([]);
   const [ListXuong, setListXuong] = useState([]);
   const [ListKhoVatTu, setListKhoVatTu] = useState([]);
-  const [NgayKHSX, setNgayKHSX] = useState(getDateNow(), "DD/MM/YYYY");
+  const [NgayKHSX, setNgayKHSX] = useState(getDateNow());
   const [Xuong, setXuong] = useState();
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
@@ -79,12 +79,12 @@ const VatTuForm = ({ history, match, permission }) => {
 
   useEffect(() => {
     const load = () => {
-      getXuong();
       getListKho();
       if (includes(match.url, "them-moi")) {
         getUserKy(INFO);
         getUserLap(null, value);
         if (permission && permission.add) {
+          getListSanPham(NgayKHSX);
           setType("new");
           setFieldsValue(
             value === 0
@@ -141,11 +141,17 @@ const VatTuForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getXuong = () => {
+  const getListSanPham = (ngayKeHoach, tits_qtsx_SanPham_Id) => {
+    const params = convertObjectToUrlParams({
+      ngayKeHoach,
+      tits_qtsx_SanPham_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_Xuong?page=-1`,
+          value === 0
+            ? `tits_qtsx_PhieuXuatKhoVatTuSanXuat/san-pham-theo-ke-hoach-xuat-vat-tu-oem?${params}`
+            : `tits_qtsx_PhieuXuatKhoVatTuSanXuat/san-pham-theo-ke-hoach-xuat-vat-tu-bom?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -156,44 +162,24 @@ const VatTuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListXuong(res.data);
-      } else {
-        setListXuong([]);
-      }
-    });
-  };
-
-  const getListSanPham = (tits_qtsx_Xuong_Id, ngayKeHoach) => {
-    const params = convertObjectToUrlParams({
-      tits_qtsx_Xuong_Id,
-      ngayKeHoach,
-    });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tits_qtsx_PhieuXuatKhoVatTuSanXuat/san-pham-theo-ke-hoach?${params}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.status === 200) {
-        setListSanPham(
-          res.data.map((sp) => {
-            return {
-              ...sp,
-              sanPham_DonHang_Id:
-                sp.tits_qtsx_SanPham_Id + "/" + sp.tits_qtsx_DonHang_Id,
-              name: sp.tenSanPham + " - " + sp.maPhieu,
-            };
-          })
-        );
+        if (!tits_qtsx_SanPham_Id) {
+          setListSanPham(
+            res.data.list_SanPhams &&
+              res.data.list_SanPhams.map((sp) => {
+                return {
+                  ...sp,
+                  sanPham_DonHang_Id:
+                    sp.tits_qtsx_SanPham_Id + "/" + sp.tits_qtsx_DonHang_Id,
+                  name: sp.tenSanPham + " - " + sp.maPhieu,
+                };
+              })
+          );
+        } else {
+          setListXuong(res.data.list_Xuongs);
+        }
       } else {
         setListSanPham([]);
+        setListXuong([]);
       }
     });
   };
@@ -972,7 +958,6 @@ const VatTuForm = ({ history, match, permission }) => {
                 resetFields();
                 getUserKy(INFO);
                 getUserLap(null, value);
-                getXuong();
                 getListKho();
                 setFieldsValue({
                   phieuxuatkhovattusanxuattheoOEM: {
@@ -1023,7 +1008,6 @@ const VatTuForm = ({ history, match, permission }) => {
                 resetFields();
                 getUserKy(INFO);
                 getUserLap(null, value);
-                getXuong();
                 getListKho();
                 setFieldsValue({
                   phieuxuatkhovattusanxuattheoBOM: {
@@ -1244,6 +1228,7 @@ const VatTuForm = ({ history, match, permission }) => {
   const handleSelectListSanPham = (val) => {
     setSanPham(val);
     const newSanPham = ListSanPham.find((sp) => sp.sanPham_DonHang_Id === val);
+    getListSanPham(NgayKHSX, newSanPham.tits_qtsx_SanPham_Id);
     setFieldsValue(
       value === 0
         ? {
@@ -1252,6 +1237,7 @@ const VatTuForm = ({ history, match, permission }) => {
               tits_qtsx_SanPham_Id: newSanPham.tits_qtsx_SanPham_Id,
               tits_qtsx_DonHang_Id: newSanPham.tits_qtsx_DonHang_Id,
               soLuongLo: null,
+              tits_qtsx_Xuong_Id: null,
             },
           }
         : {
@@ -1261,6 +1247,7 @@ const VatTuForm = ({ history, match, permission }) => {
               tits_qtsx_SanPham_Id: newSanPham.tits_qtsx_SanPham_Id,
               soLuongLo: null,
               tits_qtsx_BOMXuong_Id: null,
+              tits_qtsx_Tram_Id: null,
             },
           }
     );
@@ -1561,14 +1548,15 @@ const VatTuForm = ({ history, match, permission }) => {
                           format={"DD/MM/YYYY"}
                           allowClear={false}
                           onChange={(date, dateString) => {
-                            if (Xuong) {
-                              getListSanPham(Xuong, dateString);
-                            }
+                            getListSanPham(dateString);
                             setNgayKHSX(dateString, "DD/MM/YYYY");
                             setFieldsValue({
                               phieuxuatkhovattusanxuattheoOEM: {
-                                tits_qtsx_SanPham_Id: null,
                                 ngayKHSX: moment(dateString, "DD/MM/YYYY"),
+                                tits_qtsx_SanPham_Id: null,
+                                tits_qtsx_DonHang_Id: null,
+                                sanPham_DonHang_Id: null,
+                                tits_qtsx_Xuong_Id: null,
                               },
                             });
                           }}
@@ -1577,74 +1565,6 @@ const VatTuForm = ({ history, match, permission }) => {
                       </FormItem>
                     </Col>
                   )}
-                  <Col
-                    xxl={12}
-                    xl={12}
-                    lg={24}
-                    md={24}
-                    sm={24}
-                    xs={24}
-                    style={{ marginBottom: 8 }}
-                  >
-                    <FormItem
-                      label="Xưởng nhận"
-                      name={[
-                        "phieuxuatkhovattusanxuattheoOEM",
-                        "tits_qtsx_Xuong_Id",
-                      ]}
-                      rules={[
-                        {
-                          type: "string",
-                          required: true,
-                        },
-                      ]}
-                    >
-                      <Select
-                        placeholder="Xưởng nhận"
-                        className="heading-select slt-search th-select-heading"
-                        data={ListXuong ? ListXuong : []}
-                        optionsvalue={["id", "tenXuong"]}
-                        style={{ width: "100%" }}
-                        showSearch
-                        optionFilterProp={"name"}
-                        onSelect={handleSelectXuong}
-                        disabled={type === "new" ? false : true}
-                      />
-                    </FormItem>
-                  </Col>
-                  <Col
-                    xxl={12}
-                    xl={12}
-                    lg={24}
-                    md={24}
-                    sm={24}
-                    xs={24}
-                    style={{ marginBottom: 8 }}
-                  >
-                    <FormItem
-                      label="Người nhận"
-                      name={["phieuxuatkhovattusanxuattheoOEM", "nguoiNhan_Id"]}
-                      rules={[
-                        {
-                          type: "string",
-                          required: true,
-                        },
-                      ]}
-                    >
-                      <Select
-                        className="heading-select slt-search th-select-heading"
-                        data={ListUserKy}
-                        placeholder="Chọn người nhận"
-                        optionsvalue={["user_Id", "fullName"]}
-                        style={{ width: "100%" }}
-                        showSearch
-                        optionFilterProp="name"
-                        disabled={
-                          type === "new" || type === "edit" ? false : true
-                        }
-                      />
-                    </FormItem>
-                  </Col>
                   <Col
                     xxl={12}
                     xl={12}
@@ -1743,6 +1663,74 @@ const VatTuForm = ({ history, match, permission }) => {
                         <Input className="input-item" disabled={true} />
                       </FormItem>
                     )}
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Xưởng nhận"
+                      name={[
+                        "phieuxuatkhovattusanxuattheoOEM",
+                        "tits_qtsx_Xuong_Id",
+                      ]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        placeholder="Xưởng nhận"
+                        className="heading-select slt-search th-select-heading"
+                        data={ListXuong ? ListXuong : []}
+                        optionsvalue={["id", "tenXuong"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp={"name"}
+                        onSelect={handleSelectXuong}
+                        disabled={type === "new" ? false : true}
+                      />
+                    </FormItem>
+                  </Col>
+                  <Col
+                    xxl={12}
+                    xl={12}
+                    lg={24}
+                    md={24}
+                    sm={24}
+                    xs={24}
+                    style={{ marginBottom: 8 }}
+                  >
+                    <FormItem
+                      label="Người nhận"
+                      name={["phieuxuatkhovattusanxuattheoOEM", "nguoiNhan_Id"]}
+                      rules={[
+                        {
+                          type: "string",
+                          required: true,
+                        },
+                      ]}
+                    >
+                      <Select
+                        className="heading-select slt-search th-select-heading"
+                        data={ListUserKy}
+                        placeholder="Chọn người nhận"
+                        optionsvalue={["user_Id", "fullName"]}
+                        style={{ width: "100%" }}
+                        showSearch
+                        optionFilterProp="name"
+                        disabled={
+                          type === "new" || type === "edit" ? false : true
+                        }
+                      />
+                    </FormItem>
                   </Col>
                   <Col
                     xxl={12}

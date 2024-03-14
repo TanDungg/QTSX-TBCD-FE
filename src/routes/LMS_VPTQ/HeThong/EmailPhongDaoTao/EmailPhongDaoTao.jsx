@@ -156,7 +156,7 @@ function EmailPhongDaoTao({ history }) {
       !AcitveThayDoiEmail && (
         <Button
           icon={<EditOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={() => {
             setAcitveThayDoiEmail(true);
@@ -287,7 +287,7 @@ function EmailPhongDaoTao({ history }) {
                   >
                     <Button
                       icon={<CloseCircleOutlined />}
-                      className="th-margin-bottom-0"
+                      className="th-margin-bottom-0 btn-margin-bottom-0"
                       type="danger"
                       onClick={() => {
                         setAcitveThayDoiEmail(false);
@@ -298,7 +298,7 @@ function EmailPhongDaoTao({ history }) {
                     </Button>
                     <Button
                       icon={<SaveOutlined />}
-                      className="th-margin-bottom-0"
+                      className="th-margin-bottom-0 btn-margin-bottom-0"
                       type="primary"
                       htmlType={"submit"}
                       disabled={!fieldTouch}

@@ -698,7 +698,7 @@ function ImportCauHoi({ openModalFS, openModal, refesh }) {
               {!FileImport ? (
                 <Upload {...props}>
                   <Button
-                    className="th-margin-bottom-0"
+                    className="th-margin-bottom-0 btn-margin-bottom-0"
                     icon={<UploadOutlined />}
                     danger={checkDanger}
                   >
@@ -741,7 +741,7 @@ function ImportCauHoi({ openModalFS, openModal, refesh }) {
               <Button
                 icon={<DownloadOutlined />}
                 onClick={TaiFileMau}
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 type="primary"
               >
                 File mẫu
@@ -773,7 +773,7 @@ function ImportCauHoi({ openModalFS, openModal, refesh }) {
             {!DataLoi || DataLoi.isError ? (
               <Button
                 icon={<SaveOutlined />}
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 type="primary"
                 onClick={modalXK}
                 disabled={!DataListCauHoi.length || checkDanger}
@@ -783,7 +783,7 @@ function ImportCauHoi({ openModalFS, openModal, refesh }) {
             ) : (
               <Button
                 icon={<SaveOutlined />}
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 type="primary"
                 onClick={modalXK}
                 disabled={!DataListCauHoi.length}

@@ -487,7 +487,7 @@ function CanBoNhanVien({ match, history, permission }) {
       <>
         <Button
           icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={handleRedirect}
           disabled={permission && !permission.add}
@@ -496,7 +496,7 @@ function CanBoNhanVien({ match, history, permission }) {
         </Button>
         <Button
           icon={<ImportOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={() => setActiveModalImportCBNV(true)}
           disabled={permission && !permission.view}
@@ -505,7 +505,7 @@ function CanBoNhanVien({ match, history, permission }) {
         </Button>
         <Button
           icon={<ExportOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={XuatExcel}
           disabled={(permission && !permission.view) || dataList.length === 0}

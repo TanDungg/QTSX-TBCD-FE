@@ -965,7 +965,7 @@ function XacNhanDaoTao({ match, permission, history }) {
           <div align={"end"}>
             <Button
               icon={<ExportOutlined />}
-              className="th-margin-bottom-0"
+              className="th-margin-bottom-0 btn-margin-bottom-0"
               onClick={() => handleXuatExcelChiTiet()}
               type="primary"
             >

@@ -303,7 +303,7 @@ function DuyetDanhGia({ history, permission }) {
       <>
         <Button
           icon={<CheckCircleOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={() => ModalXacNhan()}
           disabled={SelectedDanhGia.length === 0}
@@ -312,7 +312,7 @@ function DuyetDanhGia({ history, permission }) {
         </Button>
         <Button
           icon={<CloseCircleOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="danger"
           onClick={() => setActiveModalTuChoi(true)}
           disabled={SelectedDanhGia.length === 0}
@@ -473,14 +473,14 @@ function DuyetDanhGia({ history, permission }) {
               >
                 <Button
                   icon={<RollbackOutlined />}
-                  className="th-margin-bottom-0"
+                  className="th-margin-bottom-0 btn-margin-bottom-0"
                   onClick={() => handleCancel()}
                 >
                   Quay lại
                 </Button>
                 <Button
                   icon={<CloseCircleOutlined />}
-                  className="th-margin-bottom-0"
+                  className="th-margin-bottom-0 btn-margin-bottom-0"
                   type="danger"
                   htmlType={"submit"}
                   disabled={!fieldTouch}

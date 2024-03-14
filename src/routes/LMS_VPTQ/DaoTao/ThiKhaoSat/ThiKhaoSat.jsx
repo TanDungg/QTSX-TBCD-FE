@@ -248,7 +248,7 @@ function ThiKhaoSat({ permission, history }) {
       <div>
         {item.isBatDauThi === 1 ? (
           <Button
-            className="th-margin-bottom-0"
+            className="th-margin-bottom-0 btn-margin-bottom-0"
             type="primary"
             onClick={() => {
               setActiveModalThiKhaoSat(true);
@@ -259,7 +259,7 @@ function ThiKhaoSat({ permission, history }) {
           </Button>
         ) : item.isDangThi === 1 ? (
           <Button
-            className="th-margin-bottom-0"
+            className="th-margin-bottom-0 btn-margin-bottom-0"
             type="danger"
             onClick={() => {
               ModalThi(item);
@@ -269,7 +269,7 @@ function ThiKhaoSat({ permission, history }) {
           </Button>
         ) : item.isKichHoatThiLai === 1 && IsQuanLyDaoTao ? (
           <Button
-            className="th-margin-bottom-0"
+            className="th-margin-bottom-0 btn-margin-bottom-0"
             type="primary"
             onClick={() => ModalKichHoatThiLai(item.vptq_lms_LopHocChiTiet_Id)}
             disabled={item.isKichHoatThiLai === 0}

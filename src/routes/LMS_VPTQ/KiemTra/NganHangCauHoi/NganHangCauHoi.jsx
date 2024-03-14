@@ -530,7 +530,7 @@ function CauHoi({ permission, history, match }) {
       <>
         <Button
           icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={handleRedirect}
           disabled={permission && !permission.add}
@@ -539,7 +539,7 @@ function CauHoi({ permission, history, match }) {
         </Button>
         <Button
           icon={<ImportOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={() => setActiveImportCauHoi(true)}
           disabled={permission && !permission.add}

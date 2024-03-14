@@ -427,7 +427,7 @@ function KiemTraVaDuyet({ history, permission }) {
       <>
         <Button
           icon={<CheckCircleOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={ModalXacNhan}
           disabled={SelectedChuyenDe.length === 0}
@@ -436,7 +436,7 @@ function KiemTraVaDuyet({ history, permission }) {
         </Button>
         <Button
           icon={<CloseCircleOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="danger"
           onClick={() => setActiveModalTuChoi(true)}
           disabled={SelectedChuyenDe.length === 0}

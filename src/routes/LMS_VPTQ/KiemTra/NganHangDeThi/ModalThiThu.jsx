@@ -360,7 +360,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
         <div align={"end"}>
           {!DeThi ? (
             <Button
-              className="th-margin-bottom-0"
+              className="th-margin-bottom-0 btn-margin-bottom-0"
               onClick={() => getDeThiThu(dethi.id, dethi.isDangThiThu)}
               type="primary"
             >
@@ -368,7 +368,7 @@ function ModalThiThu({ openModalFS, openModal, dethi, refesh }) {
             </Button>
           ) : (
             <Button
-              className="th-margin-bottom-0"
+              className="th-margin-bottom-0 btn-margin-bottom-0"
               onClick={() => modalXK()}
               type="danger"
             >

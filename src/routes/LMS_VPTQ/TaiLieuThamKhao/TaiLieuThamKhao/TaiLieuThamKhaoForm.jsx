@@ -346,7 +346,7 @@ const TaiLieuThamKhaoForm = ({ history, match, permission }) => {
               {!DisableUpload ? (
                 <Upload {...propstailieu}>
                   <Button
-                    className="th-margin-bottom-0"
+                    className="th-margin-bottom-0 btn-margin-bottom-0"
                     style={{
                       marginBottom: 0,
                     }}

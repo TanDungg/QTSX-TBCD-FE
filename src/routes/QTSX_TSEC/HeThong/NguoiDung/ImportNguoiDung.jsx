@@ -428,7 +428,7 @@ function ImportNguoiDung({ match, history }) {
             {!FileImport ? (
               <Upload {...props}>
                 <Button
-                  className="th-margin-bottom-0"
+                  className="th-margin-bottom-0 btn-margin-bottom-0"
                   icon={<UploadOutlined />}
                   danger={checkDanger}
                 >
@@ -471,7 +471,7 @@ function ImportNguoiDung({ match, history }) {
             <Button
               icon={<DownloadOutlined />}
               onClick={TaiFileMau}
-              className="th-margin-bottom-0"
+              className="th-margin-bottom-0 btn-margin-bottom-0"
               type="primary"
             >
               File mẫu
@@ -513,14 +513,14 @@ function ImportNguoiDung({ match, history }) {
           >
             <Button
               icon={<RollbackOutlined />}
-              className="th-margin-bottom-0"
+              className="th-margin-bottom-0 btn-margin-bottom-0"
               onClick={() => goBack()}
             >
               Quay lại
             </Button>
             <Button
               icon={<SaveOutlined />}
-              className="th-margin-bottom-0"
+              className="th-margin-bottom-0 btn-margin-bottom-0"
               type="primary"
               onClick={modalLuu}
               disabled={

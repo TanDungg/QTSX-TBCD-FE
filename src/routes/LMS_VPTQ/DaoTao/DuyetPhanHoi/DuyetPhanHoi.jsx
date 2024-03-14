@@ -356,7 +356,7 @@ function XacNhanPhanHoi({ history, permission }) {
       <>
         <Button
           icon={<CheckCircleOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={() => ModalXacNhan()}
           disabled={SelectedPhanHoi.length === 0}
@@ -365,7 +365,7 @@ function XacNhanPhanHoi({ history, permission }) {
         </Button>
         <Button
           icon={<CloseCircleOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="danger"
           onClick={() => ModalTuChoi()}
           disabled={SelectedPhanHoi.length === 0}
