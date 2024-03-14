@@ -26,6 +26,7 @@ import {
   convertObjectToUrlParams,
   getTokenInfo,
   getLocalStorage,
+  setLocalStorage,
 } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import {
@@ -622,6 +623,11 @@ function NganHangDeThi({ permission, history, match }) {
     getListData(KienThuc, null, keyword, page);
   };
 
+  const handleThiThu = (item) => {
+    setLocalStorage("DataDeThi", item);
+    window.open(`${match.url}/${item.id}/thi-thu`, "_blank");
+  };
+
   const handleRefesh = () => {
     handleChiTiet(id);
   };
@@ -882,8 +888,9 @@ function NganHangDeThi({ permission, history, match }) {
             <Button
               className="th-margin-bottom-0 btn-margin-bottom-0"
               onClick={() => {
-                setActiveModalThiThu(true);
-                setActiveModalChiTietDeThi(false);
+                handleThiThu(DataChiTiet);
+                // setActiveModalThiThu(true);
+                // setActiveModalChiTietDeThi(false);
               }}
               type={
                 DataChiTiet && DataChiTiet.isDangThiThu ? "danger" : "primary"

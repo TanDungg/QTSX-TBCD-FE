@@ -14,6 +14,7 @@ const NganHangCauHoiForm = asyncComponent(() =>
 /* Ngân hàng đề thi */
 const NganHangDeThi = asyncComponent(() => import("./NganHangDeThi/NganHangDeThi"));
 const NganHangDeThiForm = asyncComponent(() => import("./NganHangDeThi/NganHangDeThiForm"));
+const ThiThu = asyncComponent(() => import("./NganHangDeThi/ThiThu"));
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -51,6 +52,11 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/ngan-hang-de-thi/:id/chinh-sua`}
         exact
         component={Auth(NganHangDeThiForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/ngan-hang-de-thi/:id/thi-thu`}
+        exact
+        component={Auth(ThiThu, menus, pathname, permission)}
       />
     </Switch>
   );
