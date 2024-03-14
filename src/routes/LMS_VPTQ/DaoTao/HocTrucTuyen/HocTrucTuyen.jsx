@@ -14,7 +14,19 @@ import { BASE_URL_API } from "src/constants/Config";
 
 function HocTrucTuyen({ match, history, permission }) {
   const dispatch = useDispatch();
-  const { loading } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
+  const lengthspan =
+    width >= 1800
+      ? 50
+      : width >= 1600
+      ? 45
+      : width >= 1400
+      ? 40
+      : width >= 1200
+      ? 30
+      : width >= 768
+      ? 40
+      : 60;
   const INFO = {
     ...getLocalStorage("menu"),
     user_Id: getTokenInfo().id,
@@ -257,12 +269,14 @@ function HocTrucTuyen({ match, history, permission }) {
                         style={{
                           display: "flex",
                           alignItems: "flex-start",
+                          height: "40px",
                         }}
                       >
                         {dt && (
                           <span
+                            title={`${dt.tenChuyenDeDaoTao}`}
                             style={{
-                              fontSize: "18px",
+                              fontSize: "15px",
                               fontWeight: "bold",
                               color: "#0469b9",
                               cursor: "pointer",
@@ -282,7 +296,12 @@ function HocTrucTuyen({ match, history, permission }) {
                               (e.target.style.color = "#0469b9")
                             }
                           >
-                            {dt.tenChuyenDeDaoTao}
+                            {dt.tenChuyenDeDaoTao.length > lengthspan
+                              ? `${dt.tenChuyenDeDaoTao.substring(
+                                  0,
+                                  lengthspan
+                                )}...`
+                              : dt.tenChuyenDeDaoTao}
                           </span>
                         )}
                       </Col>

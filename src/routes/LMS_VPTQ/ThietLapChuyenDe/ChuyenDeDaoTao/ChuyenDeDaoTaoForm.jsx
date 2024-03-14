@@ -57,7 +57,6 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
   const [DisableUploadTaiLieu, setDisableUploadTaiLieu] = useState(false);
   const [id, setId] = useState(null);
   const [ImageUrl, setImageUrl] = useState();
-  const [Path, setPath] = useState();
   const [LoadingVideo, setLoadingVideo] = useState(null);
   const [ErrorLoadingVideo, setErrorLoadingVideo] = useState(false);
   const [LoadingTaiLieu, setLoadingTaiLieu] = useState(null);
@@ -211,7 +210,6 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             setFileTaiLieu(data.fileTaiLieu);
           }
           if (data.anhDaiDienChuyenDe) {
-            setPath(data.anhDaiDienChuyenDe);
             convertToBase64(data.anhDaiDienChuyenDe);
             setFileHinhAnh(data.anhDaiDienChuyenDe);
           }
@@ -379,12 +377,16 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
             }
           );
           const dataPath = await response.data;
-          formchuyendedaotao.fileTaiLieu =
-            FileHinhAnh && FileHinhAnh.name && dataPath[0].path;
-          formchuyendedaotao.anhDaiDienChuyenDe =
-            FileHinhAnh && FileHinhAnh.name
-              ? dataPath[1].path
-              : dataPath[0].path;
+          if (FileTaiLieu && FileTaiLieu.name) {
+            formchuyendedaotao.fileTaiLieu = dataPath[0].path;
+          }
+          if (FileHinhAnh && FileHinhAnh.name) {
+            if (FileTaiLieu && FileTaiLieu.name) {
+              formchuyendedaotao.anhDaiDienChuyenDe = dataPath[1].path;
+            } else {
+              formchuyendedaotao.anhDaiDienChuyenDe = dataPath[0].path;
+            }
+          }
         }
         saveData(formchuyendedaotao, saveQuit);
       }
@@ -424,7 +426,6 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
               setFileHinhAnh(null);
               setLoadingVideo(null);
               setLoadingTaiLieu(null);
-              setPath(null);
               setImageUrl(null);
               setFieldsValue({
                 formchuyendedaotao: {
@@ -447,7 +448,6 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
       const newData = {
         ...formchuyendedaotao,
         id: id,
-        anhDaiDienChuyenDe: Path,
         thoiLuongDaoTao: parseInt(formchuyendedaotao.thoiLuongDaoTao),
       };
       new Promise((resolve, reject) => {
@@ -479,7 +479,6 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
 
   const handleSelectHinhThucDaoTao = (value) => {
     setHinhThucDaoTao(value);
-    setPath(null);
     setImageUrl(null);
     setFieldsValue({
       formchuyendedaotao: {
@@ -974,7 +973,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
                 >
                   {ImageUrl ? (
                     <img
-                      style={{ maxWidth: "100%", height: "100%" }}
+                      style={{ maxWidth: "100%", maxHeight: "100%" }}
                       src={ImageUrl}
                       alt="Hình ảnh đại diện chuyên đề"
                     />
