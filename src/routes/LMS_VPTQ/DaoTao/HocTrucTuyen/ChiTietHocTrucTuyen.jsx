@@ -9,6 +9,7 @@ import TabsDanhGia from "./TabsDanhGia";
 import ModalThiKhaoSat from "./ModalThiKhaoSat";
 import { Modal } from "src/components/Common";
 import Hls from "hls.js";
+import { setLocalStorage } from "src/util/Common";
 
 function ChiTietHocTrucTuyen({ match, history, permission }) {
   const dispatch = useDispatch();
@@ -323,7 +324,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
       if (playerRef.current) {
         playerRef.current.currentTime = 0;
       }
-    }else{
+    } else {
       playerRef.current.currentTime = ThoiGianDaXem;
     }
   };
@@ -368,16 +369,19 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
     }
   };
 
-  const handleTiepTucThi = () => {
-    setActiveModalThiKhaoSat(true);
+  const handleThiKhaoSat = () => {
+    setLocalStorage("isDangThiKhaoSat", ChiTiet.isDangThi);
+    history.push({
+      pathname: `${match.url}/${ChiTiet.vptq_lms_ThiTrucTuyen_Id}/thi-khao-sat`,
+    });
   };
 
   const proptieptucthi = {
     type: "confirm",
     okText: "Xác nhận",
     cancelText: "Hủy",
-    title: "Tiếp tục thi khảo sát!",
-    onOk: handleTiepTucThi,
+    title: "Tiếp tục làm bài thi khảo sát!",
+    onOk: handleThiKhaoSat,
   };
 
   const ModalTiepTucThi = () => {
@@ -391,6 +395,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   const goBack = () => {
     history.push(`${match.url.replace(`/${match.params.id}/chi-tiet`, "")}`);
   };
+
   const title = ChiTiet && ChiTiet.tenChuyenDeDaoTao && (
     <span>CHUYÊN ĐỀ {ChiTiet.tenChuyenDeDaoTao.toUpperCase()}</span>
   );
@@ -626,7 +631,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                     ) : (
                       <Button
                         className="th-margin-bottom-0 btn-margin-bottom-0"
-                        onClick={() => setActiveModalThiKhaoSat(true)}
+                        onClick={() => handleThiKhaoSat()}
                         type="primary"
                       >
                         Thi khảo sát

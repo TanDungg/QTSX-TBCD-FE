@@ -2,15 +2,21 @@ import {
   ClockCircleOutlined,
   DoubleLeftOutlined,
   DoubleRightOutlined,
+  ExclamationCircleOutlined,
 } from "@ant-design/icons";
-import { Button, Card, Col, Row, Image, Radio, Statistic } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Row,
+  Image,
+  Radio,
+  Statistic,
+  Modal as AntModal,
+} from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  convertObjectToUrlParams,
-  getTokenInfo,
-  getLocalStorage,
-} from "src/util/Common";
+import { getTokenInfo, getLocalStorage } from "src/util/Common";
 import { fetchStart } from "src/appRedux/actions/Common";
 import { Modal } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -20,34 +26,42 @@ import Helpers from "src/helpers";
 import moment from "moment";
 
 const { Countdown } = Statistic;
+const { confirm } = AntModal;
 
-function ThiThu({ permission, history, match }) {
+function ThiKhaoSatForm({ history, match }) {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
-  const datadethi = getLocalStorage("DataDeThi");
   const INFO = {
     ...getLocalStorage("menu"),
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const [ChiTietDeThi, setChiTietDeThi] = useState(null);
+  const [ThongTinDeThi, setThongTinDeThi] = useState(null);
   const [DeThi, setDeThi] = useState(null);
   const [ListCauHoi, setListCauHoi] = useState([]);
   const [DapAn, setDapAn] = useState(null);
   const [CauHoi, setCauHoi] = useState(null);
   const [KetQuaThi, setKetQuaThi] = useState(null);
   const [ChiTietKetQua, setChiTietKetQua] = useState([]);
+  const [idThi, setIdThi] = useState(null);
 
   useEffect(() => {
-    getChiTietDeThi(datadethi.id);
+    const isDangThiKhaoSat = getLocalStorage("isDangThiKhaoSat");
+    const { idthi } = match.params;
+    setIdThi(idthi);
+    if (isDangThiKhaoSat) {
+      getDeThiTrucTuyen(idthi);
+    } else {
+      getThongTinThiTrucTuyen(idthi);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getChiTietDeThi = (id) => {
+  const getThongTinThiTrucTuyen = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_DeThi/${id}?donViHienHanh_Id=${INFO.donVi_Id}`,
+          `vptq_lms_ThiTrucTuyen/thong-tin-ve-bai-thi/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -56,26 +70,22 @@ function ThiThu({ permission, history, match }) {
           reject
         )
       );
-    }).then((res) => {
-      if (res && res.data) {
-        setChiTietDeThi(res.data);
-        if (res.data.isDangThiThu) {
-          getDeThiThu(res.data.id, res.data.isDangThiThu);
+    })
+      .then((res) => {
+        if (res && res.status !== 409) {
+          setThongTinDeThi(res.data);
+        } else {
+          goBack();
         }
-      }
-    });
+      })
+      .catch((error) => console.error(error));
   };
 
-  const getDeThiThu = (vptq_lms_DeThi_Id, IsDangThiThu) => {
+  const getDeThiTrucTuyen = (id) => {
     new Promise((resolve, reject) => {
-      const param = convertObjectToUrlParams({
-        donViHienHanh_Id: INFO.donVi_Id,
-        vptq_lms_DeThi_Id,
-        IsDangThiThu,
-      });
       dispatch(
         fetchStart(
-          `vptq_lms_ThiThu?${param}`,
+          `vptq_lms_ThiTrucTuyen/${id}?donViHienHanh_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -87,65 +97,73 @@ function ThiThu({ permission, history, match }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setDeThi(res.data);
-          res.data.list_ChiTiets && setListCauHoi(res.data.list_ChiTiets);
-          setCauHoi(
-            res.data.list_ChiTiets &&
-              res.data.list_ChiTiets[0].vptq_lms_ThiThuChiTiet_Id
-          );
-          setKetQuaThi(null);
-          setChiTietKetQua([]);
+          if (res.data.isDaThi === false) {
+            setThongTinDeThi(res.data);
+            setDeThi(res.data);
+            setListCauHoi(res.data.list_ChiTiets);
+            setCauHoi(
+              res.data.list_ChiTiets &&
+                res.data.list_ChiTiets[0].vptq_lms_ThiTrucTuyenChiTiet_Id
+            );
+            setKetQuaThi(null);
+            setChiTietKetQua([]);
+          } else {
+            setThongTinDeThi(res.data);
+            setKetQuaThi(res.data);
+            res.data.ketQua === "Đạt" ? ModalThiDat() : ModalThiKhongDat();
+            const chitiet =
+              res.data.list_ChiTiets &&
+              JSON.parse(res.data.list_ChiTiets).map((ct) => {
+                return {
+                  ...ct,
+                  list_DapAns: ct.list_DapAns.map((ans) => {
+                    return {
+                      ...ans,
+                      vptq_lms_ThiTrucTuyenChiTietDapAn_Id:
+                        ans.vptq_lms_ThiTrucTuyenChiTietDapAn_Id.toLowerCase(),
+                      isChon: ans.isChon === 1 ? true : false,
+                    };
+                  }),
+                };
+              });
+            setChiTietKetQua(chitiet);
+          }
         } else {
-          setDeThi(null);
+          setThongTinDeThi(null);
           setListCauHoi([]);
         }
       })
       .catch((error) => console.error(error));
   };
 
-  const handleKetQuaThiThu = (vptq_lms_ThiThu_Id) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `vptq_lms_ThiThu/${vptq_lms_ThiThu_Id}?donViHienHanh_Id=${INFO.donVi_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setKetQuaThi(res.data);
-          const chitiet =
-            res.data.list_ChiTiets &&
-            JSON.parse(res.data.list_ChiTiets).map((ct) => {
-              return {
-                ...ct,
-                list_DapAns: ct.list_DapAns.map((ans) => {
-                  return {
-                    ...ans,
-                    vptq_lms_ThiThuChiTietDapAn_Id:
-                      ans.vptq_lms_ThiThuChiTietDapAn_Id.toLowerCase(),
-                    isChon: ans.isChon === 1 ? true : false,
-                  };
-                }),
-              };
-            });
-          setChiTietKetQua(chitiet);
-        }
-      })
-      .catch((error) => console.error(error));
+  const ModalThi = (item) => {
+    confirm({
+      icon: <ExclamationCircleOutlined />,
+      content: "Xác nhận làm bài thi khảo sát!",
+      okText: "Xác nhận",
+      cancelText: "Hủy",
+      onOk() {
+        getDeThiTrucTuyen(item);
+      },
+    });
   };
 
-  const handleKetThucThiThu = () => {
+  const ModalThiDat = () => {
+    AntModal.success({
+      content: "Chúc mừng bạn đã vượt qua bài thi khảo sát!",
+    });
+  };
+  const ModalThiKhongDat = () => {
+    AntModal.error({
+      content: "Rất tiếc, bạn đã không vượt qua bài thi khảo sát!",
+    });
+  };
+
+  const handleKetThucThi = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_ThiThu/nop-bai?vptq_lms_ThiThu_Id=${DeThi.vptq_lms_ThiThu_Id}&donViHienHanh_Id=${INFO.donVi_Id}`,
+          `vptq_lms_ThiTrucTuyen/nop-bai?vptq_lms_ThiTrucTuyen_Id=${idThi}`,
           "PUT",
           null,
           "NOPBAI",
@@ -157,10 +175,14 @@ function ThiThu({ permission, history, match }) {
     })
       .then((res) => {
         if (res && res.status !== 409) {
-          handleKetQuaThiThu(DeThi.vptq_lms_ThiThu_Id);
+          getDeThiTrucTuyen(idThi);
           setDeThi(null);
           setListCauHoi([]);
           setCauHoi(null);
+        } else if (res && res.data) {
+          history.push(
+            `${match.url.replace(`/${match.params.idthi}/thi-khao-sat`, "")}`
+          );
         }
       })
       .catch((error) => console.error(error));
@@ -171,31 +193,33 @@ function ThiThu({ permission, history, match }) {
     okText: "Xác nhận",
     cancelText: "Hủy",
     title: "Xác nhận nộp bài",
-    onOk: handleKetThucThiThu,
+    onOk: handleKetThucThi,
   };
 
-  const modalXK = () => {
+  const ModalXacNhanNopBai = () => {
     Modal(prop);
   };
 
-  const handleChangeCauHoi = (value) => {
+  const handleChangeCauHoi = (vptq_lms_ThiTrucTuyenChiTiet_Id) => {
     setDapAn(null);
-    setCauHoi(value);
+    setCauHoi(vptq_lms_ThiTrucTuyenChiTiet_Id);
   };
 
   const SelectedCauHoi =
     ListCauHoi &&
-    ListCauHoi.find((item) => item.vptq_lms_ThiThuChiTiet_Id === CauHoi);
+    ListCauHoi.find((item) => item.vptq_lms_ThiTrucTuyenChiTiet_Id === CauHoi);
 
   const selectedIndex =
     ListCauHoi &&
-    ListCauHoi.findIndex((item) => item.vptq_lms_ThiThuChiTiet_Id === CauHoi);
+    ListCauHoi.findIndex(
+      (item) => item.vptq_lms_ThiTrucTuyenChiTiet_Id === CauHoi
+    );
 
   const handlePrev = () => {
     const prevIndex = selectedIndex - 1;
     if (prevIndex >= 0) {
       setDapAn(null);
-      setCauHoi(ListCauHoi[prevIndex].vptq_lms_ThiThuChiTiet_Id);
+      setCauHoi(ListCauHoi[prevIndex].vptq_lms_ThiTrucTuyenChiTiet_Id);
     }
   };
 
@@ -203,13 +227,13 @@ function ThiThu({ permission, history, match }) {
     const nextIndex = selectedIndex + 1;
     if (nextIndex < ListCauHoi.length) {
       setDapAn(null);
-      setCauHoi(ListCauHoi[nextIndex].vptq_lms_ThiThuChiTiet_Id);
+      setCauHoi(ListCauHoi[nextIndex].vptq_lms_ThiTrucTuyenChiTiet_Id);
     }
   };
 
   const getDefaultDapAn = (list_DapAns) => {
     const dapan = list_DapAns.find((ans) => ans.isChon);
-    return dapan ? dapan.vptq_lms_ThiThuChiTietDapAn_Id : undefined;
+    return dapan ? dapan.vptq_lms_ThiTrucTuyenChiTietDapAn_Id : undefined;
   };
 
   const onChangeDapAn = (val) => {
@@ -218,7 +242,7 @@ function ThiThu({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_ThiThu/chon-dap-an?vptq_lms_ThiThuChiTietDapAn_Id=${dapAn_Id}&donViHienHanh_Id=${INFO.donVi_Id}`,
+          `vptq_lms_ThiTrucTuyen/chon-dap-an?vptq_lms_ThiTrucTuyenChiTietDapAn_Id=${dapAn_Id}`,
           "PUT",
           null,
           "",
@@ -232,11 +256,11 @@ function ThiThu({ permission, history, match }) {
         if (res && res.status !== 409) {
           const newlistcauhoi = ListCauHoi.map((ch) => {
             if (
-              ch.vptq_lms_ThiThuChiTiet_Id ===
-              SelectedCauHoi.vptq_lms_ThiThuChiTiet_Id
+              ch.vptq_lms_ThiTrucTuyenChiTiet_Id ===
+              SelectedCauHoi.vptq_lms_ThiTrucTuyenChiTiet_Id
             ) {
               const listdapan = ch.list_DapAns.map((ans) => {
-                if (ans.vptq_lms_ThiThuChiTietDapAn_Id === dapAn_Id) {
+                if (ans.vptq_lms_ThiTrucTuyenChiTietDapAn_Id === dapAn_Id) {
                   return {
                     ...ans,
                     isChon: true,
@@ -258,6 +282,12 @@ function ThiThu({ permission, history, match }) {
             }
           });
           setListCauHoi(newlistcauhoi);
+        } else if (res && res.data) {
+          setThongTinDeThi(null);
+          setListCauHoi([]);
+          setCauHoi(null);
+          setKetQuaThi(null);
+          setChiTietKetQua([]);
         }
       })
       .catch((error) => console.error(error));
@@ -265,41 +295,42 @@ function ThiThu({ permission, history, match }) {
 
   const onFinish = () => {
     Helpers.alertError("Hết thời gian thi!");
-    handleKetThucThiThu();
-  };
-
-  const goBack = () => {
-    if (DeThi) {
-      modalXK();
-    } else {
-      history.push(`${match.url.replace(`/${match.params.id}/thi-thu`, "")}`);
-    }
+    handleKetThucThi();
   };
 
   const addButtonRender = () => {
-    return !DeThi ? (
+    return DeThi ? (
       <Button
         className="th-margin-bottom-0 btn-margin-bottom-0"
-        onClick={() => getDeThiThu(ChiTietDeThi.id, ChiTietDeThi.isDangThiThu)}
-        type="primary"
-      >
-        {KetQuaThi ? "Thi lại đề thi" : "Bắt đầu làm bài"}
-      </Button>
-    ) : (
-      <Button
-        className="th-margin-bottom-0 btn-margin-bottom-0"
-        onClick={() => modalXK()}
+        onClick={() => ModalXacNhanNopBai()}
         type="danger"
       >
         Nộp bài và kết thúc bài thi
       </Button>
-    );
+    ) : !KetQuaThi ? (
+      <Button
+        className="th-margin-bottom-0 btn-margin-bottom-0"
+        onClick={() => ModalThi(idThi)}
+        type="primary"
+      >
+        Bắt đầu làm bài
+      </Button>
+    ) : null;
+  };
+
+  const goBack = () => {
+    if (ListCauHoi.length) {
+      ModalXacNhanNopBai();
+    } else {
+      history.push(
+        `${match.url.replace(`/${match.params.idthi}/thi-khao-sat`, "")}`
+      );
+    }
   };
 
   const title = (
     <span>
-      THI THỬ ĐỀ THI{" "}
-      {ChiTietDeThi && ChiTietDeThi.tenChuyenDeDaoTao.toUpperCase()}{" "}
+      ĐỀ THI {ThongTinDeThi && ThongTinDeThi.tenChuyenDeDaoTao.toUpperCase()}{" "}
     </span>
   );
 
@@ -313,14 +344,14 @@ function ThiThu({ permission, history, match }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Card
           className="th-card-margin-bottom th-card-reset-margin"
-          title={"Thông tin đề thi"}
+          title={"Thông tin đề thi khảo sát"}
         >
           <Row gutter={[0, 10]}>
             <Col
               xxl={8}
               xl={8}
               lg={12}
-              md={12}
+              md={24}
               sm={24}
               xs={24}
               className="title-span"
@@ -328,17 +359,13 @@ function ThiThu({ permission, history, match }) {
               <span style={{ whiteSpace: "nowrap" }}>
                 <strong>Tên đề thi:</strong>
               </span>
-              {ChiTietDeThi && (
-                <span>
-                  {ChiTietDeThi.tenDeThi} ({ChiTietDeThi.maDeThi})
-                </span>
-              )}
+              {ThongTinDeThi && <span>{ThongTinDeThi.tenDeThi}</span>}
             </Col>
             <Col
               xxl={8}
               xl={8}
               lg={12}
-              md={12}
+              md={24}
               sm={24}
               xs={24}
               className="title-span"
@@ -346,27 +373,15 @@ function ThiThu({ permission, history, match }) {
               <span>
                 <strong>Số lượng câu hỏi:</strong>
               </span>
-              {ChiTietDeThi && <span>{ChiTietDeThi.soLuongCauHoi} câu</span>}
+              {ThongTinDeThi && ThongTinDeThi.soLuongCauHoi && (
+                <span>{ThongTinDeThi.soLuongCauHoi} câu</span>
+              )}
             </Col>
             <Col
               xxl={8}
               xl={8}
               lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span>
-                <strong>Thang điểm:</strong>
-              </span>
-              {ChiTietDeThi && <span>{ChiTietDeThi.thangDiem} điểm</span>}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
+              md={24}
               sm={24}
               xs={24}
               className="title-span"
@@ -374,13 +389,31 @@ function ThiThu({ permission, history, match }) {
               <span>
                 <strong>Thời gian làm bài:</strong>
               </span>
-              {ChiTietDeThi && <span>{ChiTietDeThi.thoiGianLamBai} phút</span>}
+              {ThongTinDeThi && ThongTinDeThi.thoiGianLamBai && (
+                <span>{ThongTinDeThi.thoiGianLamBai} phút</span>
+              )}
             </Col>
             <Col
               xxl={8}
               xl={8}
               lg={12}
-              md={12}
+              md={24}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Thang điểm:</strong>
+              </span>
+              {ThongTinDeThi && ThongTinDeThi.thangDiem && (
+                <span>{ThongTinDeThi.thangDiem} điểm</span>
+              )}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={24}
               sm={24}
               xs={24}
               className="title-span"
@@ -388,7 +421,9 @@ function ThiThu({ permission, history, match }) {
               <span>
                 <strong>Tiêu chuẩn đạt:</strong>
               </span>
-              {ChiTietDeThi && <span>{ChiTietDeThi.tieuChuanDat}%</span>}
+              {ThongTinDeThi && ThongTinDeThi.tieuChuanDat && (
+                <span>{ThongTinDeThi.tieuChuanDat}%</span>
+              )}
             </Col>
           </Row>
         </Card>
@@ -396,7 +431,9 @@ function ThiThu({ permission, history, match }) {
           <Card
             className="th-card-margin-bottom th-card-reset-margin"
             title={"Danh sách câu hỏi"}
-            style={{ height: "55vh" }}
+            style={{
+              minHeight: "55vh",
+            }}
           >
             <div
               style={{
@@ -441,7 +478,7 @@ function ThiThu({ permission, history, match }) {
                     >
                       <Countdown
                         value={moment(
-                          DeThi.gioiHanThoiGian,
+                          DeThi.gioiHanThoiGianThi,
                           "DD/MM/YYYY HH:mm:ss"
                         )
                           .toDate()
@@ -510,7 +547,7 @@ function ThiThu({ permission, history, match }) {
                   </div>
                 </div>
               </div>
-              {width < 1200 ? (
+              {width < 1600 ? (
                 <div
                   style={{
                     padding: "10px",
@@ -525,7 +562,7 @@ function ThiThu({ permission, history, match }) {
                 >
                   {ListCauHoi.map((item, index) => {
                     const isSelected =
-                      CauHoi === item.vptq_lms_ThiThuChiTiet_Id;
+                      CauHoi === item.vptq_lms_ThiTrucTuyenChiTiet_Id;
                     const isChon = item.list_DapAns.some((ans) => ans.isChon);
                     return (
                       <div
@@ -556,7 +593,9 @@ function ThiThu({ permission, history, match }) {
                           fontSize: "14px",
                         }}
                         onClick={() =>
-                          handleChangeCauHoi(item.vptq_lms_ThiThuChiTiet_Id)
+                          handleChangeCauHoi(
+                            item.vptq_lms_ThiTrucTuyenChiTiet_Id
+                          )
                         }
                       >
                         {index + 1}
@@ -565,22 +604,15 @@ function ThiThu({ permission, history, match }) {
                   })}
                 </div>
               ) : null}
-              <div style={{ display: "flex", gap: "10px", height: "40vh" }}>
-                <Card
-                  className="th-card-margin-bottom th-card-reset-margin"
-                  style={{
-                    height: "100%",
-                    width: "100%",
-                    overflowY: "auto",
-                  }}
-                >
+              <div style={{ display: "flex", gap: "10px", minHeight: "45vh" }}>
+                <Card className="th-card-margin-bottom th-card-reset-margin">
                   {SelectedCauHoi ? (
                     <Row gutter={[0, 10]}>
                       <Col span={24} className="title-span">
                         <span style={{ whiteSpace: "nowrap" }}>
                           <strong>
                             Câu {selectedIndex + 1}. (
-                            {ChiTietDeThi.soDiemMoiCau} điểm):
+                            {ThongTinDeThi && ThongTinDeThi.soDiemMoiCau} điểm):
                           </strong>
                         </span>
                         <span style={{ whiteSpace: "pre-line" }}>
@@ -669,7 +701,9 @@ function ThiThu({ permission, history, match }) {
                                 return (
                                   <Col span={24}>
                                     <Radio
-                                      value={ans.vptq_lms_ThiThuChiTietDapAn_Id}
+                                      value={
+                                        ans.vptq_lms_ThiTrucTuyenChiTietDapAn_Id
+                                      }
                                       style={{
                                         display: "flex",
                                         alignItems: "center",
@@ -688,9 +722,7 @@ function ThiThu({ permission, history, match }) {
                                             fontWeight: "bold",
                                           }}
                                         >
-                                          <strong>
-                                            {String.fromCharCode(65 + index)}.
-                                          </strong>
+                                          {String.fromCharCode(65 + index)}.
                                         </span>
                                         <span
                                           style={{
@@ -710,24 +742,24 @@ function ThiThu({ permission, history, match }) {
                     </Row>
                   ) : null}
                 </Card>
-                {width >= 1200 ? (
+                {width >= 1600 ? (
                   <div
                     style={{
                       width: "450px",
-                      height: "100%",
                       padding: "15px 10px",
+                      marginBottom: "5px",
                       border: "1px solid #c8c8c8",
                       borderRadius: "10px",
                       overflowY: "auto",
                       display: "flex",
                       alignContent: "flex-start",
                       flexWrap: "wrap",
-                      gap: width > 1200 ? "12px" : "10px",
+                      gap: width > 1600 ? "12px" : "10px",
                     }}
                   >
                     {ListCauHoi.map((item, index) => {
                       const isSelected =
-                        CauHoi === item.vptq_lms_ThiThuChiTiet_Id;
+                        CauHoi === item.vptq_lms_ThiTrucTuyenChiTiet_Id;
                       const isChon = item.list_DapAns.some((ans) => ans.isChon);
                       return (
                         <div
@@ -758,7 +790,9 @@ function ThiThu({ permission, history, match }) {
                             fontSize: "14px",
                           }}
                           onClick={() =>
-                            handleChangeCauHoi(item.vptq_lms_ThiThuChiTiet_Id)
+                            handleChangeCauHoi(
+                              item.vptq_lms_ThiTrucTuyenChiTiet_Id
+                            )
                           }
                         >
                           {index + 1}
@@ -780,14 +814,14 @@ function ThiThu({ permission, history, match }) {
             <Image
               src={require("public/images/HuongDanThiTracNghiem.jpg")}
               alt="Hình ảnh"
-              style={{ height: "45vh" }}
+              style={{ width: "100%", maxHeight: "45vh" }}
             />
           </Card>
         ) : (
           <Card
             className="th-card-margin-bottom th-card-reset-margin"
-            title={"Kết quả thi thử"}
-            style={{ height: "55vh" }}
+            title={"Kết quả thi khảo sát"}
+            style={{ height: "100%", overflowY: "auto" }}
           >
             <Row gutter={[0, 10]} style={{ marginBottom: "10px" }}>
               <Col
@@ -816,7 +850,7 @@ function ThiThu({ permission, history, match }) {
                 <span>
                   <strong>Thời gian bắt đầu:</strong>
                 </span>
-                <span>{KetQuaThi.thoiGianBatDau}</span>
+                <span>{KetQuaThi.thoiGianBatDauThi}</span>
               </Col>
               <Col
                 xxl={8}
@@ -830,7 +864,7 @@ function ThiThu({ permission, history, match }) {
                 <span>
                   <strong>Thời gian kết thúc:</strong>
                 </span>
-                <span>{KetQuaThi.thoiGianKetThuc}</span>
+                <span>{KetQuaThi.thoiGianKetThucThi}</span>
               </Col>
               <Col
                 xxl={8}
@@ -875,6 +909,7 @@ function ThiThu({ permission, history, match }) {
                 <span
                   style={{
                     color: KetQuaThi.ketQua === "Không đạt" ? "red" : "#0469b9",
+                    fontWeight: "bold",
                   }}
                 >
                   {KetQuaThi.ketQua}
@@ -886,7 +921,6 @@ function ThiThu({ permission, history, match }) {
               style={{
                 height: "40vh",
                 overflowY: "auto",
-                width: "100%",
               }}
             >
               <Row gutter={[0, 10]}>
@@ -896,11 +930,13 @@ function ThiThu({ permission, history, match }) {
                         <Col span={24}>
                           <Row gutter={[0, 10]}>
                             <Col span={24} className="title-span">
-                              <span style={{ whiteSpace: "pre-line" }}>
+                              <span style={{ whiteSpace: "nowrap" }}>
                                 <strong>
                                   Câu {index + 1}. (
                                   {KetQuaThi && KetQuaThi.soDiemMoiCau} điểm):
                                 </strong>
+                              </span>
+                              <span style={{ whiteSpace: "pre-line" }}>
                                 {ketqua.noiDung}
                               </span>
                             </Col>
@@ -976,7 +1012,7 @@ function ThiThu({ permission, history, match }) {
                                         <Col span={24}>
                                           <Radio
                                             value={
-                                              ans.vptq_lms_ThiThuChiTietDapAn_Id
+                                              ans.vptq_lms_ThiTrucTuyenChiTietDapAn_Id
                                             }
                                             disabled
                                             style={{
@@ -987,6 +1023,7 @@ function ThiThu({ permission, history, match }) {
                                             <div className="title-span">
                                               <span
                                                 style={{
+                                                  fontWeight: "bold",
                                                   color:
                                                     ans.isChon &&
                                                     ketqua.isCorrect
@@ -997,12 +1034,10 @@ function ThiThu({ permission, history, match }) {
                                                       : "",
                                                 }}
                                               >
-                                                <strong>
-                                                  {String.fromCharCode(
-                                                    65 + index
-                                                  )}
-                                                  .
-                                                </strong>
+                                                {String.fromCharCode(
+                                                  65 + index
+                                                )}
+                                                .
                                               </span>
                                               <span
                                                 style={{
@@ -1043,4 +1078,4 @@ function ThiThu({ permission, history, match }) {
   );
 }
 
-export default ThiThu;
+export default ThiKhaoSatForm;

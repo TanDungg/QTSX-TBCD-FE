@@ -14,7 +14,7 @@ const NganHangCauHoiForm = asyncComponent(() =>
 /* Ngân hàng đề thi */
 const NganHangDeThi = asyncComponent(() => import("./NganHangDeThi/NganHangDeThi"));
 const NganHangDeThiForm = asyncComponent(() => import("./NganHangDeThi/NganHangDeThiForm"));
-const ThiThu = asyncComponent(() => import("./NganHangDeThi/ThiThu"));
+const ThiThu = asyncComponent(() => import("./NganHangDeThi/ThiThuForm"));
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;

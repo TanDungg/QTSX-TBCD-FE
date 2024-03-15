@@ -22,6 +22,9 @@ const HocTrucTuyen = asyncComponent(() =>
 const ChiTietHocTrucTuyen = asyncComponent(() =>
   import("./HocTrucTuyen/ChiTietHocTrucTuyen")
 );
+const ThiKhaoSatFormTrucTuyen = asyncComponent(() =>
+  import("./HocTrucTuyen/ThiKhaoSatForm")
+);
 
 /* Duyệt hỏi đáp */
 const DuyetHoiDap = asyncComponent(() => import("./DuyetHoiDap/DuyetHoiDap"));
@@ -38,6 +41,9 @@ const DuyetDanhGia = asyncComponent(() =>
 
 /* Thi khảo sát */
 const ThiKhaoSat = asyncComponent(() => import("./ThiKhaoSat/ThiKhaoSat"));
+const ThiKhaoSatForm = asyncComponent(() =>
+  import("./ThiKhaoSat/ThiKhaoSatForm")
+);
 
 /* Xác nhận đào tạo */
 const XacNhanDaoTao = asyncComponent(() =>
@@ -86,6 +92,11 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(ChiTietHocTrucTuyen, menus, pathname, permission)}
       />
+      <Route
+        path={`${match.url}/hoc-truc-tuyen/:id/chi-tiet/:idthi/thi-khao-sat`}
+        exact
+        component={Auth(ThiKhaoSatFormTrucTuyen, menus, pathname, permission)}
+      />
 
       {/* Duyệt hỏi đáp */}
       <Route
@@ -101,8 +112,8 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(DuyetPhanHoi, menus, pathname, permission)}
       />
 
-       {/* Duyệt đánh giá */}
-       <Route
+      {/* Duyệt đánh giá */}
+      <Route
         path={`${match.url}/duyet-danh-gia`}
         exact
         component={Auth(DuyetDanhGia, menus, pathname, permission)}
@@ -113,6 +124,11 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/thi-khao-sat`}
         exact
         component={Auth(ThiKhaoSat, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/thi-khao-sat/:id`}
+        exact
+        component={Auth(ThiKhaoSatForm, menus, pathname, permission)}
       />
 
       {/* Xác nhận đào tạo */}

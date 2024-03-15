@@ -18,7 +18,11 @@ import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { removeDuplicates, reDataForTable } from "src/util/Common";
+import {
+  removeDuplicates,
+  reDataForTable,
+  setLocalStorage,
+} from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import {
   EditableTableRow,
@@ -34,12 +38,11 @@ import {
 } from "src/util/Common";
 import { BASE_URL_API } from "src/constants/Config";
 import ReactPlayer from "react-player";
-import ModalThiKhaoSat from "./ModalThiKhaoSat";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const { confirm } = AntModal;
 
-function ThiKhaoSat({ permission, history }) {
+function ThiKhaoSat({ permission, history, match }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const INFO = {
@@ -63,8 +66,6 @@ function ThiKhaoSat({ permission, history }) {
   const [DataChiTiet, setDataChiTiet] = useState(null);
   const [ChiTiet, setChiTiet] = useState([]);
   const [ActiveModalChiTiet, setActiveModalChiTiet] = useState(false);
-  const [ThongTinThi, setThongTinThi] = useState(null);
-  const [ActiveModalThiKhaoSat, setActiveModalThiKhaoSat] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -221,12 +222,14 @@ function ThiKhaoSat({ permission, history }) {
   const ModalThi = (item) => {
     confirm({
       icon: <ExclamationCircleOutlined />,
-      content: "Tiếp tục thi khảo sát!",
+      content: "Tiếp tục làm bài thi khảo sát!",
       okText: "Xác nhận",
       cancelText: "Hủy",
       onOk() {
-        setActiveModalThiKhaoSat(true);
-        setThongTinThi(item);
+        setLocalStorage("isDangThiKhaoSat", item.isDangThi);
+        history.push({
+          pathname: `${match.url}/${item.vptq_lms_ThiTrucTuyen_Id}`,
+        });
       },
     });
   };
@@ -243,6 +246,13 @@ function ThiKhaoSat({ permission, history }) {
     });
   };
 
+  const handleThiKhaoSat = (item) => {
+    setLocalStorage("isDangThiKhaoSat", item.isDangThi);
+    history.push({
+      pathname: `${match.url}/${item.vptq_lms_ThiTrucTuyen_Id}`,
+    });
+  };
+
   const ButtonThi = (item) => {
     return (
       <div>
@@ -251,8 +261,7 @@ function ThiKhaoSat({ permission, history }) {
             className="th-margin-bottom-0 btn-margin-bottom-0"
             type="primary"
             onClick={() => {
-              setActiveModalThiKhaoSat(true);
-              setThongTinThi(item);
+              handleThiKhaoSat(item);
             }}
           >
             Thi khảo sát
@@ -735,15 +744,11 @@ function ThiKhaoSat({ permission, history }) {
     return dapan ? dapan.vptq_lms_ThiTrucTuyenChiTietDapAn_Id : undefined;
   };
 
-  const handleRefesh = () => {
-    getListData(KienThuc, ChuyenDeDaoTao, LopHoc, keyword, page);
-  };
-
   return (
     <div className="gx-main-content">
       <ContainerHeader
         title={"Thi khảo sát"}
-        description="Danh sách thi khảo sát"
+        description="Danh sách bài thi khảo sát"
       />
       <Card className="th-card-margin-bottom">
         <Row>
@@ -1142,27 +1147,49 @@ function ThiKhaoSat({ permission, history }) {
       >
         <Card className="th-card-margin-bottom th-card-reset-margin">
           <Row gutter={[0, 10]}>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Tên chuyên đề:</strong>
+              </span>
               {ThongTinLichSu && (
-                <span>
-                  <strong>Tên chuyên đề:</strong>{" "}
-                  {ThongTinLichSu.tenChuyenDeDaoTao}
-                </span>
+                <span>{ThongTinLichSu.tenChuyenDeDaoTao}</span>
               )}
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {ThongTinLichSu && (
-                <span>
-                  <strong>Tên đề thi:</strong> {ThongTinLichSu.tenDeThi}
-                </span>
-              )}
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Tên đề thi:</strong>
+              </span>
+              {ThongTinLichSu && <span>{ThongTinLichSu.tenDeThi}</span>}
             </Col>
-            <Col xxl={8} xl={8} lg={12} md={12} sm={24} xs={24}>
-              {ThongTinLichSu && (
-                <span>
-                  <strong>Người thi:</strong> {ThongTinLichSu.fullName}
-                </span>
-              )}
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span>
+                <strong>Người thi:</strong>
+              </span>
+              {ThongTinLichSu && <span>{ThongTinLichSu.fullName}</span>}
             </Col>
           </Row>
         </Card>
@@ -1183,13 +1210,6 @@ function ThiKhaoSat({ permission, history }) {
           />
         </Card>
       </AntModal>
-      <ModalThiKhaoSat
-        openModal={ActiveModalThiKhaoSat}
-        openModalFS={setActiveModalThiKhaoSat}
-        thongtin={ThongTinThi && ThongTinThi.vptq_lms_ThiTrucTuyen_Id}
-        isDangThi={ThongTinThi && ThongTinThi.isDangThi}
-        refesh={handleRefesh}
-      />
     </div>
   );
 }

@@ -26,7 +26,6 @@ import {
   convertObjectToUrlParams,
   getTokenInfo,
   getLocalStorage,
-  setLocalStorage,
 } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import {
@@ -37,7 +36,6 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import ModalThiThu from "./ModalThiThu";
 import { BASE_URL_API } from "src/constants/Config";
 import ReactPlayer from "react-player";
 
@@ -60,9 +58,7 @@ function NganHangDeThi({ permission, history, match }) {
   const [page, setPage] = useState(1);
   const [DataChiTiet, setDataChiTiet] = useState(null);
   const [ListCauHoi, setListCauHoi] = useState([]);
-  const [id, setId] = useState(null);
   const [ActiveModalChiTietDeThi, setActiveModalChiTietDeThi] = useState(false);
-  const [ActiveModalThiThu, setActiveModalThiThu] = useState(false);
   const [LichSuThiThu, setLichSuThiThu] = useState([]);
   const [ActiveModalLichSuThiThu, setActiveModalLichSuThiThu] = useState(false);
 
@@ -214,7 +210,6 @@ function NganHangDeThi({ permission, history, match }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        setId(item);
         setDataChiTiet(res.data);
         setListCauHoi(res.data.list_ChiTiets);
       } else {
@@ -624,12 +619,7 @@ function NganHangDeThi({ permission, history, match }) {
   };
 
   const handleThiThu = (item) => {
-    setLocalStorage("DataDeThi", item);
     window.open(`${match.url}/${item.id}/thi-thu`, "_blank");
-  };
-
-  const handleRefesh = () => {
-    handleChiTiet(id);
   };
 
   return (
@@ -1032,12 +1022,6 @@ function NganHangDeThi({ permission, history, match }) {
           pagination={false}
         />
       </AntModal>
-      <ModalThiThu
-        openModal={ActiveModalThiThu}
-        openModalFS={setActiveModalThiThu}
-        dethi={DataChiTiet}
-        refesh={handleRefesh}
-      />
     </div>
   );
 }
