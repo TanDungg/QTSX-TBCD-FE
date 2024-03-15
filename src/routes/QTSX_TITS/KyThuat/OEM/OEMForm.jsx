@@ -390,15 +390,11 @@ const OEMForm = ({ history, match, permission }) => {
           } else {
             setDataLoi(res.data);
             const newData = listVatTu.map((data) => {
-              const dt = res.data.find((item) =>
-                item.tenVatTuChiTiet
-                  ? data.maVatTuChiTiet.toString() ===
-                      item.maVatTuChiTiet.toString() &&
-                    data.tenVatTuChiTiet &&
-                    data.tenVatTuChiTiet.toString() ===
-                      item.tenVatTuChiTiet.toString()
-                  : data.maVatTuChiTiet.toString() ===
-                    item.maVatTuChiTiet.toString()
+              const dt = res.data.find(
+                (item) =>
+                  (data.maVatTuChiTiet && data.maVatTuChiTiet) ===
+                    (item.maVatTuChiTiet && item.maVatTuChiTiet) &&
+                  data.tenVatTuChiTiet === item.tenVatTuChiTiet
               );
 
               if (dt) {
@@ -410,6 +406,8 @@ const OEMForm = ({ history, match, permission }) => {
                 return data;
               }
             });
+            console.log(newData);
+
             setListVatTu(newData);
             setFieldTouch(false);
           }
@@ -503,24 +501,8 @@ const OEMForm = ({ history, match, permission }) => {
   };
 
   const RowStyle = (current, index) => {
-    if (DataLoi && DataLoi.length > 0) {
-      let check = false;
-      DataLoi.forEach((dt) => {
-        if (
-          dt.tenVatTuChiTiet
-            ? current.maVatTuChiTiet.toString() ===
-                dt.maVatTuChiTiet.toString() &&
-              current.tenVatTuChiTiet &&
-              current.tenVatTuChiTiet.toString() ===
-                dt.tenVatTuChiTiet.toString()
-            : current.maVatTuChiTiet.toString() === dt.maVatTuChiTiet.toString()
-        ) {
-          check = true;
-        }
-      });
-      if (check) {
-        return "red-row";
-      }
+    if (current.ghiChuImport !== null) {
+      return "red-row";
     } else {
       return;
     }

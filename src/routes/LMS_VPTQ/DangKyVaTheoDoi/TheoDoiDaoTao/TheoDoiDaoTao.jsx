@@ -32,7 +32,7 @@ function TheoDoiDaoTao({ history, permission, match }) {
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const { loading } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
   const [ListChuyenDe, setListChuyenDe] = useState([]);
   const [ChuyenDe, setChuyenDe] = useState(null);
@@ -375,11 +375,19 @@ function TheoDoiDaoTao({ history, permission, match }) {
       filterSearch: true,
     },
     {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "center",
+      width: 100,
+    },
+    {
       title: "Trạng thái",
       dataIndex: "trangThai",
       key: "trangThai",
       align: "center",
       width: 120,
+      fixed: width >= 1200 && "right",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -413,13 +421,6 @@ function TheoDoiDaoTao({ history, permission, match }) {
           )}
         </div>
       ),
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 100,
     },
   ];
 

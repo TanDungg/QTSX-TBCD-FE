@@ -449,6 +449,7 @@ function LopHoc({ match, history, permission }) {
       key: "tinhTrang",
       align: "center",
       width: 130,
+      fixed: width >= 1200 && "right",
       filters: removeDuplicates(
         map(Data, (d) => {
           return {
