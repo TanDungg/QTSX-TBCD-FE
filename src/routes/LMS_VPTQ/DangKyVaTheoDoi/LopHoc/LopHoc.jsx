@@ -856,7 +856,7 @@ function LopHoc({ match, history, permission }) {
             <div align={"end"}>
               <Button
                 icon={<FilePdfOutlined />}
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 onClick={() => handleXuatFilePDF()}
                 type="primary"
               >

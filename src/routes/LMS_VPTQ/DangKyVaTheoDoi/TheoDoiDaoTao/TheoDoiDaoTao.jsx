@@ -451,7 +451,7 @@ function TheoDoiDaoTao({ history, permission, match }) {
       <>
         <Button
           icon={<RetweetOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={() => setActiveModalChuyenDaoTao(true)}
           disabled={!SelectedNhanVien.length}
@@ -460,7 +460,7 @@ function TheoDoiDaoTao({ history, permission, match }) {
         </Button>
         <Button
           icon={<CloseCircleOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="danger"
           onClick={() => setActiveModalHuyDaoTao(true)}
           disabled={!SelectedNhanVien.length}

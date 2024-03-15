@@ -766,7 +766,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
                   {!DisableUploadHinhAnh ? (
                     <Upload {...propshinhanh}>
                       <Button
-                        className="th-margin-bottom-0"
+                        className="th-margin-bottom-0 btn-margin-bottom-0"
                         style={{
                           marginBottom: 0,
                         }}
@@ -869,7 +869,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
                   {!DisableUploadVideo ? (
                     <Upload {...propsvideo}>
                       <Button
-                        className="th-margin-bottom-0"
+                        className="th-margin-bottom-0 btn-margin-bottom-0"
                         style={{
                           marginBottom: 0,
                         }}
@@ -1044,7 +1044,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
           >
             <div align={"end"} style={{ marginBottom: "10px" }}>
               <Button
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 icon={<PlusCircleOutlined />}
                 onClick={() => setActiveModalThemDapAn(true)}
                 type="primary"
@@ -1076,7 +1076,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
               <Button
                 icon={<RollbackOutlined />}
                 type="default"
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 onClick={goBack}
               >
                 Quay lại
@@ -1084,7 +1084,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
               <Button
                 icon={<SaveOutlined />}
                 type="primary"
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 onClick={() => handleLuuTrung(false)}
               >
                 Lưu bỏ qua trùng
@@ -1092,7 +1092,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
               <Button
                 icon={<SaveOutlined />}
                 type="primary"
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 onClick={() => handleLuuTrung(true)}
               >
                 Lưu bỏ qua trùng và thoát
@@ -1100,7 +1100,7 @@ const NganHangCauHoiForm = ({ history, match, permission }) => {
               <Button
                 icon={<SaveOutlined />}
                 type="danger"
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 onClick={() => {
                   resetFields();
                   setFieldTouch(false);

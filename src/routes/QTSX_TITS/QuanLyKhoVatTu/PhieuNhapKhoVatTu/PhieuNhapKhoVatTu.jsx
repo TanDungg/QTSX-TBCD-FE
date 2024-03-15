@@ -131,7 +131,7 @@ function NhapKhoVatTu({ match, history, permission }) {
       );
 
     const editItem =
-      permission && permission.edit ? (
+      permission && permission.edit && item.tinhTrang === "Chưa xác nhận" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,

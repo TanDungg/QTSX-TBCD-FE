@@ -49,6 +49,7 @@ import {
 } from "src/util/Common";
 import InMaQrSoVIN from "src/routes/QTSX_TITS/KeHoach/SoVin/InMaQrSoVIN";
 import InMaQrCauTrucKho_TITS_QTSX from "src/routes/QTSX_TITS/InBarcode/CauTrucKho/InMaQrCauTrucKho_TITS_QTSX";
+import InMaQrCodeVatTu_TITS_QTSX from "src/routes/QTSX_TITS/MuaHang/PhieuNhanHang/InMaQrCodeVatTu_TITS_QTSX";
 
 // import { messaging } from "src/constants/firebase";
 // import { onMessage } from "firebase/messaging";
@@ -343,6 +344,11 @@ const App = () => {
             exact
             path="/quan-ly-man-hinh-qtsx-tits/danh-sach-man-hinh/:id/chi-tiet-man-hinh"
             component={ChiTietManHinh}
+          />
+          <Route
+            exact
+            path="/mua-hang-qtsx-tits/phieu-nhan-hang/:id/chi-tiet/in-ma-Qrcode"
+            component={InMaQrCodeVatTu_TITS_QTSX}
           />
           <RestrictedRoute
             path={`${match.url}`}

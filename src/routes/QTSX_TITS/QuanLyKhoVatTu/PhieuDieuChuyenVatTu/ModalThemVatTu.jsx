@@ -368,6 +368,12 @@ function ModalThemVatPham({
       width: 100,
     },
     {
+      title: "Phiếu mua hàng",
+      dataIndex: "maPhieuMuaHang",
+      key: "maPhieuMuaHang",
+      align: "center",
+    },
+    {
       title: "SL điều chuyển",
       dataIndex: "soLuongDieuChuyen",
       key: "soLuongDieuChuyen",

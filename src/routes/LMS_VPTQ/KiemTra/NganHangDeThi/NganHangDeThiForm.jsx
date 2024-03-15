@@ -594,7 +594,7 @@ const NganHangDeThiForm = ({ history, match, permission }) => {
           >
             <div align={"end"} style={{ marginBottom: "10px" }}>
               <Button
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 icon={<PlusCircleOutlined />}
                 onClick={() => setActiveModalThemCauHoi(true)}
                 type="primary"

@@ -144,7 +144,13 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserKy(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            nguoiKiemTra: `${dt.maNhanVien} - ${dt.fullName}`,
+          };
+        });
+        setListUserKy(newData);
       } else {
         setListUserKy([]);
       }
@@ -483,6 +489,12 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
       title: "Đơn vị tính",
       dataIndex: "tenDonViTinh",
       key: "tenDonViTinh",
+      align: "center",
+    },
+    {
+      title: "Phiếu mua hàng",
+      dataIndex: "maPhieuMuaHang",
+      key: "maPhieuMuaHang",
       align: "center",
     },
     {
@@ -1090,7 +1102,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Người giao"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "nguoiKiemTra"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1125,7 +1137,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Người duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "nguoiKiemTra"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

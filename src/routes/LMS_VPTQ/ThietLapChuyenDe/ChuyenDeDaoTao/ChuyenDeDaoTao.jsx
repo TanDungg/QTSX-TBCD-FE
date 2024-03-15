@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Checkbox, Col, Divider, Image, Row } from "antd";
+import { Button, Card, Checkbox, Col, Divider, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
@@ -17,7 +17,6 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
 import { BASE_URL_API } from "src/constants/Config";
-import ReactPlayer from "react-player";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -351,34 +350,6 @@ function ChuyenDeDaoTao({ permission, history, match }) {
       filterSearch: true,
     },
     {
-      title: "Video bài giảng",
-      dataIndex: "fileVideo",
-      key: "fileVideo",
-      align: "center",
-      width: 120,
-      render: (value) => {
-        return (
-          value && (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <ReactPlayer
-                url={BASE_URL_API + value}
-                width="80px"
-                height="45px"
-                onClick={() => window.open(BASE_URL_API + value, "_blank")}
-                style={{ cursor: "pointer" }}
-              />
-            </div>
-          )
-        );
-      },
-    },
-    {
       title: (
         <div>
           Ảnh đại diện
@@ -390,10 +361,17 @@ function ChuyenDeDaoTao({ permission, history, match }) {
       key: "anhDaiDienChuyenDe",
       align: "center",
       width: 120,
-      render: (value) => {
+      render: (value, record) => {
         return (
           value && (
-            <Image src={BASE_URL_API + value} style={{ width: "80px" }} />
+            <img
+              alt="Ảnh đại diện chuyên đề"
+              src={BASE_URL_API + value}
+              style={{ width: "80px", cursor: "pointer" }}
+              onClick={() =>
+                window.open(BASE_URL_API + record.fileVideo, "_blank")
+              }
+            />
           )
         );
       },
@@ -462,7 +440,7 @@ function ChuyenDeDaoTao({ permission, history, match }) {
       <>
         <Button
           icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={handleRedirect}
           disabled={permission && !permission.add}

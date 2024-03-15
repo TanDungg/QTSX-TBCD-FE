@@ -131,7 +131,7 @@ function ChucDanh({ history, permission, match }) {
     );
   };
 
-  let dataList = reDataForTable(Data.datalist);
+  let dataList = reDataForTable(Data.datalist, page, pageSize);
 
   let colValues = [
     {
@@ -225,7 +225,7 @@ function ChucDanh({ history, permission, match }) {
       <>
         <Button
           icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={handleRedirect}
           disabled={permission && !permission.add}

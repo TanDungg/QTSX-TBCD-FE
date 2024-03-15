@@ -331,6 +331,7 @@ function PhieuNhanHang({ match, history, permission }) {
     }
   };
 
+  
   return (
     <div className="gx-main-content">
       <ContainerHeader

@@ -617,7 +617,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                   >
                     {ChiTiet && ChiTiet.isDangThi ? (
                       <Button
-                        className="th-margin-bottom-0"
+                        className="th-margin-bottom-0 btn-margin-bottom-0"
                         onClick={() => ModalTiepTucThi()}
                         type="danger"
                       >
@@ -625,7 +625,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                       </Button>
                     ) : (
                       <Button
-                        className="th-margin-bottom-0"
+                        className="th-margin-bottom-0 btn-margin-bottom-0"
                         onClick={() => setActiveModalThiKhaoSat(true)}
                         type="primary"
                       >

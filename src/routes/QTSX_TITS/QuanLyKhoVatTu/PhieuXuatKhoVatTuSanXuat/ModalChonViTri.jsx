@@ -48,7 +48,6 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        console.log(itemData.ListViTriVatTu);
         if (itemData.ListViTriVatTu.isCheck === true) {
           setSelectedViTri(
             itemData.ListViTriVatTu.list_ChiTietLuuKhos &&
@@ -220,6 +219,12 @@ function ModalChonViTri({ openModalFS, openModal, itemData, ThemViTri }) {
       title: "Tên ngăn",
       dataIndex: "tenNgan",
       key: "tenNgan",
+      align: "center",
+    },
+    {
+      title: "Phiếu mua hàng",
+      dataIndex: "maPhieuMuaHang",
+      key: "maPhieuMuaHang",
       align: "center",
     },
     {

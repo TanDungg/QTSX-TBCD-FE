@@ -136,7 +136,7 @@ function ChucNang({ match, history, permission }) {
     return (
       <Button
         icon={<PlusOutlined />}
-        className="th-margin-bottom-0"
+        className="th-margin-bottom-0 btn-margin-bottom-0"
         type="primary"
         onClick={handleRedirect}
         disabled={permission && !permission.add}

@@ -734,7 +734,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
               {!DisableUploadHinhAnh ? (
                 <Upload {...propshinhanh}>
                   <Button
-                    className="th-margin-bottom-0"
+                    className="th-margin-bottom-0 btn-margin-bottom-0 btn-margin-bottom-0"
                     style={{
                       marginBottom: 0,
                     }}
@@ -788,7 +788,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
               {!DisableUploadFileDinhKem ? (
                 <Upload {...propfiledinhkem}>
                   <Button
-                    className="th-margin-bottom-0"
+                    className="th-margin-bottom-0 btn-margin-bottom-0 btn-margin-bottom-0"
                     style={{
                       marginBottom: 0,
                     }}
@@ -837,7 +837,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
             <Divider />
             <Button
               icon={<SendOutlined />}
-              className="th-margin-bottom-0"
+              className="th-margin-bottom-0 btn-margin-bottom-0 btn-margin-bottom-0"
               type="primary"
               htmlType={"submit"}
               disabled={!fieldTouch}
@@ -928,7 +928,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                           {!DisableUploadHinhAnhEditHoiDap ? (
                             <Upload {...propshinhanhedit}>
                               <Button
-                                className="th-margin-bottom-0"
+                                className="th-margin-bottom-0 btn-margin-bottom-0 btn-margin-bottom-0"
                                 style={{
                                   marginBottom: 0,
                                 }}
@@ -1004,7 +1004,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                           {!DisableUploadFileDinhKemEditHoiDap ? (
                             <Upload {...propfiledinhkemedit}>
                               <Button
-                                className="th-margin-bottom-0"
+                                className="th-margin-bottom-0 btn-margin-bottom-0 btn-margin-bottom-0"
                                 style={{
                                   marginBottom: 0,
                                 }}
@@ -1068,7 +1068,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                         <div style={{ display: "flex" }}>
                           <Button
                             icon={<CloseCircleOutlined />}
-                            className="th-margin-bottom-0"
+                            className="th-margin-bottom-0 btn-margin-bottom-0 btn-margin-bottom-0"
                             onClick={() => {
                               setIsEditCauHoi(false);
                               setIndexChinhSuaCauHoi(null);
@@ -1082,7 +1082,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                           </Button>
                           <Button
                             icon={<SaveOutlined />}
-                            className="th-margin-bottom-0"
+                            className="th-margin-bottom-0 btn-margin-bottom-0 btn-margin-bottom-0"
                             type="primary"
                             htmlType={"submit"}
                             disabled={!FieldTouchEditCauHoi}
@@ -1350,7 +1350,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                                     {!DisableUploadHinhAnhEditPhanHoi ? (
                                       <Upload {...propshinhanhphanhoiedit}>
                                         <Button
-                                          className="th-margin-bottom-0"
+                                          className="th-margin-bottom-0 btn-margin-bottom-0 btn-margin-bottom-0"
                                           style={{
                                             marginBottom: 0,
                                           }}
@@ -1441,7 +1441,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                                   <div style={{ display: "flex" }}>
                                     <Button
                                       icon={<CloseCircleOutlined />}
-                                      className="th-margin-bottom-0"
+                                      className="th-margin-bottom-0 btn-margin-bottom-0 btn-margin-bottom-0"
                                       onClick={() => {
                                         setIsEditPhanHoi(false);
                                         setIndexChinhSuaPhanHoi(null);
@@ -1455,7 +1455,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                                     </Button>
                                     <Button
                                       icon={<SaveOutlined />}
-                                      className="th-margin-bottom-0"
+                                      className="th-margin-bottom-0 btn-margin-bottom-0 btn-margin-bottom-0"
                                       type="primary"
                                       htmlType={"submit"}
                                       disabled={!FieldTouchEditPhanHoi}
@@ -1648,7 +1648,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                         {!DisableUploadHinhAnhPhanHoi ? (
                           <Upload {...propshinhanhphanhoi}>
                             <Button
-                              className="th-margin-bottom-0"
+                              className="th-margin-bottom-0 btn-margin-bottom-0 btn-margin-bottom-0"
                               icon={<UploadOutlined />}
                             >
                               Tải file hình ảnh
@@ -1676,7 +1676,7 @@ const TabsHoiDap = ({ dataHoiDap }) => {
                         <Divider />
                         <Button
                           icon={<SendOutlined />}
-                          className="th-margin-bottom-0"
+                          className="th-margin-bottom-0 btn-margin-bottom-0 btn-margin-bottom-0"
                           type="primary"
                           onClick={() =>
                             handlePhanHoi(hd.vptq_lms_HoiDap_Id, index)

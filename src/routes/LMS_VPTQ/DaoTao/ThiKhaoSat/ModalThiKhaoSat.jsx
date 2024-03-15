@@ -418,7 +418,7 @@ function ModalThiKhaoSat({
         <div align={"end"}>
           {DeThi ? (
             <Button
-              className="th-margin-bottom-0"
+              className="th-margin-bottom-0 btn-margin-bottom-0"
               onClick={() => ModalXacNhanNopBai()}
               type="danger"
             >
@@ -426,7 +426,7 @@ function ModalThiKhaoSat({
             </Button>
           ) : KetQuaThi && KetQuaThi.isDaThi === 1 ? null : (
             <Button
-              className="th-margin-bottom-0"
+              className="th-margin-bottom-0 btn-margin-bottom-0"
               onClick={() => ModalThi(thongtin)}
               type="primary"
             >

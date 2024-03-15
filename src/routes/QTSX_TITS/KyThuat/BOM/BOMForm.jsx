@@ -991,7 +991,6 @@ function BOMForm({ match, permission, history }) {
 
   const saveData = (BOM, saveQuit = false) => {
     if (type === "new") {
-      console.log(ListChiTiet);
       const newData = {
         ...BOM,
         donVi_Id: INFO.donVi_Id,

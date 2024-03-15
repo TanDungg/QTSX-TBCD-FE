@@ -251,7 +251,7 @@ const TabsDanhGia = ({ dataDanhGia }) => {
               <Divider />
               <Button
                 icon={<SendOutlined />}
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 type="primary"
                 onClick={() => handleDanhGia()}
                 disabled={!fieldTouch}
@@ -339,14 +339,14 @@ const TabsDanhGia = ({ dataDanhGia }) => {
                         <div style={{ display: "flex" }}>
                           <Button
                             icon={<CloseCircleOutlined />}
-                            className="th-margin-bottom-0"
+                            className="th-margin-bottom-0 btn-margin-bottom-0"
                             onClick={() => setIsEdit(null)}
                           >
                             Hủy
                           </Button>
                           <Button
                             icon={<SaveOutlined />}
-                            className="th-margin-bottom-0"
+                            className="th-margin-bottom-0 btn-margin-bottom-0"
                             type="primary"
                             onClick={() =>
                               handleCapNhatDanhGia(danhgia.vptq_lms_DanhGia_Id)

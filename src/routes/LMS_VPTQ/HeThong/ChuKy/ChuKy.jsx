@@ -204,10 +204,20 @@ function ChuKy({ permission }) {
             justifyContent: "space-around",
           }}
         >
-          <Button type="primary" onClick={modalLuuChuKySo} disabled={disable}>
+          <Button
+            className="th-margin-bottom-0 btn-margin-bottom-0"
+            type="primary"
+            onClick={modalLuuChuKySo}
+            disabled={disable}
+          >
             Lưu chữ ký
           </Button>
-          <Button type="danger" onClick={modalXoaChuKySo} disabled={!ImageUrl}>
+          <Button
+            className="th-margin-bottom-0 btn-margin-bottom-0"
+            type="danger"
+            onClick={modalXoaChuKySo}
+            disabled={!ImageUrl}
+          >
             Xóa chữ ký
           </Button>
         </div>

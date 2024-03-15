@@ -49345,3 +49345,6 @@ textarea.gx-chat-textarea {
   align-items: center;
   justify-content: start;
 }
+.btn-margin-bottom-0 {
+  margin-bottom: 0px !important;
+}

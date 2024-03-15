@@ -326,7 +326,7 @@ function BaoCaoHocPhiTheoChuyenDe({ history, permission }) {
       <>
         <Button
           icon={<DownloadOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={handleXuatExcel}
           disabled={DataBaoCao && DataBaoCao.length === 0}

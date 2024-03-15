@@ -241,8 +241,8 @@ function ImportKeHoachChiTiet({ match, permission, history }) {
     const params = convertObjectToUrlParams({
       tits_qtsx_Xuong_Id: Xuong,
       IsSanXuat: true,
-      Thang: Thang,
-      Nam: Nam,
+      thang: Thang,
+      nam: Nam,
     });
     new Promise((resolve, reject) => {
       dispatch(

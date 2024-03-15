@@ -406,7 +406,7 @@ function ImportBoPhan({ openModalFS, openModal, loading, refesh }) {
               <Button
                 icon={<DownloadOutlined />}
                 onClick={TaiFileMau}
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 type="primary"
               >
                 File mẫu
@@ -426,7 +426,7 @@ function ImportBoPhan({ openModalFS, openModal, loading, refesh }) {
             rowClassName={RowStyle}
           />
           <Button
-            className="th-margin-bottom-0"
+            className="th-margin-bottom-0 btn-margin-bottom-0"
             style={{ marginTop: 10, float: "right" }}
             type="primary"
             onClick={modalXK}

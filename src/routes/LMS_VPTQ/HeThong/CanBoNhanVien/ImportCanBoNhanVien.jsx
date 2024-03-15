@@ -726,7 +726,7 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
               {!FileImport ? (
                 <Upload {...props}>
                   <Button
-                    className="th-margin-bottom-0"
+                    className="th-margin-bottom-0 btn-margin-bottom-0"
                     icon={<UploadOutlined />}
                     danger={checkDanger}
                     disabled={!DonVi}
@@ -769,7 +769,7 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
               <Button
                 icon={<DownloadOutlined />}
                 onClick={TaiFileMau}
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 type="primary"
                 disabled={!DonVi}
               >
@@ -810,7 +810,7 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
             <Divider />
             <Button
               icon={<SaveOutlined />}
-              className="th-margin-bottom-0"
+              className="th-margin-bottom-0 btn-margin-bottom-0"
               type="primary"
               onClick={modalXK}
               disabled={dataView.length > 0 && !checkDanger ? false : true}

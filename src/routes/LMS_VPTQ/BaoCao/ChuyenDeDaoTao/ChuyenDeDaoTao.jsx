@@ -602,7 +602,7 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
       <>
         <Button
           icon={<DownloadOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={handleXuatExcel}
           disabled={DataBaoCao && DataBaoCao.length === 0}
@@ -990,7 +990,7 @@ function BaoCaoChuyenDeDaoTao({ history, permission }) {
           <div align={"end"}>
             <Button
               icon={<ExportOutlined />}
-              className="th-margin-bottom-0"
+              className="th-margin-bottom-0 btn-margin-bottom-0"
               onClick={() => handleXuatExcelChiTiet()}
               type="primary"
             >

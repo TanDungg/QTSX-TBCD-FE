@@ -535,7 +535,6 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
         tits_qtsx_PhieuKiemTraVatTuChiTiets: ListVatTuKiemTra.map((data) => {
           return {
             ...data,
-            tits_qtsx_PhieuNhanHangChiTiet_Id: data.id,
             soLuong: data.soLuong && parseFloat(data.soLuong),
             soLuongKiemTra:
               data.soLuongKiemTra && parseFloat(data.soLuongKiemTra),
@@ -630,7 +629,7 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_PhieuNhanHang/${value}`,
+          `tits_qtsx_PhieuNhanHang/phieu-nhan-hang-chi-tiet-de-kiem-tra-vat-tu/${value}`,
           "GET",
           null,
           "DETAIL",
@@ -643,14 +642,13 @@ const PhieuKiemTraVatTuForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           const data =
-            res.data.chiTiet_NhanHangs &&
-            JSON.parse(res.data.chiTiet_NhanHangs).map((data) => {
+            res.data.chiTietPhieus &&
+            res.data.chiTietPhieus.map((data) => {
               return {
                 ...data,
                 soLuongKiemTra: data.soLuong,
                 soLuongNhap: data.soLuong,
                 soLuongLoi: 0,
-                tits_qtsx_PhieuNhanHangChiTiet_Id: data.id,
                 isThongSoKyThuat: "true",
                 isNgoaiQuan: "true",
               };

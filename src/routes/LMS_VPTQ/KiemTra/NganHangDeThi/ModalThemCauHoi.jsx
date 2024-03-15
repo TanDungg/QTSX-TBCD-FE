@@ -217,7 +217,7 @@ function ModalThemCauHoi({
             <Button
               icon={<RollbackOutlined />}
               onClick={() => handleCancel()}
-              className="th-margin-bottom-0"
+              className="th-margin-bottom-0 btn-margin-bottom-0"
               htmlType={"submit"}
             >
               Quay lại
@@ -225,7 +225,7 @@ function ModalThemCauHoi({
             <Button
               icon={<SaveOutlined />}
               onClick={() => handleThemCauHoi()}
-              className="th-margin-bottom-0"
+              className="th-margin-bottom-0 btn-margin-bottom-0"
               type="primary"
               disabled={SelectedCauHoi.length === 0}
             >

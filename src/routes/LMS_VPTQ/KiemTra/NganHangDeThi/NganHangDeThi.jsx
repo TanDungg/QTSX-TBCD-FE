@@ -26,6 +26,7 @@ import {
   convertObjectToUrlParams,
   getTokenInfo,
   getLocalStorage,
+  setLocalStorage,
 } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import {
@@ -588,7 +589,7 @@ function NganHangDeThi({ permission, history, match }) {
       <>
         <Button
           icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={handleRedirect}
           disabled={permission && !permission.add}
@@ -620,6 +621,11 @@ function NganHangDeThi({ permission, history, match }) {
   const handleClearChuyenDeDaoTao = () => {
     setChuyenDeDaoTao(null);
     getListData(KienThuc, null, keyword, page);
+  };
+
+  const handleThiThu = (item) => {
+    setLocalStorage("DataDeThi", item);
+    window.open(`${match.url}/${item.id}/thi-thu`, "_blank");
   };
 
   const handleRefesh = () => {
@@ -868,7 +874,7 @@ function NganHangDeThi({ permission, history, match }) {
           <div align={"end"}>
             {DataChiTiet && DataChiTiet.lichSus.length ? (
               <Button
-                className="th-margin-bottom-0"
+                className="th-margin-bottom-0 btn-margin-bottom-0"
                 onClick={() => {
                   setLichSuThiThu(DataChiTiet.lichSus);
                   setActiveModalLichSuThiThu(true);
@@ -880,10 +886,11 @@ function NganHangDeThi({ permission, history, match }) {
               </Button>
             ) : null}
             <Button
-              className="th-margin-bottom-0"
+              className="th-margin-bottom-0 btn-margin-bottom-0"
               onClick={() => {
-                setActiveModalThiThu(true);
-                setActiveModalChiTietDeThi(false);
+                handleThiThu(DataChiTiet);
+                // setActiveModalThiThu(true);
+                // setActiveModalChiTietDeThi(false);
               }}
               type={
                 DataChiTiet && DataChiTiet.isDangThiThu ? "danger" : "primary"

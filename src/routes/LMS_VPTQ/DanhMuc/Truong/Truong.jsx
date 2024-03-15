@@ -239,7 +239,7 @@ function Truong({ history, permission, match }) {
       <>
         <Button
           icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
+          className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
           onClick={handleRedirect}
           disabled={permission && !permission.add}
