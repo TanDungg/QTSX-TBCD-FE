@@ -580,15 +580,16 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
       dataIndex: "hinhAnh",
       key: "hinhAnh",
       align: "center",
-      render: (value) => (
-        <span>
-          <Image
-            src={BASE_URL_API + value}
-            alt="Hình ảnh"
-            style={{ maxWidth: "100%", maxHeight: "100%" }}
-          />
-        </span>
-      ),
+      render: (value) =>
+        value ? (
+          <span>
+            <Image
+              src={BASE_URL_API + value}
+              alt="Hình ảnh"
+              style={{ maxWidth: "100%", maxHeight: "100%" }}
+            />
+          </span>
+        ) : null,
     },
     {
       title: "Chức năng",

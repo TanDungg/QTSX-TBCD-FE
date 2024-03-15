@@ -335,7 +335,7 @@ function ThiKhaoSatForm({ history, match }) {
       <ContainerHeader
         title={title}
         buttons={addButtonRender()}
-        back={goBack}
+        back={!DeThi ? goBack : null}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Card

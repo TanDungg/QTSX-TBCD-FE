@@ -6,7 +6,6 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
 import TabsHoiDap from "./TabsHoiDap";
 import TabsDanhGia from "./TabsDanhGia";
-import ModalThiKhaoSat from "./ModalThiKhaoSat";
 import { Modal } from "src/components/Common";
 import Hls from "hls.js";
 import { setLocalStorage } from "src/util/Common";
@@ -21,7 +20,6 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   const [ThoiGianXem, setThoiGianXem] = useState(0);
   const [ThoiGianDaXem, setThoiGianDaXem] = useState(0);
   const [ThoiLuongVideo, setThoiLuongVideo] = useState(null);
-  const [ActiveModalThiKhaoSat, setActiveModalThiKhaoSat] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -388,10 +386,6 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
     Modal(proptieptucthi);
   };
 
-  const handleRefesh = () => {
-    getInfo(id);
-  };
-
   const goBack = () => {
     history.push(`${match.url.replace(`/${match.params.id}/chi-tiet`, "")}`);
   };
@@ -670,13 +664,6 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
           </Card>
         </Card>
       ) : null}
-      <ModalThiKhaoSat
-        openModal={ActiveModalThiKhaoSat}
-        openModalFS={setActiveModalThiKhaoSat}
-        thongtin={ChiTiet && ChiTiet.vptq_lms_ThiTrucTuyen_Id}
-        isDangThi={ChiTiet && ChiTiet.isDangThi}
-        refesh={handleRefesh}
-      />
     </div>
   );
 }

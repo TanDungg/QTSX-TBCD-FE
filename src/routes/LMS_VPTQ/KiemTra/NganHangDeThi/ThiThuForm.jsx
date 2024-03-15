@@ -283,7 +283,7 @@ function ThiThuForm({ history, match }) {
         onClick={() => getDeThiThu(ChiTietDeThi.id, ChiTietDeThi.isDangThiThu)}
         type="primary"
       >
-        {KetQuaThi ? "Thi lại đề thi" : "Bắt đầu làm bài"}
+        {KetQuaThi ? "Thi lại" : "Bắt đầu làm bài"}
       </Button>
     ) : (
       <Button
