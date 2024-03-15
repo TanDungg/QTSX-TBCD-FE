@@ -491,11 +491,19 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
         ),
     },
     {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "center",
+      width: 120,
+    },
+    {
       title: "Tình trạng",
       dataIndex: "tinhTrang",
       key: "tinhTrang",
       align: "center",
       width: 130,
+      fixed: width >= 1200 && "right",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -526,23 +534,6 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
             {value}
           </Tag>
         ),
-    },
-    {
-      title: "Ghi chú",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "center",
-      width: 120,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.moTa,
-            value: d.moTa,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.moTa.includes(value),
-      filterSearch: true,
     },
   ];
 
@@ -883,7 +874,7 @@ function CapNhatKetQuaDaoTao({ permission, history, match }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1700, y: "48vh" }}
+          scroll={{ x: 1700, y: "58vh" }}
           components={components}
           className="gx-table-responsive th-table"
           dataSource={dataList}
