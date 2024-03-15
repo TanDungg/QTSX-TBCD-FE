@@ -339,7 +339,7 @@ function ThiKhaoSatForm({ history, match }) {
       <ContainerHeader
         title={title}
         buttons={addButtonRender()}
-        back={goBack}
+        back={ListCauHoi.length === 0 ? goBack : null}
       />
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Card

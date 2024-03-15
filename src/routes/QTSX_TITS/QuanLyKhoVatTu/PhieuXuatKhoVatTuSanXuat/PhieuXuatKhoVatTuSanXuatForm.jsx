@@ -957,6 +957,7 @@ const VatTuForm = ({ history, match, permission }) => {
         const newData = {
           ...data,
           ngayXuatKho: data.ngayXuatKho.format("DD/MM/YYYY"),
+          ngayKHSX: data.ngayKHSX.format("DD/MM/YYYY"),
           tits_qtsx_DinhMuc_Id: DinhMuc,
           tits_qtsx_SanPham_Id: SanPham,
           isBOM: true,
@@ -1237,6 +1238,20 @@ const VatTuForm = ({ history, match, permission }) => {
           };
         });
       setListVatTuTheoOEM(newListVatTu);
+    } else {
+      const newListVatTu =
+        ListVatTuLuuTam &&
+        ListVatTuLuuTam.map((list) => {
+          return {
+            ...list,
+            ...(list.thongSoKyThuat && JSON.parse(list.thongSoKyThuat)),
+            soLuongYeuCau: list.dinhMuc * newData.soLuongLo,
+            soLuongThucXuat: 0,
+            viTri: null,
+            list_ChiTietLuuKhos: [],
+          };
+        });
+      setListVatTuTheoBOM(newListVatTu);
     }
   };
 
