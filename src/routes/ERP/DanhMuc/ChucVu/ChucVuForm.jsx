@@ -158,7 +158,8 @@ const ChucVuForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle = type === "new" ? "Thêm mới chức vụ" : "Chỉnh sửa chức vụ";
+  const formTitle =
+    type === "new" ? "Thêm mới chức danh" : "Chỉnh sửa chức danh";
   return (
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
@@ -171,7 +172,7 @@ const ChucVuForm = ({ history, match, permission }) => {
           onFieldsChange={() => setFieldTouch(true)}
         >
           <FormItem
-            label="Mã chức vụ"
+            label="Mã chức danh"
             name={["chucvu", "maChucVu"]}
             rules={[
               {
@@ -180,19 +181,19 @@ const ChucVuForm = ({ history, match, permission }) => {
               },
               {
                 max: 50,
-                message: "Mã chức vụ không được quá 50 ký tự",
+                message: "Mã chức danh không được quá 50 ký tự",
               },
             ]}
             initialValue={maChucVu}
           >
             <Input
               className="input-item"
-              placeholder="Nhập mã chức vụ"
+              placeholder="Nhập mã chức danh"
               ref={ref}
             />
           </FormItem>
           <FormItem
-            label="Tên chức vụ"
+            label="Tên chức danh"
             name={["chucvu", "tenChucVu"]}
             rules={[
               {
@@ -201,12 +202,12 @@ const ChucVuForm = ({ history, match, permission }) => {
               },
               {
                 max: 250,
-                message: "Tên chức vụ không được quá 250 ký tự",
+                message: "Tên chức danh không được quá 250 ký tự",
               },
             ]}
             initialValue={tenChucVu}
           >
-            <Input className="input-item" placeholder="Nhập tên chức vụ" />
+            <Input className="input-item" placeholder="Nhập tên chức danh" />
           </FormItem>
           <FormSubmit
             goBack={goBack}

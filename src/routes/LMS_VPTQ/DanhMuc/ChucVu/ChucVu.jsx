@@ -119,7 +119,7 @@ function ChucVu({ history, permission, match }) {
       align: "center",
     },
     {
-      title: "Mã chức vụ",
+      title: "Mã chức danh",
       dataIndex: "maChucVu",
       key: "maChucVu",
       align: "center",
@@ -136,7 +136,7 @@ function ChucVu({ history, permission, match }) {
       filterSearch: true,
     },
     {
-      title: "Tên chức vụ",
+      title: "Tên chức danh",
       dataIndex: "tenChucVu",
       key: "tenChucVu",
       align: "center",
@@ -153,7 +153,7 @@ function ChucVu({ history, permission, match }) {
       filterSearch: true,
     },
     {
-      title: "Chức danh",
+      title: "Chức vụ",
       dataIndex: "tenChucDanh",
       key: "tenChucDanh",
       align: "center",
@@ -204,8 +204,8 @@ function ChucVu({ history, permission, match }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Danh mục chức vụ"}
-        description="Danh sách chức vụ"
+        title={"Danh mục chức danh"}
+        description="Danh sách chức danh"
       />
       <Card className="th-card-margin-bottom ">
         <Col

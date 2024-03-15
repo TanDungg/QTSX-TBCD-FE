@@ -140,8 +140,7 @@ const ChucDanhForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle =
-    type === "new" ? "Thêm mới chức danh" : "Chỉnh sửa chức danh";
+  const formTitle = type === "new" ? "Thêm mới chức vụ" : "Chỉnh sửa chức vụ";
 
   return (
     <div className="gx-main-content">
@@ -160,7 +159,7 @@ const ChucDanhForm = ({ history, match, permission }) => {
         >
           <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
             <FormItem
-              label="Mã chức danh"
+              label="Mã chức vụ"
               name={["chucdanh", "maChucDanh"]}
               rules={[
                 {
@@ -169,16 +168,16 @@ const ChucDanhForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 50,
-                  message: "Mã chức danh không được quá 50 ký tự",
+                  message: "Mã chức vụ không được quá 50 ký tự",
                 },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập mã chức danh" />
+              <Input className="input-item" placeholder="Nhập mã chức vụ" />
             </FormItem>
           </Col>
           <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
             <FormItem
-              label="Tên chức danh"
+              label="Tên chức vụ"
               name={["chucdanh", "tenChucDanh"]}
               rules={[
                 {
@@ -187,11 +186,11 @@ const ChucDanhForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 250,
-                  message: "Tên chức danh không được quá 250 ký tự",
+                  message: "Tên chức vụ không được quá 250 ký tự",
                 },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập tên chức danh" />
+              <Input className="input-item" placeholder="Nhập tên chức vụ" />
             </FormItem>
           </Col>
           <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>

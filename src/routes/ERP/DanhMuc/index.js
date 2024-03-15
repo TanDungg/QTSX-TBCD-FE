@@ -113,17 +113,17 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(BoPhanForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/chuc-vu`}
+        path={`${match.url}/chuc-danh`}
         exact
         component={Auth(ChucVu, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/chuc-vu/them-moi`}
+        path={`${match.url}/chuc-danh/them-moi`}
         exact
         component={Auth(ChucVuForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/chuc-vu/:id/chinh-sua`}
+        path={`${match.url}/chuc-danh/:id/chinh-sua`}
         exact
         component={Auth(ChucVuForm, menus, pathname, permission)}
       />

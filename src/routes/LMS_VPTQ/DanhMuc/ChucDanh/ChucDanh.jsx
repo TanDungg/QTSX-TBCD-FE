@@ -82,7 +82,7 @@ function ChucDanh({ history, permission, match }) {
   };
 
   const deleteItemFunc = (item) => {
-    const title = "chức danh";
+    const title = "chức vụ";
     ModalDeleteConfirm(deleteItemAction, item, item.tenChucDanh, title);
   };
 
@@ -149,7 +149,7 @@ function ChucDanh({ history, permission, match }) {
       align: "center",
     },
     {
-      title: "Mã chức danh",
+      title: "Mã chức vụ",
       dataIndex: "maChucDanh",
       key: "maChucDanh",
       align: "center",
@@ -166,7 +166,7 @@ function ChucDanh({ history, permission, match }) {
       filterSearch: true,
     },
     {
-      title: "Tên chức danh",
+      title: "Tên chức vụ",
       dataIndex: "tenChucDanh",
       key: "tenChucDanh",
       align: "center",
@@ -239,8 +239,8 @@ function ChucDanh({ history, permission, match }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Danh mục chức danh"}
-        description="Danh sách chức danh"
+        title={"Danh mục chức vụ"}
+        description="Danh sách chức vụ"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
