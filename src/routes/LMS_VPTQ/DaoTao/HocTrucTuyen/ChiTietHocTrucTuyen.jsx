@@ -274,12 +274,17 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
       }
 
       if (!ChiTiet.isDaXemVideo && tabActiveRef.current) {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
         intervalRef.current = setInterval(() => {
           handleGuiThoiGianXem(playerRef.current.currentTime);
         }, 5000);
       }
     }
   };
+
+  
 
   const handlePause = () => {
     if (intervalRef.current) {
@@ -365,7 +370,6 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
             }
           }
         } else {
-          console.log("ThoiGianDaXem.current-error", ThoiGianDaXem.current);
           playerRef.current.currentTime = ThoiGianDaXem.current;
         }
       });
