@@ -308,15 +308,17 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) {
-              goBack();
-            }
-          } else {
-            resetFields();
-            setListPhongBan([]);
-            setListBoPhan([]);
+          if (res && res.status === 409) {
             setFieldTouch(false);
+          } else {
+            if (saveQuit) {
+              goBack();
+            } else {
+              resetFields();
+              setListPhongBan([]);
+              setListBoPhan([]);
+              setFieldTouch(false);
+            }
           }
         })
         .catch((error) => console.error(error));
@@ -342,11 +344,15 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) goBack();
-          } else {
-            getInfo(id, DonVi);
+          if (res && res.status === 409) {
             setFieldTouch(false);
+          } else {
+            if (saveQuit) {
+              goBack();
+            } else {
+              getInfo(id, DonVi);
+              setFieldTouch(false);
+            }
           }
         })
         .catch((error) => console.error(error));
@@ -814,6 +820,7 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
                 name={["user", "chucVu_Id"]}
                 rules={[
                   {
+                    required: true,
                     type: "string",
                   },
                 ]}

@@ -317,13 +317,8 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
 
   const handleEnded = () => {
     handleGuiThoiGianXem(ThoiGianXem);
-    getInfo(id);
     if (ChiTiet && ChiTiet.isDaXemVideo) {
-      if (playerRef.current) {
-        playerRef.current.currentTime = 0;
-      }
-    } else {
-      playerRef.current.currentTime = ThoiGianDaXem;
+      playerRef.current.currentTime = 0;
     }
   };
 
@@ -353,11 +348,14 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
             parseFloat(ThoiLuongVideo.toFixed(0))
           ) {
             if (ChiTiet && !ChiTiet.isDaXemVideo) {
+              getInfo(id);
               if (ChiTiet && ChiTiet.isThi) {
                 ModalThi();
               } else {
                 ModalKhongThi();
               }
+            } else {
+              playerRef.current.currentTime = 0;
             }
           }
         } else {

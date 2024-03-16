@@ -314,12 +314,17 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) goBack();
-          } else {
-            resetFields();
+          if (res && res.status === 409) {
             setFieldTouch(false);
+          } else {
+            if (saveQuit) {
+              goBack();
+            } else {
+              resetFields();
+              setFieldTouch(false);
+            }
           }
+          
         })
         .catch((error) => console.error(error));
     }
