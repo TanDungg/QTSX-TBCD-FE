@@ -407,7 +407,7 @@ function MaySanXuat({ history, permission }) {
       title: "SL đã sản xuất",
       key: ActiveModalKetThuc ? "soLuong" : "soLuongDaSanXuat",
       align: "center",
-      width: 70,
+      width: 100,
       render: (record) => renderSoLuongSanXuat(record),
     },
     {

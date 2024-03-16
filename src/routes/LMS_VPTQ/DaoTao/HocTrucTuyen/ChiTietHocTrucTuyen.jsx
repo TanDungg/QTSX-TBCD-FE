@@ -14,14 +14,20 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   const dispatch = useDispatch();
   const playerRef = useRef(null);
   const intervalRef = useRef(null);
+  const tabActiveRef = useRef(true);
+  const ThoiGianDaXem = useRef(0);
   const [ChiTiet, setChiTiet] = useState(null);
   const [id, setId] = useState(null);
   const [isSeek, setIsSeek] = useState(false);
   const [ThoiGianXem, setThoiGianXem] = useState(0);
-  const [ThoiGianDaXem, setThoiGianDaXem] = useState(0);
   const [ThoiLuongVideo, setThoiLuongVideo] = useState(null);
 
   useEffect(() => {
+    const handleVisibilityChange = () => {
+      tabActiveRef.current = !document.hidden;
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     if (permission && permission.view) {
       const { id } = match.params;
       setId(id);
@@ -29,11 +35,10 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
-    return () => dispatch(fetchReset());
-  }, []);
 
-  useEffect(() => {
     return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      dispatch(fetchReset());
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
@@ -56,7 +61,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
     // }).then((res) => {
     //   if (res && res.data) {
     //     setChiTiet(res.data);
-    //     setThoiGianDaXem(res.data.thoiDiemVideo);
+    //     setThoiDiemVideo(res.data.thoiDiemVideo);
     //     setThoiLuongVideo(res.data.thoiLuongVideo);
     //   } else {
     //     setChiTiet(null);
@@ -78,7 +83,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
     }).then((res) => {
       if (res && res.data) {
         setChiTiet(res.data);
-        setThoiGianDaXem(res.data.thoiDiemVideo);
+        ThoiGianDaXem.current = res.data.thoiDiemVideo;
         setThoiLuongVideo(res.data.thoiLuongVideo);
         res.data.fileVideo && setupVideo(res.data.fileVideo);
       } else {
@@ -263,19 +268,23 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
 
   const handlePlay = () => {
     if (playerRef.current) {
-      const videoPlayer = playerRef.current;
-      if (ThoiGianDaXem && !isSeek && !ChiTiet.isDaXemVideo) {
-        videoPlayer.currentTime = ThoiGianDaXem;
-        setThoiGianXem(ThoiGianDaXem);
+      if (ThoiGianDaXem.current && !isSeek && !ChiTiet.isDaXemVideo) {
+        playerRef.current.currentTime = ThoiGianDaXem.current;
+        setThoiGianXem(ThoiGianDaXem.current);
       }
 
-      if (!ChiTiet.isDaXemVideo) {
+      if (!ChiTiet.isDaXemVideo && tabActiveRef.current) {
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+        }
         intervalRef.current = setInterval(() => {
-          handleGuiThoiGianXem(videoPlayer.currentTime);
+          handleGuiThoiGianXem(playerRef.current.currentTime);
         }, 5000);
       }
     }
   };
+
+  
 
   const handlePause = () => {
     if (intervalRef.current) {
@@ -283,7 +292,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
     }
     if (
       !ChiTiet.isDaXemVideo &&
-      ThoiGianXem > ThoiGianDaXem &&
+      ThoiGianXem > ThoiGianDaXem.current &&
       parseFloat(ThoiGianXem.toFixed(0)) !==
         parseFloat(ThoiLuongVideo.toFixed(0))
     ) {
@@ -296,8 +305,8 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
       setIsSeek(true);
       const videoPlayer = playerRef.current;
       const currentTime = videoPlayer.currentTime;
-      if (currentTime > ThoiGianDaXem && !ChiTiet.isDaXemVideo) {
-        videoPlayer.currentTime = ThoiGianDaXem;
+      if (currentTime > ThoiGianDaXem.current && !ChiTiet.isDaXemVideo) {
+        videoPlayer.currentTime = ThoiGianDaXem.current;
       }
     }
   };
@@ -323,7 +332,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   };
 
   const handleGuiThoiGianXem = (thoigian) => {
-    if (thoigian > ThoiGianDaXem && thoigian > 1) {
+    if (thoigian > ThoiGianDaXem.current && thoigian > 1) {
       const newData = {
         vptq_lms_LopHocChiTiet_Id: ChiTiet.vptq_lms_LopHocChiTiet_Id,
         thoiDiemVideo: thoigian,
@@ -342,7 +351,9 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
         );
       }).then((res) => {
         if (res && res.status !== 409) {
-          setThoiGianDaXem(res.data);
+          if (res.data) {
+            ThoiGianDaXem.current = res.data;
+          }
           if (
             parseFloat(thoigian.toFixed(0)) ===
             parseFloat(ThoiLuongVideo.toFixed(0))
@@ -359,7 +370,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
             }
           }
         } else {
-          playerRef.current.currentTime = ThoiGianDaXem;
+          playerRef.current.currentTime = ThoiGianDaXem.current;
         }
       });
     }
