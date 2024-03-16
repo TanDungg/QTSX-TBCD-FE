@@ -1204,12 +1204,16 @@ function BOMForm({ match, permission, history }) {
     );
   const disableDate = (current) => {
     return (
-      current && current < form.getFieldValue("BOM").ngayBanHanh.endOf("day")
+      current &&
+      current < form.getFieldValue("BOM") &&
+      form.getFieldValue("BOM").ngayBanHanh.endOf("day")
     );
   };
   const disableDateNgayApDung = (current) => {
     return (
-      current && current > form.getFieldValue("BOM").ngayApDung.endOf("day")
+      current &&
+      current > form.getFieldValue("BOM") &&
+      form.getFieldValue("BOM").ngayApDung.endOf("day")
     );
   };
   const RowStyle = (current, index) => {
