@@ -15,7 +15,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   const playerRef = useRef(null);
   const intervalRef = useRef(null);
   const tabActiveRef = useRef(true);
-  const ThoiGianDaXem = useRef(0);
+  const ThoiDiemVideo = useRef(0);
   const [ChiTiet, setChiTiet] = useState(null);
   const [id, setId] = useState(null);
   const [isSeek, setIsSeek] = useState(false);
@@ -83,16 +83,17 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
     }).then((res) => {
       if (res && res.data) {
         setChiTiet(res.data);
-        ThoiGianDaXem.current = res.data.thoiDiemVideo;
+        ThoiDiemVideo.current = res.data.thoiDiemVideo;
         setThoiLuongVideo(res.data.thoiLuongVideo);
-        res.data.fileVideo && setupVideo(res.data.fileVideo);
+        res.data.fileVideo &&
+          setupVideo(res.data.fileVideo, res.data.isDaXemVideo);
       } else {
         setChiTiet(null);
       }
     });
   };
 
-  const setupVideo = (fileVideo) => {
+  const setupVideo = (fileVideo, isDaXemVideo) => {
     const video = playerRef.current;
     const videoSrc = BASE_URL_API + fileVideo;
 
@@ -103,6 +104,9 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
     } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
       video.src = videoSrc;
     }
+    video.addEventListener("loadedmetadata", () => {
+      video.currentTime = isDaXemVideo ? 0 : ThoiDiemVideo.current;
+    });
   };
 
   const tabLabels = [
@@ -268,9 +272,9 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
 
   const handlePlay = () => {
     if (playerRef.current) {
-      if (ThoiGianDaXem.current && !isSeek && !ChiTiet.isDaXemVideo) {
-        playerRef.current.currentTime = ThoiGianDaXem.current;
-        setThoiGianXem(ThoiGianDaXem.current);
+      if (ThoiDiemVideo.current && !isSeek && !ChiTiet.isDaXemVideo) {
+        playerRef.current.currentTime = ThoiDiemVideo.current;
+        setThoiGianXem(ThoiDiemVideo.current);
       }
 
       if (!ChiTiet.isDaXemVideo && tabActiveRef.current) {
@@ -284,15 +288,13 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
     }
   };
 
-  
-
   const handlePause = () => {
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
     }
     if (
       !ChiTiet.isDaXemVideo &&
-      ThoiGianXem > ThoiGianDaXem.current &&
+      ThoiGianXem > ThoiDiemVideo.current &&
       parseFloat(ThoiGianXem.toFixed(0)) !==
         parseFloat(ThoiLuongVideo.toFixed(0))
     ) {
@@ -305,8 +307,8 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
       setIsSeek(true);
       const videoPlayer = playerRef.current;
       const currentTime = videoPlayer.currentTime;
-      if (currentTime > ThoiGianDaXem.current && !ChiTiet.isDaXemVideo) {
-        videoPlayer.currentTime = ThoiGianDaXem.current;
+      if (currentTime > ThoiDiemVideo.current && !ChiTiet.isDaXemVideo) {
+        videoPlayer.currentTime = ThoiDiemVideo.current;
       }
     }
   };
@@ -325,14 +327,15 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   };
 
   const handleEnded = () => {
-    handleGuiThoiGianXem(ThoiGianXem);
     if (ChiTiet && ChiTiet.isDaXemVideo) {
       playerRef.current.currentTime = 0;
+    } else {
+      handleGuiThoiGianXem(ThoiGianXem);
     }
   };
 
   const handleGuiThoiGianXem = (thoigian) => {
-    if (thoigian > ThoiGianDaXem.current && thoigian > 1) {
+    if (thoigian > ThoiDiemVideo.current && thoigian > 1) {
       const newData = {
         vptq_lms_LopHocChiTiet_Id: ChiTiet.vptq_lms_LopHocChiTiet_Id,
         thoiDiemVideo: thoigian,
@@ -352,12 +355,9 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
       }).then((res) => {
         if (res && res.status !== 409) {
           if (res.data) {
-            ThoiGianDaXem.current = res.data;
+            ThoiDiemVideo.current = res.data.thoiDiemVideo;
           }
-          if (
-            parseFloat(thoigian.toFixed(0)) ===
-            parseFloat(ThoiLuongVideo.toFixed(0))
-          ) {
+          if (res.data.isDaXemVideo) {
             if (ChiTiet && !ChiTiet.isDaXemVideo) {
               getInfo(id);
               if (ChiTiet && ChiTiet.isThi) {
@@ -370,7 +370,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
             }
           }
         } else {
-          playerRef.current.currentTime = ThoiGianDaXem.current;
+          playerRef.current.currentTime = ThoiDiemVideo.current;
         }
       });
     }
@@ -410,7 +410,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
           <Row>
             <Col
               xxl={17}
-              xl={16}
+              xl={24}
               lg={24}
               xs={24}
               style={{
@@ -466,7 +466,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
               /> */}
             </Col>
 
-            <Col xxl={7} xl={8} lg={24} xs={24} style={{ marginBottom: 8 }}>
+            <Col xxl={7} xl={24} lg={24} xs={24} style={{ marginBottom: 8 }}>
               <Card
                 className="th-card-margin-bottom th-card-reset-margin"
                 style={{

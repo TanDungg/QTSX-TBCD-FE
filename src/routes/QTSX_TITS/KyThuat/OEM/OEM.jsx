@@ -18,11 +18,12 @@ import {
 import { fetchStart, fetchReset } from "src/appRedux/actions/Common";
 import {
   convertObjectToUrlParams,
-  getDateNow,
   reDataForTable,
   removeDuplicates,
   getLocalStorage,
   getTokenInfo,
+  getNgayDauThang,
+  getNgayCuoiThang,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import moment from "moment";
@@ -31,14 +32,15 @@ const { EditableRow, EditableCell } = EditableTableRow;
 const { RangePicker } = DatePicker;
 
 function OEM({ match, history, permission }) {
-  const { loading, data } = useSelector(({ common }) => common).toJS();
+  const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const INFO = { ...getLocalStorage("menu"), user_Id: getTokenInfo().id };
   const [page, setPage] = useState(1);
+  const [Data, setData] = useState([]);
   const [ListSanPham, setListSanPham] = useState([]);
   const [SanPham, setSanPham] = useState(null);
-  const [TuNgay, setTuNgay] = useState(getDateNow(-14));
-  const [DenNgay, setDenNgay] = useState(getDateNow());
+  const [TuNgay, setTuNgay] = useState(getNgayDauThang());
+  const [DenNgay, setDenNgay] = useState(getNgayCuoiThang());
   const [keyword, setKeyword] = useState("");
 
   useEffect(() => {
@@ -71,7 +73,27 @@ function OEM({ match, history, permission }) {
       keyword,
       page,
     });
-    dispatch(fetchStart(`tits_qtsx_OEM?${param}`, "GET", null, "LIST"));
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_OEM?${param}`,
+          "GET",
+          null,
+          "LIST",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setData(res.data);
+        } else {
+          setData([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   const getSanPham = () => {
@@ -226,9 +248,9 @@ function OEM({ match, history, permission }) {
       </>
     );
   };
-  const { totalRow, pageSize } = data;
+  const { totalRow, pageSize } = Data;
 
-  let dataList = reDataForTable(data.datalist, page, pageSize);
+  let dataList = reDataForTable(Data.datalist, page, pageSize);
 
   const renderDetail = (val) => {
     const detail =

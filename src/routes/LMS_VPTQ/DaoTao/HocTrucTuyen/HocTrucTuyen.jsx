@@ -220,8 +220,9 @@ function HocTrucTuyen({ match, history, permission }) {
       <Card
         className="th-card-margin-bottom th-card-reset-margin"
         title="CHUYÊN ĐỀ ĐÀO TẠO TRỰC TUYẾN"
+        style={{ minHeight: "65vh" }}
       >
-        <Row style={{ height: "54vh", overflowY: "auto" }}>
+        <Row>
           {Data.length !== 0 &&
             Data.map((dt, index) => {
               return (
@@ -276,7 +277,7 @@ function HocTrucTuyen({ match, history, permission }) {
                           <span
                             title={`${dt.tenChuyenDeDaoTao}`}
                             style={{
-                              fontSize: "15px",
+                              fontSize: "16px",
                               fontWeight: "bold",
                               color: "#0469b9",
                               cursor: "pointer",

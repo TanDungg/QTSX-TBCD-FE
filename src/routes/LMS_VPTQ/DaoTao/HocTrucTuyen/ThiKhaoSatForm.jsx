@@ -553,7 +553,6 @@ function ThiKhaoSatForm({ history, match }) {
                     padding: "10px",
                     border: "1px solid #c8c8c8",
                     borderRadius: "10px",
-                    overflowY: "auto",
                     display: "flex",
                     alignContent: "flex-start",
                     flexWrap: "wrap",
@@ -604,7 +603,7 @@ function ThiKhaoSatForm({ history, match }) {
                   })}
                 </div>
               ) : null}
-              <div style={{ display: "flex", gap: "10px", minHeight: "45vh" }}>
+              <div style={{ display: "flex", gap: "10px" }}>
                 <Card className="th-card-margin-bottom th-card-reset-margin">
                   {SelectedCauHoi ? (
                     <Row gutter={[0, 10]}>
@@ -750,7 +749,6 @@ function ThiKhaoSatForm({ history, match }) {
                       marginBottom: "5px",
                       border: "1px solid #c8c8c8",
                       borderRadius: "10px",
-                      overflowY: "auto",
                       display: "flex",
                       alignContent: "flex-start",
                       flexWrap: "wrap",

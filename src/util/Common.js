@@ -1075,9 +1075,14 @@ export const getDateTimeNow = () => {
   return `${day}/${month}/${year} ${hours}:${minutes}`;
 };
 /* Lấy ngày đầu tháng */
-export const getNgayDauThang = () => {
+export const getNgayDauThang = (thang = 0) => {
   const date = new Date();
   date.setDate(1);
+  if (thang <= 0) {
+    date.setMonth(date.getMonth() + thang);
+  } else {
+    date.setMonth(date.getMonth());
+  }
 
   const day = date.getDate().toString().padStart(2, "0");
   const month = (date.getMonth() + 1).toString().padStart(2, "0");
@@ -1087,9 +1092,14 @@ export const getNgayDauThang = () => {
 };
 
 /* Lấy ngày cuối tháng */
-export const getNgayCuoiThang = () => {
+export const getNgayCuoiThang = (thang = 0) => {
   const date = new Date();
-  const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+  if (thang >= 0) {
+    date.setMonth(date.getMonth() + 1 + thang);
+  } else {
+    date.setMonth(date.getMonth() + 1);
+  }
+  const lastDay = new Date(date.getFullYear(), date.getMonth(), 0);
 
   const day = lastDay.getDate().toString().padStart(2, "0");
   const month = (lastDay.getMonth() + 1).toString().padStart(2, "0");
@@ -1097,6 +1107,7 @@ export const getNgayCuoiThang = () => {
 
   return `${day}/${month}/${year}`;
 };
+
 //Đếm ngược thời gian
 export const DemNguocThoiGian = (time) => {
   const current = new Date().getTime();
