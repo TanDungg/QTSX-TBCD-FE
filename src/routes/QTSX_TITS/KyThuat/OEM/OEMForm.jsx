@@ -501,7 +501,7 @@ const OEMForm = ({ history, match, permission }) => {
   };
 
   const RowStyle = (current, index) => {
-    if (current.ghiChuImport !== null) {
+    if (current.ghiChuImport) {
       return "red-row";
     } else {
       return;

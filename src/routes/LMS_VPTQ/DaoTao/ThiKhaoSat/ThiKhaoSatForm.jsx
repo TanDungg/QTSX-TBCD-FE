@@ -546,7 +546,6 @@ function ThiKhaoSatForm({ history, match }) {
                     padding: "10px",
                     border: "1px solid #c8c8c8",
                     borderRadius: "10px",
-                    overflowY: "auto",
                     display: "flex",
                     alignContent: "flex-start",
                     flexWrap: "wrap",
@@ -597,7 +596,7 @@ function ThiKhaoSatForm({ history, match }) {
                   })}
                 </div>
               ) : null}
-              <div style={{ display: "flex", gap: "10px", height: "35vh" }}>
+              <div style={{ display: "flex", gap: "10px" }}>
                 <Card
                   className="th-card-margin-bottom th-card-reset-margin"
                   style={{
@@ -750,7 +749,6 @@ function ThiKhaoSatForm({ history, match }) {
                       padding: "15px 10px",
                       border: "1px solid #c8c8c8",
                       borderRadius: "10px",
-                      overflowY: "auto",
                       display: "flex",
                       alignContent: "flex-start",
                       flexWrap: "wrap",
