@@ -183,8 +183,7 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
 
   const saveData = (CauTrucKho, saveQuit = false) => {
     if (type === "new") {
-      CauTrucKho.viTri =
-        CauTrucKho.viTri === undefined ? null : CauTrucKho.viTri;
+      CauTrucKho.viTri = CauTrucKho.viTri === undefined ? 0 : CauTrucKho.viTri;
       CauTrucKho.isCoDinh = true;
       const newUser = CauTrucKho;
       newUser.cauTrucKho_Id =
@@ -250,6 +249,12 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
   };
   const handleSelectPhongBan = (val) => {
     getListCauTrucKho(val);
+    setFieldsValue({
+      CauTrucKho: {
+        cauTrucKho_Id: null,
+        viTri: undefined,
+      },
+    });
   };
 
   /**
@@ -369,7 +374,7 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
                     setDisableViTri(true);
                     setFieldsValue({
                       CauTrucKho: {
-                        viTri: null,
+                        viTri: undefined,
                       },
                     });
                   }
@@ -382,6 +387,7 @@ function CauTrucKhoVatTuForm({ match, permission, history }) {
               rules={[
                 {
                   type: "string",
+                  required: !disableViTri,
                 },
               ]}
             >
