@@ -71,9 +71,8 @@ function BOMForm({ match, permission, history }) {
   const [fileName, setFileName] = useState("");
   const [ActiceModalThietLap, setActiceModalThietLap] = useState(false);
   const [message, setMessageError] = useState([]);
-  const [DataLoi, setDataLoi] = useState();
+  const [IsLoi, setIsLoi] = useState(false);
   const [HangTrung, setHangTrung] = useState([]);
-
   const [info, setInfo] = useState({});
   const [fieldTouch, setFieldTouch] = useState(false);
   const { setFieldsValue, validateFields, resetFields } = form;
@@ -247,19 +246,6 @@ function BOMForm({ match, permission, history }) {
       .catch((error) => console.error(error));
   };
 
-  const renderLoi = (val) => {
-    let check = false;
-    let messageLoi = "";
-    if (DataLoi && DataLoi.length > 0) {
-      DataLoi.forEach((dt) => {
-        if (dt.maChiTiet === val.maChiTiet) {
-          check = true;
-          messageLoi = dt.ghiChuImport;
-        }
-      });
-    }
-    return check ? <span>{messageLoi}</span> : null;
-  };
   let colValues = () => {
     const data = dataThietLap.map((dt, i) => {
       return {
@@ -270,7 +256,7 @@ function BOMForm({ match, permission, history }) {
         width: 55,
       };
     });
-    return [
+    const col = [
       {
         title: "STT",
         key: "STT",
@@ -434,15 +420,17 @@ function BOMForm({ match, permission, history }) {
         align: "center",
         width: 150,
       },
-      {
+    ];
+    if (IsLoi) {
+      col.splice(0, 0, {
         title: "Lỗi",
-        // dataIndex: "ghiChuImport",
+        dataIndex: "ghiChuImport",
         key: "ghiChuImport",
         width: 150,
         align: "center",
-        render: (val) => renderLoi(val),
-      },
-    ];
+      });
+    }
+    return col;
   };
   const components = {
     body: {
@@ -726,6 +714,7 @@ function BOMForm({ match, permission, history }) {
         const MT = "Mã trạm";
         const GCKT = "Ghi chú kĩ thuật";
         const NewData = [];
+        let checkLoi = false;
         data.forEach((d) => {
           if (
             (typeof d[TCT] !== "undefined" &&
@@ -875,10 +864,38 @@ function BOMForm({ match, permission, history }) {
                     ? d["NMK"].toString().trim()
                     : undefined
                   : undefined,
+              ghiChuImport:
+                d["Dài"] !== undefined && typeof d["Dài"] !== "number"
+                  ? "Dài không phải là số"
+                  : d["Rộng"] !== undefined && typeof d["Rộng"] !== "number"
+                  ? "Rộng không phải là số"
+                  : d["Dày"] !== undefined && typeof d["Dày"] !== "number"
+                  ? "Dày không phải là số"
+                  : d["Dn"] !== undefined && typeof d["Dn"] !== "number"
+                  ? "Dn không phải là số"
+                  : d["Dt"] !== undefined && typeof d["Dt"] !== "number"
+                  ? "Dt không phải là số"
+                  : d[DM] !== undefined && typeof d[DM] !== "number"
+                  ? "SL/SP không phải là số nguyên"
+                  : undefined,
             });
+            if (
+              (d["Dài"] !== undefined && typeof d["Dài"] !== "number") ||
+              (d["Rộng"] !== undefined && typeof d["Rộng"] !== "number") ||
+              (d["Dày"] !== undefined && typeof d["Dày"] !== "number") ||
+              (d["Dn"] !== undefined && typeof d["Dn"] !== "number") ||
+              (d["Dt"] !== undefined && typeof d["Dt"] !== "number") ||
+              (d[DM] !== undefined && typeof d[DM] !== "number")
+            ) {
+              checkLoi = true;
+            }
           }
         });
-
+        if (checkLoi) {
+          setIsLoi(true);
+        } else {
+          setIsLoi(false);
+        }
         if (NewData.length === 0) {
           setFileName(file.name);
           setListChiTiet([]);
@@ -925,9 +942,9 @@ function BOMForm({ match, permission, history }) {
             setHangTrung([]);
             setFieldTouch(true);
           }
+          setFieldTouch(true);
           setListChiTiet(NewData);
           setFileName(file.name);
-          setDataLoi();
         }
       } else {
         setFileName(file.name);
@@ -1062,6 +1079,17 @@ function BOMForm({ match, permission, history }) {
                 },
               });
             }
+          } else if (res.status === 409) {
+            res.data.forEach((dt) => {
+              ListChiTiet.forEach((ct) => {
+                if (dt.maChiTiet === ct.maChiTiet && dt.ghiChuImport) {
+                  ct.ghiChuImport = dt.ghiChuImport;
+                }
+              });
+            });
+            setIsLoi(true);
+            setListChiTiet([...ListChiTiet]);
+            setFieldTouch(false);
           }
         })
         .catch((error) => console.error(error));
@@ -1234,25 +1262,17 @@ function BOMForm({ match, permission, history }) {
         return "red-row";
       }
     }
-    if (current.tenChiTiet === undefined) {
+    if (current.ghiChuImport !== undefined && IsLoi) {
+      setFieldTouch(false);
+      return "red-row";
+    } else if (current.tenChiTiet === undefined) {
       setFieldTouch(false);
       setMessageError("Tên chi tiết không được rỗng");
       return "red-row";
-    }
-    if (current.maChiTiet === undefined) {
+    } else if (current.maChiTiet === undefined) {
       setFieldTouch(false);
       setMessageError("Mã chi tiết không được rỗng");
       return "red-row";
-    }
-    if (DataLoi && DataLoi.length > 0) {
-      if (
-        DataLoi.some(
-          (dt) => current.maChiTiet.toString() === dt.maChiTiet.toString()
-        )
-      ) {
-        setFieldTouch(false);
-        return "red-row";
-      }
     }
     return "";
   };
