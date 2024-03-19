@@ -397,14 +397,14 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                   alt={"Ảnh đại diện chuyên đề"}
                   style={{
                     width: "100%",
-                    height: "550px",
+                    maxHeight: "550px",
                   }}
                 />
               ) : (
                 <video
                   ref={playerRef}
                   controls
-                  style={{ width: "100%", height: "550px" }}
+                  style={{ width: "100%", maxHeight: "550px" }}
                   config={{
                     file: {
                       attributes: { controlsList: "nodownload nodrag" },
@@ -415,6 +415,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                   onPause={handlePause}
                   onSeeked={handleSeeked}
                   onEnded={handleEnded}
+                  playsInline
                 />
               )}
               {/* <ReactPlayer
