@@ -14,7 +14,6 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   const dispatch = useDispatch();
   const playerRef = useRef(null);
   const intervalRef = useRef(null);
-  const tabActiveRef = useRef(true);
   const ThoiDiemVideo = useRef(0);
   const [ChiTiet, setChiTiet] = useState(null);
   const [id, setId] = useState(null);
@@ -23,11 +22,6 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   const [ThoiLuongVideo, setThoiLuongVideo] = useState(null);
 
   useEffect(() => {
-    const handleVisibilityChange = () => {
-      tabActiveRef.current = !document.hidden;
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
     if (permission && permission.view) {
       const { id } = match.params;
       setId(id);
@@ -37,7 +31,6 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
     }
 
     return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
       dispatch(fetchReset());
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
@@ -46,28 +39,6 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
   }, []);
 
   const getInfo = (id) => {
-    // new Promise((resolve, reject) => {
-    //   dispatch(
-    //     fetchStart(
-    //       `vptq_lms_HocTrucTuyen/hoc/${id}`,
-    //       "GET",
-    //       null,
-    //       "DETAIL",
-    //       "",
-    //       resolve,
-    //       reject
-    //     )
-    //   );
-    // }).then((res) => {
-    //   if (res && res.data) {
-    //     setChiTiet(res.data);
-    //     setThoiDiemVideo(res.data.thoiDiemVideo);
-    //     setThoiLuongVideo(res.data.thoiLuongVideo);
-    //   } else {
-    //     setChiTiet(null);
-    //   }
-    // });
-
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -277,7 +248,7 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
         setThoiGianXem(ThoiDiemVideo.current);
       }
 
-      if (!ChiTiet.isDaXemVideo && tabActiveRef.current) {
+      if (!ChiTiet.isDaXemVideo) {
         if (intervalRef.current) {
           clearInterval(intervalRef.current);
         }
