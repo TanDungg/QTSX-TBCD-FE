@@ -44,6 +44,8 @@ function ThiKhaoSatForm({ history, match }) {
   const [KetQuaThi, setKetQuaThi] = useState(null);
   const [ChiTietKetQua, setChiTietKetQua] = useState([]);
   const [idThi, setIdThi] = useState(null);
+  const [IsClickedCauSau, setIsClickedCauSau] = useState(false);
+  const [IsClickedCauTruoc, setIsClickedCauTruoc] = useState(false);
 
   useEffect(() => {
     const isDangThiKhaoSat = getLocalStorage("isDangThiKhaoSat");
@@ -504,14 +506,24 @@ function ThiKhaoSatForm({ history, match }) {
                           ? "1px solid #c8c8c8"
                           : "1px solid #0469b9",
                       borderRadius: "5px",
-                      padding: "8px 5px",
+                      padding: "8px 2px",
                       alignItems: "center",
                       justifyContent: "center",
-                      width: "120px",
+                      width: "100px",
                       cursor: selectedIndex === 0 ? "not-allowed" : "pointer",
                       color: selectedIndex === 0 ? "#545454" : "#0469b9",
+                      transform: IsClickedCauTruoc ? "scale(0.95)" : "scale(1)",
+                      transition: "transform 0.2s ease, color 0.2s ease",
                     }}
-                    onClick={handlePrev}
+                    onClick={() => {
+                      if (selectedIndex !== 0) {
+                        setIsClickedCauTruoc(true);
+                      }
+                      setTimeout(() => {
+                        setIsClickedCauTruoc(false);
+                      }, 200);
+                      handlePrev();
+                    }}
                     disabled={selectedIndex === 0}
                   >
                     <DoubleLeftOutlined />
@@ -521,13 +533,13 @@ function ThiKhaoSatForm({ history, match }) {
                     style={{
                       display: "flex",
                       gap: "5px",
-                      width: "120px",
+                      width: "100px",
                       border:
                         selectedIndex === ListCauHoi.length - 1
                           ? "1px solid #c8c8c8"
                           : "1px solid #0469b9",
                       borderRadius: "5px",
-                      padding: "8px 5px",
+                      padding: "8px 2px",
                       alignItems: "center",
                       justifyContent: "center",
                       cursor:
@@ -538,8 +550,18 @@ function ThiKhaoSatForm({ history, match }) {
                         selectedIndex === ListCauHoi.length - 1
                           ? "#545454"
                           : "#0469b9",
+                      transform: IsClickedCauSau ? "scale(0.95)" : "scale(1)",
+                      transition: "transform 0.2s ease",
                     }}
-                    onClick={handleNext}
+                    onClick={() => {
+                      if (selectedIndex !== ListCauHoi.length - 1) {
+                        setIsClickedCauSau(true);
+                      }
+                      setTimeout(() => {
+                        setIsClickedCauSau(false);
+                      }, 200);
+                      handleNext();
+                    }}
                     disabled={selectedIndex === ListCauHoi.length - 1}
                   >
                     <span>Câu kế tiếp</span>

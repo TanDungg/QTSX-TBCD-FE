@@ -11,8 +11,9 @@ import {
   Row,
   Switch,
   Tag,
+  Modal as AntModal,
 } from "antd";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { includes, isEmpty, map } from "lodash";
 import {
   Input,
@@ -34,12 +35,14 @@ import {
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import {
+  BarsOutlined,
   CheckCircleOutlined,
   CloseCircleOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusCircleOutlined,
   RollbackOutlined,
+  SaveOutlined,
 } from "@ant-design/icons";
 import moment from "moment";
 import ModalCongDoan from "./ModalCongDoan";
@@ -53,6 +56,7 @@ const { EditableRow, EditableCell } = EditableTableRow;
 
 function QuyTrinhSanXuatForm({ match, permission, history }) {
   const dispatch = useDispatch();
+  const { width } = useSelector(({ common }) => common).toJS();
   const [form] = Form.useForm();
   const INFO = {
     ...getLocalStorage("menu"),
@@ -76,6 +80,11 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
   const [editingRecord, setEditingRecord] = useState([]);
   const [NgayBanHanh, setNgayBanHanh] = useState(getDateNow());
+  const [ListVatTuTheoOEM, setListVatTuTheoOEM] = useState([]);
+  const [SelectedVatTu, setSelectedVatTu] = useState([]);
+  const [SelectedKeys, setSelectedKeys] = useState([]);
+  const [QuyTrinhSanXuatTram_Id, setQuyTrinhSanXuatTram_Id] = useState(null);
+  const [DisabledModalListVatTu, setDisabledModalListVatTu] = useState(false);
 
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
@@ -246,6 +255,45 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
         setListNhanVien(res.data);
       } else {
         setListNhanVien([]);
+      }
+    });
+  };
+
+  const getListVatTuTheoOEM = (tits_qtsx_OEM_Id, listvattu) => {
+    const param = convertObjectToUrlParams({
+      tits_qtsx_OEM_Id,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_QuyTrinhSanXuat/list-vat-tu-theo-OEM?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setSelectedVatTu(listvattu);
+        const lstKey = listvattu
+          ? listvattu
+              .map((list) => {
+                const vattu = reDataForTable(res.data).find(
+                  (vt) =>
+                    list.tits_qtsx_VatTu_Id.toLowerCase() ===
+                    vt.tits_qtsx_VatTu_Id.toLowerCase()
+                );
+                return vattu ? vattu.key : null;
+              })
+              .filter((key) => key !== null)
+          : [];
+        setSelectedKeys(lstKey && lstKey);
+        setListVatTuTheoOEM(res.data);
+      } else {
+        setListVatTuTheoOEM([]);
       }
     });
   };
@@ -550,6 +598,14 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
   };
 
   const actionContentTram = (item) => {
+    const listvattu = {
+      onClick: () => {
+        getListVatTuTheoOEM(OEM.id, item.list_VatTus);
+        setQuyTrinhSanXuatTram_Id(item.tits_qtsx_QuyTrinhSanXuatTram_Id);
+        setDisabledModalListVatTu(true);
+      },
+    };
+
     const editItem =
       type === "new" || (type === "edit" && info.tinhTrang === "Chưa duyệt")
         ? { onClick: () => handleModalTram(item) }
@@ -564,6 +620,10 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
 
     return (
       <div>
+        <a {...listvattu} title="Danh sách vật tư">
+          <BarsOutlined />
+        </a>
+        <Divider type="vertical" />
         <a {...editItem} title="Sửa trạm">
           <EditOutlined />
         </a>
@@ -706,7 +766,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       width: 150,
     },
     {
-      title: "List vật tư",
+      title: "Danh sách vật tư",
       dataIndex: "list_VatTus",
       key: "list_VatTus",
       align: "center",
@@ -755,6 +815,30 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
             ))}
         </>
       ),
+    },
+  ];
+
+  let columnsListChiTiet = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      width: 50,
+      align: "center",
+    },
+    {
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
+      align: "left",
+      width: 150,
+    },
+    {
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
+      align: "center",
+      width: 250,
     },
   ];
 
@@ -1053,6 +1137,56 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
     setSanPham(val);
     getListBOM(val);
     getListOEM(val);
+  };
+
+  const handleLuuListVatTu = () => {
+    const newData = {
+      list_VatTus: SelectedVatTu,
+      tits_qtsx_QuyTrinhSanXuatTram_Id: QuyTrinhSanXuatTram_Id,
+    };
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tits_qtsx_QuyTrinhSanXuat/list-vat-tu-sau-duyet`,
+          "PUT",
+          newData,
+          "EDIT",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          getInfo(id);
+          setDisabledModalListVatTu(false);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const propLuuListVatTu = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận lưu danh sách vật tư",
+    onOk: handleLuuListVatTu,
+  };
+
+  const modalLuuListVatTu = () => {
+    Modal(propLuuListVatTu);
+  };
+
+  const rowSelection = {
+    selectedRowKeys: SelectedKeys,
+    selectedRows: SelectedVatTu,
+    onChange: (selectedRowKeys, selectedRows) => {
+      const newSelectedVatTu = [...selectedRows];
+      const newSelectedKeys = [...selectedRowKeys];
+      setSelectedVatTu(newSelectedVatTu);
+      setSelectedKeys(newSelectedKeys);
+    },
   };
 
   const formTitle =
@@ -1611,6 +1745,55 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
         openModalFS={setActiveModalTuChoi}
         saveTuChoi={saveTuChoi}
       />
+      <AntModal
+        title={"Danh sách học phí theo chuyên đề"}
+        className="th-card-reset-margin"
+        open={DisabledModalListVatTu}
+        width={width > 1600 ? `70%` : width > 1200 ? `85%` : "100%"}
+        closable={true}
+        onCancel={() => setDisabledModalListVatTu(false)}
+        footer={null}
+      >
+        <Card className="th-card-margin-bottom ">
+          <Table
+            bordered
+            columns={columnsListChiTiet}
+            components={components}
+            scroll={{ x: 800, y: "50vh" }}
+            className="gx-table-responsive th-table"
+            dataSource={reDataForTable(ListVatTuTheoOEM)}
+            size="small"
+            pagination={false}
+            rowSelection={{
+              type: "checkbox",
+              ...rowSelection,
+              preserveSelectedRowKeys: true,
+              selectedRowKeys: SelectedKeys,
+            }}
+          />
+          <Divider style={{ margin: "10px 0px" }} />
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            <Button
+              icon={<RollbackOutlined />}
+              className="th-margin-bottom-0"
+              type="default"
+              onClick={() => {
+                setDisabledModalListVatTu(false);
+              }}
+            >
+              Quay lại
+            </Button>
+            <Button
+              className="th-margin-bottom-0"
+              icon={<SaveOutlined />}
+              type="primary"
+              onClick={modalLuuListVatTu}
+            >
+              Lưu
+            </Button>
+          </div>
+        </Card>
+      </AntModal>
     </div>
   );
 }
