@@ -1132,5 +1132,16 @@ export const LayDuoiFile = (file) => {
   return file.split(".").pop();
 };
 
+export function convertDaysToDateString(days) {
+  // Chuyển đổi số nguyên Excel thành đối tượng Date JavaScript// Offset của Excel so với Unix Epoch
+  const date = new Date((days - 25569) * 24 * 60 * 60 * 1000);
 
-
+  // Lấy ngày, tháng, năm từ đối tượng Date
+  const day = date.getDate();
+  const month = date.getMonth() + 1; // Tháng trong JavaScript bắt đầu từ 0
+  const year = date.getFullYear();
+  // Trả về chuỗi ngày tháng năm
+  return `${day.toString().length === 1 ? `0${day}` : day}/${
+    month.toString().length === 1 ? `0${month}` : month
+  }/${year}`;
+}

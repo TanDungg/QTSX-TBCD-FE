@@ -20,7 +20,11 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchStart } from "src/appRedux/actions/Common";
 import { Modal } from "src/components/Common";
-import { exportExcel, reDataForTable } from "src/util/Common";
+import {
+  convertDaysToDateString,
+  exportExcel,
+  reDataForTable,
+} from "src/util/Common";
 import * as XLSX from "xlsx";
 import { EditableTableRow, Table } from "src/components/Common";
 
@@ -31,81 +35,126 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
   const [dataView, setDataView] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
-  const [DataLoi, setDataLoi] = useState();
   const [messageError, setMessageError] = useState();
-  const [page, setPage] = useState(1);
-  const [HangTrung, setHangTrung] = useState([]);
+  const [IsLoi, setIsLoi] = useState(false);
 
-  let colValues = [
-    {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      width: 50,
-      align: "center",
-    },
-    {
-      title: "Mã nhân viên",
-      dataIndex: "maNhanVien",
-      key: "maNhanVien",
-      align: "center",
-    },
-    {
-      title: "Họ tên",
-      dataIndex: "fullName",
-      align: "center",
-      key: "fullName",
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
-      align: "center",
-      width: 250,
-    },
-    {
-      title: "SĐT",
-      dataIndex: "phoneNumber",
-      key: "phoneNumber",
-      align: "center",
-    },
-    {
-      title: "Mã chức vụ",
-      dataIndex: "maChucVu",
-      align: "center",
-      key: "maChucVu",
-    },
-    {
-      title: "Mã bộ phận",
-      dataIndex: "maBoPhan",
-      align: "center",
-      key: "maBoPhan",
-    },
-    {
-      title: "Mã Ban/Phòng",
-      dataIndex: "maPhongBan",
-      align: "center",
-      key: "maPhongBan",
-    },
-    {
-      title: "Mã đơn vị",
-      dataIndex: "maDonVi",
-      align: "center",
-      key: "maDonVi",
-    },
-    {
-      title: "Mã tập đoàn",
-      dataIndex: "maTapDoan",
-      align: "center",
-      key: "maTapDoan",
-    },
-    {
-      title: "Mã đơn vị trả lương",
-      dataIndex: "maDonViTraLuong",
-      align: "center",
-      key: "maDonViTraLuong",
-    },
-  ];
+  let colValues = () => {
+    const col = [
+      {
+        title: "STT",
+        dataIndex: "key",
+        key: "key",
+        width: 50,
+        align: "center",
+      },
+      {
+        title: "Mã nhân viên",
+        dataIndex: "maNhanVien",
+        key: "maNhanVien",
+        align: "center",
+      },
+      {
+        title: "Tên nhân viên",
+        dataIndex: "fullName",
+        align: "center",
+        key: "fullName",
+      },
+      {
+        title: "Ngày sinh",
+        dataIndex: "ngaySinh",
+        align: "center",
+        key: "ngaySinh",
+      },
+      {
+        title: "Ngày vào làm",
+        dataIndex: "ngayVaoLam",
+        align: "center",
+        key: "ngayVaoLam",
+      },
+      {
+        title: "Email Thaco",
+        dataIndex: "email",
+        key: "email",
+        align: "center",
+        width: 250,
+      },
+      {
+        title: "SĐT",
+        dataIndex: "phoneNumber",
+        key: "phoneNumber",
+        align: "center",
+      },
+      {
+        title: "Cấp độ nhân sự",
+        dataIndex: "tenCapDoNhanSu",
+        align: "center",
+        key: "tenCapDoNhanSu",
+      },
+      {
+        title: "Chức danh",
+        dataIndex: "tenChucDanh",
+        align: "center",
+        key: "tenChucDanh",
+      },
+      {
+        title: "Chức vụ",
+        dataIndex: "tenChucVu",
+        align: "center",
+        key: "tenChucVu",
+      },
+      {
+        title: "Thành phần",
+        dataIndex: "tenThanhPhan",
+        align: "center",
+        key: "tenThanhPhan",
+      },
+      {
+        title: "Mã phòng ban",
+        dataIndex: "maPhongBanHRM",
+        align: "center",
+        key: "maPhongBanHRM",
+      },
+      {
+        title: "Đơn vị chi lương",
+        dataIndex: "tenDonViTraLuong",
+        align: "center",
+        key: "tenDonViTraLuong",
+      },
+      {
+        title: "Trình Độ Chuyên môn",
+        dataIndex: "trinhDoChuyenMon",
+        align: "center",
+        key: "trinhDoChuyenMon",
+      },
+      {
+        title: "Trường",
+        dataIndex: "truong",
+        align: "center",
+        key: "truong",
+      },
+      {
+        title: "Chuyên ngành",
+        dataIndex: "chuyenNganh",
+        align: "center",
+        key: "chuyenNganh",
+      },
+      {
+        title: "Ghi chú",
+        dataIndex: "chuyenNganh",
+        align: "center",
+        key: "chuyenNganh",
+      },
+    ];
+    if (IsLoi) {
+      col.splice(0, 0, {
+        title: "Lỗi",
+        dataIndex: "ghiChuImport",
+        key: "ghiChuImport",
+        align: "center",
+      });
+    }
+    return col;
+  };
   const components = {
     body: {
       row: EditableRow,
@@ -131,7 +180,7 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
     });
   };
 
-  const columns = map(colValues, (col) => {
+  const columns = map(colValues(), (col) => {
     if (!col.editable) {
       return col;
     }
@@ -159,83 +208,125 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 0, r: 2 }, e: { c: 0, r: 2 } },
+            range: { s: { c: 0, r: 1 }, e: { c: 0, r: 1 } },
           })[0]
           .toString()
           .trim() === "STT" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 1, r: 2 }, e: { c: 1, r: 2 } },
+            range: { s: { c: 1, r: 1 }, e: { c: 1, r: 1 } },
           })[0]
           .toString()
           .trim() === "Mã nhân viên" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 2, r: 2 }, e: { c: 2, r: 2 } },
+            range: { s: { c: 2, r: 1 }, e: { c: 2, r: 1 } },
           })[0]
           .toString()
-          .trim() === "Họ tên" &&
+          .trim() === "Tên nhân viên" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 3, r: 2 }, e: { c: 3, r: 2 } },
+            range: { s: { c: 3, r: 1 }, e: { c: 3, r: 1 } },
           })[0]
           .toString()
-          .trim() === "Email" &&
+          .trim() === "Ngày sinh" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 4, r: 2 }, e: { c: 4, r: 2 } },
+            range: { s: { c: 4, r: 1 }, e: { c: 4, r: 1 } },
+          })[0]
+          .toString()
+          .trim() === "Ngày vào làm" &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 5, r: 1 }, e: { c: 5, r: 1 } },
+          })[0]
+          .toString()
+          .trim() === "Email Thaco" &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 6, r: 1 }, e: { c: 6, r: 1 } },
           })[0]
           .toString()
           .trim() === "SĐT" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 5, r: 2 }, e: { c: 5, r: 2 } },
+            range: { s: { c: 7, r: 1 }, e: { c: 7, r: 1 } },
           })[0]
           .toString()
-          .trim() === "Mã chức vụ" &&
+          .trim() === "Cấp độ nhân sự" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 6, r: 2 }, e: { c: 6, r: 2 } },
+            range: { s: { c: 8, r: 1 }, e: { c: 8, r: 1 } },
           })[0]
           .toString()
-          .trim() === "Mã bộ phận" &&
+          .trim() === "Chức danh" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 7, r: 2 }, e: { c: 7, r: 2 } },
+            range: { s: { c: 9, r: 1 }, e: { c: 9, r: 1 } },
           })[0]
           .toString()
-          .trim() === "Mã Ban/Phòng" &&
+          .trim() === "Chức vụ" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 8, r: 2 }, e: { c: 8, r: 2 } },
+            range: { s: { c: 10, r: 1 }, e: { c: 10, r: 1 } },
           })[0]
           .toString()
-          .trim() === "Mã đơn vị" &&
+          .trim() === "Thành phần" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 9, r: 2 }, e: { c: 9, r: 2 } },
+            range: { s: { c: 11, r: 1 }, e: { c: 11, r: 1 } },
           })[0]
           .toString()
-          .trim() === "Mã tập đoàn" &&
+          .trim() === "Mã phòng ban" &&
         XLSX.utils
           .sheet_to_json(worksheet, {
             header: 1,
-            range: { s: { c: 10, r: 2 }, e: { c: 10, r: 2 } },
+            range: { s: { c: 12, r: 1 }, e: { c: 12, r: 1 } },
           })[0]
           .toString()
-          .trim() === "Mã đơn vị trả lương";
+          .trim() === "Đơn vị chi lương" &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 13, r: 1 }, e: { c: 13, r: 1 } },
+          })[0]
+          .toString()
+          .trim() === "Trình Độ Chuyên môn" &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 14, r: 1 }, e: { c: 14, r: 1 } },
+          })[0]
+          .toString()
+          .trim() === "Trường" &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 15, r: 1 }, e: { c: 15, r: 1 } },
+          })[0]
+          .toString()
+          .trim() === "Chuyên ngành" &&
+        XLSX.utils
+          .sheet_to_json(worksheet, {
+            header: 1,
+            range: { s: { c: 16, r: 1 }, e: { c: 16, r: 1 } },
+          })[0]
+          .toString()
+          .trim() === "Ghi chú";
       if (checkMau) {
         const data = XLSX.utils.sheet_to_json(worksheet, {
-          range: 2,
+          range: 1,
         });
         if (data.length === 0) {
           setFileName(file.name);
@@ -244,96 +335,122 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
           setMessageError("Dữ liệu import không được rỗng");
           Helper.alertError("Dữ liệu import không được rỗng");
         } else {
-          const MNV = "Mã nhân viên";
-          const HVT = "Họ tên";
-          const EMAIL = "Email";
-          const SDT = "SĐT";
-          const CV = "Mã chức vụ";
-          const BP = "Mã bộ phận";
-          const PB = "Mã Ban/Phòng";
-          const DV = "Mã đơn vị";
-          const TD = "Mã tập đoàn";
-          const DVTL = "Mã đơn vị trả lương";
-          const Data = [];
           const NewData = [];
           data.forEach((d, index) => {
-            if (
-              data[index][MNV] &&
-              data[index][MNV].toString().trim() === "" &&
-              data[index][HVT] &&
-              data[index][HVT].toString().trim() === "" &&
-              data[index][EMAIL] &&
-              data[index][EMAIL].toString().trim() === "" &&
-              data[index][SDT] &&
-              data[index][SDT].toString().trim() === "" &&
-              data[index][CV] &&
-              data[index][CV].toString().trim() === "" &&
-              data[index][BP] &&
-              data[index][BP].toString().trim() === "" &&
-              data[index][PB] &&
-              data[index][PB].toString().trim() === "" &&
-              data[index][DV] &&
-              data[index][DV].toString().trim() === "" &&
-              data[index][DVTL] &&
-              data[index][DVTL].toString().trim() === "" &&
-              data[index][TD] &&
-              data[index][TD].toString().trim() === ""
-            ) {
-            } else {
-              NewData.push({
-                maNhanVien: data[index][MNV]
-                  ? data[index][MNV].toString().trim() !== ""
-                    ? data[index][MNV].toString()
-                    : undefined
-                  : undefined,
-                fullName: data[index][HVT]
-                  ? data[index][HVT].toString().trim() !== ""
-                    ? data[index][HVT].toString().trim()
-                    : undefined
-                  : undefined,
-                email: data[index][EMAIL]
-                  ? data[index][EMAIL].toString().trim() !== ""
-                    ? data[index][EMAIL].toString().trim()
-                    : undefined
-                  : undefined,
-                phoneNumber: data[index][SDT]
-                  ? data[index][SDT].toString().trim() !== ""
-                    ? data[index][SDT].toString().trim()
-                    : undefined
-                  : undefined,
-                maChucVu: data[index][CV]
-                  ? data[index][CV].toString().trim() !== ""
-                    ? data[index][CV].toString().trim()
-                    : undefined
-                  : undefined,
-                maBoPhan: data[index][BP]
-                  ? data[index][BP].toString().trim() !== ""
-                    ? data[index][BP].toString().trim()
-                    : undefined
-                  : undefined,
-                maPhongBan: data[index][PB]
-                  ? data[index][PB].toString().trim() !== ""
-                    ? data[index][PB].toString().trim()
-                    : undefined
-                  : undefined,
-                maDonVi: data[index][DV]
-                  ? data[index][DV].toString().trim() !== ""
-                    ? data[index][DV].toString().trim()
-                    : undefined
-                  : undefined,
-                maTapDoan: data[index][TD]
-                  ? data[index][TD].toString().trim() !== ""
-                    ? data[index][TD].toString().trim()
-                    : undefined
-                  : undefined,
-                maDonViTraLuong: data[index][DVTL]
-                  ? data[index][DVTL].toString().trim() !== ""
-                    ? data[index][DVTL].toString().trim()
-                    : undefined
-                  : undefined,
-              });
+            if (index > 0) {
+              if (
+                d["Mã nhân viên"] &&
+                d["Mã nhân viên"].toString().trim() === "" &&
+                d["Tên nhân viên"] &&
+                d["Tên nhân viên"].toString().trim() === "" &&
+                d["Email Thaco"] &&
+                d["Email Thaco"].toString().trim() === "" &&
+                d["Cấp độ nhân sự"] &&
+                d["Cấp độ nhân sự"].toString().trim() === "" &&
+                d["Mã phòng ban"] &&
+                d["Mã phòng ban"].toString().trim() === ""
+              ) {
+              } else {
+                let ngaySinh = "";
+                if (typeof d["Ngày sinh"] === "number") {
+                  ngaySinh = convertDaysToDateString(d["Ngày sinh"]);
+                } else if (typeof d["Ngày sinh"] === "string") {
+                  const ngay = d["Ngày sinh"].split("/");
+                  ngaySinh =
+                    (ngay[0].length === 1 ? `0${ngay[0]}` : ngay[0]) +
+                    (ngay[1].length === 1 ? `0${ngay[1]}` : ngay[1]) +
+                    ngay[2];
+                } else {
+                  ngaySinh = undefined;
+                }
+                let ngayVaoLam = "";
+                if (typeof d["Ngày vào làm"] === "number") {
+                  ngayVaoLam = convertDaysToDateString(d["Ngày vào làm"]);
+                } else if (typeof d["Ngày vào làm"] === "string") {
+                  const ngay = d["Ngày vào làm"].split("/");
+                  ngayVaoLam =
+                    (ngay[0].length === 1 ? `0${ngay[0]}` : ngay[0]) +
+                    (ngay[1].length === 1 ? `0${ngay[1]}` : ngay[1]) +
+                    ngay[2];
+                } else {
+                  ngayVaoLam = undefined;
+                }
+                NewData.push({
+                  maNhanVien: d["Mã nhân viên"]
+                    ? d["Mã nhân viên"].toString().trim() !== ""
+                      ? d["Mã nhân viên"].toString()
+                      : undefined
+                    : undefined,
+                  email: d["Email Thaco"]
+                    ? d["Email Thaco"].toString().trim() !== ""
+                      ? d["Email Thaco"].toString()
+                      : undefined
+                    : undefined,
+                  phoneNumber: d["SĐT"]
+                    ? d["SĐT"].toString().trim() !== ""
+                      ? d["SĐT"].toString()
+                      : undefined
+                    : undefined,
+                  fullName: d["Tên nhân viên"]
+                    ? d["Tên nhân viên"].toString().trim() !== ""
+                      ? d["Tên nhân viên"].toString()
+                      : undefined
+                    : undefined,
+                  tenChucDanh: d["Chức danh"]
+                    ? d["Chức danh"].toString().trim() !== ""
+                      ? d["Chức danh"].toString()
+                      : undefined
+                    : undefined,
+                  tenChucVu: d["Chức vụ"]
+                    ? d["Chức vụ"].toString().trim() !== ""
+                      ? d["Chức vụ"].toString()
+                      : undefined
+                    : undefined,
+                  tenThanhPhan: d["Thành phần"]
+                    ? d["Thành phần"].toString().trim() !== ""
+                      ? d["Thành phần"].toString()
+                      : undefined
+                    : undefined,
+                  maPhongBanHRM: d["Mã phòng ban"]
+                    ? d["Mã phòng ban"].toString().trim() !== ""
+                      ? d["Mã phòng ban"].toString()
+                      : undefined
+                    : undefined,
+                  tenDonViTraLuong: d["Đơn vị chi lương"]
+                    ? d["Đơn vị chi lương"].toString().trim() !== ""
+                      ? d["Đơn vị chi lương"].toString()
+                      : undefined
+                    : undefined,
+                  tenCapDoNhanSu: d["Cấp độ nhân sự"]
+                    ? d["Cấp độ nhân sự"].toString().trim() !== ""
+                      ? d["Cấp độ nhân sự"].toString()
+                      : undefined
+                    : undefined,
+                  trinhDoChuyenMon: d["Trình Độ Chuyên môn"]
+                    ? d["Trình Độ Chuyên môn"].toString().trim() !== ""
+                      ? d["Trình Độ Chuyên môn"].toString()
+                      : undefined
+                    : undefined,
+                  truong: d["Trường"]
+                    ? d["Trường"].toString().trim() !== ""
+                      ? d["Trường"].toString()
+                      : undefined
+                    : undefined,
+                  chuyenNganh: d["Chuyên ngành"]
+                    ? d["Chuyên ngành"].toString().trim() !== ""
+                      ? d["Chuyên ngành"].toString()
+                      : undefined
+                    : undefined,
+                  ngaySinh: ngaySinh,
+                  ngayVaoLam: ngayVaoLam,
+                  ghiChu: d["Ghi chú"]
+                    ? d["Ghi chú"].toString().trim() !== ""
+                      ? d["Ghi chú"].toString()
+                      : undefined
+                    : undefined,
+                });
+              }
             }
-            Data.push(d.maNhanVien);
           });
           if (NewData.length === 0) {
             setFileName(file.name);
@@ -342,31 +459,26 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
             setMessageError("Dữ liệu import không được rỗng");
             Helper.alertError("Dữ liệu import không được rỗng");
           } else {
-            const indices = [];
-            const row = [];
-
-            for (let i = 0; i < Data.length; i++) {
-              for (let j = i + 1; j < Data.length; j++) {
-                if (Data[i] === Data[j]) {
-                  indices.push(Data[i]);
-                  row.push(i + 1);
-                  row.push(j + 1);
+            let check = false;
+            for (let i = 0; i < NewData.length; i++) {
+              for (let j = i + 1; j < NewData.length; j++) {
+                if (NewData[i].maNhanVien === NewData[j].maNhanVien) {
+                  NewData[i].ghiChuImport = "Mã nhân viên trùng";
+                  NewData[j].ghiChuImport = "Mã nhân viên trùng";
+                  setCheckDanger(true);
+                  setIsLoi(true);
+                  setMessageError(`Mã nhân viên trùng nhau`);
+                  check = true;
+                  Helper.alertError(`Mã nhân viên trùng nhau`);
                 }
               }
             }
-            setDataView(NewData);
-            setFileName(file.name);
-            setDataLoi();
-            if (indices.length > 0) {
-              setHangTrung(indices);
-              setCheckDanger(true);
-              setMessageError(
-                `Hàng ${row.join(", ")} có mã nhân viên trùng nhau`
-              );
-            } else {
-              setHangTrung([]);
+            if (!check) {
+              setIsLoi(false);
               setCheckDanger(false);
             }
+            setDataView(NewData);
+            setFileName(file.name);
           }
         }
       } else {
@@ -399,6 +511,7 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
   };
 
   const handleSubmit = () => {
+    setCheckDanger(false);
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
@@ -414,11 +527,23 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
     })
       .then((res) => {
         if (res.status === 409) {
-          setDataLoi(res.data);
-          setMessageError(res.data.ghiChuImport);
-        } else {
-          setFileName(null);
+          res.data.forEach((dt) => {
+            dataView.forEach((dtv) => {
+              if (dt.maNhanVien === dtv.maNhanVien) {
+                dtv.ghiChuImport = dt.ghiChuImport;
+              }
+            });
+          });
+          setIsLoi(true);
+          setCheckDanger(true);
+          setDataView([...dataView]);
+          setMessageError("Import không thành công !!!");
+          Helper.alertError("Import không thành công !!!");
+        } else if (res.status === 200) {
           setDataView([]);
+          setIsLoi(false);
+          setCheckDanger(false);
+          setFileName(null);
           openModalFS(false);
           refesh();
         }
@@ -437,13 +562,9 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
   };
 
   const RowStyle = (current, index) => {
-    if (HangTrung.length > 0) {
-      HangTrung.forEach((maNhanVien) => {
-        if (current.maNhanVien === maNhanVien) {
-          setCheckDanger(true);
-          return "red-row";
-        }
-      });
+    if (current.ghiChuImport && IsLoi) {
+      setCheckDanger(true);
+      return "red-row";
     } else if (current.maNhanVien === undefined) {
       setCheckDanger(true);
       setMessageError("Mã nhân viên không được rỗng");
@@ -452,27 +573,10 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
       setCheckDanger(true);
       setMessageError("Tên nhân viên không được rỗng");
       return "red-row";
-    } else if (current.maChucVu === undefined) {
-      setCheckDanger(true);
-      setMessageError("Mã chức vụ không được rỗng");
-      return "red-row";
-    } else if (current.maTapDoan === undefined) {
-      setCheckDanger(true);
-      setMessageError("Mã tập đoàn không được rỗng");
-      return "red-row";
-    } else if (current.maDonVi === undefined) {
-      setCheckDanger(true);
-      setMessageError("Mã đơn vị không được rỗng");
-      return "red-row";
-    } else if (current.maPhongBan === undefined) {
+    } else if (current.maPhongBanHRM === undefined) {
       setCheckDanger(true);
       setMessageError("Mã phòng ban không được rỗng");
       return "red-row";
-    } else if (DataLoi) {
-      if (current.maNhanVien.toString() === DataLoi.maNhanVien) {
-        setCheckDanger(true);
-        return "red-row";
-      }
     }
   };
 
@@ -483,7 +587,6 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
       setFileName(null);
       refesh();
       setDataView([]);
-      setHangTrung([]);
     } else {
       refesh();
       openModalFS(false);
@@ -494,7 +597,7 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
     <AntModal
       title="Import cán bộ nhân viên"
       open={openModal}
-      width={`80%`}
+      width={`100%`}
       closable={true}
       onCancel={handleCancel}
       footer={null}
@@ -545,9 +648,6 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
                           setDataView([]);
                           setFileName(null);
                           setCheckDanger(false);
-                          setPage(1);
-                          setDataLoi();
-                          setHangTrung([]);
                         }}
                       />
                     </p>
@@ -570,22 +670,17 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
             style={{ marginTop: 10 }}
             bordered
             scroll={{
-              x: 1100,
+              x: 1400,
               y: "55vh",
             }}
             columns={columns}
             components={components}
-            className="gx-table-responsive"
+            className="gx-table-responsive gx-table-resize"
             dataSource={reDataForTable(dataView)}
             size="small"
             loading={loading}
-            rowClassName={(current, index) => RowStyle(current, index, page)}
-            pagination={{
-              onChange: (p) => setPage(p),
-              pageSize: 20,
-              showSizeChanger: false,
-              showQuickJumper: true,
-            }}
+            rowClassName={(current, index) => RowStyle(current, index)}
+            pagination={false}
           />
           <Button
             className="th-margin-bottom-0"

@@ -22,6 +22,11 @@ const BoPhanForm = asyncComponent(() => import("./BoPhan/BoPhanForm"));
 const PhongBan = asyncComponent(() => import("./PhongBan/PhongBan"));
 const PhongBanForm = asyncComponent(() => import("./PhongBan/PhongBanForm"));
 
+const PhongBanHRM = asyncComponent(() => import("./PhongBanHRM/PhongBanHRM"));
+const PhongBanHRMForm = asyncComponent(() =>
+  import("./PhongBanHRM/PhongBanHRMForm")
+);
+
 const DonViTinh = asyncComponent(() => import("./DonViTinh/DonViTinh"));
 const DonViTinhForm = asyncComponent(() => import("./DonViTinh/DonViTinhForm"));
 
@@ -96,6 +101,21 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/ban-phong/:id/chinh-sua`}
         exact
         component={Auth(PhongBanForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/ban-phong-hrm`}
+        exact
+        component={Auth(PhongBanHRM, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/ban-phong-hrm/them-moi`}
+        exact
+        component={Auth(PhongBanHRMForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/ban-phong-hrm/:id/chinh-sua`}
+        exact
+        component={Auth(PhongBanHRMForm, menus, pathname, permission)}
       />
       <Route
         path={`${match.url}/bo-phan`}

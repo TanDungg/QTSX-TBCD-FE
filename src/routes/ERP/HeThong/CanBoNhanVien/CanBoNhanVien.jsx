@@ -62,19 +62,11 @@ function CanBoNhanVien({ match, history, permission }) {
    * @param page Trang
    * @param pageSize
    */
-  const getListData = (donviId, page, keyword) => {
-    let param = convertObjectToUrlParams({ donviId, page, keyword });
+  const getListData = (donvi_Id, page, keyword) => {
+    let param = convertObjectToUrlParams({ donvi_Id, page, keyword });
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(
-          `Account/get-cbnv?${param}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
+        fetchStart(`Account?${param}`, "GET", null, "LIST", "", resolve, reject)
       );
     })
       .then((res) => {
