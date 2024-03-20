@@ -48,14 +48,14 @@ const Topbar = () => {
       MENUINFO && MENUINFO.donVi_Id
         ? MENUINFO.donVi_Id
         : donvi.length > 0
-        ? donvi[0].DonVi_Id
+        ? donvi[0].donVi_Id
         : ""
     );
 
     const menuInfo = getLocalStorage("menu");
 
     if (menuInfo && !menuInfo.donVi_Id) {
-      menuInfo.donVi_Id = donvi.length > 0 ? donvi[0].DonVi_Id : "";
+      menuInfo.donVi_Id = donvi.length > 0 ? donvi[0].donVi_Id : "";
       setLocalStorage("menu", menuInfo);
     }
   }, [donvi]);
@@ -111,7 +111,7 @@ const Topbar = () => {
     menu.donVi_Id = val;
     menu.tenPhanMem = "QUẢN LÝ NGUỒN LỰC DOANH NGHIỆP (ERP)";
     menu.phanMem_Id = null;
-    menu.Url = null;
+    menu.url = null;
     setLocalStorage("menu", menu);
     dispatch(loadMenu());
     dispatch(donViLoad());
@@ -264,7 +264,7 @@ const Topbar = () => {
         </div>
       ) : null}
       <Link
-        to={MENUINFO ? "/" + MENUINFO.Url : ""}
+        to={MENUINFO ? "/" + MENUINFO.url : ""}
         className="gx-d-block gx-d-lg-none gx-pointer"
       >
         <img
@@ -290,11 +290,11 @@ const Topbar = () => {
               className="heading-select slt-search th-select-heading"
               data={donvi}
               placeholder="Chọn đơn vị"
-              optionsvalue={["DonVi_Id", "tenDonVi"]}
+              optionsvalue={["donVi_Id", "tenDonVi"]}
               style={{ width: 350 }}
               onSelect={handleOnSelectDonVi}
               value={DonVi}
-              defaultValue={donvi.length > 0 && donvi[0].DonVi_Id}
+              defaultValue={donvi.length > 0 && donvi[0].donVi_Id}
               optionFilterProp={"name"}
               showSearch
             />

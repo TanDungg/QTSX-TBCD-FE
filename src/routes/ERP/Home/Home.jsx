@@ -24,24 +24,22 @@ function Home({ permission, history }) {
 
   useEffect(() => {
     if (donvi.length > 0) {
-      getInfo(getLocalStorage("menu"));
+      getInfo(getLocalStorage("menu").donVi_Id);
       setDonVi(
         MENUINFO && MENUINFO.donVi_Id
           ? MENUINFO.donVi_Id
           : donvi.length > 0
-          ? donvi[0].DonVi_Id
+          ? donvi[0].donVi_Id
           : ""
       );
     }
     return () => dispatch(fetchReset());
   }, [donvi]);
-  const getInfo = (MENUINFO) => {
+  const getInfo = (donVi_Id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhanMem/phan-mem-by-user?user_Id=${TOKENINFO.id}&&donVi_Id=${
-            MENUINFO ? MENUINFO.donVi_Id : ""
-          }`,
+          `PhanMem/phan-mem-by-user?user_Id=${TOKENINFO.id}&&donVi_Id=${donVi_Id}`,
           "GET",
           null,
           "LIST",
@@ -63,9 +61,9 @@ function Home({ permission, history }) {
     const menuInfo = getLocalStorage("menu");
     menuInfo.phanMem_Id = dt.phanMem_Id;
     menuInfo.tenPhanMem = dt.tenPhanMem;
-    menuInfo.tapDoan_Id = dt.TapDoan_Id;
-    menuInfo.Url = dt.Url;
-    history.push(dt.Url);
+    menuInfo.tapDoan_Id = dt.tapDoan_Id;
+    menuInfo.url = dt.url;
+    history.push(dt.url);
     setLocalStorage("menu", menuInfo);
     dispatch(loadMenu());
     window.location.reload();
@@ -75,7 +73,7 @@ function Home({ permission, history }) {
     const menu = getLocalStorage("menu");
     menu.donVi_Id = val;
     menu.phanMem_Id = null;
-    menu.Url = null;
+    menu.url = null;
     menu.tenPhanMem = "QUẢN LÝ NGUỒN NHÂN LỰC DOANH NGHIỆP (ERP)";
     setLocalStorage("menu", menu);
     dispatch(loadMenu());
@@ -97,11 +95,11 @@ function Home({ permission, history }) {
                 className="heading-select slt-search th-select-heading"
                 data={donvi}
                 placeholder="Chọn đơn vị"
-                optionsvalue={["DonVi_Id", "tenDonVi"]}
+                optionsvalue={["donVi_Id", "tenDonVi"]}
                 style={{ width: "100%" }}
                 onSelect={handleOnSelectDonVi}
                 value={DonVi}
-                defaultValue={donvi.length > 0 && donvi[0].DonVi_Id}
+                defaultValue={donvi.length > 0 && donvi[0].donVi_Id}
                 optionFilterProp={"name"}
                 showSearch
               />

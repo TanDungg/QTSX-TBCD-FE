@@ -54,7 +54,7 @@ const SignIn = ({ history }) => {
               donVi_Id: res.data[0].donVi_Id.toUpperCase(),
               tenPhanMem: res.data[0].tenPhanMem,
               tapDoan_Id: res.data[0].tapDoan_Id,
-              Url: res.data[0].url,
+              url: res.data[0].url,
             };
             setLocalStorage("menu", menu);
             dispatch(donViLoad());
@@ -74,12 +74,14 @@ const SignIn = ({ history }) => {
     if ((authUser && authUser.token) || (userInfo && userInfo.token)) {
       const url = sessionStorage.getItem("currentURL");
       const session = sessionStorage.getItem("tokenInfo");
-      if (session) {
-        if (url) {
-          const hashPart = url.replace(BASE_URL_APP, "");
-          history.push(hashPart);
-          sessionStorage.removeItem("currentURL");
-        } else {
+
+      if (url) {
+        const hashPart = url.replace(BASE_URL_APP, "");
+        history.push(hashPart);
+        sessionStorage.removeItem("currentURL");
+      } else {
+        if (session) {
+          console.log("xx");
           getPhanMem(userInfo.id);
         }
       }
