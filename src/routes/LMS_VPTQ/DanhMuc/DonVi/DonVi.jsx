@@ -90,23 +90,6 @@ function DonVi({ permission, history }) {
       onFilter: (value, record) => record.tenDonVi.includes(value),
       filterSearch: true,
     },
-    {
-      title: "Tập đoàn",
-      dataIndex: "tenTapDoan",
-      key: "tenTapDoan",
-      align: "center",
-      width: 200,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenTapDoan,
-            value: d.tenTapDoan,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenTapDoan.includes(value),
-      filterSearch: true,
-    },
   ];
 
   const components = {
