@@ -56,7 +56,7 @@ const ChuyenDeDaoTaoForm = ({ history, match, permission }) => {
   const [FileTaiLieu, setFileTaiLieu] = useState(null);
   const [DisableUploadTaiLieu, setDisableUploadTaiLieu] = useState(false);
   const [id, setId] = useState(null);
-  const [ImageUrl, setImageUrl] = useState();
+  const [ImageUrl, setImageUrl] = useState(null);
   const [LoadingVideo, setLoadingVideo] = useState(null);
   const [ErrorLoadingVideo, setErrorLoadingVideo] = useState(false);
   const [LoadingTaiLieu, setLoadingTaiLieu] = useState(null);

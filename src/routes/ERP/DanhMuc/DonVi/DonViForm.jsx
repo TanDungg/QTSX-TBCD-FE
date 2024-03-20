@@ -183,7 +183,7 @@ const DonViForm = ({ history, match, permission }) => {
     if (type === "edit") {
       delete info.tapDoan;
       user.donVi_Id === "root" && (user.donVi_Id = null);
-      var newData = { ...info, ...user };
+      var newData = { ...info, ...user, id };
 
       new Promise((resolve, reject) => {
         dispatch(

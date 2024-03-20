@@ -26,7 +26,6 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
   const [ListChucVu, setListChucVu] = useState([]);
   const [ListChuyenMon, setListChuyenMon] = useState([]);
   const [ListCapDoNhanSu, setListCapDoNhanSu] = useState([]);
-  const [ListTruong, setListTruong] = useState([]);
   const [id, setId] = useState(undefined);
 
   useEffect(() => {
@@ -36,7 +35,6 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
         getListDonVi();
         getListChucVu();
         getListChuyenMon();
-        getListTruong();
         getListCapDoNhanSu();
       } else if (permission && !permission.add) {
         history.push("/home");
@@ -202,30 +200,6 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const getListTruong = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `vptq_lms_Truong?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListTruong(res.data);
-        } else {
-          setListTruong([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
   const getInfo = (user_Id, donVi_Id) => {
     const param = convertObjectToUrlParams({ user_Id, donVi_Id });
     new Promise((resolve, reject) => {
@@ -250,7 +224,6 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
           getListChucVu();
           getListChuyenMon();
           getListCapDoNhanSu();
-          getListTruong();
           setFieldsValue({
             user: {
               ...data,
@@ -618,15 +591,7 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
                   },
                 ]}
               >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListTruong ? ListTruong : []}
-                  placeholder="Chọn trường tốt nghiệp"
-                  optionsvalue={["id", "tenTruong"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp={"name"}
-                />
+                <Input className="input-item" placeholder="Nhập tên trường" />
               </FormItem>
             </Col>
             <Col
@@ -708,7 +673,7 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListDonVi ? ListDonVi : []}
                   placeholder="Chọn đơn vị"
-                  optionsvalue={["id", "tenDonVi"]}
+                  optionsvalue={["donVi_Id", "tenDonVi"]}
                   style={{ width: "100%" }}
                   onSelect={handleSelectDonVi}
                   showSearch

@@ -32,26 +32,44 @@ function ModalChiTietPhieu({ openModalFS, openModal, data, loai, info }) {
             url =
               BASE_URL_APP +
               (loai && info.isNhap
-                ? "/quan-ly-kho-tpc/nhap-kho/thanh-pham/"
+                ? val.maPhieu.includes("DCTP")
+                  ? "/quan-ly-kho-tpc/dieu-chuyen/thanh-pham/"
+                  : "/quan-ly-kho-tpc/nhap-kho/thanh-pham/"
                 : loai && !info.isNhap
-                ? "/quan-ly-kho-tpc/xuat-kho/thanh-pham/"
+                ? val.maPhieu.includes("DCTP")
+                  ? "/quan-ly-kho-tpc/dieu-chuyen/thanh-pham/"
+                  : "/quan-ly-kho-tpc/xuat-kho/thanh-pham/"
                 : !loai && info.isNhap
-                ? "/quan-ly-kho-tpc/nhap-kho/vat-tu/"
-                : !loai &&
-                  !info.isNhap &&
-                  "/quan-ly-kho-tpc/xuat-kho/vat-tu/") +
+                ? val.maPhieu.includes("PDCVT")
+                  ? "/quan-ly-kho-tpc/dieu-chuyen/vat-tu/"
+                  : "/quan-ly-kho-tpc/nhap-kho/vat-tu/"
+                : !loai && !info.isNhap
+                ? val.maPhieu.includes("PDCVT")
+                  ? "/quan-ly-kho-tpc/dieu-chuyen/vat-tu/"
+                  : "/quan-ly-kho-tpc/xuat-kho/vat-tu/"
+                : "") +
               val.phieu_Id +
               "/chinh-sua";
           } else {
             url =
               BASE_URL_APP +
               (loai && val.isNhap
-                ? "/quan-ly-kho-tpc/nhap-kho/thanh-pham/"
+                ? val.maPhieu.includes("DCTP")
+                  ? "/quan-ly-kho-tpc/dieu-chuyen/thanh-pham/"
+                  : "/quan-ly-kho-tpc/nhap-kho/thanh-pham/"
                 : loai && !val.isNhap
-                ? "/quan-ly-kho-tpc/xuat-kho/thanh-pham/"
+                ? val.maPhieu.includes("DCTP")
+                  ? "/quan-ly-kho-tpc/dieu-chuyen/thanh-pham/"
+                  : "/quan-ly-kho-tpc/xuat-kho/thanh-pham/"
                 : !loai && val.isNhap
-                ? "/quan-ly-kho-tpc/nhap-kho/vat-tu/"
-                : !loai && !val.isNhap && "/quan-ly-kho-tpc/xuat-kho/vat-tu/") +
+                ? val.maPhieu.includes("PDCVT")
+                  ? "/quan-ly-kho-tpc/dieu-chuyen/vat-tu/"
+                  : "/quan-ly-kho-tpc/nhap-kho/vat-tu/"
+                : !loai && !val.isNhap
+                ? val.maPhieu.includes("PDCVT")
+                  ? "/quan-ly-kho-tpc/dieu-chuyen/vat-tu/"
+                  : "/quan-ly-kho-tpc/xuat-kho/vat-tu/"
+                : "") +
               val.phieu_Id +
               "/chinh-sua";
           }

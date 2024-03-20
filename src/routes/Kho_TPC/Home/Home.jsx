@@ -18,14 +18,14 @@ function Home({ permission, history }) {
   const dispatch = useDispatch();
   const [data, setData] = useState([]);
   const [dataTDSXB, setDataTDSXB] = useState([]);
-  const [dataTDSXCT, setDataTDSXCT] = useState([]);
   const [dataTDGHB, setDataTDGHB] = useState([]);
+  const [dataTDSXCT, setDataTDSXCT] = useState([]);
   const [dataVTHH, setDataVTHH] = useState([]);
   const [dataTKTT, setDataTKTT] = useState([]);
 
   const [mixRowTDSX, setMixRowTDSX] = useState([]);
-  const [mixRowTDNK, setMixRowTDNK] = useState([]);
   const [mixRowTDGH, setMixRowTDGH] = useState([]);
+  const [mixRowTDNK, setMixRowTDNK] = useState([]);
   const [activeTab, setActiveTab] = useState("1");
   const [load, setLoad] = useState(false);
   useEffect(() => {

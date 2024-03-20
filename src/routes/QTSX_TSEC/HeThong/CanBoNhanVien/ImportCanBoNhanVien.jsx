@@ -695,7 +695,7 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
                 className="heading-select slt-search th-select-heading"
                 data={ListDonVi ? ListDonVi : []}
                 placeholder="Chọn đơn vị"
-                optionsvalue={["id", "tenDonVi"]}
+                optionsvalue={["donVi_Id", "tenDonVi"]}
                 style={{ width: "calc(100% - 80px)" }}
                 value={DonVi}
                 showSearch

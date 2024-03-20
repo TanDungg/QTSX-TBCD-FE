@@ -15,37 +15,31 @@ const DonViForm = asyncComponent(() => import("./DonVi/DonViForm"));
 const PhongBan = asyncComponent(() => import("./PhongBan/PhongBan"));
 const PhongBanForm = asyncComponent(() => import("./PhongBan/PhongBanForm"));
 
-/* Bộ phận */
-const BoPhan = asyncComponent(() => import("./BoPhan/BoPhan"));
-const BoPhanForm = asyncComponent(() => import("./BoPhan/BoPhanForm"));
-
-/* Chức vụ */
-const ChucVu = asyncComponent(() => import("./ChucVu/ChucVu"));
-const ChucVuForm = asyncComponent(() => import("./ChucVu/ChucVuForm"));
-
-/* Chức danh */
-const ChucDanh = asyncComponent(() => import("./ChucDanh/ChucDanh"));
-const ChucDanhForm = asyncComponent(() => import("./ChucDanh/ChucDanhForm"));
-
 /* Chuyên môn */
 const ChuyenMon = asyncComponent(() => import("./ChuyenMon/ChuyenMon"));
 const ChuyenMonForm = asyncComponent(() => import("./ChuyenMon/ChuyenMonForm"));
 
-/* Trường */
-const Truong = asyncComponent(() => import("./Truong/Truong"));
-const TruongForm = asyncComponent(() => import("./Truong/TruongForm"));
-
 /* Hình thức đào tạo */
-const HinhThucDaoTao = asyncComponent(() => import("./HinhThucDaoTao/HinhThucDaoTao"));
-const HinhThucDaoTaoForm = asyncComponent(() => import("./HinhThucDaoTao/HinhThucDaoTaoForm"));
+const HinhThucDaoTao = asyncComponent(() =>
+  import("./HinhThucDaoTao/HinhThucDaoTao")
+);
+const HinhThucDaoTaoForm = asyncComponent(() =>
+  import("./HinhThucDaoTao/HinhThucDaoTaoForm")
+);
 
 /* Cấp độ nhân sự */
 const CapDoNhanSu = asyncComponent(() => import("./CapDoNhanSu/CapDoNhanSu"));
-const CapDoNhanSuForm = asyncComponent(() => import("./CapDoNhanSu/CapDoNhanSuForm"));
+const CapDoNhanSuForm = asyncComponent(() =>
+  import("./CapDoNhanSu/CapDoNhanSuForm")
+);
 
 /* Loại giảng viên */
-const LoaiGiangVien = asyncComponent(() => import("./LoaiGiangVien/LoaiGiangVien"));
-const LoaiGiangVienForm = asyncComponent(() => import("./LoaiGiangVien/LoaiGiangVienForm"));
+const LoaiGiangVien = asyncComponent(() =>
+  import("./LoaiGiangVien/LoaiGiangVien")
+);
+const LoaiGiangVienForm = asyncComponent(() =>
+  import("./LoaiGiangVien/LoaiGiangVienForm")
+);
 
 /* Kiến thức */
 const KienThuc = asyncComponent(() => import("./KienThuc/KienThuc"));
@@ -57,12 +51,17 @@ const GiangVienForm = asyncComponent(() => import("./GiangVien/GiangVienForm"));
 
 /* Đơn vị đào tạo */
 const DonViDaoTao = asyncComponent(() => import("./DonViDaoTao/DonViDaoTao"));
-const DonViDaoTaoForm = asyncComponent(() => import("./DonViDaoTao/DonViDaoTaoForm"));
+const DonViDaoTaoForm = asyncComponent(() =>
+  import("./DonViDaoTao/DonViDaoTaoForm")
+);
 
 /* Mục tiêu đào tạo */
-const MucTieuDaoTao = asyncComponent(() => import("./MucTieuDaoTao/MucTieuDaoTao"));
-const MucTieuDaoTaoForm = asyncComponent(() => import("./MucTieuDaoTao/MucTieuDaoTaoForm"));
-
+const MucTieuDaoTao = asyncComponent(() =>
+  import("./MucTieuDaoTao/MucTieuDaoTao")
+);
+const MucTieuDaoTaoForm = asyncComponent(() =>
+  import("./MucTieuDaoTao/MucTieuDaoTaoForm")
+);
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -119,57 +118,6 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(PhongBanForm, menus, pathname, permission)}
       />
 
-      {/* Bộ phận */}
-      <Route
-        path={`${match.url}/bo-phan`}
-        exact
-        component={Auth(BoPhan, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/bo-phan/them-moi`}
-        exact
-        component={Auth(BoPhanForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/bo-phan/:id/chinh-sua`}
-        exact
-        component={Auth(BoPhanForm, menus, pathname, permission)}
-      />
-
-      {/* Chức vụ */}
-      <Route
-        path={`${match.url}/chuc-vu`}
-        exact
-        component={Auth(ChucVu, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/chuc-vu/them-moi`}
-        exact
-        component={Auth(ChucVuForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/chuc-vu/:id/chinh-sua`}
-        exact
-        component={Auth(ChucVuForm, menus, pathname, permission)}
-      />
-
-      {/* Chức danh */}
-      <Route
-        path={`${match.url}/chuc-danh`}
-        exact
-        component={Auth(ChucDanh, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/chuc-danh/them-moi`}
-        exact
-        component={Auth(ChucDanhForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/chuc-danh/:id/chinh-sua`}
-        exact
-        component={Auth(ChucDanhForm, menus, pathname, permission)}
-      />
-
       {/* Chuyên môn */}
       <Route
         path={`${match.url}/chuyen-mon`}
@@ -185,23 +133,6 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/chuyen-mon/:id/chinh-sua`}
         exact
         component={Auth(ChuyenMonForm, menus, pathname, permission)}
-      />
-
-      {/* Trường */}
-      <Route
-        path={`${match.url}/truong`}
-        exact
-        component={Auth(Truong, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/truong/them-moi`}
-        exact
-        component={Auth(TruongForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/truong/:id/chinh-sua`}
-        exact
-        component={Auth(TruongForm, menus, pathname, permission)}
       />
 
       {/* Hình thức đào tạo */}
@@ -238,8 +169,8 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(CapDoNhanSuForm, menus, pathname, permission)}
       />
 
-       {/* Loại giảng viên */}
-       <Route
+      {/* Loại giảng viên */}
+      <Route
         path={`${match.url}/loai-giang-vien`}
         exact
         component={Auth(LoaiGiangVien, menus, pathname, permission)}

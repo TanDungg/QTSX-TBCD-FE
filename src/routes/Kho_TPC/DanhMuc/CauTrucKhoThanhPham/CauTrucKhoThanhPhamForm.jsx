@@ -183,8 +183,7 @@ function CauTrucKhoThanhPhamForm({ match, permission, history }) {
 
   const saveData = (CauTrucKho, saveQuit = false) => {
     if (type === "new") {
-      CauTrucKho.viTri =
-        CauTrucKho.viTri === undefined ? null : CauTrucKho.viTri;
+      CauTrucKho.viTri = CauTrucKho.viTri === undefined ? 0 : CauTrucKho.viTri;
       const newUser = CauTrucKho;
       newUser.cauTrucKho_Id =
         newUser.cauTrucKho_Id === "root" ? null : newUser.cauTrucKho_Id;
@@ -248,6 +247,12 @@ function CauTrucKhoThanhPhamForm({ match, permission, history }) {
   };
   const handleSelectPhongBan = (val) => {
     getListCauTrucKho(val);
+    setFieldsValue({
+      CauTrucKho: {
+        cauTrucKho_Id: null,
+        viTri: undefined,
+      },
+    });
   };
 
   /**
@@ -367,7 +372,7 @@ function CauTrucKhoThanhPhamForm({ match, permission, history }) {
                     setDisableViTri(true);
                     setFieldsValue({
                       CauTrucKho: {
-                        viTri: null,
+                        viTri: undefined,
                       },
                     });
                   }
@@ -391,6 +396,7 @@ function CauTrucKhoThanhPhamForm({ match, permission, history }) {
               rules={[
                 {
                   type: "string",
+                  required: !disableViTri,
                 },
               ]}
             >

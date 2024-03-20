@@ -1,5 +1,5 @@
-import { DeleteOutlined, UploadOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Form, Image, Input, Upload } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { Card, Col, Form, Input, Upload, message } from "antd";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -25,13 +25,8 @@ const GiangVienForm = ({ history, match, permission }) => {
   const [type, setType] = useState("new");
   const [ListDonViDaoTao, setListDonViDaoTao] = useState([]);
   const [ListLoaiGiangVien, setListLoaiGiangVien] = useState([]);
-  const [ListChuyenMon, setListChuyenMon] = useState([]);
-  const [FileHinhAnh, setFileHinhAnh] = useState(null);
-  const [FileAnh, setFileAnh] = useState(null);
-  const [DisableUpload, setDisableUpload] = useState(false);
-  const [OpenImage, setOpenImage] = useState(false);
+  const [ImageUrl, setImageUrl] = useState(null);
   const [id, setId] = useState(null);
-  const [info, setInfo] = useState(null);
 
   useEffect(() => {
     if (includes(match.url, "them-moi")) {
@@ -39,7 +34,6 @@ const GiangVienForm = ({ history, match, permission }) => {
         setType("new");
         getListDonViDaoTao();
         getListLoaiGiangVien();
-        getListChuyenMon();
       } else if (permission && !permission.add) {
         history.push("/home");
       }
@@ -105,28 +99,52 @@ const GiangVienForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const getListChuyenMon = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `vptq_lms_ChuyenMon?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListChuyenMon(res.data);
-        } else {
-          setListChuyenMon([]);
-        }
-      })
-      .catch((error) => console.error(error));
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      <PlusOutlined />
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload hình ảnh
+      </div>
+    </button>
+  );
+
+  const convertToBase64 = async (imageUrl) => {
+    try {
+      const response = await fetch(BASE_URL_API + imageUrl);
+      const blob = await response.blob();
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        const base64Data = reader.result;
+        setImageUrl(base64Data);
+      };
+
+      reader.readAsDataURL(blob);
+    } catch (error) {
+      console.error("Lỗi chuyển dữ liệu sang base64:", error);
+    }
+  };
+
+  const beforeUpload = (file) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      message.error("Vui lòng tải file ảnh!");
+    } else {
+      const reader = new FileReader();
+      reader.onload = (e) => setImageUrl(e.target.result);
+      reader.readAsDataURL(file);
+    }
+    return false;
   };
 
   const getInfo = (id) => {
@@ -146,13 +164,10 @@ const GiangVienForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           const data = res.data;
-          setInfo(data);
           getListDonViDaoTao();
           getListLoaiGiangVien();
-          getListChuyenMon();
-          if (res.data.hinhAnh) {
-            setFileHinhAnh(res.data.hinhAnh);
-            setDisableUpload(true);
+          if (data.hinhAnh) {
+            convertToBase64(data.hinhAnh);
           }
           setFieldsValue({
             formgiangvien: data,
@@ -202,7 +217,7 @@ const GiangVienForm = ({ history, match, permission }) => {
           saveData(formgiangvien, saveQuit);
         })
         .catch(() => {
-          console.log("Tải hình ảnh không thành công.");
+          message.error("Tải hình ảnh không thành công.");
         });
     } else if (
       type === "edit" &&
@@ -211,25 +226,20 @@ const GiangVienForm = ({ history, match, permission }) => {
     ) {
       const formData = new FormData();
       formData.append("file", formgiangvien.hinhAnh.file);
-      fetch(
-        info.hinhAnh
-          ? `${BASE_URL_API}/api/Upload?stringPath=${info.hinhAnh}`
-          : `${BASE_URL_API}/api/Upload`,
-        {
-          method: "POST",
-          body: formData,
-          headers: {
-            Authorization: "Bearer ".concat(INFO.token),
-          },
-        }
-      )
+      fetch(`${BASE_URL_API}/api/Upload`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: "Bearer ".concat(INFO.token),
+        },
+      })
         .then((res) => res.json())
         .then((data) => {
           formgiangvien.hinhAnh = data.path;
           saveData(formgiangvien, saveQuit);
         })
         .catch(() => {
-          console.log("Tải hình ảnh không thành công.");
+          message.error("Tải hình ảnh không thành công.");
         });
     } else {
       saveData(formgiangvien, saveQuit);
@@ -259,9 +269,7 @@ const GiangVienForm = ({ history, match, permission }) => {
               } else {
                 resetFields();
                 setFieldTouch(false);
-                setDisableUpload(false);
-                setFileAnh(null);
-                setFileHinhAnh(null);
+                setImageUrl(null);
               }
             } else {
               if (saveQuit) {
@@ -304,25 +312,6 @@ const GiangVienForm = ({ history, match, permission }) => {
     } else {
       Helpers.alertError("Vui lòng tải file hình ảnh lên.");
     }
-  };
-
-  const propshinhanh = {
-    accept: "image/png, image/jpeg",
-    beforeUpload: (file) => {
-      const isPNG = file.type === "image/png" || file.type === "image/jpeg";
-      if (!isPNG) {
-        Helpers.alertError(`${file.name} không phải hình ảnh`);
-      } else {
-        setFileHinhAnh(file);
-        setDisableUpload(true);
-        const reader = new FileReader();
-        reader.onload = (e) => setFileAnh(e.target.result);
-        reader.readAsDataURL(file);
-        return false;
-      }
-    },
-    showUploadList: false,
-    maxCount: 1,
   };
 
   const formTitle =
@@ -448,15 +437,7 @@ const GiangVienForm = ({ history, match, permission }) => {
                 },
               ]}
             >
-              <Select
-                className="heading-select slt-search th-select-heading"
-                data={ListChuyenMon ? ListChuyenMon : []}
-                placeholder="Chọn chuyên môn"
-                optionsvalue={["id", "tenChuyenMon"]}
-                style={{ width: "100%" }}
-                optionFilterProp="name"
-                showSearch
-              />
+              <Input className="input-item" placeholder="Nhập chuyên môn" />
             </FormItem>
           </Col>
           <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
@@ -469,89 +450,24 @@ const GiangVienForm = ({ history, match, permission }) => {
                 },
               ]}
             >
-              {!DisableUpload ? (
-                <Upload {...propshinhanh}>
-                  <Button
-                    className="th-margin-bottom-0 btn-margin-bottom-0"
-                    style={{
-                      marginBottom: 0,
-                    }}
-                    icon={<UploadOutlined />}
-                    disabled={type === "detail" ? true : false}
-                  >
-                    Tải file hình ảnh
-                  </Button>
-                </Upload>
-              ) : FileHinhAnh && FileHinhAnh.name ? (
-                <span>
-                  <span
-                    style={{
-                      color: "#0469B9",
-                      cursor: "pointer",
-                      whiteSpace: "break-spaces",
-                    }}
-                    onClick={() => setOpenImage(true)}
-                  >
-                    {FileHinhAnh.name}{" "}
-                  </span>
-                  <DeleteOutlined
-                    style={{ cursor: "pointer", color: "red" }}
-                    disabled={type === "new" || type === "edit" ? false : true}
-                    onClick={() => {
-                      setFileHinhAnh(null);
-                      setDisableUpload(false);
-                      setFieldsValue({
-                        formgiangvien: {
-                          hinhAnh: null,
-                        },
-                      });
-                    }}
+              <Upload
+                listType="picture-card"
+                accept="image/*"
+                className="avatar-uploader"
+                showUploadList={false}
+                beforeUpload={beforeUpload}
+                style={{ width: "250px", height: "250px" }}
+              >
+                {ImageUrl ? (
+                  <img
+                    style={{ maxWidth: "100%", maxHeight: "100%" }}
+                    src={ImageUrl}
+                    alt="Hình ảnh đại diện chuyên đề"
                   />
-                  <Image
-                    width={100}
-                    src={FileAnh}
-                    alt="preview"
-                    style={{
-                      display: "none",
-                    }}
-                    preview={{
-                      visible: OpenImage,
-                      scaleStep: 0.5,
-                      src: FileAnh,
-                      onVisibleChange: (value) => {
-                        setOpenImage(value);
-                      },
-                    }}
-                  />
-                </span>
-              ) : (
-                <span>
-                  <a
-                    target="_blank"
-                    href={BASE_URL_API + FileHinhAnh}
-                    rel="noopener noreferrer"
-                  >
-                    {FileHinhAnh && FileHinhAnh.split("/")[5]}{" "}
-                  </a>
-                  {(type === "new" || type === "edit") && (
-                    <DeleteOutlined
-                      style={{ cursor: "pointer", color: "red" }}
-                      disabled={
-                        type === "new" || type === "edit" ? false : true
-                      }
-                      onClick={() => {
-                        setFileHinhAnh(null);
-                        setDisableUpload(false);
-                        setFieldsValue({
-                          formgiangvien: {
-                            hinhAnh: null,
-                          },
-                        });
-                      }}
-                    />
-                  )}
-                </span>
-              )}
+                ) : (
+                  uploadButton
+                )}
+              </Upload>
             </FormItem>
           </Col>
           <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>

@@ -128,7 +128,7 @@ function TienTrinhHocTap({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account?${params}&key=1`,
           "GET",
           null,
           "DETAIL",
@@ -529,7 +529,7 @@ function TienTrinhHocTap({ permission, history, match }) {
                 className="heading-select slt-search th-select-heading"
                 data={ListDonVi ? ListDonVi : []}
                 placeholder="Chọn đơn vị đào tạo"
-                optionsvalue={["id", "tenDonVi"]}
+                optionsvalue={["donVi_Id", "tenDonVi"]}
                 style={{ width: "100%" }}
                 value={DonVi}
                 showSearch

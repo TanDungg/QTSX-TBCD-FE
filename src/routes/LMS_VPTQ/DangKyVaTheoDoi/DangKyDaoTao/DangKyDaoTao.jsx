@@ -561,7 +561,7 @@ function DangKyDaoTao({ match, history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListDonVi ? ListDonVi : []}
               placeholder="Chọn đơn vị"
-              optionsvalue={["id", "tenDonVi"]}
+              optionsvalue={["donVi_Id", "tenDonVi"]}
               style={{ width: "100%" }}
               value={DonVi}
               showSearch
