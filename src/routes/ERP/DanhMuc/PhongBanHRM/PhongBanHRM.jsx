@@ -13,8 +13,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
   removeDuplicates,
-  reDataSelectedTable,
-  treeToFlatlist,
 } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import {

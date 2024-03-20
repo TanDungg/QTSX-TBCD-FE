@@ -59,15 +59,7 @@ function CanBoNhanVien({ match, history, permission }) {
     });
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(
-          `Account/user-by-dv-pb?${param}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
+        fetchStart(`Account?${param}`, "GET", null, "LIST", "", resolve, reject)
       );
     })
       .then((res) => {
@@ -211,7 +203,7 @@ function CanBoNhanVien({ match, history, permission }) {
       dataIndex: "fullName",
       key: "fullName",
       align: "left",
-      width: 150,
+      width: 180,
       sorter: (a, b) => a.fullName.localeCompare(b.fullName),
       fixed: width > 1200 && "left",
       filters: removeDuplicates(
@@ -230,7 +222,7 @@ function CanBoNhanVien({ match, history, permission }) {
       dataIndex: "email",
       key: "email",
       align: "left",
-      width: 200,
+      width: 220,
     },
     {
       title: "SĐT",
@@ -291,23 +283,6 @@ function CanBoNhanVien({ match, history, permission }) {
       filterSearch: true,
     },
     {
-      title: "Bộ phận",
-      dataIndex: "tenBoPhan",
-      key: "tenBoPhan",
-      align: "left",
-      width: 150,
-      filters: removeDuplicates(
-        map(data.datalist, (d) => {
-          return {
-            text: d.tenBoPhan,
-            value: d.tenBoPhan,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenBoPhan.includes(value),
-      filterSearch: true,
-    },
-    {
       title: "Phòng ban",
       dataIndex: "tenPhongBan",
       key: "tenPhongBan",
@@ -329,7 +304,7 @@ function CanBoNhanVien({ match, history, permission }) {
       dataIndex: "tenDonVi",
       key: "tenDonVi",
       align: "left",
-      width: 200,
+      width: 220,
       filters: removeDuplicates(
         map(data.datalist, (d) => {
           return {
@@ -346,7 +321,7 @@ function CanBoNhanVien({ match, history, permission }) {
       dataIndex: "tenDonViTraLuong",
       key: "tenDonViTraLuong",
       align: "left",
-      width: 200,
+      width: 220,
       filters: removeDuplicates(
         map(data.datalist, (d) => {
           return {
@@ -363,7 +338,7 @@ function CanBoNhanVien({ match, history, permission }) {
       dataIndex: "capDo",
       key: "capDo",
       align: "center",
-      width: 100,
+      width: 120,
       filters: removeDuplicates(
         map(data.datalist, (d) => {
           return {
@@ -394,19 +369,19 @@ function CanBoNhanVien({ match, history, permission }) {
     },
     {
       title: "Chuyên môn",
-      dataIndex: "tenChuyenMon",
-      key: "tenChuyenMon",
+      dataIndex: "trinhDoChuyenMon",
+      key: "trinhDoChuyenMon",
       align: "center",
-      width: 150,
+      width: 120,
       filters: removeDuplicates(
         map(data.datalist, (d) => {
           return {
-            text: d.tenChuyenMon,
-            value: d.tenChuyenMon,
+            text: d.trinhDoChuyenMon,
+            value: d.trinhDoChuyenMon,
           };
         })
       ),
-      onFilter: (value, record) => record.tenChuyenMon.includes(value),
+      onFilter: (value, record) => record.trinhDoChuyenMon.includes(value),
       filterSearch: true,
     },
   ];
