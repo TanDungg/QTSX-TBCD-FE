@@ -269,14 +269,10 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     });
   };
   const getUserLap = (info, nguoiLap_Id, value) => {
-    const params = convertObjectToUrlParams({
-      id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
-      donVi_Id: info.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}?${params}`,
+          `Account/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -292,13 +288,13 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
           value === 1
             ? {
                 capvattusanxuat: {
-                  userLapPhieu_Id: res.data.Id,
+                  userLapPhieu_Id: res.data.id,
                   tenPhongBan: res.data.tenPhongBan,
                 },
               }
             : {
                 capvattukhac: {
-                  userLapPhieu_Id: res.data.Id,
+                  userLapPhieu_Id: res.data.id,
                   tenPhongBan: res.data.tenPhongBan,
                 },
               }
@@ -314,7 +310,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -1148,7 +1144,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                     <Select
                       className="heading-select slt-search th-select-heading"
                       data={ListUser ? ListUser : []}
-                      optionsvalue={["Id", "fullName"]}
+                      optionsvalue={["id", "fullName"]}
                       style={{ width: "100%" }}
                       disabled={true}
                     />
@@ -1338,7 +1334,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                       className="heading-select slt-search th-select-heading"
                       data={ListUserKy}
                       placeholder="Chọn người duyệt"
-                      optionsvalue={["user_Id", "fullName"]}
+                      optionsvalue={["id", "fullName"]}
                       style={{ width: "100%" }}
                       showSearch
                       optionFilterProp="name"
@@ -1371,7 +1367,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                       className="heading-select slt-search th-select-heading"
                       data={ListUserKy}
                       placeholder="Chọn bộ phận kho vật tư"
-                      optionsvalue={["user_Id", "fullName"]}
+                      optionsvalue={["id", "fullName"]}
                       style={{ width: "100%" }}
                       showSearch
                       optionFilterProp="name"
@@ -1404,7 +1400,7 @@ const PhieuDeNghiCapVatTuForm = ({ history, match, permission }) => {
                       className="heading-select slt-search th-select-heading"
                       data={ListUserKy}
                       placeholder="Chọn người kiểm tra"
-                      optionsvalue={["user_Id", "fullName"]}
+                      optionsvalue={["id", "fullName"]}
                       style={{ width: "100%" }}
                       showSearch
                       optionFilterProp="name"

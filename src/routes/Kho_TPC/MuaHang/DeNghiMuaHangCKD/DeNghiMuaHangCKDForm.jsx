@@ -216,14 +216,10 @@ const DeNghiMuaHangCKDForm = ({ history, match, permission }) => {
   }, []);
 
   const getUserLap = (info, nguoiLap_Id) => {
-    const params = convertObjectToUrlParams({
-      id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
-      donVi_Id: info.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${info.user_Id}?${params}`,
+          `Account/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -237,7 +233,7 @@ const DeNghiMuaHangCKDForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           dinhmucvattu: {
-            userYeuCau_Id: res.data.Id,
+            userYeuCau_Id: res.data.id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -252,7 +248,7 @@ const DeNghiMuaHangCKDForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen${params}`,
           "GET",
           null,
           "DETAIL",
@@ -847,7 +843,7 @@ const DeNghiMuaHangCKDForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUser ? ListUser : []}
-                  optionsvalue={["Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   disabled={true}
                 />
@@ -931,7 +927,7 @@ const DeNghiMuaHangCKDForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn kiểm tra"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -954,7 +950,7 @@ const DeNghiMuaHangCKDForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn kế toán duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -977,7 +973,7 @@ const DeNghiMuaHangCKDForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn người duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
