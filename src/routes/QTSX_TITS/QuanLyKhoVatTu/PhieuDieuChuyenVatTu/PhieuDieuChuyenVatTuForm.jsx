@@ -32,12 +32,7 @@ import {
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_DIEUCHUYEN_THANHLY } from "src/constants/Config";
-import {
-  convertObjectToUrlParams,
-  getLocalStorage,
-  getTokenInfo,
-  reDataForTable,
-} from "src/util/Common";
+import { getLocalStorage, getTokenInfo, reDataForTable } from "src/util/Common";
 import ModalThemVatTu from "./ModalThemVatTu";
 import ModalTuChoi from "./ModalTuChoi";
 
@@ -142,14 +137,10 @@ const PhieuDieuChuyenVatTuForm = ({ history, match, permission }) => {
   };
 
   const getUserLap = (nguoiTao_Id) => {
-    const params = convertObjectToUrlParams({
-      id: nguoiTao_Id ? nguoiTao_Id : INFO.user_Id,
-      donVi_Id: INFO.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : INFO.user_Id}?${params}`,
+          `Account/${nguoiTao_Id ? nguoiTao_Id : INFO.user_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -163,7 +154,7 @@ const PhieuDieuChuyenVatTuForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           phieudieuchuyenvattu: {
-            nguoiTao_Id: res.data.Id,
+            nguoiTao_Id: res.data.id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -172,13 +163,10 @@ const PhieuDieuChuyenVatTuForm = ({ history, match, permission }) => {
   };
 
   const getUserDuyet = () => {
-    const params = convertObjectToUrlParams({
-      donviId: INFO.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account/user-by-dv-pb?donVi_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -189,7 +177,13 @@ const PhieuDieuChuyenVatTuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserDuyet(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            user: `${dt.maNhanVien} - ${dt.fullName}`,
+          };
+        });
+        setListUserDuyet(newData);
       } else {
         setListUserDuyet([]);
       }
@@ -694,7 +688,7 @@ const PhieuDieuChuyenVatTuForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUser ? ListUser : []}
-                  optionsvalue={["Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   disabled={true}
                 />
@@ -858,7 +852,7 @@ const PhieuDieuChuyenVatTuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserDuyet}
                   placeholder="Chọn người nhận"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -889,7 +883,7 @@ const PhieuDieuChuyenVatTuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserDuyet}
                   placeholder="Chọn phụ trách bộ phận"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

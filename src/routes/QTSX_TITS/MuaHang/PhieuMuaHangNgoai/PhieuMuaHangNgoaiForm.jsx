@@ -38,7 +38,6 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_TWO_COL } from "src/constants/Config";
 import {
-  convertObjectToUrlParams,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
@@ -70,8 +69,6 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
   const [ListPhongBan, setListPhongBan] = useState([]);
   const [ListUserKy, setListUserKy] = useState([]);
   const [File, setFile] = useState(null);
-  // const [FileXacNhan, setFileXacNhan] = useState(null);
-  // const [disableUploadXacNhan, setDisableUploadXacNhan] = useState(false);
   const [info, setInfo] = useState({});
   const [daTaEdit, setDaTaEdit] = useState();
   const [ActiveModalImportVatTu, setActiveModalImportVatTu] = useState(false);
@@ -86,7 +83,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           setType("new");
           getListDonVi();
           getListPhongBan();
-          getUserKy(INFO);
+          getUserKy();
           setFieldsValue({
             phieumuahangngoai: {
               donViYeuCau_Id: INFO.donVi_Id.toLowerCase(),
@@ -104,7 +101,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           getInfo(id);
           getListDonVi();
           getListPhongBan();
-          getUserKy(INFO);
+          getUserKy();
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -116,7 +113,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           getInfo(id, true);
           getListDonVi();
           getListPhongBan();
-          getUserKy(INFO);
+          getUserKy();
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -128,7 +125,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
           getInfo(id);
           getListDonVi();
           getListPhongBan();
-          getUserKy(INFO);
+          getUserKy();
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -175,14 +172,11 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
     });
   };
 
-  const getUserKy = (info) => {
-    const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
-    });
+  const getUserKy = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account/user-by-dv-pb?donVi_Id=${INFO.donVi_Id}`,
           "GET",
           null,
           "DETAIL",

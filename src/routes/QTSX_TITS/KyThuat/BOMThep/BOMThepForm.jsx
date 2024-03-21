@@ -128,13 +128,10 @@ function BOMThepForm({ match, permission, history }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const getUserKy = (info) => {
-    const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account/user-by-dv-pb?donVi_Id=${info.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -145,7 +142,13 @@ function BOMThepForm({ match, permission, history }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserKy(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            user: `${dt.maNhanVien} - ${dt.fullName}`,
+          };
+        });
+        setListUserKy(newData);
       } else {
         setListUserKy([]);
       }
@@ -1190,7 +1193,7 @@ function BOMThepForm({ match, permission, history }) {
                     className="heading-select slt-search th-select-heading"
                     data={ListUserKy}
                     placeholder="Chọn người kiểm tra"
-                    optionsvalue={["id", "fullName"]}
+                    optionsvalue={["user_Id", "user"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
@@ -1222,7 +1225,7 @@ function BOMThepForm({ match, permission, history }) {
                     className="heading-select slt-search th-select-heading"
                     data={ListUserKy}
                     placeholder="Chọn người duyệt"
-                    optionsvalue={["id", "fullName"]}
+                    optionsvalue={["user_Id", "user"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"

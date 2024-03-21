@@ -84,7 +84,7 @@ function BOMXuongForm({ match, permission, history }) {
         getXuong();
         getListSanPham();
         getUserKy(INFO);
-        getUserLap(INFO);
+        getUserLap();
         setFieldsValue({
           BOM: {
             ngay: moment(getDateNow(), "DD/MM/YYYY"),
@@ -130,15 +130,11 @@ function BOMXuongForm({ match, permission, history }) {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const getUserLap = (info, nguoiLap_Id) => {
-    const params = convertObjectToUrlParams({
-      id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
-      donVi_Id: info.donVi_Id,
-    });
+  const getUserLap = (nguoiLap_Id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}?${params}`,
+          `Account/${nguoiLap_Id ? nguoiLap_Id : INFO.user_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -151,8 +147,8 @@ function BOMXuongForm({ match, permission, history }) {
       if (res && res.data) {
         setListUser([res.data]);
         setFieldsValue({
-          phieuxuatkhovattu: {
-            userLapPhieu_Id: res.data.Id,
+          BOM: {
+            userLapPhieu_Id: res.data.id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -160,13 +156,10 @@ function BOMXuongForm({ match, permission, history }) {
     });
   };
   const getUserKy = (info) => {
-    const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account/user-by-dv-pb?donVi_Id=${info.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -177,7 +170,13 @@ function BOMXuongForm({ match, permission, history }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserKy(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            user: `${dt.maNhanVien} - ${dt.fullName}`,
+          };
+        });
+        setListUserKy(newData);
       } else {
         setListUserKy([]);
       }
@@ -324,7 +323,7 @@ function BOMXuongForm({ match, permission, history }) {
           getUserKy(INFO);
           getXuong();
           setLoXe(res.data.soLuongLo);
-          getUserLap(INFO, res.data.createdBy);
+          getUserLap(res.data.createdBy);
           setListChiTiet(
             JSON.parse(res.data.tits_qtsx_BOMXuongChiTiets).map((ct) => {
               return {
@@ -639,6 +638,7 @@ function BOMXuongForm({ match, permission, history }) {
               setFieldTouch(false);
               setListChiTiet([]);
               // setFileName(null);
+              getUserLap();
               setFieldsValue({
                 BOM: {
                   ngay: moment(getDateNow(), "DD/MM/YYYY"),
@@ -870,7 +870,7 @@ function BOMXuongForm({ match, permission, history }) {
               >
                 <FormItem
                   label="Người lập"
-                  name={["phieuxuatkhovattu", "userLapPhieu_Id"]}
+                  name={["BOM", "userLapPhieu_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -881,7 +881,7 @@ function BOMXuongForm({ match, permission, history }) {
                   <Select
                     className="heading-select slt-search th-select-heading"
                     data={ListUser ? ListUser : []}
-                    optionsvalue={["Id", "fullName"]}
+                    optionsvalue={["id", "fullName"]}
                     style={{ width: "100%" }}
                     disabled={true}
                   />
@@ -898,7 +898,7 @@ function BOMXuongForm({ match, permission, history }) {
               >
                 <FormItem
                   label="Ban/Phòng"
-                  name={["phieuxuatkhovattu", "tenPhongBan"]}
+                  name={["BOM", "tenPhongBan"]}
                   rules={[
                     {
                       type: "string",
@@ -1161,7 +1161,7 @@ function BOMXuongForm({ match, permission, history }) {
                     className="heading-select slt-search th-select-heading"
                     data={ListUserKy}
                     placeholder="Chọn phụ trách bộ phận"
-                    optionsvalue={["id", "fullName"]}
+                    optionsvalue={["user_Id", "user"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"

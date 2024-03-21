@@ -31,12 +31,7 @@ import {
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API, DEFAULT_FORM_TWO_COL } from "src/constants/Config";
-import {
-  convertObjectToUrlParams,
-  getDateNow,
-  getLocalStorage,
-  getTokenInfo,
-} from "src/util/Common";
+import { getDateNow, getLocalStorage, getTokenInfo } from "src/util/Common";
 import DanhSachImport from "./DanhSachImport";
 import ModalTuChoi from "./ModalTuChoi";
 
@@ -134,13 +129,10 @@ const OEMForm = ({ history, match, permission }) => {
   };
 
   const getNguoiDuyet = (info) => {
-    const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account/user-by-dv-pb?donVi_Id=${info.donVi_Id}`,
           "GET",
           null,
           "DETAIL",

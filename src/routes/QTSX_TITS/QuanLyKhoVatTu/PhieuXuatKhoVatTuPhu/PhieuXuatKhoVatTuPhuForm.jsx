@@ -239,14 +239,10 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
   };
 
   const getUserLap = (info, nguoiTao_Id) => {
-    const params = convertObjectToUrlParams({
-      id: nguoiTao_Id ? nguoiTao_Id : info.user_Id,
-      donVi_Id: info.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : info.user_Id}?${params}`,
+          `Account/${nguoiTao_Id ? nguoiTao_Id : info.user_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -260,7 +256,7 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           phieuxuatkhovattuphu: {
-            nguoiTao_Id: res.data.Id,
+            nguoiTao_Id: res.data.id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -269,13 +265,10 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
   };
 
   const getUserKy = (info) => {
-    const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account/user-by-dv-pb?donVi_Id=${info.donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -286,7 +279,13 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserKy(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            user: `${dt.maNhanVien} - ${dt.fullName}`,
+          };
+        });
+        setListUserKy(newData);
       } else {
         setListUserKy([]);
       }
@@ -863,7 +862,7 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUser ? ListUser : []}
-                  optionsvalue={["Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   disabled={true}
                 />
@@ -1057,7 +1056,7 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn người nhận"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1092,7 +1091,7 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn phụ trách bộ phận"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1127,7 +1126,7 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn bộ phận kế toán"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
