@@ -15,7 +15,12 @@ import {
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM, SMRM_BANGIAO } from "src/constants/Config";
-import { getLocalStorage, getTokenInfo, reDataForTable } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  getLocalStorage,
+  getTokenInfo,
+  reDataForTable,
+} from "src/util/Common";
 import ModalAddVatTu from "./ModalAddVatTu";
 
 const FormItem = Form.Item;

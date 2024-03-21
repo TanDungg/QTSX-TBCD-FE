@@ -4,14 +4,7 @@ import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-<<<<<<< HEAD
-import { Link } from "react-router-dom";
-import {
-  removeDuplicates,
-} from "src/util/Common";
-=======
 import { removeDuplicates } from "src/util/Common";
->>>>>>> d291619156091d9f07f2f31cf874d58d2639e49a
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import {
   EditableTableRow,
