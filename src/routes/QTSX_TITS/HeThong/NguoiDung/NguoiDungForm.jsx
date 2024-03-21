@@ -210,7 +210,7 @@ function NguoiDungForm({ match, permission, history }) {
     if (type === "new") {
       const newData = {
         id: user.id,
-        isActive: user.IsActive_Role,
+        isActive_Role: user.IsActive_Role,
         donVi_Id: INFO.donVi_Id,
         phanMem_Id: INFO.phanMem_Id,
         chiTietRoles: user.roleNames.map((r) => {
@@ -240,7 +240,7 @@ function NguoiDungForm({ match, permission, history }) {
     } else {
       const newData = {
         id: user.id,
-        isActive: user.IsActive_Role,
+        isActive_Role: user.IsActive_Role,
         donVi_Id: INFO.donVi_Id,
         phanMem_Id: INFO.phanMem_Id,
         chiTietRoles: user.roleNames.map((r) => {
