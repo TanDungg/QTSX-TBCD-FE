@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, Card, DatePicker } from "antd";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import includes from "lodash/includes";
 import { Select, FormSubmit } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions";
@@ -8,7 +8,6 @@ import { DEFAULT_FORM_CUSTOM } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams, getDateNow } from "src/util/Common";
 import { isEmpty } from "lodash";
-import CircularProgress from "src/components/CircularProgress";
 import moment from "moment";
 const FormItem = Form.Item;
 
@@ -26,7 +25,6 @@ const initialState = {
   tapDoan_Id: "",
 };
 const CanBoNhanVienForm = ({ history, match, permission }) => {
-  const { loading } = useSelector(({ common }) => common).toJS();
   const dispatch = useDispatch();
   const [type, setType] = useState("new");
   const [id, setId] = useState(undefined);
@@ -46,11 +44,9 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
     maNhanVien,
     phoneNumber,
     chucVu_Id,
-    boPhan_Id,
     phongBan_Id,
     donVi_Id,
     donViTraLuong_Id,
-    tapDoan_Id,
   } = initialState;
   const { validateFields, resetFields, setFieldsValue } = form;
 

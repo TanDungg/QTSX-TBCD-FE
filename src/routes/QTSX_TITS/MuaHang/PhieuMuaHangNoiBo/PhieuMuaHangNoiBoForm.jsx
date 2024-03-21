@@ -36,6 +36,7 @@ import {
   getTokenInfo,
   reDataForTable,
   renderPDF,
+  convertObjectToUrlParams,
 } from "src/util/Common";
 import Helper from "src/helpers";
 import ModalChonVatTu from "./ModalChonVatTu";
@@ -136,12 +137,12 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
 
   const getUserKy = (info) => {
     const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
+      donVi_Id: info.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account?${params}`,
           "GET",
           null,
           "DETAIL",

@@ -32,6 +32,7 @@ import {
   exportExcel,
   getTokenInfo,
   reDataForTable,
+  convertObjectToUrlParams,
 } from "src/util/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import Helpers from "src/helpers";
@@ -137,7 +138,7 @@ function BOMForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}&key=1`,
+          `Account/user-by-dv-pb?${params}`,
           "GET",
           null,
           "DETAIL",

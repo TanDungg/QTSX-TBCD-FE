@@ -128,7 +128,7 @@ const NhapKhoThanhPhamForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}&key=1`,
+          `Account/user-by-dv-pb?${params}`,
           "GET",
           null,
           "DETAIL",

@@ -53,7 +53,7 @@ function ModalChonUser({ openModalFS, openModal, itemData, DataChonUser }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}&key=1`,
+          `Account/user-by-dv-pb?${params}`,
           "GET",
           null,
           "DETAIL",

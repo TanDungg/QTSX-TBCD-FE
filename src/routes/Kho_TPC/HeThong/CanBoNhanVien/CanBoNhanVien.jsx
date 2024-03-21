@@ -433,9 +433,6 @@ function CanBoNhanVien({ match, history, permission }) {
   const handleOnSelectCBNV = (value) => {
     getListData(value, page, keyword);
   };
-  const refeshData = () => {
-    getListData(donVi, page, keyword);
-  };
 
   return (
     <div className="gx-main-content">

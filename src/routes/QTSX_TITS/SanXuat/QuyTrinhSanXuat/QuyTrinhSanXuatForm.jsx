@@ -241,7 +241,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account?${params}`,
           "GET",
           null,
           "DETAIL",

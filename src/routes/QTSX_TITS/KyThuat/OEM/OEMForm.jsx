@@ -31,7 +31,12 @@ import {
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API, DEFAULT_FORM_TWO_COL } from "src/constants/Config";
-import { getDateNow, getLocalStorage, getTokenInfo } from "src/util/Common";
+import {
+  convertObjectToUrlParams,
+  getDateNow,
+  getLocalStorage,
+  getTokenInfo,
+} from "src/util/Common";
 import DanhSachImport from "./DanhSachImport";
 import ModalTuChoi from "./ModalTuChoi";
 
@@ -135,7 +140,7 @@ const OEMForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account?${params}`,
           "GET",
           null,
           "DETAIL",
