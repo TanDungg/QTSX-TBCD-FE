@@ -127,7 +127,7 @@ function DonVi({ permission, history }) {
           columns={columns}
           scroll={{ x: 800, y: "55vh" }}
           components={components}
-          className="gx-table-responsive"
+          className="gx-table-responsive th-table"
           dataSource={dataList}
           size="small"
           rowClassName={"editable-row"}

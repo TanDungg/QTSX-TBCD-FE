@@ -11,11 +11,7 @@ import {
 } from "antd";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import {
-  getTokenInfo,
-  getLocalStorage,
-  convertObjectToUrlParams,
-} from "src/util/Common";
+import { getTokenInfo, getLocalStorage } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
@@ -112,14 +108,11 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
       .catch((error) => console.error(error));
   };
 
-  const getListUser = (donviId) => {
-    const params = convertObjectToUrlParams({
-      donviId,
-    });
+  const getListUser = (donVi_Id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account/user-by-dv-pb?donVi_Id=${donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -131,7 +124,13 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListUser(res.data);
+          const newData = res.data.map((dt) => {
+            return {
+              ...dt,
+              user: `${dt.maNhanVien} - ${dt.fullName}`,
+            };
+          });
+          setListUser(newData);
         } else {
           setListUser([]);
         }
@@ -368,7 +367,7 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
                     className="heading-select slt-search th-select-heading"
                     data={ListUser ? ListUser : []}
                     placeholder="Chọn học viên"
-                    optionsvalue={["user_Id", "fullName"]}
+                    optionsvalue={["user_Id", "user"]}
                     style={{ width: "100%" }}
                     optionFilterProp="name"
                     showSearch

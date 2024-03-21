@@ -19,11 +19,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_ADD_2COL_200PX } from "src/constants/Config";
 import ImportDanhSachCBNV from "./ImportDanhSachCBNV";
 import dayjs from "dayjs";
-import {
-  convertObjectToUrlParams,
-  getDateNow,
-  reDataForTable,
-} from "src/util/Common";
+import { getDateNow, reDataForTable } from "src/util/Common";
 import moment from "moment";
 import Helpers from "src/helpers";
 import ModalThemDanhSachCBNV from "./ModalThemDanhSachCBNV";
@@ -136,14 +132,11 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const getListUserDuyet = (donviId) => {
-    const params = convertObjectToUrlParams({
-      donviId,
-    });
+  const getListUserDuyet = (donVi_Id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account/user-by-dv-pb?donVi_Id=${donVi_Id}`,
           "GET",
           null,
           "DETAIL",

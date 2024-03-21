@@ -253,7 +253,7 @@ function CanBoNhanVien({ match, history, permission }) {
       dataIndex: "tenChucDanh",
       key: "tenChucDanh",
       align: "center",
-      width: 150,
+      width: 120,
       filters: removeDuplicates(
         map(data.datalist, (d) => {
           return {
@@ -270,7 +270,7 @@ function CanBoNhanVien({ match, history, permission }) {
       dataIndex: "tenChucVu",
       key: "tenChucVu",
       align: "left",
-      width: 150,
+      width: 180,
       filters: removeDuplicates(
         map(data.datalist, (d) => {
           return {

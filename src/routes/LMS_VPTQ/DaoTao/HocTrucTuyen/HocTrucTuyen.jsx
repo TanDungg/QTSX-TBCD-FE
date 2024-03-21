@@ -281,6 +281,7 @@ function HocTrucTuyen({ match, history, permission }) {
                               fontWeight: "bold",
                               color: "#0469b9",
                               cursor: "pointer",
+                              textTransform: "uppercase",
                               transition: "color 0.3s",
                             }}
                             onClick={() => handleXemChiTiet(dt)}

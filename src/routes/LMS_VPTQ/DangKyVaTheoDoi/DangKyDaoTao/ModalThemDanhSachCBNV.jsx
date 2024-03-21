@@ -66,7 +66,7 @@ function ModalThemDanhSachCBNV({
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `PhongBan/phong-ban-tree?donviid=${donVi_Id}`,
+          `Account/phong-ban-by-don-vi?donVi_Id=${donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -86,12 +86,12 @@ function ModalThemDanhSachCBNV({
       .catch((error) => console.error(error));
   };
 
-  const getListCBNV = (donVi_Id, phongBan_Id) => {
-    const param = convertObjectToUrlParams({ donVi_Id, phongBan_Id });
+  const getListCBNV = (donVi_Id, tenPhongBan) => {
+    const param = convertObjectToUrlParams({ donVi_Id, tenPhongBan });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_PhieuDangKyDaoTao/user-by-dv-pb?${param}`,
+          `Account/user-by-dv-pb?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -237,7 +237,7 @@ function ModalThemDanhSachCBNV({
           <Col xxl={18} xl={20} lg={22} xs={24}>
             <FormItem
               label="Phòng ban"
-              name={["modalthemdanhsachcbnv", "phongBan_Id"]}
+              name={["modalthemdanhsachcbnv", "tenPhongBan"]}
               rules={[
                 {
                   type: "string",
@@ -248,7 +248,7 @@ function ModalThemDanhSachCBNV({
                 className="heading-select slt-search th-select-heading"
                 data={ListPhongBan ? ListPhongBan : []}
                 placeholder="Chọn phòng ban"
-                optionsvalue={["id", "tenPhongBan"]}
+                optionsvalue={["tenPhongBan", "tenPhongBan"]}
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp={"name"}
