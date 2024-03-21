@@ -102,8 +102,8 @@ function BaoCaoHocChuyenDeDaoTaoTheoDonVi({ history, permission }) {
       .then((res) => {
         if (res && res.data) {
           setListDonVi(res.data);
-          setDonVi(res.data[0].id);
-          getListData(res.data[0].id, TuNgay, DenNgay);
+          setDonVi(res.data[0].donVi_Id);
+          getListData(res.data[0].donVi_Id, TuNgay, DenNgay);
         } else {
           setListDonVi([]);
           setDonVi(null);
@@ -385,7 +385,7 @@ function BaoCaoHocChuyenDeDaoTaoTheoDonVi({ history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListDonVi ? ListDonVi : []}
               placeholder="Chọn đơn vị"
-              optionsvalue={["id", "tenDonVi"]}
+              optionsvalue={["donVi_Id", "tenDonVi"]}
               style={{ width: "100%" }}
               showSearch
               optionFilterProp="name"

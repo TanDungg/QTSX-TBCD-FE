@@ -194,7 +194,7 @@ function VaiTro({ match, history, permission }) {
             x: 700,
             y: "60vh",
           }}
-          className="gx-table-responsive"
+          className="gx-table-responsive th-table"
           dataSource={reDataForTable(Data)}
           size="small"
           pagination={false}

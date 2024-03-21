@@ -20,7 +20,6 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_TWO_COL } from "src/constants/Config";
 import {
-  convertObjectToUrlParams,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
@@ -60,7 +59,7 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
           setType("new");
           getListDonVi();
           getListKhachHang();
-          getUserKy(INFO);
+          getUserKy();
           setFieldsValue({
             xuatkhongoaiquan: {
               donViYeuCau_Id: INFO.donVi_Id.toLowerCase(),
@@ -77,7 +76,7 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
           getInfo(id);
           getListDonVi();
           getListKhachHang();
-          getUserKy(INFO);
+          getUserKy();
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -89,7 +88,7 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
           getInfo(id, true);
           getListDonVi();
           getListKhachHang();
-          getUserKy(INFO);
+          getUserKy();
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -101,7 +100,7 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
           getInfo(id);
           getListDonVi();
           getListKhachHang();
-          getUserKy(INFO);
+          getUserKy();
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -150,12 +149,12 @@ const PhieuYeuCauXuatKhoNgoaiQuanForm = ({ history, match, permission }) => {
 
   const getUserKy = (info) => {
     const params = convertObjectToUrlParams({
-      donVi_Id: info.donVi_Id,
+      donviId: info.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}&key=1`,
+          `Account/get-cbnv?${params}&key=1`,
           "GET",
           null,
           "DETAIL",

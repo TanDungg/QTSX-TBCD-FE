@@ -15,12 +15,7 @@ import {
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM, SMRM_BANGIAO } from "src/constants/Config";
-import {
-  convertObjectToUrlParams,
-  getLocalStorage,
-  getTokenInfo,
-  reDataForTable,
-} from "src/util/Common";
+import { getLocalStorage, getTokenInfo, reDataForTable } from "src/util/Common";
 import ModalAddVatTu from "./ModalAddVatTu";
 
 const FormItem = Form.Item;
@@ -99,6 +94,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
       })
       .catch((error) => console.error(error));
   };
+
   const getUser = (info) => {
     const params = convertObjectToUrlParams({
       donVi_Id: info.donVi_Id,
@@ -117,7 +113,13 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUser(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            user: `${dt.maNhanVien} - ${dt.fullName}`,
+          };
+        });
+        setListUser(newData);
       } else {
         setListUser([]);
       }
@@ -585,13 +587,13 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
                         className="heading-select slt-search th-select-heading"
                         data={ListUser ? ListUser : []}
                         placeholder="Chọn đại diện bên giao"
-                        optionsvalue={["id", "fullName"]}
+                        optionsvalue={["user_Id", "user"]}
                         style={{ width: "100%" }}
                         showSearch
                         optionFilterProp="name"
                         onSelect={(val) => {
                           ListUser.forEach((kh) => {
-                            if (val === kh.id) {
+                            if (val === kh.user_Id) {
                               setFieldsValue({
                                 bienBanBanGiao: {
                                   sDTDaiDienBenGiao: kh.phoneNumber,

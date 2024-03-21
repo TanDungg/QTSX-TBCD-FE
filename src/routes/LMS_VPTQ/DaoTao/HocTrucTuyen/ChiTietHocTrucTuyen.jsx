@@ -418,24 +418,6 @@ function ChiTietHocTrucTuyen({ match, history, permission }) {
                   playsInline
                 />
               )}
-              {/* <ReactPlayer
-                url={ChiTiet && BASE_URL_API + ChiTiet.fileVideo}
-                controls={true}
-                width="100%"
-                height="500px"
-                config={{
-                  file: {
-                    attributes: { controlsList: "nodownload nodrag" },
-                  },
-                }}
-                ref={playerRef}
-                onContextMenu={(e) => e.preventDefault()}
-                onProgress={handleProgress}
-                onPlay={handlePlay}
-                onPause={handlePause}
-                onSeeked={handleSeeked}
-                onEnded={handleEnded}
-              /> */}
             </Col>
 
             <Col xxl={7} xl={24} lg={24} xs={24} style={{ marginBottom: 8 }}>

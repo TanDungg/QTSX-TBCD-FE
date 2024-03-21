@@ -52,7 +52,7 @@ const LopHocForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?donviId=${DONVI_VPTQ}&key=1`,
+          `Account/user-by-dv-pb?donVi_Id=${DONVI_VPTQ}`,
           "GET",
           null,
           "DETAIL",
@@ -64,7 +64,13 @@ const LopHocForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListUserDuyet(res.data);
+          const newData = res.data.map((dt) => {
+            return {
+              ...dt,
+              user: `${dt.maNhanVien} - ${dt.fullName}`,
+            };
+          });
+          setListUserDuyet(newData);
         } else {
           setListUserDuyet([]);
         }
@@ -469,7 +475,7 @@ const LopHocForm = ({ history, match, permission }) => {
                     className="heading-select slt-search th-select-heading"
                     data={ListUserDuyet ? ListUserDuyet : []}
                     placeholder="Chọn người duyệt"
-                    optionsvalue={["user_Id", "fullName"]}
+                    optionsvalue={["user_Id", "user"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp={"name"}

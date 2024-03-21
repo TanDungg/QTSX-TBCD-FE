@@ -93,7 +93,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       } else {
         setType("new");
         getListSanPham();
-        getUserKy(INFO.donVi_Id);
+        getUserKy(INFO);
         setFieldsValue({
           quytrinhsanxuat: {
             ngayBanHanh: moment(getDateNow(), "DD/MM/YYYY"),
@@ -236,12 +236,12 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
 
   const getUserKy = (info) => {
     const params = convertObjectToUrlParams({
-      donVi_Id: info,
+      donviId: info,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}`,
+          `Account/get-cbnv?${params}&key=1`,
           "GET",
           null,
           "DETAIL",
@@ -252,7 +252,13 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListNhanVien(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            nhanVien: `${dt.maNhanVien} - ${dt.fullName}`,
+          };
+        });
+        setListNhanVien(newData);
       } else {
         setListNhanVien([]);
       }
@@ -321,7 +327,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
         if (res && res.data) {
           const data = res.data;
           getListSanPham();
-          getUserKy(INFO.donVi_Id);
+          getUserKy(INFO);
           setInfo(data);
           setFieldsValue({
             quytrinhsanxuat: {
@@ -1464,7 +1470,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
                   className="heading-select slt-search th-select-heading"
                   data={ListNhanVien}
                   placeholder="Chọn người kiểm tra"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "nhanVien"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1495,7 +1501,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
                   className="heading-select slt-search th-select-heading"
                   data={ListNhanVien}
                   placeholder="Chọn người duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "nhanVien"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

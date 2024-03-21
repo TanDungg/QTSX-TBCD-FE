@@ -121,14 +121,14 @@ function TienTrinhHocTap({ permission, history, match }) {
       .catch((error) => console.error(error));
   };
 
-  const getListHocVien = (donviId) => {
+  const getListHocVien = (donVi_Id) => {
     const params = convertObjectToUrlParams({
-      donviId: donviId ? donviId : INFO.donVi_Id.toLowerCase(),
+      donVi_Id: donVi_Id ? donVi_Id : INFO.donVi_Id.toLowerCase(),
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account/user-by-dv-pb?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -140,22 +140,28 @@ function TienTrinhHocTap({ permission, history, match }) {
     })
       .then((res) => {
         if (res && res.data) {
-          if (donviId) {
+          if (donVi_Id) {
             const data = res.data.find(
               (dt) => dt.user_Id.toLowerCase() === INFO.user_Id.toLowerCase()
             );
             if (data) {
               setHocVien(INFO.user_Id.toLowerCase());
-              getListData(donviId, INFO.user_Id, TuNgay, DenNgay);
+              getListData(donVi_Id, INFO.user_Id, TuNgay, DenNgay);
             } else {
               setHocVien(res.data[0].user_Id);
-              getListData(donviId, res.data[0].user_Id, TuNgay, DenNgay);
+              getListData(donVi_Id, res.data[0].user_Id, TuNgay, DenNgay);
             }
           } else {
             setHocVien(INFO.user_Id.toLowerCase());
             getListData(INFO.donVi_Id, INFO.user_Id, TuNgay, DenNgay);
           }
-          setListHocVien(res.data);
+          const newListHocVien = res.data.map((dt) => {
+            return {
+              ...dt,
+              hocVien: `${dt.maNhanVien} - ${dt.fullName}`,
+            };
+          });
+          setListHocVien(newListHocVien);
         } else {
           setListHocVien([]);
         }
@@ -529,7 +535,7 @@ function TienTrinhHocTap({ permission, history, match }) {
                 className="heading-select slt-search th-select-heading"
                 data={ListDonVi ? ListDonVi : []}
                 placeholder="Chọn đơn vị đào tạo"
-                optionsvalue={["id", "tenDonVi"]}
+                optionsvalue={["donVi_Id", "tenDonVi"]}
                 style={{ width: "100%" }}
                 value={DonVi}
                 showSearch
@@ -551,7 +557,7 @@ function TienTrinhHocTap({ permission, history, match }) {
                 className="heading-select slt-search th-select-heading"
                 data={ListHocVien ? ListHocVien : []}
                 placeholder="Chọn đơn vị đào tạo"
-                optionsvalue={["id", "fullName"]}
+                optionsvalue={["user_Id", "hocVien"]}
                 style={{ width: "100%" }}
                 value={HocVien}
                 showSearch

@@ -76,7 +76,7 @@ function ModalTaoLopHoc({ openModalFS, openModal, dataTaoLopHoc, refesh }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?donviId=${DONVI_VPTQ}&key=1`,
+          `Account/user-by-dv-pb?donVi_Id=${DONVI_VPTQ}`,
           "GET",
           null,
           "DETAIL",

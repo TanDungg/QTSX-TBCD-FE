@@ -1,11 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Card, Button, Row, Col } from "antd";
-import {
-  PlusOutlined,
-  EditOutlined,
-  ExportOutlined,
-  ImportOutlined,
-} from "@ant-design/icons";
+import { EditOutlined, ExportOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import isEmpty from "lodash/isEmpty";
@@ -34,10 +29,8 @@ function CanBoNhanVien({ match, history, permission }) {
   const [data, setData] = useState([]);
   const [ListDonVi, setListDonVi] = useState([]);
   const [DonVi, setDonVi] = useState(null);
-  const [ListPhongBan, setListPhongBan] = useState([]);
-  const [PhongBan, setPhongBan] = useState(null);
-  const [ListBoPhan, setListBoPhan] = useState([]);
-  const [BoPhan, setBoPhan] = useState(null);
+  const [ListTenPhongBan, setListTenPhongBan] = useState([]);
+  const [TenPhongBan, setTenPhongBan] = useState(null);
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const [ActiveModalImportCBNV, setActiveModalImportCBNV] = useState(false);
@@ -46,8 +39,8 @@ function CanBoNhanVien({ match, history, permission }) {
     if (permission && permission.view) {
       getListDonVi();
       setDonVi(INFO.donVi_Id.toLowerCase());
-      getListPhongBan(INFO.donVi_Id.toLowerCase());
-      getListData(INFO.donVi_Id.toLowerCase(), PhongBan, BoPhan, keyword, page);
+      getListTenPhongBan(INFO.donVi_Id.toLowerCase());
+      getListData(INFO.donVi_Id.toLowerCase(), null, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -57,25 +50,16 @@ function CanBoNhanVien({ match, history, permission }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListData = (donVi_Id, phongBan_Id, boPhan_Id, keyword, page) => {
+  const getListData = (donVi_Id, tenPhongBan, keyword, page) => {
     let param = convertObjectToUrlParams({
       donVi_Id,
-      phongBan_Id,
-      boPhan_Id,
+      tenPhongBan,
       keyword,
       page,
     });
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(
-          `vptq_lms_ThongTinCBNV?${param}`,
-          "GET",
-          null,
-          "LIST",
-          "",
-          resolve,
-          reject
-        )
+        fetchStart(`Account?${param}`, "GET", null, "LIST", "", resolve, reject)
       );
     })
       .then((res) => {
@@ -112,39 +96,14 @@ function CanBoNhanVien({ match, history, permission }) {
       .catch((error) => console.error(error));
   };
 
-  const getListPhongBan = (donVi_Id) => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `PhongBan/phong-ban-tree?donviid=${donVi_Id}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListPhongBan(res.data);
-        } else {
-          setListPhongBan([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListBoPhan = (donviid, phongBan_Id) => {
+  const getListTenPhongBan = (donVi_Id) => {
     let param = convertObjectToUrlParams({
-      donviid,
-      phongBan_Id,
+      donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `BoPhan/bo-phan-tree?${param}`,
+          `Account/phong-ban-by-don-vi?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -156,18 +115,12 @@ function CanBoNhanVien({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.data) {
-          setListBoPhan(res.data);
+          setListTenPhongBan(res.data);
         } else {
-          setListBoPhan([]);
+          setListTenPhongBan([]);
         }
       })
       .catch((error) => console.error(error));
-  };
-
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
   };
 
   const actionContent = (item) => {
@@ -175,7 +128,7 @@ function CanBoNhanVien({ match, history, permission }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.user_Id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -193,17 +146,17 @@ function CanBoNhanVien({ match, history, permission }) {
 
   const handleTableChange = (pagination) => {
     setPage(pagination);
-    getListData(DonVi, PhongBan, BoPhan, keyword, pagination);
+    getListData(DonVi, TenPhongBan, keyword, pagination);
   };
 
   const onSearchCBNV = () => {
-    getListData(DonVi, PhongBan, BoPhan, keyword, page);
+    getListData(DonVi, TenPhongBan, keyword, page);
   };
 
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(DonVi, PhongBan, BoPhan, val.target.value, page);
+      getListData(DonVi, TenPhongBan, val.target.value, page);
     }
   };
 
@@ -250,7 +203,7 @@ function CanBoNhanVien({ match, history, permission }) {
       dataIndex: "fullName",
       key: "fullName",
       align: "left",
-      width: 150,
+      width: 180,
       sorter: (a, b) => a.fullName.localeCompare(b.fullName),
       fixed: width > 1200 && "left",
       filters: removeDuplicates(
@@ -269,7 +222,7 @@ function CanBoNhanVien({ match, history, permission }) {
       dataIndex: "email",
       key: "email",
       align: "left",
-      width: 200,
+      width: 220,
     },
     {
       title: "SĐT",
@@ -300,7 +253,7 @@ function CanBoNhanVien({ match, history, permission }) {
       dataIndex: "tenChucDanh",
       key: "tenChucDanh",
       align: "center",
-      width: 150,
+      width: 120,
       filters: removeDuplicates(
         map(data.datalist, (d) => {
           return {
@@ -317,7 +270,7 @@ function CanBoNhanVien({ match, history, permission }) {
       dataIndex: "tenChucVu",
       key: "tenChucVu",
       align: "left",
-      width: 150,
+      width: 180,
       filters: removeDuplicates(
         map(data.datalist, (d) => {
           return {
@@ -327,23 +280,6 @@ function CanBoNhanVien({ match, history, permission }) {
         })
       ),
       onFilter: (value, record) => record.tenChucVu.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Bộ phận",
-      dataIndex: "tenBoPhan",
-      key: "tenBoPhan",
-      align: "left",
-      width: 150,
-      filters: removeDuplicates(
-        map(data.datalist, (d) => {
-          return {
-            text: d.tenBoPhan,
-            value: d.tenBoPhan,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenBoPhan.includes(value),
       filterSearch: true,
     },
     {
@@ -368,7 +304,7 @@ function CanBoNhanVien({ match, history, permission }) {
       dataIndex: "tenDonVi",
       key: "tenDonVi",
       align: "left",
-      width: 200,
+      width: 220,
       filters: removeDuplicates(
         map(data.datalist, (d) => {
           return {
@@ -385,7 +321,7 @@ function CanBoNhanVien({ match, history, permission }) {
       dataIndex: "tenDonViTraLuong",
       key: "tenDonViTraLuong",
       align: "left",
-      width: 200,
+      width: 220,
       filters: removeDuplicates(
         map(data.datalist, (d) => {
           return {
@@ -402,7 +338,7 @@ function CanBoNhanVien({ match, history, permission }) {
       dataIndex: "capDo",
       key: "capDo",
       align: "center",
-      width: 100,
+      width: 120,
       filters: removeDuplicates(
         map(data.datalist, (d) => {
           return {
@@ -433,19 +369,19 @@ function CanBoNhanVien({ match, history, permission }) {
     },
     {
       title: "Chuyên môn",
-      dataIndex: "tenChuyenMon",
-      key: "tenChuyenMon",
+      dataIndex: "trinhDoChuyenMon",
+      key: "trinhDoChuyenMon",
       align: "center",
-      width: 150,
+      width: 120,
       filters: removeDuplicates(
         map(data.datalist, (d) => {
           return {
-            text: d.tenChuyenMon,
-            value: d.tenChuyenMon,
+            text: d.trinhDoChuyenMon,
+            value: d.trinhDoChuyenMon,
           };
         })
       ),
-      onFilter: (value, record) => record.tenChuyenMon.includes(value),
+      onFilter: (value, record) => record.trinhDoChuyenMon.includes(value),
       filterSearch: true,
     },
   ];
@@ -486,24 +422,6 @@ function CanBoNhanVien({ match, history, permission }) {
     return (
       <>
         <Button
-          icon={<PlusOutlined />}
-          className="th-margin-bottom-0 btn-margin-bottom-0"
-          type="primary"
-          onClick={handleRedirect}
-          disabled={permission && !permission.add}
-        >
-          Thêm mới
-        </Button>
-        <Button
-          icon={<ImportOutlined />}
-          className="th-margin-bottom-0 btn-margin-bottom-0"
-          type="primary"
-          onClick={() => setActiveModalImportCBNV(true)}
-          disabled={permission && !permission.view}
-        >
-          Import
-        </Button>
-        <Button
           icon={<ExportOutlined />}
           className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
@@ -517,46 +435,29 @@ function CanBoNhanVien({ match, history, permission }) {
   };
 
   const handleOnSelectDonVi = (value) => {
-    setDonVi(value);
-    setPhongBan(null);
-    setBoPhan(null);
-    getListPhongBan(value);
-    setListBoPhan([]);
-    getListData(value, null, null, keyword, page);
+    if (value !== DonVi) {
+      setDonVi(value);
+      setTenPhongBan(null);
+      getListTenPhongBan(value);
+      getListData(value, null, keyword, page);
+    }
   };
 
-  const handleOnSelectPhongBan = (value) => {
-    setPhongBan(value);
-    setBoPhan(null);
-    getListBoPhan(DonVi, value);
-    getListData(DonVi, value, null, keyword, page);
-  };
-
-  const handleClearPhongBan = () => {
-    setPhongBan(null);
-    setBoPhan(null);
-    setListBoPhan([]);
-    getListData(DonVi, null, null, keyword, page);
-  };
-
-  const handleOnSelectBoPhan = (value) => {
-    setBoPhan(value);
-    getListData(DonVi, PhongBan, value, keyword, page);
-  };
-
-  const handleClearBoPhan = () => {
-    setBoPhan(null);
-    getListData(DonVi, PhongBan, null, keyword, page);
+  const handleOnSelectTenPhongBan = (value) => {
+    if (value !== TenPhongBan) {
+      setTenPhongBan(value);
+      getListData(DonVi, value, keyword, page);
+    }
   };
 
   const refeshData = () => {
-    getListData(DonVi, PhongBan, BoPhan, keyword, page);
+    getListData(DonVi, TenPhongBan, keyword, page);
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title="Cán bộ nhân viên"
+        title="Danh sách cán bộ nhân viên"
         description="Danh sách cán bộ nhân viên"
         buttons={addButtonRender()}
         classCss="gx-position-button-cbnv"
@@ -577,7 +478,7 @@ function CanBoNhanVien({ match, history, permission }) {
               className="heading-select slt-search th-select-heading"
               data={ListDonVi ? ListDonVi : []}
               placeholder="Chọn đơn vị"
-              optionsvalue={["id", "tenDonVi"]}
+              optionsvalue={["donVi_Id", "tenDonVi"]}
               style={{ width: "100%" }}
               value={DonVi}
               showSearch
@@ -586,7 +487,7 @@ function CanBoNhanVien({ match, history, permission }) {
             />
           </Col>
           <Col
-            xxl={5}
+            xxl={8}
             xl={8}
             lg={12}
             md={12}
@@ -597,40 +498,14 @@ function CanBoNhanVien({ match, history, permission }) {
             <span>Phòng ban:</span>
             <Select
               className="heading-select slt-search th-select-heading"
-              data={ListPhongBan ? ListPhongBan : []}
+              data={ListTenPhongBan ? ListTenPhongBan : []}
               placeholder="Chọn phòng ban"
-              optionsvalue={["id", "tenPhongBan"]}
+              optionsvalue={["tenPhongBan", "tenPhongBan"]}
               style={{ width: "100%" }}
+              value={TenPhongBan}
               showSearch
               optionFilterProp={"name"}
-              onSelect={handleOnSelectPhongBan}
-              allowClear
-              onClear={handleClearPhongBan}
-              value={PhongBan}
-            />
-          </Col>
-          <Col
-            xxl={5}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={24}
-            xs={24}
-            style={{ marginBottom: 8 }}
-          >
-            <span>Bộ phận:</span>
-            <Select
-              className="heading-select slt-search th-select-heading"
-              data={ListBoPhan ? ListBoPhan : []}
-              placeholder="Chọn bộ phận"
-              optionsvalue={["id", "tenBoPhan"]}
-              style={{ width: "100%" }}
-              showSearch
-              optionFilterProp={"name"}
-              onSelect={handleOnSelectBoPhan}
-              allowClear
-              onClear={handleClearBoPhan}
-              value={BoPhan}
+              onSelect={handleOnSelectTenPhongBan}
             />
           </Col>
           <Col

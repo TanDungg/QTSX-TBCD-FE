@@ -31,8 +31,6 @@ function ImportPhongBan({ openModalFS, openModal, loading, refresh }) {
   const [dataView, setDataView] = useState([]);
   const [fileName, setFileName] = useState("");
   const [checkDanger, setCheckDanger] = useState(false);
-  const [DataLoi, setDataLoi] = useState();
-  const [HangTrung, setHangTrung] = useState([]);
   const [message, setMessageError] = useState([]);
   const [IsLoi, setIsLoi] = useState(false);
 

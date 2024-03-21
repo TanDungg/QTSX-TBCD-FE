@@ -90,23 +90,6 @@ function DonVi({ permission, history }) {
       onFilter: (value, record) => record.tenDonVi.includes(value),
       filterSearch: true,
     },
-    {
-      title: "Tập đoàn",
-      dataIndex: "tenTapDoan",
-      key: "tenTapDoan",
-      align: "center",
-      width: 200,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenTapDoan,
-            value: d.tenTapDoan,
-          };
-        })
-      ),
-      onFilter: (value, record) => record.tenTapDoan.includes(value),
-      filterSearch: true,
-    },
   ];
 
   const components = {
@@ -144,7 +127,7 @@ function DonVi({ permission, history }) {
           columns={columns}
           scroll={{ x: 800, y: "55vh" }}
           components={components}
-          className="gx-table-responsive"
+          className="gx-table-responsive th-table"
           dataSource={dataList}
           size="small"
           rowClassName={"editable-row"}

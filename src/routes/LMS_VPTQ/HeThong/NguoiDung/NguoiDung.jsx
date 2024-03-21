@@ -31,13 +31,14 @@ function NguoiDung({ match, history, permission }) {
   const [keyword, setKeyword] = useState("");
   const dispatch = useDispatch();
   const INFO = getLocalStorage("menu");
-  const { data, loading, width } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
+  const [Data, setData] = useState([]);
   const [IsAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
       getIsAdmin();
-      getListData(keyword, INFO);
+      getListData(keyword);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
@@ -47,13 +48,33 @@ function NguoiDung({ match, history, permission }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [permission]);
 
-  const getListData = (keyword, INFO) => {
+  const getListData = (keyword) => {
     let param = convertObjectToUrlParams({
       keyword,
       phanMem_id: INFO.phanMem_Id,
       donVi_Id: INFO.donVi_Id,
     });
-    dispatch(fetchStart(`PhanMem/user-all-role?${param}`, "GET", null, "LIST"));
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `PhanMem/user-all-role?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setData(res.data);
+        } else {
+          setData(null);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   const getIsAdmin = () => {
@@ -122,7 +143,7 @@ function NguoiDung({ match, history, permission }) {
     })
       .then((res) => {
         if (res.status === 200) {
-          getListData(keyword, INFO);
+          getListData(keyword);
         }
       })
       .catch((err) => console.error(err));
@@ -136,10 +157,10 @@ function NguoiDung({ match, history, permission }) {
   const deleteItemAction = (item) => {
     const param = convertObjectToUrlParams({
       id: item.user_Id,
-      phamMem_Id: INFO.phanMem_Id,
+      phanMem_Id: INFO.phanMem_Id,
       donVi_Id: INFO.donVi_Id,
     });
-    let url = `Account/delete-all-role-user-cbnv?${param}`;
+    let url = `Account/delete-all-role-cbnv?${param}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -167,7 +188,7 @@ function NguoiDung({ match, history, permission }) {
     })
       .then((res) => {
         if (res && res.status !== 409) {
-          getListData(keyword, INFO);
+          getListData(keyword);
           Helpers.alertSuccessMessage(res.data);
         }
       })
@@ -226,13 +247,13 @@ function NguoiDung({ match, history, permission }) {
   };
 
   const onSearchNguoiDung = () => {
-    getListData(keyword, INFO);
+    getListData(keyword);
   };
 
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, INFO);
+      getListData(val.target.value);
     }
   };
 
@@ -282,7 +303,7 @@ function NguoiDung({ match, history, permission }) {
         width: 120,
         align: "center",
         filters: removeDuplicates(
-          map(dataList, (d) => {
+          map(Data, (d) => {
             return {
               text: d.maNhanVien,
               value: d.maNhanVien,
@@ -299,7 +320,7 @@ function NguoiDung({ match, history, permission }) {
         key: "fullName",
         width: 150,
         filters: removeDuplicates(
-          map(dataList, (d) => {
+          map(Data, (d) => {
             return {
               text: d.fullName,
               value: d.fullName,
@@ -373,7 +394,6 @@ function NguoiDung({ match, history, permission }) {
     );
   };
 
-  const dataList = reDataForTable(data);
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -433,7 +453,7 @@ function NguoiDung({ match, history, permission }) {
           scroll={{ x: 1200, y: "53vh" }}
           columns={header()}
           className="gx-table-responsive"
-          dataSource={dataList}
+          dataSource={reDataForTable(Data)}
           size="small"
           pagination={{
             pageSize: 20,

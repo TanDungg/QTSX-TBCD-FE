@@ -31,7 +31,6 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_TWO_COL } from "src/constants/Config";
 import {
-  convertObjectToUrlParams,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
@@ -73,7 +72,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
         if (permission && permission.add) {
           setType("new");
           getListNhaCungCap();
-          getUserKy(INFO);
+          getUserKy();
           setFieldsValue({
             phieumuahangnoibo: {
               ngayTaoPhieu: moment(getDateNow(), "DD/MM/YYYY"),
@@ -91,7 +90,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           setId(id);
           getInfo(id);
           getListNhaCungCap();
-          getUserKy(INFO);
+          getUserKy();
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -102,7 +101,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
           setId(id);
           getInfo(id, true);
           getListNhaCungCap();
-          getUserKy(INFO);
+          getUserKy();
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -137,12 +136,12 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
 
   const getUserKy = (info) => {
     const params = convertObjectToUrlParams({
-      donVi_Id: info.donVi_Id,
+      donviId: info.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}`,
+          `Account/get-cbnv?${params}&key=1`,
           "GET",
           null,
           "DETAIL",
@@ -153,7 +152,13 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserKy(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            user: `${dt.maNhanVien} - ${dt.fullName}`,
+          };
+        });
+        setListUserKy(newData);
       } else {
         setListUserKy([]);
       }
@@ -811,7 +816,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn người kiểm tra"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -842,7 +847,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn kế toán duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -873,7 +878,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn người duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
