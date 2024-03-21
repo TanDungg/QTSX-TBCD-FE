@@ -151,14 +151,10 @@ const KiemKeForm = ({ history, match, permission }) => {
   };
 
   const getUserLap = (info, nguoiLap_Id) => {
-    const params = convertObjectToUrlParams({
-      id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
-      donVi_Id: info.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}?${params}`,
+          `Account/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -172,7 +168,7 @@ const KiemKeForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           kiemkeform: {
-            userLap_Id: res.data.Id,
+            userLap_Id: res.data.id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -187,7 +183,7 @@ const KiemKeForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -198,7 +194,7 @@ const KiemKeForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserDuyet(res.data.datalist);
+        setListUserDuyet(res.data);
       } else {
         setListUserDuyet([]);
       }
@@ -690,7 +686,7 @@ const KiemKeForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUser ? ListUser : []}
-                  optionsvalue={["Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   disabled={true}
                 />
@@ -800,7 +796,7 @@ const KiemKeForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserDuyet}
                   placeholder="Chọn người duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -831,7 +827,7 @@ const KiemKeForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserDuyet}
                   placeholder="Chọn người duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -862,7 +858,7 @@ const KiemKeForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserDuyet}
                   placeholder="Chọn người duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

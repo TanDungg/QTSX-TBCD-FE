@@ -217,14 +217,10 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
   }, []);
 
   const getUserLap = (info, nguoiLap_Id) => {
-    const params = convertObjectToUrlParams({
-      id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
-      donVi_Id: info.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}?${params}`,
+          `Account/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -237,7 +233,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
       if (res && res.data) {
         setFieldsValue({
           dathangnoibo: {
-            userYeuCau_Id: res.data.Id,
+            userYeuCau_Id: res.data.id,
           },
         });
       }
@@ -250,7 +246,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -946,8 +942,6 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
     return current && current < dayjs().startOf("day");
   };
 
-  console.log(info);
-
   const formTitle =
     type === "new" ? (
       "Tạo phiếu đặt hàng nội bộ "
@@ -1013,7 +1007,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn người gửi"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1043,7 +1037,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn người gửi"
-                  optionsvalue={["user_Id", "tenDonVi"]}
+                  optionsvalue={["id", "tenDonVi"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1311,7 +1305,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn chuyên viên thu mua"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1392,7 +1386,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn người kiểm tra"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1423,7 +1417,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn kế toán duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1454,7 +1448,7 @@ const DatHangNoiBoForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn người duyệt"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
