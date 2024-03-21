@@ -1,20 +1,22 @@
+import { Card } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { reDataForTable } from "src/util/Common";
+import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
+import { removeDuplicates } from "src/util/Common";
 import { EditableTableRow, Table, Toolbar } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
-import { Card } from "antd";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ChucVu({ match, history, permission }) {
+function DonViHRM({ match, permission, history }) {
   const dispatch = useDispatch();
   const { data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
+
   useEffect(() => {
     if (permission && permission.view) {
       getListData(keyword);
@@ -22,8 +24,8 @@ function ChucVu({ match, history, permission }) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
   /**
    * Get menu list
    *
@@ -36,43 +38,34 @@ function ChucVu({ match, history, permission }) {
    */
   const getListData = (keyword) => {
     let param = convertObjectToUrlParams({ keyword });
-    dispatch(fetchStart(`ChucVu?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`DonViHRM?${param}`, "GET", null, "LIST"));
   };
 
-  /**
-   * Tìm kiếm người dùng
-   *
-   */
-  const onSearchNguoiDung = () => {
-    getListData(keyword);
-  };
-
-  /**
-   * Thay đổi keyword
-   *
-   * @param {*} val
-   */
-  const onChangeKeyword = (val) => {
-    setKeyword(val.target.value);
-    if (isEmpty(val.target.value)) {
-      getListData(val.target.value);
-    }
-  };
-  const dataList = reDataForTable(data);
+  let dataList = reDataForTable(data);
 
   let colValues = [
     {
       title: "STT",
       dataIndex: "key",
-      key: "key",
+      stt: "key",
       width: 100,
       align: "center",
     },
     {
-      title: "Tên chức vụ",
-      dataIndex: "tenChucVu",
-      key: "tenChucVu",
+      title: "Tên đơn vị HRM",
+      dataIndex: "tenDonViHRM",
+      key: "tenDonViHRM",
       align: "center",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDonViHRM,
+            value: d.tenDonViHRM,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.tenDonViHRM.includes(value),
+      filterSearch: true,
     },
   ];
   const components = {
@@ -98,15 +91,26 @@ function ChucVu({ match, history, permission }) {
     };
   });
 
+  const onSearchNguoiDung = () => {
+    getListData(keyword);
+  };
+
+  const onChangeKeyword = (val) => {
+    setKeyword(val.target.value);
+    if (isEmpty(val.target.value)) {
+      getListData(val.target.value);
+    }
+  };
+
   const handleClearSearch = () => {
-    getListData(null);
+    getListData(null, 1);
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Danh mục chức vụ"}
-        description="Danh sách chức vụ"
+        title={"Đơn vị HRM"}
+        description="Danh sách đơn vị HRM"
       />
       <Card className="th-card-margin-bottom ">
         <Toolbar
@@ -120,15 +124,18 @@ function ChucVu({ match, history, permission }) {
             onSearch: onSearchNguoiDung,
             placeholder: "Nhập từ khóa",
             allowClear: true,
-            onClear: handleClearSearch,
+            onClear: { handleClearSearch },
           }}
         />
       </Card>
-      <Card className="th-card-margin-bottom th-card-reset-margin">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        bodyStyle={{ paddingBottom: 0 }}
+      >
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 600, y: "55vh" }}
+          scroll={{ x: 900, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}
@@ -147,4 +154,4 @@ function ChucVu({ match, history, permission }) {
   );
 }
 
-export default ChucVu;
+export default DonViHRM;

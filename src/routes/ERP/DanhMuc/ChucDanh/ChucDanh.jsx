@@ -11,7 +11,7 @@ import { Card } from "antd";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function ChucVu({ match, history, permission }) {
+function ChucDanh({ match, history, permission }) {
   const dispatch = useDispatch();
   const { data, loading } = useSelector(({ common }) => common).toJS();
   const [keyword, setKeyword] = useState("");
@@ -36,7 +36,7 @@ function ChucVu({ match, history, permission }) {
    */
   const getListData = (keyword) => {
     let param = convertObjectToUrlParams({ keyword });
-    dispatch(fetchStart(`ChucVu?${param}`, "GET", null, "LIST"));
+    dispatch(fetchStart(`ChucDanh?${param}`, "GET", null, "LIST"));
   };
 
   /**
@@ -69,9 +69,9 @@ function ChucVu({ match, history, permission }) {
       align: "center",
     },
     {
-      title: "Tên chức vụ",
-      dataIndex: "tenChucVu",
-      key: "tenChucVu",
+      title: "Tên chức danh",
+      dataIndex: "tenChucDanh",
+      key: "tenChucDanh",
       align: "center",
     },
   ];
@@ -105,8 +105,8 @@ function ChucVu({ match, history, permission }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Danh mục chức vụ"}
-        description="Danh sách chức vụ"
+        title={"Danh mục chức danh"}
+        description="Danh sách chức danh"
       />
       <Card className="th-card-margin-bottom ">
         <Toolbar
@@ -147,4 +147,4 @@ function ChucVu({ match, history, permission }) {
   );
 }
 
-export default ChucVu;
+export default ChucDanh;

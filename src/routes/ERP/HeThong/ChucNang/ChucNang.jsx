@@ -242,6 +242,7 @@ function ChucNang({ history, permission }) {
             "PUT",
             {
               ...item,
+              id: item.id,
               thuTu: row.thuTu,
             },
             "EDIT",
@@ -252,7 +253,7 @@ function ChucNang({ history, permission }) {
         );
       })
         .then((res) => {
-          if (res && res.status === 204) {
+          if (res && res.status === 200) {
             loadData(PhanMem);
           }
         })

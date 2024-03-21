@@ -124,30 +124,6 @@ const TheoDoiDonHangForm = ({ history, match, permission }) => {
       }
     });
   };
-  // const getUserThuMua = (info) => {
-  //   const params = convertObjectToUrlParams({
-  //     donviId: info.donVi_Id,key:1
-  //   });
-  //   new Promise((resolve, reject) => {
-  //     dispatch(
-  //       fetchStart(
-  //         `Account/get-cbnv?${params}`,
-  //         "GET",
-  //         null,
-  //         "DETAIL",
-  //         "",
-  //         resolve,
-  //         reject
-  //       )
-  //     );
-  //   }).then((res) => {
-  //     if (res && res.data) {
-  //       setListNguoiThuMua(res.data.datalist);
-  //     } else {
-  //       setListNguoiThuMua([]);
-  //     }
-  //   });
-  // };
 
   const actionContent = (item) => {
     const CapNhat = () => {

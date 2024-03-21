@@ -32,11 +32,13 @@ const DonViTinhForm = asyncComponent(() => import("./DonViTinh/DonViTinhForm"));
 
 const ChucVu = asyncComponent(() => import("./ChucVu/ChucVu"));
 const ChucVuForm = asyncComponent(() => import("./ChucVu/ChucVuForm"));
+const ChucDanh = asyncComponent(() => import("./ChucDanh/ChucDanh"));
 
 const PhanMem = asyncComponent(() => import("./PhanMem/PhanMem"));
 const PhanMemForm = asyncComponent(() => import("./PhanMem/PhanMemForm"));
 
 // const Home = asyncComponent(() => import("../Home"));
+const DonViHRM = asyncComponent(() => import("./DonViHRM/DonViHRM"));
 
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
@@ -133,17 +135,17 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(BoPhanForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/chuc-danh`}
+        path={`${match.url}/chuc-vu`}
         exact
         component={Auth(ChucVu, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/chuc-danh/them-moi`}
+        path={`${match.url}/chuc-vu/them-moi`}
         exact
         component={Auth(ChucVuForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/chuc-danh/:id/chinh-sua`}
+        path={`${match.url}/chuc-vu/:id/chinh-sua`}
         exact
         component={Auth(ChucVuForm, menus, pathname, permission)}
       />
@@ -162,7 +164,11 @@ const App = ({ match, location, menus, permission }) => {
         exact
         component={Auth(PhanMemForm, menus, pathname, permission)}
       />
-
+      <Route
+        path={`${match.url}/chuc-danh`}
+        exact
+        component={Auth(ChucDanh, menus, pathname, permission)}
+      />
       <Route
         path={`${match.url}/don-vi-tinh`}
         exact
@@ -177,6 +183,11 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/don-vi-tinh/:id/chinh-sua`}
         exact
         component={Auth(DonViTinhForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/don-vi-hrm`}
+        exact
+        component={Auth(DonViHRM, menus, pathname, permission)}
       />
       <Route path="*" component={Auth(NotFound, menus, pathname)} />
     </Switch>

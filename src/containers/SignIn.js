@@ -81,7 +81,6 @@ const SignIn = ({ history }) => {
         sessionStorage.removeItem("currentURL");
       } else {
         if (session) {
-          console.log("xx");
           getPhanMem(userInfo.id);
         }
       }

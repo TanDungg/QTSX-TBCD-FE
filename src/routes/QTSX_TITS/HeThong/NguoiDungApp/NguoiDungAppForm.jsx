@@ -64,7 +64,7 @@ function NguoiDungAppForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_AppMobile_Menu/get-list-user-chua-kich-hoat?${param}`,
+          `lkn_AppMobile_Menu/get-list-user-chua-kich-hoat?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -79,7 +79,9 @@ function NguoiDungAppForm({ match, permission, history }) {
           const newData = [];
           res.data.forEach((d) => {
             newData.push({
-              name: `${d.maNhanVien} - ${d.tenNguoiDung} - ${d.email}`,
+              name: d.email
+                ? `${d.maNhanVien} - ${d.tenNguoiDung} - ${d.email}`
+                : `${d.maNhanVien} - ${d.tenNguoiDung}`,
               ...d,
             });
           });
@@ -114,7 +116,7 @@ function NguoiDungAppForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_AppMobile_Menu/get-list-appmobile-menu`,
+          `lkn_AppMobile_Menu/get-list-appmobile-menu`,
           "GET",
           null,
           "LIST",
@@ -135,7 +137,7 @@ function NguoiDungAppForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_AppMobile_Menu/get-menu-user/${id}`,
+          `lkn_AppMobile_Menu/get-menu-user/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -147,8 +149,8 @@ function NguoiDungAppForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          const listRole = JSON.parse(res.data.tits_qtsx_ChiTiets).map((ct) => {
-            return ct.tits_qtsx_AppMobile_Menu_Id.toLowerCase();
+          const listRole = JSON.parse(res.data.lkn_ChiTiets).map((ct) => {
+            return ct.lkn_AppMobile_Menu_Id.toLowerCase();
           });
           getUserInfo(res.data.user_Id);
           const newData = {
@@ -182,14 +184,14 @@ function NguoiDungAppForm({ match, permission, history }) {
     if (type === "new") {
       const newData = {
         user_Id: user.id,
-        tits_qtsx_AppMobile_Menu_Users: user.roleNames.map((r) => {
-          return { tits_qtsx_AppMobile_Menu_Id: r };
+        lkn_AppMobile_Menu_Users: user.roleNames.map((r) => {
+          return { lkn_AppMobile_Menu_Id: r };
         }),
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_AppMobile_Menu/post-appmobile-menu-user`,
+            `lkn_AppMobile_Menu/post-appmobile-menu-user`,
             "POST",
             newData,
             "ADD",
@@ -208,12 +210,12 @@ function NguoiDungAppForm({ match, permission, history }) {
         .catch((error) => console.error(error));
     } else {
       const newData = user.roleNames.map((r) => {
-        return { tits_qtsx_AppMobile_Menu_Id: r };
+        return { lkn_AppMobile_Menu_Id: r };
       });
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tits_qtsx_AppMobile_Menu/put-appmobile-menu-user/${id}`,
+            `lkn_AppMobile_Menu/put-appmobile-menu-user/${id}`,
             "POST",
             newData,
             "EDIT",

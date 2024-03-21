@@ -29,14 +29,14 @@ function NguoiDungApp({ match, history, permission }) {
   useEffect(() => {
     if (permission && permission.view) {
       getListData(keyword);
-    } else if (permission && !permission.view) {
+    } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
     return () => {
       dispatch(fetchReset());
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [permission]);
 
   /**
    * Load danh sách người dùng
@@ -49,7 +49,7 @@ function NguoiDungApp({ match, history, permission }) {
     });
     dispatch(
       fetchStart(
-        `tits_qtsx_AppMobile_Menu/get-menu-user?${param}`,
+        `lkn_AppMobile_Menu/get-menu-user?${param}`,
         "GET",
         null,
         "LIST"
@@ -98,7 +98,7 @@ function NguoiDungApp({ match, history, permission }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tits_qtsx_AppMobile_Menu/active-appmobile-menu-user/${record.tits_qtsx_AppMobile_User_Id}`,
+          `lkn_AppMobile_Menu/active-appmobile-menu-user/${record.lkn_AppMobile_User_Id}`,
           "POST",
           null,
           "EDIT",
@@ -132,7 +132,7 @@ function NguoiDungApp({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    let url = `tits_qtsx_AppMobile_Menu/delete-appmobile-menu-user/${item.tits_qtsx_AppMobile_User_Id}`;
+    let url = `lkn_AppMobile_Menu/delete-appmobile-menu-user/${item.lkn_AppMobile_User_Id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -154,7 +154,7 @@ function NguoiDungApp({ match, history, permission }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `${match.path}/${item.tits_qtsx_AppMobile_User_Id}/chinh-sua`,
+            pathname: `${match.path}/${item.lkn_AppMobile_User_Id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -235,10 +235,10 @@ function NguoiDungApp({ match, history, permission }) {
       },
       {
         title: "Quyền",
-        dataIndex: "tits_qtsx_ChiTiets",
-        key: "tits_qtsx_ChiTiets",
+        dataIndex: "lkn_ChiTiets",
+        key: "lkn_ChiTiets",
         align: "center",
-        render: (val) => renderDisplayName(JSON.parse(val)),
+        render: (val) => val && renderDisplayName(JSON.parse(val)),
       },
       {
         title: "Mã nhân viên",

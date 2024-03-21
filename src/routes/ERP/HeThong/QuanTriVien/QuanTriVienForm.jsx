@@ -36,6 +36,7 @@ function QuanTriVienForm({ match, permission, history }) {
         if (permission && permission.add) {
           setType("new");
           getPhanMem();
+          getDonVi();
           getUserActive();
         } else if (permission && !permission.add) {
           history.push("/home");
@@ -48,7 +49,7 @@ function QuanTriVienForm({ match, permission, history }) {
           getUserActive();
           setRole_Id(params[1]);
           getInfo(params[0], params[1]);
-          getDonVi(params[0]);
+          getDonVi();
         } else if (permission && !permission.edit) {
           history.push("/home");
         }
@@ -127,25 +128,16 @@ function QuanTriVienForm({ match, permission, history }) {
    * Load danh sách đơn vị theo user
    * @param id Id user
    */
-  const getDonVi = (id) => {
-    let param = convertObjectToUrlParams({ user_Id: id });
+  const getDonVi = () => {
+    let param = convertObjectToUrlParams({ page: -1 });
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(
-          `PhanMem/list-don-vi-for-user?${param}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
+        fetchStart(`DonVi?${param}`, "GET", null, "DETAIL", "", resolve, reject)
       );
     })
       .then((res) => {
         if (res && res.data) {
-          const newData = JSON.parse(res.data.chitiet);
-          setDonViSelect(newData);
+          setDonViSelect(res.data);
         } else {
           setDonViSelect([]);
         }
@@ -207,7 +199,7 @@ function QuanTriVienForm({ match, permission, history }) {
             id: res.data.id,
             roleNames: res.data.role_Id,
             isActive: res.data.isActive_Role,
-            donVi_Id: res.data.donVi_Id.toUpperCase(),
+            donVi_Id: res.data.donVi_Id,
           };
           getPhanMem(res.data.donVi_Id);
           getRole(res.data.phanMem_Id, res.data.donVi_Id);
@@ -364,7 +356,7 @@ function QuanTriVienForm({ match, permission, history }) {
               className="heading-select slt-search th-select-heading"
               data={DonViSelect ? DonViSelect : []}
               placeholder="Chọn đơn vị"
-              optionsvalue={["DonVi_Id", "tenDonVi"]}
+              optionsvalue={["id", "tenDonVi"]}
               style={{ width: "100%" }}
               optionFilterProp={"name"}
               showSearch

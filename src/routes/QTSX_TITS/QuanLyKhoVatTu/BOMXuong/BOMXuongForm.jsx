@@ -156,10 +156,13 @@ function BOMXuongForm({ match, permission, history }) {
     });
   };
   const getUserKy = (info) => {
+    const params = convertObjectToUrlParams({
+      donviId: info.donVi_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?donVi_Id=${info.donVi_Id}`,
+          `Account/get-cbnv?${params}&key=1`,
           "GET",
           null,
           "DETAIL",
