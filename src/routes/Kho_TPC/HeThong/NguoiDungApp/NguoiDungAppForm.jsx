@@ -79,7 +79,9 @@ function NguoiDungAppForm({ match, permission, history }) {
           const newData = [];
           res.data.forEach((d) => {
             newData.push({
-              name: `${d.maNhanVien} - ${d.tenNguoiDung} - ${d.email}`,
+              name: d.email
+                ? `${d.maNhanVien} - ${d.tenNguoiDung} - ${d.email}`
+                : `${d.maNhanVien} - ${d.tenNguoiDung}`,
               ...d,
             });
           });

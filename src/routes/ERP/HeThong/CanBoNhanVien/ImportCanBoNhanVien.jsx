@@ -27,6 +27,7 @@ import {
 } from "src/util/Common";
 import * as XLSX from "xlsx";
 import { EditableTableRow, Table } from "src/components/Common";
+import CircularProgress from "src/components/CircularProgress";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -682,6 +683,11 @@ function ImportCanBoNhanVien({ openModalFS, openModal, loading, refesh }) {
             rowClassName={(current, index) => RowStyle(current, index)}
             pagination={false}
           />
+          {loading ? (
+            <div className="gx-loader-view">
+              <CircularProgress />
+            </div>
+          ) : null}
           <Button
             className="th-margin-bottom-0"
             style={{ marginTop: 10, float: "right" }}

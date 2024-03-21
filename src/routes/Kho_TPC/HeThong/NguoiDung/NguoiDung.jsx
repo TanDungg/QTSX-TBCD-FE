@@ -139,7 +139,7 @@ function NguoiDung({ match, history, permission }) {
       phamMem_Id: INFO.phanMem_Id,
       donVi_Id: INFO.donVi_Id,
     });
-    let url = `Account/delete-all-role-user-cbnv?${param}`;
+    let url = `Account/delete-all-role-cbnv?${param}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })

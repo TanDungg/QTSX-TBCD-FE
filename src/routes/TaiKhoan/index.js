@@ -24,7 +24,7 @@ function TaiKhoan() {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${userInfo.id}`,
+          `Account/${userInfo.id}`,
           "GET",
           null,
           "DETAIL",
@@ -173,31 +173,11 @@ function TaiKhoan() {
                 fontWeight: "bold",
               }}
             >
-              Chức vụ:
+              Chức danh:
             </span>
-            {data && <span>{data.tenChucVu}</span>}
+            {data && <span>{data.tenChucDanh}</span>}
           </Col>
-          <Col
-            xxl={8}
-            xl={8}
-            lg={12}
-            md={12}
-            sm={20}
-            xs={24}
-            className="title-span"
-            style={{
-              marginBottom: "10px",
-            }}
-          >
-            <span
-              style={{
-                fontWeight: "bold",
-              }}
-            >
-              Bộ phận:
-            </span>
-            {data && <span>{data.tenBoPhan}</span>}
-          </Col>
+
           <Col
             xxl={8}
             xl={8}
@@ -220,7 +200,12 @@ function TaiKhoan() {
             {data && <span>{data.tenPhongBan}</span>}
           </Col>
           <Col
-            span={24}
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={20}
+            xs={24}
             className="title-span"
             style={{
               marginBottom: "10px",

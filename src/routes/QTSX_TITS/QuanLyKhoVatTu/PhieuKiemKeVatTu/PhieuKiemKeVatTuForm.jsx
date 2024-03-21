@@ -183,12 +183,12 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
 
   const getListNguoiKiemKe = () => {
     const params = convertObjectToUrlParams({
-      donviId: INFO.donVi_Id,
+      donVi_Id: INFO.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account/user-by-dv-pb?${params}`,
           "GET",
           null,
           "DETAIL",

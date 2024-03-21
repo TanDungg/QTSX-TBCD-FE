@@ -236,12 +236,12 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
 
   const getUserKy = (info) => {
     const params = convertObjectToUrlParams({
-      donviId: info,
+      donVi_Id: info,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account/user-by-dv-pb?${params}`,
           "GET",
           null,
           "DETAIL",

@@ -1,27 +1,16 @@
-import {
-  DeleteOutlined,
-  EditOutlined,
-  PlusOutlined,
-  UploadOutlined,
-} from "@ant-design/icons";
-import { Button, Card, Divider } from "antd";
-import find from "lodash/find";
+import { UploadOutlined } from "@ant-design/icons";
+import { Button, Card, Row, Col } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Link } from "react-router-dom";
-import {
-  removeDuplicates,
-  reDataSelectedTable,
-  treeToFlatlist,
-} from "src/util/Common";
+import { removeDuplicates } from "src/util/Common";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import {
   EditableTableRow,
-  ModalDeleteConfirm,
   Table,
   Toolbar,
+  Select,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams, reDataForTable } from "src/util/Common";
@@ -35,11 +24,14 @@ function PhongBanHRM({ match, permission, history }) {
   const [keyword, setKeyword] = useState("");
   const [donViHRM_Id, setDonViHRM_Id] = useState("");
   const [donVi_Id, setDonVi_Id] = useState("");
-  const { totalRow } = data;
   const [ActiveModal, setActiveModal] = useState(false);
+  const [ListDonVi, setListDonVi] = useState([]);
+  const [ListDonViHRM, setListDonViHRM] = useState([]);
 
   useEffect(() => {
     if (permission && permission.view) {
+      getDonVi();
+      getDonViHRM();
       getListData(keyword, donViHRM_Id, donVi_Id);
     } else if (permission && permission.view === false) {
       history.push("/home");
@@ -62,7 +54,44 @@ function PhongBanHRM({ match, permission, history }) {
     });
     dispatch(fetchStart(`PhongbanHRM?${param}`, "GET", null, "LIST"));
   };
-
+  const getDonVi = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart("DonVi?page=-1", "GET", null, "DETAIL", "", resolve, reject)
+      );
+    })
+      .then((res) => {
+        if (res && res.status === 200) {
+          setListDonVi(res.data);
+        } else {
+          setListDonVi([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+  const getDonViHRM = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `PhongBanHRM/list-don-vi-hrm`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.status === 200) {
+          setListDonViHRM(res.data);
+        } else {
+          setListDonViHRM([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
   /**
    * Tìm kiếm người dùng
    *
@@ -82,109 +111,7 @@ function PhongBanHRM({ match, permission, history }) {
       getListData(val.target.value);
     }
   };
-  /**
-   * deleteItemFunc: Remove item from list
-   * @param {object} item
-   * @returns
-   * @memberof VaiTro
-   */
-  const deleteItemFunc = (item) => {
-    const title = "phòng";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenPhongBanHRM, title);
-  };
 
-  /**
-   * Remove item
-   *
-   * @param {*} item
-   */
-  const deleteItemAction = (item) => {
-    let url = `PhongbanHRM/${item.id}`;
-    if (item.isRemove) url = `PhongbanHRM/${item.id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        getListData(keyword);
-      })
-      .catch((error) => console.error(error));
-  };
-
-  /**
-   * ActionContent: Action in table
-   * @param {*} item
-   * @returns View
-   * @memberof ChucNang
-   */
-  const actionContent = (item) => {
-    const editItem =
-      permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item, permission },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
-
-    const deleteItemVal =
-      permission && permission.del && !item.isUsed
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        <React.Fragment>
-          {editItem}
-          <Divider type="vertical" />
-          <a {...deleteItemVal} title="Xóa">
-            <DeleteOutlined />
-          </a>
-        </React.Fragment>
-      </div>
-    );
-  };
-
-  /**
-   * Save item from table
-   * @param {object} row
-   * @memberof ChucNang
-   */
-  const handleSave = async (row) => {
-    const dataValue = reDataForTable(data);
-    // Check data not change
-    const item = find(dataValue, (item) => item.id === row.id);
-    if (!isEmpty(item)) {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `PhongbanHRM/${item.id}`,
-            "PUT",
-            {
-              ...item,
-              thuTu: row.thuTu,
-            },
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.status === 204) {
-            getListData(keyword);
-          }
-        })
-        .catch((error) => console.error(error));
-    }
-  };
   let dataList = reDataForTable(data);
 
   let colValues = [
@@ -232,7 +159,7 @@ function PhongBanHRM({ match, permission, history }) {
       title: "Đơn vị",
       dataIndex: "tenDonVi",
       key: "tenDonVi",
-      align: "left",
+      align: "center",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -244,13 +171,59 @@ function PhongBanHRM({ match, permission, history }) {
       onFilter: (value, record) => record.tenDonVi.includes(value),
       filterSearch: true,
     },
-
     {
-      title: "Chức năng",
-      key: "action",
+      title: "Mã Đơn vị Đào tạo",
+      dataIndex: "maDonVi",
       align: "center",
-      width: 80,
-      render: (value) => actionContent(value),
+      key: "maDonVi",
+    },
+    {
+      title: "Cấp 1",
+      dataIndex: "tenCapDoPhongBanBoPhanLevel1",
+      align: "center",
+      key: "tenCapDoPhongBanBoPhanLevel1",
+    },
+    {
+      title: "Cấp 2",
+      dataIndex: "tenCapDoPhongBanBoPhanLevel2",
+      align: "center",
+      key: "tenCapDoPhongBanBoPhanLevel2",
+    },
+    {
+      title: "Cấp 3",
+      dataIndex: "tenCapDoPhongBanBoPhanLevel3",
+      align: "center",
+      key: "tenCapDoPhongBanBoPhanLevel3",
+    },
+    {
+      title: "Cấp 4",
+      dataIndex: "tenCapDoPhongBanBoPhanLevel4",
+      align: "center",
+      key: "tenCapDoPhongBanBoPhanLevel4",
+    },
+    {
+      title: "Cấp 5",
+      dataIndex: "tenCapDoPhongBanBoPhanLevel5",
+      align: "center",
+      key: "tenCapDoPhongBanBoPhanLevel5",
+    },
+    {
+      title: "Cấp 6",
+      dataIndex: "tenCapDoPhongBanBoPhanLevel6",
+      align: "center",
+      key: "tenCapDoPhongBanBoPhanLevel6",
+    },
+    {
+      title: "Cấp 7",
+      dataIndex: "tenCapDoPhongBanBoPhanLevel7",
+      align: "center",
+      key: "tenCapDoPhongBanBoPhanLevel7",
+    },
+    {
+      title: "Cấp 8",
+      dataIndex: "tenCapDoPhongBanBoPhanLevel8",
+      align: "center",
+      key: "tenCapDoPhongBanBoPhanLevel8",
     },
   ];
   const components = {
@@ -272,16 +245,10 @@ function PhongBanHRM({ match, permission, history }) {
         dataIndex: col.dataIndex,
         title: col.title,
         info: col.info,
-        handleSave: handleSave,
       }),
     };
   });
 
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
-  };
   const handleImport = () => {
     setActiveModal(true);
   };
@@ -297,54 +264,120 @@ function PhongBanHRM({ match, permission, history }) {
         >
           Import
         </Button>
-        <Button
-          icon={<PlusOutlined />}
-          className="th-margin-bottom-0"
-          type="primary"
-          onClick={handleRedirect}
-          disabled={permission && !permission.add}
-        >
-          Thêm mới
-        </Button>
       </>
     );
   };
-
+  const handleOnSelectDonVi = (value) => {
+    if (donVi_Id !== value) {
+      setDonViHRM_Id();
+      setDonVi_Id(value);
+      getListData(keyword, null, value);
+    }
+  };
+  const handleClearDonVi = () => {
+    setDonVi_Id();
+    getListData(keyword, null, null);
+  };
+  const handleOnSelectDonViHRM = (value) => {
+    if (donViHRM_Id !== value) {
+      getListData(keyword, value);
+      setDonVi_Id();
+      setDonViHRM_Id(value);
+    }
+  };
+  const handleClearDonViHRM = () => {
+    setDonViHRM_Id();
+    getListData(keyword, null);
+  };
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Danh mục Ban/Phòng"}
-        description="Danh sách Ban/Phòng"
+        title={"Danh mục Ban/Phòng HRM"}
+        description="Danh sách Ban/Phòng HRM"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
-        <Toolbar
-          count={1}
-          search={{
-            title: "Tìm kiếm",
-            loading,
-            value: keyword,
-            onChange: onChangeKeyword,
-            onPressEnter: onSearchNguoiDung,
-            onSearch: onSearchNguoiDung,
-            placeholder: "Nhập từ khóa",
-            allowClear: true,
-          }}
-        />
+        <Row>
+          <Col
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Đơn vị</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListDonVi ? ListDonVi : []}
+              placeholder="Chọn đơn vị"
+              optionsvalue={["id", "tenDonVi"]}
+              style={{ width: "100%" }}
+              onSelect={handleOnSelectDonVi}
+              value={donVi_Id}
+              allowClear
+              onClear={handleClearDonVi}
+              optionFilterProp={"name"}
+              showSearch
+            />
+          </Col>
+          <Col
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <h5>Đơn vị HRM</h5>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListDonViHRM ? ListDonViHRM : []}
+              placeholder="Chọn đơn vị HRM"
+              optionsvalue={["id", "tenDonViHRM"]}
+              style={{ width: "100%" }}
+              onSelect={handleOnSelectDonViHRM}
+              value={donViHRM_Id}
+              allowClear
+              onClear={handleClearDonViHRM}
+              optionFilterProp={"name"}
+              showSearch
+            />
+          </Col>
+          <Col xl={8} lg={12} md={12} sm={24} xs={24}>
+            <h5>Tìm kiếm </h5>
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchNguoiDung,
+                onSearch: onSearchNguoiDung,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
+              }}
+            />{" "}
+          </Col>
+        </Row>
       </Card>
-      <Card className="th-card-margin-bottom th-card-reset-margin">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        bodyStyle={{ paddingBottom: 0 }}
+      >
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 700, y: "55vh" }}
+          scroll={{ x: 1400, y: "59vh" }}
           components={components}
-          className="gx-table-responsive"
+          className="gx-table-responsive gx-table-resize"
           dataSource={dataList}
           size="small"
           rowClassName={"editable-row"}
           pagination={{
-            pageSize: 20,
-            total: totalRow,
+            pageSize: 30,
+            total: dataList.length,
             showSizeChanger: false,
             showQuickJumper: true,
           }}

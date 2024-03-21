@@ -125,20 +125,20 @@ function CanBoNhanVien({ match, history, permission }) {
    * @returns View
    */
   const actionContent = (item) => {
-    const addItem =
-      permission && permission.add
-        ? {
-            onClick: () => {
-              setActiveModalAddDonVi(true);
-              setNhanSu(item);
-            },
-          }
-        : { disabled: true };
+    // const addItem =
+    //   permission && permission.add
+    //     ? {
+    //         onClick: () => {
+    //           setActiveModalAddDonVi(true);
+    //           setNhanSu(item);
+    //         },
+    //       }
+    //     : { disabled: true };
     const editItem =
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.id}_${item.chiTiet_Id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
@@ -165,10 +165,10 @@ function CanBoNhanVien({ match, history, permission }) {
         : { disabled: true };
     return (
       <React.Fragment>
-        <a {...addItem} title="Xóa">
+        {/* <a {...addItem} title="Xóa">
           <PlusOutlined />
-        </a>
-        <Divider type="vertical" />
+        </a> */}
+        {/* <Divider type="vertical" /> */}
         {editItem}
         <Divider type="vertical" />
         <a {...nhanSuNghiItemVal} title="Nghỉ việc">
@@ -203,13 +203,7 @@ function CanBoNhanVien({ match, history, permission }) {
    * @param {*} item
    */
   const deleteItemAction = (item) => {
-    const params = convertObjectToUrlParams({
-      chiTiet_Id: item.chiTiet_Id,
-      user_Id: item.id,
-      tapDoan_Id: item.TapDoan_Id,
-      donVi_Id: item.DonVi_Id,
-    });
-    let url = `Account/delete-don-vi-cbnv?${params}`;
+    let url = `Account/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -251,7 +245,7 @@ function CanBoNhanVien({ match, history, permission }) {
         title: "STT",
         dataIndex: "key",
         key: "key",
-        width: 50,
+        width: 45,
         align: "center",
         fixed: width > 700 && "left",
       },
@@ -260,14 +254,16 @@ function CanBoNhanVien({ match, history, permission }) {
         dataIndex: "maNhanVien",
         key: "maNhanVien",
         align: "center",
-        width: 100,
+        width: 80,
+        fixed: width > 700 && "left",
       },
       {
         title: "Họ tên",
         dataIndex: "fullName",
         key: "fullName",
         align: "center",
-        width: 180,
+        width: 160,
+        fixed: width > 700 && "left",
         sorter: (a, b) => a.fullName.localeCompare(b.fullName),
       },
       {
@@ -275,19 +271,51 @@ function CanBoNhanVien({ match, history, permission }) {
         dataIndex: "email",
         key: "email",
         align: "center",
-        width: 230,
+        width: 185,
+      },
+      {
+        title: "Ngày sinh",
+        dataIndex: "ngaySinh",
+        key: "ngaySinh",
+        width: 80,
+        align: "center",
+      },
+      {
+        title: "Ngày vào làm",
+        dataIndex: "ngayVaoLam",
+        key: "ngayVaoLam",
+        width: 80,
+        align: "center",
       },
       {
         title: "SĐT",
         dataIndex: "phoneNumber",
         key: "phoneNumber",
-        width: 100,
+        width: 75,
         align: "center",
+      },
+      {
+        title: "Chức danh",
+        dataIndex: "tenChucDanh",
+        key: "tenChucDanh",
+        width: 80,
+        align: "center",
+        filters: removeDuplicates(
+          map(data.datalist, (d) => {
+            return {
+              text: d.tenChucDanh,
+              value: d.tenChucDanh,
+            };
+          })
+        ),
+        onFilter: (value, record) => record.tenChucDanh.includes(value),
+        filterSearch: true,
       },
       {
         title: "Chức vụ",
         dataIndex: "tenChucVu",
         key: "tenChucVu",
+        width: 80,
         align: "center",
         filters: removeDuplicates(
           map(data.datalist, (d) => {
@@ -301,25 +329,10 @@ function CanBoNhanVien({ match, history, permission }) {
         filterSearch: true,
       },
       {
-        title: "Bộ phận",
-        dataIndex: "tenBoPhan",
-        key: "tenBoPhan",
-        align: "center",
-        filters: removeDuplicates(
-          map(data.datalist, (d) => {
-            return {
-              text: d.tenBoPhan,
-              value: d.tenBoPhan,
-            };
-          })
-        ),
-        onFilter: (value, record) => record.tenBoPhan.includes(value),
-        filterSearch: true,
-      },
-      {
         title: "Phòng ban",
         dataIndex: "tenPhongBan",
         key: "tenPhongBan",
+        width: 100,
         align: "center",
         filters: removeDuplicates(
           map(data.datalist, (d) => {
@@ -335,6 +348,7 @@ function CanBoNhanVien({ match, history, permission }) {
       {
         title: "Đơn vị",
         dataIndex: "tenDonVi",
+        width: 130,
         key: "tenDonVi",
         align: "center",
         filters: removeDuplicates(
@@ -368,15 +382,15 @@ function CanBoNhanVien({ match, history, permission }) {
     ];
 
     renderHead = [
-      ...renderHead,
       {
         title: "Chức năng",
         key: "action",
         align: "center",
-        width: 120,
+        width: 100,
         render: (value) => actionContent(value),
-        fixed: width > 700 && "right",
+        fixed: width > 700 && "left",
       },
+      ...renderHead,
     ];
     return renderHead;
   };
@@ -474,7 +488,10 @@ function CanBoNhanVien({ match, history, permission }) {
         buttons={addButtonRender()}
         classCss="gx-position-button-cbnv"
       />
-      <Card className="th-card-margin-bottom th-card-reset-margin">
+      <Card
+        className="th-card-margin-bottom th-card-reset-margin"
+        bodyStyle={{ paddingBottom: 0 }}
+      >
         <Row>
           <Col
             xxl={2}
@@ -528,9 +545,9 @@ function CanBoNhanVien({ match, history, permission }) {
         </Row>
         <Table
           bordered
-          scroll={{ x: 1300, y: "55vh" }}
+          scroll={{ x: 1300, y: "64vh" }}
           columns={header()}
-          className="gx-table-responsive"
+          className="gx-table-responsive gx-table-resize"
           dataSource={dataList}
           size="small"
           pagination={{
@@ -550,6 +567,7 @@ function CanBoNhanVien({ match, history, permission }) {
           openModal={ActiveModal}
           openModalFS={setActiveModal}
           refesh={refeshData}
+          loading={loading}
         />
         <ModalNghiViec
           openModal={isModalOpen}

@@ -104,12 +104,12 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
 
   const getNguoiNhanHang = (info) => {
     const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
+      donVi_Id: info.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}&key=1`,
+          `Account/user-by-dv-pb?${params}&key=1`,
           "GET",
           null,
           "DETAIL",

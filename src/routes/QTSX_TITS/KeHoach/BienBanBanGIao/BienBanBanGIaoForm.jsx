@@ -101,13 +101,12 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
   };
   const getUser = (info) => {
     const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
-      key: 1,
+      donVi_Id: info.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}`,
+          `Account/user-by-dv-pb?${params}`,
           "GET",
           null,
           "DETAIL",

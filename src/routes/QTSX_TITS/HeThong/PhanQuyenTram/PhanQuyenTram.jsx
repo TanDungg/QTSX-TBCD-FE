@@ -33,12 +33,14 @@ function PhanQuyenTram({ permission, history }) {
   }, []);
 
   const getUser = (info) => {
-    let param = convertObjectToUrlParams({ donviId: info.donVi_Id, key: 1 });
-
+    let param = convertObjectToUrlParams({
+      donVi_Id: info.donVi_Id,
+      phanMem_Id: info.phanMem_Id,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${param}`,
+          `PhanMem/user-all-role?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -207,7 +209,7 @@ function PhanQuyenTram({ permission, history }) {
               className="heading-select slt-search th-select-heading"
               data={UserSelect ? UserSelect : []}
               placeholder="Tìm tài khoản"
-              optionsvalue={["id", "name"]}
+              optionsvalue={["user_Id", "name"]}
               style={{ width: "100%" }}
               optionFilterProp={"name"}
               showSearch

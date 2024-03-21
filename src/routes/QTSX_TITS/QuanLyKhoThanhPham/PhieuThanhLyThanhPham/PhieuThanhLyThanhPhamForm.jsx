@@ -126,13 +126,12 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
 
   const getUserKy = () => {
     const params = convertObjectToUrlParams({
-      donviId: INFO.donVi_Id,
-      key: 1,
+      donVi_Id: INFO.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/get-cbnv?${params}`,
+          `Account/user-by-dv-pb?${params}`,
           "GET",
           null,
           "DETAIL",

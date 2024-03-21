@@ -62,12 +62,12 @@ function NguoiDungForm({ match, permission, history }) {
    * @param donviId
    * @param phanMemId
    */
-  const getUserActive = (donviId, phanMemId) => {
-    let param = convertObjectToUrlParams({ donviId, phanMemId });
+  const getUserActive = (donvi_Id, phanMem_Id) => {
+    let param = convertObjectToUrlParams({ donvi_Id, phanMem_Id });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/Get-NonActive-User?${param}`,
+          `Account/list-cbnv-khong-co-quyen-trong-phan-mem?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -82,7 +82,9 @@ function NguoiDungForm({ match, permission, history }) {
           const newData = [];
           res.data.forEach((d) => {
             newData.push({
-              name: `${d.maNhanVien} - ${d.fullName} - ${d.email}`,
+              name: d.email
+                ? `${d.maNhanVien} - ${d.fullName} - ${d.email}`
+                : `${d.maNhanVien} - ${d.fullName}`,
               ...d,
             });
           });
@@ -173,6 +175,14 @@ function NguoiDungForm({ match, permission, history }) {
             roleNames: listRole,
             IsActive_Role: active,
           };
+          setUserSelect([
+            {
+              name: res.data[0].email
+                ? `${res.data[0].maNhanVien} - ${res.data[0].fullName} - ${res.data[0].email}`
+                : `${res.data[0].maNhanVien} - ${res.data[0].fullName}`,
+              id: res.data[0].user_Id,
+            },
+          ]);
           setFieldsValue({ user: newData });
         }
       })
@@ -210,7 +220,7 @@ function NguoiDungForm({ match, permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `Account/user-cbnv?id=${newData.id}`,
+            `Account/role-cbnv?id=${user.id}`,
             "POST",
             newData,
             "ADD",
@@ -243,7 +253,7 @@ function NguoiDungForm({ match, permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `Account/user-cbnv`,
+            `Account/role-cbnv?id=${user.id}`,
             "PUT",
             newData,
             "EDIT",
