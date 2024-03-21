@@ -15,22 +15,12 @@ const DonViForm = asyncComponent(() => import("./DonVi/DonViForm"));
 const PhongBan = asyncComponent(() => import("./PhongBan/PhongBan"));
 const PhongBanForm = asyncComponent(() => import("./PhongBan/PhongBanForm"));
 
-/* Chuyên môn */
-const ChuyenMon = asyncComponent(() => import("./ChuyenMon/ChuyenMon"));
-const ChuyenMonForm = asyncComponent(() => import("./ChuyenMon/ChuyenMonForm"));
-
 /* Hình thức đào tạo */
 const HinhThucDaoTao = asyncComponent(() =>
   import("./HinhThucDaoTao/HinhThucDaoTao")
 );
 const HinhThucDaoTaoForm = asyncComponent(() =>
   import("./HinhThucDaoTao/HinhThucDaoTaoForm")
-);
-
-/* Cấp độ nhân sự */
-const CapDoNhanSu = asyncComponent(() => import("./CapDoNhanSu/CapDoNhanSu"));
-const CapDoNhanSuForm = asyncComponent(() =>
-  import("./CapDoNhanSu/CapDoNhanSuForm")
 );
 
 /* Loại giảng viên */
@@ -118,23 +108,6 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(PhongBanForm, menus, pathname, permission)}
       />
 
-      {/* Chuyên môn */}
-      <Route
-        path={`${match.url}/chuyen-mon`}
-        exact
-        component={Auth(ChuyenMon, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/chuyen-mon/them-moi`}
-        exact
-        component={Auth(ChuyenMonForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/chuyen-mon/:id/chinh-sua`}
-        exact
-        component={Auth(ChuyenMonForm, menus, pathname, permission)}
-      />
-
       {/* Hình thức đào tạo */}
       <Route
         path={`${match.url}/hinh-thuc-dao-tao`}
@@ -150,23 +123,6 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/hinh-thuc-dao-tao/:id/chinh-sua`}
         exact
         component={Auth(HinhThucDaoTaoForm, menus, pathname, permission)}
-      />
-
-      {/* Cấp độ nhân sự */}
-      <Route
-        path={`${match.url}/cap-do-nhan-su`}
-        exact
-        component={Auth(CapDoNhanSu, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/cap-do-nhan-su/them-moi`}
-        exact
-        component={Auth(CapDoNhanSuForm, menus, pathname, permission)}
-      />
-      <Route
-        path={`${match.url}/cap-do-nhan-su/:id/chinh-sua`}
-        exact
-        component={Auth(CapDoNhanSuForm, menus, pathname, permission)}
       />
 
       {/* Loại giảng viên */}

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, Card, Upload, message } from "antd";
-import { LoadingOutlined, PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import { BASE_URL_API } from "src/constants/Config";
 import {
   getTokenInfo,
@@ -11,20 +11,7 @@ import ContainerHeader from "src/components/ContainerHeader";
 import { fetchStart } from "src/appRedux/actions";
 import { useDispatch } from "react-redux";
 import { Modal } from "src/components/Common";
-
-const getBase64 = (img, callback) => {
-  const reader = new FileReader();
-  reader.addEventListener("load", () => callback(reader.result));
-  reader.readAsDataURL(img);
-};
-
-const beforeUpload = (file) => {
-  const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
-  if (!isJpgOrPng) {
-    message.error("Vui lòng tải file ảnh!");
-  }
-  return isJpgOrPng;
-};
+import Helpers from "src/helpers";
 
 function ChuKy({ permission }) {
   const dispatch = useDispatch();
@@ -33,9 +20,8 @@ function ChuKy({ permission }) {
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const [Path, setPath] = useState();
-  const [loading, setLoading] = useState(false);
-  const [ImageUrl, setImageUrl] = useState();
+  const [HinhAnh, setHinhAnh] = useState();
+  const [ImageUrl, setImageUrl] = useState(null);
   const [disable, setDisable] = useState(true);
 
   useEffect(() => {
@@ -71,9 +57,46 @@ function ChuKy({ permission }) {
     });
   };
 
-  const handleLuuChuKySo = () => {
+  const beforeUpload = (file) => {
+    const isHinhAnh = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isHinhAnh) {
+      message.error("Vui lòng tải file ảnh!");
+    } else {
+      const reader = new FileReader();
+      setDisable(false);
+      setHinhAnh(file);
+      reader.onload = (e) => setImageUrl(e.target.result);
+      reader.readAsDataURL(file);
+    }
+    return false;
+  };
+
+  const uploadFile = () => {
+    if (HinhAnh) {
+      const formData = new FormData();
+      formData.append("file", HinhAnh);
+      fetch(`${BASE_URL_API}/api/Upload`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: "Bearer ".concat(INFO.token),
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          handleLuuChuKySo(data.path);
+        })
+        .catch(() => {
+          message.error("Tải hình ảnh không thành công.");
+        });
+    } else {
+      Helpers.alertError("Vui lòng tải file hình ảnh chữ ký số!");
+    }
+  };
+
+  const handleLuuChuKySo = (path) => {
     const params = convertObjectToUrlParams({
-      HinhAnhChuKySo: Path,
+      HinhAnhChuKySo: path,
     });
     new Promise((resolve, reject) => {
       dispatch(
@@ -89,10 +112,8 @@ function ChuKy({ permission }) {
       );
     }).then((res) => {
       if (res && res.status !== 409) {
-        setPath(null);
-        setImageUrl(null);
-        setDisable(true);
         getData();
+        setDisable(true);
       }
     });
   };
@@ -102,7 +123,7 @@ function ChuKy({ permission }) {
     okText: "Xác nhận",
     cancelText: "Hủy",
     title: "Xác nhận lưu chữ ký số",
-    onOk: handleLuuChuKySo,
+    onOk: uploadFile,
   };
 
   const modalLuuChuKySo = () => {
@@ -142,21 +163,6 @@ function ChuKy({ permission }) {
     Modal(propdelete);
   };
 
-  const handleChange = (info) => {
-    if (info.file.status === "uploading") {
-      setLoading(true);
-      return;
-    }
-    if (info.file.status === "done") {
-      setPath(info.file.response.path);
-      getBase64(info.file.originFileObj, (url) => {
-        setLoading(false);
-        setImageUrl(url);
-        setDisable(false);
-      });
-    }
-  };
-
   const uploadButton = (
     <button
       style={{
@@ -165,13 +171,13 @@ function ChuKy({ permission }) {
       }}
       type="button"
     >
-      {loading ? <LoadingOutlined /> : <PlusOutlined />}
+      <PlusOutlined />
       <div
         style={{
           marginTop: 8,
         }}
       >
-        Upload
+        Upload chữ ký số
       </div>
     </button>
   );
@@ -185,17 +191,21 @@ function ChuKy({ permission }) {
       >
         <Upload
           listType="picture-card"
+          accept="image/*"
           className="avatar-uploader"
           showUploadList={false}
-          action={`${BASE_URL_API}/api/Upload`}
-          headers={{
-            Authorization: "Bearer ".concat(INFO.token),
-          }}
           beforeUpload={beforeUpload}
-          onChange={handleChange}
-          style={{ width: "250px" }}
+          style={{ width: "250px", height: "250px" }}
         >
-          {ImageUrl ? <img src={ImageUrl} alt="Chữ ký số" /> : uploadButton}
+          {ImageUrl ? (
+            <img
+              style={{ maxWidth: "100%", maxHeight: "100%" }}
+              src={ImageUrl}
+              alt="Chữ ký số"
+            />
+          ) : (
+            uploadButton
+          )}
         </Upload>
         <div
           style={{

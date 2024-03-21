@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Form, Input, Card, Col, Row, DatePicker } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import includes from "lodash/includes";
 import { Select, FormSubmit } from "src/components/Common";
 import { fetchStart, fetchReset } from "src/appRedux/actions";
 import { DEFAULT_FORM_ADD_2COL_200PX } from "src/constants/Config";
 import ContainerHeader from "src/components/ContainerHeader";
-import { convertObjectToUrlParams } from "src/util/Common";
 import { isEmpty } from "lodash";
 import moment from "moment";
 
@@ -16,40 +14,32 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
   const [form] = Form.useForm();
-  const { validateFields, resetFields, setFieldsValue } = form;
+  const { validateFields, setFieldsValue } = form;
   const [fieldTouch, setFieldTouch] = useState(false);
-  const [type, setType] = useState("new");
-  const [ListDonVi, setListDonVi] = useState([]);
-  const [DonVi, setDonVi] = useState([]);
-  const [ListPhongBan, setListPhongBan] = useState([]);
-  const [ListBoPhan, setListBoPhan] = useState([]);
-  const [ListChucVu, setListChucVu] = useState([]);
-  const [ListChuyenMon, setListChuyenMon] = useState([]);
   const [ListCapDoNhanSu, setListCapDoNhanSu] = useState([]);
+  const [ListDonVi, setListDonVi] = useState([]);
+  const [ListPhongBan, setListPhongBan] = useState([]);
+  const [ListChucDanh, setListChucDanh] = useState([]);
+  const [ListChucVu, setListChucVu] = useState([]);
+  const [ListThanhPhan, setListThanhPhan] = useState([]);
+  const [ListDonViTraLuong, setListDonViTraLuong] = useState([]);
   const [id, setId] = useState(undefined);
 
   useEffect(() => {
-    if (includes(match.url, "them-moi")) {
-      if (permission && permission.add) {
-        setType("new");
-        getListDonVi();
-        getListChucVu();
-        getListChuyenMon();
-        getListCapDoNhanSu();
-      } else if (permission && !permission.add) {
-        history.push("/home");
-      }
-    } else {
-      if (permission && permission.edit) {
-        setType("edit");
-        const { id } = match.params;
-        setId(id);
-        setDonVi(history.location.state.itemData.donVi_Id);
-        getInfo(id, history.location.state.itemData.donVi_Id);
-      } else if (permission && !permission.edit) {
-        history.push("/home");
-      }
+    if (permission && permission.edit) {
+      const { id } = match.params;
+      setId(id);
+      getInfo(id);
+      getListCapDoNhanSu();
+      getListDonVi();
+      getListChucDanh();
+      getListChucVu();
+      getListThanhPhan();
+      getListDonViTraLuong();
+    } else if (permission && !permission.edit) {
+      history.push("/home");
     }
+
     return () => dispatch(fetchReset());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -57,15 +47,7 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
   const getListDonVi = () => {
     new Promise((resolve, reject) => {
       dispatch(
-        fetchStart(
-          `DonVi/don-vi-by-user`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
+        fetchStart(`DonVi?page=-1`, "GET", null, "DETAIL", "", resolve, reject)
       );
     })
       .then((res) => {
@@ -78,109 +60,11 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const getListPhongBan = (donviid) => {
-    let param = convertObjectToUrlParams({ donviid, page: -1 });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `PhongBan?${param}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListPhongBan(res.data);
-        } else {
-          setListPhongBan([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListBoPhan = (phongbanid) => {
-    let param = convertObjectToUrlParams({ phongbanid, page: -1 });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `BoPhan?${param}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListBoPhan(res.data);
-        } else {
-          setListBoPhan([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListChucVu = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `vptq_lms_ChucDanhChucVu?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListChucVu(res.data);
-        } else {
-          setListChucVu([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const getListChuyenMon = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `vptq_lms_ChuyenMon?page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListChuyenMon(res.data);
-        } else {
-          setListChuyenMon([]);
-        }
-      })
-      .catch((error) => console.error(error));
-  };
-
   const getListCapDoNhanSu = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_CapDoNhanSu?page=-1`,
+          `Account/list-cap-do-nhan-su`,
           "GET",
           null,
           "DETAIL",
@@ -200,12 +84,11 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
       .catch((error) => console.error(error));
   };
 
-  const getInfo = (user_Id, donVi_Id) => {
-    const param = convertObjectToUrlParams({ user_Id, donVi_Id });
+  const getListPhongBan = (donVi_Id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `vptq_lms_ThongTinCBNV/${user_Id}?${param}`,
+          `Account/list-ma-phong-ban?donVi_Id=${donVi_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -217,13 +100,120 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
+          setListPhongBan(res.data);
+        } else {
+          setListPhongBan([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListChucDanh = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Account/list-chuc-danh`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListChucDanh(res.data);
+        } else {
+          setListChucDanh([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListChucVu = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Account/list-chuc-vu`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListChucVu(res.data);
+        } else {
+          setListChucVu([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListThanhPhan = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Account/list-thanh-phan`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListThanhPhan(res.data);
+        } else {
+          setListThanhPhan([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListDonViTraLuong = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `Account/list-don-vi-tra-luong`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListDonViTraLuong(res.data);
+        } else {
+          setListDonViTraLuong([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getInfo = (id) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(`Account/${id}`, "GET", null, "DETAIL", "", resolve, reject)
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
           const data = res.data;
-          getListDonVi(data.tapDoan_Id);
           getListPhongBan(data.donVi_Id);
-          getListBoPhan(data.phongBan_Id);
-          getListChucVu();
-          getListChuyenMon();
-          getListCapDoNhanSu();
           setFieldsValue({
             user: {
               ...data,
@@ -238,12 +228,7 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
   };
 
   const goBack = () => {
-    history.push(
-      `${match.url.replace(
-        type === "new" ? "/them-moi" : `/${match.params.id}/chinh-sua`,
-        ""
-      )}`
-    );
+    history.push(`${match.url.replace(`/${match.params.id}/chinh-sua`, "")}`);
   };
 
   const onFinish = (values) => {
@@ -263,73 +248,28 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
   const saveData = (user, saveQuit = false) => {
     const newData = {
       ...user,
+      id: id,
       ngaySinh: user.ngaySinh && user.ngaySinh.format("DD/MM/YYYY"),
       ngayVaoLam: user.ngayVaoLam && user.ngayVaoLam.format("DD/MM/YYYY"),
     };
-    if (type === "new") {
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `vptq_lms_ThongTinCBNV`,
-            "POST",
-            newData,
-            "ADD",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.status === 409) {
-            setFieldTouch(false);
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(`Account/${id}`, "PUT", newData, "EDIT", "", resolve, reject)
+      );
+    })
+      .then((res) => {
+        if (res && res.status === 409) {
+          setFieldTouch(false);
+        } else {
+          if (saveQuit) {
+            goBack();
           } else {
-            if (saveQuit) {
-              goBack();
-            } else {
-              resetFields();
-              setListPhongBan([]);
-              setListBoPhan([]);
-              setFieldTouch(false);
-            }
-          }
-        })
-        .catch((error) => console.error(error));
-    }
-    if (type === "edit") {
-      const newData = {
-        ...user,
-        id: id,
-        ngaySinh: user.ngaySinh && user.ngaySinh.format("DD/MM/YYYY"),
-        ngayVaoLam: user.ngayVaoLam && user.ngayVaoLam.format("DD/MM/YYYY"),
-      };
-      new Promise((resolve, reject) => {
-        dispatch(
-          fetchStart(
-            `vptq_lms_ThongTinCBNV/${id}`,
-            "PUT",
-            newData,
-            "EDIT",
-            "",
-            resolve,
-            reject
-          )
-        );
-      })
-        .then((res) => {
-          if (res && res.status === 409) {
+            getInfo(id);
             setFieldTouch(false);
-          } else {
-            if (saveQuit) {
-              goBack();
-            } else {
-              getInfo(id, DonVi);
-              setFieldTouch(false);
-            }
           }
-        })
-        .catch((error) => console.error(error));
-    }
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   const validatePhoneNumber = (rule, value, callback) => {
@@ -349,27 +289,14 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
     getListPhongBan(value);
     setFieldsValue({
       user: {
-        phongBan_Id: null,
-        boPhan_Id: null,
+        maPhongBanHRM: null,
       },
     });
   };
-
-  const handleSelectPhongBan = (value) => {
-    getListBoPhan(value);
-    setFieldsValue({
-      user: {
-        boPhan_Id: null,
-      },
-    });
-  };
-
-  const formTitle =
-    type === "new" ? "Thêm mới cán bộ nhân viên" : "Chỉnh sửa cán bộ nhân viên";
 
   return (
     <div className="gx-main-content">
-      <ContainerHeader title={formTitle} back={goBack} />
+      <ContainerHeader title={"Chỉnh sửa cán bộ nhân viên"} back={goBack} />
       <Card className="th-card-margin-bottom">
         <Form
           {...DEFAULT_FORM_ADD_2COL_200PX}
@@ -526,21 +453,16 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Chuyên môn"
-                name={["user", "vptq_lms_ChuyenMon_Id"]}
+                name={["user", "trinhDoChuyenMon"]}
                 rules={[
                   {
                     type: "string",
                   },
                 ]}
               >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListChuyenMon ? ListChuyenMon : []}
-                  placeholder="Chọn trình độ chuyên môn"
-                  optionsvalue={["id", "tenChuyenMon"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp={"name"}
+                <Input
+                  className="input-item"
+                  placeholder="Nhập trình độ chuyên môn"
                 />
               </FormItem>
             </Col>
@@ -555,7 +477,7 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Cấp độ"
-                name={["user", "vptq_lms_CapDoNhanSu_Id"]}
+                name={["user", "capDoNhanSu_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -584,7 +506,7 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Trường"
-                name={["user", "vptq_lms_Truong_Id"]}
+                name={["user", "truong"]}
                 rules={[
                   {
                     type: "string",
@@ -619,37 +541,6 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
                 />
               </FormItem>
             </Col>
-            {/* <Col
-              xxl={12}
-              xl={16}
-              lg={22}
-              md={22}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: "5px" }}
-            >
-              <FormItem
-                label="Tập đoàn"
-                name={["user", "tapDoan_Id"]}
-                rules={[
-                  {
-                    type: "string",
-                    required: true,
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListTapDoan ? ListTapDoan : []}
-                  placeholder="Chọn tập đoàn"
-                  optionsvalue={["id", "tenTapDoan"]}
-                  style={{ width: "100%" }}
-                  disabled
-                  showSearch
-                  optionFilterProp={"name"}
-                />
-              </FormItem>
-            </Col> */}
             <Col
               xxl={12}
               xl={16}
@@ -673,7 +564,7 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListDonVi ? ListDonVi : []}
                   placeholder="Chọn đơn vị"
-                  optionsvalue={["donVi_Id", "tenDonVi"]}
+                  optionsvalue={["id", "tenDonVi"]}
                   style={{ width: "100%" }}
                   onSelect={handleSelectDonVi}
                   showSearch
@@ -692,7 +583,7 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Phòng ban"
-                name={["user", "phongBan_Id"]}
+                name={["user", "maPhongBanHRM"]}
                 rules={[
                   {
                     required: true,
@@ -704,9 +595,8 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListPhongBan ? ListPhongBan : []}
                   placeholder="Chọn phòng ban"
-                  optionsvalue={["id", "tenPhongBan"]}
+                  optionsvalue={["maPhongBanHRM", "tenPhongBan"]}
                   style={{ width: "100%" }}
-                  onSelect={handleSelectPhongBan}
                   showSearch
                   optionFilterProp={"name"}
                 />
@@ -722,8 +612,8 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
               style={{ marginBottom: "5px" }}
             >
               <FormItem
-                label="Bộ phận"
-                name={["user", "boPhan_Id"]}
+                label="Chức danh"
+                name={["user", "chucDanh_Id"]}
                 rules={[
                   {
                     type: "string",
@@ -732,9 +622,67 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListBoPhan ? ListBoPhan : []}
+                  data={ListChucDanh ? ListChucDanh : []}
+                  placeholder="Chọn chức danh"
+                  optionsvalue={["id", "tenChucDanh"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp={"name"}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={16}
+              lg={22}
+              md={22}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: "5px" }}
+            >
+              <FormItem
+                label="Chức vụ"
+                name={["user", "chucVu_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListChucVu ? ListChucVu : []}
+                  placeholder="Chọn chức vụ"
+                  optionsvalue={["id", "tenChucVu"]}
+                  style={{ width: "100%" }}
+                  showSearch
+                  optionFilterProp={"name"}
+                />
+              </FormItem>
+            </Col>
+            <Col
+              xxl={12}
+              xl={16}
+              lg={22}
+              md={22}
+              sm={24}
+              xs={24}
+              style={{ marginBottom: "5px" }}
+            >
+              <FormItem
+                label="Thành phần"
+                name={["user", "thanhPhan_Id"]}
+                rules={[
+                  {
+                    type: "string",
+                  },
+                ]}
+              >
+                <Select
+                  className="heading-select slt-search th-select-heading"
+                  data={ListThanhPhan ? ListThanhPhan : []}
                   placeholder="Chọn bộ phận"
-                  optionsvalue={["id", "tenBoPhan"]}
+                  optionsvalue={["id", "tenThanhPhan"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp={"name"}
@@ -762,39 +710,9 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
               >
                 <Select
                   className="heading-select slt-search th-select-heading"
-                  data={ListDonVi ? ListDonVi : []}
+                  data={ListDonViTraLuong ? ListDonViTraLuong : []}
                   placeholder="Chọn đơn vị trả lương"
-                  optionsvalue={["id", "tenDonVi"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp={"name"}
-                />
-              </FormItem>
-            </Col>
-            <Col
-              xxl={12}
-              xl={16}
-              lg={22}
-              md={22}
-              sm={24}
-              xs={24}
-              style={{ marginBottom: "5px" }}
-            >
-              <FormItem
-                label="Chức vụ"
-                name={["user", "chucVu_Id"]}
-                rules={[
-                  {
-                    required: true,
-                    type: "string",
-                  },
-                ]}
-              >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListChucVu ? ListChucVu : []}
-                  placeholder="Chọn chức vụ"
-                  optionsvalue={["chucVu_Id", "tenChucVu"]}
+                  optionsvalue={["id", "tenDonViTraLuong"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp={"name"}
@@ -812,7 +730,7 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
             >
               <FormItem
                 label="Ghi chú"
-                name={["user", "moTa"]}
+                name={["user", "ghiChu"]}
                 rules={[
                   {
                     type: "string",

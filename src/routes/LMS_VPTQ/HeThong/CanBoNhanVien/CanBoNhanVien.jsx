@@ -128,7 +128,7 @@ function CanBoNhanVien({ match, history, permission }) {
       permission && permission.edit ? (
         <Link
           to={{
-            pathname: `${match.url}/${item.user_Id}/chinh-sua`,
+            pathname: `${match.url}/${item.id}/chinh-sua`,
             state: { itemData: item, permission },
           }}
           title="Sửa"
