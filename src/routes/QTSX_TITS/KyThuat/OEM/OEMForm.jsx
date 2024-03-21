@@ -130,7 +130,7 @@ const OEMForm = ({ history, match, permission }) => {
 
   const getNguoiDuyet = (info) => {
     const params = convertObjectToUrlParams({
-      donviId: info.donVi_Id,
+      donVi_Id: info.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(

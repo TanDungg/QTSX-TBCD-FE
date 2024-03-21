@@ -131,12 +131,6 @@ function BOMForm({ match, permission, history }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const getUserKy = (info) => {
-<<<<<<< HEAD
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `Account/user-by-dv-pb?donVi_Id=${info.donVi_Id}`,
-=======
     const params = convertObjectToUrlParams({
       donVi_Id: info.donVi_Id,
     });
@@ -144,7 +138,6 @@ function BOMForm({ match, permission, history }) {
       dispatch(
         fetchStart(
           `Account/user-by-dv-pb?${params}&key=1`,
->>>>>>> d291619156091d9f07f2f31cf874d58d2639e49a
           "GET",
           null,
           "DETAIL",
