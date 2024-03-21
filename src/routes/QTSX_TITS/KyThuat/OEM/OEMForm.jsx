@@ -140,7 +140,7 @@ const OEMForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}&key=1`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -682,7 +682,7 @@ const OEMForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListNguoiDuyet}
                   placeholder="Chọn người kiểm tra"
-                  optionsvalue={["user_Id", "nguoiDuyet"]}
+                  optionsvalue={["id", "nguoiDuyet"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -713,7 +713,7 @@ const OEMForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListNguoiDuyet}
                   placeholder="Chọn người phê duyệt"
-                  optionsvalue={["user_Id", "nguoiDuyet"]}
+                  optionsvalue={["id", "nguoiDuyet"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

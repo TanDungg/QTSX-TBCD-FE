@@ -174,7 +174,7 @@ const PhieuDieuChuyenVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -860,7 +860,7 @@ const PhieuDieuChuyenVatTuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserDuyet}
                   placeholder="Chọn người nhận"
-                  optionsvalue={["user_Id", "user"]}
+                  optionsvalue={["id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -891,7 +891,7 @@ const PhieuDieuChuyenVatTuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserDuyet}
                   placeholder="Chọn phụ trách bộ phận"
-                  optionsvalue={["user_Id", "user"]}
+                  optionsvalue={["id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

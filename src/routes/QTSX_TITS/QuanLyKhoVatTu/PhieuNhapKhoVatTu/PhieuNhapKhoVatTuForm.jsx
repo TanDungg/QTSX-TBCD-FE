@@ -133,7 +133,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -158,14 +158,10 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
   };
 
   const getUserLap = (info, nguoiTao_Id) => {
-    const params = convertObjectToUrlParams({
-      id: nguoiTao_Id ? nguoiTao_Id : info.user_Id,
-      donVi_Id: info.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : info.user_Id}?${params}`,
+          `Account/${nguoiTao_Id ? nguoiTao_Id : info.user_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -179,7 +175,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           phieunhapkhovattu: {
-            nguoiTao_Id: res.data.Id,
+            nguoiTao_Id: res.data.id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -853,7 +849,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUser ? ListUser : []}
-                  optionsvalue={["Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   disabled={true}
                 />
@@ -1102,7 +1098,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Người giao"
-                  optionsvalue={["user_Id", "nguoiKiemTra"]}
+                  optionsvalue={["id", "nguoiKiemTra"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1137,7 +1133,7 @@ const NhapKhoVatTuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Người duyệt"
-                  optionsvalue={["user_Id", "nguoiKiemTra"]}
+                  optionsvalue={["id", "nguoiKiemTra"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

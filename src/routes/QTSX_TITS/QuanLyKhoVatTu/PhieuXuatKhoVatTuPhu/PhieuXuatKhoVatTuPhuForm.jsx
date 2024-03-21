@@ -271,7 +271,7 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -1059,7 +1059,7 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn người nhận"
-                  optionsvalue={["user_Id", "user"]}
+                  optionsvalue={["id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1094,7 +1094,7 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn phụ trách bộ phận"
-                  optionsvalue={["user_Id", "user"]}
+                  optionsvalue={["id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1129,7 +1129,7 @@ const PhieuXuatKhoVatTuPhuForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy}
                   placeholder="Chọn bộ phận kế toán"
-                  optionsvalue={["user_Id", "user"]}
+                  optionsvalue={["id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

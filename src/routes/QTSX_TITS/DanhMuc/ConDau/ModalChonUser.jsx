@@ -53,7 +53,7 @@ function ModalChonUser({ openModalFS, openModal, itemData, DataChonUser }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -230,7 +230,7 @@ function ModalChonUser({ openModalFS, openModal, itemData, DataChonUser }) {
                     className="heading-select slt-search th-select-heading"
                     data={ListUser}
                     placeholder="Chọn sử dụng con dấu"
-                    optionsvalue={["user_Id", "fullName"]}
+                    optionsvalue={["id", "fullName"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"

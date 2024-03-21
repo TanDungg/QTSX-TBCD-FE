@@ -91,7 +91,7 @@ function ModalThemDanhSachCBNV({
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${param}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${param}`,
           "GET",
           null,
           "DETAIL",

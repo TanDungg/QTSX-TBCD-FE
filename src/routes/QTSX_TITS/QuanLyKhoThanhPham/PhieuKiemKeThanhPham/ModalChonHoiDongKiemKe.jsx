@@ -55,7 +55,7 @@ function ModalChonHoiDongKiemKe({
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -237,7 +237,7 @@ function ModalChonHoiDongKiemKe({
                 className="heading-select slt-search th-select-heading"
                 data={ListHoiDongKiemKe}
                 placeholder="Chọn hội đồng kiểm kê"
-                optionsvalue={["user_Id", "nhanVien"]}
+                optionsvalue={["id", "nhanVien"]}
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp="name"

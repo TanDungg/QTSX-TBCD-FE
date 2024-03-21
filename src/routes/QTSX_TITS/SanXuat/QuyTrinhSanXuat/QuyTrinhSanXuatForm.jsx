@@ -241,7 +241,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -1470,7 +1470,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
                   className="heading-select slt-search th-select-heading"
                   data={ListNhanVien}
                   placeholder="Chọn người kiểm tra"
-                  optionsvalue={["user_Id", "nhanVien"]}
+                  optionsvalue={["id", "nhanVien"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -1501,7 +1501,7 @@ function QuyTrinhSanXuatForm({ match, permission, history }) {
                   className="heading-select slt-search th-select-heading"
                   data={ListNhanVien}
                   placeholder="Chọn người duyệt"
-                  optionsvalue={["user_Id", "nhanVien"]}
+                  optionsvalue={["id", "nhanVien"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

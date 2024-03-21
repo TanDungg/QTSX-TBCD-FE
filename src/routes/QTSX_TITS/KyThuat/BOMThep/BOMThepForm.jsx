@@ -134,7 +134,7 @@ function BOMThepForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}&key=1`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -1196,7 +1196,7 @@ function BOMThepForm({ match, permission, history }) {
                     className="heading-select slt-search th-select-heading"
                     data={ListUserKy}
                     placeholder="Chọn người kiểm tra"
-                    optionsvalue={["user_Id", "user"]}
+                    optionsvalue={["id", "user"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
@@ -1228,7 +1228,7 @@ function BOMThepForm({ match, permission, history }) {
                     className="heading-select slt-search th-select-heading"
                     data={ListUserKy}
                     placeholder="Chọn người duyệt"
-                    optionsvalue={["user_Id", "user"]}
+                    optionsvalue={["id", "user"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"

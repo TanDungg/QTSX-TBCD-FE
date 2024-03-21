@@ -136,7 +136,7 @@ const DangKyDaoTaoForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?donVi_Id=${donVi_Id}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?donVi_Id=${donVi_Id}`,
           "GET",
           null,
           "DETAIL",

@@ -109,7 +109,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}&key=1`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${params}&key=1`,
           "GET",
           null,
           "DETAIL",
@@ -1044,7 +1044,7 @@ const PhieuNhanHangForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListNguoiNhan}
                   placeholder="Chọn người nhận"
-                  optionsvalue={["user_Id", "nguoiNhan"]}
+                  optionsvalue={["id", "nguoiNhan"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

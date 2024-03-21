@@ -52,7 +52,7 @@ const LopHocForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?donVi_Id=${DONVI_VPTQ}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?donVi_Id=${DONVI_VPTQ}`,
           "GET",
           null,
           "DETAIL",

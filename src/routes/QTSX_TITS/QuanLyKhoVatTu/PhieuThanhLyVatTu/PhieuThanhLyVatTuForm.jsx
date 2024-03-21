@@ -131,7 +131,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -805,7 +805,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy ? ListUserKy : []}
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   placeholder="Trưởng bộ phận"
                   showSearch
@@ -836,7 +836,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy ? ListUserKy : []}
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   placeholder="Duyệt BP kế toán"
                   showSearch
@@ -867,7 +867,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy ? ListUserKy : []}
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   placeholder="Phòng R&D"
                   showSearch
@@ -898,7 +898,7 @@ const ThanhLyVatTuForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUserKy ? ListUserKy : []}
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   placeholder="Duyệt"
                   showSearch

@@ -58,7 +58,7 @@ function ModalChonHoiDongKiemKe({
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/user-by-dv-pb?${params}`,
+          `Account/list-cbnv-thuoc-don-vi-va-co-quyen?${params}`,
           "GET",
           null,
           "DETAIL",
@@ -233,7 +233,7 @@ function ModalChonHoiDongKiemKe({
                     className="heading-select slt-search th-select-heading"
                     data={ListHoiDongKiemKe}
                     placeholder="Chọn hội đồng kiểm kê"
-                    optionsvalue={["user_Id", "hoiDong"]}
+                    optionsvalue={["id", "hoiDong"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
@@ -263,7 +263,7 @@ function ModalChonHoiDongKiemKe({
                     className="heading-select slt-search th-select-heading"
                     data={ListHoiDongKiemKe}
                     placeholder="Chức danh"
-                    optionsvalue={["user_Id", "tenChucDanh"]}
+                    optionsvalue={["id", "tenChucDanh"]}
                     style={{ width: "100%" }}
                     disabled={true}
                   />
