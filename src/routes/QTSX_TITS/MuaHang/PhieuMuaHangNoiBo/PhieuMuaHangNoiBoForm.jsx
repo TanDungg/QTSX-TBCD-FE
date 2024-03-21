@@ -142,7 +142,7 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account?${params}`,
+          `Account/user-by-dv-pb?${params}`,
           "GET",
           null,
           "DETAIL",

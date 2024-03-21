@@ -32,12 +32,7 @@ import {
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_DIEUCHUYEN_THANHLY } from "src/constants/Config";
-import {
-  getLocalStorage,
-  getTokenInfo,
-  reDataForTable,
-  convertObjectToUrlParams,
-} from "src/util/Common";
+import { getLocalStorage, getTokenInfo, reDataForTable } from "src/util/Common";
 import ModalThemVatTu from "./ModalThemVatTu";
 import ModalTuChoi from "./ModalTuChoi";
 
@@ -174,7 +169,7 @@ const PhieuDieuChuyenVatTuForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account?${params}`,
+          `Account/get-cbnv?${params}&key=1`,
           "GET",
           null,
           "DETAIL",

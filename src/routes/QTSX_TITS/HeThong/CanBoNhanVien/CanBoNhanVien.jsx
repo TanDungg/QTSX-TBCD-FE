@@ -433,7 +433,6 @@ function CanBoNhanVien({ match, history, permission }) {
   const handleOnSelectCBNV = (value) => {
     getListData(value, page, keyword);
   };
-  
   return (
     <div className="gx-main-content">
       <ContainerHeader

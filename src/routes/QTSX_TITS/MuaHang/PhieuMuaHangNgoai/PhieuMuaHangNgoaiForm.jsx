@@ -38,6 +38,7 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_TWO_COL } from "src/constants/Config";
 import {
+  convertObjectToUrlParams,
   getDateNow,
   getLocalStorage,
   getTokenInfo,
@@ -180,7 +181,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account?${params}`,
+          `Account/user-by-dv-pb?${params}`,
           "GET",
           null,
           "DETAIL",

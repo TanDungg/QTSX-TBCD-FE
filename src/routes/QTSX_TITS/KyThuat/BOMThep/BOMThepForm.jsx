@@ -134,7 +134,7 @@ function BOMThepForm({ match, permission, history }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account?${params}`,
+          `Account/user-by-dv-pb?${params}&key=1`,
           "GET",
           null,
           "DETAIL",
