@@ -143,14 +143,10 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
   };
 
   const getUserLap = (nguoiTao_Id) => {
-    const params = convertObjectToUrlParams({
-      id: nguoiTao_Id ? nguoiTao_Id : INFO.user_Id,
-      donVi_Id: INFO.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : INFO.user_Id}?${params}`,
+          `Account/${nguoiTao_Id ? nguoiTao_Id : INFO.user_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -164,7 +160,7 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           phieudieuchuyenthanhpham: {
-            nguoiTao_Id: res.data.Id,
+            nguoiTao_Id: res.data.id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -190,7 +186,13 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListUserDuyet(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            user: `${dt.maNhanVien} - ${dt.fullName}`,
+          };
+        });
+        setListUserDuyet(newData);
       } else {
         setListUserDuyet([]);
       }
@@ -702,7 +704,7 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUser ? ListUser : []}
-                  optionsvalue={["Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   disabled={true}
                 />
@@ -874,7 +876,7 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserDuyet}
                   placeholder="Chọn người nhận"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"
@@ -905,7 +907,7 @@ const PhieuDieuChuyenThanhPhamForm = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserDuyet}
                   placeholder="Chọn phụ trách bộ phận"
-                  optionsvalue={["user_Id", "fullName"]}
+                  optionsvalue={["user_Id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp="name"

@@ -127,14 +127,10 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
   }, []);
 
   const getUserLap = (nguoiTao_Id) => {
-    const params = convertObjectToUrlParams({
-      id: nguoiTao_Id ? nguoiTao_Id : INFO.user_Id,
-      donVi_Id: INFO.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : INFO.user_Id}?${params}`,
+          `Account/${nguoiTao_Id ? nguoiTao_Id : INFO.user_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -148,7 +144,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           phieukiemke: {
-            nguoiTao_Id: res.data.Id,
+            nguoiTao_Id: res.data.id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -475,9 +471,9 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
-      title: "Chức vụ",
-      dataIndex: "tenChucVu",
-      key: "tenChucVu",
+      title: "Chức danh",
+      dataIndex: "tenChucDanh",
+      key: "tenChucDanh",
       align: "center",
     },
   ];
@@ -750,7 +746,7 @@ const PhieuKiemKeForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUser ? ListUser : []}
-                  optionsvalue={["Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   disabled={true}
                 />

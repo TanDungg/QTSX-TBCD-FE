@@ -76,8 +76,15 @@ function ModalChonHoiDongKiemKe({
             return !itemData.some((item) => item.id === data.user_Id);
           }
         });
-
-        setListHoiDongKiemKe(newData);
+        const newList =
+          newData &&
+          newData.map((dt) => {
+            return {
+              ...dt,
+              hoiDong: `${dt.maNhanVien} - ${dt.fullName}`,
+            };
+          });
+        setListHoiDongKiemKe(newList);
         setListHDKK(res.data);
       } else {
         setListHoiDongKiemKe([]);
@@ -129,9 +136,9 @@ function ModalChonHoiDongKiemKe({
       align: "center",
     },
     {
-      title: "Chức vụ",
-      dataIndex: "tenChucVu",
-      key: "tenChucVu",
+      title: "Chức danh",
+      dataIndex: "tenChucDanh",
+      key: "tenChucDanh",
       align: "center",
     },
     {
@@ -152,12 +159,12 @@ function ModalChonHoiDongKiemKe({
 
   const onFinish = (value) => {
     const newData = ListHoiDongKiemKe.filter(
-      (data) => data.id === value.chonhoidongkiemke.id
+      (data) => data.user_Id === value.chonhoidongkiemke.id
     );
     const HDKK = {
       id: newData && newData[0].user_Id,
       tenNguoiKiemKe: newData && newData[0].fullName,
-      tenChucVu: newData && newData[0].tenChucVu,
+      tenChucDanh: newData && newData[0].tenChucDanh,
     };
     setDataHoiDongKiemKe([...DataHoiDongKiemKe, HDKK]);
 
@@ -226,7 +233,7 @@ function ModalChonHoiDongKiemKe({
                     className="heading-select slt-search th-select-heading"
                     data={ListHoiDongKiemKe}
                     placeholder="Chọn hội đồng kiểm kê"
-                    optionsvalue={["user_Id", "fullName"]}
+                    optionsvalue={["user_Id", "hoiDong"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp="name"
@@ -243,7 +250,7 @@ function ModalChonHoiDongKiemKe({
                 style={{ marginBottom: 8 }}
               >
                 <FormItem
-                  label="Chức vụ"
+                  label="Chức danh"
                   name={["chonhoidongkiemke", "id"]}
                   rules={[
                     {
@@ -255,8 +262,8 @@ function ModalChonHoiDongKiemKe({
                   <Select
                     className="heading-select slt-search th-select-heading"
                     data={ListHoiDongKiemKe}
-                    placeholder="Chức vụ"
-                    optionsvalue={["user_Id", "tenChucVu"]}
+                    placeholder="Chức danh"
+                    optionsvalue={["user_Id", "tenChucDanh"]}
                     style={{ width: "100%" }}
                     disabled={true}
                   />

@@ -191,14 +191,10 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
   }, []);
 
   const getUserLap = (nguoiTao_Id) => {
-    const params = convertObjectToUrlParams({
-      id: nguoiTao_Id ? nguoiTao_Id : INFO.user_Id,
-      donVi_Id: INFO.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiTao_Id ? nguoiTao_Id : INFO.user_Id}?${params}`,
+          `Account/${nguoiTao_Id ? nguoiTao_Id : INFO.user_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -212,7 +208,7 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           bienbanbangiaoxe: {
-            nguoiTao_Id: res.data.Id,
+            nguoiTao_Id: res.data.id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -298,7 +294,13 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
       );
     }).then((res) => {
       if (res && res.data) {
-        setListDaiDien(res.data);
+        const newData = res.data.map((dt) => {
+          return {
+            ...dt,
+            user: `${dt.maNhanVien} - ${dt.fullName}`,
+          };
+        });
+        setListDaiDien(newData);
       } else {
         setListDaiDien([]);
       }
@@ -357,6 +359,10 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setInfo(res.data);
+          const newDaiDien =
+            ListDaiDien &&
+            ListDaiDien.find((dd) => dd.user_Id === res.data.daiDienBenGiao_Id);
+
           const newData =
             res.data.tits_qtsx_PhieuNhapKhoThanhPhamChiTiets &&
             JSON.parse(res.data.tits_qtsx_PhieuNhapKhoThanhPhamChiTiets).map(
@@ -379,6 +385,8 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
             bienbanbangiaoxe: {
               ...res.data,
               ngay: res.data.ngay ? moment(res.data.ngay, "DD/MM/YYYY") : null,
+              tenChucDanh: newDaiDien.tenChucDanh,
+              phoneNumber: newDaiDien.phoneNumber,
             },
           });
         }
@@ -437,7 +445,6 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
         thongTinVatTuPhuKiens: PhuKienVatTu,
         thongTinVatTuPhuKienKhac: VatTuKhac,
       };
-      console.log(newData);
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -521,6 +528,16 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
     }
   };
 
+  const handleSelectDaiDienBenGiao = (value) => {
+    const newData = ListDaiDien.find((dd) => dd.user_Id === value);
+    setFieldsValue({
+      bienbanbangiaoxe: {
+        tenChucDanh: newData.tenChucDanh,
+        phoneNumber: newData.phoneNumber,
+      },
+    });
+  };
+
   const handleSelectDonHang = (value) => {
     getListSoLo(value);
   };
@@ -593,7 +610,7 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUser ? ListUser : []}
-                  optionsvalue={["Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   disabled={true}
                 />
@@ -818,9 +835,10 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
                   className="heading-select slt-search th-select-heading"
                   data={ListDaiDien}
                   placeholder="Chọn đại diện bên giao"
-                  optionsvalue={["id", "fullName"]}
+                  optionsvalue={["user_Id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
+                  onSelect={handleSelectDaiDienBenGiao}
                   optionFilterProp="name"
                   disabled={type === "new" || type === "edit" ? false : true}
                 />
@@ -836,8 +854,8 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
               style={{ marginBottom: 8 }}
             >
               <FormItem
-                label="Chức vụ"
-                name={["bienbanbangiaoxe", "daiDienBenGiao_Id"]}
+                label="Chức danh"
+                name={["bienbanbangiaoxe", "tenChucDanh"]}
                 rules={[
                   {
                     required: true,
@@ -845,14 +863,8 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
                   },
                 ]}
               >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListDaiDien}
-                  placeholder="Chức vụ đại diện bên giao"
-                  optionsvalue={["id", "tenChucVu"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
+                <Input
+                  placeholder="Chức danh đại diện bên giao"
                   disabled={true}
                 />
               </FormItem>
@@ -868,21 +880,15 @@ const BienBanBanGiaoXe = ({ history, match, permission }) => {
             >
               <FormItem
                 label="SĐT"
-                name={["bienbanbangiaoxe", "daiDienBenGiao_Id"]}
+                name={["bienbanbangiaoxe", "phoneNumber"]}
                 rules={[
                   {
                     type: "string",
                   },
                 ]}
               >
-                <Select
-                  className="heading-select slt-search th-select-heading"
-                  data={ListDaiDien}
+                <Input
                   placeholder="Số điện thoại đại diện bên giao"
-                  optionsvalue={["id", "phoneNumber"]}
-                  style={{ width: "100%" }}
-                  showSearch
-                  optionFilterProp="name"
                   disabled={true}
                 />
               </FormItem>

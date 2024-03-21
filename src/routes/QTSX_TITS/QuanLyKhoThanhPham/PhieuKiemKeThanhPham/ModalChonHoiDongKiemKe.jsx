@@ -131,9 +131,9 @@ function ModalChonHoiDongKiemKe({
       align: "center",
     },
     {
-      title: "Chức vụ",
-      dataIndex: "tenChucVu",
-      key: "tenChucVu",
+      title: "Chức danh",
+      dataIndex: "tenChucDanh",
+      key: "tenChucDanh",
       align: "center",
     },
     {
@@ -170,7 +170,7 @@ function ModalChonHoiDongKiemKe({
       const HDKK = newData && {
         id: newData[0].user_Id,
         tenNguoiKiemKe: newData[0].fullName,
-        tenChucVu: newData[0].tenChucVu,
+        tenChucDanh: newData[0].tenChucDanh,
       };
       setDataHoiDongKiemKe([...DataHoiDongKiemKe, HDKK]);
     }
@@ -237,7 +237,7 @@ function ModalChonHoiDongKiemKe({
                 className="heading-select slt-search th-select-heading"
                 data={ListHoiDongKiemKe}
                 placeholder="Chọn hội đồng kiểm kê"
-                optionsvalue={["user_Id", "fullName"]}
+                optionsvalue={["user_Id", "nhanVien"]}
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp="name"

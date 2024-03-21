@@ -44,7 +44,6 @@ import {
   getTokenInfo,
   reDataForTable,
   renderPDF,
-  convertObjectToUrlParams,
 } from "src/util/Common";
 import Helper from "src/helpers";
 import ModalChonVatTu from "./ModalChonVatTu";
@@ -174,9 +173,9 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
     });
   };
 
-  const getUserKy = (info) => {
+  const getUserKy = () => {
     const params = convertObjectToUrlParams({
-      donVi_Id: info.donVi_Id,
+      donVi_Id: INFO.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(

@@ -135,9 +135,9 @@ const PhieuMuaHangNoiBoForm = ({ history, match, permission }) => {
     });
   };
 
-  const getUserKy = (info) => {
+  const getUserKy = () => {
     const params = convertObjectToUrlParams({
-      donVi_Id: info.donVi_Id,
+      donVi_Id: INFO.donVi_Id,
     });
     new Promise((resolve, reject) => {
       dispatch(
