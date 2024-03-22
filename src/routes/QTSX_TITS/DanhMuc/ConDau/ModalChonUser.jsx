@@ -69,8 +69,7 @@ function ModalChonUser({ openModalFS, openModal, itemData, DataChonUser }) {
             return data;
           } else {
             return !itemData.some(
-              (item) =>
-                item.user_Id.toLowerCase() === data.user_Id.toLowerCase()
+              (item) => item.user_Id.toLowerCase() === data.id.toLowerCase()
             );
           }
         });
@@ -106,7 +105,7 @@ function ModalChonUser({ openModalFS, openModal, itemData, DataChonUser }) {
     setDataUser(newData);
 
     const newListCBNV = ListCBNV.filter(
-      (data) => data.user_Id.toLowerCase() === item.user_Id.toLowerCase()
+      (data) => data.id.toLowerCase() === item.user_Id.toLowerCase()
     );
     setListUser([...ListUser, ...newListCBNV]);
   };
@@ -156,7 +155,7 @@ function ModalChonUser({ openModalFS, openModal, itemData, DataChonUser }) {
   const onFinish = (value) => {
     const data_user = value.chon_user;
     const newData = ListUser.find(
-      (data) => data.user_Id.toLowerCase() === data_user.user_Id.toLowerCase()
+      (data) => data.id.toLowerCase() === data_user.user_Id.toLowerCase()
     );
     const user = {
       ...data_user,
@@ -166,7 +165,7 @@ function ModalChonUser({ openModalFS, openModal, itemData, DataChonUser }) {
     setDataUser([...DataUser, user]);
 
     const newListCBNV = ListUser.filter(
-      (data) => data.user_Id.toLowerCase() !== data_user.user_Id.toLowerCase()
+      (data) => data.id.toLowerCase() !== data_user.user_Id.toLowerCase()
     );
     setListUser(newListCBNV);
     setFieldTouch(false);

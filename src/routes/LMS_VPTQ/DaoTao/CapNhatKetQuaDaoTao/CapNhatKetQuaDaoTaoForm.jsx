@@ -367,7 +367,7 @@ function CapNhatKetQuaDaoTaoForm({ permission, history, match }) {
                     className="heading-select slt-search th-select-heading"
                     data={ListUser ? ListUser : []}
                     placeholder="Chọn học viên"
-                    optionsvalue={["user_Id", "user"]}
+                    optionsvalue={["id", "user"]}
                     style={{ width: "100%" }}
                     optionFilterProp="name"
                     showSearch

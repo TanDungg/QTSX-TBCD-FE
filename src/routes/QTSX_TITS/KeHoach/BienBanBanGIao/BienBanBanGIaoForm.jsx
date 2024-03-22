@@ -598,7 +598,7 @@ const BienBanBanGIaoForm = ({ history, match, permission }) => {
                         optionFilterProp="name"
                         onSelect={(val) => {
                           ListUser.forEach((kh) => {
-                            if (val === kh.user_Id) {
+                            if (val === kh.id) {
                               setFieldsValue({
                                 bienBanBanGiao: {
                                   sDTDaiDienBenGiao: kh.phoneNumber,

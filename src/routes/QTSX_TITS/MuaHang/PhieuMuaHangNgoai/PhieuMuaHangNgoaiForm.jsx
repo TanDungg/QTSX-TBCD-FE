@@ -1407,7 +1407,7 @@ const PhieuMuaHangNgoaiForm = ({ history, match, permission }) => {
                       className="heading-select slt-search th-select-heading"
                       data={ListUserKy}
                       placeholder="Chọn người thu mua"
-                      optionsvalue={["user_Id", "nguoiDuyet"]}
+                      optionsvalue={["id", "nguoiDuyet"]}
                       style={{ width: "100%" }}
                       showSearch
                       optionFilterProp="name"

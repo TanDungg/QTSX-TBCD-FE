@@ -142,14 +142,14 @@ function TienTrinhHocTap({ permission, history, match }) {
         if (res && res.data) {
           if (donVi_Id) {
             const data = res.data.find(
-              (dt) => dt.user_Id.toLowerCase() === INFO.user_Id.toLowerCase()
+              (dt) => dt.id.toLowerCase() === INFO.user_Id.toLowerCase()
             );
             if (data) {
               setHocVien(INFO.user_Id.toLowerCase());
               getListData(donVi_Id, INFO.user_Id, TuNgay, DenNgay);
             } else {
-              setHocVien(res.data[0].user_Id);
-              getListData(donVi_Id, res.data[0].user_Id, TuNgay, DenNgay);
+              setHocVien(res.data[0].id);
+              getListData(donVi_Id, res.data[0].id, TuNgay, DenNgay);
             }
           } else {
             setHocVien(INFO.user_Id.toLowerCase());
@@ -557,7 +557,7 @@ function TienTrinhHocTap({ permission, history, match }) {
                 className="heading-select slt-search th-select-heading"
                 data={ListHocVien ? ListHocVien : []}
                 placeholder="Chọn đơn vị đào tạo"
-                optionsvalue={["user_Id", "hocVien"]}
+                optionsvalue={["id", "hocVien"]}
                 style={{ width: "100%" }}
                 value={HocVien}
                 showSearch

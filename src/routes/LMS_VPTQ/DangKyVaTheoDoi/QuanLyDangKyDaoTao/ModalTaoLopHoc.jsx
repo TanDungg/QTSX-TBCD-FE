@@ -461,7 +461,7 @@ function ModalTaoLopHoc({ openModalFS, openModal, dataTaoLopHoc, refesh }) {
                   className="heading-select slt-search th-select-heading"
                   data={ListUserDuyet ? ListUserDuyet : []}
                   placeholder="Chọn người duyệt"
-                  optionsvalue={["user_Id", "user"]}
+                  optionsvalue={["id", "user"]}
                   style={{ width: "100%" }}
                   showSearch
                   optionFilterProp={"name"}

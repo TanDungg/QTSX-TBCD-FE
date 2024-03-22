@@ -114,8 +114,7 @@ function ModalThemDanhSachCBNV({
           if (list_cbnv.length) {
             const newListCauHoi = newData.filter((list) => {
               const findCBNV = list_cbnv.find(
-                (cbnv) =>
-                  cbnv.user_Id.toLowerCase() === list.user_Id.toLowerCase()
+                (cbnv) => cbnv.user_Id.toLowerCase() === list.id.toLowerCase()
               );
               return !findCBNV;
             });
@@ -147,7 +146,7 @@ function ModalThemDanhSachCBNV({
 
   const ThemDanhSach = (modalthemdanhsachcbnv, saveQuit = false) => {
     const cbnv = ListCBNV.find(
-      (list) => list.user_Id === modalthemdanhsachcbnv.user_Id
+      (list) => list.id === modalthemdanhsachcbnv.user_Id
     );
 
     DataThemDanhSach(cbnv);
@@ -158,7 +157,7 @@ function ModalThemDanhSachCBNV({
     });
 
     const listcbnv = ListCBNV.filter(
-      (list) => list.user_Id !== modalthemdanhsachcbnv.user_Id
+      (list) => list.id !== modalthemdanhsachcbnv.user_Id
     );
     setListCBNV(listcbnv);
     setFieldTouch(false);
@@ -273,7 +272,7 @@ function ModalThemDanhSachCBNV({
                 className="heading-select slt-search th-select-heading"
                 data={ListCBNV ? ListCBNV : []}
                 placeholder="Chọn CBNV"
-                optionsvalue={["user_Id", "cbnv"]}
+                optionsvalue={["id", "cbnv"]}
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp={"name"}
