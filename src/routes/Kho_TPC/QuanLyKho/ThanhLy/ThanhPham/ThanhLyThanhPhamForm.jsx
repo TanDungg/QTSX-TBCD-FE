@@ -130,14 +130,10 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
   };
 
   const getUserLap = (info, nguoiLap_Id) => {
-    const params = convertObjectToUrlParams({
-      id: nguoiLap_Id ? nguoiLap_Id : info.user_Id,
-      donVi_Id: info.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}?${params}`,
+          `Account/${nguoiLap_Id ? nguoiLap_Id : info.user_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -151,7 +147,7 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           phieuthanhly: {
-            userLap_Id: res.data.Id,
+            userLap_Id: res.data.id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -535,7 +531,7 @@ const ThanhLyThanhPhamForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUser ? ListUser : []}
-                  optionsvalue={["Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   disabled={true}
                 />

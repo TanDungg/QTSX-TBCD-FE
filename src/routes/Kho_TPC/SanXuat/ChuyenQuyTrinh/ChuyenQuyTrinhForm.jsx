@@ -211,14 +211,10 @@ const ChuyenQuyTrinhForm = ({ history, match, permission }) => {
   }, []);
 
   const getUserLap = (info, userLap_Id) => {
-    const params = convertObjectToUrlParams({
-      id: userLap_Id ? userLap_Id : info.user_Id,
-      donVi_Id: info.donVi_Id,
-    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${userLap_Id ? userLap_Id : info.user_Id}?${params}`,
+          `Account/${userLap_Id ? userLap_Id : info.user_Id}`,
           "GET",
           null,
           "DETAIL",
@@ -232,7 +228,7 @@ const ChuyenQuyTrinhForm = ({ history, match, permission }) => {
         setListUser([res.data]);
         setFieldsValue({
           chuyecongdoan: {
-            userLap_Id: res.data.Id,
+            userLap_Id: res.data.id,
             tenPhongBan: res.data.tenPhongBan,
           },
         });
@@ -720,7 +716,7 @@ const ChuyenQuyTrinhForm = ({ history, match, permission }) => {
                 <Select
                   className="heading-select slt-search th-select-heading"
                   data={ListUser ? ListUser : []}
-                  optionsvalue={["Id", "fullName"]}
+                  optionsvalue={["id", "fullName"]}
                   style={{ width: "100%" }}
                   disabled={true}
                 />

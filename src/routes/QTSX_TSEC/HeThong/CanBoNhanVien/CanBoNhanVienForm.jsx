@@ -131,7 +131,7 @@ const CanBoNhanVienForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/cbnv/${id[0]}?chiTiet_id=${id[1]}`,
+          `Account/${id[0]}`,
           "GET",
           null,
           "DETAIL",
