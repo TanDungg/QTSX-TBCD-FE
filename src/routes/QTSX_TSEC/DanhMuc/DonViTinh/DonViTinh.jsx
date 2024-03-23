@@ -77,7 +77,7 @@ function DonViTinh({ history, permission, match }) {
     getListData(keyword, pagination);
   };
 
-  const onSearchNguoiDung = () => {
+  const onSearchDonViTinh = () => {
     getListData(keyword, page);
   };
 
@@ -173,7 +173,8 @@ function DonViTinh({ history, permission, match }) {
           };
         })
       ),
-      onFilter: (value, record) => record.maDonViTinh.includes(value),
+      onFilter: (value, record) =>
+        record.maDonViTinh && record.maDonViTinh.includes(value),
       filterSearch: true,
     },
     {
@@ -190,7 +191,8 @@ function DonViTinh({ history, permission, match }) {
           };
         })
       ),
-      onFilter: (value, record) => record.tenDonViTinh.includes(value),
+      onFilter: (value, record) =>
+        record.tenDonViTinh && record.tenDonViTinh.includes(value),
       filterSearch: true,
     },
   ];
@@ -270,8 +272,8 @@ function DonViTinh({ history, permission, match }) {
               loading,
               value: keyword,
               onChange: onChangeKeyword,
-              onPressEnter: onSearchNguoiDung,
-              onSearch: onSearchNguoiDung,
+              onPressEnter: onSearchDonViTinh,
+              onSearch: onSearchDonViTinh,
               placeholder: "Nhập từ khóa",
               allowClear: true,
               onClear: { handleClearSearch },

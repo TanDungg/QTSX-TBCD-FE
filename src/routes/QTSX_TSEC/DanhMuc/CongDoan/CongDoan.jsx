@@ -77,7 +77,7 @@ function CongDoan({ history, permission, match }) {
     getListData(keyword, pagination);
   };
 
-  const onSearchNguoiDung = () => {
+  const onSearchCongDoan = () => {
     getListData(keyword, page);
   };
 
@@ -264,7 +264,8 @@ function CongDoan({ history, permission, match }) {
           };
         })
       ),
-      onFilter: (value, record) => record.maCongDoan.includes(value),
+      onFilter: (value, record) =>
+        record.maCongDoan && record.maCongDoan.includes(value),
       filterSearch: true,
     },
     {
@@ -281,7 +282,8 @@ function CongDoan({ history, permission, match }) {
           };
         })
       ),
-      onFilter: (value, record) => record.tenCongDoan.includes(value),
+      onFilter: (value, record) =>
+        record.tenCongDoan && record.tenCongDoan.includes(value),
       filterSearch: true,
     },
     {
@@ -368,8 +370,8 @@ function CongDoan({ history, permission, match }) {
               loading,
               value: keyword,
               onChange: onChangeKeyword,
-              onPressEnter: onSearchNguoiDung,
-              onSearch: onSearchNguoiDung,
+              onPressEnter: onSearchCongDoan,
+              onSearch: onSearchCongDoan,
               placeholder: "Nhập từ khóa",
               allowClear: true,
               onClear: { handleClearSearch },

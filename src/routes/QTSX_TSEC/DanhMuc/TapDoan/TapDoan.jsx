@@ -67,7 +67,7 @@ function TapDoan({ history, permission }) {
     getListData(keyword, pagination);
   };
 
-  const onSearchNguoiDung = () => {
+  const onSearchTapDoan = () => {
     getListData(keyword, page);
   };
 
@@ -106,7 +106,8 @@ function TapDoan({ history, permission }) {
           };
         })
       ),
-      onFilter: (value, record) => record.maTapDoan.includes(value),
+      onFilter: (value, record) =>
+        record.maTapDoan && record.maTapDoan.includes(value),
       filterSearch: true,
     },
     {
@@ -123,7 +124,8 @@ function TapDoan({ history, permission }) {
           };
         })
       ),
-      onFilter: (value, record) => record.tenTapDoan.includes(value),
+      onFilter: (value, record) =>
+        record.tenTapDoan && record.tenTapDoan.includes(value),
       filterSearch: true,
     },
   ];
@@ -191,8 +193,8 @@ function TapDoan({ history, permission }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchNguoiDung,
-                onSearch: onSearchNguoiDung,
+                onPressEnter: onSearchTapDoan,
+                onSearch: onSearchTapDoan,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
                 onClear: { handleClearSearch },

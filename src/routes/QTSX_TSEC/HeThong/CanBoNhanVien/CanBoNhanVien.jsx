@@ -360,7 +360,6 @@ function CanBoNhanVien({ match, history, permission }) {
             display: "flex",
             alignItems: "center",
             gap: "15px",
-            width: "100%",
           }}
         >
           <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>

@@ -102,7 +102,8 @@ function PhongBan({ permission, history }) {
           };
         })
       ),
-      onFilter: (value, record) => record.maPhongBan.includes(value),
+      onFilter: (value, record) =>
+        record.maPhongBan && record.maPhongBan.includes(value),
       filterSearch: true,
     },
     {
@@ -119,7 +120,8 @@ function PhongBan({ permission, history }) {
           };
         })
       ),
-      onFilter: (value, record) => record.tenPhongBan.includes(value),
+      onFilter: (value, record) =>
+        record.tenPhongBan && record.tenPhongBan.includes(value),
       filterSearch: true,
     },
     {
@@ -136,7 +138,8 @@ function PhongBan({ permission, history }) {
           };
         })
       ),
-      onFilter: (value, record) => record.tenDonVi.includes(value),
+      onFilter: (value, record) =>
+        record.tenDonVi && record.tenDonVi.includes(value),
       filterSearch: true,
     },
   ];

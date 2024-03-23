@@ -80,7 +80,8 @@ function DonVi({ permission, history }) {
           };
         })
       ),
-      onFilter: (value, record) => record.maDonVi.includes(value),
+      onFilter: (value, record) =>
+        record.maDonVi && record.maDonVi.includes(value),
       filterSearch: true,
     },
     {
@@ -97,7 +98,8 @@ function DonVi({ permission, history }) {
           };
         })
       ),
-      onFilter: (value, record) => record.tenDonVi.includes(value),
+      onFilter: (value, record) =>
+        record.tenDonVi && record.tenDonVi.includes(value),
       filterSearch: true,
     },
     {
@@ -114,7 +116,8 @@ function DonVi({ permission, history }) {
           };
         })
       ),
-      onFilter: (value, record) => record.tenTapDoan.includes(value),
+      onFilter: (value, record) =>
+        record.tenTapDoan && record.tenTapDoan.includes(value),
       filterSearch: true,
     },
   ];

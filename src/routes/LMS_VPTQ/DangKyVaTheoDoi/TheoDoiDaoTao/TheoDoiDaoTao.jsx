@@ -403,7 +403,7 @@ function TheoDoiDaoTao({ history, permission, match }) {
           {value && (
             <Tag
               color={
-                value === "Hủy đào tạo"
+                value === "Hủy đào tạo" || value === "Không học"
                   ? "red"
                   : value === "Hoàn thành"
                   ? "blue"

@@ -106,6 +106,7 @@ function ModalThemDanhSachCBNV({
           const newData = res.data.map((dt) => {
             return {
               ...dt,
+              user_Id: dt.id,
               cbnv: `${dt.maNhanVien} - ${dt.fullName} ${
                 dt.tenChucDanh ? `(${dt.tenChucDanh})` : ``
               }`,
@@ -114,7 +115,8 @@ function ModalThemDanhSachCBNV({
           if (list_cbnv.length) {
             const newListCauHoi = newData.filter((list) => {
               const findCBNV = list_cbnv.find(
-                (cbnv) => cbnv.user_Id.toLowerCase() === list.id.toLowerCase()
+                (cbnv) =>
+                  cbnv.user_Id.toLowerCase() === list.user_Id.toLowerCase()
               );
               return !findCBNV;
             });
@@ -146,7 +148,7 @@ function ModalThemDanhSachCBNV({
 
   const ThemDanhSach = (modalthemdanhsachcbnv, saveQuit = false) => {
     const cbnv = ListCBNV.find(
-      (list) => list.id === modalthemdanhsachcbnv.user_Id
+      (list) => list.user_Id === modalthemdanhsachcbnv.user_Id
     );
 
     DataThemDanhSach(cbnv);
@@ -157,7 +159,7 @@ function ModalThemDanhSachCBNV({
     });
 
     const listcbnv = ListCBNV.filter(
-      (list) => list.id !== modalthemdanhsachcbnv.user_Id
+      (list) => list.user_Id !== modalthemdanhsachcbnv.user_Id
     );
     setListCBNV(listcbnv);
     setFieldTouch(false);
@@ -272,7 +274,7 @@ function ModalThemDanhSachCBNV({
                 className="heading-select slt-search th-select-heading"
                 data={ListCBNV ? ListCBNV : []}
                 placeholder="Chọn CBNV"
-                optionsvalue={["id", "cbnv"]}
+                optionsvalue={["user_Id", "cbnv"]}
                 style={{ width: "100%" }}
                 showSearch
                 optionFilterProp={"name"}

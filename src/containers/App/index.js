@@ -15,12 +15,6 @@ import "moment/locale/vi";
 import AppLocale from "src/lngProvider";
 import MainApp from "./MainApp";
 import SignIn from "../SignIn";
-import InMaQrThongTinVatTu from "src/routes/Kho_TPC/InBarcode/VatTu/InMaQr";
-import InMaQrCauTrucKho from "src/routes/Kho_TPC/InBarcode/CauTrucKho/InMaQr";
-import InMaQrSanPham from "src/routes/Kho_TPC/InBarcode/SanPham/InMaQr";
-import InMaQrCodeSoContainer from "src/routes/QTSX_TITS/KeHoach/KhaiBaoSoContainer/InMaQrSoContainer";
-import InMaQrCodeSoKhungNoiBo from "src/routes/QTSX_TITS/SanXuat/TienDoSanXuat/InMaQr";
-import ChiTietManHinh from "src/routes/QTSX_TITS/QuanLyManHinh/ChiTietManHinh";
 import { setInitUrl } from "src/appRedux/actions/Auth";
 import {
   onLayoutTypeChange,
@@ -47,9 +41,6 @@ import {
   // removeSessionStorage,
   // removeCookieValue,
 } from "src/util/Common";
-import InMaQrSoVIN from "src/routes/QTSX_TITS/KeHoach/SoVin/InMaQrSoVIN";
-import InMaQrCauTrucKho_TITS_QTSX from "src/routes/QTSX_TITS/InBarcode/CauTrucKho/InMaQrCauTrucKho_TITS_QTSX";
-import InMaQrCodeVatTu_TITS_QTSX from "src/routes/QTSX_TITS/MuaHang/PhieuNhanHang/InMaQrCodeVatTu_TITS_QTSX";
 
 // import { messaging } from "src/constants/firebase";
 // import { onMessage } from "firebase/messaging";
@@ -290,66 +281,6 @@ const App = () => {
       >
         <Switch>
           <Route exact path="/signin" component={SignIn} />
-          <Route
-            exact
-            path="/in-barcode-kho-tpc/cau-truc-kho-thanh-pham/inMa"
-            component={InMaQrCauTrucKho}
-          />
-          <Route
-            exact
-            path="/in-barcode-kho-tpc/cau-truc-kho-vat-tu/inMa"
-            component={InMaQrCauTrucKho}
-          />
-          <Route
-            exact
-            path="/in-barcode-kho-tpc/vat-tu/inMa"
-            component={InMaQrThongTinVatTu}
-          />
-          <Route
-            exact
-            path="/in-barcode-kho-tpc/san-pham/inMa"
-            component={InMaQrSanPham}
-          />
-          <Route
-            exact
-            path="/ke-hoach-qtsx-tits/dong-kien/khai-bao-so-container/in-ma-Qrcode-SoContainer"
-            component={InMaQrCodeSoContainer}
-          />
-          <Route
-            exact
-            path="/san-xuat-qtsx-tits/tien-do-san-xuat/in-ma-Qrcode"
-            component={InMaQrCodeSoKhungNoiBo}
-          />
-          <Route
-            exact
-            path="/ke-hoach-qtsx-tits/so-vin/in-ma-Qrcode"
-            component={InMaQrSoVIN}
-          />
-          <Route
-            exact
-            path="/in-barcode-qtsx-tits/cau-truc-kho-thanh-pham/in-ma-Qrcode"
-            component={InMaQrCauTrucKho_TITS_QTSX}
-          />
-          <Route
-            exact
-            path="/in-barcode-qtsx-tits/cau-truc-kho-vat-tu/in-ma-Qrcode"
-            component={InMaQrCauTrucKho_TITS_QTSX}
-          />
-          <Route
-            exact
-            path="/danh-muc-qtsx-tits/vat-tu/in-ma-Qrcode"
-            component={InMaQrThongTinVatTu}
-          />
-          <Route
-            exact
-            path="/quan-ly-man-hinh-qtsx-tits/danh-sach-man-hinh/:id/chi-tiet-man-hinh"
-            component={ChiTietManHinh}
-          />
-          <Route
-            exact
-            path="/mua-hang-qtsx-tits/phieu-nhan-hang/:id/chi-tiet/in-ma-Qrcode"
-            component={InMaQrCodeVatTu_TITS_QTSX}
-          />
           <RestrictedRoute
             path={`${match.url}`}
             token={info ? info.token : null}

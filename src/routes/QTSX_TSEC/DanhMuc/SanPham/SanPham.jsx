@@ -193,7 +193,8 @@ function SanPham({ permission, history, match }) {
           };
         })
       ),
-      onFilter: (value, record) => record.maSanPham.includes(value),
+      onFilter: (value, record) =>
+        record.maSanPham && record.maSanPham.includes(value),
       filterSearch: true,
     },
     {
@@ -210,7 +211,8 @@ function SanPham({ permission, history, match }) {
           };
         })
       ),
-      onFilter: (value, record) => record.tenSanPham.includes(value),
+      onFilter: (value, record) =>
+        record.tenSanPham && record.tenSanPham.includes(value),
       filterSearch: true,
     },
     {
@@ -227,7 +229,8 @@ function SanPham({ permission, history, match }) {
           };
         })
       ),
-      onFilter: (value, record) => record.tenLoaiSanPham.includes(value),
+      onFilter: (value, record) =>
+        record.tenLoaiSanPham && record.tenLoaiSanPham.includes(value),
       filterSearch: true,
     },
     {
@@ -244,7 +247,8 @@ function SanPham({ permission, history, match }) {
           };
         })
       ),
-      onFilter: (value, record) => record.tenDonViTinh.includes(value),
+      onFilter: (value, record) =>
+        record.tenDonViTinh && record.tenDonViTinh.includes(value),
       filterSearch: true,
     },
   ];

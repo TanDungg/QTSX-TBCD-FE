@@ -1,22 +1,9 @@
-// export const BASE_URL_API = "http://erp-api.thacoindustries.com";
-// export const BASE_URL_API = "http://apitesterp.thacoindustries.com";
-//
 export const BASE_URL_API = `http://10.14.7.215:1512`;
-// export const BASE_URL_API = `http://113.176.118.58:81`;
 // export const BASE_URL_API = `http://10.14.7.72:90`;
-
 export const BASE_URL_APP = `${window.location.origin.toString()}`;
-//TPC
-export const LOAI_NCC_NOI_BO = "1fbe1c5c-5ecd-46a2-92f8-10b994cce5af";
-export const LOAI_KE_HOACH_SAN_XUAT = "3adecca0-3fe1-4433-b93b-0137dc3dfdce";
-export const XACNHAN_DIEUCHUYENVATTU_KHO_TPC =
-  "XACNHAN_DIEUCHUYENVATTU_KHO_TPC";
-export const DUYET_DIEUCHUYENVATTU_KHO_TPC = "DUYET_DIEUCHUYENVATTU_KHO_TPC";
 export const APP_NAME = "HỆ THỐNG ERP";
 export const PAGE_SIZE = 20;
-//TITS_QTSX
-export const XUONG_GCCT = "951c1ae9-6d79-4142-98b3-76faa32a28a2";
-export const SMRM_BANGIAO = "7b89430c-4069-41d4-980b-ff9079a44abe";
+
 // Phần mềm đào tạo
 export const DONVI_VPTQ = "d12ca19c-2e1a-41b7-86f3-3eb3c7d81a90";
 export const HINHTHUCDAOTAO_ONLINE = "cd6b4be5-ca9e-43a7-9cb0-e9058d5653cc";

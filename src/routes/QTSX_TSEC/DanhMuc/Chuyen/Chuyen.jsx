@@ -193,7 +193,8 @@ function Chuyen({ permission, history, match }) {
           };
         })
       ),
-      onFilter: (value, record) => record.maChuyen.includes(value),
+      onFilter: (value, record) =>
+        record.maChuyen && record.maChuyen.includes(value),
       filterSearch: true,
     },
     {
@@ -210,7 +211,8 @@ function Chuyen({ permission, history, match }) {
           };
         })
       ),
-      onFilter: (value, record) => record.tenChuyen.includes(value),
+      onFilter: (value, record) =>
+        record.tenChuyen && record.tenChuyen.includes(value),
       filterSearch: true,
     },
     {
