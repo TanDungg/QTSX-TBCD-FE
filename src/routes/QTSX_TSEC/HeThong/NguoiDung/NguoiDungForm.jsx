@@ -1,4 +1,4 @@
-import { Form, Card, Switch, Col } from "antd";
+import { Form, Card, Col, Switch } from "antd";
 import React, { useEffect, useState } from "react";
 import { FormSubmit } from "src/components/Common";
 import { useDispatch } from "react-redux";
@@ -15,7 +15,7 @@ import { includes } from "lodash";
 
 const FormItem = Form.Item;
 const initialState = {
-  isActive: true,
+  isActive_Role: true,
   roleNames: [],
 };
 
@@ -26,14 +26,13 @@ function NguoiDungForm({ match, permission, history }) {
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const { isActive, roleNames } = initialState;
+  const { roleNames, isActive_Role } = initialState;
   const [form] = Form.useForm();
   const { resetFields, setFieldsValue, validateFields } = form;
   const [type, setType] = useState("new");
   const [fieldTouch, setFieldTouch] = useState(false);
   const [roleSelect, setRoleSelect] = useState([]);
   const [ListNguoiDung, setListNguoiDung] = useState();
-  const [Role_Id, setRole_Id] = useState(null);
   const [id, setId] = useState();
 
   useEffect(() => {
@@ -61,12 +60,12 @@ function NguoiDungForm({ match, permission, history }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getUserActive = (donviId, phanMemId) => {
-    let param = convertObjectToUrlParams({ donviId, phanMemId });
+  const getUserActive = (donvi_Id, phanMem_Id) => {
+    let param = convertObjectToUrlParams({ donvi_Id, phanMem_Id });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `Account/Get-NonActive-User?${param}`,
+          `Account/list-cbnv-khong-co-quyen-trong-phan-mem?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -159,17 +158,12 @@ function NguoiDungForm({ match, permission, history }) {
     })
       .then((res) => {
         if (res && res.data) {
-          console.log(res.data);
-          let active;
           const listRole = JSON.parse(res.data[0].chiTietRoles).map((ct) => {
-            active = ct.isActive_Role;
             return ct.role_Id.toLowerCase();
           });
-          setRole_Id(listRole);
           const newData = {
             id: res.data[0].user_Id,
             roleNames: listRole,
-            IsActive_Role: active,
           };
           setFieldsValue({ user: newData });
         }
@@ -192,8 +186,7 @@ function NguoiDungForm({ match, permission, history }) {
   const saveData = (user, saveQuit = false) => {
     if (type === "new") {
       const newData = {
-        id: user.id,
-        isActive: user.IsActive_Role,
+        ...user,
         donVi_Id: INFO.donVi_Id,
         phanMem_Id: INFO.phanMem_Id,
         chiTietRoles: user.roleNames.map((r) => {
@@ -203,8 +196,8 @@ function NguoiDungForm({ match, permission, history }) {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `Account/user-cbnv?id=${newData.id}`,
-            "POST",
+            `Account/role-cbnv?id=${user.id}`,
+            "PUT",
             newData,
             "ADD",
             "",
@@ -228,21 +221,17 @@ function NguoiDungForm({ match, permission, history }) {
         .catch((error) => console.error(error));
     } else {
       const newData = {
-        id: user.id,
-        isActive: user.IsActive_Role,
+        ...user,
         donVi_Id: INFO.donVi_Id,
         phanMem_Id: INFO.phanMem_Id,
         chiTietRoles: user.roleNames.map((r) => {
           return { role_Id: r };
         }),
-        chiTietRolesOld: Role_Id.map((r) => {
-          return { roleold_Id: r };
-        }),
       };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `Account/user-cbnv`,
+            `Account/role-cbnv?id=${user.id}`,
             "PUT",
             newData,
             "EDIT",
@@ -253,14 +242,15 @@ function NguoiDungForm({ match, permission, history }) {
         );
       })
         .then((res) => {
-          if (saveQuit) {
-            if (res.status !== 409) {
+          if (res && res.status !== 409) {
+            if (saveQuit) {
               goBack();
-            }
-          } else {
-            if (res.status !== 409) {
+            } else {
+              setFieldTouch(false);
               getInfo(id, INFO);
             }
+          } else {
+            setFieldTouch(false);
           }
         })
         .catch((error) => console.error(error));
@@ -346,9 +336,9 @@ function NguoiDungForm({ match, permission, history }) {
           <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
             <FormItem
               label="Hoạt động"
-              name={["user", "IsActive_Role"]}
+              name={["user", "isActive_Role"]}
+              initialValue={isActive_Role}
               valuePropName="checked"
-              initialValue={isActive}
             >
               <Switch />
             </FormItem>

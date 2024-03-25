@@ -1,4 +1,4 @@
-import { Button, Card, Col, Divider } from "antd";
+import { Button, Card, Col, Divider, Row, Tag } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
@@ -8,6 +8,7 @@ import { removeDuplicates, reDataForTable } from "src/util/Common";
 import {
   EditableTableRow,
   ModalDeleteConfirm,
+  Select,
   Table,
   Toolbar,
 } from "src/components/Common";
@@ -23,7 +24,15 @@ const DataTest = {
       id: "123",
       maPhieuYeuCauBaoGia: "maPhieuYeuCauBaoGiaA",
       tenPhieuYeuCauBaoGia: "tenPhieuYeuCauBaoGiaA",
-      tenTiengAnh: "tenTiengAnhA",
+      tenKhachHang: "tenKhachHangA",
+      tenDongSanPham: "tenDongSanPhamA",
+      soLuongDatHang: "10",
+      tenDonViTinh: "Cái",
+      noiDungThucHien: "noiDungThucHienA",
+      thoiGianHoanThanh: "26/03/2024",
+      tenNguoiLap: "Phạm Tấn Dũng",
+      moTa: "moTaA",
+      trangThai: "Chưa duyệt",
     },
   ],
   totalRow: 1,
@@ -31,7 +40,7 @@ const DataTest = {
 };
 function PhieuYeuCauBaoGia({ history, permission, match }) {
   const dispatch = useDispatch();
-  const { loading } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
   const [keyword, setKeyword] = useState("");
   // const [page, setPage] = useState(1);
@@ -153,6 +162,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
       key: "action",
       align: "center",
       width: 100,
+      fixed: width >= 1600 && "left",
       render: (value) => actionContent(value),
     },
     {
@@ -167,7 +177,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
       dataIndex: "maPhieuYeuCauBaoGia",
       key: "maPhieuYeuCauBaoGia",
       align: "center",
-      width: 200,
+      width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
@@ -201,22 +211,205 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
       filterSearch: true,
     },
     {
-      title: "Tên tiếng anh",
-      dataIndex: "tenTiengAnh",
-      key: "tenTiengAnh",
+      title: "Khách hàng",
+      dataIndex: "tenKhachHang",
+      key: "tenKhachHang",
       align: "center",
-      width: 250,
+      width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenTiengAnh,
-            value: d.tenTiengAnh,
+            text: d.tenKhachHang,
+            value: d.tenKhachHang,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.tenTiengAnh && record.tenTiengAnh.includes(value),
+        record.tenKhachHang && record.tenKhachHang.includes(value),
       filterSearch: true,
+    },
+    {
+      title: "Dòng sản phẩm",
+      dataIndex: "tenDongSanPham",
+      key: "tenDongSanPham",
+      align: "center",
+      width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDongSanPham,
+            value: d.tenDongSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenDongSanPham && record.tenDongSanPham.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: (
+        <div>
+          Số lượng
+          <br />
+          đặt hàng
+        </div>
+      ),
+      dataIndex: "soLuongDatHang",
+      key: "soLuongDatHang",
+      align: "center",
+      width: 100,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.soLuongDatHang,
+            value: d.soLuongDatHang,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.soLuongDatHang && record.soLuongDatHang.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: (
+        <div>
+          Đơn vị
+          <br />
+          tính
+        </div>
+      ),
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
+      align: "center",
+      width: 100,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDonViTinh,
+            value: d.tenDonViTinh,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenDonViTinh && record.tenDonViTinh.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Nội dung thực hiện",
+      dataIndex: "noiDungThucHien",
+      key: "noiDungThucHien",
+      align: "center",
+      width: 200,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.noiDungThucHien,
+            value: d.noiDungThucHien,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.noiDungThucHien && record.noiDungThucHien.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: (
+        <div>
+          Thời gian
+          <br />
+          hoàn thành
+        </div>
+      ),
+      dataIndex: "thoiGianHoanThanh",
+      key: "thoiGianHoanThanh",
+      align: "center",
+      width: 100,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.thoiGianHoanThanh,
+            value: d.thoiGianHoanThanh,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.thoiGianHoanThanh && record.thoiGianHoanThanh.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Người lập phiếu",
+      dataIndex: "tenNguoiLap",
+      key: "tenNguoiLap",
+      align: "center",
+      width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenNguoiLap,
+            value: d.tenNguoiLap,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenNguoiLap && record.tenNguoiLap.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "center",
+      width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.moTa,
+            value: d.moTa,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.moTa && record.moTa.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "trangThai",
+      key: "trangThai",
+      align: "center",
+      width: 150,
+      fixed: width >= 1600 && "right",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.trangThai,
+            value: d.trangThai,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.trangThai && record.trangThai.includes(value),
+      filterSearch: true,
+      render: (value, record) => (
+        <div title={record.lyDoTuChoi && `Lý do từ chối: ${record.lyDoTuChoi}`}>
+          {value && (
+            <Tag
+              color={
+                value === "Chưa duyệt"
+                  ? "orange"
+                  : value === "Đã duyệt"
+                  ? "green"
+                  : "red"
+              }
+              style={{
+                whiteSpace: "break-spaces",
+                fontSize: 13,
+              }}
+            >
+              {value}
+            </Tag>
+          )}
+        </div>
+      ),
     },
   ];
 
@@ -265,6 +458,16 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
     );
   };
 
+  const handleOnSelectKhachHang = (value) => {
+    // setDonVi(value);
+    // getListData(value, TuNgay, DenNgay, keyword, page);
+  };
+
+  const handleClearKhachHang = () => {
+    // setDonVi(null);
+    // getListData(null, TuNgay, DenNgay, keyword, page);
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -273,41 +476,69 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
-        <Col
-          xxl={8}
-          xl={12}
-          lg={16}
-          md={16}
-          sm={20}
-          xs={24}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "15px",
-          }}
-        >
-          <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
-          <Toolbar
-            count={1}
-            search={{
-              title: "Tìm kiếm",
-              loading,
-              value: keyword,
-              onChange: onChangeKeyword,
-              onPressEnter: onSearchPhieuYeuCauBaoGia,
-              onSearch: onSearchPhieuYeuCauBaoGia,
-              placeholder: "Nhập từ khóa",
-              allowClear: true,
-              onClear: { handleClearSearch },
-            }}
-          />
-        </Col>
+        <Row>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <span>Khách hàng:</span>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              // data={ListKhachHang ? ListKhachHang : []}
+              data={[
+                {
+                  id: "1",
+                  tenKhachHang: "TenKhachHangA",
+                },
+              ]}
+              placeholder="Chọn khách hàng"
+              optionsvalue={["id", "tenKhachHang"]}
+              style={{ width: "100%" }}
+              // value={KhachHang}
+              showSearch
+              optionFilterProp={"name"}
+              onSelect={handleOnSelectKhachHang}
+              allowClear
+              onClear={handleClearKhachHang}
+            />
+          </Col>
+          <Col
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchPhieuYeuCauBaoGia,
+                onSearch: onSearchPhieuYeuCauBaoGia,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
+                onClear: { handleClearSearch },
+              }}
+            />
+          </Col>
+        </Row>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1000, y: "55vh" }}
+          scroll={{ x: 1800, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}

@@ -1,4 +1,4 @@
-import { Form, Card, Col } from "antd";
+import { Form, Card, Col, Switch } from "antd";
 import React, { useEffect, useState } from "react";
 import { FormSubmit } from "src/components/Common";
 import { useDispatch } from "react-redux";
@@ -15,7 +15,7 @@ import { includes } from "lodash";
 
 const FormItem = Form.Item;
 const initialState = {
-  isActive: true,
+  isActive_Role: true,
   roleNames: [],
 };
 
@@ -26,7 +26,7 @@ function NguoiDungForm({ match, permission, history }) {
     user_Id: getTokenInfo().id,
     token: getTokenInfo().token,
   };
-  const { roleNames } = initialState;
+  const { roleNames, isActive_Role } = initialState;
   const [form] = Form.useForm();
   const { resetFields, setFieldsValue, validateFields } = form;
   const [type, setType] = useState("new");
@@ -331,6 +331,16 @@ function NguoiDungForm({ match, permission, history }) {
                 style={{ width: "100%" }}
                 mode={"multiple"}
               />
+            </FormItem>
+          </Col>
+          <Col xxl={12} xl={14} lg={16} md={16} sm={20} xs={24}>
+            <FormItem
+              label="Hoạt động"
+              name={["user", "isActive_Role"]}
+              initialValue={isActive_Role}
+              valuePropName="checked"
+            >
+              <Switch />
             </FormItem>
           </Col>
           <FormSubmit

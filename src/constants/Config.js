@@ -461,6 +461,38 @@ export const DEFAULT_FORM_ADD_2COL_150PX = {
   },
 };
 
+export const DEFAULT_FORM_ADD_2COL_160PX = {
+  labelCol: {
+    style: {
+      width: "160px",
+      textAlign: "left",
+      fontWeight: "bold",
+    },
+  },
+  wrapperCol: {
+    style: {
+      width: "calc(100% - 160px)",
+      textAlign: "left",
+    },
+  },
+};
+
+export const DEFAULT_FORM_ADD_2COL_180PX = {
+  labelCol: {
+    style: {
+      width: "180px",
+      textAlign: "left",
+      fontWeight: "bold",
+    },
+  },
+  wrapperCol: {
+    style: {
+      width: "calc(100% - 180px)",
+      textAlign: "left",
+    },
+  },
+};
+
 export const DEFAULT_FORM_ADD_2COL_200PX = {
   labelCol: {
     style: {
