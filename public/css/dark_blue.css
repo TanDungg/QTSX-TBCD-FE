@@ -49369,3 +49369,20 @@ textarea.gx-chat-textarea {
   margin-right: 0px !important;
   width: 100%
 }
+.ant-card {
+  margin-bottom: 15px !important;
+}
+
+.th-card-reset-margin .ant-card-body {
+  padding: 15px 20px !important;
+}
+
+@media screen and (max-width: 575px) {
+  .ant-modal-body {
+    padding: 10px;
+  }
+
+  .btn-margin-bottom-0 {
+    margin-bottom: 10px !important;
+  }
+}

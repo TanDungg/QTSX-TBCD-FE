@@ -1,45 +1,80 @@
-import { Button, Card, Col, Divider } from "antd";
+import { Button, Card, Col, Modal as AntModal, Row, Tag, Checkbox } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
+import { fetchReset } from "src/appRedux/actions/Common";
 import { removeDuplicates, reDataForTable } from "src/util/Common";
 import {
   EditableTableRow,
-  ModalDeleteConfirm,
+  Modal,
+  Select,
   Table,
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 // import { convertObjectToUrlParams } from "src/util/Common";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Link } from "react-router-dom";
+import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
+import ModalTuChoi from "./ModalTuChoi";
+import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const DataTest = {
   datalist: [
     {
       id: "123",
-      maDuyetPhieuYeuCauBaoGia: "maDuyetPhieuYeuCauBaoGiaA",
-      tenDuyetPhieuYeuCauBaoGia: "tenDuyetPhieuYeuCauBaoGiaA",
-      tenTiengAnh: "tenTiengAnhA",
+      maPhieuYeuCauBaoGia: "maPhieuYeuCauBaoGiaA",
+      tenPhieuYeuCauBaoGia: "tenPhieuYeuCauBaoGiaA",
+      tenKhachHang: "tenKhachHangA",
+      tenDongSanPham: "tenDongSanPhamA",
+      soLuongDatHang: "10",
+      tenDonViTinh: "Cái",
+      noiDungThucHien: "noiDungThucHienA",
+      thoiGianHoanThanh: "26/03/2024",
+      tenNguoiLap: "Phạm Tấn Dũng",
+      moTa: "moTaA",
+      trangThai: "Chưa duyệt",
     },
   ],
   totalRow: 1,
   pageSize: 20,
 };
+
+const NoiDungYeuCau = [
+  {
+    noiDungYeuCau: "noiDungYeuCau1",
+    trangThai: true,
+    tenLoaiThongTin: "tenLoaiThongTin1",
+    moTa: "ghiChu",
+  },
+  {
+    noiDungYeuCau: "noiDungYeuCau2",
+    trangThai: false,
+    tenLoaiThongTin: "tenLoaiThongTin2",
+    moTa: "ghiChu",
+  },
+];
+
 function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
   const dispatch = useDispatch();
-  const { loading } = useSelector(({ common }) => common).toJS();
+  const { loading, width } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
   const [keyword, setKeyword] = useState("");
   // const [page, setPage] = useState(1);
+  const [SelectedPhieuYeuCau, setSelectedPhieuYeuCau] = useState([]);
+  const [SelectedKeyPhieus, setSelectedKeyPhieus] = useState([]);
   const { totalRow, pageSize } = Data;
+  const [DataChiTietPhieu, setDataChiTietPhieu] = useState(null);
+  const [ActiveModalChiTietPhieu, setActiveModalChiTietPhieu] = useState(false);
+  const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
       setData(DataTest);
+      setDataChiTietPhieu({
+        ...DataTest.datalist[0],
+        list_ChiTiets: NoiDungYeuCau,
+      });
       // getListData(keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
@@ -52,7 +87,7 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
   //   new Promise((resolve, reject) => {
   //     dispatch(
   //       fetchStart(
-  //         `tsec_qtsx_DuyetPhieuDuyetPhieuYeuCauBaoGia?${param}`,
+  //         `tsec_qtsx_PhieuYeuCauBaoGia?${param}`,
   //         "GET",
   //         null,
   //         "DETAIL",
@@ -75,7 +110,7 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
     // getListData(keyword, pagination);
   };
 
-  const onSearchDuyetPhieuYeuCauBaoGia = () => {
+  const onSearchPhieuYeuCauBaoGia = () => {
     // getListData(keyword, page);
   };
 
@@ -90,71 +125,13 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
     // getListData(null, 1);
   };
 
-  const deleteItemFunc = (item) => {
-    const title = "yêu cầu báo giá";
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.tenDuyetPhieuYeuCauBaoGia,
-      title
-    );
-  };
-
-  const deleteItemAction = (item) => {
-    let url = `tsec_qtsx_DuyetPhieuYeuCauBaoGia/${item.id}`;
-    new Promise((resolve, reject) => {
-      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
-    })
-      .then((res) => {
-        // getListData(keyword, page);
-      })
-      .catch((error) => console.error(error));
-  };
-
-  const actionContent = (item) => {
-    const editItem =
-      permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item, permission },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
-    const deleteItemVal =
-      permission && permission.del
-        ? { onClick: () => deleteItemFunc(item) }
-        : { disabled: true };
-    return (
-      <div>
-        <React.Fragment>
-          {editItem}
-          <Divider type="vertical" />
-          <a {...deleteItemVal} title="Xóa">
-            <DeleteOutlined />
-          </a>
-        </React.Fragment>
-      </div>
-    );
+  const hanldeXemChiTiet = (item) => {
+    setActiveModalChiTietPhieu(true);
   };
 
   let dataList = reDataForTable(Data.datalist);
 
   let colValues = [
-    {
-      title: "Chức năng",
-      key: "action",
-      align: "center",
-      width: 100,
-      render: (value) => actionContent(value),
-    },
     {
       title: "STT",
       dataIndex: "key",
@@ -163,60 +140,302 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
       align: "center",
     },
     {
-      title: "Mã yêu cầu",
-      dataIndex: "maDuyetPhieuYeuCauBaoGia",
-      key: "maDuyetPhieuYeuCauBaoGia",
+      title: "Mã phiếu yêu cầu",
+      dataIndex: "maPhieuYeuCauBaoGia",
+      key: "maPhieuYeuCauBaoGia",
+      align: "center",
+      width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maPhieuYeuCauBaoGia,
+            value: d.maPhieuYeuCauBaoGia,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.maPhieuYeuCauBaoGia &&
+        record.maPhieuYeuCauBaoGia.includes(value),
+      filterSearch: true,
+      render: (value, record) => {
+        return (
+          <div
+            style={{ color: "#0469b9", cursor: "pointer" }}
+            onClick={() => {
+              hanldeXemChiTiet(record);
+            }}
+          >
+            {value}
+          </div>
+        );
+      },
+    },
+    {
+      title: "Tên phiếu yêu cầu",
+      dataIndex: "tenPhieuYeuCauBaoGia",
+      key: "tenPhieuYeuCauBaoGia",
+      align: "center",
+      width: 250,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenPhieuYeuCauBaoGia,
+            value: d.tenPhieuYeuCauBaoGia,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenPhieuYeuCauBaoGia &&
+        record.tenPhieuYeuCauBaoGia.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Khách hàng",
+      dataIndex: "tenKhachHang",
+      key: "tenKhachHang",
+      align: "center",
+      width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenKhachHang,
+            value: d.tenKhachHang,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenKhachHang && record.tenKhachHang.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Dòng sản phẩm",
+      dataIndex: "tenDongSanPham",
+      key: "tenDongSanPham",
+      align: "center",
+      width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDongSanPham,
+            value: d.tenDongSanPham,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenDongSanPham && record.tenDongSanPham.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: (
+        <div>
+          Số lượng
+          <br />
+          đặt hàng
+        </div>
+      ),
+      dataIndex: "soLuongDatHang",
+      key: "soLuongDatHang",
+      align: "center",
+      width: 100,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.soLuongDatHang,
+            value: d.soLuongDatHang,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.soLuongDatHang && record.soLuongDatHang.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: (
+        <div>
+          Đơn vị
+          <br />
+          tính
+        </div>
+      ),
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
+      align: "center",
+      width: 100,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDonViTinh,
+            value: d.tenDonViTinh,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenDonViTinh && record.tenDonViTinh.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Nội dung thực hiện",
+      dataIndex: "noiDungThucHien",
+      key: "noiDungThucHien",
       align: "center",
       width: 200,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maDuyetPhieuYeuCauBaoGia,
-            value: d.maDuyetPhieuYeuCauBaoGia,
+            text: d.noiDungThucHien,
+            value: d.noiDungThucHien,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.maDuyetPhieuYeuCauBaoGia &&
-        record.maDuyetPhieuYeuCauBaoGia.includes(value),
+        record.noiDungThucHien && record.noiDungThucHien.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên yêu cầu",
-      dataIndex: "tenDuyetPhieuYeuCauBaoGia",
-      key: "tenDuyetPhieuYeuCauBaoGia",
+      title: (
+        <div>
+          Thời gian
+          <br />
+          hoàn thành
+        </div>
+      ),
+      dataIndex: "thoiGianHoanThanh",
+      key: "thoiGianHoanThanh",
       align: "center",
-      width: 250,
+      width: 100,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenDuyetPhieuYeuCauBaoGia,
-            value: d.tenDuyetPhieuYeuCauBaoGia,
+            text: d.thoiGianHoanThanh,
+            value: d.thoiGianHoanThanh,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.tenDuyetPhieuYeuCauBaoGia &&
-        record.tenDuyetPhieuYeuCauBaoGia.includes(value),
+        record.thoiGianHoanThanh && record.thoiGianHoanThanh.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên tiếng anh",
-      dataIndex: "tenTiengAnh",
-      key: "tenTiengAnh",
+      title: "Người lập phiếu",
+      dataIndex: "tenNguoiLap",
+      key: "tenNguoiLap",
       align: "center",
-      width: 250,
+      width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenTiengAnh,
-            value: d.tenTiengAnh,
+            text: d.tenNguoiLap,
+            value: d.tenNguoiLap,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.tenTiengAnh && record.tenTiengAnh.includes(value),
+        record.tenNguoiLap && record.tenNguoiLap.includes(value),
       filterSearch: true,
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "center",
+      width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.moTa,
+            value: d.moTa,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.moTa && record.moTa.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "trangThai",
+      key: "trangThai",
+      align: "center",
+      width: 150,
+      fixed: width >= 1600 && "right",
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.trangThai,
+            value: d.trangThai,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.trangThai && record.trangThai.includes(value),
+      filterSearch: true,
+      render: (value, record) => (
+        <div title={record.lyDoTuChoi && `Lý do từ chối: ${record.lyDoTuChoi}`}>
+          {value && (
+            <Tag
+              color={
+                value === "Chưa duyệt"
+                  ? "orange"
+                  : value === "Đã duyệt"
+                  ? "green"
+                  : "red"
+              }
+              style={{
+                whiteSpace: "break-spaces",
+                fontSize: 13,
+              }}
+            >
+              {value}
+            </Tag>
+          )}
+        </div>
+      ),
+    },
+  ];
+
+  let columnNoiDung = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      width: 50,
+      align: "center",
+    },
+    {
+      title: "Nội dung yêu cầu",
+      dataIndex: "noiDungYeuCau",
+      key: "noiDungYeuCau",
+      align: "left",
+      width: 200,
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "trangThai",
+      key: "trangThai",
+      align: "center",
+      width: 100,
+      render: (value, record) => {
+        return (
+          <Checkbox
+            checked={value}
+            // onChange={() => handleThayDoiDapAnDung(value, record)}
+            disabled
+          />
+        );
+      },
+    },
+    {
+      title: "Loại thông tin",
+      dataIndex: "tenLoaiThongTin",
+      key: "tenLoaiThongTin",
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "left",
+      width: 150,
     },
   ];
 
@@ -243,71 +462,187 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
     };
   });
 
-  const handleRedirect = () => {
-    history.push({
-      pathname: `${match.url}/them-moi`,
-    });
+  const handleXacNhan = () => {
+    // const newData = SelectedPhieuYeuCau.map((chuyende) => {
+    //   return chuyende.id;
+    // });
+    // new Promise((resolve, reject) => {
+    //   dispatch(
+    //     fetchStart(
+    //       `vptq_lms_PhieuDangKyDaoTao/kiem-tra-hoac-duyet`,
+    //       "PUT",
+    //       newData,
+    //       "XACNHAN",
+    //       "",
+    //       resolve,
+    //       reject
+    //     )
+    //   );
+    // })
+    //   .then((res) => {
+    //     if (res.status !== 409) {
+    //       setSelectedPhieuYeuCau([]);
+    //       setSelectedKeyPhieus([]);
+    //       // getListData();
+    //     }
+    //   })
+    //   .catch((error) => console.error(error));
+  };
+
+  const prop = {
+    type: "confirm",
+    okText: "Xác nhận",
+    cancelText: "Hủy",
+    title: "Xác nhận kiểm tra (duyệt) phiếu yêu cầu báo giá",
+    onOk: handleXacNhan,
+  };
+
+  const ModalXacNhan = () => {
+    Modal(prop);
+  };
+
+  const handleTuChoi = (data) => {
+    //   const newData = SelectedPhieuYeuCau.map((chuyende) => {
+    //     return chuyende.id;
+    //   });
+    //   new Promise((resolve, reject) => {
+    //     dispatch(
+    //       fetchStart(
+    //         `vptq_lms_PhieuDangKyDaoTao/kiem-tra-hoac-duyet?lyDoTuChoi=${data}`,
+    //         "PUT",
+    //         newData,
+    //         "TUCHOI",
+    //         "",
+    //         resolve,
+    //         reject
+    //       )
+    //     );
+    //   })
+    //     .then((res) => {
+    //       setSelectedPhieuYeuCau([]);
+    //       setSelectedKeyPhieus([]);
+    //       // getListData();
+    //     })
+    //     .catch((error) => console.error(error));
   };
 
   const addButtonRender = () => {
     return (
       <>
         <Button
-          icon={<PlusOutlined />}
+          icon={<CheckCircleOutlined />}
           className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
-          onClick={handleRedirect}
-          disabled={permission && !permission.add}
+          onClick={ModalXacNhan}
+          disabled={SelectedPhieuYeuCau.length === 0}
         >
-          Thêm mới
+          Kiểm tra (Duyệt)
+        </Button>
+        <Button
+          icon={<CloseCircleOutlined />}
+          className="th-margin-bottom-0 btn-margin-bottom-0"
+          type="danger"
+          onClick={() => setActiveModalTuChoi(true)}
+          disabled={SelectedPhieuYeuCau.length === 0}
+        >
+          Từ chối
         </Button>
       </>
     );
+  };
+
+  const handleOnSelectKhachHang = (value) => {
+    // setDonVi(value);
+    // getListData(value, TuNgay, DenNgay, keyword, page);
+  };
+
+  const handleClearKhachHang = () => {
+    // setDonVi(null);
+    // getListData(null, TuNgay, DenNgay, keyword, page);
+  };
+
+  const rowSelection = {
+    selectedRows: SelectedPhieuYeuCau,
+    selectedRowKeys: SelectedKeyPhieus,
+    onChange: (selectedRowKeys, selectedRows) => {
+      const newSelectedPhieuYeuCau = [...selectedRows];
+      const newSelectedKeys = [...selectedRowKeys];
+      setSelectedPhieuYeuCau(newSelectedPhieuYeuCau);
+      setSelectedKeyPhieus(newSelectedKeys);
+    },
   };
 
   return (
     <div className="gx-main-content">
       <ContainerHeader
         title={"Duyệt phiếu yêu cầu báo giá"}
-        description="Duyệt danh sách phiếu yêu cầu báo giá"
+        description="Danh sách phiếu yêu cầu báo giá chưa duyệt"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
-        <Col
-          xxl={8}
-          xl={12}
-          lg={16}
-          md={16}
-          sm={20}
-          xs={24}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "15px",
-          }}
-        >
-          <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
-          <Toolbar
-            count={1}
-            search={{
-              title: "Tìm kiếm",
-              loading,
-              value: keyword,
-              onChange: onChangeKeyword,
-              onPressEnter: onSearchDuyetPhieuYeuCauBaoGia,
-              onSearch: onSearchDuyetPhieuYeuCauBaoGia,
-              placeholder: "Nhập từ khóa",
-              allowClear: true,
-              onClear: { handleClearSearch },
-            }}
-          />
-        </Col>
+        <Row>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <span>Khách hàng:</span>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              // data={ListKhachHang ? ListKhachHang : []}
+              data={[
+                {
+                  id: "1",
+                  tenKhachHang: "TenKhachHangA",
+                },
+              ]}
+              placeholder="Chọn khách hàng"
+              optionsvalue={["id", "tenKhachHang"]}
+              style={{ width: "100%" }}
+              // value={KhachHang}
+              showSearch
+              optionFilterProp={"name"}
+              onSelect={handleOnSelectKhachHang}
+              allowClear
+              onClear={handleClearKhachHang}
+            />
+          </Col>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: 8 }}
+          >
+            <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchPhieuYeuCauBaoGia,
+                onSearch: onSearchPhieuYeuCauBaoGia,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
+                onClear: { handleClearSearch },
+              }}
+            />
+          </Col>
+        </Row>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1000, y: "55vh" }}
+          scroll={{ x: 1800, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}
@@ -321,8 +656,368 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          rowSelection={{
+            type: "checkbox",
+            ...rowSelection,
+            preserveSelectedRowKeys: true,
+            selectedRowKeys: SelectedKeyPhieus,
+          }}
         />
       </Card>
+      <AntModal
+        title={"Chi tiết phiếu yêu cầu báo giá"}
+        className="th-card-reset-margin"
+        open={ActiveModalChiTietPhieu}
+        width={width >= 1800 ? `75%` : width >= 1600 ? `85%` : "100%"}
+        closable={true}
+        onCancel={() => {
+          setActiveModalChiTietPhieu(false);
+        }}
+        footer={null}
+      >
+        <Card className="th-card-margin-bottom">
+          <Row gutter={[0, 10]}>
+            <Col span={24} style={{ textAlign: "center" }}>
+              <span
+                style={{
+                  color: "#0469b9",
+                  fontSize: "18px",
+                  textDecoration: "underline",
+                  fontWeight: "bold",
+                }}
+              >
+                Thông tin triển khai
+              </span>
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Tên phiếu yêu cầu:
+              </span>
+              {DataChiTietPhieu && (
+                <span>{DataChiTietPhieu.tenPhieuYeuCauBaoGia}</span>
+              )}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Nội dung thực hiện:
+              </span>
+              {DataChiTietPhieu && (
+                <span>{DataChiTietPhieu.noiDungThucHien}</span>
+              )}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Người yêu cầu:
+              </span>
+              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenNguoiLap}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Phòng ban thực hiện:
+              </span>
+              {DataChiTietPhieu && (
+                <span>{DataChiTietPhieu.tenPhongBanThucHien}</span>
+              )}
+            </Col>
+          </Row>
+        </Card>
+        <Card className="th-card-margin-bottom">
+          <Row gutter={[0, 10]}>
+            <Col span={24} style={{ textAlign: "center" }}>
+              <span
+                style={{
+                  color: "#0469b9",
+                  fontSize: "18px",
+                  textDecoration: "underline",
+                  fontWeight: "bold",
+                }}
+              >
+                Thông tin đơn hàng báo giá
+              </span>
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Khách hàng:
+              </span>
+              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenKhachHang}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Đơn hàng:
+              </span>
+              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenDonHang}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Người gửi:
+              </span>
+              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenNguoiGui}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Phòng ban:
+              </span>
+              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenPhongBan}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Thời gian hoàn thành:
+              </span>
+              {DataChiTietPhieu && (
+                <span>{DataChiTietPhieu.thoiGianHoanThanh}</span>
+              )}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Số lượng đặt hàng:
+              </span>
+              {DataChiTietPhieu && (
+                <span>{DataChiTietPhieu.soLuongDatHang}</span>
+              )}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Dòng sản phẩm:
+              </span>
+              {DataChiTietPhieu && (
+                <span>{DataChiTietPhieu.tenDongSanPham}</span>
+              )}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Điều kiện giao hàng:
+              </span>
+              {DataChiTietPhieu && (
+                <span>{DataChiTietPhieu.dieuKienGiaoHang}</span>
+              )}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Ghi chú:
+              </span>
+              {DataChiTietPhieu && <span>{DataChiTietPhieu.moTa}</span>}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Tài liệu báo giá:
+              </span>
+              {DataChiTietPhieu && (
+                <span>
+                  {DataChiTietPhieu.fileTaiLieuBaoGia ? (
+                    <a
+                      target="_blank"
+                      href={BASE_URL_API + DataChiTietPhieu.fileTaiLieuBaoGia}
+                      rel="noopener noreferrer"
+                    >
+                      {DataChiTietPhieu.fileTaiLieuBaoGia.split("/")[5]}
+                    </a>
+                  ) : null}
+                </span>
+              )}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Tóm tắt dự án:
+              </span>
+              {DataChiTietPhieu && (
+                <span>
+                  {DataChiTietPhieu.fileTomTatDuAn ? (
+                    <a
+                      target="_blank"
+                      href={BASE_URL_API + DataChiTietPhieu.fileTomTatDuAn}
+                      rel="noopener noreferrer"
+                    >
+                      {DataChiTietPhieu.fileTomTatDuAn.split("/")[5]}
+                    </a>
+                  ) : null}
+                </span>
+              )}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Người kiểm tra:
+              </span>
+              {DataChiTietPhieu && (
+                <span>{DataChiTietPhieu.tenNguoiKiemTra}</span>
+              )}
+            </Col>
+            <Col
+              xxl={8}
+              xl={8}
+              lg={12}
+              md={12}
+              sm={24}
+              xs={24}
+              className="title-span"
+            >
+              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                Người duyệt:
+              </span>
+              {DataChiTietPhieu && (
+                <span>{DataChiTietPhieu.tenNguoiDuyet}</span>
+              )}
+            </Col>
+          </Row>
+        </Card>
+        <Card className="th-card-margin-bottom">
+          <Col span={24} style={{ textAlign: "center", marginBottom: "15px" }}>
+            <span
+              style={{
+                color: "#0469b9",
+                fontSize: "18px",
+                textDecoration: "underline",
+                fontWeight: "bold",
+              }}
+            >
+              Danh sách nội dung yêu cầu
+            </span>
+          </Col>
+          <Table
+            bordered
+            scroll={{ x: 1000, y: "35vh" }}
+            columns={columnNoiDung}
+            className="gx-table-responsive th-table"
+            dataSource={reDataForTable(
+              DataChiTietPhieu && DataChiTietPhieu.list_ChiTiets
+            )}
+            size="small"
+            pagination={false}
+          />
+        </Card>
+      </AntModal>
+      <ModalTuChoi
+        openModal={ActiveModalTuChoi}
+        openModalFS={setActiveModalTuChoi}
+        handleTuChoi={handleTuChoi}
+      />
     </div>
   );
 }

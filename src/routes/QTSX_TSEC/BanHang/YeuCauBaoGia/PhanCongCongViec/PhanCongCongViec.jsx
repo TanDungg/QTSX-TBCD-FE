@@ -24,12 +24,11 @@ import {
 import ContainerHeader from "src/components/ContainerHeader";
 // import { convertObjectToUrlParams } from "src/util/Common";
 import {
-  DeleteOutlined,
-  EditOutlined,
+  DownloadOutlined,
+  HistoryOutlined,
   PlusOutlined,
   SearchOutlined,
 } from "@ant-design/icons";
-import { Link } from "react-router-dom";
 import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
@@ -37,17 +36,29 @@ const DataTest = {
   datalist: [
     {
       id: "123",
-      maPhieuYeuCauBaoGia: "maPhieuYeuCauBaoGiaA",
-      tenPhieuYeuCauBaoGia: "tenPhieuYeuCauBaoGiaA",
-      tenKhachHang: "tenKhachHangA",
-      tenDongSanPham: "tenDongSanPhamA",
+      maPhieuYeuCauBaoGia: "60.30.01.24/YCBG-PHBH",
+      tenPhieuYeuCauBaoGia: "Yêu cầu báo giá khách hàng Dieffenbacher",
+      tenKhachHang: "Dieffenbacher",
+      tenDongSanPham: "Linh kiện băng tải",
       soLuongDatHang: "10",
-      tenDonViTinh: "Cái",
-      noiDungThucHien: "noiDungThucHienA",
-      thoiGianHoanThanh: "26/03/2024",
+      tenDonViTinh: "Cụm",
+      noiDungThucHien: "Triển khai bổ sung trục băng tải",
+      thoiGianHoanThanh: "15/03/2024 15:30",
       tenNguoiLap: "Phạm Tấn Dũng",
-      moTa: "moTaA",
-      trangThai: "Chưa duyệt",
+      moTa: "Yêu cầu báo giá gấp",
+      trangThai: "Trễ tiến độ",
+      list_CongViecs: [
+        {
+          maCongViec: "YC-QTCN-01",
+          noiDungCongViec: "Định mức vật tư/Material norms",
+          ngayBatDau: "20/2/2024",
+          ngayHoanThanh: "29/2/2024 14:00",
+          tenNguoiThucHien: "Phạm Tấn Dũng",
+          tienDo: "100%",
+          moTa: "Yêu cầu làm gấp",
+          trangThai: "Hoàn thành",
+        },
+      ],
     },
   ],
   totalRow: 1,
@@ -69,7 +80,7 @@ const NoiDungYeuCau = [
   },
 ];
 
-function PhieuYeuCauBaoGia({ history, permission, match }) {
+function PhanCongCongViec({ history, permission, match }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
@@ -98,7 +109,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
   //   new Promise((resolve, reject) => {
   //     dispatch(
   //       fetchStart(
-  //         `tsec_qtsx_PhieuYeuCauBaoGia?${param}`,
+  //         `tsec_qtsx_PhanCongCongViec?${param}`,
   //         "GET",
   //         null,
   //         "DETAIL",
@@ -121,7 +132,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
     // getListData(keyword, pagination);
   };
 
-  const onSearchPhieuYeuCauBaoGia = () => {
+  const onSearchPhanCongCongViec = () => {
     // getListData(keyword, page);
   };
 
@@ -138,16 +149,11 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
 
   const deleteItemFunc = (item) => {
     const title = "phiếu yêu cầu";
-    ModalDeleteConfirm(
-      deleteItemAction,
-      item,
-      item.tenPhieuYeuCauBaoGia,
-      title
-    );
+    ModalDeleteConfirm(deleteItemAction, item, item.tenPhanCongCongViec, title);
   };
 
   const deleteItemAction = (item) => {
-    let url = `tsec_qtsx_PhieuYeuCauBaoGia/${item.id}`;
+    let url = `tsec_qtsx_PhanCongCongViec/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -160,23 +166,12 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
   const actionContent = (item) => {
     const detailItem = { onClick: () => setActiveModalChiTietPhieu(true) };
 
-    const editItem =
-      permission && permission.edit ? (
-        <Link
-          to={{
-            pathname: `${match.url}/${item.id}/chinh-sua`,
-            state: { itemData: item, permission },
-          }}
-          title="Sửa"
-        >
-          <EditOutlined />
-        </Link>
-      ) : (
-        <span disabled title="Sửa">
-          <EditOutlined />
-        </span>
-      );
-    const deleteItemVal =
+    const history =
+      permission && permission.del
+        ? { onClick: () => deleteItemFunc(item) }
+        : { disabled: true };
+
+    const download =
       permission && permission.del
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
@@ -184,14 +179,16 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
     return (
       <div>
         <React.Fragment>
-          <a {...detailItem} title="Xem chi tiết phiếu yêu cầu">
+          <a {...detailItem} title="Xem chi tiết phân công công việc">
             <SearchOutlined />
           </a>
           <Divider type="vertical" />
-          {editItem}
+          <a {...history} title="Xem lịch sử phân công công việc">
+            <HistoryOutlined />
+          </a>
           <Divider type="vertical" />
-          <a {...deleteItemVal} title="Xóa">
-            <DeleteOutlined />
+          <a {...download} title="Tải file phân công công việc">
+            <DownloadOutlined />
           </a>
         </React.Fragment>
       </div>
@@ -239,7 +236,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
       title: "Tên phiếu yêu cầu",
       dataIndex: "tenPhieuYeuCauBaoGia",
       key: "tenPhieuYeuCauBaoGia",
-      align: "center",
+      align: "left",
       width: 250,
       filters: removeDuplicates(
         map(dataList, (d) => {
@@ -457,6 +454,99 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
     },
   ];
 
+  let columnDanhSachCongViec = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      width: 50,
+      align: "center",
+    },
+    {
+      title: "Mã công việc",
+      dataIndex: "maCongViec",
+      key: "maCongViec",
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Nội dung công việc",
+      dataIndex: "noiDungCongViec",
+      key: "noiDungCongViec",
+      align: "center",
+      width: 200,
+    },
+    {
+      title: "Ngày bắt đầu",
+      dataIndex: "ngayBatDau",
+      key: "ngayBatDau",
+      align: "center",
+      width: 100,
+    },
+    {
+      title: "Ngày hoàn thành",
+      dataIndex: "ngayHoanThanh",
+      key: "ngayHoanThanh",
+      align: "center",
+      width: 120,
+    },
+    {
+      title: "Nhân sự thực hiện",
+      dataIndex: "tenNguoiThucHien",
+      key: "tenNguoiThucHien",
+      align: "center",
+      width: 180,
+    },
+    {
+      title: "Tiến độ",
+      dataIndex: "tienDo",
+      key: "tienDo",
+      align: "center",
+      width: 120,
+    },
+    {
+      title: "File đính kèm",
+      dataIndex: "fileDinhKem",
+      key: "fileDinhKem",
+      align: "left",
+      width: 150,
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "left",
+      width: 150,
+    },
+    {
+      title: "Tình trạng",
+      dataIndex: "tinhTrang",
+      key: "tinhTrang",
+      align: "center",
+      width: 150,
+      render: (value, record) =>
+        value && (
+          <Tag
+            color={
+              value === "Chưa hoàn thành"
+                ? "gray"
+                : value === "Hoàn thành"
+                ? "green"
+                : value === "Hoàn thành trễ"
+                ? "blue"
+                : "red"
+            }
+            style={{
+              whiteSpace: "break-spaces",
+              fontSize: 13,
+            }}
+          >
+            {value}
+          </Tag>
+        ),
+    },
+  ];
+
   let columnNoiDung = [
     {
       title: "STT",
@@ -562,8 +652,8 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Phiếu yêu cầu báo giá"}
-        description="Danh sách phiếu yêu cầu báo giá"
+        title={"Phân công công việc"}
+        description="Danh sách phân công công việc"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -615,8 +705,8 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchPhieuYeuCauBaoGia,
-                onSearch: onSearchPhieuYeuCauBaoGia,
+                onPressEnter: onSearchPhanCongCongViec,
+                onSearch: onSearchPhanCongCongViec,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
                 onClear: { handleClearSearch },
@@ -631,7 +721,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
           columns={columns}
           scroll={{ x: 1800, y: "55vh" }}
           components={components}
-          className="gx-table-responsive"
+          className="gx-table-responsive th-table"
           dataSource={dataList}
           size="small"
           rowClassName={"editable-row"}
@@ -643,6 +733,22 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
             showQuickJumper: true,
           }}
           loading={loading}
+          expandable={{
+            expandedRowRender: (record) => (
+              <Table
+                style={{ padding: "5px 10px" }}
+                bordered
+                columns={columnDanhSachCongViec}
+                scroll={{ x: 1200 }}
+                components={components}
+                className="gx-table-responsive th-table"
+                dataSource={reDataForTable(record.list_CongViecs)}
+                size="small"
+                rowClassName={"editable-row"}
+                pagination={false}
+              />
+            ),
+          }}
         />
       </Card>
       <AntModal
@@ -683,7 +789,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                 Tên phiếu yêu cầu:
               </span>
               {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.tenPhieuYeuCauBaoGia}</span>
+                <span>{DataChiTietPhieu.tenPhanCongCongViec}</span>
               )}
             </Col>
             <Col
@@ -998,4 +1104,4 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
   );
 }
 
-export default PhieuYeuCauBaoGia;
+export default PhanCongCongViec;

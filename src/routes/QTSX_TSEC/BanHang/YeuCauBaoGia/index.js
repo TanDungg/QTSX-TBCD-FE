@@ -16,6 +16,11 @@ const DuyetPhieuYeuCauBaoGia = asyncComponent(() =>
   import("./DuyetPhieuYeuCauBaoGia/DuyetPhieuYeuCauBaoGia")
 );
 
+/* Phân công công việc */
+const PhanCongCongViec = asyncComponent(() =>
+  import("./PhanCongCongViec/PhanCongCongViec")
+);
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -42,6 +47,13 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/duyet-phieu-yeu-cau`}
         exact
         component={Auth(DuyetPhieuYeuCauBaoGia, menus, pathname, permission)}
+      />
+
+      {/* Phân công công việc */}
+      <Route
+        path={`${match.url}/phan-cong-cong-viec`}
+        exact
+        component={Auth(PhanCongCongViec, menus, pathname, permission)}
       />
     </Switch>
   );
