@@ -21,6 +21,15 @@ const PhanCongCongViec = asyncComponent(() =>
   import("./PhanCongCongViec/PhanCongCongViec")
 );
 
+/* Thực hiện công việc */
+const ThucHienCongViec = asyncComponent(() =>
+  import("./ThucHienCongViec/ThucHienCongViec")
+);
+
+/* Báo giá */
+const PhieuBaoGia = asyncComponent(() => import("./PhieuBaoGia/PhieuBaoGia"));
+const PhieuBaoGiaForm = asyncComponent(() => import("./PhieuBaoGia/PhieuBaoGiaForm"));
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -54,6 +63,30 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/phan-cong-cong-viec`}
         exact
         component={Auth(PhanCongCongViec, menus, pathname, permission)}
+      />
+
+      {/* Thực hiện công việc */}
+      <Route
+        path={`${match.url}/thuc-hien-cong-viec`}
+        exact
+        component={Auth(ThucHienCongViec, menus, pathname, permission)}
+      />
+
+      {/* Báo giá */}
+      <Route
+        path={`${match.url}/phieu-bao-gia`}
+        exact
+        component={Auth(PhieuBaoGia, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-bao-gia/them-moi`}
+        exact
+        component={Auth(PhieuBaoGiaForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/phieu-bao-gia/:id/chinh-sua`}
+        exact
+        component={Auth(PhieuBaoGiaForm, menus, pathname, permission)}
       />
     </Switch>
   );

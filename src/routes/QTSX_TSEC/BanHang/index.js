@@ -6,6 +6,9 @@ import Auth from "src/helpers/Auth";
 /* Yêu cầu báo giá */
 const YeuCauBaoGia = asyncComponent(() => import("./YeuCauBaoGia"));
 
+/* Phiếu yêu cầu */
+const PhieuYeuCau = asyncComponent(() => import("./PhieuYeuCau"));
+
 const App = ({ match, location, menus }) => {
   const { pathname } = location;
   return (
@@ -14,6 +17,12 @@ const App = ({ match, location, menus }) => {
       <Route
         path={`${match.url}/yeu-cau-bao-gia`}
         component={Auth(YeuCauBaoGia, menus, pathname)}
+      />
+
+      {/* Phiếu yêu cầu */}
+      <Route
+        path={`${match.url}/phieu-yeu-cau`}
+        component={Auth(PhieuYeuCau, menus, pathname)}
       />
     </Switch>
   );

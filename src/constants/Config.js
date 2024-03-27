@@ -1,5 +1,5 @@
-export const BASE_URL_API = `http://10.14.7.215:1512`;
-// export const BASE_URL_API = `http://10.14.7.72:90`;
+// export const BASE_URL_API = `http://10.14.7.215:1512`;
+export const BASE_URL_API = `http://10.14.7.72:90`;
 export const BASE_URL_APP = `${window.location.origin.toString()}`;
 export const APP_NAME = "HỆ THỐNG ERP";
 export const PAGE_SIZE = 20;

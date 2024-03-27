@@ -380,7 +380,7 @@ function CanBoNhanVien({ match, history, permission }) {
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
           bordered
-          scroll={{ x: 1700, y: "50vh" }}
+          scroll={{ x: 1700, y: "53vh" }}
           columns={renderHead}
           className="gx-table-responsive th-table"
           dataSource={dataList}

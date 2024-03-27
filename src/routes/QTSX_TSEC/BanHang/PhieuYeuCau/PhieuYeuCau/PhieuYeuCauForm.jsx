@@ -54,7 +54,7 @@ const NoiDungYeuCau = [
   },
 ];
 
-const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
+const PhieuYeuCauForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
   const INFO = {
@@ -86,7 +86,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
         getListDonViTinh();
         setListNoiDungYeuCau(NoiDungYeuCau);
         setFieldsValue({
-          formphieuyeucaubaogia: {
+          formphieuyeucau: {
             qtsx_tsec_NguoiYeuCau_Id: INFO.user_Id.toLowerCase(),
             thoiGianHoanThanh: moment(
               moment().format("DD/MM/YYYY HH:mm"),
@@ -204,7 +204,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tsec_qtsx_PhieuYeuCauBaoGia/${id}`,
+          `tsec_qtsx_PhieuYeuCau/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -217,7 +217,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            formphieuyeucaubaogia: res.data,
+            formphieuyeucau: res.data,
           });
         }
       })
@@ -345,27 +345,27 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
-    saveData(values.formphieuyeucaubaogia);
+    saveData(values.formphieuyeucau);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.formphieuyeucaubaogia, true);
+        saveData(values.formphieuyeucau, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (formphieuyeucaubaogia, saveQuit = false) => {
+  const saveData = (formphieuyeucau, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_PhieuYeuCauBaoGia`,
+            `tsec_qtsx_PhieuYeuCau`,
             "POST",
-            formphieuyeucaubaogia,
+            formphieuyeucau,
             "ADD",
             "",
             resolve,
@@ -388,11 +388,11 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...formphieuyeucaubaogia, id: id };
+      var newData = { ...formphieuyeucau, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_PhieuYeuCauBaoGia/${id}`,
+            `tsec_qtsx_PhieuYeuCau/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -506,7 +506,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Tên phiếu yêu cầu"
-                  name={["formphieuyeucaubaogia", "tenPhieuYeuCauBaoGia"]}
+                  name={["formphieuyeucau", "tenPhieuYeuCau"]}
                   rules={[
                     {
                       type: "string",
@@ -537,7 +537,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Nội dung thực hiện"
-                  name={["formphieuyeucaubaogia", "noiDungThucHien"]}
+                  name={["formphieuyeucau", "noiDungThucHien"]}
                   rules={[
                     {
                       type: "string",
@@ -564,7 +564,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Người yêu cầu"
-                  name={["formphieuyeucaubaogia", "qtsx_tsec_NguoiYeuCau_Id"]}
+                  name={["formphieuyeucau", "qtsx_tsec_NguoiYeuCau_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -596,7 +596,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Phòng ban thực hiện"
-                  name={["formphieuyeucaubaogia", "tenPhongBan"]}
+                  name={["formphieuyeucau", "tenPhongBan"]}
                   rules={[
                     {
                       type: "string",
@@ -641,7 +641,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Khách hàng"
-                  name={["formphieuyeucaubaogia", "qtsx_tsec_KhachHang_Id"]}
+                  name={["formphieuyeucau", "qtsx_tsec_KhachHang_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -679,7 +679,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Đơn hàng"
-                  name={["formphieuyeucaubaogia", "qtsx_tsec_DonHang_Id"]}
+                  name={["formphieuyeucau", "qtsx_tsec_DonHang_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -717,7 +717,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Người gửi"
-                  name={["formphieuyeucaubaogia", "qtsx_tsec_NguoiGui_Id"]}
+                  name={["formphieuyeucau", "qtsx_tsec_NguoiGui_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -749,7 +749,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Phòng ban"
-                  name={["formphieuyeucaubaogia", "qtsx_tsec_PhongBan_Id"]}
+                  name={["formphieuyeucau", "qtsx_tsec_PhongBan_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -787,7 +787,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Thời gian hoàn thành"
-                  name={["formphieuyeucaubaogia", "thoiGianHoanThanh"]}
+                  name={["formphieuyeucau", "thoiGianHoanThanh"]}
                   rules={[
                     {
                       type: "string",
@@ -816,7 +816,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Số lượng đặt hàng"
-                  name={["formphieuyeucaubaogia", "soLuongDatHang"]}
+                  name={["formphieuyeucau", "soLuongDatHang"]}
                   rules={[
                     {
                       required: true,
@@ -843,7 +843,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Đơn vị tính"
-                  name={["formphieuyeucaubaogia", "qtsx_tsec_DonViTinh_Id"]}
+                  name={["formphieuyeucau", "qtsx_tsec_DonViTinh_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -875,7 +875,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Dòng sản phẩm"
-                  name={["formphieuyeucaubaogia", "qtsx_tsec_DongSanPham_Id"]}
+                  name={["formphieuyeucau", "qtsx_tsec_DongSanPham_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -913,7 +913,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Điều kiện giao hàng"
-                  name={["formphieuyeucaubaogia", "dieuKienGiaoHang"]}
+                  name={["formphieuyeucau", "dieuKienGiaoHang"]}
                   rules={[
                     {
                       type: "string",
@@ -940,7 +940,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Ghi chú"
-                  name={["formphieuyeucaubaogia", "moTa"]}
+                  name={["formphieuyeucau", "moTa"]}
                   rules={[
                     {
                       type: "string",
@@ -963,7 +963,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Người kiểm tra"
-                  name={["formphieuyeucaubaogia", "qtsx_tsec_NguoiKiemTra_Id"]}
+                  name={["formphieuyeucau", "qtsx_tsec_NguoiKiemTra_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -995,7 +995,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Người duyệt"
-                  name={["formphieuyeucaubaogia", "qtsx_tsec_NguoiDuyet_Id"]}
+                  name={["formphieuyeucau", "qtsx_tsec_NguoiDuyet_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -1027,7 +1027,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Tài liệu báo giá"
-                  name={["formphieuyeucaubaogia", "boTaiLieuBaoGia"]}
+                  name={["formphieuyeucau", "boTaiLieuBaoGia"]}
                   rules={[
                     {
                       type: "file",
@@ -1070,7 +1070,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
                           setDisableUploadTaiLieuBaoGia(false);
                           setFieldTouch(true);
                           setFieldsValue({
-                            formphieuyeucaubaogia: {
+                            formphieuyeucau: {
                               boTaiLieuBaoGia: null,
                             },
                           });
@@ -1097,7 +1097,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
                             setDisableUploadTaiLieuBaoGia(false);
                             setFieldTouch(true);
                             setFieldsValue({
-                              formphieuyeucaubaogia: {
+                              formphieuyeucau: {
                                 boTaiLieuBaoGia: null,
                               },
                             });
@@ -1121,7 +1121,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Tóm tắt dự án"
-                  name={["formphieuyeucaubaogia", "fileTomTatDuAn"]}
+                  name={["formphieuyeucau", "fileTomTatDuAn"]}
                   rules={[
                     {
                       type: "file",
@@ -1164,7 +1164,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
                           setDisableUploadTomTatDuAn(false);
                           setFieldTouch(true);
                           setFieldsValue({
-                            formphieuyeucaubaogia: {
+                            formphieuyeucau: {
                               fileTomTatDuAn: null,
                             },
                           });
@@ -1191,7 +1191,7 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
                             setDisableUploadTomTatDuAn(false);
                             setFieldTouch(true);
                             setFieldsValue({
-                              formphieuyeucaubaogia: {
+                              formphieuyeucau: {
                                 fileTomTatDuAn: null,
                               },
                             });
@@ -1247,4 +1247,4 @@ const PhieuYeuCauBaoGiaForm = ({ history, match, permission }) => {
   );
 };
 
-export default PhieuYeuCauBaoGiaForm;
+export default PhieuYeuCauForm;
