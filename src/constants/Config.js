@@ -413,6 +413,22 @@ export const DEFAULT_FORM_ADD_170PX = {
   },
 };
 
+export const DEFAULT_FORM_ADD_190PX = {
+  labelCol: {
+    style: {
+      width: "190px",
+      textAlign: "left",
+      fontWeight: "bold",
+    },
+  },
+  wrapperCol: {
+    style: {
+      width: "calc(100% - 190px)",
+      textAlign: "left",
+    },
+  },
+};
+
 export const DEFAULT_FORM_ADD_2COL_110PX = {
   labelCol: {
     style: {

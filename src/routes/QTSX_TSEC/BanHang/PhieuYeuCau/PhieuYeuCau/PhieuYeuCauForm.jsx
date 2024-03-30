@@ -6,11 +6,12 @@ import {
 import {
   Button,
   Card,
-  Checkbox,
   Col,
   DatePicker,
+  Divider,
   Form,
   Input,
+  Radio,
   Row,
   Upload,
 } from "antd";
@@ -41,16 +42,24 @@ const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
 const NoiDungYeuCau = [
   {
-    noiDungYeuCau: "noiDungYeuCau1",
-    trangThai: true,
-    tenLoaiThongTin: "tenLoaiThongTin1",
-    moTa: "ghiChu",
+    maCongViec: "YCKH-01",
+    noiDungYeuCau:
+      "Chuẩn bị xe đưa đón khách, mũ bảo hộ, nước,... ( Hành chính NM TBCD)",
+    diaDiem: "NM TBCD",
+    thoiGianHoanThanh: "20/03/2024 14:00",
+    tenPhongBan: "BP. Hành chính",
+    tenNhanSuThucHien: "Hoanh Kiều",
+    tenNhanSuQuanLy: "Nguyễn Văn A",
   },
   {
-    noiDungYeuCau: "noiDungYeuCau2",
-    trangThai: false,
-    tenLoaiThongTin: "tenLoaiThongTin2",
-    moTa: "ghiChu",
+    maCongViec: "YCKH-02",
+    noiDungYeuCau:
+      "Gửi báo cáo hình ảnh trial cụm 403 ( Phòng QLCL) - 04/01/2024",
+    diaDiem: "NM TBCD",
+    thoiGianHoanThanh: "20/03/2024 14:00",
+    tenPhongBan: "P. QLCL",
+    tenNhanSuThucHien: "Hoanh Kiều",
+    tenNhanSuQuanLy: "Nguyễn Văn A",
   },
 ];
 
@@ -66,12 +75,9 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
   const { validateFields, resetFields, setFieldsValue } = form;
   const [type, setType] = useState("new");
   const [fieldTouch, setFieldTouch] = useState(false);
+  const [TypeYeuCau, setTypeYeuCau] = useState(1);
   const [ListUser, setListUser] = useState([]);
-  const [ListDonViTinh, setListDonViTinh] = useState([]);
-  const [FileTaiLieuBaoGia, setFileTaiLieuBaoGia] = useState(null);
-  const [DisableUploadTaiLieuBaoGia, setDisableUploadTaiLieuBaoGia] =
-    useState(false);
-  const [FileTomTatDuAn, setFileTomTatDuAn] = useState(null);
+  const [FileTaiLieu, setFileTaiLieu] = useState(null);
   const [DisableUploadTomTatDuAn, setDisableUploadTomTatDuAn] = useState(false);
   const [ListNoiDungYeuCau, setListNoiDungYeuCau] = useState([]);
   const [ActiveModalThemNoiDung, setActiveModalThemNoiDung] = useState(false);
@@ -83,7 +89,6 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
         setType("new");
         getListUser();
         getListPhongBan();
-        getListDonViTinh();
         setListNoiDungYeuCau(NoiDungYeuCau);
         setFieldsValue({
           formphieuyeucau: {
@@ -142,30 +147,6 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
     //     }
     // })
     // .catch((error) => console.error(error));
-  };
-
-  const getListDonViTinh = () => {
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `DonViTinh?DonVi_Id=${INFO.donVi_Id}&page=-1`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    })
-      .then((res) => {
-        if (res && res.data) {
-          setListDonViTinh(res.data);
-        } else {
-          setListDonViTinh([]);
-        }
-      })
-      .catch((error) => console.error(error));
   };
 
   const getListUser = () => {
@@ -252,7 +233,7 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
     );
   };
 
-  let colValues = [
+  let columnDanhGia = [
     {
       title: "Chức năng",
       key: "action",
@@ -268,39 +249,169 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
       align: "center",
     },
     {
+      title: "Mã công việc",
+      dataIndex: "maCongViec",
+      key: "maCongViec",
+      align: "left",
+      width: 150,
+    },
+    {
       title: "Nội dung yêu cầu",
       dataIndex: "noiDungYeuCau",
       key: "noiDungYeuCau",
       align: "left",
-      width: 200,
+      width: 250,
     },
     {
-      title: "Trạng thái",
-      dataIndex: "trangThai",
-      key: "trangThai",
-      align: "center",
-      width: 100,
-      render: (value, record) => {
-        return (
-          <Checkbox
-            checked={value}
-            // onChange={() => handleThayDoiDapAnDung(value, record)}
-          />
-        );
-      },
-    },
-    {
-      title: "Loại thông tin",
-      dataIndex: "tenLoaiThongTin",
-      key: "tenLoaiThongTin",
+      title: "Địa điểm",
+      dataIndex: "diaDiem",
+      key: "diaDiem",
       align: "center",
       width: 150,
+    },
+    {
+      title: (
+        <div>
+          Thời gian
+          <br />
+          hoàn thành
+        </div>
+      ),
+      dataIndex: "thoiGianHoanThanh",
+      key: "thoiGianHoanThanh",
+      align: "center",
+      width: 100,
+    },
+    {
+      title: "Xưởng/Phòng ban",
+      dataIndex: "tenPhongBan",
+      key: "tenPhongBan",
+      align: "left",
+      width: 150,
+    },
+    {
+      title: "Nhân sự thực hiện",
+      dataIndex: "tenNhanSuThucHien",
+      key: "tenNhanSuThucHien",
+      align: "center",
+      width: 160,
+    },
+    {
+      title: "Nhân sự quản lý",
+      dataIndex: "tenNhanSuQuanLy",
+      key: "tenNhanSuQuanLy",
+      align: "center",
+      width: 160,
+    },
+  ];
+
+  let columnTrienKhaiKhieuNai = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      width: 50,
+      align: "center",
+    },
+    {
+      title: "Nội dung lỗi khách hàng",
+      dataIndex: "noiDungLoi",
+      key: "noiDungLoi",
+      align: "left",
+      width: 300,
+    },
+    {
+      title: "Loại lỗi",
+      dataIndex: "tenLoaiLoi",
+      key: "tenLoaiLoi",
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Ngày nhận thông tin",
+      dataIndex: "ngayNhanThongTin",
+      key: "ngayNhanThongTin",
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Ngày hoàn thành",
+      dataIndex: "ngayHoanThanh",
+      key: "ngayHoanThanh",
+      align: "left",
+      width: 150,
+    },
+    {
+      title: "Nhân sự thực hiện",
+      dataIndex: "tenNhanSuThucHien",
+      key: "tenNhanSuThucHien",
+      align: "center",
+      width: 200,
+    },
+  ];
+
+  let columnKhac = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 80,
+      render: (value) => actionContent(value),
+    },
+    {
+      title: "STT",
+      dataIndex: "key",
+      key: "key",
+      width: 50,
+      align: "center",
+    },
+    {
+      title: "Mã công việc",
+      dataIndex: "maCongViec",
+      key: "maCongViec",
+      align: "left",
+      width: 150,
+    },
+    {
+      title: "Nội dung yêu cầu",
+      dataIndex: "noiDungYeuCau",
+      key: "noiDungYeuCau",
+      align: "left",
+      width: 250,
+    },
+    {
+      title: "Ngày bắt đầu",
+      dataIndex: "ngayBatDau",
+      key: "ngayBatDau",
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Ngày hoàn thành",
+      dataIndex: "ngayHoanThanh",
+      key: "ngayHoanThanh",
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Nhân sự thực hiện",
+      dataIndex: "tenNhanSuThucHien",
+      key: "tenNhanSuThucHien",
+      align: "center",
+      width: 200,
     },
     {
       title: "Ghi chú",
       dataIndex: "moTa",
       key: "moTa",
-      align: "left",
+      align: "center",
       width: 150,
     },
   ];
@@ -312,21 +423,28 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
     },
   };
 
-  const columns = map(colValues, (col) => {
-    if (!col.editable) {
-      return col;
+  const columns = map(
+    TypeYeuCau === 1
+      ? columnDanhGia
+      : TypeYeuCau === 2
+      ? columnTrienKhaiKhieuNai
+      : columnKhac,
+    (col) => {
+      if (!col.editable) {
+        return col;
+      }
+      return {
+        ...col,
+        onCell: (record) => ({
+          record,
+          editable: col.editable,
+          dataIndex: col.dataIndex,
+          title: col.title,
+          info: col.info,
+        }),
+      };
     }
-    return {
-      ...col,
-      onCell: (record) => ({
-        record,
-        editable: col.editable,
-        dataIndex: col.dataIndex,
-        title: col.title,
-        info: col.info,
-      }),
-    };
-  });
+  );
 
   const handleThemNoiDung = (data) => {
     console.log(data);
@@ -423,32 +541,6 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
     }
   };
 
-  const propstailieubaogia = {
-    accept: ".pdf, .doc, .docx, .ppt, .pptx",
-    beforeUpload: (file) => {
-      const allowedFileTypes = [
-        "application/pdf",
-        "application/msword",
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-        "application/vnd.ms-powerpoint",
-        "application/vnd.openxmlformats-officedocument.presentationml.presentation",
-      ];
-
-      if (!allowedFileTypes.includes(file.type)) {
-        Helpers.alertError(
-          `${file.name} không phải là tệp PDF, Word hoặc PowerPoint`
-        );
-        return false;
-      } else {
-        setFileTaiLieuBaoGia(file);
-        setDisableUploadTaiLieuBaoGia(true);
-        return false;
-      }
-    },
-    showUploadList: false,
-    maxCount: 1,
-  };
-
   const propstomtatduan = {
     accept: ".pdf, .doc, .docx, .ppt, .pptx",
     beforeUpload: (file) => {
@@ -466,13 +558,17 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
         );
         return false;
       } else {
-        setFileTomTatDuAn(file);
+        setFileTaiLieu(file);
         setDisableUploadTomTatDuAn(true);
         return false;
       }
     },
     showUploadList: false,
     maxCount: 1,
+  };
+
+  const onChange = (e) => {
+    setTypeYeuCau(e.target.value);
   };
 
   const formTitle =
@@ -484,6 +580,40 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
     <div className="gx-main-content">
       <ContainerHeader title={formTitle} back={goBack} />
       <Card className="th-card-margin-bottom">
+        <Radio.Group
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            width: "100%",
+            alignItems: "center",
+            justifyContent: "space-evenly",
+            height: "auto",
+            lineHeight: "30px",
+          }}
+          onChange={onChange}
+          value={TypeYeuCau}
+        >
+          <Radio
+            className={`radio-custom ${TypeYeuCau === 1 ? "radio-active" : ""}`}
+            value={1}
+          >
+            Yêu cầu đánh giá
+          </Radio>
+          <Radio
+            className={`radio-custom ${TypeYeuCau === 2 ? "radio-active" : ""}`}
+            value={2}
+          >
+            Yêu cầu triển khai khiếu nại
+          </Radio>
+          <Radio
+            className={`radio-custom ${TypeYeuCau === 3 ? "radio-active" : ""}`}
+            value={3}
+          >
+            Yêu cầu khác
+          </Radio>
+        </Radio.Group>
+        <Divider />
         <Form
           {...DEFAULT_FORM_ADD_2COL_180PX}
           form={form}
@@ -627,582 +757,982 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
             className="th-card-margin-bottom"
             title="Thông tin đơn hàng báo giá"
           >
-            <Row align={width >= 1600 ? "" : "center"} className="row-margin">
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Khách hàng"
-                  name={["formphieuyeucau", "qtsx_tsec_KhachHang_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
+            {TypeYeuCau === 1 ? (
+              <Row align={width >= 1600 ? "" : "center"} className="row-margin">
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
                 >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    // data={ListKhachHang ? ListKhachHang : []}
-                    data={[
+                  <FormItem
+                    label="Khách hàng"
+                    name={["formphieuyeucau", "qtsx_tsec_KhachHang_Id"]}
+                    rules={[
                       {
-                        id: "1",
-                        tenKhachHang: "tenKhachHangA",
+                        type: "string",
+                        required: true,
                       },
                     ]}
-                    placeholder="Chọn khách hàng"
-                    optionsvalue={["id", "tenKhachHang"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp={"name"}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Đơn hàng"
-                  name={["formphieuyeucau", "qtsx_tsec_DonHang_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      // data={ListKhachHang ? ListKhachHang : []}
+                      data={[
+                        {
+                          id: "1",
+                          tenKhachHang: "tenKhachHangA",
+                        },
+                      ]}
+                      placeholder="Chọn khách hàng"
+                      optionsvalue={["id", "tenKhachHang"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
                 >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    // data={ListDonHang ? ListDonHang : []}
-                    data={[
+                  <FormItem
+                    label="Đơn hàng"
+                    name={["formphieuyeucau", "qtsx_tsec_DonHang_Id"]}
+                    rules={[
                       {
-                        id: "1",
-                        tenDonHang: "tenDonHangA",
+                        type: "string",
+                        required: true,
                       },
                     ]}
-                    placeholder="Chọn đơn hàng"
-                    optionsvalue={["id", "tenDonHang"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp={"name"}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Người gửi"
-                  name={["formphieuyeucau", "qtsx_tsec_NguoiGui_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      // data={ListDonHang ? ListDonHang : []}
+                      data={[
+                        {
+                          id: "1",
+                          tenDonHang: "tenDonHangA",
+                        },
+                      ]}
+                      placeholder="Chọn đơn hàng"
+                      optionsvalue={["id", "tenDonHang"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
                 >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListUser ? ListUser : []}
-                    placeholder="Chọn người gửi"
-                    optionsvalue={["id", "user"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp={"name"}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Phòng ban"
-                  name={["formphieuyeucau", "qtsx_tsec_PhongBan_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    // data={ListPhongBan ? ListPhongBan : []}
-                    data={[
+                  <FormItem
+                    label="Lĩnh vực"
+                    name={["formphieuyeucau", "qtsx_tsec_LinhVuc_Id"]}
+                    rules={[
                       {
-                        id: "1",
-                        tenPhongBan: "tenPhongBanA",
+                        type: "string",
+                        required: true,
                       },
                     ]}
-                    placeholder="Chọn phòng ban thực hiện"
-                    optionsvalue={["id", "tenPhongBan"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp={"name"}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Thời gian hoàn thành"
-                  name={["formphieuyeucau", "thoiGianHoanThanh"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUser ? ListUser : []}
+                      placeholder="Chọn lĩnh vực"
+                      optionsvalue={["id", "user"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
                 >
-                  <DatePicker
-                    showTime
-                    format={"DD/MM/YYYY HH:mm"}
-                    disabledDate={disabledDate}
-                    allowClear={false}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Số lượng đặt hàng"
-                  name={["formphieuyeucau", "soLuongDatHang"]}
-                  rules={[
-                    {
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Input
-                    type="number"
-                    className="input-item"
-                    placeholder="Nhập số lượng đặt hàng"
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Đơn vị tính"
-                  name={["formphieuyeucau", "qtsx_tsec_DonViTinh_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListDonViTinh ? ListDonViTinh : []}
-                    placeholder="Chọn đơn vị tính"
-                    optionsvalue={["id", "tenDonViTinh"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp={"name"}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Dòng sản phẩm"
-                  name={["formphieuyeucau", "qtsx_tsec_DongSanPham_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    // data={ListDongSanPham ? ListDongSanPham : []}
-                    data={[
+                  <FormItem
+                    label="Địa điểm"
+                    name={["formphieuyeucau", "diaDiem"]}
+                    rules={[
                       {
-                        id: "1",
-                        tenDongSanPham: "tenDongSanPhamA",
+                        type: "string",
+                        required: true,
                       },
                     ]}
-                    placeholder="Chọn dòng sản phẩm"
-                    optionsvalue={["id", "tenDongSanPham"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp={"name"}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Điều kiện giao hàng"
-                  name={["formphieuyeucau", "dieuKienGiaoHang"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
+                  >
+                    <Input className="input-item" placeholder="Nhập địa điểm" />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
                 >
-                  <Input
-                    className="input-item"
-                    placeholder="Nhập điều kiện giao hàng"
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Ghi chú"
-                  name={["formphieuyeucau", "moTa"]}
-                  rules={[
-                    {
-                      type: "string",
-                    },
-                  ]}
+                  <FormItem
+                    label="Thời gian"
+                    name={["formphieuyeucau", "thoiGian"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <DatePicker
+                      showTime
+                      format={"DD/MM/YYYY HH:mm"}
+                      disabledDate={disabledDate}
+                      allowClear={false}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
                 >
-                  <Input className="input-item" placeholder="Nhập ghi chú" />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Người kiểm tra"
-                  name={["formphieuyeucau", "qtsx_tsec_NguoiKiemTra_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListUser ? ListUser : []}
-                    placeholder="Chọn người kiểm tra"
-                    optionsvalue={["id", "user"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp={"name"}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Người duyệt"
-                  name={["formphieuyeucau", "qtsx_tsec_NguoiDuyet_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListUser ? ListUser : []}
-                    placeholder="Chọn người duyệt"
-                    optionsvalue={["id", "user"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp={"name"}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Tài liệu báo giá"
-                  name={["formphieuyeucau", "boTaiLieuBaoGia"]}
-                  rules={[
-                    {
-                      type: "file",
-                      required: true,
-                    },
-                  ]}
-                >
-                  {!DisableUploadTaiLieuBaoGia ? (
-                    <Upload {...propstailieubaogia}>
-                      <Button
-                        className="th-margin-bottom-0 btn-margin-bottom-0"
-                        style={{
-                          marginBottom: 0,
-                        }}
-                        icon={<UploadOutlined />}
-                        disabled={type === "detail" ? true : false}
-                      >
-                        Tải file tài liệu báo giá
-                      </Button>
-                    </Upload>
-                  ) : FileTaiLieuBaoGia && FileTaiLieuBaoGia.name ? (
-                    <span>
-                      <span
-                        style={{
-                          color: "#0469B9",
-                          cursor: "pointer",
-                          whiteSpace: "break-spaces",
-                        }}
-                        onClick={() => handleOpenFile(FileTaiLieuBaoGia)}
-                      >
-                        {FileTaiLieuBaoGia.name}{" "}
-                      </span>
-                      <DeleteOutlined
-                        style={{ cursor: "pointer", color: "red" }}
-                        disabled={
-                          type === "new" || type === "edit" ? false : true
-                        }
-                        onClick={() => {
-                          setFileTaiLieuBaoGia(null);
-                          setDisableUploadTaiLieuBaoGia(false);
-                          setFieldTouch(true);
-                          setFieldsValue({
-                            formphieuyeucau: {
-                              boTaiLieuBaoGia: null,
-                            },
-                          });
-                        }}
-                      />
-                    </span>
-                  ) : (
-                    <span>
-                      <a
-                        target="_blank"
-                        href={BASE_URL_API + FileTaiLieuBaoGia}
-                        rel="noopener noreferrer"
-                      >
-                        {FileTaiLieuBaoGia && FileTaiLieuBaoGia.split("/")[5]}{" "}
-                      </a>
-                      {(type === "new" || type === "edit") && (
-                        <DeleteOutlined
-                          style={{ cursor: "pointer", color: "red" }}
-                          disabled={
-                            type === "new" || type === "edit" ? false : true
-                          }
-                          onClick={() => {
-                            setFileTaiLieuBaoGia(null);
-                            setDisableUploadTaiLieuBaoGia(false);
-                            setFieldTouch(true);
-                            setFieldsValue({
-                              formphieuyeucau: {
-                                boTaiLieuBaoGia: null,
-                              },
-                            });
+                  <FormItem
+                    label="Tài liệu liên quan"
+                    name={["formphieuyeucau", "fileTaiLieu"]}
+                    rules={[
+                      {
+                        type: "file",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    {!DisableUploadTomTatDuAn ? (
+                      <Upload {...propstomtatduan}>
+                        <Button
+                          className="th-margin-bottom-0 btn-margin-bottom-0"
+                          style={{
+                            marginBottom: 0,
                           }}
-                        />
-                      )}
-                    </span>
-                  )}
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Tóm tắt dự án"
-                  name={["formphieuyeucau", "fileTomTatDuAn"]}
-                  rules={[
-                    {
-                      type: "file",
-                      required: true,
-                    },
-                  ]}
-                >
-                  {!DisableUploadTomTatDuAn ? (
-                    <Upload {...propstomtatduan}>
-                      <Button
-                        className="th-margin-bottom-0 btn-margin-bottom-0"
-                        style={{
-                          marginBottom: 0,
-                        }}
-                        icon={<UploadOutlined />}
-                        disabled={type === "detail" ? true : false}
-                      >
-                        Tải file tóm tắt dự án
-                      </Button>
-                    </Upload>
-                  ) : FileTomTatDuAn && FileTomTatDuAn.name ? (
-                    <span>
-                      <span
-                        style={{
-                          color: "#0469B9",
-                          cursor: "pointer",
-                          whiteSpace: "break-spaces",
-                        }}
-                        onClick={() => handleOpenFile(FileTomTatDuAn)}
-                      >
-                        {FileTomTatDuAn.name}{" "}
-                      </span>
-                      <DeleteOutlined
-                        style={{ cursor: "pointer", color: "red" }}
-                        disabled={
-                          type === "new" || type === "edit" ? false : true
-                        }
-                        onClick={() => {
-                          setFileTomTatDuAn(null);
-                          setDisableUploadTomTatDuAn(false);
-                          setFieldTouch(true);
-                          setFieldsValue({
-                            formphieuyeucau: {
-                              fileTomTatDuAn: null,
-                            },
-                          });
-                        }}
-                      />
-                    </span>
-                  ) : (
-                    <span>
-                      <a
-                        target="_blank"
-                        href={BASE_URL_API + FileTomTatDuAn}
-                        rel="noopener noreferrer"
-                      >
-                        {FileTomTatDuAn && FileTomTatDuAn.split("/")[5]}{" "}
-                      </a>
-                      {(type === "new" || type === "edit") && (
+                          icon={<UploadOutlined />}
+                          disabled={type === "detail" ? true : false}
+                        >
+                          Tải file tài liệu liên quan
+                        </Button>
+                      </Upload>
+                    ) : FileTaiLieu && FileTaiLieu.name ? (
+                      <span>
+                        <span
+                          style={{
+                            color: "#0469B9",
+                            cursor: "pointer",
+                            whiteSpace: "break-spaces",
+                          }}
+                          onClick={() => handleOpenFile(FileTaiLieu)}
+                        >
+                          {FileTaiLieu.name}{" "}
+                        </span>
                         <DeleteOutlined
                           style={{ cursor: "pointer", color: "red" }}
                           disabled={
                             type === "new" || type === "edit" ? false : true
                           }
                           onClick={() => {
-                            setFileTomTatDuAn(null);
+                            setFileTaiLieu(null);
                             setDisableUploadTomTatDuAn(false);
                             setFieldTouch(true);
                             setFieldsValue({
                               formphieuyeucau: {
-                                fileTomTatDuAn: null,
+                                formTaiLieu: null,
                               },
                             });
                           }}
                         />
-                      )}
-                    </span>
-                  )}
-                </FormItem>
-              </Col>
-            </Row>
+                      </span>
+                    ) : (
+                      <span>
+                        <a
+                          target="_blank"
+                          href={BASE_URL_API + FileTaiLieu}
+                          rel="noopener noreferrer"
+                        >
+                          {FileTaiLieu && FileTaiLieu.split("/")[5]}{" "}
+                        </a>
+                        {(type === "new" || type === "edit") && (
+                          <DeleteOutlined
+                            style={{ cursor: "pointer", color: "red" }}
+                            disabled={
+                              type === "new" || type === "edit" ? false : true
+                            }
+                            onClick={() => {
+                              setFileTaiLieu(null);
+                              setDisableUploadTomTatDuAn(false);
+                              setFieldTouch(true);
+                              setFieldsValue({
+                                formphieuyeucau: {
+                                  formTaiLieu: null,
+                                },
+                              });
+                            }}
+                          />
+                        )}
+                      </span>
+                    )}
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Người kiểm tra"
+                    name={["formphieuyeucau", "qtsx_tsec_NguoiKiemTra_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUser ? ListUser : []}
+                      placeholder="Chọn người kiểm tra"
+                      optionsvalue={["id", "user"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Người duyệt"
+                    name={["formphieuyeucau", "qtsx_tsec_NguoiDuyet_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUser ? ListUser : []}
+                      placeholder="Chọn người duyệt"
+                      optionsvalue={["id", "user"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+              </Row>
+            ) : TypeYeuCau === 2 ? (
+              <Row align={width >= 1600 ? "" : "center"} className="row-margin">
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Số PO"
+                    name={["formphieuyeucau", "soPO"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Input className="input-item" placeholder="Nhập số PO" />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Khách hàng"
+                    name={["formphieuyeucau", "qtsx_tsec_KhachHang_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      // data={ListKhachHang ? ListKhachHang : []}
+                      data={[
+                        {
+                          id: "1",
+                          tenKhachHang: "tenKhachHangA",
+                        },
+                      ]}
+                      placeholder="Chọn khách hàng"
+                      optionsvalue={["id", "tenKhachHang"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Đơn hàng"
+                    name={["formphieuyeucau", "qtsx_tsec_DonHang_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      // data={ListDonHang ? ListDonHang : []}
+                      data={[
+                        {
+                          id: "1",
+                          tenDonHang: "tenDonHangA",
+                        },
+                      ]}
+                      placeholder="Chọn đơn hàng"
+                      optionsvalue={["id", "tenDonHang"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Loại phản hồi"
+                    name={["formphieuyeucau", "qtsx_tsec_LoaiPhanHoi_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUser ? ListUser : []}
+                      placeholder="Chọn loại phản hồi"
+                      optionsvalue={["id", "user"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Người kiểm tra"
+                    name={["formphieuyeucau", "qtsx_tsec_NguoiKiemTra_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUser ? ListUser : []}
+                      placeholder="Chọn người kiểm tra"
+                      optionsvalue={["id", "user"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Người duyệt"
+                    name={["formphieuyeucau", "qtsx_tsec_NguoiDuyet_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUser ? ListUser : []}
+                      placeholder="Chọn người duyệt"
+                      optionsvalue={["id", "user"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Tài liệu liên quan"
+                    name={["formphieuyeucau", "fileTaiLieu"]}
+                    rules={[
+                      {
+                        type: "file",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    {!DisableUploadTomTatDuAn ? (
+                      <Upload {...propstomtatduan}>
+                        <Button
+                          className="th-margin-bottom-0 btn-margin-bottom-0"
+                          style={{
+                            marginBottom: 0,
+                          }}
+                          icon={<UploadOutlined />}
+                          disabled={type === "detail" ? true : false}
+                        >
+                          Tải file tài liệu liên quan
+                        </Button>
+                      </Upload>
+                    ) : FileTaiLieu && FileTaiLieu.name ? (
+                      <span>
+                        <span
+                          style={{
+                            color: "#0469B9",
+                            cursor: "pointer",
+                            whiteSpace: "break-spaces",
+                          }}
+                          onClick={() => handleOpenFile(FileTaiLieu)}
+                        >
+                          {FileTaiLieu.name}{" "}
+                        </span>
+                        <DeleteOutlined
+                          style={{ cursor: "pointer", color: "red" }}
+                          disabled={
+                            type === "new" || type === "edit" ? false : true
+                          }
+                          onClick={() => {
+                            setFileTaiLieu(null);
+                            setDisableUploadTomTatDuAn(false);
+                            setFieldTouch(true);
+                            setFieldsValue({
+                              formphieuyeucau: {
+                                formTaiLieu: null,
+                              },
+                            });
+                          }}
+                        />
+                      </span>
+                    ) : (
+                      <span>
+                        <a
+                          target="_blank"
+                          href={BASE_URL_API + FileTaiLieu}
+                          rel="noopener noreferrer"
+                        >
+                          {FileTaiLieu && FileTaiLieu.split("/")[5]}{" "}
+                        </a>
+                        {(type === "new" || type === "edit") && (
+                          <DeleteOutlined
+                            style={{ cursor: "pointer", color: "red" }}
+                            disabled={
+                              type === "new" || type === "edit" ? false : true
+                            }
+                            onClick={() => {
+                              setFileTaiLieu(null);
+                              setDisableUploadTomTatDuAn(false);
+                              setFieldTouch(true);
+                              setFieldsValue({
+                                formphieuyeucau: {
+                                  formTaiLieu: null,
+                                },
+                              });
+                            }}
+                          />
+                        )}
+                      </span>
+                    )}
+                  </FormItem>
+                </Col>
+              </Row>
+            ) : (
+              <Row align={width >= 1600 ? "" : "center"} className="row-margin">
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Số PO"
+                    name={["formphieuyeucau", "soPO"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Input className="input-item" placeholder="Nhập số PO" />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Khách hàng"
+                    name={["formphieuyeucau", "qtsx_tsec_KhachHang_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      // data={ListKhachHang ? ListKhachHang : []}
+                      data={[
+                        {
+                          id: "1",
+                          tenKhachHang: "tenKhachHangA",
+                        },
+                      ]}
+                      placeholder="Chọn khách hàng"
+                      optionsvalue={["id", "tenKhachHang"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Lĩnh vực"
+                    name={["formphieuyeucau", "qtsx_tsec_LinhVuc_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      // data={ListLinhVuc ? ListLinhVuc : []}
+                      data={[
+                        {
+                          id: "1",
+                          tenLinhVuc: "tenLinhVucA",
+                        },
+                      ]}
+                      placeholder="Chọn lĩnh vực"
+                      optionsvalue={["id", "tenLinhVuc"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Dòng sản phẩm"
+                    name={["formphieuyeucau", "qtsx_tsec_DongSanPham_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      // data={ListDongSanPham ? ListDongSanPham : []}
+                      data={[
+                        {
+                          id: "1",
+                          tenDongSanPham: "tenDongSanPhamA",
+                        },
+                      ]}
+                      placeholder="Chọn dòng sản phẩm"
+                      optionsvalue={["id", "tenDongSanPham"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Đơn hàng"
+                    name={["formphieuyeucau", "qtsx_tsec_DonHang_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      // data={ListDonHang ? ListDonHang : []}
+                      data={[
+                        {
+                          id: "1",
+                          tenDonHang: "tenDonHangA",
+                        },
+                      ]}
+                      placeholder="Chọn đơn hàng"
+                      optionsvalue={["id", "tenDonHang"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Tài liệu liên quan"
+                    name={["formphieuyeucau", "fileTaiLieu"]}
+                    rules={[
+                      {
+                        type: "file",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    {!DisableUploadTomTatDuAn ? (
+                      <Upload {...propstomtatduan}>
+                        <Button
+                          className="th-margin-bottom-0 btn-margin-bottom-0"
+                          style={{
+                            marginBottom: 0,
+                          }}
+                          icon={<UploadOutlined />}
+                          disabled={type === "detail" ? true : false}
+                        >
+                          Tải file tài liệu liên quan
+                        </Button>
+                      </Upload>
+                    ) : FileTaiLieu && FileTaiLieu.name ? (
+                      <span>
+                        <span
+                          style={{
+                            color: "#0469B9",
+                            cursor: "pointer",
+                            whiteSpace: "break-spaces",
+                          }}
+                          onClick={() => handleOpenFile(FileTaiLieu)}
+                        >
+                          {FileTaiLieu.name}{" "}
+                        </span>
+                        <DeleteOutlined
+                          style={{ cursor: "pointer", color: "red" }}
+                          disabled={
+                            type === "new" || type === "edit" ? false : true
+                          }
+                          onClick={() => {
+                            setFileTaiLieu(null);
+                            setDisableUploadTomTatDuAn(false);
+                            setFieldTouch(true);
+                            setFieldsValue({
+                              formphieuyeucau: {
+                                formTaiLieu: null,
+                              },
+                            });
+                          }}
+                        />
+                      </span>
+                    ) : (
+                      <span>
+                        <a
+                          target="_blank"
+                          href={BASE_URL_API + FileTaiLieu}
+                          rel="noopener noreferrer"
+                        >
+                          {FileTaiLieu && FileTaiLieu.split("/")[5]}{" "}
+                        </a>
+                        {(type === "new" || type === "edit") && (
+                          <DeleteOutlined
+                            style={{ cursor: "pointer", color: "red" }}
+                            disabled={
+                              type === "new" || type === "edit" ? false : true
+                            }
+                            onClick={() => {
+                              setFileTaiLieu(null);
+                              setDisableUploadTomTatDuAn(false);
+                              setFieldTouch(true);
+                              setFieldsValue({
+                                formphieuyeucau: {
+                                  formTaiLieu: null,
+                                },
+                              });
+                            }}
+                          />
+                        )}
+                      </span>
+                    )}
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Người kiểm tra"
+                    name={["formphieuyeucau", "qtsx_tsec_NguoiKiemTra_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUser ? ListUser : []}
+                      placeholder="Chọn người kiểm tra"
+                      optionsvalue={["id", "user"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Người duyệt"
+                    name={["formphieuyeucau", "qtsx_tsec_NguoiDuyet_Id"]}
+                    rules={[
+                      {
+                        type: "string",
+                        required: true,
+                      },
+                    ]}
+                  >
+                    <Select
+                      className="heading-select slt-search th-select-heading"
+                      data={ListUser ? ListUser : []}
+                      placeholder="Chọn người duyệt"
+                      optionsvalue={["id", "user"]}
+                      style={{ width: "100%" }}
+                      showSearch
+                      optionFilterProp={"name"}
+                    />
+                  </FormItem>
+                </Col>
+                <Col
+                  xxl={12}
+                  xl={18}
+                  lg={24}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  style={{
+                    padding: width >= 1600 ? "0px 35px" : "0px",
+                  }}
+                >
+                  <FormItem
+                    label="Ghi chú"
+                    name={["formphieuyeucau", "moTa"]}
+                    rules={[
+                      {
+                        type: "string",
+                      },
+                    ]}
+                  >
+                    <Input className="input-item" placeholder="Nhập ghi chú" />
+                  </FormItem>
+                </Col>
+              </Row>
+            )}
           </Card>
           <Card
             className="th-card-margin-bottom"
@@ -1221,7 +1751,7 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
             <Table
               bordered
               columns={columns}
-              scroll={{ x: 1000, y: "35vh" }}
+              scroll={{ x: 1300, y: "45vh" }}
               components={components}
               className="gx-table-responsive th-table"
               dataSource={reDataForTable(ListNoiDungYeuCau)}
@@ -1242,6 +1772,7 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
         openModalFS={setActiveModalThemNoiDung}
         refesh={handleRefesh}
         DataThemNoiDung={handleThemNoiDung}
+        TypeYeuCau={TypeYeuCau}
       />
     </div>
   );

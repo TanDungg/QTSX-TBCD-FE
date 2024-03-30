@@ -72,6 +72,23 @@ const TieuChiDanhGia = asyncComponent(() =>
 const TieuChiDanhGiaForm = asyncComponent(() =>
   import("./TieuChiDanhGia/TieuChiDanhGiaForm")
 );
+
+/* Loại lỗi */
+const LoaiLoi = asyncComponent(() =>
+  import("./LoaiLoi/LoaiLoi")
+);
+const LoaiLoiForm = asyncComponent(() =>
+  import("./LoaiLoi/LoaiLoiForm")
+);
+
+/* Lỗi */
+const Loi = asyncComponent(() =>
+  import("./Loi/Loi")
+);
+const LoiForm = asyncComponent(() =>
+  import("./Loi/LoiForm")
+);
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -295,6 +312,40 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/tieu-chi-danh-gia/:id/chinh-sua`}
         exact
         component={Auth(TieuChiDanhGiaForm, menus, pathname, permission)}
+      />
+
+      {/* Loại lỗi */}
+      <Route
+        path={`${match.url}/loai-loi`}
+        exact
+        component={Auth(LoaiLoi, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/loai-loi/them-moi`}
+        exact
+        component={Auth(LoaiLoiForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/loai-loi/:id/chinh-sua`}
+        exact
+        component={Auth(LoaiLoiForm, menus, pathname, permission)}
+      />
+
+       {/* Lỗi */}
+       <Route
+        path={`${match.url}/loi`}
+        exact
+        component={Auth(Loi, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/loi/them-moi`}
+        exact
+        component={Auth(LoiForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/loi/:id/chinh-sua`}
+        exact
+        component={Auth(LoiForm, menus, pathname, permission)}
       />
     </Switch>
   );

@@ -5,7 +5,7 @@ import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_ADD_170PX } from "src/constants/Config";
+import { DEFAULT_FORM_ADD_190PX } from "src/constants/Config";
 
 const FormItem = Form.Item;
 
@@ -155,7 +155,7 @@ const HangMucCongViecForm = ({ history, match, permission }) => {
         style={{ width: "100%" }}
       >
         <Form
-          {...DEFAULT_FORM_ADD_170PX}
+          {...DEFAULT_FORM_ADD_190PX}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}

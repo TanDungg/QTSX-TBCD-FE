@@ -1,11 +1,12 @@
-import { Card, Col, Form, Input } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { Card, Col, Form, Input, Upload, message } from "antd";
 import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_ADD_150PX } from "src/constants/Config";
+import { BASE_URL_API, DEFAULT_FORM_ADD_150PX } from "src/constants/Config";
 import {
   convertObjectToUrlParams,
   getLocalStorage,
@@ -27,6 +28,7 @@ const SanPhamForm = ({ history, match, permission }) => {
   const [type, setType] = useState("new");
   const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
   const [ListDonViTinh, setListDonViTinh] = useState([]);
+  const [ImageUrl, setImageUrl] = useState(null);
   const [id, setId] = useState(null);
 
   useEffect(() => {
@@ -56,7 +58,7 @@ const SanPhamForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tsec_qtsx_LoaiSanPham?page=-1`,
+          `tsec_qtsx_LoaiSanPham/list-filter`,
           "GET",
           null,
           "DETAIL",
@@ -121,6 +123,9 @@ const SanPhamForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           const data = res.data;
+          if (data.hinhAnh) {
+            convertToBase64(data.hinhAnh);
+          }
           setFieldsValue({
             formsanpham: data,
           });
@@ -139,17 +144,63 @@ const SanPhamForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
-    saveData(values.formsanpham);
+    uploadFile(values.formsanpham);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.formsanpham, true);
+        uploadFile(values.formsanpham, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
+  };
+
+  const uploadFile = (formsanpham, saveQuit) => {
+    if (type === "new" && formsanpham.hinhAnh) {
+      const formData = new FormData();
+      formData.append("file", formsanpham.hinhAnh.file);
+      fetch(`${BASE_URL_API}/api/Upload`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: "Bearer ".concat(INFO.token),
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          formsanpham.hinhAnh = data.path;
+          saveData(formsanpham, saveQuit);
+        })
+        .catch(() => {
+          message.error("Tải hình ảnh không thành công.");
+        });
+    } else if (
+      type === "edit" &&
+      formsanpham.hinhAnh &&
+      formsanpham.hinhAnh.file
+    ) {
+      const formData = new FormData();
+      formData.append("file", formsanpham.hinhAnh.file);
+      fetch(`${BASE_URL_API}/api/Upload`, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Authorization: "Bearer ".concat(INFO.token),
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => {
+          formsanpham.hinhAnh = data.path;
+          saveData(formsanpham, saveQuit);
+        })
+        .catch(() => {
+          message.error("Tải hình ảnh không thành công.");
+        });
+    } else {
+      saveData(formsanpham, saveQuit);
+    }
   };
 
   const saveData = (formsanpham, saveQuit = false) => {
@@ -168,12 +219,13 @@ const SanPhamForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (res.status !== 409) {
+          if (res.status === 200) {
             if (saveQuit) {
               goBack();
             } else {
               resetFields();
               setFieldTouch(false);
+              setImageUrl(null);
             }
           } else {
             setFieldTouch(false);
@@ -200,19 +252,67 @@ const SanPhamForm = ({ history, match, permission }) => {
         );
       })
         .then((res) => {
-          if (res && res.status === 409) {
-            setFieldTouch(false);
-          } else {
+          if (res && res.status === 200) {
             if (saveQuit) {
               goBack();
             } else {
               getInfo(id);
               setFieldTouch(false);
             }
+          } else {
+            setFieldTouch(false);
           }
         })
         .catch((error) => console.error(error));
     }
+  };
+
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      <PlusOutlined />
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload hình ảnh
+      </div>
+    </button>
+  );
+
+  const convertToBase64 = async (imageUrl) => {
+    try {
+      const response = await fetch(BASE_URL_API + imageUrl);
+      const blob = await response.blob();
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        const base64Data = reader.result;
+        setImageUrl(base64Data);
+      };
+
+      reader.readAsDataURL(blob);
+    } catch (error) {
+      console.error("Lỗi chuyển dữ liệu sang base64:", error);
+    }
+  };
+
+  const beforeUpload = (file) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      message.error("Vui lòng tải file ảnh!");
+    } else {
+      const reader = new FileReader();
+      reader.onload = (e) => setImageUrl(e.target.result);
+      reader.readAsDataURL(file);
+    }
+    return false;
   };
 
   const formTitle = type === "new" ? "Thêm mới sản phẩm" : "Chỉnh sửa sản phẩm";
@@ -310,6 +410,49 @@ const SanPhamForm = ({ history, match, permission }) => {
                 optionFilterProp="name"
                 showSearch
               />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Hình ảnh"
+              name={["formsanpham", "hinhAnh"]}
+              rules={[
+                {
+                  required: true,
+                },
+              ]}
+            >
+              <Upload
+                listType="picture-card"
+                accept="image/*"
+                className="avatar-uploader"
+                showUploadList={false}
+                beforeUpload={beforeUpload}
+                style={{ width: "200px", height: "200px" }}
+              >
+                {ImageUrl ? (
+                  <img
+                    style={{ maxWidth: "100%", maxHeight: "100%" }}
+                    src={ImageUrl}
+                    alt="Hình ảnh đại diện chuyên đề"
+                  />
+                ) : (
+                  uploadButton
+                )}
+              </Upload>
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Ghi chú"
+              name={["formsanpham", "moTa"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+            >
+              <Input className="input-item" placeholder="Nhập ghi chú" />
             </FormItem>
           </Col>
           <FormSubmit

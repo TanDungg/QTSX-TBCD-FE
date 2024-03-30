@@ -1,5 +1,5 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Col, Divider, Row } from "antd";
+import { Button, Card, Col, Divider, Image, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
@@ -19,6 +19,7 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
+import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -74,7 +75,7 @@ function SanPham({ permission, history, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tsec_qtsx_LoaiSanPham?page=-1`,
+          `tsec_qtsx_LoaiSanPham/list-filter`,
           "GET",
           null,
           "DETAIL",
@@ -232,6 +233,26 @@ function SanPham({ permission, history, match }) {
       onFilter: (value, record) =>
         record.tenLoaiSanPham && record.tenLoaiSanPham.includes(value),
       filterSearch: true,
+    },
+    {
+      title: "Hình ảnh",
+      dataIndex: "hinhAnh",
+      key: "hinhAnh",
+      align: "center",
+      width: 150,
+      render: (value) => {
+        return (
+          value && (
+            <span>
+              <Image
+                src={BASE_URL_API + value}
+                alt="Hình ảnh sản phẩm"
+                style={{ maxWidth: 70, maxHeight: 70 }}
+              />
+            </span>
+          )
+        );
+      },
     },
     {
       title: "Đơn vị tính",

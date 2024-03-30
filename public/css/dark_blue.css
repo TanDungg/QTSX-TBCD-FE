@@ -49386,3 +49386,15 @@ textarea.gx-chat-textarea {
     margin-bottom: 10px !important;
   }
 }
+.radio-custom {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  line-height: 30px;
+}
+
+.radio-active {
+  color: #0469b9;
+}

@@ -3,24 +3,21 @@ import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit, TreeSelect } from "src/components/Common";
+import { FormSubmit } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { DEFAULT_FORM_ADD_170PX } from "src/constants/Config";
-import { convertObjectToUrlParams } from "src/util/Common";
 
 const FormItem = Form.Item;
 
-const LoaiSanPhamForm = ({ history, match, permission }) => {
+const LoaiLoiForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [type, setType] = useState("new");
   const [fieldTouch, setFieldTouch] = useState(false);
-  const [ListLoaiSanPham, setListLoaiSanPham] = useState([]);
-  const [id, setId] = useState(null);
+  const [id, setId] = useState(undefined);
 
   useEffect(() => {
-    getListLoaiSanPham();
     if (includes(match.url, "them-moi")) {
       if (permission && permission.add) {
         setType("new");
@@ -42,34 +39,11 @@ const LoaiSanPhamForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListLoaiSanPham = (keyword, page) => {
-    let param = convertObjectToUrlParams({ keyword, page });
-    new Promise((resolve, reject) => {
-      dispatch(
-        fetchStart(
-          `tsec_qtsx_LoaiSanPham?${param}`,
-          "GET",
-          null,
-          "DETAIL",
-          "",
-          resolve,
-          reject
-        )
-      );
-    }).then((res) => {
-      if (res && res.data) {
-        setListLoaiSanPham(res.data);
-      } else {
-        setListLoaiSanPham([]);
-      }
-    });
-  };
-
   const getInfo = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tsec_qtsx_LoaiSanPham/${id}`,
+          `tsec_qtsx_LoaiLoi/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -82,7 +56,7 @@ const LoaiSanPhamForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            formloaisanpham: res.data,
+            formloailoi: res.data,
           });
         }
       })
@@ -99,27 +73,27 @@ const LoaiSanPhamForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
-    saveData(values.formloaisanpham);
+    saveData(values.formloailoi);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.formloaisanpham, true);
+        saveData(values.formloailoi, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (formloaisanpham, saveQuit = false) => {
+  const saveData = (formloailoi, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_LoaiSanPham`,
+            `tsec_qtsx_LoaiLoi`,
             "POST",
-            formloaisanpham,
+            formloailoi,
             "ADD",
             "",
             resolve,
@@ -142,11 +116,11 @@ const LoaiSanPhamForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...formloaisanpham, id: id };
+      var newData = { ...formloailoi, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_LoaiSanPham/${id}`,
+            `tsec_qtsx_LoaiLoi/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -167,8 +141,7 @@ const LoaiSanPhamForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle =
-    type === "new" ? "Thêm mới loại sản phẩm" : "Chỉnh sửa loại sản phẩm";
+  const formTitle = type === "new" ? "Thêm mới loại lỗi" : "Chỉnh sửa loại lỗi";
 
   return (
     <div className="gx-main-content">
@@ -187,8 +160,8 @@ const LoaiSanPhamForm = ({ history, match, permission }) => {
         >
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Mã loại sản phẩm"
-              name={["formloaisanpham", "maLoaiSanPham"]}
+              label="Mã loại lỗi"
+              name={["formloailoi", "maLoaiLoi"]}
               rules={[
                 {
                   type: "string",
@@ -196,20 +169,17 @@ const LoaiSanPhamForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 50,
-                  message: "Mã loại sản phẩm không được quá 50 ký tự",
+                  message: "Mã loại lỗi không được quá 50 ký tự",
                 },
               ]}
             >
-              <Input
-                className="input-item"
-                placeholder="Nhập mã loại sản phẩm"
-              />
+              <Input className="input-item" placeholder="Nhập mã loại lỗi" />
             </FormItem>
           </Col>
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Tên loại sản phẩm"
-              name={["formloaisanpham", "tenLoaiSanPham"]}
+              label="Tên loại lỗi"
+              name={["formloailoi", "tenLoaiLoi"]}
               rules={[
                 {
                   type: "string",
@@ -217,47 +187,11 @@ const LoaiSanPhamForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 250,
-                  message: "Tên loại sản phẩm không được quá 250 ký tự",
+                  message: "Tên loại lỗi không được quá 250 ký tự",
                 },
               ]}
             >
-              <Input
-                className="input-item"
-                placeholder="Nhập tên loại sản phẩm"
-              />
-            </FormItem>
-          </Col>
-          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
-            <FormItem
-              label="Loại sản phẩm cha"
-              name={["formloaisanpham", "tsec_qtsx_LoaiSanPham_Id"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-            >
-              <TreeSelect
-                className="tree-select-item"
-                datatreeselect={ListLoaiSanPham ? ListLoaiSanPham : []}
-                name="menu"
-                options={["id", "tenLoaiSanPham", "list_ChiTiets"]}
-                placeholder="Loại sản phẩm cha"
-                style={{ width: "100%" }}
-              />
-            </FormItem>
-          </Col>
-          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
-            <FormItem
-              label="Ghi chú"
-              name={["formloaisanpham", "moTa"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-            >
-              <Input className="input-item" placeholder="Nhập ghi chú" />
+              <Input className="input-item" placeholder="Nhập tên loại lỗi" />
             </FormItem>
           </Col>
           <FormSubmit
@@ -271,4 +205,4 @@ const LoaiSanPhamForm = ({ history, match, permission }) => {
   );
 };
 
-export default LoaiSanPhamForm;
+export default LoaiLoiForm;
