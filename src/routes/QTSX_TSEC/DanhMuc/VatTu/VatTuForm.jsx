@@ -3,21 +3,31 @@ import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit } from "src/components/Common";
+import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_ADD_170PX } from "src/constants/Config";
+import { DEFAULT_FORM_ADD_130PX } from "src/constants/Config";
+import { getTokenInfo, getLocalStorage } from "src/util/Common";
 
 const FormItem = Form.Item;
 
-const TieuChiDanhGiaForm = ({ history, match, permission }) => {
+const VatTuForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
+  const INFO = {
+    ...getLocalStorage("menu"),
+    user_Id: getTokenInfo().id,
+    token: getTokenInfo().token,
+  };
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [type, setType] = useState("new");
+  const [ListLoaiVatTu, setListLoaiVatTu] = useState([]);
+  const [ListDonViTinh, setListDonViTinh] = useState([]);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [id, setId] = useState(undefined);
 
   useEffect(() => {
+    getListLoaiVatTu();
+    getListDonViTinh();
     if (includes(match.url, "them-moi")) {
       if (permission && permission.add) {
         setType("new");
@@ -39,11 +49,59 @@ const TieuChiDanhGiaForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const getListLoaiVatTu = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_LoaiVatTu?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiVatTu(res.data);
+        } else {
+          setListLoaiVatTu([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListDonViTinh = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `DonViTinh?DonVi_Id=${INFO.donVi_Id}&page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListDonViTinh(res.data);
+        } else {
+          setListDonViTinh([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const getInfo = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tsec_qtsx_TieuChiDanhGia/${id}`,
+          `tsec_qtsx_VatTu/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -56,7 +114,7 @@ const TieuChiDanhGiaForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            formtieuchidanhgia: res.data,
+            formvattu: res.data,
           });
         }
       })
@@ -73,27 +131,27 @@ const TieuChiDanhGiaForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
-    saveData(values.formtieuchidanhgia);
+    saveData(values.formvattu);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.formtieuchidanhgia, true);
+        saveData(values.formvattu, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (formtieuchidanhgia, saveQuit = false) => {
+  const saveData = (formvattu, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_TieuChiDanhGia`,
+            `tsec_qtsx_VatTu`,
             "POST",
-            formtieuchidanhgia,
+            formvattu,
             "ADD",
             "",
             resolve,
@@ -116,11 +174,11 @@ const TieuChiDanhGiaForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const newData = { ...formtieuchidanhgia, id: id };
+      const newData = { ...formvattu, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_TieuChiDanhGia/${id}`,
+            `tsec_qtsx_VatTu/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -141,10 +199,7 @@ const TieuChiDanhGiaForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle =
-    type === "new"
-      ? "Thêm mới tiêu chí đánh giá"
-      : "Chỉnh sửa tiêu chí đánh giá";
+  const formTitle = type === "new" ? "Thêm mới vật tư" : "Chỉnh sửa vật tư";
 
   return (
     <div className="gx-main-content">
@@ -155,7 +210,7 @@ const TieuChiDanhGiaForm = ({ history, match, permission }) => {
         style={{ width: "100%" }}
       >
         <Form
-          {...DEFAULT_FORM_ADD_170PX}
+          {...DEFAULT_FORM_ADD_130PX}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
@@ -163,8 +218,8 @@ const TieuChiDanhGiaForm = ({ history, match, permission }) => {
         >
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Mã tiêu chí đánh giá"
-              name={["formtieuchidanhgia", "maTieuChiDanhGia"]}
+              label="Mã vật tư"
+              name={["formvattu", "maVatTu"]}
               rules={[
                 {
                   type: "string",
@@ -172,20 +227,17 @@ const TieuChiDanhGiaForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 50,
-                  message: "Mã tiêu chí đánh giá không được quá 50 ký tự",
+                  message: "Mã vật tư không được quá 50 ký tự",
                 },
               ]}
             >
-              <Input
-                className="input-item"
-                placeholder="Nhập mã tiêu chí đánh giá"
-              />
+              <Input className="input-item" placeholder="Nhập mã vật tư" />
             </FormItem>
           </Col>
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Tên tiêu chí đánh giá"
-              name={["formtieuchidanhgia", "tenTieuChiDanhGia"]}
+              label="Tên vật tư"
+              name={["formvattu", "tenVatTu"]}
               rules={[
                 {
                   type: "string",
@@ -193,32 +245,84 @@ const TieuChiDanhGiaForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 250,
-                  message: "Tên tiêu chí đánh giá không được quá 250 ký tự",
+                  message: "Tên vật tư không được quá 250 ký tự",
                 },
               ]}
             >
-              <Input
-                className="input-item"
-                placeholder="Nhập tên tiêu chí đánh giá"
-              />
+              <Input className="input-item" placeholder="Nhập tên vật tư" />
             </FormItem>
           </Col>
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Tên tiếng anh"
-              name={["formtieuchidanhgia", "tenTieuChiDanhGia"]}
+              name={["formvattu", "tenTiengAnh"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+            >
+              <Input
+                className="input-item"
+                placeholder="Nhập tên tiếng anh của vật tư"
+              />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Loại vật tư"
+              name={["formvattu", "tsec_qtsx_LoaiVatTu_Id"]}
               rules={[
                 {
                   type: "string",
                   required: true,
                 },
+              ]}
+            >
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListLoaiVatTu ? ListLoaiVatTu : []}
+                placeholder="Chọn loại vật tư"
+                optionsvalue={["id", "tenLoaiVatTu"]}
+                style={{ width: "100%" }}
+                optionFilterProp="name"
+                showSearch
+              />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Đơn vị tính"
+              name={["formvattu", "donViTinh_Id"]}
+              rules={[
                 {
-                  max: 250,
-                  message: "Tên tiếng anh không được quá 250 ký tự",
+                  type: "string",
+                  required: true,
                 },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập tên tiếng anh" />
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListDonViTinh ? ListDonViTinh : []}
+                placeholder="Chọn đơn vị tính"
+                optionsvalue={["id", "tenDonViTinh"]}
+                style={{ width: "100%" }}
+                optionFilterProp="name"
+                showSearch
+              />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Ghi chú"
+              name={["formvattu", "moTa"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+            >
+              <Input className="input-item" placeholder="Nhập ghi chú" />
             </FormItem>
           </Col>
           <FormSubmit
@@ -232,4 +336,4 @@ const TieuChiDanhGiaForm = ({ history, match, permission }) => {
   );
 };
 
-export default TieuChiDanhGiaForm;
+export default VatTuForm;

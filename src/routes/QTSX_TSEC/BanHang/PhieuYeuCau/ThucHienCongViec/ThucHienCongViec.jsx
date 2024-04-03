@@ -1,4 +1,13 @@
-import { Button, Card, Col, Divider, Row, Modal as AntModal, Tag } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Divider,
+  Row,
+  Modal as AntModal,
+  Tag,
+  Checkbox,
+} from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
@@ -28,11 +37,11 @@ const DataTest = {
       maPhieuYeuCauBaoGia: "60.30.01.24/YCBG-PHBH",
       tenPhieuYeuCauBaoGia: "Yêu cầu báo giá khách hàng Dieffenbacher",
       tenKhachHang: "Dieffenbacher",
-      tenDongSanPham: "Linh kiện băng tải",
+      tenLoaiYeuCau: "Linh kiện băng tải",
       soLuongDatHang: "10",
       tenDonViTinh: "Cụm",
       noiDungThucHien: "Triển khai bổ sung trục băng tải",
-      thoiGianHoanThanh: "15/03/2024 15:30",
+      ngayHoanThanh: "15/03/2024 15:30",
       tenNguoiLap: "Phạm Tấn Dũng",
       moTa: "Yêu cầu báo giá gấp",
       trangThai: "Trễ tiến độ",
@@ -44,7 +53,7 @@ const DataTest = {
           ngayHoanThanh: "29/2/2024 14:00",
           tenNguoiThucHien: "Phạm Tấn Dũng",
           tienDo: "100%",
-          moTa: "Yêu cầu làm gấp",
+          ngayThucHien: "29/2/2024",
           trangThai: "Hoàn thành",
         },
       ],
@@ -56,43 +65,20 @@ const DataTest = {
 
 const NoiDungYeuCau = [
   {
-    maCongViec: "YC-QTCN-01",
-    noiDungYeuCau: "Định mức vật tư/Material norms",
-    ngayBatDau: "20/2/2024",
-    ngayHoanThanh: "29/2/2024 14:00",
-    tenNhanSuThucHien: "Mr. B",
-    ngayThucHien: "22/2/2024",
-    tienDo: "100%",
-    trangThai: "Hoàn thành",
+    noiDungYeuCau: "noiDungYeuCau1",
+    trangThai: true,
+    tenLoaiThongTin: "tenLoaiThongTin1",
     moTa: "ghiChu",
-    list_ChiTiets: [
-      {
-        maCongViec: "YC-QTCN-01.1",
-        noiDungYeuCau: "Lập định mức cụm A1 - A4",
-        ngayBatDau: "20/2/2024",
-        ngayHoanThanh: "28/2/2024 14:00",
-        tenNhanSuThucHien: "Mr. D",
-        ngayThucHien: "22/2/2024",
-        tienDo: "100%",
-        trangThai: "Hoàn thành",
-        moTa: "ghiChu",
-      },
-      {
-        maCongViec: "YC-QTCN-01.2",
-        noiDungYeuCau: "Lập định mức cụm A5 -A9",
-        ngayBatDau: "20/2/2024",
-        ngayHoanThanh: "28/2/2024 14:00",
-        tenNhanSuThucHien: "Mr. E",
-        ngayThucHien: "22/2/2024",
-        tienDo: "100%",
-        trangThai: "Hoàn thành",
-        moTa: "ghiChu",
-      },
-    ],
+  },
+  {
+    noiDungYeuCau: "noiDungYeuCau2",
+    trangThai: false,
+    tenLoaiThongTin: "tenLoaiThongTin2",
+    moTa: "ghiChu",
   },
 ];
 
-function PhanCongCongViec({ history, permission, match }) {
+function ThucHienCongViec({ history, permission, match }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
@@ -100,14 +86,15 @@ function PhanCongCongViec({ history, permission, match }) {
   // const [page, setPage] = useState(1);
   const { totalRow, pageSize } = Data;
   const [DataChiTietPhieu, setDataChiTietPhieu] = useState(null);
-  const [ActiveModalChiTietBaoGia, setActiveModalChiTietBaoGia] =
-    useState(false);
-  const [ActiveModalLichSuBaoGia, setActiveModalLichSuBaoGia] = useState(false);
+  const [ActiveModalChiTietPhieu, setActiveModalChiTietPhieu] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
       setData(DataTest);
-      setDataChiTietPhieu(NoiDungYeuCau);
+      setDataChiTietPhieu({
+        ...DataTest.datalist[0],
+        list_ChiTiets: NoiDungYeuCau,
+      });
       // getListData(keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
@@ -120,7 +107,7 @@ function PhanCongCongViec({ history, permission, match }) {
   //   new Promise((resolve, reject) => {
   //     dispatch(
   //       fetchStart(
-  //         `tsec_qtsx_PhanCongCongViec?${param}`,
+  //         `tsec_qtsx_ThucHienCongViec?${param}`,
   //         "GET",
   //         null,
   //         "DETAIL",
@@ -143,7 +130,7 @@ function PhanCongCongViec({ history, permission, match }) {
     // getListData(keyword, pagination);
   };
 
-  const onSearchPhanCongCongViec = () => {
+  const onSearchThucHienCongViec = () => {
     // getListData(keyword, page);
   };
 
@@ -159,11 +146,11 @@ function PhanCongCongViec({ history, permission, match }) {
   };
 
   const actionContent = (item) => {
-    const detailItem = { onClick: () => setActiveModalChiTietBaoGia(true) };
+    const detailItem = { onClick: () => setActiveModalChiTietPhieu(true) };
 
-    const history = { onClick: () => setActiveModalLichSuBaoGia(true) };
+    const history = { onClick: () => setActiveModalChiTietPhieu(true) };
 
-    const download = { onClick: () => setActiveModalChiTietBaoGia(true) };
+    const download = { onClick: () => setActiveModalChiTietPhieu(true) };
 
     return (
       <div>
@@ -259,69 +246,21 @@ function PhanCongCongViec({ history, permission, match }) {
       filterSearch: true,
     },
     {
-      title: "Dòng sản phẩm",
-      dataIndex: "tenDongSanPham",
-      key: "tenDongSanPham",
+      title: "Loại yêu cầu",
+      dataIndex: "tenLoaiYeuCau",
+      key: "tenLoaiYeuCau",
       align: "center",
       width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenDongSanPham,
-            value: d.tenDongSanPham,
+            text: d.tenLoaiYeuCau,
+            value: d.tenLoaiYeuCau,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.tenDongSanPham && record.tenDongSanPham.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: (
-        <div>
-          Số lượng
-          <br />
-          đặt hàng
-        </div>
-      ),
-      dataIndex: "soLuongDatHang",
-      key: "soLuongDatHang",
-      align: "center",
-      width: 100,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.soLuongDatHang,
-            value: d.soLuongDatHang,
-          };
-        })
-      ),
-      onFilter: (value, record) =>
-        record.soLuongDatHang && record.soLuongDatHang.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: (
-        <div>
-          Đơn vị
-          <br />
-          tính
-        </div>
-      ),
-      dataIndex: "tenDonViTinh",
-      key: "tenDonViTinh",
-      align: "center",
-      width: 100,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenDonViTinh,
-            value: d.tenDonViTinh,
-          };
-        })
-      ),
-      onFilter: (value, record) =>
-        record.tenDonViTinh && record.tenDonViTinh.includes(value),
+        record.tenLoaiYeuCau && record.tenLoaiYeuCau.includes(value),
       filterSearch: true,
     },
     {
@@ -343,27 +282,21 @@ function PhanCongCongViec({ history, permission, match }) {
       filterSearch: true,
     },
     {
-      title: (
-        <div>
-          Thời gian
-          <br />
-          hoàn thành
-        </div>
-      ),
-      dataIndex: "thoiGianHoanThanh",
-      key: "thoiGianHoanThanh",
+      title: "Ngày hoàn thành",
+      dataIndex: "ngayHoanThanh",
+      key: "ngayHoanThanh",
       align: "center",
-      width: 100,
+      width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.thoiGianHoanThanh,
-            value: d.thoiGianHoanThanh,
+            text: d.ngayHoanThanh,
+            value: d.ngayHoanThanh,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.thoiGianHoanThanh && record.thoiGianHoanThanh.includes(value),
+        record.ngayHoanThanh && record.ngayHoanThanh.includes(value),
       filterSearch: true,
     },
     {
@@ -419,26 +352,27 @@ function PhanCongCongViec({ history, permission, match }) {
       onFilter: (value, record) =>
         record.trangThai && record.trangThai.includes(value),
       filterSearch: true,
-      render: (value) =>
-        value ? (
-          <Tag
-            color={
-              value === "Đang triển khai"
-                ? "blue"
-                : value === "Hoàn thành"
-                ? "green"
-                : value === "Trễ tiến độ"
-                ? "orange"
-                : "red"
-            }
-            style={{
-              whiteSpace: "break-spaces",
-              fontSize: 13,
-            }}
-          >
-            {value}
-          </Tag>
-        ) : null,
+      render: (value, record) => (
+        <div title={record.lyDoTuChoi && `Lý do từ chối: ${record.lyDoTuChoi}`}>
+          {value && (
+            <Tag
+              color={
+                value === "Chưa duyệt"
+                  ? "orange"
+                  : value === "Đã duyệt"
+                  ? "green"
+                  : "red"
+              }
+              style={{
+                whiteSpace: "break-spaces",
+                fontSize: 13,
+              }}
+            >
+              {value}
+            </Tag>
+          )}
+        </div>
+      ),
     },
   ];
 
@@ -500,28 +434,28 @@ function PhanCongCongViec({ history, permission, match }) {
       width: 150,
     },
     {
-      title: "Ghi chú",
-      dataIndex: "moTa",
-      key: "moTa",
-      align: "left",
+      title: "Ngày thực hiện",
+      dataIndex: "ngayThucHien",
+      key: "ngayThucHien",
+      align: "center",
       width: 150,
     },
     {
-      title: "Tình trạng",
-      dataIndex: "tinhTrang",
-      key: "tinhTrang",
+      title: "Trạng thái",
+      dataIndex: "trangThai",
+      key: "trangThai",
       align: "center",
       width: 150,
-      render: (value) =>
-        value ? (
+      render: (value, record) =>
+        value && (
           <Tag
             color={
-              value === "Đang triển khai"
-                ? "blue"
+              value === "Chưa hoàn thành"
+                ? "gray"
                 : value === "Hoàn thành"
                 ? "green"
-                : value === "Trễ tiến độ"
-                ? "orange"
+                : value === "Hoàn thành trễ"
+                ? "blue"
                 : "red"
             }
             style={{
@@ -531,24 +465,17 @@ function PhanCongCongViec({ history, permission, match }) {
           >
             {value}
           </Tag>
-        ) : null,
+        ),
     },
   ];
 
-  let columnchitietbaogia = [
+  let columnNoiDung = [
     {
       title: "STT",
       dataIndex: "key",
       key: "key",
       width: 50,
       align: "center",
-    },
-    {
-      title: "Mã công việc",
-      dataIndex: "maCongViec",
-      key: "maCongViec",
-      align: "centẻ",
-      width: 150,
     },
     {
       title: "Nội dung yêu cầu",
@@ -558,44 +485,25 @@ function PhanCongCongViec({ history, permission, match }) {
       width: 200,
     },
     {
-      title: "Ngày bắt đầu",
-      dataIndex: "ngayBatDau",
-      key: "ngayBatDau",
+      title: "Trạng thái",
+      dataIndex: "trangThai",
+      key: "trangThai",
       align: "center",
       width: 100,
+      render: (value, record) => {
+        return (
+          <Checkbox
+            checked={value}
+            // onChange={() => handleThayDoiDapAnDung(value, record)}
+            disabled
+          />
+        );
+      },
     },
     {
-      title: "Ngày hoàn thành",
-      dataIndex: "ngayHoanThanh",
-      key: "ngayHoanThanh",
-      align: "center",
-      width: 120,
-    },
-    {
-      title: "Nhân sự thực hiện",
-      dataIndex: "tenNhanSuThucHien",
-      key: "tenNhanSuThucHien",
-      align: "center",
-      width: 180,
-    },
-    {
-      title: "Ngày thực hiện",
-      dataIndex: "ngayThucHien",
-      key: "ngayThucHien",
-      align: "center",
-      width: 120,
-    },
-    {
-      title: "Tiến độ",
-      dataIndex: "tienDo",
-      key: "tienDo",
-      align: "center",
-      width: 100,
-    },
-    {
-      title: "File đính kèm",
-      dataIndex: "fileDinhKem",
-      key: "fileDinhKem",
+      title: "Loại thông tin",
+      dataIndex: "tenLoaiThongTin",
+      key: "tenLoaiThongTin",
       align: "center",
       width: 150,
     },
@@ -604,35 +512,7 @@ function PhanCongCongViec({ history, permission, match }) {
       dataIndex: "moTa",
       key: "moTa",
       align: "left",
-      width: 130,
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "trangThai",
-      key: "trangThai",
-      align: "center",
       width: 150,
-      fixed: width >= 1200 && "right",
-      render: (value, record) =>
-        value ? (
-          <Tag
-            color={
-              value === "Đang triển khai"
-                ? "blue"
-                : value === "Hoàn thành"
-                ? "green"
-                : value === "Trễ tiến độ"
-                ? "orange"
-                : "red"
-            }
-            style={{
-              whiteSpace: "break-spaces",
-              fontSize: 13,
-            }}
-          >
-            {value}
-          </Tag>
-        ) : null,
     },
   ];
 
@@ -747,8 +627,8 @@ function PhanCongCongViec({ history, permission, match }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchPhanCongCongViec,
-                onSearch: onSearchPhanCongCongViec,
+                onPressEnter: onSearchThucHienCongViec,
+                onSearch: onSearchThucHienCongViec,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
                 onClear: { handleClearSearch },
@@ -761,7 +641,7 @@ function PhanCongCongViec({ history, permission, match }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1800, y: "55vh" }}
+          scroll={{ x: 1700, y: "55vh" }}
           components={components}
           className="gx-table-responsive th-table"
           dataSource={dataList}
@@ -794,81 +674,30 @@ function PhanCongCongViec({ history, permission, match }) {
         />
       </Card>
       <AntModal
-        title={"Chi tiết báo giá"}
+        title={"Chi tiết phiếu yêu cầu báo giá"}
         className="th-card-reset-margin"
-        open={ActiveModalChiTietBaoGia}
-        width={width >= 1600 ? `85%` : "100%"}
+        open={ActiveModalChiTietPhieu}
+        width={width >= 1800 ? `75%` : width >= 1600 ? `85%` : "100%"}
         closable={true}
         onCancel={() => {
-          setActiveModalChiTietBaoGia(false);
+          setActiveModalChiTietPhieu(false);
         }}
         footer={null}
       >
         <Table
           bordered
-          scroll={{ x: 1500, y: "35vh" }}
-          columns={columnchitietbaogia}
+          scroll={{ x: 1000, y: "35vh" }}
+          columns={columnNoiDung}
           className="gx-table-responsive th-table"
-          dataSource={reDataForTable(DataChiTietPhieu)}
+          dataSource={reDataForTable(
+            DataChiTietPhieu && DataChiTietPhieu.list_ChiTiets
+          )}
           size="small"
           pagination={false}
-          expandable={{
-            expandedRowRender: (record) => (
-              <Table
-                style={{ padding: "5px 10px" }}
-                bordered
-                columns={columnchitietbaogia}
-                scroll={{ x: 1200 }}
-                components={components}
-                className="gx-table-responsive th-table"
-                dataSource={reDataForTable(record.list_ChiTiets)}
-                size="small"
-                rowClassName={"editable-row"}
-                pagination={false}
-              />
-            ),
-          }}
-        />
-      </AntModal>
-      <AntModal
-        title={"Lịch sử báo giá"}
-        className="th-card-reset-margin"
-        open={ActiveModalLichSuBaoGia}
-        width={width >= 1600 ? `85%` : "100%"}
-        closable={true}
-        onCancel={() => {
-          setActiveModalLichSuBaoGia(false);
-        }}
-        footer={null}
-      >
-        <Table
-          bordered
-          scroll={{ x: 1500, y: "35vh" }}
-          columns={columnchitietbaogia}
-          className="gx-table-responsive th-table"
-          dataSource={reDataForTable(DataChiTietPhieu)}
-          size="small"
-          pagination={false}
-          expandable={{
-            expandedRowRender: (record) => (
-              <Table
-                style={{ padding: "5px 10px" }}
-                bordered
-                columns={columnchitietbaogia}
-                scroll={{ x: 1200 }}
-                components={components}
-                className="gx-table-responsive th-table"
-                dataSource={reDataForTable(record.list_ChiTiets)}
-                size="small"
-                rowClassName={"editable-row"}
-                pagination={false}
-              />
-            ),
-          }}
         />
       </AntModal>
     </div>
   );
 }
 
-export default PhanCongCongViec;
+export default ThucHienCongViec;

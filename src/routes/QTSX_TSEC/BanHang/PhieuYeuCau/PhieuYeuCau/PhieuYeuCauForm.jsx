@@ -506,7 +506,7 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...formphieuyeucau, id: id };
+      const newData = { ...formphieuyeucau, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -977,7 +977,7 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
                             setFieldTouch(true);
                             setFieldsValue({
                               formphieuyeucau: {
-                                formTaiLieu: null,
+                                fileTaiLieu: null,
                               },
                             });
                           }}
@@ -1004,7 +1004,7 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
                               setFieldTouch(true);
                               setFieldsValue({
                                 formphieuyeucau: {
-                                  formTaiLieu: null,
+                                  fileTaiLieu: null,
                                 },
                               });
                             }}
@@ -1334,7 +1334,7 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
                             setFieldTouch(true);
                             setFieldsValue({
                               formphieuyeucau: {
-                                formTaiLieu: null,
+                                fileTaiLieu: null,
                               },
                             });
                           }}
@@ -1361,7 +1361,7 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
                               setFieldTouch(true);
                               setFieldsValue({
                                 formphieuyeucau: {
-                                  formTaiLieu: null,
+                                  fileTaiLieu: null,
                                 },
                               });
                             }}
@@ -1607,7 +1607,7 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
                             setFieldTouch(true);
                             setFieldsValue({
                               formphieuyeucau: {
-                                formTaiLieu: null,
+                                fileTaiLieu: null,
                               },
                             });
                           }}
@@ -1634,7 +1634,7 @@ const PhieuYeuCauForm = ({ history, match, permission }) => {
                               setFieldTouch(true);
                               setFieldsValue({
                                 formphieuyeucau: {
-                                  formTaiLieu: null,
+                                  fileTaiLieu: null,
                                 },
                               });
                             }}

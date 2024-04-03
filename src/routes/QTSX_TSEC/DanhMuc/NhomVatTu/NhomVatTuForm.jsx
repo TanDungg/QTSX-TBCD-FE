@@ -5,11 +5,11 @@ import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_ADD_100PX } from "src/constants/Config";
+import { DEFAULT_FORM_ADD_150PX } from "src/constants/Config";
 
 const FormItem = Form.Item;
 
-const LoiForm = ({ history, match, permission }) => {
+const NhomVatTuForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
@@ -43,7 +43,7 @@ const LoiForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tsec_qtsx_Loi/${id}`,
+          `tsec_qtsx_NhomVatTu/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -56,7 +56,7 @@ const LoiForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            formloi: res.data,
+            formnhomvattu: res.data,
           });
         }
       })
@@ -73,27 +73,27 @@ const LoiForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
-    saveData(values.formloi);
+    saveData(values.formnhomvattu);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.formloi, true);
+        saveData(values.formnhomvattu, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (formloi, saveQuit = false) => {
+  const saveData = (formnhomvattu, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_Loi`,
+            `tsec_qtsx_NhomVatTu`,
             "POST",
-            formloi,
+            formnhomvattu,
             "ADD",
             "",
             resolve,
@@ -116,11 +116,11 @@ const LoiForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...formloi, id: id };
+      const newData = { ...formnhomvattu, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_Loi/${id}`,
+            `tsec_qtsx_NhomVatTu/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -141,7 +141,8 @@ const LoiForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle = type === "new" ? "Thêm mới lỗi" : "Chỉnh sửa lỗi";
+  const formTitle =
+    type === "new" ? "Thêm mới nhóm vật tư" : "Chỉnh sửa nhóm vật tư";
 
   return (
     <div className="gx-main-content">
@@ -152,7 +153,7 @@ const LoiForm = ({ history, match, permission }) => {
         style={{ width: "100%" }}
       >
         <Form
-          {...DEFAULT_FORM_ADD_100PX}
+          {...DEFAULT_FORM_ADD_150PX}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
@@ -160,8 +161,8 @@ const LoiForm = ({ history, match, permission }) => {
         >
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Mã lỗi"
-              name={["formloi", "maLoi"]}
+              label="Mã nhóm vật tư"
+              name={["formnhomvattu", "maNhomVatTu"]}
               rules={[
                 {
                   type: "string",
@@ -169,17 +170,17 @@ const LoiForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 50,
-                  message: "Mã lỗi không được quá 50 ký tự",
+                  message: "Mã nhóm vật tư không được quá 50 ký tự",
                 },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập mã lỗi" />
+              <Input className="input-item" placeholder="Nhập mã nhóm vật tư" />
             </FormItem>
           </Col>
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Tên lỗi"
-              name={["formloi", "tenLoi"]}
+              label="Tên nhóm vật tư"
+              name={["formnhomvattu", "tenNhomVatTu"]}
               rules={[
                 {
                   type: "string",
@@ -187,35 +188,20 @@ const LoiForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 250,
-                  message: "Tên lỗi không được quá 250 ký tự",
+                  message: "Tên nhóm vật tư không được quá 250 ký tự",
                 },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập tên lỗi" />
-            </FormItem>
-          </Col>
-          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
-            <FormItem
-              label="Loại lỗi"
-              name={["formloi", "LoaiLoi"]}
-              rules={[
-                {
-                  type: "string",
-                  required: true,
-                },
-                {
-                  max: 250,
-                  message: "Loại lỗi không được quá 250 ký tự",
-                },
-              ]}
-            >
-              <Input className="input-item" placeholder="Nhập loại lỗi" />
+              <Input
+                className="input-item"
+                placeholder="Nhập tên nhóm vật tư"
+              />
             </FormItem>
           </Col>
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Ghi chú"
-              name={["formloi", "moTa"]}
+              name={["formnhomvattu", "moTa"]}
               rules={[
                 {
                   type: "string",
@@ -236,4 +222,4 @@ const LoiForm = ({ history, match, permission }) => {
   );
 };
 
-export default LoiForm;
+export default NhomVatTuForm;

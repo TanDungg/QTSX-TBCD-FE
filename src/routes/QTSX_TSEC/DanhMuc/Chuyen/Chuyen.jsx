@@ -322,7 +322,7 @@ function Chuyen({ permission, history, match }) {
             md={12}
             sm={24}
             xs={24}
-            style={{ marginBottom: 8 }}
+            style={{ marginBottom: "10px" }}
           >
             <span>Công đoạn:</span>
             <Select
@@ -346,7 +346,7 @@ function Chuyen({ permission, history, match }) {
             md={12}
             sm={24}
             xs={24}
-            style={{ marginBottom: 8 }}
+            style={{ marginBottom: "10px" }}
           >
             <span>Tìm kiếm:</span>
             <Toolbar

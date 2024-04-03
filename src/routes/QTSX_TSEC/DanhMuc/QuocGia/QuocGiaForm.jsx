@@ -9,7 +9,7 @@ import { DEFAULT_FORM_ADD_170PX } from "src/constants/Config";
 
 const FormItem = Form.Item;
 
-const LoaiThongTinForm = ({ history, match, permission }) => {
+const QuocGiaForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
@@ -27,7 +27,6 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
     } else {
       if (permission && permission.edit) {
         setType("edit");
-        // Get info
         const { id } = match.params;
         setId(id);
         getInfo(id);
@@ -43,7 +42,7 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tsec_qtsx_LoaiThongTin/${id}`,
+          `tsec_qtsx_QuocGia/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -56,7 +55,7 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            formloaithongtin: res.data,
+            formquocgia: res.data,
           });
         }
       })
@@ -73,27 +72,27 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
-    saveData(values.formloaithongtin);
+    saveData(values.formquocgia);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.formloaithongtin, true);
+        saveData(values.formquocgia, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (formloaithongtin, saveQuit = false) => {
+  const saveData = (formquocgia, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_LoaiThongTin`,
+            `tsec_qtsx_QuocGia`,
             "POST",
-            formloaithongtin,
+            formquocgia,
             "ADD",
             "",
             resolve,
@@ -116,11 +115,11 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const newData = { ...formloaithongtin, id: id };
+      const newData = { ...formquocgia, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_LoaiThongTin/${id}`,
+            `tsec_qtsx_QuocGia/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -141,8 +140,7 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
     }
   };
 
-  const formTitle =
-    type === "new" ? "Thêm mới loại thông tin" : "Chỉnh sửa loại thông tin";
+  const formTitle = type === "new" ? "Thêm mới quốc gia" : "Chỉnh sửa quốc gia";
 
   return (
     <div className="gx-main-content">
@@ -161,8 +159,8 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
         >
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Tên loại thông tin"
-              name={["formloaithongtin", "tenLoaiThongTin"]}
+              label="Tên quốc gia"
+              name={["formquocgia", "tenQuocGia"]}
               rules={[
                 {
                   type: "string",
@@ -170,27 +168,11 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 250,
-                  message: "Tên loại thông tin không được quá 250 ký tự",
+                  message: "Tên quốc gia không được quá 250 ký tự",
                 },
               ]}
             >
-              <Input
-                className="input-item"
-                placeholder="Nhập tên loại thông tin"
-              />
-            </FormItem>
-          </Col>
-          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
-            <FormItem
-              label="Ghi chú"
-              name={["formloaithongtin", "moTa"]}
-              rules={[
-                {
-                  type: "string",
-                },
-              ]}
-            >
-              <Input className="input-item" placeholder="Nhập ghi chú" />
+              <Input className="input-item" placeholder="Nhập tên quốc gia" />
             </FormItem>
           </Col>
           <FormSubmit
@@ -204,4 +186,4 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
   );
 };
 
-export default LoaiThongTinForm;
+export default QuocGiaForm;

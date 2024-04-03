@@ -1,4 +1,4 @@
-import { Card, Col } from "antd";
+import { Card, Col, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
@@ -173,35 +173,37 @@ function PhongBan({ permission, history }) {
         description="Danh sách phòng ban"
       />
       <Card className="th-card-margin-bottom ">
-        <Col
-          xxl={8}
-          xl={8}
-          lg={12}
-          md={12}
-          sm={24}
-          xs={24}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "15px",
-            width: "100%",
-          }}
-        >
-          <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
-          <Toolbar
-            count={1}
-            search={{
-              title: "Tìm kiếm",
-              loading,
-              value: keyword,
-              onChange: onChangeKeyword,
-              onPressEnter: onSearchPhongBan,
-              onSearch: onSearchPhongBan,
-              placeholder: "Nhập từ khóa",
-              allowClear: true,
+        <Row>
+          <Col
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "15px",
+              width: "100%",
             }}
-          />
-        </Col>
+          >
+            <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchPhongBan,
+                onSearch: onSearchPhongBan,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
+              }}
+            />
+          </Col>
+        </Row>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table

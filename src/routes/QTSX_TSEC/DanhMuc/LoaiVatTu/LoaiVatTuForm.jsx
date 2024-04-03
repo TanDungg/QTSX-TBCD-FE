@@ -3,21 +3,23 @@ import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit } from "src/components/Common";
+import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_ADD_170PX } from "src/constants/Config";
+import { DEFAULT_FORM_ADD_150PX } from "src/constants/Config";
 
 const FormItem = Form.Item;
 
-const LoaiThongTinForm = ({ history, match, permission }) => {
+const LoaiVatTuForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [type, setType] = useState("new");
+  const [ListNhomVatTu, setListNhomVatTu] = useState([]);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [id, setId] = useState(undefined);
 
   useEffect(() => {
+    getListNhomVatTu();
     if (includes(match.url, "them-moi")) {
       if (permission && permission.add) {
         setType("new");
@@ -39,11 +41,35 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const getListNhomVatTu = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_NhomVatTu?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListNhomVatTu(res.data);
+        } else {
+          setListNhomVatTu([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const getInfo = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tsec_qtsx_LoaiThongTin/${id}`,
+          `tsec_qtsx_LoaiVatTu/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -56,7 +82,7 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            formloaithongtin: res.data,
+            formloaivattu: res.data,
           });
         }
       })
@@ -73,27 +99,27 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
-    saveData(values.formloaithongtin);
+    saveData(values.formloaivattu);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.formloaithongtin, true);
+        saveData(values.formloaivattu, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (formloaithongtin, saveQuit = false) => {
+  const saveData = (formloaivattu, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_LoaiThongTin`,
+            `tsec_qtsx_LoaiVatTu`,
             "POST",
-            formloaithongtin,
+            formloaivattu,
             "ADD",
             "",
             resolve,
@@ -116,11 +142,11 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const newData = { ...formloaithongtin, id: id };
+      const newData = { ...formloaivattu, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_LoaiThongTin/${id}`,
+            `tsec_qtsx_LoaiVatTu/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -142,7 +168,7 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
   };
 
   const formTitle =
-    type === "new" ? "Thêm mới loại thông tin" : "Chỉnh sửa loại thông tin";
+    type === "new" ? "Thêm mới loại vật tư" : "Chỉnh sửa loại vật tư";
 
   return (
     <div className="gx-main-content">
@@ -153,7 +179,7 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
         style={{ width: "100%" }}
       >
         <Form
-          {...DEFAULT_FORM_ADD_170PX}
+          {...DEFAULT_FORM_ADD_150PX}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
@@ -161,8 +187,26 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
         >
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Tên loại thông tin"
-              name={["formloaithongtin", "tenLoaiThongTin"]}
+              label="Mã loại vật tư"
+              name={["formloaivattu", "maLoaiVatTu"]}
+              rules={[
+                {
+                  type: "string",
+                  required: true,
+                },
+                {
+                  max: 50,
+                  message: "Mã loại vật tư không được quá 50 ký tự",
+                },
+              ]}
+            >
+              <Input className="input-item" placeholder="Nhập mã loại vật tư" />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Tên loại vật tư"
+              name={["formloaivattu", "tenLoaiVatTu"]}
               rules={[
                 {
                   type: "string",
@@ -170,20 +214,42 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 250,
-                  message: "Tên loại thông tin không được quá 250 ký tự",
+                  message: "Tên loại vật tư không được quá 250 ký tự",
                 },
               ]}
             >
               <Input
                 className="input-item"
-                placeholder="Nhập tên loại thông tin"
+                placeholder="Nhập tên loại vật tư"
+              />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Nhóm vật tư"
+              name={["formloaivattu", "tsec_qtsx_NhomVatTu_Id"]}
+              rules={[
+                {
+                  type: "string",
+                  required: true,
+                },
+              ]}
+            >
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListNhomVatTu ? ListNhomVatTu : []}
+                placeholder="Chọn nhóm vật tư"
+                optionsvalue={["id", "tenNhomVatTu"]}
+                style={{ width: "100%" }}
+                optionFilterProp="name"
+                showSearch
               />
             </FormItem>
           </Col>
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Ghi chú"
-              name={["formloaithongtin", "moTa"]}
+              name={["formloaivattu", "moTa"]}
               rules={[
                 {
                   type: "string",
@@ -204,4 +270,4 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
   );
 };
 
-export default LoaiThongTinForm;
+export default LoaiVatTuForm;

@@ -345,7 +345,7 @@ function SanPham({ permission, history, match }) {
             md={12}
             sm={24}
             xs={24}
-            style={{ marginBottom: 8 }}
+            style={{ marginBottom: "10px" }}
           >
             <span>Loại sản phẩm:</span>
             <Select
@@ -369,7 +369,7 @@ function SanPham({ permission, history, match }) {
             md={12}
             sm={24}
             xs={24}
-            style={{ marginBottom: 8 }}
+            style={{ marginBottom: "10px" }}
           >
             <span>Tìm kiếm:</span>
             <Toolbar

@@ -8,39 +8,54 @@ import { removeDuplicates, reDataForTable } from "src/util/Common";
 import {
   EditableTableRow,
   ModalDeleteConfirm,
+  Select,
   Table,
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  ImportOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import { Link } from "react-router-dom";
+import ImportVatTu from "./ImportVatTu";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function LoaiKhachHang({ history, permission, match }) {
+function VatTu({ history, permission, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
+  const [ListLoaiVatTu, setListLoaiVatTu] = useState([]);
+  const [LoaiVatTu, setLoaiVatTu] = useState(null);
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
   const { totalRow, pageSize } = Data;
+  const [ActiveImportVatTu, setActiveImportVatTu] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
-      getListData(keyword, page);
+      getListLoaiVatTu();
+      getListData(LoaiVatTu, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
   }, []);
 
-  const getListData = (keyword, page) => {
-    let param = convertObjectToUrlParams({ keyword, page });
+  const getListData = (tsec_qtsx_LoaiVatTu_Id, keyword, page) => {
+    let param = convertObjectToUrlParams({
+      tsec_qtsx_LoaiVatTu_Id,
+      keyword,
+      page,
+    });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tsec_qtsx_LoaiKhachHang?${param}`,
+          `tsec_qtsx_VatTu?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -58,34 +73,58 @@ function LoaiKhachHang({ history, permission, match }) {
     });
   };
 
-  const handleTableChange = (pagination) => {
-    setPage(pagination);
-    getListData(keyword, pagination);
+  const getListLoaiVatTu = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_LoaiVatTu?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiVatTu(res.data);
+        } else {
+          setListLoaiVatTu([]);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
-  const onSearchLoaiKhachHang = () => {
-    getListData(keyword, page);
+  const handleTableChange = (pagination) => {
+    setPage(pagination);
+    getListData(LoaiVatTu, keyword, pagination);
+  };
+
+  const onSearchVatTu = () => {
+    getListData(LoaiVatTu, keyword, page);
   };
 
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      getListData(val.target.value, page);
+      getListData(LoaiVatTu, val.target.value, page);
     }
   };
 
   const deleteItemFunc = (item) => {
-    const title = "loại khách hàng";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenLoaiKhachHang, title);
+    const title = "vật tư";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenVatTu, title);
   };
 
   const deleteItemAction = (item) => {
-    let url = `tsec_qtsx_LoaiKhachHang/${item.id}`;
+    let url = `tsec_qtsx_VatTu/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        getListData(keyword, page);
+        getListData(LoaiVatTu, keyword, page);
       })
       .catch((error) => console.error(error));
   };
@@ -131,7 +170,7 @@ function LoaiKhachHang({ history, permission, match }) {
       title: "Chức năng",
       key: "action",
       align: "center",
-      width: 100,
+      width: 80,
       render: (value) => actionContent(value),
     },
     {
@@ -142,39 +181,110 @@ function LoaiKhachHang({ history, permission, match }) {
       align: "center",
     },
     {
-      title: "Mã loại khách hàng",
-      dataIndex: "maLoaiKhachHang",
-      key: "maLoaiKhachHang",
+      title: "Mã vật tư",
+      dataIndex: "maVatTu",
+      key: "maVatTu",
       align: "center",
+      width: 120,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.maVatTu,
+            value: d.maVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.maVatTu && record.maVatTu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Tên vật tư",
+      dataIndex: "tenVatTu",
+      key: "tenVatTu",
+      align: "left",
       width: 200,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maLoaiKhachHang,
-            value: d.maLoaiKhachHang,
+            text: d.tenVatTu,
+            value: d.tenVatTu,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.maLoaiKhachHang && record.maLoaiKhachHang.includes(value),
+        record.tenVatTu && record.tenVatTu.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên loại khách hàng",
-      dataIndex: "tenLoaiKhachHang",
-      key: "tenLoaiKhachHang",
-      align: "center",
-      width: 250,
+      title: "Tên tiếng anh",
+      dataIndex: "tenTiengAnh",
+      key: "tenTiengAnh",
+      align: "left",
+      width: 200,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenLoaiKhachHang,
-            value: d.tenLoaiKhachHang,
+            text: d.tenTiengAnh,
+            value: d.tenTiengAnh,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.tenLoaiKhachHang && record.tenLoaiKhachHang.includes(value),
+        record.tenTiengAnh && record.tenTiengAnh.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Loại vật tư",
+      dataIndex: "tenLoaiVatTu",
+      key: "tenLoaiVatTu",
+      align: "center",
+      width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenLoaiVatTu,
+            value: d.tenLoaiVatTu,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenLoaiVatTu && record.tenLoaiVatTu.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Đơn vị tính",
+      dataIndex: "tenDonViTinh",
+      key: "tenDonViTinh",
+      align: "center",
+      width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.tenDonViTinh,
+            value: d.tenDonViTinh,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.tenDonViTinh && record.tenDonViTinh.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "center",
+      width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.moTa,
+            value: d.moTa,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.moTa && record.moTa.includes(value),
       filterSearch: true,
     },
   ];
@@ -212,6 +322,15 @@ function LoaiKhachHang({ history, permission, match }) {
     return (
       <>
         <Button
+          icon={<ImportOutlined />}
+          className="th-margin-bottom-0 btn-margin-bottom-0"
+          type="primary"
+          onClick={() => setActiveImportVatTu(true)}
+          disabled={permission && !permission.add}
+        >
+          Import vật tư
+        </Button>
+        <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
@@ -224,15 +343,53 @@ function LoaiKhachHang({ history, permission, match }) {
     );
   };
 
+  const handleOnSelectLoaiVatTu = (value) => {
+    setLoaiVatTu(value);
+    getListData(value, keyword, page);
+  };
+
+  const handleClearLoaiVatTu = () => {
+    setLoaiVatTu(null);
+    getListData(null, keyword, page);
+  };
+
+  const handleRefesh = () => {
+    getListData(LoaiVatTu, keyword, page);
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Danh mục loại khách hàng"}
-        description="Danh sách loại khách hàng"
+        title={"Danh mục vật tư"}
+        description="Danh sách vật tư"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
         <Row>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: "10px" }}
+          >
+            <span>Loại vật tư:</span>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListLoaiVatTu ? ListLoaiVatTu : []}
+              placeholder="Chọn loại vật tư"
+              optionsvalue={["id", "tenLoaiVatTu"]}
+              style={{ width: "100%" }}
+              value={LoaiVatTu}
+              showSearch
+              optionFilterProp={"name"}
+              onSelect={handleOnSelectLoaiVatTu}
+              allowClear
+              onClear={handleClearLoaiVatTu}
+            />
+          </Col>
           <Col
             xxl={8}
             xl={12}
@@ -241,10 +398,7 @@ function LoaiKhachHang({ history, permission, match }) {
             sm={20}
             xs={24}
             style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "15px",
-              width: "100%",
+              marginBottom: "10px",
             }}
           >
             <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
@@ -255,8 +409,8 @@ function LoaiKhachHang({ history, permission, match }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchLoaiKhachHang,
-                onSearch: onSearchLoaiKhachHang,
+                onPressEnter: onSearchVatTu,
+                onSearch: onSearchVatTu,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
               }}
@@ -268,9 +422,9 @@ function LoaiKhachHang({ history, permission, match }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 1000, y: "55vh" }}
+          scroll={{ x: 1200, y: "55vh" }}
           components={components}
-          className="gx-table-responsive"
+          className="gx-table-responsive th-table"
           dataSource={dataList}
           size="small"
           rowClassName={"editable-row"}
@@ -284,8 +438,13 @@ function LoaiKhachHang({ history, permission, match }) {
           loading={loading}
         />
       </Card>
+      <ImportVatTu
+        openModal={ActiveImportVatTu}
+        openModalFS={setActiveImportVatTu}
+        refesh={handleRefesh}
+      />
     </div>
   );
 }
 
-export default LoaiKhachHang;
+export default VatTu;

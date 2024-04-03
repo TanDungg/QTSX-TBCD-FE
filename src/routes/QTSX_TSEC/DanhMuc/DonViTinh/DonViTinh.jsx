@@ -1,4 +1,4 @@
-import { Button, Card, Col, Divider } from "antd";
+import { Button, Card, Col, Divider, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
@@ -86,10 +86,6 @@ function DonViTinh({ history, permission, match }) {
     if (isEmpty(val.target.value)) {
       getListData(val.target.value, page);
     }
-  };
-
-  const handleClearSearch = () => {
-    getListData(null, 1);
   };
 
   const deleteItemFunc = (item) => {
@@ -250,36 +246,37 @@ function DonViTinh({ history, permission, match }) {
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
-        <Col
-          xxl={8}
-          xl={12}
-          lg={16}
-          md={16}
-          sm={20}
-          xs={24}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "15px",
-            width: "100%",
-          }}
-        >
-          <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
-          <Toolbar
-            count={1}
-            search={{
-              title: "Tìm kiếm",
-              loading,
-              value: keyword,
-              onChange: onChangeKeyword,
-              onPressEnter: onSearchDonViTinh,
-              onSearch: onSearchDonViTinh,
-              placeholder: "Nhập từ khóa",
-              allowClear: true,
-              onClear: { handleClearSearch },
+        <Row>
+          <Col
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "15px",
+              width: "100%",
             }}
-          />
-        </Col>
+          >
+            <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchDonViTinh,
+                onSearch: onSearchDonViTinh,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
+              }}
+            />
+          </Col>
+        </Row>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table

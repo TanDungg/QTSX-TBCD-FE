@@ -80,7 +80,7 @@ function ModalNghiViec({ openModalFS, openModal, data, loading, refesh }) {
     >
       <div className="gx-main-content">
         <Card className="th-card-margin-bottom">
-          <Row style={{ marginBottom: 8 }}>
+          <Row style={{ marginBottom: "10px" }}>
             <Col span={24} align="center">
               {data && (
                 <h4>

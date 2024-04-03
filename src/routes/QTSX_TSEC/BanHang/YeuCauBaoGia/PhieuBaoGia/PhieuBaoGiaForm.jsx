@@ -302,7 +302,7 @@ const BaoGiaForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...formbaogia, id: id };
+      const newData = { ...formbaogia, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(

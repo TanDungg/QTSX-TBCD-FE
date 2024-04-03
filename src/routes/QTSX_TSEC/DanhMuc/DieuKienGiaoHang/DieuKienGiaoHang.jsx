@@ -18,7 +18,7 @@ import { Link } from "react-router-dom";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function LoaiKhachHang({ history, permission, match }) {
+function DieuKienGiaoHang({ history, permission, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
@@ -40,7 +40,7 @@ function LoaiKhachHang({ history, permission, match }) {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tsec_qtsx_LoaiKhachHang?${param}`,
+          `tsec_qtsx_DieuKienGiaoHang?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -63,7 +63,7 @@ function LoaiKhachHang({ history, permission, match }) {
     getListData(keyword, pagination);
   };
 
-  const onSearchLoaiKhachHang = () => {
+  const onSearchDieuKienGiaoHang = () => {
     getListData(keyword, page);
   };
 
@@ -75,12 +75,12 @@ function LoaiKhachHang({ history, permission, match }) {
   };
 
   const deleteItemFunc = (item) => {
-    const title = "loại khách hàng";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenLoaiKhachHang, title);
+    const title = "điều kiện giao hàng";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenDieuKienGiaoHang, title);
   };
 
   const deleteItemAction = (item) => {
-    let url = `tsec_qtsx_LoaiKhachHang/${item.id}`;
+    let url = `tsec_qtsx_DieuKienGiaoHang/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -142,39 +142,57 @@ function LoaiKhachHang({ history, permission, match }) {
       align: "center",
     },
     {
-      title: "Mã loại khách hàng",
-      dataIndex: "maLoaiKhachHang",
-      key: "maLoaiKhachHang",
+      title: "Mã điều kiện giao hàng",
+      dataIndex: "maDieuKienGiaoHang",
+      key: "maDieuKienGiaoHang",
       align: "center",
-      width: 200,
+      width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maLoaiKhachHang,
-            value: d.maLoaiKhachHang,
+            text: d.maDieuKienGiaoHang,
+            value: d.maDieuKienGiaoHang,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.maLoaiKhachHang && record.maLoaiKhachHang.includes(value),
+        record.maDieuKienGiaoHang && record.maDieuKienGiaoHang.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên loại khách hàng",
-      dataIndex: "tenLoaiKhachHang",
-      key: "tenLoaiKhachHang",
-      align: "center",
+      title: "Tên điều kiện giao hàng",
+      dataIndex: "tenDieuKienGiaoHang",
+      key: "tenDieuKienGiaoHang",
+      align: "left",
       width: 250,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenLoaiKhachHang,
-            value: d.tenLoaiKhachHang,
+            text: d.tenDieuKienGiaoHang,
+            value: d.tenDieuKienGiaoHang,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.tenLoaiKhachHang && record.tenLoaiKhachHang.includes(value),
+        record.tenDieuKienGiaoHang &&
+        record.tenDieuKienGiaoHang.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "center",
+      width: 150,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.moTa,
+            value: d.moTa,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.moTa && record.moTa.includes(value),
       filterSearch: true,
     },
   ];
@@ -227,8 +245,8 @@ function LoaiKhachHang({ history, permission, match }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Danh mục loại khách hàng"}
-        description="Danh sách loại khách hàng"
+        title={"Danh mục điều kiện giao hàng"}
+        description="Danh sách điều kiện giao hàng"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -255,8 +273,8 @@ function LoaiKhachHang({ history, permission, match }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchLoaiKhachHang,
-                onSearch: onSearchLoaiKhachHang,
+                onPressEnter: onSearchDieuKienGiaoHang,
+                onSearch: onSearchDieuKienGiaoHang,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
               }}
@@ -270,7 +288,7 @@ function LoaiKhachHang({ history, permission, match }) {
           columns={columns}
           scroll={{ x: 1000, y: "55vh" }}
           components={components}
-          className="gx-table-responsive"
+          className="gx-table-responsive th-table"
           dataSource={dataList}
           size="small"
           rowClassName={"editable-row"}
@@ -288,4 +306,4 @@ function LoaiKhachHang({ history, permission, match }) {
   );
 }
 
-export default LoaiKhachHang;
+export default DieuKienGiaoHang;

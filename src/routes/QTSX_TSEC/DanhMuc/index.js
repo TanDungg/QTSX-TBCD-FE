@@ -37,6 +37,10 @@ const CongDoanForm = asyncComponent(() => import("./CongDoan/CongDoanForm"));
 const Chuyen = asyncComponent(() => import("./Chuyen/Chuyen"));
 const ChuyenForm = asyncComponent(() => import("./Chuyen/ChuyenForm"));
 
+/* Quốc gia */
+const QuocGia = asyncComponent(() => import("./QuocGia/QuocGia"));
+const QuocGiaForm = asyncComponent(() => import("./QuocGia/QuocGiaForm"));
+
 /* Loại khách hàng */
 const LoaiKhachHang = asyncComponent(() =>
   import("./LoaiKhachHang/LoaiKhachHang")
@@ -81,12 +85,36 @@ const LoaiLoiForm = asyncComponent(() =>
   import("./LoaiLoi/LoaiLoiForm")
 );
 
-/* Lỗi */
-const Loi = asyncComponent(() =>
-  import("./Loi/Loi")
+/* Điều kiện giao hàng */
+const DieuKienGiaoHang = asyncComponent(() =>
+  import("./DieuKienGiaoHang/DieuKienGiaoHang")
 );
-const LoiForm = asyncComponent(() =>
-  import("./Loi/LoiForm")
+const DieuKienGiaoHangForm = asyncComponent(() =>
+  import("./DieuKienGiaoHang/DieuKienGiaoHangForm")
+);
+
+/* Nhóm vật tư */
+const NhomVatTu = asyncComponent(() =>
+  import("./NhomVatTu/NhomVatTu")
+);
+const NhomVatTuForm = asyncComponent(() =>
+  import("./NhomVatTu/NhomVatTuForm")
+);
+
+/* Loại vật tư */
+const LoaiVatTu = asyncComponent(() =>
+  import("./LoaiVatTu/LoaiVatTu")
+);
+const LoaiVatTuForm = asyncComponent(() =>
+  import("./LoaiVatTu/LoaiVatTuForm")
+);
+
+/* Vật tư */
+const VatTu = asyncComponent(() =>
+  import("./VatTu/VatTu")
+);
+const VatTuForm = asyncComponent(() =>
+  import("./VatTu/VatTuForm")
 );
 
 const App = ({ match, location, menus, permission }) => {
@@ -229,6 +257,23 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(ChuyenForm, menus, pathname, permission)}
       />
 
+      {/* Quốc gia */}
+      <Route
+        path={`${match.url}/quoc-gia`}
+        exact
+        component={Auth(QuocGia, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/quoc-gia/them-moi`}
+        exact
+        component={Auth(QuocGiaForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/quoc-gia/:id/chinh-sua`}
+        exact
+        component={Auth(QuocGiaForm, menus, pathname, permission)}
+      />
+
       {/* Loại khách hàng */}
       <Route
         path={`${match.url}/loai-khach-hang`}
@@ -331,21 +376,72 @@ const App = ({ match, location, menus, permission }) => {
         component={Auth(LoaiLoiForm, menus, pathname, permission)}
       />
 
-       {/* Lỗi */}
+       {/* Điều kiện giao hàng */}
        <Route
-        path={`${match.url}/loi`}
+        path={`${match.url}/dieu-kien-giao-hang`}
         exact
-        component={Auth(Loi, menus, pathname, permission)}
+        component={Auth(DieuKienGiaoHang, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/loi/them-moi`}
+        path={`${match.url}/dieu-kien-giao-hang/them-moi`}
         exact
-        component={Auth(LoiForm, menus, pathname, permission)}
+        component={Auth(DieuKienGiaoHangForm, menus, pathname, permission)}
       />
       <Route
-        path={`${match.url}/loi/:id/chinh-sua`}
+        path={`${match.url}/dieu-kien-giao-hang/:id/chinh-sua`}
         exact
-        component={Auth(LoiForm, menus, pathname, permission)}
+        component={Auth(DieuKienGiaoHangForm, menus, pathname, permission)}
+      />
+
+       {/* Nhóm vật tư */}
+       <Route
+        path={`${match.url}/nhom-vat-tu`}
+        exact
+        component={Auth(NhomVatTu, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nhom-vat-tu/them-moi`}
+        exact
+        component={Auth(NhomVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/nhom-vat-tu/:id/chinh-sua`}
+        exact
+        component={Auth(NhomVatTuForm, menus, pathname, permission)}
+      />
+
+      {/* Loại vật tư */}
+      <Route
+        path={`${match.url}/loai-vat-tu`}
+        exact
+        component={Auth(LoaiVatTu, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/loai-vat-tu/them-moi`}
+        exact
+        component={Auth(LoaiVatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/loai-vat-tu/:id/chinh-sua`}
+        exact
+        component={Auth(LoaiVatTuForm, menus, pathname, permission)}
+      />
+
+      {/* Vật tư */}
+      <Route
+        path={`${match.url}/vat-tu`}
+        exact
+        component={Auth(VatTu, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/vat-tu/them-moi`}
+        exact
+        component={Auth(VatTuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/vat-tu/:id/chinh-sua`}
+        exact
+        component={Auth(VatTuForm, menus, pathname, permission)}
       />
     </Switch>
   );

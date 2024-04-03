@@ -116,7 +116,7 @@ const LoaiLoiForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...formloailoi, id: id };
+      const newData = { ...formloailoi, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(

@@ -1,30 +1,26 @@
-import { Card, Col, Row } from "antd";
+import { Button, Card, Col, Divider, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
+import { removeDuplicates, reDataForTable } from "src/util/Common";
 import {
-  removeDuplicates,
-  reDataForTable,
-  getLocalStorage,
-  getTokenInfo,
-  treeToFlatlist,
-} from "src/util/Common";
-import { EditableTableRow, Table, Toolbar } from "src/components/Common";
+  EditableTableRow,
+  ModalDeleteConfirm,
+  Table,
+  Toolbar,
+} from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { convertObjectToUrlParams } from "src/util/Common";
+import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
-function TapDoan({ history, permission }) {
+function QuocGia({ history, permission, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
-  const INFO = {
-    ...getLocalStorage("menu"),
-    user_Id: getTokenInfo().id,
-    token: getTokenInfo().token,
-  };
   const [Data, setData] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
@@ -39,12 +35,12 @@ function TapDoan({ history, permission }) {
     return () => dispatch(fetchReset());
   }, []);
 
-  const getListData = (keyword) => {
-    let param = convertObjectToUrlParams({ keyword, donviid: INFO.donVi_Id });
+  const getListData = (keyword, page) => {
+    let param = convertObjectToUrlParams({ keyword, page });
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `TapDoan/tap-doan-tree?${param}`,
+          `tsec_qtsx_QuocGia?${param}`,
           "GET",
           null,
           "DETAIL",
@@ -67,7 +63,7 @@ function TapDoan({ history, permission }) {
     getListData(keyword, pagination);
   };
 
-  const onSearchTapDoan = () => {
+  const onSearchQuocGia = () => {
     getListData(keyword, page);
   };
 
@@ -78,9 +74,66 @@ function TapDoan({ history, permission }) {
     }
   };
 
-  let dataList = reDataForTable(treeToFlatlist(Data));
+  const deleteItemFunc = (item) => {
+    const title = "quốc gia";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenQuocGia, title);
+  };
+
+  const deleteItemAction = (item) => {
+    let url = `tsec_qtsx_QuocGia/${item.id}`;
+    new Promise((resolve, reject) => {
+      dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
+    })
+      .then((res) => {
+        getListData(keyword, page);
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const actionContent = (item) => {
+    const editItem =
+      permission && permission.edit ? (
+        <Link
+          to={{
+            pathname: `${match.url}/${item.id}/chinh-sua`,
+            state: { itemData: item, permission },
+          }}
+          title="Sửa"
+        >
+          <EditOutlined />
+        </Link>
+      ) : (
+        <span disabled title="Sửa">
+          <EditOutlined />
+        </span>
+      );
+    const deleteItemVal =
+      permission && permission.del
+        ? { onClick: () => deleteItemFunc(item) }
+        : { disabled: true };
+    return (
+      <div>
+        <React.Fragment>
+          {editItem}
+          <Divider type="vertical" />
+          <a {...deleteItemVal} title="Xóa">
+            <DeleteOutlined />
+          </a>
+        </React.Fragment>
+      </div>
+    );
+  };
+
+  let dataList = reDataForTable(Data.datalist);
 
   let colValues = [
+    {
+      title: "Chức năng",
+      key: "action",
+      align: "center",
+      width: 100,
+      render: (value) => actionContent(value),
+    },
     {
       title: "STT",
       dataIndex: "key",
@@ -89,39 +142,21 @@ function TapDoan({ history, permission }) {
       align: "center",
     },
     {
-      title: "Mã tập đoàn",
-      dataIndex: "maTapDoan",
-      key: "maTapDoan",
+      title: "Tên quốc gia",
+      dataIndex: "tenQuocGia",
+      key: "tenQuocGia",
       align: "center",
-      width: 200,
+      width: 250,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maTapDoan,
-            value: d.maTapDoan,
+            text: d.tenQuocGia,
+            value: d.tenQuocGia,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.maTapDoan && record.maTapDoan.includes(value),
-      filterSearch: true,
-    },
-    {
-      title: "Tên tập đoàn",
-      dataIndex: "tenTapDoan",
-      key: "tenTapDoan",
-      align: "center",
-      width: 300,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.tenTapDoan,
-            value: d.tenTapDoan,
-          };
-        })
-      ),
-      onFilter: (value, record) =>
-        record.tenTapDoan && record.tenTapDoan.includes(value),
+        record.tenQuocGia && record.tenQuocGia.includes(value),
       filterSearch: true,
     },
   ];
@@ -149,11 +184,34 @@ function TapDoan({ history, permission }) {
     };
   });
 
+  const handleRedirect = () => {
+    history.push({
+      pathname: `${match.url}/them-moi`,
+    });
+  };
+
+  const addButtonRender = () => {
+    return (
+      <>
+        <Button
+          icon={<PlusOutlined />}
+          className="th-margin-bottom-0 btn-margin-bottom-0"
+          type="primary"
+          onClick={handleRedirect}
+          disabled={permission && !permission.add}
+        >
+          Thêm mới
+        </Button>
+      </>
+    );
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Danh mục tập đoàn"}
-        description="Danh sách tập đoàn"
+        title={"Danh mục quốc gia"}
+        description="Danh sách quốc gia"
+        buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
         <Row>
@@ -179,8 +237,8 @@ function TapDoan({ history, permission }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchTapDoan,
-                onSearch: onSearchTapDoan,
+                onPressEnter: onSearchQuocGia,
+                onSearch: onSearchQuocGia,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
               }}
@@ -192,7 +250,7 @@ function TapDoan({ history, permission }) {
         <Table
           bordered
           columns={columns}
-          scroll={{ x: 650, y: "55vh" }}
+          scroll={{ x: 1000, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
           dataSource={dataList}
@@ -212,4 +270,4 @@ function TapDoan({ history, permission }) {
   );
 }
 
-export default TapDoan;
+export default QuocGia;

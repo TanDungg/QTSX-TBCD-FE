@@ -5,11 +5,11 @@ import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
 import { FormSubmit } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_ADD_170PX } from "src/constants/Config";
+import { DEFAULT_FORM_ADD_190PX } from "src/constants/Config";
 
 const FormItem = Form.Item;
 
-const LoaiThongTinForm = ({ history, match, permission }) => {
+const DieuKienGiaoHangForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
@@ -27,7 +27,6 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
     } else {
       if (permission && permission.edit) {
         setType("edit");
-        // Get info
         const { id } = match.params;
         setId(id);
         getInfo(id);
@@ -43,7 +42,7 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tsec_qtsx_LoaiThongTin/${id}`,
+          `tsec_qtsx_DieuKienGiaoHang/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -56,7 +55,7 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            formloaithongtin: res.data,
+            formdieukiengiaohang: res.data,
           });
         }
       })
@@ -73,27 +72,27 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
-    saveData(values.formloaithongtin);
+    saveData(values.formdieukiengiaohang);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.formloaithongtin, true);
+        saveData(values.formdieukiengiaohang, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (formloaithongtin, saveQuit = false) => {
+  const saveData = (formdieukiengiaohang, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_LoaiThongTin`,
+            `tsec_qtsx_DieuKienGiaoHang`,
             "POST",
-            formloaithongtin,
+            formdieukiengiaohang,
             "ADD",
             "",
             resolve,
@@ -116,11 +115,11 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const newData = { ...formloaithongtin, id: id };
+      const newData = { ...formdieukiengiaohang, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_LoaiThongTin/${id}`,
+            `tsec_qtsx_DieuKienGiaoHang/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -142,7 +141,9 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
   };
 
   const formTitle =
-    type === "new" ? "Thêm mới loại thông tin" : "Chỉnh sửa loại thông tin";
+    type === "new"
+      ? "Thêm mới điều kiện giao hàng"
+      : "Chỉnh sửa điều kiện giao hàng";
 
   return (
     <div className="gx-main-content">
@@ -153,7 +154,7 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
         style={{ width: "100%" }}
       >
         <Form
-          {...DEFAULT_FORM_ADD_170PX}
+          {...DEFAULT_FORM_ADD_190PX}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
@@ -161,8 +162,29 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
         >
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Tên loại thông tin"
-              name={["formloaithongtin", "tenLoaiThongTin"]}
+              label="Mã điều kiện giao hàng"
+              name={["formdieukiengiaohang", "maDieuKienGiaoHang"]}
+              rules={[
+                {
+                  type: "string",
+                  required: true,
+                },
+                {
+                  max: 50,
+                  message: "Mã điều kiện giao hàng không được quá 50 ký tự",
+                },
+              ]}
+            >
+              <Input
+                className="input-item"
+                placeholder="Nhập mã điều kiện giao hàng"
+              />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Tên điều kiện giao hàng"
+              name={["formdieukiengiaohang", "tenDieuKienGiaoHang"]}
               rules={[
                 {
                   type: "string",
@@ -170,20 +192,20 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 250,
-                  message: "Tên loại thông tin không được quá 250 ký tự",
+                  message: "Tên điều kiện giao hàng không được quá 250 ký tự",
                 },
               ]}
             >
               <Input
                 className="input-item"
-                placeholder="Nhập tên loại thông tin"
+                placeholder="Nhập tên điều kiện giao hàng"
               />
             </FormItem>
           </Col>
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Ghi chú"
-              name={["formloaithongtin", "moTa"]}
+              name={["formdieukiengiaohang", "moTa"]}
               rules={[
                 {
                   type: "string",
@@ -204,4 +226,4 @@ const LoaiThongTinForm = ({ history, match, permission }) => {
   );
 };
 
-export default LoaiThongTinForm;
+export default DieuKienGiaoHangForm;

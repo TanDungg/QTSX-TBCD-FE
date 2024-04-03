@@ -3,21 +3,25 @@ import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit } from "src/components/Common";
+import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_ADD_170PX } from "src/constants/Config";
+import { DEFAULT_FORM_ADD_150PX } from "src/constants/Config";
 
 const FormItem = Form.Item;
 
-const LoaiKhachHangForm = ({ history, match, permission }) => {
+const KhachHangForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [type, setType] = useState("new");
+  const [ListLoaiKhachHang, setListLoaiKhachHang] = useState([]);
+  const [ListQuocGia, setListQuocGia] = useState([]);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [id, setId] = useState(undefined);
 
   useEffect(() => {
+    getListLoaiKhachHang();
+    getListQuocGia();
     if (includes(match.url, "them-moi")) {
       if (permission && permission.add) {
         setType("new");
@@ -39,11 +43,59 @@ const LoaiKhachHangForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const getListLoaiKhachHang = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_LoaiKhachHang?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiKhachHang(res.data);
+        } else {
+          setListLoaiKhachHang([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListQuocGia = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_QuocGia?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListQuocGia(res.data);
+        } else {
+          setListQuocGia([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const getInfo = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tsec_qtsx_LoaiKhachHang/${id}`,
+          `tsec_qtsx_KhachHang/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -56,7 +108,7 @@ const LoaiKhachHangForm = ({ history, match, permission }) => {
       .then((res) => {
         if (res && res.data) {
           setFieldsValue({
-            formloaikhachhang: res.data,
+            formkhachhang: res.data,
           });
         }
       })
@@ -73,27 +125,27 @@ const LoaiKhachHangForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
-    saveData(values.formloaikhachhang);
+    saveData(values.formkhachhang);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.formloaikhachhang, true);
+        saveData(values.formkhachhang, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (formloaikhachhang, saveQuit = false) => {
+  const saveData = (formkhachhang, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_LoaiKhachHang`,
+            `tsec_qtsx_KhachHang`,
             "POST",
-            formloaikhachhang,
+            formkhachhang,
             "ADD",
             "",
             resolve,
@@ -116,11 +168,11 @@ const LoaiKhachHangForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...formloaikhachhang, id: id };
+      const newData = { ...formkhachhang, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_LoaiKhachHang/${id}`,
+            `tsec_qtsx_KhachHang/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -142,7 +194,7 @@ const LoaiKhachHangForm = ({ history, match, permission }) => {
   };
 
   const formTitle =
-    type === "new" ? "Thêm mới loại khách hàng" : "Chỉnh sửa loại khách hàng";
+    type === "new" ? "Thêm mới khách hàng" : "Chỉnh sửa khách hàng";
 
   return (
     <div className="gx-main-content">
@@ -153,7 +205,7 @@ const LoaiKhachHangForm = ({ history, match, permission }) => {
         style={{ width: "100%" }}
       >
         <Form
-          {...DEFAULT_FORM_ADD_170PX}
+          {...DEFAULT_FORM_ADD_150PX}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
@@ -161,8 +213,8 @@ const LoaiKhachHangForm = ({ history, match, permission }) => {
         >
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Mã loại khách hàng"
-              name={["formloaikhachhang", "maLoaiKhachHang"]}
+              label="Mã khách hàng"
+              name={["formkhachhang", "maKhachHang"]}
               rules={[
                 {
                   type: "string",
@@ -170,20 +222,17 @@ const LoaiKhachHangForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 50,
-                  message: "Mã loại khách hàng không được quá 50 ký tự",
+                  message: "Mã khách hàng không được quá 50 ký tự",
                 },
               ]}
             >
-              <Input
-                className="input-item"
-                placeholder="Nhập mã loại khách hàng"
-              />
+              <Input className="input-item" placeholder="Nhập mã khách hàng" />
             </FormItem>
           </Col>
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Tên loại khách hàng"
-              name={["formloaikhachhang", "tenLoaiKhachHang"]}
+              label="Tên khách hàng"
+              name={["formkhachhang", "tenKhachHang"]}
               rules={[
                 {
                   type: "string",
@@ -191,14 +240,122 @@ const LoaiKhachHangForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 250,
-                  message: "Tên loại khách hàng không được quá 250 ký tự",
+                  message: "Tên khách hàng không được quá 250 ký tự",
+                },
+              ]}
+            >
+              <Input className="input-item" placeholder="Nhập tên khách hàng" />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Người liên hệ"
+              name={["formkhachhang", "nguoiLienHe"]}
+              rules={[
+                {
+                  type: "string",
                 },
               ]}
             >
               <Input
                 className="input-item"
-                placeholder="Nhập tên loại khách hàng"
+                placeholder="Nhập tên người liên hệ"
               />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Số điện thoại"
+              name={["formkhachhang", "sdt"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+            >
+              <Input className="input-item" placeholder="Nhập số điện thoại" />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Fax"
+              name={["formkhachhang", "fax"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+            >
+              <Input className="input-item" placeholder="Nhập số fax" />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Địa chỉ"
+              name={["formkhachhang", "diaChi"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+            >
+              <Input className="input-item" placeholder="Nhập địa chỉ" />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Loại khách hàng"
+              name={["formkhachhang", "tsec_qtsx_LoaiKhachHang_Id"]}
+              rules={[
+                {
+                  type: "string",
+                  required: true,
+                },
+              ]}
+            >
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListLoaiKhachHang ? ListLoaiKhachHang : []}
+                placeholder="Chọn loại khách hàng"
+                optionsvalue={["id", "tenLoaiKhachHang"]}
+                style={{ width: "100%" }}
+                optionFilterProp="name"
+                showSearch
+              />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Quốc gia"
+              name={["formkhachhang", "tsec_qtsx_QuocGia_Id"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+            >
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListQuocGia ? ListQuocGia : []}
+                placeholder="Chọn quốc gia"
+                optionsvalue={["id", "tenQuocGia"]}
+                style={{ width: "100%" }}
+                optionFilterProp="name"
+                showSearch
+              />
+            </FormItem>
+          </Col>
+          <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
+            <FormItem
+              label="Ghi chú"
+              name={["formkhachhang", "moTa"]}
+              rules={[
+                {
+                  type: "string",
+                },
+              ]}
+            >
+              <Input className="input-item" placeholder="Nhập ghi chú" />
             </FormItem>
           </Col>
           <FormSubmit
@@ -212,4 +369,4 @@ const LoaiKhachHangForm = ({ history, match, permission }) => {
   );
 };
 
-export default LoaiKhachHangForm;
+export default KhachHangForm;

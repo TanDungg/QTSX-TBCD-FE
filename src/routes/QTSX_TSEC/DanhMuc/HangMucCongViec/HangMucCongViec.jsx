@@ -1,4 +1,4 @@
-import { Button, Card, Col, Divider } from "antd";
+import { Button, Card, Col, Divider, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
@@ -8,100 +8,116 @@ import { removeDuplicates, reDataForTable } from "src/util/Common";
 import {
   EditableTableRow,
   ModalDeleteConfirm,
+  Select,
   Table,
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-// import { convertObjectToUrlParams } from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-const DataTest = {
-  datalist: [
-    {
-      id: "123",
-      maHangMucCongViec: "maHangMucCongViecA",
-      noiDungCongViec: "noiDungCongViecA",
-      tenLoaiThongTin: "tenLoaiThongTinA",
-    },
-  ],
-  totalRow: 1,
-  pageSize: 20,
-};
-function HangMucCongViec({ history, permission, match }) {
+
+function CongViec({ history, permission, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
+  const [ListLoaiThongTin, setListLoaiThongTin] = useState([]);
+  const [LoaiThongTin, setLoaiThongTin] = useState([]);
   const [keyword, setKeyword] = useState("");
-  // const [page, setPage] = useState(1);
+  const [page, setPage] = useState(1);
   const { totalRow, pageSize } = Data;
 
   useEffect(() => {
     if (permission && permission.view) {
-      setData(DataTest);
-      // getListData(keyword, page);
+      getListLoaiThongTin();
+      getListData(LoaiThongTin, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
   }, []);
 
-  // const getListData = (keyword, page) => {
-  //   let param = convertObjectToUrlParams({ keyword, page });
-  //   new Promise((resolve, reject) => {
-  //     dispatch(
-  //       fetchStart(
-  //         `tsec_qtsx_HangMucCongViec?${param}`,
-  //         "GET",
-  //         null,
-  //         "DETAIL",
-  //         "",
-  //         resolve,
-  //         reject
-  //       )
-  //     );
-  //   }).then((res) => {
-  //     if (res && res.data) {
-  //       setData(res.data);
-  //     } else {
-  //       setData([]);
-  //     }
-  //   });
-  // };
-
-  const handleTableChange = (pagination) => {
-    // setPage(pagination);
-    // getListData(keyword, pagination);
+  const getListData = (tsec_qtsx_LoaiThongTin_Id, keyword, page) => {
+    let param = convertObjectToUrlParams({
+      tsec_qtsx_LoaiThongTin_Id,
+      keyword,
+      page,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_CongViec?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setData(res.data);
+      } else {
+        setData([]);
+      }
+    });
   };
 
-  const onSearchHangMucCongViec = () => {
-    // getListData(keyword, page);
+  const getListLoaiThongTin = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_LoaiThongTin`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiThongTin(res.data);
+        } else {
+          setListLoaiThongTin([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const handleTableChange = (pagination) => {
+    setPage(pagination);
+    getListData(LoaiThongTin, keyword, pagination);
+  };
+
+  const onSearchCongViec = () => {
+    getListData(LoaiThongTin, keyword, page);
   };
 
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      // getListData(val.target.value, page);
+      getListData(LoaiThongTin, val.target.value, page);
     }
-  };
-
-  const handleClearSearch = () => {
-    // getListData(null, 1);
   };
 
   const deleteItemFunc = (item) => {
     const title = "hạng mục công việc";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenHangMucCongViec, title);
+    ModalDeleteConfirm(deleteItemAction, item, item.tenCongViec, title);
   };
 
   const deleteItemAction = (item) => {
-    let url = `tsec_qtsx_HangMucCongViec/${item.id}`;
+    let url = `tsec_qtsx_CongViec/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        // getListData(keyword, page);
+        getListData(LoaiThongTin, keyword, page);
       })
       .catch((error) => console.error(error));
   };
@@ -159,27 +175,27 @@ function HangMucCongViec({ history, permission, match }) {
     },
     {
       title: "Mã hạng mục công việc",
-      dataIndex: "maHangMucCongViec",
-      key: "maHangMucCongViec",
+      dataIndex: "maCongViec",
+      key: "maCongViec",
       align: "center",
-      width: 200,
+      width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maHangMucCongViec,
-            value: d.maHangMucCongViec,
+            text: d.maCongViec,
+            value: d.maCongViec,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.maHangMucCongViec && record.maHangMucCongViec.includes(value),
+        record.maCongViec && record.maCongViec.includes(value),
       filterSearch: true,
     },
     {
       title: "Nội dung công việc",
       dataIndex: "noiDungCongViec",
       key: "noiDungCongViec",
-      align: "center",
+      align: "left",
       width: 250,
       filters: removeDuplicates(
         map(dataList, (d) => {
@@ -275,6 +291,16 @@ function HangMucCongViec({ history, permission, match }) {
     );
   };
 
+  const handleOnSelectLoaiThongTin = (value) => {
+    setLoaiThongTin(value);
+    getListData(value, keyword, page);
+  };
+
+  const handleClearLoaiThongTin = () => {
+    setLoaiThongTin(null);
+    getListData(null, keyword, page);
+  };
+
   return (
     <div className="gx-main-content">
       <ContainerHeader
@@ -283,35 +309,58 @@ function HangMucCongViec({ history, permission, match }) {
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
-        <Col
-          xxl={8}
-          xl={12}
-          lg={16}
-          md={16}
-          sm={20}
-          xs={24}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "15px",
-          }}
-        >
-          <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
-          <Toolbar
-            count={1}
-            search={{
-              title: "Tìm kiếm",
-              loading,
-              value: keyword,
-              onChange: onChangeKeyword,
-              onPressEnter: onSearchHangMucCongViec,
-              onSearch: onSearchHangMucCongViec,
-              placeholder: "Nhập từ khóa",
-              allowClear: true,
-              onClear: { handleClearSearch },
+        <Row>
+          <Col
+            xxl={8}
+            xl={8}
+            lg={12}
+            md={12}
+            sm={24}
+            xs={24}
+            style={{ marginBottom: "10px" }}
+          >
+            <span>Loại thông tin:</span>
+            <Select
+              className="heading-select slt-search th-select-heading"
+              data={ListLoaiThongTin ? ListLoaiThongTin : []}
+              placeholder="Chọn loại thông tin"
+              optionsvalue={["id", "tenLoaiThongTin"]}
+              style={{ width: "100%" }}
+              value={LoaiThongTin}
+              showSearch
+              optionFilterProp={"name"}
+              onSelect={handleOnSelectLoaiThongTin}
+              allowClear
+              onClear={handleClearLoaiThongTin}
+            />
+          </Col>
+          <Col
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
+            style={{
+              marginBottom: "10px",
             }}
-          />
-        </Col>
+          >
+            <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchCongViec,
+                onSearch: onSearchCongViec,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
+              }}
+            />
+          </Col>
+        </Row>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
@@ -319,7 +368,7 @@ function HangMucCongViec({ history, permission, match }) {
           columns={columns}
           scroll={{ x: 1000, y: "55vh" }}
           components={components}
-          className="gx-table-responsive"
+          className="gx-table-responsive th-table"
           dataSource={dataList}
           size="small"
           rowClassName={"editable-row"}
@@ -337,4 +386,4 @@ function HangMucCongViec({ history, permission, match }) {
   );
 }
 
-export default HangMucCongViec;
+export default CongViec;

@@ -164,7 +164,7 @@ const DonViForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = {
+      const newData = {
         ...donvi,
         id: id,
         donVi_Id: donvi.donVi_Id === "root" ? null : donvi.donVi_Id,

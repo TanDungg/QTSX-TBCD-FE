@@ -559,7 +559,7 @@ function BaoGia({ history, permission, match }) {
             md={12}
             sm={24}
             xs={24}
-            style={{ marginBottom: 8 }}
+            style={{ marginBottom: "10px" }}
           >
             <span>Khách hàng:</span>
             <Select
@@ -589,7 +589,7 @@ function BaoGia({ history, permission, match }) {
             md={12}
             sm={24}
             xs={24}
-            style={{ marginBottom: 8 }}
+            style={{ marginBottom: "10px" }}
           >
             <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
             <Toolbar

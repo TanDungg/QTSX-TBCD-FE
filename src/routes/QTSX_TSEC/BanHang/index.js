@@ -9,6 +9,9 @@ const YeuCauBaoGia = asyncComponent(() => import("./YeuCauBaoGia"));
 /* Phiếu yêu cầu */
 const PhieuYeuCau = asyncComponent(() => import("./PhieuYeuCau"));
 
+/* Đơn hàng */
+const DonHang = asyncComponent(() => import("./DonHang"));
+
 const App = ({ match, location, menus }) => {
   const { pathname } = location;
   return (
@@ -23,6 +26,12 @@ const App = ({ match, location, menus }) => {
       <Route
         path={`${match.url}/phieu-yeu-cau`}
         component={Auth(PhieuYeuCau, menus, pathname)}
+      />
+
+       {/* Đơn hàng */}
+       <Route
+        path={`${match.url}/don-hang`}
+        component={Auth(DonHang, menus, pathname)}
       />
     </Switch>
   );

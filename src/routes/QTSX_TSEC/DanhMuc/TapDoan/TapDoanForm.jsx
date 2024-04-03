@@ -100,7 +100,7 @@ const TapDoanForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...tapdoan, id: id };
+      const newData = { ...tapdoan, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(

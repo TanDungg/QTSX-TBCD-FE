@@ -3,9 +3,9 @@ import includes from "lodash/includes";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions";
-import { FormSubmit } from "src/components/Common";
+import { FormSubmit, Select } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_ADD_190PX } from "src/constants/Config";
+import { DEFAULT_FORM_ADD_170PX } from "src/constants/Config";
 
 const FormItem = Form.Item;
 
@@ -14,10 +14,12 @@ const HangMucCongViecForm = ({ history, match, permission }) => {
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [type, setType] = useState("new");
+  const [ListLoaiThongTin, setListLoaiThongTin] = useState(false);
   const [fieldTouch, setFieldTouch] = useState(false);
   const [id, setId] = useState(undefined);
 
   useEffect(() => {
+    getListLoaiThongTin();
     if (includes(match.url, "them-moi")) {
       if (permission && permission.add) {
         setType("new");
@@ -39,11 +41,35 @@ const HangMucCongViecForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const getListLoaiThongTin = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_LoaiThongTin`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          setListLoaiThongTin(res.data);
+        } else {
+          setListLoaiThongTin([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
   const getInfo = (id) => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `tsec_qtsx_HangMucCongViec/${id}`,
+          `tsec_qtsx_CongViec/${id}`,
           "GET",
           null,
           "DETAIL",
@@ -91,7 +117,7 @@ const HangMucCongViecForm = ({ history, match, permission }) => {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_HangMucCongViec`,
+            `tsec_qtsx_CongViec`,
             "POST",
             formhangmuccongviec,
             "ADD",
@@ -116,11 +142,11 @@ const HangMucCongViecForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...formhangmuccongviec, id: id };
+      const newData = { ...formhangmuccongviec, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
-            `tsec_qtsx_HangMucCongViec/${id}`,
+            `tsec_qtsx_CongViec/${id}`,
             "PUT",
             newData,
             "EDIT",
@@ -155,7 +181,7 @@ const HangMucCongViecForm = ({ history, match, permission }) => {
         style={{ width: "100%" }}
       >
         <Form
-          {...DEFAULT_FORM_ADD_190PX}
+          {...DEFAULT_FORM_ADD_170PX}
           form={form}
           name="nguoi-dung-control"
           onFinish={onFinish}
@@ -163,8 +189,8 @@ const HangMucCongViecForm = ({ history, match, permission }) => {
         >
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
-              label="Mã hạng mục công việc"
-              name={["formhangmuccongviec", "maHangMucCongViec"]}
+              label="Mã công việc"
+              name={["formhangmuccongviec", "maCongViec"]}
               rules={[
                 {
                   type: "string",
@@ -172,7 +198,7 @@ const HangMucCongViecForm = ({ history, match, permission }) => {
                 },
                 {
                   max: 50,
-                  message: "Mã hạng mục công việc không được quá 50 ký tự",
+                  message: "Mã công việc không được quá 50 ký tự",
                 },
               ]}
             >
@@ -185,7 +211,7 @@ const HangMucCongViecForm = ({ history, match, permission }) => {
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Nội dung công việc"
-              name={["formhangmuccongviec", "tenHangMucCongViec"]}
+              name={["formhangmuccongviec", "noiDungCongViec"]}
               rules={[
                 {
                   type: "string",
@@ -206,19 +232,23 @@ const HangMucCongViecForm = ({ history, match, permission }) => {
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>
             <FormItem
               label="Loại thông tin"
-              name={["formhangmuccongviec", "loaiThongTin"]}
+              name={["formhangmuccongviec", "tsec_qtsx_LoaiThongTin_Id"]}
               rules={[
                 {
                   type: "string",
                   required: true,
                 },
-                {
-                  max: 250,
-                  message: "Loại thông tin không được quá 250 ký tự",
-                },
               ]}
             >
-              <Input className="input-item" placeholder="Nhập Loại thông tin" />
+              <Select
+                className="heading-select slt-search th-select-heading"
+                data={ListLoaiThongTin ? ListLoaiThongTin : []}
+                placeholder="Chọn loại thông tin"
+                optionsvalue={["id", "tenLoaiThongTin"]}
+                style={{ width: "100%" }}
+                showSearch
+                optionFilterProp={"name"}
+              />
             </FormItem>
           </Col>
           <Col xxl={14} xl={16} lg={18} md={20} sm={24} xs={24}>

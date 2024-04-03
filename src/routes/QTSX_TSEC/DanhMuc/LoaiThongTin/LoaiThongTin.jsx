@@ -1,10 +1,10 @@
-import { Button, Card, Col, Divider } from "antd";
+import { Button, Card, Col, Divider, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
-import { removeDuplicates, reDataForTable } from "src/util/Common";
+import { reDataForTable, removeDuplicates } from "src/util/Common";
 import {
   EditableTableRow,
   ModalDeleteConfirm,
@@ -12,81 +12,59 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-// import { convertObjectToUrlParams } from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-const DataTest = {
-  datalist: [
-    {
-      id: "123",
-      maLoaiThongTin: "maLoaiThongTinA",
-      tenLoaiThongTin: "tenLoaiThongTinA",
-    },
-  ],
-  totalRow: 1,
-  pageSize: 20,
-};
+
 function LoaiThongTin({ history, permission, match }) {
   const dispatch = useDispatch();
   const { loading } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
   const [keyword, setKeyword] = useState("");
-  // const [page, setPage] = useState(1);
-  const { totalRow, pageSize } = Data;
 
   useEffect(() => {
     if (permission && permission.view) {
-      setData(DataTest);
-      // getListData(keyword, page);
+      getListData(keyword);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
   }, []);
 
-  // const getListData = (keyword, page) => {
-  //   let param = convertObjectToUrlParams({ keyword, page });
-  //   new Promise((resolve, reject) => {
-  //     dispatch(
-  //       fetchStart(
-  //         `tsec_qtsx_LoaiThongTin?${param}`,
-  //         "GET",
-  //         null,
-  //         "DETAIL",
-  //         "",
-  //         resolve,
-  //         reject
-  //       )
-  //     );
-  //   }).then((res) => {
-  //     if (res && res.data) {
-  //       setData(res.data);
-  //     } else {
-  //       setData([]);
-  //     }
-  //   });
-  // };
-
-  const handleTableChange = (pagination) => {
-    // setPage(pagination);
-    // getListData(keyword, pagination);
+  const getListData = (keyword) => {
+    let param = convertObjectToUrlParams({ keyword });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_LoaiThongTin?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setData(res.data);
+      } else {
+        setData([]);
+      }
+    });
   };
 
   const onSearchLoaiThongTin = () => {
-    // getListData(keyword, page);
+    getListData(keyword);
   };
 
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      // getListData(val.target.value, page);
+      getListData(val.target.value);
     }
-  };
-
-  const handleClearSearch = () => {
-    // getListData(null, 1);
   };
 
   const deleteItemFunc = (item) => {
@@ -100,7 +78,7 @@ function LoaiThongTin({ history, permission, match }) {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        // getListData(keyword, page);
+        getListData(keyword);
       })
       .catch((error) => console.error(error));
   };
@@ -139,8 +117,6 @@ function LoaiThongTin({ history, permission, match }) {
     );
   };
 
-  let dataList = reDataForTable(Data.datalist);
-
   let colValues = [
     {
       title: "Chức năng",
@@ -157,31 +133,13 @@ function LoaiThongTin({ history, permission, match }) {
       align: "center",
     },
     {
-      title: "Mã loại thông tin",
-      dataIndex: "maLoaiThongTin",
-      key: "maLoaiThongTin",
-      align: "center",
-      width: 200,
-      filters: removeDuplicates(
-        map(dataList, (d) => {
-          return {
-            text: d.maLoaiThongTin,
-            value: d.maLoaiThongTin,
-          };
-        })
-      ),
-      onFilter: (value, record) =>
-        record.maLoaiThongTin && record.maLoaiThongTin.includes(value),
-      filterSearch: true,
-    },
-    {
       title: "Tên loại thông tin",
       dataIndex: "tenLoaiThongTin",
       key: "tenLoaiThongTin",
       align: "center",
       width: 250,
       filters: removeDuplicates(
-        map(dataList, (d) => {
+        map(Data, (d) => {
           return {
             text: d.tenLoaiThongTin,
             value: d.tenLoaiThongTin,
@@ -190,6 +148,23 @@ function LoaiThongTin({ history, permission, match }) {
       ),
       onFilter: (value, record) =>
         record.tenLoaiThongTin && record.tenLoaiThongTin.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Ghi chú",
+      dataIndex: "moTa",
+      key: "moTa",
+      align: "center",
+      width: 200,
+      filters: removeDuplicates(
+        map(Data, (d) => {
+          return {
+            text: d.moTa,
+            value: d.moTa,
+          };
+        })
+      ),
+      onFilter: (value, record) => record.moTa && record.moTa.includes(value),
       filterSearch: true,
     },
   ];
@@ -247,36 +222,37 @@ function LoaiThongTin({ history, permission, match }) {
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
-        <Col
-          xxl={8}
-          xl={12}
-          lg={16}
-          md={16}
-          sm={20}
-          xs={24}
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "15px",
-            width: "100%",
-          }}
-        >
-          <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
-          <Toolbar
-            count={1}
-            search={{
-              title: "Tìm kiếm",
-              loading,
-              value: keyword,
-              onChange: onChangeKeyword,
-              onPressEnter: onSearchLoaiThongTin,
-              onSearch: onSearchLoaiThongTin,
-              placeholder: "Nhập từ khóa",
-              allowClear: true,
-              onClear: { handleClearSearch },
+        <Row>
+          <Col
+            xxl={8}
+            xl={12}
+            lg={16}
+            md={16}
+            sm={20}
+            xs={24}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "15px",
+              width: "100%",
             }}
-          />
-        </Col>
+          >
+            <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
+            <Toolbar
+              count={1}
+              search={{
+                title: "Tìm kiếm",
+                loading,
+                value: keyword,
+                onChange: onChangeKeyword,
+                onPressEnter: onSearchLoaiThongTin,
+                onSearch: onSearchLoaiThongTin,
+                placeholder: "Nhập từ khóa",
+                allowClear: true,
+              }}
+            />
+          </Col>
+        </Row>
       </Card>
       <Card className="th-card-margin-bottom th-card-reset-margin">
         <Table
@@ -285,16 +261,10 @@ function LoaiThongTin({ history, permission, match }) {
           scroll={{ x: 1000, y: "55vh" }}
           components={components}
           className="gx-table-responsive"
-          dataSource={dataList}
+          dataSource={reDataForTable(Data)}
           size="small"
           rowClassName={"editable-row"}
-          pagination={{
-            onChange: handleTableChange,
-            pageSize,
-            total: totalRow,
-            showSizeChanger: false,
-            showQuickJumper: true,
-          }}
+          pagination={false}
           loading={loading}
         />
       </Card>

@@ -27,7 +27,6 @@ const LoaiKhachHangForm = ({ history, match, permission }) => {
     } else {
       if (permission && permission.edit) {
         setType("edit");
-        // Get info
         const { id } = match.params;
         setId(id);
         getInfo(id);
@@ -116,7 +115,7 @@ const LoaiKhachHangForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...formloaikhachhang, id: id };
+      const newData = { ...formloaikhachhang, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(

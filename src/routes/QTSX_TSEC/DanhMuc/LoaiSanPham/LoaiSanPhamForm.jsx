@@ -142,7 +142,7 @@ const LoaiSanPhamForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      var newData = { ...formloaisanpham, id: id };
+      const newData = { ...formloaisanpham, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(

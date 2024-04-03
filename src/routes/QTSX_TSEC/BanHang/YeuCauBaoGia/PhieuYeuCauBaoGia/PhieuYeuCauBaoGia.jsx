@@ -7,6 +7,7 @@ import {
   Modal as AntModal,
   Tag,
   Checkbox,
+  Form,
 } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
@@ -575,7 +576,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
             md={12}
             sm={24}
             xs={24}
-            style={{ marginBottom: 8 }}
+            style={{ marginBottom: "10px" }}
           >
             <span>Khách hàng:</span>
             <Select
@@ -605,7 +606,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
             md={12}
             sm={24}
             xs={24}
-            style={{ marginBottom: 8 }}
+            style={{ marginBottom: "10px" }}
           >
             <span style={{ whiteSpace: "nowrap" }}>Tìm kiếm:</span>
             <Toolbar
@@ -656,342 +657,335 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
         }}
         footer={null}
       >
-        <Card className="th-card-margin-bottom">
-          <Row gutter={[0, 10]}>
-            <Col span={24} style={{ textAlign: "center" }}>
-              <span
-                style={{
-                  color: "#0469b9",
-                  fontSize: "18px",
-                  textDecoration: "underline",
-                  fontWeight: "bold",
-                }}
-              >
+        <Card className="th-card-margin-bottom th-card-reset-margin">
+          <Form>
+            <fieldset className="form-fieldset-custom">
+              <legend className="form-legend-custom">
                 Thông tin triển khai
-              </span>
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Tên phiếu yêu cầu:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.tenPhieuYeuCauBaoGia}</span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Nội dung thực hiện:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.noiDungThucHien}</span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Người yêu cầu:
-              </span>
-              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenNguoiLap}</span>}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Phòng ban thực hiện:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.tenPhongBanThucHien}</span>
-              )}
-            </Col>
-          </Row>
-        </Card>
-        <Card className="th-card-margin-bottom">
-          <Row gutter={[0, 10]}>
-            <Col span={24} style={{ textAlign: "center" }}>
-              <span
-                style={{
-                  color: "#0469b9",
-                  fontSize: "18px",
-                  textDecoration: "underline",
-                  fontWeight: "bold",
-                }}
-              >
+              </legend>
+              <Row gutter={[0, 10]}>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Tên phiếu yêu cầu:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenPhieuYeuCau}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Nội dung thực hiện:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.noiDungThucHien}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Người yêu cầu:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenNguoiLap}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Phòng ban thực hiện:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenPhongBanThucHien}</span>
+                  )}
+                </Col>
+              </Row>
+            </fieldset>
+          </Form>
+          <Form>
+            <fieldset className="form-fieldset-custom">
+              <legend className="form-legend-custom">
                 Thông tin đơn hàng báo giá
-              </span>
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Khách hàng:
-              </span>
-              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenKhachHang}</span>}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Đơn hàng:
-              </span>
-              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenDonHang}</span>}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Người gửi:
-              </span>
-              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenNguoiGui}</span>}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Phòng ban:
-              </span>
-              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenPhongBan}</span>}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Thời gian hoàn thành:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.thoiGianHoanThanh}</span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Số lượng đặt hàng:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.soLuongDatHang}</span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Dòng sản phẩm:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.tenDongSanPham}</span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Điều kiện giao hàng:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.dieuKienGiaoHang}</span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Ghi chú:
-              </span>
-              {DataChiTietPhieu && <span>{DataChiTietPhieu.moTa}</span>}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Tài liệu báo giá:
-              </span>
-              {DataChiTietPhieu && (
-                <span>
-                  {DataChiTietPhieu.fileTaiLieuBaoGia ? (
-                    <a
-                      target="_blank"
-                      href={BASE_URL_API + DataChiTietPhieu.fileTaiLieuBaoGia}
-                      rel="noopener noreferrer"
-                    >
-                      {DataChiTietPhieu.fileTaiLieuBaoGia.split("/")[5]}
-                    </a>
-                  ) : null}
-                </span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Tóm tắt dự án:
-              </span>
-              {DataChiTietPhieu && (
-                <span>
-                  {DataChiTietPhieu.fileTomTatDuAn ? (
-                    <a
-                      target="_blank"
-                      href={BASE_URL_API + DataChiTietPhieu.fileTomTatDuAn}
-                      rel="noopener noreferrer"
-                    >
-                      {DataChiTietPhieu.fileTomTatDuAn.split("/")[5]}
-                    </a>
-                  ) : null}
-                </span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Người kiểm tra:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.tenNguoiKiemTra}</span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Người duyệt:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.tenNguoiDuyet}</span>
-              )}
-            </Col>
-          </Row>
-        </Card>
-        <Card className="th-card-margin-bottom">
-          <Col span={24} style={{ textAlign: "center", marginBottom: "15px" }}>
-            <span
-              style={{
-                color: "#0469b9",
-                fontSize: "18px",
-                textDecoration: "underline",
-                fontWeight: "bold",
-              }}
-            >
-              Danh sách nội dung yêu cầu
-            </span>
-          </Col>
-          <Table
-            bordered
-            scroll={{ x: 1000, y: "35vh" }}
-            columns={columnNoiDung}
-            className="gx-table-responsive th-table"
-            dataSource={reDataForTable(
-              DataChiTietPhieu && DataChiTietPhieu.list_ChiTiets
-            )}
-            size="small"
-            pagination={false}
-          />
+              </legend>
+              <Row gutter={[0, 10]}>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Khách hàng:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenKhachHang}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Đơn hàng:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenDonHang}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Người gửi:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenNguoiGui}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Phòng ban:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenPhongBan}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Thời gian hoàn thành:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.ngayHoanThanh}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Số lượng đặt hàng:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.soLuongDatHang}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Dòng sản phẩm:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenLoaiYeuCau}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Điều kiện giao hàng:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.dieuKienGiaoHang}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Ghi chú:
+                  </span>
+                  {DataChiTietPhieu && <span>{DataChiTietPhieu.moTa}</span>}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Tài liệu báo giá:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>
+                      {DataChiTietPhieu.fileTaiLieuBaoGia ? (
+                        <a
+                          target="_blank"
+                          href={
+                            BASE_URL_API + DataChiTietPhieu.fileTaiLieuBaoGia
+                          }
+                          rel="noopener noreferrer"
+                        >
+                          {DataChiTietPhieu.fileTaiLieuBaoGia.split("/")[5]}
+                        </a>
+                      ) : null}
+                    </span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Tóm tắt dự án:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>
+                      {DataChiTietPhieu.fileTomTatDuAn ? (
+                        <a
+                          target="_blank"
+                          href={BASE_URL_API + DataChiTietPhieu.fileTomTatDuAn}
+                          rel="noopener noreferrer"
+                        >
+                          {DataChiTietPhieu.fileTomTatDuAn.split("/")[5]}
+                        </a>
+                      ) : null}
+                    </span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Người kiểm tra:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenNguoiKiemTra}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={12}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Người duyệt:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenNguoiDuyet}</span>
+                  )}
+                </Col>
+              </Row>
+            </fieldset>
+          </Form>
+          <Form>
+            <fieldset className="form-fieldset-custom">
+              <legend className="form-legend-custom">
+                Danh sách nội dung yêu cầu
+              </legend>
+              <Table
+                bordered
+                scroll={{ x: 1000, y: "35vh" }}
+                columns={columnNoiDung}
+                className="gx-table-responsive th-table"
+                dataSource={reDataForTable(
+                  DataChiTietPhieu && DataChiTietPhieu.list_ChiTiets
+                )}
+                size="small"
+                pagination={false}
+              />
+            </fieldset>
+          </Form>
         </Card>
       </AntModal>
     </div>

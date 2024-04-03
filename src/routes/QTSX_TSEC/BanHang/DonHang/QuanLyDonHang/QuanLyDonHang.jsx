@@ -38,13 +38,14 @@ const DataTest = {
   datalist: [
     {
       id: "123",
-      maPhieuYeuCau: "maPhieuYeuCauA",
-      tenPhieuYeuCau: "tenPhieuYeuCauA",
-      tenKhachHang: "tenKhachHangA",
-      tenLoaiYeuCau: "tenLoaiYeuCauA",
+      soPO: "PO09478",
+      tenDonHang: "Đơn hàng Linh kiện băng tải Dieffenbacher",
+      tenKhachHang: "Dieffenbacher",
+      tenDongSanPham: "Linh kiện băng tải",
       soLuongDatHang: "10",
       tenDonViTinh: "Cái",
       noiDungThucHien: "noiDungThucHienA",
+      ngayNhanFO: "26/03/2024",
       ngayHoanThanh: "26/03/2024",
       tenNguoiLap: "Phạm Tấn Dũng",
       moTa: "moTaA",
@@ -70,7 +71,7 @@ const NoiDungYeuCau = [
   },
 ];
 
-function PhieuYeuCau({ history, permission, match }) {
+function QuanLyDonHang({ history, permission, match }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
@@ -79,7 +80,7 @@ function PhieuYeuCau({ history, permission, match }) {
   const { totalRow, pageSize } = Data;
   const [DataChiTietPhieu, setDataChiTietPhieu] = useState(null);
   const [ActiveModalChiTietPhieu, setActiveModalChiTietPhieu] = useState(false);
-  const [SelectedPhieuYeuCau, setSelectedPhieuYeuCau] = useState([]);
+  const [SelectedDonHang, setSelectedDonHang] = useState([]);
   const [SelectedKeyPhieus, setSelectedKeyPhieus] = useState([]);
 
   useEffect(() => {
@@ -101,7 +102,7 @@ function PhieuYeuCau({ history, permission, match }) {
   //   new Promise((resolve, reject) => {
   //     dispatch(
   //       fetchStart(
-  //         `tsec_qtsx_PhieuYeuCau?${param}`,
+  //         `tsec_qtsx_DonHang?${param}`,
   //         "GET",
   //         null,
   //         "DETAIL",
@@ -124,7 +125,7 @@ function PhieuYeuCau({ history, permission, match }) {
     // getListData(keyword, pagination);
   };
 
-  const onSearchPhieuYeuCau = () => {
+  const onSearchDonHang = () => {
     // getListData(keyword, page);
   };
 
@@ -140,12 +141,12 @@ function PhieuYeuCau({ history, permission, match }) {
   };
 
   const deleteItemFunc = (item) => {
-    const title = "phiếu yêu cầu";
-    ModalDeleteConfirm(deleteItemAction, item, item.tenPhieuYeuCau, title);
+    const title = "đơn hàng";
+    ModalDeleteConfirm(deleteItemAction, item, item.tenDonHang, title);
   };
 
   const deleteItemAction = (item) => {
-    let url = `tsec_qtsx_PhieuYeuCau/${item.id}`;
+    let url = `tsec_qtsx_DonHang/${item.id}`;
     new Promise((resolve, reject) => {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
@@ -182,7 +183,7 @@ function PhieuYeuCau({ history, permission, match }) {
     return (
       <div>
         <React.Fragment>
-          <a {...detailItem} title="Xem chi tiết phiếu yêu cầu">
+          <a {...detailItem} title="Xem chi tiết đơn hàng">
             <SearchOutlined />
           </a>
           <Divider type="vertical" />
@@ -215,39 +216,38 @@ function PhieuYeuCau({ history, permission, match }) {
       align: "center",
     },
     {
-      title: "Mã phiếu yêu cầu",
-      dataIndex: "maPhieuYeuCau",
-      key: "maPhieuYeuCau",
+      title: "Số PO",
+      dataIndex: "soPO",
+      key: "soPO",
       align: "center",
-      width: 150,
+      width: 120,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.maPhieuYeuCau,
-            value: d.maPhieuYeuCau,
+            text: d.soPO,
+            value: d.soPO,
           };
         })
       ),
-      onFilter: (value, record) =>
-        record.maPhieuYeuCau && record.maPhieuYeuCau.includes(value),
+      onFilter: (value, record) => record.soPO && record.soPO.includes(value),
       filterSearch: true,
     },
     {
-      title: "Tên phiếu yêu cầu",
-      dataIndex: "tenPhieuYeuCau",
-      key: "tenPhieuYeuCau",
+      title: "Tên đơn hàng",
+      dataIndex: "tenDonHang",
+      key: "tenDonHang",
       align: "center",
       width: 200,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenPhieuYeuCau,
-            value: d.tenPhieuYeuCau,
+            text: d.tenDonHang,
+            value: d.tenDonHang,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.tenPhieuYeuCau && record.tenPhieuYeuCau.includes(value),
+        record.tenDonHang && record.tenDonHang.includes(value),
       filterSearch: true,
     },
     {
@@ -269,21 +269,21 @@ function PhieuYeuCau({ history, permission, match }) {
       filterSearch: true,
     },
     {
-      title: "Loại yêu cầu",
-      dataIndex: "tenLoaiYeuCau",
-      key: "tenLoaiYeuCau",
+      title: "Dòng sản phẩm",
+      dataIndex: "tenDongSanPham",
+      key: "tenDongSanPham",
       align: "center",
       width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenLoaiYeuCau,
-            value: d.tenLoaiYeuCau,
+            text: d.tenDongSanPham,
+            value: d.tenDongSanPham,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.tenLoaiYeuCau && record.tenLoaiYeuCau.includes(value),
+        record.tenDongSanPham && record.tenDongSanPham.includes(value),
       filterSearch: true,
     },
     {
@@ -302,6 +302,24 @@ function PhieuYeuCau({ history, permission, match }) {
       ),
       onFilter: (value, record) =>
         record.noiDungThucHien && record.noiDungThucHien.includes(value),
+      filterSearch: true,
+    },
+    {
+      title: "Ngày nhận FO",
+      dataIndex: "ngayNhanFO",
+      key: "ngayNhanFO",
+      align: "center",
+      width: 120,
+      filters: removeDuplicates(
+        map(dataList, (d) => {
+          return {
+            text: d.ngayNhanFO,
+            value: d.ngayNhanFO,
+          };
+        })
+      ),
+      onFilter: (value, record) =>
+        record.ngayNhanFO && record.ngayNhanFO.includes(value),
       filterSearch: true,
     },
     {
@@ -508,12 +526,12 @@ function PhieuYeuCau({ history, permission, match }) {
   };
 
   const rowSelection = {
-    selectedRows: SelectedPhieuYeuCau,
+    selectedRows: SelectedDonHang,
     selectedRowKeys: SelectedKeyPhieus,
     onChange: (selectedRowKeys, selectedRows) => {
-      const newSelectedPhieuYeuCau = [...selectedRows];
+      const newSelectedDonHang = [...selectedRows];
       const newSelectedKeyPhieus = [...selectedRowKeys];
-      setSelectedPhieuYeuCau(newSelectedPhieuYeuCau);
+      setSelectedDonHang(newSelectedDonHang);
       setSelectedKeyPhieus(newSelectedKeyPhieus);
     },
   };
@@ -521,8 +539,8 @@ function PhieuYeuCau({ history, permission, match }) {
   return (
     <div className="gx-main-content">
       <ContainerHeader
-        title={"Phiếu yêu cầu"}
-        description="Danh sách phiếu yêu cầu"
+        title={"Đơn hàng"}
+        description="Danh sách đơn hàng"
         buttons={addButtonRender()}
       />
       <Card className="th-card-margin-bottom ">
@@ -574,8 +592,8 @@ function PhieuYeuCau({ history, permission, match }) {
                 loading,
                 value: keyword,
                 onChange: onChangeKeyword,
-                onPressEnter: onSearchPhieuYeuCau,
-                onSearch: onSearchPhieuYeuCau,
+                onPressEnter: onSearchDonHang,
+                onSearch: onSearchDonHang,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
                 onClear: { handleClearSearch },
@@ -611,7 +629,7 @@ function PhieuYeuCau({ history, permission, match }) {
         />
       </Card>
       <AntModal
-        title={"Chi tiết phiếu yêu cầu báo giá"}
+        title={"Chi tiết đơn hàng báo giá"}
         className="th-card-reset-margin"
         open={ActiveModalChiTietPhieu}
         width={width >= 1800 ? `75%` : width >= 1600 ? `85%` : "100%"}
@@ -638,10 +656,10 @@ function PhieuYeuCau({ history, permission, match }) {
                   className="title-span"
                 >
                   <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                    Tên phiếu yêu cầu:
+                    Tên đơn hàng:
                   </span>
                   {DataChiTietPhieu && (
-                    <span>{DataChiTietPhieu.tenPhieuYeuCau}</span>
+                    <span>{DataChiTietPhieu.tenDonHang}</span>
                   )}
                 </Col>
                 <Col
@@ -810,7 +828,7 @@ function PhieuYeuCau({ history, permission, match }) {
                     Dòng sản phẩm:
                   </span>
                   {DataChiTietPhieu && (
-                    <span>{DataChiTietPhieu.tenLoaiYeuCau}</span>
+                    <span>{DataChiTietPhieu.tenDongSanPham}</span>
                   )}
                 </Col>
                 <Col
@@ -956,4 +974,4 @@ function PhieuYeuCau({ history, permission, match }) {
   );
 }
 
-export default PhieuYeuCau;
+export default QuanLyDonHang;
