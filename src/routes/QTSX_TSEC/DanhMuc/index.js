@@ -117,6 +117,14 @@ const VatTuForm = asyncComponent(() =>
   import("./VatTu/VatTuForm")
 );
 
+/* Vật liệu */
+const VatLieu = asyncComponent(() =>
+  import("./VatLieu/VatLieu")
+);
+const VatLieuForm = asyncComponent(() =>
+  import("./VatLieu/VatLieuForm")
+);
+
 const App = ({ match, location, menus, permission }) => {
   const { pathname } = location;
   return (
@@ -442,6 +450,23 @@ const App = ({ match, location, menus, permission }) => {
         path={`${match.url}/vat-tu/:id/chinh-sua`}
         exact
         component={Auth(VatTuForm, menus, pathname, permission)}
+      />
+
+       {/* Vật liệu */}
+       <Route
+        path={`${match.url}/vat-lieu`}
+        exact
+        component={Auth(VatLieu, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/vat-lieu/them-moi`}
+        exact
+        component={Auth(VatLieuForm, menus, pathname, permission)}
+      />
+      <Route
+        path={`${match.url}/vat-lieu/:id/chinh-sua`}
+        exact
+        component={Auth(VatLieuForm, menus, pathname, permission)}
       />
     </Switch>
   );

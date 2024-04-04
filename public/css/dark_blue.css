@@ -29507,8 +29507,8 @@ div.ant-typography-edit-content.ant-typography-rtl {
 }
 
 .ant-upload.ant-upload-select-picture-card {
-  width: 250px;
-  height: 250px;
+  width: 150px;
+  height: 150px;
   margin-right: 8px;
   margin-bottom: 8px;
   text-align: center;
@@ -49401,6 +49401,7 @@ textarea.gx-chat-textarea {
 .radio-active {
   color: #0469b9;
 }
+
 .form-fieldset-custom {
   border: 1px solid #c8c8c8;
   border-radius: 10px;
@@ -49417,4 +49418,9 @@ textarea.gx-chat-textarea {
   text-transform: uppercase !important;
   border: none !important;
   margin: 0px !important;
+}
+
+.image-upload {
+  width: 150px !important;
+  height: 150px !important;
 }

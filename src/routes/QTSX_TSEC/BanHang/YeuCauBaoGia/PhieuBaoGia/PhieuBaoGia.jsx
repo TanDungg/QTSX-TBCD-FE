@@ -22,7 +22,7 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-// import { convertObjectToUrlParams } from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -33,121 +33,92 @@ import { Link } from "react-router-dom";
 import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-const DataTest = {
-  datalist: [
-    {
-      id: "123",
-      maBaoGia: "BG-KDN-0976",
-      tenBaoGia: "Báo giá linh kiện băng tải",
-      tenKhachHang: "Dieffenbacher",
-      tenDongSanPham: "Linh kiện băng tải",
-      tenSanPham: "Linh kiện băng tải",
-      tenDonViTinh: "Cụm",
-      lanBaoGia: "1",
-      thoiGianLap: "15/03/2024",
-      tenNguoiLap: "Phạm Tấn Dũng",
-      maPhieuYeuCauBaoGia: "60.30.01.24/YCBG-PHBH",
-      moTa: "Yêu cầu báo giá gấp",
-    },
-    {
-      id: "123",
-      maBaoGia: "BG-KDN-016",
-      tenBaoGia: "Báo giá cầu thang bộ",
-      tenKhachHang: "Minetek",
-      tenDongSanPham: "Kết cẩu thép",
-      tenSanPham: "Cầu thang bộ",
-      tenDonViTinh: "HM",
-      lanBaoGia: "20",
-      thoiGianLap: "12/03/2024",
-      tenNguoiLap: "Phạm Tấn Dũng",
-      maPhieuYeuCauBaoGia: "70.30.01.24/YCBG-PHBH",
-      moTa: "",
-    },
-  ],
-  totalRow: 1,
-  pageSize: 20,
-};
-
-const NoiDungYeuCau = [
-  {
-    noiDungYeuCau: "noiDungYeuCau1",
-    trangThai: true,
-    tenLoaiThongTin: "tenLoaiThongTin1",
-    moTa: "ghiChu",
-  },
-  {
-    noiDungYeuCau: "noiDungYeuCau2",
-    trangThai: false,
-    tenLoaiThongTin: "tenLoaiThongTin2",
-    moTa: "ghiChu",
-  },
-];
 
 function BaoGia({ history, permission, match }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
+  const [ListKhachHang, setListKhachHang] = useState([]);
+  const [KhachHang, setKhachHang] = useState(null);
   const [keyword, setKeyword] = useState("");
-  // const [page, setPage] = useState(1);
-  const { totalRow, pageSize } = Data;
+  const [page, setPage] = useState(1);
   const [DataChiTietPhieu, setDataChiTietPhieu] = useState(null);
   const [ActiveModalChiTietPhieu, setActiveModalChiTietPhieu] = useState(false);
+  const { totalRow, pageSize } = Data;
 
   useEffect(() => {
     if (permission && permission.view) {
-      setData(DataTest);
-      setDataChiTietPhieu({
-        ...DataTest.datalist[0],
-        list_ChiTiets: NoiDungYeuCau,
-      });
-      // getListData(keyword, page);
+      getListKhachHang();
+      getListData(KhachHang, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
   }, []);
 
-  // const getListData = (keyword, page) => {
-  //   let param = convertObjectToUrlParams({ keyword, page });
-  //   new Promise((resolve, reject) => {
-  //     dispatch(
-  //       fetchStart(
-  //         `tsec_qtsx_BaoGia?${param}`,
-  //         "GET",
-  //         null,
-  //         "DETAIL",
-  //         "",
-  //         resolve,
-  //         reject
-  //       )
-  //     );
-  //   }).then((res) => {
-  //     if (res && res.data) {
-  //       setData(res.data);
-  //     } else {
-  //       setData([]);
-  //     }
-  //   });
-  // };
+  const getListData = (tsec_qtsx_KhachHang_Id, keyword, page) => {
+    let param = convertObjectToUrlParams({
+      tsec_qtsx_KhachHang_Id,
+      keyword,
+      page,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_PhieuBaoGia?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setData(res.data);
+      } else {
+        setData([]);
+      }
+    });
+  };
+
+  const getListKhachHang = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_KhachHang?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListKhachHang(res.data);
+      } else {
+        setListKhachHang([]);
+      }
+    });
+  };
 
   const handleTableChange = (pagination) => {
-    // setPage(pagination);
-    // getListData(keyword, pagination);
+    setPage(pagination);
+    getListData(KhachHang, keyword, pagination);
   };
 
   const onSearchBaoGia = () => {
-    // getListData(keyword, page);
+    getListData(KhachHang, keyword, page);
   };
 
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      // getListData(val.target.value, page);
+      getListData(KhachHang, val.target.value, page);
     }
-  };
-
-  const handleClearSearch = () => {
-    // getListData(null, 1);
   };
 
   const deleteItemFunc = (item) => {
@@ -161,7 +132,7 @@ function BaoGia({ history, permission, match }) {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        // getListData(keyword, page);
+        getListData(KhachHang, keyword, page);
       })
       .catch((error) => console.error(error));
   };
@@ -534,13 +505,13 @@ function BaoGia({ history, permission, match }) {
   };
 
   const handleOnSelectKhachHang = (value) => {
-    // setDonVi(value);
-    // getListData(value, TuNgay, DenNgay, keyword, page);
+    setKhachHang(value);
+    getListData(value, keyword, page);
   };
 
   const handleClearKhachHang = () => {
-    // setDonVi(null);
-    // getListData(null, TuNgay, DenNgay, keyword, page);
+    setKhachHang(null);
+    getListData(null, keyword, page);
   };
 
   return (
@@ -564,17 +535,11 @@ function BaoGia({ history, permission, match }) {
             <span>Khách hàng:</span>
             <Select
               className="heading-select slt-search th-select-heading"
-              // data={ListKhachHang ? ListKhachHang : []}
-              data={[
-                {
-                  id: "1",
-                  tenKhachHang: "TenKhachHangA",
-                },
-              ]}
+              data={ListKhachHang ? ListKhachHang : []}
               placeholder="Chọn khách hàng"
               optionsvalue={["id", "tenKhachHang"]}
               style={{ width: "100%" }}
-              // value={KhachHang}
+              value={KhachHang}
               showSearch
               optionFilterProp={"name"}
               onSelect={handleOnSelectKhachHang}
@@ -603,7 +568,6 @@ function BaoGia({ history, permission, match }) {
                 onSearch: onSearchBaoGia,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
-                onClear: { handleClearSearch },
               }}
             />
           </Col>

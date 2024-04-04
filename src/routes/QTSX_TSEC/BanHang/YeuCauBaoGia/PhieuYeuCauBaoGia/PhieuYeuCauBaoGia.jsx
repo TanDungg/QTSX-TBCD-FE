@@ -6,7 +6,6 @@ import {
   Row,
   Modal as AntModal,
   Tag,
-  Checkbox,
   Form,
 } from "antd";
 import isEmpty from "lodash/isEmpty";
@@ -23,7 +22,7 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-// import { convertObjectToUrlParams } from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 import {
   DeleteOutlined,
   EditOutlined,
@@ -34,107 +33,92 @@ import { Link } from "react-router-dom";
 import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-const DataTest = {
-  datalist: [
-    {
-      id: "123",
-      maPhieuYeuCauBaoGia: "maPhieuYeuCauBaoGiaA",
-      tenPhieuYeuCauBaoGia: "tenPhieuYeuCauBaoGiaA",
-      tenKhachHang: "tenKhachHangA",
-      tenDongSanPham: "tenDongSanPhamA",
-      soLuongDatHang: "10",
-      tenDonViTinh: "Cái",
-      noiDungThucHien: "noiDungThucHienA",
-      thoiGianHoanThanh: "26/03/2024",
-      tenNguoiLap: "Phạm Tấn Dũng",
-      moTa: "moTaA",
-      trangThai: "Chưa duyệt",
-    },
-  ],
-  totalRow: 1,
-  pageSize: 20,
-};
-
-const NoiDungYeuCau = [
-  {
-    noiDungYeuCau: "noiDungYeuCau1",
-    trangThai: true,
-    tenLoaiThongTin: "tenLoaiThongTin1",
-    moTa: "ghiChu",
-  },
-  {
-    noiDungYeuCau: "noiDungYeuCau2",
-    trangThai: false,
-    tenLoaiThongTin: "tenLoaiThongTin2",
-    moTa: "ghiChu",
-  },
-];
 
 function PhieuYeuCauBaoGia({ history, permission, match }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
+  const [ListKhachHang, setListKhachHang] = useState([]);
+  const [KhachHang, setKhachHang] = useState([]);
   const [keyword, setKeyword] = useState("");
-  // const [page, setPage] = useState(1);
+  const [page, setPage] = useState(1);
   const { totalRow, pageSize } = Data;
   const [DataChiTietPhieu, setDataChiTietPhieu] = useState(null);
   const [ActiveModalChiTietPhieu, setActiveModalChiTietPhieu] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
-      setData(DataTest);
-      setDataChiTietPhieu({
-        ...DataTest.datalist[0],
-        list_ChiTiets: NoiDungYeuCau,
-      });
-      // getListData(keyword, page);
+      getListKhachHang();
+      getListData(KhachHang, keyword, page);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
   }, []);
 
-  // const getListData = (keyword, page) => {
-  //   let param = convertObjectToUrlParams({ keyword, page });
-  //   new Promise((resolve, reject) => {
-  //     dispatch(
-  //       fetchStart(
-  //         `tsec_qtsx_PhieuYeuCauBaoGia?${param}`,
-  //         "GET",
-  //         null,
-  //         "DETAIL",
-  //         "",
-  //         resolve,
-  //         reject
-  //       )
-  //     );
-  //   }).then((res) => {
-  //     if (res && res.data) {
-  //       setData(res.data);
-  //     } else {
-  //       setData([]);
-  //     }
-  //   });
-  // };
+  const getListData = (tsec_qtsx_KhachHang_Id, keyword, page) => {
+    let param = convertObjectToUrlParams({
+      tsec_qtsx_KhachHang_Id,
+      keyword,
+      page,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_PhieuYeuCauBaoGia?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setData(res.data);
+      } else {
+        setData([]);
+      }
+    });
+  };
+
+  const getListKhachHang = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_KhachHang?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListKhachHang(res.data);
+      } else {
+        setListKhachHang([]);
+      }
+    });
+  };
 
   const handleTableChange = (pagination) => {
-    // setPage(pagination);
-    // getListData(keyword, pagination);
+    setPage(pagination);
+    getListData(KhachHang, keyword, pagination);
   };
 
   const onSearchPhieuYeuCauBaoGia = () => {
-    // getListData(keyword, page);
+    getListData(KhachHang, keyword, page);
   };
 
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      // getListData(val.target.value, page);
+      getListData(KhachHang, val.target.value, page);
     }
-  };
-
-  const handleClearSearch = () => {
-    // getListData(null, 1);
   };
 
   const deleteItemFunc = (item) => {
@@ -153,16 +137,44 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
       dispatch(fetchStart(url, "DELETE", null, "DELETE", "", resolve, reject));
     })
       .then((res) => {
-        // getListData(keyword, page);
+        getListData(KhachHang, keyword, page);
       })
       .catch((error) => console.error(error));
   };
 
+  const handleXemChiTiet = (item) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_PhieuYeuCauBaoGia/${item.id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        const newData = {
+          ...res.data,
+          list_ChiTiets:
+            res.data.list_ChiTiets && JSON.parse(res.data.list_ChiTiets),
+        };
+        setDataChiTietPhieu(newData);
+        setActiveModalChiTietPhieu(true);
+      } else {
+        setDataChiTietPhieu(null);
+      }
+    });
+  };
+
   const actionContent = (item) => {
-    const detailItem = { onClick: () => setActiveModalChiTietPhieu(true) };
+    const detailItem = { onClick: () => handleXemChiTiet(item) };
 
     const editItem =
-      permission && permission.edit ? (
+      permission && permission.edit && item.tinhTrang === "Chưa kiểm tra" ? (
         <Link
           to={{
             pathname: `${match.url}/${item.id}/chinh-sua`,
@@ -178,7 +190,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
         </span>
       );
     const deleteItemVal =
-      permission && permission.del
+      permission && permission.del && item.tinhTrang === "Chưa kiểm tra"
         ? { onClick: () => deleteItemFunc(item) }
         : { disabled: true };
 
@@ -274,21 +286,21 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
       filterSearch: true,
     },
     {
-      title: "Dòng sản phẩm",
-      dataIndex: "tenDongSanPham",
-      key: "tenDongSanPham",
+      title: "Loại sản phẩm",
+      dataIndex: "tenLoaiSanPham",
+      key: "tenLoaiSanPham",
       align: "center",
       width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenDongSanPham,
-            value: d.tenDongSanPham,
+            text: d.tenLoaiSanPham,
+            value: d.tenLoaiSanPham,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.tenDongSanPham && record.tenDongSanPham.includes(value),
+        record.tenLoaiSanPham && record.tenLoaiSanPham.includes(value),
       filterSearch: true,
     },
     {
@@ -382,21 +394,21 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
       filterSearch: true,
     },
     {
-      title: "Người lập phiếu",
-      dataIndex: "tenNguoiLap",
-      key: "tenNguoiLap",
+      title: "Người tạo phiếu",
+      dataIndex: "tenNguoiTao",
+      key: "tenNguoiTao",
       align: "center",
       width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenNguoiLap,
-            value: d.tenNguoiLap,
+            text: d.tenNguoiTao,
+            value: d.tenNguoiTao,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.tenNguoiLap && record.tenNguoiLap.includes(value),
+        record.tenNguoiTao && record.tenNguoiTao.includes(value),
       filterSearch: true,
     },
     {
@@ -417,29 +429,29 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
       filterSearch: true,
     },
     {
-      title: "Trạng thái",
-      dataIndex: "trangThai",
-      key: "trangThai",
+      title: "Tình trạng",
+      dataIndex: "tinhTrang",
+      key: "tinhTrang",
       align: "center",
       width: 150,
       fixed: width >= 1600 && "right",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.trangThai,
-            value: d.trangThai,
+            text: d.tinhTrang,
+            value: d.tinhTrang,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.trangThai && record.trangThai.includes(value),
+        record.tinhTrang && record.tinhTrang.includes(value),
       filterSearch: true,
       render: (value, record) => (
         <div title={record.lyDoTuChoi && `Lý do từ chối: ${record.lyDoTuChoi}`}>
           {value && (
             <Tag
               color={
-                value === "Chưa duyệt"
+                value === "Chưa kiểm tra"
                   ? "orange"
                   : value === "Đã duyệt"
                   ? "green"
@@ -458,36 +470,27 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
     },
   ];
 
-  let columnNoiDung = [
+  let columnChiTiet = [
     {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      width: 50,
-      align: "center",
-    },
-    {
-      title: "Nội dung yêu cầu",
-      dataIndex: "noiDungYeuCau",
-      key: "noiDungYeuCau",
-      align: "left",
-      width: 200,
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "trangThai",
-      key: "trangThai",
-      align: "center",
+      title: "Thứ tự",
+      dataIndex: "thuTu",
+      key: "thuTu",
       width: 100,
-      render: (value, record) => {
-        return (
-          <Checkbox
-            checked={value}
-            // onChange={() => handleThayDoiDapAnDung(value, record)}
-            disabled
-          />
-        );
-      },
+      align: "center",
+    },
+    {
+      title: "Mã công việc",
+      dataIndex: "maCongViec",
+      key: "maCongViec",
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Nội dung công việc",
+      dataIndex: "noiDungCongViec",
+      key: "noiDungCongViec",
+      align: "left",
+      width: 250,
     },
     {
       title: "Loại thông tin",
@@ -551,13 +554,13 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
   };
 
   const handleOnSelectKhachHang = (value) => {
-    // setDonVi(value);
-    // getListData(value, TuNgay, DenNgay, keyword, page);
+    setKhachHang(value);
+    getListData(value, keyword, page);
   };
 
   const handleClearKhachHang = () => {
-    // setDonVi(null);
-    // getListData(null, TuNgay, DenNgay, keyword, page);
+    setKhachHang(null);
+    getListData(null, keyword, page);
   };
 
   return (
@@ -581,17 +584,11 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
             <span>Khách hàng:</span>
             <Select
               className="heading-select slt-search th-select-heading"
-              // data={ListKhachHang ? ListKhachHang : []}
-              data={[
-                {
-                  id: "1",
-                  tenKhachHang: "TenKhachHangA",
-                },
-              ]}
+              data={ListKhachHang ? ListKhachHang : []}
               placeholder="Chọn khách hàng"
               optionsvalue={["id", "tenKhachHang"]}
               style={{ width: "100%" }}
-              // value={KhachHang}
+              value={KhachHang}
               showSearch
               optionFilterProp={"name"}
               onSelect={handleOnSelectKhachHang}
@@ -620,7 +617,6 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                 onSearch: onSearchPhieuYeuCauBaoGia,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
-                onClear: { handleClearSearch },
               }}
             />
           </Col>
@@ -650,7 +646,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
         title={"Chi tiết phiếu yêu cầu báo giá"}
         className="th-card-reset-margin"
         open={ActiveModalChiTietPhieu}
-        width={width >= 1800 ? `75%` : width >= 1600 ? `85%` : "100%"}
+        width={width >= 1800 ? `80%` : width >= 1600 ? `90%` : "100%"}
         closable={true}
         onCancel={() => {
           setActiveModalChiTietPhieu(false);
@@ -668,7 +664,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -677,14 +673,14 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                     Tên phiếu yêu cầu:
                   </span>
                   {DataChiTietPhieu && (
-                    <span>{DataChiTietPhieu.tenPhieuYeuCau}</span>
+                    <span>{DataChiTietPhieu.tenPhieuYeuCauBaoGia}</span>
                   )}
                 </Col>
                 <Col
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -700,7 +696,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -709,14 +705,14 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                     Người yêu cầu:
                   </span>
                   {DataChiTietPhieu && (
-                    <span>{DataChiTietPhieu.tenNguoiLap}</span>
+                    <span>{DataChiTietPhieu.tenNguoiTao}</span>
                   )}
                 </Col>
                 <Col
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -725,7 +721,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                     Phòng ban thực hiện:
                   </span>
                   {DataChiTietPhieu && (
-                    <span>{DataChiTietPhieu.tenPhongBanThucHien}</span>
+                    <span>{DataChiTietPhieu.tenPhongBanNguoiTao}</span>
                   )}
                 </Col>
               </Row>
@@ -741,7 +737,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -757,7 +753,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -773,7 +769,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -789,7 +785,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -805,7 +801,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -814,14 +810,14 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                     Thời gian hoàn thành:
                   </span>
                   {DataChiTietPhieu && (
-                    <span>{DataChiTietPhieu.ngayHoanThanh}</span>
+                    <span>{DataChiTietPhieu.thoiGianHoanThanh}</span>
                   )}
                 </Col>
                 <Col
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -837,23 +833,23 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
                 >
                   <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                    Dòng sản phẩm:
+                    Loại sản phẩm:
                   </span>
                   {DataChiTietPhieu && (
-                    <span>{DataChiTietPhieu.tenLoaiYeuCau}</span>
+                    <span>{DataChiTietPhieu.tenLoaiSanPham}</span>
                   )}
                 </Col>
                 <Col
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -862,14 +858,14 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                     Điều kiện giao hàng:
                   </span>
                   {DataChiTietPhieu && (
-                    <span>{DataChiTietPhieu.dieuKienGiaoHang}</span>
+                    <span>{DataChiTietPhieu.tenDieuKienGiaoHang}</span>
                   )}
                 </Col>
                 <Col
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -883,7 +879,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -892,7 +888,12 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                     Tài liệu báo giá:
                   </span>
                   {DataChiTietPhieu && (
-                    <span>
+                    <span
+                      style={{
+                        whiteSpace: "break-spaces",
+                        wordBreak: "break-all",
+                      }}
+                    >
                       {DataChiTietPhieu.fileTaiLieuBaoGia ? (
                         <a
                           target="_blank"
@@ -911,7 +912,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -920,7 +921,12 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                     Tóm tắt dự án:
                   </span>
                   {DataChiTietPhieu && (
-                    <span>
+                    <span
+                      style={{
+                        whiteSpace: "break-spaces",
+                        wordBreak: "break-all",
+                      }}
+                    >
                       {DataChiTietPhieu.fileTomTatDuAn ? (
                         <a
                           target="_blank"
@@ -937,7 +943,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -953,7 +959,7 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
                   xxl={8}
                   xl={8}
                   lg={12}
-                  md={12}
+                  md={24}
                   sm={24}
                   xs={24}
                   className="title-span"
@@ -975,12 +981,10 @@ function PhieuYeuCauBaoGia({ history, permission, match }) {
               </legend>
               <Table
                 bordered
-                scroll={{ x: 1000, y: "35vh" }}
-                columns={columnNoiDung}
+                scroll={{ x: 800, y: "35vh" }}
+                columns={columnChiTiet}
                 className="gx-table-responsive th-table"
-                dataSource={reDataForTable(
-                  DataChiTietPhieu && DataChiTietPhieu.list_ChiTiets
-                )}
+                dataSource={DataChiTietPhieu && DataChiTietPhieu.list_ChiTiets}
                 size="small"
                 pagination={false}
               />

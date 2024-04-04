@@ -1,5 +1,19 @@
-import { DeleteOutlined, PlusCircleOutlined } from "@ant-design/icons";
-import { Button, Card, Col, DatePicker, Form, Input, Row } from "antd";
+import {
+  DeleteOutlined,
+  PlusCircleOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
+import {
+  Button,
+  Card,
+  Col,
+  DatePicker,
+  Form,
+  Input,
+  Row,
+  Upload,
+  message,
+} from "antd";
 import dayjs from "dayjs";
 import { map } from "lodash";
 import includes from "lodash/includes";
@@ -15,60 +29,42 @@ import {
   Table,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-import { DEFAULT_FORM_ADD_2COL_180PX } from "src/constants/Config";
-import { getTokenInfo, getLocalStorage, reDataForTable } from "src/util/Common";
+import {
+  BASE_URL_API,
+  DEFAULT_FORM_ADD_2COL_180PX,
+} from "src/constants/Config";
+import { reDataForTable } from "src/util/Common";
 import ModalThemNoiDung from "./ModalThemNoiDung";
 import numeral from "numeral";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 const FormItem = Form.Item;
-const NoiDungChiPhi = [
-  {
-    tenNoiDungChiPhi: "Giá vật tư thép",
-    donGiaNhaMay: "4834246",
-    donGiaTheoPO: "4834246",
-    moTa: "ghiChu",
-  },
-  {
-    tenNoiDungChiPhi: "Giá vật tư mua ngoài",
-    donGiaNhaMay: "7523032",
-    donGiaTheoPO: "7523032",
-    moTa: "ghiChu",
-  },
-  {
-    tenNoiDungChiPhi: "Chi phí sản xuất ",
-    donGiaNhaMay: "956052",
-    donGiaTheoPO: "956052",
-    moTa: "ghiChu",
-  },
-];
 
 const BaoGiaForm = ({ history, match, permission }) => {
   const dispatch = useDispatch();
   const { width } = useSelector(({ common }) => common).toJS();
-  const INFO = {
-    ...getLocalStorage("menu"),
-    user_Id: getTokenInfo().id,
-    token: getTokenInfo().token,
-  };
   const [form] = Form.useForm();
   const { validateFields, resetFields, setFieldsValue } = form;
   const [type, setType] = useState("new");
   const [fieldTouch, setFieldTouch] = useState(false);
-  const [ListDonViTinh, setListDonViTinh] = useState([]);
+  const [ListPhieuYeuCauBaoGia, setListPhieuYeuCauBaoGia] = useState([]);
+  const [ListSanPham, setListSanPham] = useState([]);
+  const [ListVatLieu, setListVatLieu] = useState([]);
+  const [ImageUrl, setImageUrl] = useState(null);
   const [ListNoiDungChiPhi, setListNoiDungChiPhi] = useState([]);
   const [ActiveModalThemNoiDung, setActiveModalThemNoiDung] = useState(false);
   const [id, setId] = useState(null);
 
   useEffect(() => {
+    getListPhieuYeuCauBaoGia();
+    getListSanPham();
+    getListVatLieu();
     if (includes(match.url, "them-moi")) {
       if (permission && permission.add) {
         setType("new");
-        getListDonViTinh();
-        setListNoiDungChiPhi(NoiDungChiPhi);
         setFieldsValue({
-          formbaogia: {
-            thoiGianLapPhieu: moment(
+          formphieubaogia: {
+            thoiGianLap: moment(
               moment().format("DD/MM/YYYY HH:mm"),
               "DD/MM/YYYY HH:mm"
             ),
@@ -80,7 +76,6 @@ const BaoGiaForm = ({ history, match, permission }) => {
     } else {
       if (permission && permission.edit) {
         setType("edit");
-        // Get info
         const { id } = match.params;
         setId(id);
         getInfo(id);
@@ -92,11 +87,11 @@ const BaoGiaForm = ({ history, match, permission }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const getListDonViTinh = () => {
+  const getListPhieuYeuCauBaoGia = () => {
     new Promise((resolve, reject) => {
       dispatch(
         fetchStart(
-          `DonViTinh?DonVi_Id=${INFO.donVi_Id}&page=-1`,
+          `tsec_qtsx_PhieuYeuCauBaoGia?isDuyet=true&page=-1`,
           "GET",
           null,
           "DETAIL",
@@ -108,9 +103,75 @@ const BaoGiaForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
-          setListDonViTinh(res.data);
+          const newData = res.data.map((dt) => {
+            return {
+              ...dt,
+              phieuYeuCauBaoGia: `${dt.maPhieuYeuCauBaoGia} - ${dt.tenPhieuYeuCauBaoGia}`,
+            };
+          });
+          setListPhieuYeuCauBaoGia(newData);
         } else {
-          setListDonViTinh([]);
+          setListPhieuYeuCauBaoGia([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListSanPham = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_SanPham?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newData = res.data.map((dt) => {
+            return {
+              ...dt,
+              sanPham: `${dt.maSanPham} - ${dt.tenSanPham}`,
+            };
+          });
+          setListSanPham(newData);
+        } else {
+          setListSanPham([]);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
+
+  const getListVatLieu = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_VatLieu?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res && res.data) {
+          const newData = res.data.map((dt) => {
+            return {
+              ...dt,
+              vatLieu: `${dt.maVatLieu} - ${dt.tenVatLieu}`,
+            };
+          });
+          setListVatLieu(newData);
+        } else {
+          setListVatLieu([]);
         }
       })
       .catch((error) => console.error(error));
@@ -132,8 +193,12 @@ const BaoGiaForm = ({ history, match, permission }) => {
     })
       .then((res) => {
         if (res && res.data) {
+          if (res.data.hinhAnh) {
+            convertToBase64(res.data.hinhAnh);
+          }
+
           setFieldsValue({
-            formbaogia: res.data,
+            formphieubaogia: res.data,
           });
         }
       })
@@ -259,27 +324,27 @@ const BaoGiaForm = ({ history, match, permission }) => {
   };
 
   const onFinish = (values) => {
-    saveData(values.formbaogia);
+    saveData(values.formphieubaogia);
   };
 
   const saveAndClose = () => {
     validateFields()
       .then((values) => {
-        saveData(values.formbaogia, true);
+        saveData(values.formphieubaogia, true);
       })
       .catch((error) => {
         console.log("error", error);
       });
   };
 
-  const saveData = (formbaogia, saveQuit = false) => {
+  const saveData = (formphieubaogia, saveQuit = false) => {
     if (type === "new") {
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
             `tsec_qtsx_PhieuYeuCauBaoGia`,
             "POST",
-            formbaogia,
+            formphieubaogia,
             "ADD",
             "",
             resolve,
@@ -302,7 +367,7 @@ const BaoGiaForm = ({ history, match, permission }) => {
         .catch((error) => console.error(error));
     }
     if (type === "edit") {
-      const newData = { ...formbaogia, id: id };
+      const newData = { ...formphieubaogia, id: id };
       new Promise((resolve, reject) => {
         dispatch(
           fetchStart(
@@ -325,6 +390,54 @@ const BaoGiaForm = ({ history, match, permission }) => {
         })
         .catch((error) => console.error(error));
     }
+  };
+
+  const uploadButton = (
+    <button
+      style={{
+        border: 0,
+        background: "none",
+      }}
+      type="button"
+    >
+      <PlusOutlined />
+      <div
+        style={{
+          marginTop: 8,
+        }}
+      >
+        Upload hình ảnh
+      </div>
+    </button>
+  );
+
+  const convertToBase64 = async (imageUrl) => {
+    try {
+      const response = await fetch(BASE_URL_API + imageUrl);
+      const blob = await response.blob();
+      const reader = new FileReader();
+
+      reader.onloadend = () => {
+        const base64Data = reader.result;
+        setImageUrl(base64Data);
+      };
+
+      reader.readAsDataURL(blob);
+    } catch (error) {
+      console.error("Lỗi chuyển dữ liệu sang base64:", error);
+    }
+  };
+
+  const beforeUpload = (file) => {
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
+    if (!isJpgOrPng) {
+      message.error("Vui lòng tải file ảnh!");
+    } else {
+      const reader = new FileReader();
+      reader.onload = (e) => setImageUrl(e.target.result);
+      reader.readAsDataURL(file);
+    }
+    return false;
   };
 
   const disabledDate = (current) => {
@@ -360,7 +473,7 @@ const BaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Tên phiếu báo giá"
-                  name={["formbaogia", "tenPhieuBaoGia"]}
+                  name={["formphieubaogia", "tenPhieuBaoGia"]}
                   rules={[
                     {
                       type: "string",
@@ -391,7 +504,7 @@ const BaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Phiếu yêu cầu báo giá"
-                  name={["formbaogia", "qtsx_tsec_PhieuYeuCauBaoGia_Id"]}
+                  name={["formphieubaogia", "tsec_qtsx_PhieuYeuCauBaoGia_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -401,53 +514,9 @@ const BaoGiaForm = ({ history, match, permission }) => {
                 >
                   <Select
                     className="heading-select slt-search th-select-heading"
-                    // data={ListPhieuYeuCauBaoGia ? ListPhieuYeuCauBaoGia : []}
-                    data={[
-                      {
-                        id: "1",
-                        tenPhieuYeuCauBaoGia: "tenPhieuYeuCauBaoGiaA",
-                      },
-                    ]}
+                    data={ListPhieuYeuCauBaoGia ? ListPhieuYeuCauBaoGia : []}
                     placeholder="Chọn phiếu yêu cầu báo giá"
-                    optionsvalue={["id", "tenDongSanPham"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp={"name"}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Dòng sản phẩm"
-                  name={["formbaogia", "qtsx_tsec_DongSanPham_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    // data={ListDongSanPham ? ListDongSanPham : []}
-                    data={[
-                      {
-                        id: "1",
-                        tenDongSanPham: "tenDongSanPhamA",
-                      },
-                    ]}
-                    placeholder="Chọn dòng sản phẩm"
-                    optionsvalue={["id", "tenDongSanPham"]}
+                    optionsvalue={["id", "phieuYeuCauBaoGia"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp={"name"}
@@ -467,7 +536,7 @@ const BaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Sản phẩm"
-                  name={["formbaogia", "qtsx_tsec_SanPham_Id"]}
+                  name={["formphieubaogia", "qtsx_tsec_SanPham_Id"]}
                   rules={[
                     {
                       type: "string",
@@ -477,15 +546,41 @@ const BaoGiaForm = ({ history, match, permission }) => {
                 >
                   <Select
                     className="heading-select slt-search th-select-heading"
-                    // data={ListSanPham ? ListSanPham : []}
-                    data={[
-                      {
-                        id: "1",
-                        tenSanPham: "tenSanPhamA",
-                      },
-                    ]}
+                    data={ListSanPham ? ListSanPham : []}
                     placeholder="Chọn sản phẩm"
-                    optionsvalue={["id", "tenSanPham"]}
+                    optionsvalue={["id", "sanPham"]}
+                    style={{ width: "100%" }}
+                    showSearch
+                    optionFilterProp={"name"}
+                  />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={18}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{
+                  padding: width >= 1600 ? "0px 35px" : "0px",
+                }}
+              >
+                <FormItem
+                  label="Vật liệu"
+                  name={["formphieubaogia", "tsec_qtsx_VatLieu_Id"]}
+                  rules={[
+                    {
+                      type: "string",
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Select
+                    className="heading-select slt-search th-select-heading"
+                    data={ListVatLieu ? ListVatLieu : []}
+                    placeholder="Chọn vật liệu"
+                    optionsvalue={["id", "vatLieu"]}
                     style={{ width: "100%" }}
                     showSearch
                     optionFilterProp={"name"}
@@ -505,7 +600,7 @@ const BaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Số lượng"
-                  name={["formbaogia", "soLuong"]}
+                  name={["formphieubaogia", "soLuong"]}
                   rules={[
                     {
                       required: true,
@@ -531,116 +626,8 @@ const BaoGiaForm = ({ history, match, permission }) => {
                 }}
               >
                 <FormItem
-                  label="Đơn vị tính"
-                  name={["formbaogia", "qtsx_tsec_DonViTinh_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    data={ListDonViTinh ? ListDonViTinh : []}
-                    placeholder="Chọn đơn vị tính"
-                    optionsvalue={["id", "tenDonViTinh"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp={"name"}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Vật liệu"
-                  name={["formbaogia", "qtsx_tsec_VatLieu_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    // data={ListVatLieu ? ListVatLieu : []}
-                    data={[
-                      {
-                        id: "1",
-                        tenVatLieu: "tenVatLieuA",
-                      },
-                    ]}
-                    placeholder="Chọn vật liệu"
-                    optionsvalue={["id", "tenVatLieu"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp={"name"}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Khách hàng"
-                  name={["formbaogia", "qtsx_tsec_KhachHang_Id"]}
-                  rules={[
-                    {
-                      type: "string",
-                      required: true,
-                    },
-                  ]}
-                >
-                  <Select
-                    className="heading-select slt-search th-select-heading"
-                    // data={ListKhachHang ? ListKhachHang : []}
-                    data={[
-                      {
-                        id: "1",
-                        tenKhachHang: "tenKhachHangA",
-                      },
-                    ]}
-                    placeholder="Chọn đơn hàng"
-                    optionsvalue={["id", "tenKhachHang"]}
-                    style={{ width: "100%" }}
-                    showSearch
-                    optionFilterProp={"name"}
-                  />
-                </FormItem>
-              </Col>
-              <Col
-                xxl={12}
-                xl={18}
-                lg={24}
-                md={24}
-                sm={24}
-                xs={24}
-                style={{
-                  padding: width >= 1600 ? "0px 35px" : "0px",
-                }}
-              >
-                <FormItem
-                  label="Thời gian lập phiếu"
-                  name={["formbaogia", "thoiGianLapPhieu"]}
+                  label="Thời gian lập"
+                  name={["formphieubaogia", "thoiGianLap"]}
                   rules={[
                     {
                       type: "string",
@@ -669,7 +656,7 @@ const BaoGiaForm = ({ history, match, permission }) => {
               >
                 <FormItem
                   label="Ghi chú"
-                  name={["formbaogia", "moTa"]}
+                  name={["formphieubaogia", "moTa"]}
                   rules={[
                     {
                       type: "string",
@@ -677,6 +664,45 @@ const BaoGiaForm = ({ history, match, permission }) => {
                   ]}
                 >
                   <Input className="input-item" placeholder="Nhập ghi chú" />
+                </FormItem>
+              </Col>
+              <Col
+                xxl={12}
+                xl={18}
+                lg={24}
+                md={24}
+                sm={24}
+                xs={24}
+                style={{
+                  padding: width >= 1600 ? "0px 35px" : "0px",
+                }}
+              >
+                <FormItem
+                  label="Hình ảnh"
+                  name={["formphieubaogia", "hinhAnh"]}
+                  rules={[
+                    {
+                      required: true,
+                    },
+                  ]}
+                >
+                  <Upload
+                    listType="picture-card"
+                    accept="image/*"
+                    className="avatar-uploader"
+                    showUploadList={false}
+                    beforeUpload={beforeUpload}
+                  >
+                    {ImageUrl ? (
+                      <img
+                        style={{ maxWidth: "100%", maxHeight: "100%" }}
+                        src={ImageUrl}
+                        alt="Hình ảnh đại diện chuyên đề"
+                      />
+                    ) : (
+                      uploadButton
+                    )}
+                  </Upload>
                 </FormItem>
               </Col>
             </Row>

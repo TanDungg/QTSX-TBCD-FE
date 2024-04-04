@@ -1,4 +1,9 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  ImportOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import { Button, Card, Col, Divider, Image, Row } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
@@ -20,6 +25,7 @@ import {
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
 import { BASE_URL_API } from "src/constants/Config";
+import ImportSanPham from "./ImportSanPham";
 
 const { EditableRow, EditableCell } = EditableTableRow;
 
@@ -31,6 +37,7 @@ function SanPham({ permission, history, match }) {
   const [LoaiSanPham, setLoaiSanPham] = useState([]);
   const [keyword, setKeyword] = useState("");
   const [page, setPage] = useState(1);
+  const [ActiveImportSanPham, setActiveImportSanPham] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
@@ -307,6 +314,15 @@ function SanPham({ permission, history, match }) {
     return (
       <>
         <Button
+          icon={<ImportOutlined />}
+          className="th-margin-bottom-0 btn-margin-bottom-0"
+          type="primary"
+          onClick={() => setActiveImportSanPham(true)}
+          disabled={permission && !permission.add}
+        >
+          Import sản phẩm
+        </Button>
+        <Button
           icon={<PlusOutlined />}
           className="th-margin-bottom-0 btn-margin-bottom-0"
           type="primary"
@@ -327,6 +343,10 @@ function SanPham({ permission, history, match }) {
   const handleClearLoaiSanPham = () => {
     setLoaiSanPham(null);
     getListData(null, keyword, page);
+  };
+
+  const handleRefesh = () => {
+    getListData(LoaiSanPham, keyword, page);
   };
 
   return (
@@ -408,6 +428,11 @@ function SanPham({ permission, history, match }) {
           loading={loading}
         />
       </Card>
+      <ImportSanPham
+        openModal={ActiveImportSanPham}
+        openModalFS={setActiveImportSanPham}
+        refesh={handleRefesh}
+      />
     </div>
   );
 }

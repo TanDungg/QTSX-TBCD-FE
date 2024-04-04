@@ -1,9 +1,9 @@
-import { Button, Card, Col, Modal as AntModal, Row, Tag, Checkbox } from "antd";
+import { Button, Card, Col, Modal as AntModal, Row, Tag, Form } from "antd";
 import isEmpty from "lodash/isEmpty";
 import map from "lodash/map";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchReset } from "src/appRedux/actions/Common";
+import { fetchReset, fetchStart } from "src/appRedux/actions/Common";
 import { removeDuplicates, reDataForTable } from "src/util/Common";
 import {
   EditableTableRow,
@@ -13,123 +13,125 @@ import {
   Toolbar,
 } from "src/components/Common";
 import ContainerHeader from "src/components/ContainerHeader";
-// import { convertObjectToUrlParams } from "src/util/Common";
+import { convertObjectToUrlParams } from "src/util/Common";
 import { CheckCircleOutlined, CloseCircleOutlined } from "@ant-design/icons";
 import ModalTuChoi from "./ModalTuChoi";
 import { BASE_URL_API } from "src/constants/Config";
 
 const { EditableRow, EditableCell } = EditableTableRow;
-const DataTest = {
-  datalist: [
-    {
-      id: "123",
-      maPhieuYeuCauBaoGia: "maPhieuYeuCauBaoGiaA",
-      tenPhieuYeuCauBaoGia: "tenPhieuYeuCauBaoGiaA",
-      tenKhachHang: "tenKhachHangA",
-      tenDongSanPham: "tenDongSanPhamA",
-      soLuongDatHang: "10",
-      tenDonViTinh: "Cái",
-      noiDungThucHien: "noiDungThucHienA",
-      thoiGianHoanThanh: "26/03/2024",
-      tenNguoiLap: "Phạm Tấn Dũng",
-      moTa: "moTaA",
-      trangThai: "Chưa duyệt",
-    },
-  ],
-  totalRow: 1,
-  pageSize: 20,
-};
 
-const NoiDungYeuCau = [
-  {
-    noiDungYeuCau: "noiDungYeuCau1",
-    trangThai: true,
-    tenLoaiThongTin: "tenLoaiThongTin1",
-    moTa: "ghiChu",
-  },
-  {
-    noiDungYeuCau: "noiDungYeuCau2",
-    trangThai: false,
-    tenLoaiThongTin: "tenLoaiThongTin2",
-    moTa: "ghiChu",
-  },
-];
-
-function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
+function DuyetPhieuYeuCauBaoGia({ history, permission }) {
   const dispatch = useDispatch();
   const { loading, width } = useSelector(({ common }) => common).toJS();
   const [Data, setData] = useState([]);
   const [keyword, setKeyword] = useState("");
-  // const [page, setPage] = useState(1);
+  const [ListKhachHang, setListKhachHang] = useState([]);
+  const [KhachHang, setKhachHang] = useState(null);
   const [SelectedPhieuYeuCau, setSelectedPhieuYeuCau] = useState([]);
   const [SelectedKeyPhieus, setSelectedKeyPhieus] = useState([]);
-  const { totalRow, pageSize } = Data;
   const [DataChiTietPhieu, setDataChiTietPhieu] = useState(null);
   const [ActiveModalChiTietPhieu, setActiveModalChiTietPhieu] = useState(false);
   const [ActiveModalTuChoi, setActiveModalTuChoi] = useState(false);
 
   useEffect(() => {
     if (permission && permission.view) {
-      setData(DataTest);
-      setDataChiTietPhieu({
-        ...DataTest.datalist[0],
-        list_ChiTiets: NoiDungYeuCau,
-      });
-      // getListData(keyword, page);
+      getListKhachHang();
+      getListData(KhachHang, keyword);
     } else if ((permission && !permission.view) || permission === undefined) {
       history.push("/home");
     }
     return () => dispatch(fetchReset());
   }, []);
 
-  // const getListData = (keyword, page) => {
-  //   let param = convertObjectToUrlParams({ keyword, page });
-  //   new Promise((resolve, reject) => {
-  //     dispatch(
-  //       fetchStart(
-  //         `tsec_qtsx_PhieuYeuCauBaoGia?${param}`,
-  //         "GET",
-  //         null,
-  //         "DETAIL",
-  //         "",
-  //         resolve,
-  //         reject
-  //       )
-  //     );
-  //   }).then((res) => {
-  //     if (res && res.data) {
-  //       setData(res.data);
-  //     } else {
-  //       setData([]);
-  //     }
-  //   });
-  // };
+  const getListData = (tsec_qtsx_KhachHang_Id, keyword) => {
+    let param = convertObjectToUrlParams({
+      tsec_qtsx_KhachHang_Id,
+      keyword,
+      page: -1,
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_PhieuYeuCauBaoGia/chua-kiem-tra-hoac-duyet?${param}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setData(res.data);
+      } else {
+        setData([]);
+      }
+    });
+  };
 
-  const handleTableChange = (pagination) => {
-    // setPage(pagination);
-    // getListData(keyword, pagination);
+  const getListKhachHang = () => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_KhachHang?page=-1`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        setListKhachHang(res.data);
+      } else {
+        setListKhachHang([]);
+      }
+    });
   };
 
   const onSearchPhieuYeuCauBaoGia = () => {
-    // getListData(keyword, page);
+    getListData(KhachHang, keyword);
   };
 
   const onChangeKeyword = (val) => {
     setKeyword(val.target.value);
     if (isEmpty(val.target.value)) {
-      // getListData(val.target.value, page);
+      getListData(KhachHang, val.target.value);
     }
   };
 
-  const handleClearSearch = () => {
-    // getListData(null, 1);
+  const handleXemChiTiet = (item) => {
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_PhieuYeuCauBaoGia/${item.id}`,
+          "GET",
+          null,
+          "DETAIL",
+          "",
+          resolve,
+          reject
+        )
+      );
+    }).then((res) => {
+      if (res && res.data) {
+        const newData = {
+          ...res.data,
+          list_ChiTiets:
+            res.data.list_ChiTiets && JSON.parse(res.data.list_ChiTiets),
+        };
+        setDataChiTietPhieu(newData);
+        setActiveModalChiTietPhieu(true);
+      } else {
+        setDataChiTietPhieu(null);
+      }
+    });
   };
 
-  const hanldeXemChiTiet = (item) => {
-    setActiveModalChiTietPhieu(true);
-  };
-
-  let dataList = reDataForTable(Data.datalist);
+  let dataList = reDataForTable(Data);
 
   let colValues = [
     {
@@ -162,7 +164,7 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
           <div
             style={{ color: "#0469b9", cursor: "pointer" }}
             onClick={() => {
-              hanldeXemChiTiet(record);
+              handleXemChiTiet(record);
             }}
           >
             {value}
@@ -208,21 +210,21 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
       filterSearch: true,
     },
     {
-      title: "Dòng sản phẩm",
-      dataIndex: "tenDongSanPham",
-      key: "tenDongSanPham",
+      title: "Loại sản phẩm",
+      dataIndex: "tenLoaiSanPham",
+      key: "tenLoaiSanPham",
       align: "center",
       width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenDongSanPham,
-            value: d.tenDongSanPham,
+            text: d.tenLoaiSanPham,
+            value: d.tenLoaiSanPham,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.tenDongSanPham && record.tenDongSanPham.includes(value),
+        record.tenLoaiSanPham && record.tenLoaiSanPham.includes(value),
       filterSearch: true,
     },
     {
@@ -316,21 +318,21 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
       filterSearch: true,
     },
     {
-      title: "Người lập phiếu",
-      dataIndex: "tenNguoiLap",
-      key: "tenNguoiLap",
+      title: "Người tạo phiếu",
+      dataIndex: "tenNguoiTao",
+      key: "tenNguoiTao",
       align: "center",
       width: 150,
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.tenNguoiLap,
-            value: d.tenNguoiLap,
+            text: d.tenNguoiTao,
+            value: d.tenNguoiTao,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.tenNguoiLap && record.tenNguoiLap.includes(value),
+        record.tenNguoiTao && record.tenNguoiTao.includes(value),
       filterSearch: true,
     },
     {
@@ -351,29 +353,29 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
       filterSearch: true,
     },
     {
-      title: "Trạng thái",
-      dataIndex: "trangThai",
-      key: "trangThai",
+      title: "Tình trạng",
+      dataIndex: "tinhTrang",
+      key: "tinhTrang",
       align: "center",
       width: 150,
       fixed: width >= 1600 && "right",
       filters: removeDuplicates(
         map(dataList, (d) => {
           return {
-            text: d.trangThai,
-            value: d.trangThai,
+            text: d.tinhTrang,
+            value: d.tinhTrang,
           };
         })
       ),
       onFilter: (value, record) =>
-        record.trangThai && record.trangThai.includes(value),
+        record.tinhTrang && record.tinhTrang.includes(value),
       filterSearch: true,
       render: (value, record) => (
         <div title={record.lyDoTuChoi && `Lý do từ chối: ${record.lyDoTuChoi}`}>
           {value && (
             <Tag
               color={
-                value === "Chưa duyệt"
+                value === "Chưa kiểm tra"
                   ? "orange"
                   : value === "Đã duyệt"
                   ? "green"
@@ -392,36 +394,27 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
     },
   ];
 
-  let columnNoiDung = [
+  let columnChiTiet = [
     {
-      title: "STT",
-      dataIndex: "key",
-      key: "key",
-      width: 50,
-      align: "center",
-    },
-    {
-      title: "Nội dung yêu cầu",
-      dataIndex: "noiDungYeuCau",
-      key: "noiDungYeuCau",
-      align: "left",
-      width: 200,
-    },
-    {
-      title: "Trạng thái",
-      dataIndex: "trangThai",
-      key: "trangThai",
-      align: "center",
+      title: "Thứ tự",
+      dataIndex: "thuTu",
+      key: "thuTu",
       width: 100,
-      render: (value, record) => {
-        return (
-          <Checkbox
-            checked={value}
-            // onChange={() => handleThayDoiDapAnDung(value, record)}
-            disabled
-          />
-        );
-      },
+      align: "center",
+    },
+    {
+      title: "Mã công việc",
+      dataIndex: "maCongViec",
+      key: "maCongViec",
+      align: "center",
+      width: 150,
+    },
+    {
+      title: "Nội dung công việc",
+      dataIndex: "noiDungCongViec",
+      key: "noiDungCongViec",
+      align: "left",
+      width: 250,
     },
     {
       title: "Loại thông tin",
@@ -463,30 +456,30 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
   });
 
   const handleXacNhan = () => {
-    // const newData = SelectedPhieuYeuCau.map((chuyende) => {
-    //   return chuyende.id;
-    // });
-    // new Promise((resolve, reject) => {
-    //   dispatch(
-    //     fetchStart(
-    //       `vptq_lms_PhieuDangKyDaoTao/kiem-tra-hoac-duyet`,
-    //       "PUT",
-    //       newData,
-    //       "XACNHAN",
-    //       "",
-    //       resolve,
-    //       reject
-    //     )
-    //   );
-    // })
-    //   .then((res) => {
-    //     if (res.status !== 409) {
-    //       setSelectedPhieuYeuCau([]);
-    //       setSelectedKeyPhieus([]);
-    //       // getListData();
-    //     }
-    //   })
-    //   .catch((error) => console.error(error));
+    const newData = SelectedPhieuYeuCau.map((phieu) => {
+      return phieu.id;
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_PhieuYeuCauBaoGia/kiem-tra-hoac-duyet`,
+          "PUT",
+          newData,
+          "XACNHAN",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        if (res.status !== 409) {
+          setSelectedPhieuYeuCau([]);
+          setSelectedKeyPhieus([]);
+          getListData(KhachHang, keyword);
+        }
+      })
+      .catch((error) => console.error(error));
   };
 
   const prop = {
@@ -502,28 +495,28 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
   };
 
   const handleTuChoi = (data) => {
-    //   const newData = SelectedPhieuYeuCau.map((chuyende) => {
-    //     return chuyende.id;
-    //   });
-    //   new Promise((resolve, reject) => {
-    //     dispatch(
-    //       fetchStart(
-    //         `vptq_lms_PhieuDangKyDaoTao/kiem-tra-hoac-duyet?lyDoTuChoi=${data}`,
-    //         "PUT",
-    //         newData,
-    //         "TUCHOI",
-    //         "",
-    //         resolve,
-    //         reject
-    //       )
-    //     );
-    //   })
-    //     .then((res) => {
-    //       setSelectedPhieuYeuCau([]);
-    //       setSelectedKeyPhieus([]);
-    //       // getListData();
-    //     })
-    //     .catch((error) => console.error(error));
+    const newData = SelectedPhieuYeuCau.map((phieu) => {
+      return phieu.id;
+    });
+    new Promise((resolve, reject) => {
+      dispatch(
+        fetchStart(
+          `tsec_qtsx_PhieuYeuCauBaoGia/kiem-tra-hoac-duyet?lyDoTuChoi=${data}`,
+          "PUT",
+          newData,
+          "TUCHOI",
+          "",
+          resolve,
+          reject
+        )
+      );
+    })
+      .then((res) => {
+        setSelectedPhieuYeuCau([]);
+        setSelectedKeyPhieus([]);
+        getListData(KhachHang, keyword);
+      })
+      .catch((error) => console.error(error));
   };
 
   const addButtonRender = () => {
@@ -552,13 +545,13 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
   };
 
   const handleOnSelectKhachHang = (value) => {
-    // setDonVi(value);
-    // getListData(value, TuNgay, DenNgay, keyword, page);
+    setKhachHang(value);
+    getListData(value, keyword);
   };
 
   const handleClearKhachHang = () => {
-    // setDonVi(null);
-    // getListData(null, TuNgay, DenNgay, keyword, page);
+    setKhachHang(null);
+    getListData(null, keyword);
   };
 
   const rowSelection = {
@@ -593,17 +586,11 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
             <span>Khách hàng:</span>
             <Select
               className="heading-select slt-search th-select-heading"
-              // data={ListKhachHang ? ListKhachHang : []}
-              data={[
-                {
-                  id: "1",
-                  tenKhachHang: "TenKhachHangA",
-                },
-              ]}
+              data={ListKhachHang ? ListKhachHang : []}
               placeholder="Chọn khách hàng"
               optionsvalue={["id", "tenKhachHang"]}
               style={{ width: "100%" }}
-              // value={KhachHang}
+              value={KhachHang}
               showSearch
               optionFilterProp={"name"}
               onSelect={handleOnSelectKhachHang}
@@ -632,7 +619,6 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
                 onSearch: onSearchPhieuYeuCauBaoGia,
                 placeholder: "Nhập từ khóa",
                 allowClear: true,
-                onClear: { handleClearSearch },
               }}
             />
           </Col>
@@ -648,13 +634,7 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
           dataSource={dataList}
           size="small"
           rowClassName={"editable-row"}
-          pagination={{
-            onChange: handleTableChange,
-            pageSize,
-            total: totalRow,
-            showSizeChanger: false,
-            showQuickJumper: true,
-          }}
+          pagination={false}
           loading={loading}
           rowSelection={{
             type: "checkbox",
@@ -675,342 +655,343 @@ function DuyetPhieuYeuCauBaoGia({ history, permission, match }) {
         }}
         footer={null}
       >
-        <Card className="th-card-margin-bottom">
-          <Row gutter={[0, 10]}>
-            <Col span={24} style={{ textAlign: "center" }}>
-              <span
-                style={{
-                  color: "#0469b9",
-                  fontSize: "18px",
-                  textDecoration: "underline",
-                  fontWeight: "bold",
-                }}
-              >
+        <Card className="th-card-margin-bottom th-card-reset-margin">
+          <Form>
+            <fieldset className="form-fieldset-custom">
+              <legend className="form-legend-custom">
                 Thông tin triển khai
-              </span>
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Tên phiếu yêu cầu:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.tenPhieuYeuCauBaoGia}</span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Nội dung thực hiện:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.noiDungThucHien}</span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Người yêu cầu:
-              </span>
-              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenNguoiLap}</span>}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Phòng ban thực hiện:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.tenPhongBanThucHien}</span>
-              )}
-            </Col>
-          </Row>
-        </Card>
-        <Card className="th-card-margin-bottom">
-          <Row gutter={[0, 10]}>
-            <Col span={24} style={{ textAlign: "center" }}>
-              <span
-                style={{
-                  color: "#0469b9",
-                  fontSize: "18px",
-                  textDecoration: "underline",
-                  fontWeight: "bold",
-                }}
-              >
+              </legend>
+              <Row gutter={[0, 10]}>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Tên phiếu yêu cầu:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenPhieuYeuCauBaoGia}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Nội dung thực hiện:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.noiDungThucHien}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Người yêu cầu:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenNguoiTao}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Phòng ban thực hiện:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenPhongBanNguoiTao}</span>
+                  )}
+                </Col>
+              </Row>
+            </fieldset>
+          </Form>
+          <Form>
+            <fieldset className="form-fieldset-custom">
+              <legend className="form-legend-custom">
                 Thông tin đơn hàng báo giá
-              </span>
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Khách hàng:
-              </span>
-              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenKhachHang}</span>}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Đơn hàng:
-              </span>
-              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenDonHang}</span>}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Người gửi:
-              </span>
-              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenNguoiGui}</span>}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Phòng ban:
-              </span>
-              {DataChiTietPhieu && <span>{DataChiTietPhieu.tenPhongBan}</span>}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Thời gian hoàn thành:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.thoiGianHoanThanh}</span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Số lượng đặt hàng:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.soLuongDatHang}</span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Dòng sản phẩm:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.tenDongSanPham}</span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Điều kiện giao hàng:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.dieuKienGiaoHang}</span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Ghi chú:
-              </span>
-              {DataChiTietPhieu && <span>{DataChiTietPhieu.moTa}</span>}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Tài liệu báo giá:
-              </span>
-              {DataChiTietPhieu && (
-                <span>
-                  {DataChiTietPhieu.fileTaiLieuBaoGia ? (
-                    <a
-                      target="_blank"
-                      href={BASE_URL_API + DataChiTietPhieu.fileTaiLieuBaoGia}
-                      rel="noopener noreferrer"
+              </legend>
+              <Row gutter={[0, 10]}>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Khách hàng:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenKhachHang}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Đơn hàng:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenDonHang}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Người gửi:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenNguoiGui}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Phòng ban:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenPhongBan}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Thời gian hoàn thành:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.thoiGianHoanThanh}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Số lượng đặt hàng:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.soLuongDatHang}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Loại sản phẩm:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenLoaiSanPham}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Điều kiện giao hàng:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenDieuKienGiaoHang}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Ghi chú:
+                  </span>
+                  {DataChiTietPhieu && <span>{DataChiTietPhieu.moTa}</span>}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Tài liệu báo giá:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span
+                      style={{
+                        whiteSpace: "break-spaces",
+                        wordBreak: "break-all",
+                      }}
                     >
-                      {DataChiTietPhieu.fileTaiLieuBaoGia.split("/")[5]}
-                    </a>
-                  ) : null}
-                </span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Tóm tắt dự án:
-              </span>
-              {DataChiTietPhieu && (
-                <span>
-                  {DataChiTietPhieu.fileTomTatDuAn ? (
-                    <a
-                      target="_blank"
-                      href={BASE_URL_API + DataChiTietPhieu.fileTomTatDuAn}
-                      rel="noopener noreferrer"
+                      {DataChiTietPhieu.fileTaiLieuBaoGia ? (
+                        <a
+                          target="_blank"
+                          href={
+                            BASE_URL_API + DataChiTietPhieu.fileTaiLieuBaoGia
+                          }
+                          rel="noopener noreferrer"
+                        >
+                          {DataChiTietPhieu.fileTaiLieuBaoGia.split("/")[5]}
+                        </a>
+                      ) : null}
+                    </span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Tóm tắt dự án:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span
+                      style={{
+                        whiteSpace: "break-spaces",
+                        wordBreak: "break-all",
+                      }}
                     >
-                      {DataChiTietPhieu.fileTomTatDuAn.split("/")[5]}
-                    </a>
-                  ) : null}
-                </span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Người kiểm tra:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.tenNguoiKiemTra}</span>
-              )}
-            </Col>
-            <Col
-              xxl={8}
-              xl={8}
-              lg={12}
-              md={12}
-              sm={24}
-              xs={24}
-              className="title-span"
-            >
-              <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
-                Người duyệt:
-              </span>
-              {DataChiTietPhieu && (
-                <span>{DataChiTietPhieu.tenNguoiDuyet}</span>
-              )}
-            </Col>
-          </Row>
-        </Card>
-        <Card className="th-card-margin-bottom">
-          <Col span={24} style={{ textAlign: "center", marginBottom: "15px" }}>
-            <span
-              style={{
-                color: "#0469b9",
-                fontSize: "18px",
-                textDecoration: "underline",
-                fontWeight: "bold",
-              }}
-            >
-              Danh sách nội dung yêu cầu
-            </span>
-          </Col>
-          <Table
-            bordered
-            scroll={{ x: 1000, y: "35vh" }}
-            columns={columnNoiDung}
-            className="gx-table-responsive th-table"
-            dataSource={reDataForTable(
-              DataChiTietPhieu && DataChiTietPhieu.list_ChiTiets
-            )}
-            size="small"
-            pagination={false}
-          />
+                      {DataChiTietPhieu.fileTomTatDuAn ? (
+                        <a
+                          target="_blank"
+                          href={BASE_URL_API + DataChiTietPhieu.fileTomTatDuAn}
+                          rel="noopener noreferrer"
+                        >
+                          {DataChiTietPhieu.fileTomTatDuAn.split("/")[5]}
+                        </a>
+                      ) : null}
+                    </span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Người kiểm tra:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenNguoiKiemTra}</span>
+                  )}
+                </Col>
+                <Col
+                  xxl={8}
+                  xl={8}
+                  lg={12}
+                  md={24}
+                  sm={24}
+                  xs={24}
+                  className="title-span"
+                >
+                  <span style={{ whiteSpace: "nowrap", fontWeight: "bold" }}>
+                    Người duyệt:
+                  </span>
+                  {DataChiTietPhieu && (
+                    <span>{DataChiTietPhieu.tenNguoiDuyet}</span>
+                  )}
+                </Col>
+              </Row>
+            </fieldset>
+          </Form>
+          <Form>
+            <fieldset className="form-fieldset-custom">
+              <legend className="form-legend-custom">
+                Danh sách nội dung yêu cầu
+              </legend>
+              <Table
+                bordered
+                scroll={{ x: 800, y: "35vh" }}
+                columns={columnChiTiet}
+                className="gx-table-responsive th-table"
+                dataSource={DataChiTietPhieu && DataChiTietPhieu.list_ChiTiets}
+                size="small"
+                pagination={false}
+              />
+            </fieldset>
+          </Form>
         </Card>
       </AntModal>
       <ModalTuChoi
